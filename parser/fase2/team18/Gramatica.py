@@ -1509,7 +1509,8 @@ def p_funcionalidad_funcion(t):
      '''funcionalidad : seleccion_funcion
 	                 | sentencia_If
                       | sentencia_case
-                      | operacion_expresion'''
+                      | operacion_expresion
+                      | sentencias'''
      t[0] = t[1]
 
 def p_op_funcionalidad_funcion(t):

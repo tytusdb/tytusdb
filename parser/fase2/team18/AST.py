@@ -3894,8 +3894,198 @@ def Eliminar_Funcion(instr,ts):
             agregarMensjae('error', '42883:Funcion no registrada','42883')
 
 
+#INICIO EJECUCION PROCEDIMIENTOS SSSSSSSSSSSSSS------------------
+#SI SIRVE
+#EJECUTA EL CONTENIDO DEL PROCEDIMIENTO
+def EjecucionProc_Contenido(valores,funcion,contenido,variables,ts):
+    result=None
+    lvaloriables=[]
+    if len(variables)==0:
+        cont=0
+        for val in funcion.parametros:
+            val.valor=valores[cont]
+            lvaloriables.append(val)
+            cont+=1
+        for val in funcion.contenido.declaraciones:
+            lvaloriables.append(val)
+    else:
+        lvaloriables=variables
+    for i in contenido:
+        print("INSTACINA ANALIZA::::",i)
+        if isinstance(i,Sentencia_IF):
+            lvalor_id=[]
+            for val in lvaloriables:
+                if val.valor != None:
+                    lvalor_id.append([val.nombre,val.valor])
+            condicion_if=Resuelve_Exp_ID(lvalor_id,i.condicion,'')
+            if condicion_if != None and condicion_if !=False:
+                EjecucionProc_Contenido(valores,funcion,i.sentencias,lvaloriables,ts)
+            elif i.elsif_else[0] != False:
+                for cond_else in i.elsif_else:
+                    if cond_else.tipo == "elsif":
+                        condicion_else=Resuelve_Exp_ID(lvalor_id,cond_else.condicion,'')
+                        if condicion_else != None and condicion_else !=False:
+                            EjecucionProc_Contenido(valores,funcion,cond_else.sentencias,lvaloriables,ts)
+                    else:
+                        EjecucionProc_Contenido(valores,funcion,cond_else.sentencias,lvaloriables,ts)
+        elif isinstance(i,Sentencia_Case):
+            ''
+            
+            
+            
+            if (i.busqueda)!=False and (i.busqueda)!=None:
+                #Tiene Exp case
+                lvalor_id=[]
+                for val in lvaloriables:
+                    if val.valor != None:
+                        lvalor_id.append([val.nombre,val.valor])
+                #resuelve exp_case
+                condicion_case=Resuelve_Exp_ID(lvalor_id,i.busqueda,'')
 
+                #valua resultado de exp_case
+                if condicion_case != None and condicion_case !=False:
+                    #Resulve sentecias when Else
+                    for senT in i.sentencia_when:
+                
+                        if senT.condicion!=None and condicion_case !=False:
+                            #Resuelve WHEN
+                            condicion_when=Resuelve_Exp_ID(lvalor_id,senT.condicion,'')
+                            #valua resultado de exp_when
+                            if condicion_when != None and condicion_when !=False:
+                                if condicion_case==condicion_when:
+                                    #ejecuta sentencias
+                                    EjecucionProc_Contenido(valores,funcion,senT.sentencias,lvaloriables,ts) 
+                                    break
+                            else:
+                                #Error al resolver exp_when
+                                print("Error al resolver exp en When")
+                                msg="Error al resolver exp en When"
+                                agregarMensjae('error',msg,'')
+                        else:
+                            #Resuelve ELSE
+                            EjecucionProc_Contenido(valores,funcion,senT.sentencias,lvaloriables,ts) 
+                
+                else:
+                    #Error al resolver exp_case
+                    print("Error al resolver exp en Case")
+                    msg="Error al resolver exp en Case"
+                    agregarMensjae('error',msg,'')
+
+
+            else:
+                #Case sin exp
+                #Resulve sentecias when Else
+                for senT in i.sentencia_when:
+                    if senT.condicion!=None and senT.condicion !=False:
+                        lvalor_id=[]
+                        for val in lvaloriables:
+                            if val.valor != None:
+                                lvalor_id.append([val.nombre,val.valor])
+                        #Resuelve WHEN
+                        condicion_when=Resuelve_Exp_ID(lvalor_id,senT.condicion,'')
+                        #valua resultado de exp_when
+                        #Nota: si condicion_when error, sigue
+                        if condicion_when == True:
+                            #ejecuta sentencias
+                            EjecucionProc_Contenido(valores,funcion,senT.sentencias,lvaloriables,ts) 
+                            break
+                    else:
+                        #Resuelve ELSE
+                        EjecucionProc_Contenido(valores,funcion,senT.sentencias,lvaloriables,ts) 
+                
+
+
+            
+
+
+        elif isinstance(i,Operacion_Expresion):
+            if i.tipo == "asignacion":
+                lvalor_id=[]
+                for val in lvaloriables:
+                    if val.valor != None:
+                        lvalor_id.append([val.nombre,val.valor])
+                encontrada=False
+                nombrevar=resolver_operacion(i.variable,'')
+                valorvar=Resuelve_Exp_ID(lvalor_id,i.expresion,'')
+                for dec in lvaloriables:
+                    print(nombrevar)
+                    if nombrevar in dec.nombre:
+                        result2=validarTipo(dec.tipo,valorvar)
+                        if result2 == None:
+                            msg="Tipo no valido para variable "+dec.nombre+" en la funcion"
+                            agregarMensjae('error',msg,'')
+                        else:
+                            dec.valor=result2
+                            encontrada=True
+                            break
+                if encontrada==False:
+                    msg="variable "+nombrevar+" no declarada en funcion"
+                    agregarMensjae('error',msg,'')
+            elif i.tipo == "return":
+                lvalor_id=[]
+                for val in lvaloriables:
+                    if val.valor != None:
+                        lvalor_id.append([val.nombre,val.valor])
+                result = Resuelve_Exp_ID(lvalor_id,i.expresion,'')
+            else:
+                lvalor_id=[]
+                for val in lvaloriables:
+                    if val.valor != None:
+                        lvalor_id.append([val.nombre,val.valor])
+                #msg="RAISE:"+str(resolver_operacion(i.expresion,''))
+                msg="RAISE:"+str(Resuelve_Exp_ID(lvalor_id,i.expresion,''))
+                agregarMensjae('alert',msg,'')
+                result = Resuelve_Exp_ID(lvalor_id,i.expresion,'')
+
+        elif isinstance(i,Select_Asigacion):
+            ''
+        elif isinstance(i, CrearBD) : crear_BaseDatos(i,ts)
+        elif isinstance(i, CrearTabla) : crear_Tabla(i,ts)
+        elif isinstance(i, CrearType) : crear_Type(i,ts)
+        elif isinstance(i, EliminarDB) : eliminar_BaseDatos(i,ts)
+        elif isinstance(i, EliminarTabla) : eliminar_Tabla(i,ts)
+        elif isinstance(i, Insertar) : insertar_en_tabla(i,ts)
+        elif isinstance(i, Actualizar) : actualizar_en_tabla(i,ts)
+        elif isinstance(i, Eliminar) : eliminar_de_tabla(i,ts)
+        elif isinstance(i, DBElegida) : seleccion_db(i,ts)
+        elif isinstance(i, MostrarDB) : mostrar_db(i,ts)
+        elif isinstance(i, ALTERDBO) : AlterDBF(i,ts)
+        elif isinstance(i, ALTERTBO) : AlterTBF(i,ts)
+        elif isinstance(i, MostrarTB) : Mostrar_TB(i,ts)
+        elif isinstance(i, Indice) : Indexs(i,ts)
+        #elif isinstance(i, Funcion): Funciones(i,ts)
+        elif isinstance(i, Drop_Function): Eliminar_Funcion(i,ts)
+        elif isinstance(i, Drop_Procedure): Eliminar_Procedimientos(i,ts)
+        #elif isinstance(i, Procedimiento): Crear_Procedimiento(i,ts)
+        elif isinstance(i, Drop_Indice): EliminarIndice(i,ts)
+        elif isinstance(i, Alter_Index_Rename): AlterIndice_Renombrar(i,ts)
+        elif isinstance(i, Call_Procedure): Execute_Procedimiento(i,ts)
+        else: 
+            if i is not None:
+                for val in i:
+                    if(isinstance (val,SELECT)): 
+                        if val.funcion_alias is not None:
+                            ejecutar_select(val,ts)
+                        else:
+                            select_table(val,ts)
+            #else : agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')      
+    return result
+
+
+
+
+
+
+
+
+
+
+
+
+#SI FUNCIONA
 #Procedimientos almacenados
+#FALTA ARREGLAR VARIABLES DECLARADAS
+#arreglar cd3 malo
 def Crear_Procedimiento(instr,ts):
 
     #Manejo de las variables de los procedimientos
@@ -3936,7 +4126,7 @@ def Crear_Procedimiento(instr,ts):
                 param.tipo=x.tipo.lower()
                 #validar el tipo
                 if(validarTipoF(param.tipo)==False):
-                    msg="El tipo "+param.tipo+" no es posible asignarlo al parametro "+param.nombre
+                    msg="El tipo "+param.tipo+" no es posible asignarlo al parametro "+parAux.nombre
                     agregarMensjae("error",msg,"")
                     flag=False
             #agregar size
@@ -3952,8 +4142,10 @@ def Crear_Procedimiento(instr,ts):
 
     #agregar procedimiento
     print(str(instr.cuerpo))
-    cuerpo = cuerpo_Procedure(instr.cuerpo,ts)
+    #cuerpo = cuerpo_Procedure(instr.cuerpo,ts)
+    cuerpo = validarCuerpoF(instr.cuerpo,ts)
 
+    print("Agrego procedure----------------------------------------")
     if(not cuerpo):
         flag = False
         msg="Se encontraron problemas en el cuerpo del stored procedure"
@@ -3966,7 +4158,7 @@ def Crear_Procedimiento(instr,ts):
         #verificar que no exista
         if(findProcedure(name)==None):
             addProcedure(name,cuerpo,parametros)
-            CD3.PCreateProcedure(name,cuerpo,parAuxF,0)
+            #CD3.PCreateProcedure(name,cuerpo,parametros,0)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
         else:
@@ -3975,7 +4167,7 @@ def Crear_Procedimiento(instr,ts):
                 #eliminar la funcion
                 eliminarProcedure(name)
                 addProcedure(name,cuerpo,parametros)
-                CD3.PCreateProcedure(name,cuerpo,parametros,1)
+                #CD3.PCreateProcedure(name,cuerpo,parametros,1)
                 msg="Funcion reemplazada"
                 agregarMensjae("alert",msg,"")
             else:
@@ -3986,7 +4178,7 @@ def Crear_Procedimiento(instr,ts):
 
 
 
-
+#NO SIRVE------------
 
 def cuerpo_Procedure(body,ts):
     cuerpo = contenido_run()
@@ -3998,7 +4190,7 @@ def cuerpo_Procedure(body,ts):
     if (isinstance(body,list)):
         instrucciones = body
     else:
-        print("No tiene una lista")
+        print("No tiene una lista+++++++++++++++++++++")
         declaraciones = body.declaraciones
         instrucciones = body.funcionalidad
 
@@ -4026,7 +4218,7 @@ def cuerpo_Procedure(body,ts):
                 agregarMensjae("error",msg,"")
                 flag=False
             else:  
-                parametro.tipo=i.tipo.lower()
+                parametro.tipo=o.tipo.lower()
                 #validar el tipo
                 if(validarTipoF(parametro.tipo)==False):
                     msg="El tipo "+parametro.tipo+" no es posible asignarlo al parametro "+parametro.nombre
@@ -4039,7 +4231,7 @@ def cuerpo_Procedure(body,ts):
             #agregar valor
             if(i.valor!=False):
                 val=resolver_operacion(i.valor,ts)
-                result=validarTipo(parametro.tipo,val)
+                result=validarTipo(parAux.tipo,val)
                 if(result==None):
                     flag=False
                     msg="no es posible asignar "+str(val)+" en "+parametro.nombre
@@ -4053,17 +4245,17 @@ def cuerpo_Procedure(body,ts):
 
     cuerpo.declaraciones=parametros
 
-    if(instrucciones != None):
+    '''if(instrucciones != None):
         for ins in instrucciones:
             if isinstance(ins,Insertar):
                 ''
             elif isinstance(ins,Actualizar):
                 ''
             elif isinstance(ins,Eliminar):
-                ''
+                '''
 
     cuerpo.contenido = instrucciones  
-
+    print(instrucciones)
 
     if(flag):
         return cuerpo
@@ -4072,36 +4264,58 @@ def cuerpo_Procedure(body,ts):
 
 
 
-#Ejecucion de los procedimientos
-
+#Metodo que Ejecuta Procedimientos
+#CABEZA PROCEDIMIENTO SI SIRVE
 def Execute_Procedimiento(instr,ts):
+    global listaProcedure
     print("Metodo para ejecutar el stored procedure")
     print(instr)
     agregarMensjae('normal','Execute procedure: '+ str(instr.procedimiento),'')
-
-    nombre = resolver_operacion(instr.procedimiento,ts)
-    nombre = nombre.lower()
-   
+    #Nombre del Procedimiento
+    nombreProc=resolver_operacion(instr.procedimiento,ts)
+    print(nombreProc)
+    nombreProc=nombreProc.lower()
+    #Parametros del Procedimiento
+    listaExp=instr.parametros
     
-    procedimiento = findProcedure(nombre)
+    print(nombreProc)
+    print(listaExp)
 
-    instrucciones = procedimiento.contenido.contenido
-
-    for proc in instrucciones:
-        if isinstance(proc,Insertar):
-            print("insertar")
-            insertar_en_tabla(proc,ts)
-        elif isinstance(proc,Actualizar):
-            print("Actualizar")
-            actualizar_en_tabla(proc,ts)
-        elif isinstance(proc,Eliminar):
-            print("Eliminar")
-            eliminar_de_tabla(proc,ts)
-        else: 
-            print("Ninguna funcion")
-
+    for s in listaProcedure:
+        print("*****************>>",s)
+    lvalores=[]
+    result=None
+    if listaExp != False and listaExp != None:
+        for i in listaExp:
+            val = resolver_operacion(i,ts)
+            lvalores.append(val)
+    print('NOMBRE_Procedimiento',nombreProc,'parametros',str(lvalores))
     
+    Bproc=findProcedure(nombreProc)
+    ejecucion=True
+    if(Bproc!=None):
+        if len(lvalores) == len(Bproc.parametros):
+            contval=0
+            for nm in Bproc.parametros:
+                result=validarTipo(nm.tipo,lvalores[contval])
+                if result == None:
+                    msg="Tipo no valido para parametro "+nm.nombre+" en el procedimiento"
+                    agregarMensjae('error',msg,'')
+                    ejecucion=False
+                else:
+                    lvalores[contval]=result
+                contval+=1
+            if ejecucion:
+                result=EjecucionProc_Contenido(lvalores,Bproc,Bproc.contenido.contenido,[],ts)
+                print(result) 
+        else:
+            msg = "Cantidad de parametros invalida para procedimiento "+nombreProc
+            agregarMensjae('error',msg,'')
+    else:
+        print("proc no existe")
     
+
+
 
 #Eliminar procedimiento 
 def Eliminar_Procedimientos(instr,ts):
@@ -4115,6 +4329,8 @@ def Eliminar_Procedimientos(instr,ts):
             agregarMensjae('error', '42883: No existe el procedimiento '+i.lower(),'42883')
 
 
+
+#FIN EJECUTA PROCEDIMIENTO-------------------------
 
 
 def Resuelve_Exp_ID(lista,  operacion,ts):
