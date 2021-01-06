@@ -50,10 +50,37 @@ class var_asignacion(NodoArbol):
                     # -----------------------------------------------------------------------------
                     return
                 elif str(expres[1]) == '11-15':
-                    # Regla no. 8 -----------------------------
+                    # Regla no. 11 -----------------------------
                     original = str(tmp) + ' = ' + str(expres[0]) + ' / 1'
                     optimizado = 'Se elimina la instruccion'
                     reportero = ReporteOptimizacion('Regla 11', original, optimizado, str(self.linea), str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+                elif str(expres[1]) == '16':
+                    arbol.addC3D(tmp + ' = ' + str(expres[0]) + ' + ' + str(expres[0]))
+                    # Regla no. 16 -----------------------------
+                    original = str(tmp) + ' = ' + str(expres[0]) + ' * 2'
+                    optimizado = str(tmp) + ' = ' + str(expres[0]) + ' + ' + str(expres[0])
+                    reportero = ReporteOptimizacion('Regla 16', original, optimizado, str(self.linea), str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+                elif str(expres[1]) == '17':
+                    arbol.addC3D(tmp + ' = 0')
+                    # Regla no. 17 -----------------------------
+                    original = str(tmp) + ' = ' + str(expres[0]) + ' * 0'
+                    optimizado = str(tmp) + ' = 0'
+                    reportero = ReporteOptimizacion('Regla 17', original, optimizado, str(self.linea), str(self.columna))
+                    arbol.ReporteOptimizacion.append(reportero)
+                    # -----------------------------------------------------------------------------
+                    return
+                elif str(expres[1]) == '18':
+                    arbol.addC3D(tmp + ' = 0')
+                    # Regla no. 18 -----------------------------
+                    original = str(tmp) + ' = 0 / ' + str(expres[0])
+                    optimizado = str(tmp) + ' = 0'
+                    reportero = ReporteOptimizacion('Regla 18', original, optimizado, str(self.linea), str(self.columna))
                     arbol.ReporteOptimizacion.append(reportero)
                     # -----------------------------------------------------------------------------
                     return
@@ -90,6 +117,33 @@ class var_asignacion(NodoArbol):
                 original = str(tmp) + ' = ' + str(expres[0]) + ' / 1'
                 optimizado = str(tmp) + ' = ' + str(expres[0])
                 reportero = ReporteOptimizacion('Regla 15', original, optimizado, str(self.linea), str(self.columna))
+                arbol.ReporteOptimizacion.append(reportero)
+                # -----------------------------------------------------------------------------
+                return
+            elif str(expres[1]) == '16':
+                arbol.addC3D(tmp + ' = ' + str(expres[0]) + ' + ' + str(expres[0]))
+                # Regla no. 16 -----------------------------
+                original = str(tmp) + ' = ' + str(expres[0]) + ' * 2'
+                optimizado = str(tmp) + ' = ' + str(expres[0]) + ' + ' + str(expres[0])
+                reportero = ReporteOptimizacion('Regla 16', original, optimizado, str(self.linea), str(self.columna))
+                arbol.ReporteOptimizacion.append(reportero)
+                # -----------------------------------------------------------------------------
+                return
+            elif str(expres[1]) == '17':
+                arbol.addC3D(tmp + ' = 0')
+                # Regla no. 17 -----------------------------
+                original = str(tmp) + ' = ' + str(expres[0]) + ' * 0'
+                optimizado = str(tmp) + ' = 0'
+                reportero = ReporteOptimizacion('Regla 17', original, optimizado, str(self.linea), str(self.columna))
+                arbol.ReporteOptimizacion.append(reportero)
+                # -----------------------------------------------------------------------------
+                return
+            elif str(expres[1]) == '18':
+                arbol.addC3D(tmp + ' = 0')
+                # Regla no. 18 -----------------------------
+                original = str(tmp) + ' = 0 / ' + str(expres[0])
+                optimizado = str(tmp) + ' = 0'
+                reportero = ReporteOptimizacion('Regla 18', original, optimizado, str(self.linea), str(self.columna))
                 arbol.ReporteOptimizacion.append(reportero)
                 # -----------------------------------------------------------------------------
                 return

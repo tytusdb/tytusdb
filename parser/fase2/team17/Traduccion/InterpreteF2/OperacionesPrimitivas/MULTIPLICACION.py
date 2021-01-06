@@ -68,9 +68,13 @@ class MULTIPLICACION(NodoArbol):
             return True
         elif str(self.der.getString(entorno, arbol)) == '1':
             return True
-        if str(self.izq.getString(entorno, arbol)) == '2':
+        elif str(self.izq.getString(entorno, arbol)) == '2':
             return True
         elif str(self.der.getString(entorno, arbol)) == '2':
+            return True
+        elif str(self.izq.getString(entorno, arbol)) == '0':
+            return True
+        elif str(self.der.getString(entorno, arbol)) == '0':
             return True
         return False
 
@@ -94,4 +98,14 @@ class MULTIPLICACION(NodoArbol):
             izquierdo = []
             izquierdo.append(self.izq.traducir(entorno, arbol))
             izquierdo.append('16')
+            return izquierdo
+        elif str(self.izq.getString(entorno, arbol)) == '0':
+            derecho = []
+            derecho.append(self.der.traducir(entorno, arbol))
+            derecho.append('17')
+            return derecho
+        elif str(self.der.getString(entorno, arbol)) == '0':
+            izquierdo = []
+            izquierdo.append(self.izq.traducir(entorno, arbol))
+            izquierdo.append('17')
             return izquierdo

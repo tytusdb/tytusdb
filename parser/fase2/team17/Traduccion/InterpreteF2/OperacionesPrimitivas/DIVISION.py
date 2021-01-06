@@ -74,6 +74,8 @@ class DIVISION(NodoArbol):
             return True
         elif str(self.der.getString(entorno, arbol)) == '1':
             return True
+        elif str(self.izq.getString(entorno, arbol)) == '0':
+            return True
         return False
 
     def traducir_optimizado(self, entorno: Tabla_de_simbolos, arbol: Arbol):
@@ -87,5 +89,10 @@ class DIVISION(NodoArbol):
             izquierdo.append(self.izq.traducir(entorno, arbol))
             izquierdo.append('11-15')
             return izquierdo
+        if str(self.izq.getString(entorno, arbol)) == '0':
+            derecho = []
+            derecho.append(self.der.traducir(entorno, arbol))
+            derecho.append('18')
+            return derecho
         
         
