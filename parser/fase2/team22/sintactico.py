@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
 # from Instrucciones.Imprimir import Imprimir
-from Instrucciones.index import index
+from Instrucciones.index import index, DropIndex, AlterIndex
 from Instrucciones import Funcion, Declaracion,  Retorno
 
 # IMPORTAMOS EL STORAGE
@@ -42,6 +42,10 @@ import Instrucciones.AST as AST
 
 # Variable almacenada reporte gramatical dinamico
 lsStrGram = []
+
+# LISTA PARA GUARDAR LOS INDICES CON SUS TABLAS
+almacenar_tabla_indices = []
+
 
 #Funcion para validar reporte gramatical dinamico
 def agregaGram(grama):
@@ -1730,6 +1734,10 @@ def p_instruccion_creacion(t) :
     '''instruccion  : CREATE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where
                     | CREATE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''
     
+    global almacenar_tabla_indices
+    almacenar_tabla_indices.append(t[5])
+    almacenar_tabla_indices.append(t[3])
+
     if len(t) == 11:
         strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
         strGram2 = ""
@@ -1739,6 +1747,7 @@ def p_instruccion_creacion(t) :
         agregaGram(strGram)
         strGram = obtenerGram()
         t[0] = index.index( id1, id2, t[7], t[10], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+
         # global lsStrGram
         # lsStrGram = []
     else:
@@ -1884,12 +1893,71 @@ def p_params_crt_indx(t) :
 
 def p_instruccion_drop_index(t) :
     '''instruccion  : DROP INDEX ID PUNTO_COMA'''
+
+    tabla = ''
+    indice = ''
+    temp = ''
+    for id_tab in almacenar_tabla_indices:
+        if id_tab == str(t[3]):
+            tabla = temp
+            indice = t[3]
+        temp = id_tab
+
     strGram = "<instruccion> ::= DROP INDEX ID PUNTO_COMA\n"
-    agregaGram(strGram)
-    strGram = obtenerGram()
-    t[0] = indexFunction.indexFunction(strGram)
-    global lsStrGram
-    lsStrGram = []
+    strGram2 = ""
+
+    if indice != '':
+        id1 = Identificador(tabla, strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        t[0] =DropIndex.DropIndex(id1,indice, 0, strGram, t.lexer.lineno, t.lexer.lexpos)
+    else:
+        t[0] =DropIndex.DropIndex('','', 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+    
+    # agregaGram(strGram)
+    # strGram = obtenerGram()
+    # t[0] = indexFunction.indexFunction(strGram)
+    # global lsStrGram
+    # lsStrGram = []
+
+def p_instruccion_alter_index(t) :
+    '''instruccion  : ALTER INDEX ID ID ID PUNTO_COMA
+                    | ALTER INDEX ID ID ENTERO PUNTO_COMA'''
+    strGram = "<instruccion> ::= ALTER INDEX ID ID ID PUNTO_COMA\n"
+    strGram2 = ""
+    id1 = Identificador(t[3], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    existe = 1
+    tabla = ''
+    temp = ''
+    for a in almacenar_tabla_indices:
+        if a == str(t[3]):
+            existe = 0
+            tabla = temp
+        temp = a
+
+    strGram3 = ""
+    id_tab = Identificador(tabla, strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] =AlterIndex.AlterIndex(id_tab, id1, t[4], t[5], existe, strGram, t.lexer.lineno, t.lexer.lexpos)
+   
+
+def p_instruccion_alter_index2(t) :
+    '''instruccion  : ALTER INDEX IF EXISTS ID ID ID PUNTO_COMA
+                    | ALTER INDEX IF EXISTS ID ID ENTERO PUNTO_COMA'''
+    strGram = "<instruccion> ::= ALTER INDEX IF EXISTS ID ID PUNTO_COMA\n"
+    strGram2 = ""
+    id1 = Identificador(t[5], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    existe = 1
+    tabla = ''
+    temp = ''
+    for a in almacenar_tabla_indices:
+        if a == str(t[5]):
+            existe = 0
+            tabla = temp
+        temp = a
+
+    strGram3 = ""
+    id_tab = Identificador(tabla, strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] =AlterIndex.AlterIndex(id_tab, id1, t[6], t[7], existe, strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_lista_or(t) :
     '''expre     : expre PIPE PIPE expre'''
@@ -1902,7 +1970,7 @@ def p_instruccion_creacion_funct(t) :
                     | CREATE FUNCTION ID PARIZQ list_params_funct PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
                     | CREATE FUNCTION ID PARIZQ PARDER return_funct as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA
                     | CREATE FUNCTION ID PARIZQ PARDER as_def PROC def_funct PROC LANGUAGE PLPGSQL PUNTO_COMA'''
-    
+    print(t[5])
     strGram = ""
     if len(t) == 15 and t[6] == ")":
         strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <list_params_funct> PARDER <return_funct> <as_def> PROC <def_funct> PROC LANGUAGE PLPGSQL PUNTO_COMA\n"
@@ -1947,34 +2015,24 @@ def p_list_params_funct(t) :
                             | list_params_funct COMA OUT ID ID'''
     strGram = ""
     print("====================================")
+    
     if len(t) == 5:
-        t[1] = t[1].append(t[3])
-        print("11")
+        if isinstance(t[4], Tipo):
+            t[1].append(['id_tipo', t[3], t[4]])
+            strGram = "<list_params_funct> ::= <list_params_funct> COMA ID <tipo>\n"
+        else:
+            t[1].append(['id_id', t[3], t[4]])
+            strGram = "<list_params_funct> ::= <list_params_funct> COMA ID ID\n"
     else:
-        print("22")
-        t[1] = t[1].append(t[4])
-    t[0] = t[1] 
+        if isinstance(t[5], Tipo):
+            t[1].append(['out_id_tipo', t[4], t[5]])
+            strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID <tipo>\n"
+        else:
+            t[1].append(['out_id_id', t[4], t[5]])
+            strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID ID\n"
+    
+    t[0] = t[1]
 
-    if t[3] == "ID" and t[4] != "ID":
-        t[1] = t[1].append(t[3])
-        t[0] = t[1]
-        print("aqui 1")
-        strGram = "<list_params_funct> ::= <list_params_funct> COMA ID <tipo>\n"
-    elif len(t) > 5 and t[3] == "OUT" and t[5] != "ID":
-        t[1] = t[1].append(t[4])
-        t[0] = t[1]
-        print("aqui 2")
-        strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID <tipo>\n"
-    elif t[3] == "ID" and t[4] == "ID":
-        t[1] = t[1].append(t[3])
-        t[0] = t[1]
-        print("aqui no 1")
-        strGram = "<list_params_funct> ::= <list_params_funct> COMA ID ID\n"
-    elif len(t) > 5 and t[3] == "OUT" and t[5] == "ID":
-        t[1] = t[1].append(t[4])
-        t[0] = t[1]
-        print("aqui no 2")
-        strGram = "<list_params_funct> ::= <list_params_funct> COMA OUT ID ID\n"
     agregaGram(strGram)
 
 def p_list_params_funct2(t) :
@@ -1985,18 +2043,21 @@ def p_list_params_funct2(t) :
 
     print("-------------------------------")
     strGram = "<return_funct> ::= RETURNS TABLE PARIZQ <list_params_funct> PARDER\n"
-    if t[1] == "ID" and t[2] != "ID":
-        t[0] = [t[1], t[2]]
-        strGram += "<list_params_funct> ::= ID <tipo>\n"
-    elif len(t) > 3 and t[1] == "OUT" and t[3] != "ID":
-        t[0] = [t[2], t[3]]
-        strGram += "<list_params_funct> ::= OUT ID <tipo>\n"
-    elif t[1] == "ID" and t[2] == "ID":
-        t[0] = [t[1], t[2]]
-        strGram += "<list_params_funct> ::= ID ID\n"
-    elif len(t) > 3 and t[1] == "OUT" and t[3] == "ID":
-        t[0] = [t[2], t[3]]
-        strGram += "<list_params_funct> ::= OUT ID ID\n"
+    if len(t) == 3:
+        if isinstance(t[2], Tipo):
+            t[0] = [['id_tipo', t[1], t[2]]]
+            strGram += "<list_params_funct> ::= ID <tipo>\n"
+        else:
+            t[0] = [['id_id', t[1], t[2]]]
+            strGram += "<list_params_funct> ::= ID ID\n"
+    else:
+        if isinstance(t[3], Tipo):
+            t[0] = [['out_id_tipo', t[2], t[3]]]
+            strGram += "<list_params_funct> ::= OUT ID <tipo>\n"
+        else:
+            t[0] = [['out_id_id', t[2], t[3]]]
+            strGram += "<list_params_funct> ::= OUT ID ID\n"
+        
     agregaGram(strGram)
 
 def p_as_def(t) :

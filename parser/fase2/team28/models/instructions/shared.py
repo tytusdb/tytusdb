@@ -108,7 +108,8 @@ class Where(Instruction):
     '''
     def __init__(self,  condition) :
         self.condition = condition
-    
+        self._tac = ''
+
     def __repr__(self):
         return str(vars(self))
     
@@ -238,6 +239,7 @@ class LikeClause(Instruction):
         self.line = line
         self.alias = f'{valor.alias} {arr_list.alias}'
         self.column = column
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
     
@@ -343,6 +345,10 @@ class Using(Instruction):
     '''
         USING recibe un array con ids
     '''
+    def __init__(self, value):
+        self.value = value
+        self._tac = ''
+
     def __repr__(self):
         return str(vars(self))
 
@@ -355,6 +361,7 @@ class Returning(Instruction):
     '''
     def __init__(self,  value):
         self.value = value
+        self._tac = ''
     
     def __repr__(self):
         return str(vars(self))
@@ -376,6 +383,7 @@ class Between(Instruction):
         self.line = line
         self.column = column
         self.alias = f'{self.value1} {self.value2}'
+        self._tac = ''
     
     def __repr__(self):
         return str(vars(self))
@@ -563,6 +571,7 @@ class ObjectReference(Instruction):
         self.opt_asterisk = opt_asterisk
         self.alias = reference_column.alias
         self.opt_table = opt_table
+        self._tac = reference_column.alias
 
     def __repr__(self):
         return str(vars(self))

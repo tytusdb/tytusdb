@@ -83,7 +83,7 @@ def p_instruction(t):
     | block
     | execute S_PUNTOCOMA
     """
-    listInst.append(t[1].dot())
+    # TODO: listInst.append(t[1].dot())
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -120,10 +120,10 @@ def p_isblock_f(t):
 def p_function_stmt(t):
     """
     function_stmt : R_CREATE orReplace R_FUNCTION ID function_opt
-                | R_CREATE orReplace R_PROCEDURE ID function_opt
+                | R_CREATE orReplace R_PROCEDURE ID procedure_opt
     """
     t[0] = code.FunctionDeclaration(
-        t[4], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
+        t[3], t[4], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
     )
     repGrammar.append(t.slice)
 
@@ -133,6 +133,22 @@ def p_function_opt_param(t):
     function_opt : S_PARIZQ params_function S_PARDER returns_function
     """
     t[0] = [t[2], t[4]]
+    repGrammar.append(t.slice)
+
+
+def p_procedure_opt_param(t):
+    """
+    procedure_opt : S_PARIZQ params_function S_PARDER
+    """
+    t[0] = [t[2], None]
+    repGrammar.append(t.slice)
+
+
+def p_procedure_opt(t):
+    """
+    procedure_opt : S_PARIZQ S_PARDER
+    """
+    t[0] = [None, None]
     repGrammar.append(t.slice)
 
 
@@ -165,8 +181,7 @@ def p_param_function_id(t):
     """
     param_function : ID types_d
     """
-    t[0] = code.Declaration(
-        t[1], t[2], None, t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.Declaration(t[1], t[2], None, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -275,8 +290,7 @@ def p_global_vd_assignment(t):
     ass = None
     if t[4]:
         ass = code.Assignment(t[1], t[4], t.slice[1].lineno, t.slice[1].lexpos)
-    t[0] = code.Declaration(
-        t[1], t[3], ass, t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.Declaration(t[1], t[3], ass, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -530,8 +544,7 @@ def p_elseif_stmts_1(t):
 
 def p_elseif_stmt(t):
     """elseif_stmt :  R_ELSEIF expBool R_THEN block_stmts"""
-    t[0] = code.ElseIfStatement(
-        t.slice[1].lineno, t.slice[1].lexpos, t[2], t[4])
+    t[0] = code.ElseIfStatement(t.slice[1].lineno, t.slice[1].lexpos, t[2], t[4])
     # expBool contiene el C3D de la expresion
     repGrammar.append(t.slice)
 
@@ -589,8 +602,7 @@ def p_else_case_stmt_n(t):
 
 def p_case_stmt_bool(t):
     """case_stmt_bool : R_CASE R_WHEN expBool R_THEN block_stmts else_case_stmt_bool_opt else_stmt_opt R_END R_CASE S_PUNTOCOMA"""
-    t[0] = code.Case(t[3], t[5], t[6], t[7],
-                     t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.Case(t[3], t[5], t[6], t[7], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1013,7 +1025,8 @@ def p_createbody(t):
 def p_createopts_table(t):
     """createOpts : R_TABLE ifNotExists idOrString S_PARIZQ createTableList S_PARDER inheritsOpt """
     t[0] = code.CreateTable(
-        t[2], t[3], t[7], t.slice[1].lineno, t.slice[1].lexpos, t[5])
+        t[2], t[3], t[7], t.slice[1].lineno, t.slice[1].lexpos, t[5]
+    )
     repGrammar.append(t.slice)
 
 
@@ -1022,8 +1035,10 @@ def p_createopts_db(t):
     createOpts : orReplace R_DATABASE ifNotExists idOrString createOwner createMode
     """
     t[0] = code.CreateDatabase(
-        t[1], t[3], t[4], t[5], t[6], t.slice[2].lineno, t.slice[2].lexpos)
+        t[1], t[3], t[4], t[5], t[6], t.slice[2].lineno, t.slice[2].lexpos
+    )
     repGrammar.append(t.slice)
+
 
 # TODO: hacer el where
 
@@ -1032,7 +1047,16 @@ def p_createopts_index(t):
     """
     createOpts : indexUnique R_INDEX indexName R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
     """
-    t[0] = code.CreateIndex(t[1], t[3], t.slice[5].value, t[6], "", t.slice[2].lineno, t.slice[2].lexpos, t[8])
+    t[0] = code.CreateIndex(
+        t[1],
+        t[3],
+        t.slice[5].value,
+        t[6],
+        "",
+        t.slice[2].lineno,
+        t.slice[2].lexpos,
+        t[8],
+    )
     repGrammar.append(t.slice)
 
 
@@ -1056,7 +1080,7 @@ def p_indexList(t):
     """
     indexList : indexList S_COMA columnIndex
     """
-    t[1] += ", "+t[3]
+    t[1] += ", " + t[3]
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -1074,10 +1098,10 @@ def p_columnIndex(t):
     columnIndex : columnOpt indexOrder indexNull
     """
     t[0] = t[1]
-    if t[2]!="":
-        t[0]+=" "+t[2]
-    if t[3]!="":
-        t[0]+=" "+t[3]
+    if t[2] != "":
+        t[0] += " " + t[2]
+    if t[3] != "":
+        t[0] += " " + t[3]
     repGrammar.append(t.slice)
 
 
@@ -1093,7 +1117,7 @@ def p_index_functionIndex(t):
     """
     columnOpt : ID S_PARIZQ ID S_PARDER
     """
-    t[0] = t.slice[1].value+"("+t.slice[3].value+")"
+    t[0] = t.slice[1].value + "(" + t.slice[3].value + ")"
     repGrammar.append(t.slice)
 
 
@@ -1101,7 +1125,7 @@ def p_index_agrupacion(t):
     """
     columnOpt : S_PARIZQ columnOpt S_PARDER
     """
-    t[0] = "("+t[2]+")"
+    t[0] = "(" + t[2] + ")"
     repGrammar.append(t.slice)
 
 
@@ -1114,7 +1138,7 @@ def p_usingMethod(t):
     | R_USING R_GIN
     | R_USING R_BRIN
     """
-    t[0] = t.slice[1].value+" "+t.slice[2].value
+    t[0] = t.slice[1].value + " " + t.slice[2].value
     repGrammar.append(t.slice)
 
 
@@ -1147,7 +1171,7 @@ def p_indexNull(t):
     if len(t) == 1:
         t[0] = ""
     else:
-        t[0] = t.slice[1].value+" "+t[2]
+        t[0] = t.slice[1].value + " " + t[2]
     repGrammar.append(t.slice)
 
 
@@ -1196,8 +1220,7 @@ def p_createopts_type(t):
     """
     createOpts : R_TYPE ifNotExists ID R_AS R_ENUM S_PARIZQ paramsList S_PARDER
     """
-    t[0] = code.CreateType(t[2], t[3], t.slice[1].lineno,
-                           t.slice[1].lexpos, t[7])
+    t[0] = code.CreateType(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos, t[7])
     repGrammar.append(t.slice)
 
 
@@ -1241,7 +1264,7 @@ def p_createowner(t):
     createOwner : R_OWNER ID
     | R_OWNER STRING
     """
-    t[0] = t.slice[1].value+" "+t.slice[2].value
+    t[0] = t.slice[1].value + " " + t.slice[2].value
     repGrammar.append(t.slice)
 
 
@@ -1250,7 +1273,7 @@ def p_createowner_asg(t):
     createOwner :  R_OWNER S_IGUAL ID
     | R_OWNER S_IGUAL STRING
     """
-    t[0] = "OWNER = "+t.slice[3].value
+    t[0] = "OWNER = " + t.slice[3].value
     repGrammar.append(t.slice)
 
 
@@ -1266,7 +1289,7 @@ def p_createmode(t):
     """
     createMode : R_MODE INTEGER
     """
-    t[0] = "MODE "+str(t.slice[2].value)
+    t[0] = "MODE " + str(t.slice[2].value)
     repGrammar.append(t.slice)
 
 
@@ -1274,7 +1297,7 @@ def p_createMode_asg(t):
     """
     createMode : R_MODE S_IGUAL INTEGER
     """
-    t[0] = "MODE = "+str(t.slice[3].value)
+    t[0] = "MODE = " + str(t.slice[3].value)
     repGrammar.append(t.slice)
 
 
@@ -1288,7 +1311,7 @@ def p_createmode_none(t):
 
 def p_createtable_list(t):
     """createTableList : createTableList S_COMA createTable"""
-    t[1] += ", "+t[3]
+    t[1] += ", " + t[3]
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -1303,7 +1326,7 @@ def p_createTable_id(t):
     """
     createTable :  ID types createColumns
     """
-    t[0] = t.slice[1].value+" "+t[2]+" "+t[3]
+    t[0] = t.slice[1].value + " " + t[2] + " " + t[3]
     repGrammar.append(t.slice)
 
 
@@ -1336,19 +1359,19 @@ def p_createColumNs_none(t):
 
 def p_createConstraint(t):
     """createConstraint : constrName R_CHECK S_PARIZQ booleanCheck S_PARDER"""
-    t[0] = t[1]+" CHECK ("+t[4]+")"
+    t[0] = t[1] + " CHECK (" + t[4] + ")"
     repGrammar.append(t.slice)
 
 
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
-    t[0] = "UNIQUE ("+t[3]+")"
+    t[0] = "UNIQUE (" + t[3] + ")"
     repGrammar.append(t.slice)
 
 
 def p_createPrimary(t):
     """createPrimary : R_PRIMARY R_KEY S_PARIZQ idList S_PARDER"""
-    t[0] = "PRIMARY KEY ("+t[4]+")"
+    t[0] = "PRIMARY KEY (" + t[4] + ")"
     repGrammar.append(t.slice)
 
 
@@ -1356,8 +1379,16 @@ def p_createForeign(t):
     """
     createForeign : constrName R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID S_PARIZQ idList S_PARDER
     """
-    t[0] = t[1]+" FOREIGN KEY ("+t[5]+") REFERENCES " + \
-        t.slice[8].value+" ("+t[10]+")"
+    t[0] = (
+        t[1]
+        + " FOREIGN KEY ("
+        + t[5]
+        + ") REFERENCES "
+        + t.slice[8].value
+        + " ("
+        + t[10]
+        + ")"
+    )
     repGrammar.append(t.slice)
 
 
@@ -1365,7 +1396,7 @@ def p_constrName(t):
     """
     constrName : R_CONSTRAINT ID
     """
-    t[0] = "CONSTRAINT "+t.slice[2].value
+    t[0] = "CONSTRAINT " + t.slice[2].value
     repGrammar.append(t.slice)
 
 
@@ -1379,7 +1410,7 @@ def p_constrName_none(t):
 
 def p_id_list(t):
     """idList : idList S_COMA ID"""
-    t[1] += ", "+t.slice[3].value
+    t[1] += ", " + t.slice[3].value
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -1433,7 +1464,7 @@ def p_types_var(t):
     """
     types : T_CHARACTER T_VARYING optParams
     """
-    t[0] = t.slice[1].value+t.slice[2].value + t[3]
+    t[0] = t.slice[1].value + t.slice[2].value + t[3]
     repGrammar.append(t.slice)
 
 
@@ -1460,7 +1491,7 @@ def p_intervalFields_none(t):
 
 def p_optParams(t):
     """optParams : S_PARIZQ literalList S_PARDER"""
-    t[0] = "("+t[2]+")"
+    t[0] = "(" + t[2] + ")"
     repGrammar.append(t.slice)
 
 
@@ -1472,7 +1503,7 @@ def p_optParams_none(t):
 
 def p_colOptions_list(t):
     """colOptionsList : colOptionsList colOptions"""
-    t[1] += " "+t[2]
+    t[1] += " " + t[2]
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -1498,7 +1529,7 @@ def p_colOptions(t):
 # cambiar literal
 def p_defaultVal(t):
     """defaultVal : R_DEFAULT literal"""
-    t[0] = "DEFAULT "+t[2].temp
+    t[0] = "DEFAULT " + t[2].temp
     repGrammar.append(t.slice)
 
 
@@ -1525,7 +1556,7 @@ def p_constraintOpt_unique(t):
     """
     constraintOpt : constrName R_UNIQUE
     """
-    t[0] = t[1]+" UNIQUE"
+    t[0] = t[1] + " UNIQUE"
     repGrammar.append(t.slice)
 
 
@@ -1533,7 +1564,7 @@ def p_constraintOpt_check(t):
     """
     constraintOpt : constrName R_CHECK S_PARIZQ booleanCheck S_PARDER
     """
-    t[0] = t[1]+" CHECK("+t[4]+")"
+    t[0] = t[1] + " CHECK(" + t[4] + ")"
     repGrammar.append(t.slice)
 
 
@@ -1545,7 +1576,7 @@ def p_primaryOpt(t):
 
 def p_referencesOpt(t):
     """referencesOpt : R_REFERENCES ID"""
-    t[0] = "REFERENCES "+t.slice[2].value
+    t[0] = "REFERENCES " + t.slice[2].value
     repGrammar.append(t.slice)
 
 
@@ -1575,6 +1606,10 @@ def p_funcCall_1(t):
     """
     funcCall : ID S_PARIZQ paramsList S_PARDER
     """
+    global isBlock
+    t[0] = code.FunctionCall(
+        t.slice[1].value, t[3], isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -1583,6 +1618,10 @@ def p_funcCall_2(t):
     funcCall : ID S_PARIZQ S_PARDER
             | R_NOW S_PARIZQ S_PARDER
     """
+    global isBlock
+    t[0] = code.FunctionCall(
+        t.slice[1].value, None, isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -1665,7 +1704,7 @@ def p_current_1(t):
 
 def p_literal_list(t):
     """literalList : literalList S_COMA literal"""
-    t[1] += ", "+t[3].temp
+    t[1] += ", " + t[3].temp
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -1694,21 +1733,31 @@ def p_literal_bool(t):
     literal :  R_TRUE
     | R_FALSE
     """
-    val = t.slice[1].value
+    if t[1] == "TRUE":
+        val = "True"
+    else:
+        val = "False"
     t[0] = expression.C3D("", val, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_params_list(t):
     """paramsList : paramsList S_COMA datatype"""
-    t[1] += ", "+t[3].temp
-    t[0] = t[1]
+    if not isBlock:
+        t[1] += ", " + t[3].temp
+        t[0] = t[1]
+    else:
+        t[1].append(t[3])
+        t[0] = t[1]
     repGrammar.append(t.slice)
 
 
 def p_params_u(t):
     """paramsList : datatype"""
-    t[0] = t[1].temp
+    if not isBlock:
+        t[0] = t[1].temp
+    else:
+        t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
@@ -1721,8 +1770,7 @@ def p_datatype_operadores_binarios1(t):
     | datatype O_EXPONENTE datatype
     | datatype O_MODULAR datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1730,8 +1778,7 @@ def p_datatype_operadores_binarios2(t):
     """
     datatype : datatype OC_CONCATENAR datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1801,8 +1848,7 @@ def p_expCompBinario_1(t):
     | datatype S_IGUAL datatype
     | datatype OL_DISTINTODE datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1810,8 +1856,7 @@ def p_expCompBinario_2(t):
     """
     expComp : datatype R_IS R_DISTINCT R_FROM datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[5], "!=", t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[5], "!=", t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1819,8 +1864,7 @@ def p_expCompBinario_3(t):
     """
     expComp : datatype R_IS R_NOT R_DISTINCT R_FROM datatype
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[6], "==", t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[6], "==", t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1873,8 +1917,7 @@ def p_expComp_unario_2(t):
     | datatype R_IS R_FALSE
     | datatype R_IS R_UNKNOWN
     """
-    t[0] = code.UnaryOperation(
-        newTemp(), t[1], t[2] + t[3], t[1].row, t[1].column)
+    t[0] = code.UnaryOperation(newTemp(), t[1], t[2] + t[3], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1925,8 +1968,7 @@ def p_expBool_1(t):
     expBool : expBool R_AND expBool
             | expBool R_OR expBool
     """
-    t[0] = code.BinaryOperation(
-        newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -2017,7 +2059,7 @@ def p_booleanCheck_1(t):
     | idOrLiteral S_IGUAL idOrLiteral
     | idOrLiteral OL_DISTINTODE idOrLiteral
     """
-    t[0] = t[1]+t.slice[2].value+t[3]
+    t[0] = t[1] + t.slice[2].value + t[3]
     repGrammar.append(t.slice)
 
 
@@ -2025,7 +2067,7 @@ def p_booleanCheck_2(t):
     """
     booleanCheck : idOrLiteral R_IS R_DISTINCT R_FROM idOrLiteral
     """
-    t[0] = t[1]+" IS DISTINCT FROM "+t[5]
+    t[0] = t[1] + " IS DISTINCT FROM " + t[5]
     repGrammar.append(t.slice)
 
 
@@ -2033,7 +2075,7 @@ def p_booleanCheck_3(t):
     """
     booleanCheck : idOrLiteral R_IS R_NOT R_DISTINCT R_FROM idOrLiteral
     """
-    t[0] = t[1]+" IS NOT DISTINCT FROM "+t[6]
+    t[0] = t[1] + " IS NOT DISTINCT FROM " + t[6]
     repGrammar.append(t.slice)
 
 
@@ -2060,7 +2102,29 @@ def p_idOrLiteral(t):
 def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE idOrString alterDb
     | R_ALTER R_TABLE idOrString alterTableList
+    | R_ALTER R_INDEX ifExists idOrString R_RENAME R_TO idOrString
+    | R_ALTER R_INDEX ifExists idOrString R_ALTER column idOrString idOrNumber
     """
+    if t[2] == "DATABASE":
+        t[0] = code.AlterDataBase(
+            t[4][0], t[3], t[4][1], t.slice[1].lineno, t.slice[1].lexpos
+        )
+    else:
+        t[0] = code.AlterTable(t[3], t.slice[1].lineno, t.slice[1].lexpos, t[4])
+    repGrammar.append(t.slice)
+
+
+def p_column(t):
+    """column : R_COLUMN
+    |
+    """
+    repGrammar.append(t.slice)
+
+def p_idOrNumber(t):
+    """idOrNumber : ID
+    | INTEGER
+    """
+    t[0] = t.slice[1].value
     repGrammar.append(t.slice)
 
 
@@ -2068,6 +2132,7 @@ def p_alterDb(t):
     """alterDb : R_RENAME R_TO idOrString
     | R_OWNER R_TO ownerOPts
     """
+    t[0] = [t[1], t[3]]
     repGrammar.append(t.slice)
 
 
@@ -2077,6 +2142,7 @@ def p_ownerOpts(t):
     | R_CURRENT_USER
     | R_SESSION_USER
     """
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -2084,6 +2150,8 @@ def p_alterTableList(t):
     """
     alterTableList : alterTableList S_COMA alterTable
     """
+    t[1] += ", " + t[3]
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -2091,6 +2159,7 @@ def p_alterTableList_u(t):
     """
     alterTableList : alterTable
     """
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -2101,6 +2170,7 @@ def p_alterTable(t):
     | R_DROP alterDrop
     | R_RENAME alterRename
     """
+    t[0] = t[1] + " " + t[2]
     repGrammar.append(t.slice)
 
 
@@ -2108,6 +2178,7 @@ def p_alterAdd_column(t):
     """
     alterAdd : R_COLUMN ID types
     """
+    t[0] = t[1] + " " + t[2] + " " + t[3]
     repGrammar.append(t.slice)
 
 
@@ -2117,6 +2188,7 @@ def p_alterAdd_constraint(t):
     | createPrimary
     | createForeign
     """
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -2124,6 +2196,7 @@ def p_alterAdd_unique(t):
     """
     alterAdd : constrName R_UNIQUE S_PARIZQ ID S_PARDER
     """
+    t[0] = t[1] + " UNIQUE(" + t[4] + ")"
     repGrammar.append(t.slice)
 
 
@@ -2133,6 +2206,7 @@ def p_alterAlter(t):
     | R_COLUMN ID R_SET defaultVal
     | R_COLUMN ID R_TYPE types
     """
+    t[0] = t[1] + " " + t[2] + " " + t[3] + " " + t[4]
     repGrammar.append(t.slice)
 
 
@@ -2141,6 +2215,7 @@ def p_alterDrop(t):
     alterDrop : R_CONSTRAINT ID
     | R_COLUMN ID
     """
+    t[0] = t[1] + " " + t[2]
     repGrammar.append(t.slice)
 
 
@@ -2148,6 +2223,7 @@ def p_alterRename(t):
     """
     alterRename : R_COLUMN ID R_TO ID
     """
+    t[0] = t[1] + " " + t[2] + " " + t[3] + " " + t[4]
     repGrammar.append(t.slice)
 
 
@@ -2161,18 +2237,38 @@ Statement para el DROP
 # region DROP
 
 
-def p_dropStmt(t):
+def p_dropStmt_table(t):
     """
     dropStmt : R_DROP R_TABLE ifExists idOrString
-    | R_DROP R_DATABASE ifExists idOrString
+    """
+    t[0] = code.DropTable(t[4], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+
+def p_dropStmt_database(t):
+    """
+    dropStmt : R_DROP R_DATABASE ifExists idOrString
+    """
+    t[0] = code.DropDatabase(t[4], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+
+def p_dropStmt_index(t):
+    """
+    dropStmt : R_DROP R_INDEX ifExists idList
     """
     repGrammar.append(t.slice)
 
 
 def p_ifExists(t):
-    """ifExists : R_IF R_EXISTS
-    |
-    """
+    """ifExists : R_IF R_EXISTS"""
+    t[0] = t[1] + " " + t[2] + " "
+    repGrammar.append(t.slice)
+
+
+def p_ifExists_n(t):
+    """ifExists :"""
+    t[0] = ""
     repGrammar.append(t.slice)
 
 
@@ -2516,6 +2612,7 @@ def p_deleteStmt(t):
 
 def p_truncateStmt(t):
     """truncateStmt : R_TRUNCATE tableOpt ID"""
+    t[0] = code.Truncate(t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -2528,18 +2625,25 @@ def p_tableOpt(t):
 
 def p_showStmt(t):
     """showStmt : R_SHOW R_DATABASES likeOpt"""
+    t[0] = code.ShowDataBase(t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_likeOpt(t):
-    """likeOpt : R_LIKE STRING
-    |
-    """
+    """likeOpt : R_LIKE STRING"""
+    t[0] = " LIKE " + t[2] + " "
+    repGrammar.append(t.slice)
+
+
+def p_likeOpt_n(t):
+    """likeOpt :"""
+    t[0] = ""
     repGrammar.append(t.slice)
 
 
 def p_useStmt(t):
     """useStmt : R_USE ID"""
+    t[0] = code.UseDataBase(t[2], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -2563,7 +2667,8 @@ def Tree(n):
 
 def makeAst(root):
     ast.makeAst(root)
-    
+
+
 syntax_errors = list()
 PostgreSQL = list()
 

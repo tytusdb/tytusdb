@@ -1,4 +1,4 @@
 // AST
 digraph {
-	0 [label=INSTRUCTION_LIST]
+	7 [label=INSTRUCTION_LIST]
 }
