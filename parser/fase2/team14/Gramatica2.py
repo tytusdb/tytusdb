@@ -1489,15 +1489,16 @@ def p_LIMIT(t):
     if len(t) == 3:
         listaBNF.append("LIMIT ::= " + str(t[1]) + " " + str(t[2]))
         if str(t[1]).lower() == 'limit':
-            t[0] = Limit(t[2], -1)
+            t[0] = Limit(t[2], -1,str(t[1]) + " " + str(t[2]))
         elif str(t[1]).lower() == 'offset':
-            t[0] = Limit(-1, t[2])
+            t[0] = Limit(-1, t[2],str(t[1]) + " " + str(t[2]))
     elif len(t) == 5:
         listaBNF.append("LIMIT ::= " + str(t[1]) + " " + str(t[2]) + " " + str(t[3]) + " " + str(t[4]))
         if str(t[1]).lower() == 'limit':
-            t[0] = Limit(t[2], t[4])
+            t[0] = Limit(t[2], t[4],str(t[1]) + " " + str(t[2]) + " " + str(t[3]) + " " + str(t[4]))
         elif str(t[1]).lower() == 'offset':
-            t[0] = Limit(t[4], t[2])
+            t[0] = Limit(t[4], t[2],str(t[1]) + " " + str(t[2]) + " " + str(t[3]) + " " + str(t[4]))
+
 
 
 def p_WHERE(t):
