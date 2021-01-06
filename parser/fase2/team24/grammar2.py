@@ -1232,8 +1232,21 @@ def p_tipocambioind11(p):
     """
     tipocambioind   :   SET
                     |   RESET
+                    |   ALTER columnindopc
     """
     p[0] = p[1]
+
+def p_columnindopc(p):
+    """
+    columnindopc    :   COLUMN
+    """
+    p[0] = p[1]
+
+def p_columnindopc1(p):
+    """
+    columnindopc    :   
+    """
+    p[0] = ""
 
 def p_parametrosind(p):
     "parametrosind  :   PARA parind PARC"
