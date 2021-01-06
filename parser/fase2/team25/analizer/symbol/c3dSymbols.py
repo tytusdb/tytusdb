@@ -8,7 +8,7 @@ def add_symbol(name_,type_,value_,row_,column_,ambit_):
 #SEARCH A SYMBOL WITH name_ IF IS FOUND, THE RETURN name_, type_ AND value_
 def search_symbol(name_):
     if name_ in symbolTable:
-        return name_,symbolTable[name_][1],symbolTable[name_][2]
+        return name_,symbolTable[name_][0],symbolTable[name_][1]
     else:
         return 0
 #MODIFY THE VALUE OF A SYMBOL, THE type_ VERIFICATION MUST BE DONE BEFORE EXECUTE THIS

@@ -5,7 +5,7 @@ from analizer.abstract import instruction
 from analizer.reports import Nodo
 from analizer.symbol.environment import Environment
 
-indexEnv = Environment(None)
+indexEnv = Environment(None,for3d=True)
 indicesReg = dict()
 
 class Index(instruction.Instruction):
