@@ -69,7 +69,10 @@ class Where():
                     if insertar : 
                         matEncabezados.append([listaTablas[i-1][0],listaTablas[i-1][1],listaColumnas[i-1][j][0],listaColumnas[i-1][j][1]])
                     self.listaTablas[listaTablas[i-1][0]].lista[listaColumnas[i-1][j][0]].valueColumn=matriz3DData[i-1][fila[i]][j]
-            if parent.execute(self.listaTablas):
+
+            resBoolean = parent.execute(self.listaTablas)
+            fila[0] = resBoolean
+            if resBoolean:
                 rowRes = []
                 for i in range(1,len(fila)):
                     rowRes = rowRes + matriz3DData[i-1][fila[i]]
@@ -93,32 +96,9 @@ class Where():
             self.listaTablas[listaTablas[i][0]] = infTab
 
     #endregion
-    #region Producto Cartesiano
-    def cartesiano(self, listaMatrices):
-        # Función que realiza el producto cartesiano entre matrices
-        # Aunque en realidad el producto cartesiano se va a realizar
-        # únicamente en los selects, todas las peticiones pasan por
-        # este proceso.
-        array = []
-        for i in range(0,len(listaMatrices[0])):
-            array.append([True,i])
-        return self.funcionNXN(listaMatrices,1,array)
     
-    def funcionNXN(self, listaMatrices, indice, matrizInicial):
-        if indice<len(listaMatrices) :
-            matrizPivote = listaMatrices[indice]
-            result = []
-            for i in range(0,len(matrizInicial)):
-                for j in range(0,len(matrizPivote)):
-                    a = matrizInicial[i][:]
-                    a.append(j)
-                    result.append(a)
-            return self.funcionNXN(listaMatrices,indice+1,result)
-        else:
-            return matrizInicial
-    #endregion
 
-    def execute(self, parent, matriz3DData, listaTablas, listaColumnas):
+    def execute(self, parent, matriz3DData, listaTablas, listaColumnas, matrizMult):
         # Para el atributo WHERE se obtendrá el nodo SENTENCIA_WHERE, la cual siempre tendrá
         # un hijo expresión, todo esto se pasa en el parametro "parent"
         # La matrizData es la matriz 3D de datos obtenidos de los métodos extraer de
@@ -143,13 +123,28 @@ class Where():
 
         # Pasos para el WHERE:
         # 1. Realizar el producto Cartesiano de matriz3DData
-        matrizMult = self.cartesiano(matriz3DData)
+        
+        if matrizMult == None:
+            array = []
+            for i in range(0,len(matriz3DData)):
+                array.append([True,i])
+            matrizMult = array
+        
         self.llenarEstructura(listaTablas,listaColumnas)
         if parent != None:
             for hijo in parent.hijos:
                 if hijo.nombreNodo == "E":
-                    return self.ejeExpCols(hijo, matrizMult, listaTablas, listaColumnas, matriz3DData)
+                    self.ejeExpCols(hijo, matrizMult, listaTablas, listaColumnas, matriz3DData)
+                    return matrizMult
         else:
-            return self.ejeExpNone(None, matrizMult, listaTablas, listaColumnas, matriz3DData)
+            self.ejeExpNone(None, matrizMult, listaTablas, listaColumnas, matriz3DData)
+            return matrizMult
         #Tenemos la estructura llena, sin valores.
 
+    def compile(self,parent):
+        textoRetorno = " WHERE "
+        if parent != None:
+            for hijo in parent.hijos:
+                if hijo.nombreNodo == "E":
+                    textoRetorno = textoRetorno + hijo.getText()
+        return textoRetorno
