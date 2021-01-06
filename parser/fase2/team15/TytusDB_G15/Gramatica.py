@@ -552,6 +552,10 @@ def p_instruccion11(t) :
     reporte_bnf.append("<instruccion> ::= <delete_insrt>")
     t[0] = t[1]                          
 
+def p_instruccion12(t) :
+    'instruccion      : update_insrt'
+    reporte_bnf.append("<instruccion> ::= <update_insrt>")
+    t[0] = t[1] 
 
 
 def p_instruccion_f_select(t):
@@ -565,60 +569,7 @@ def p_instruccion_f_select_union(t):
     t[0] = Select_Uniones(t[1][0],t[1][1])
 
 
-def p_instruccion_f_select_uodate(t):
-    'instruccion : update_insrt'  
-'''def p_instruccion_error(t) :
-    'instruccion      : createDB_insrt error'
-    reporte_bnf.append("<instruccion> ::= <createDB_insrt><error>")
 
-def p_instruccion_error1(t) :
-    'instruccion      : create_Table_isnrt error '
-    reporte_bnf.append("<instruccion> ::= <create_Table_isnrt><error>")
-
-def p_instruccion_error2(t) :
-    'instruccion      : show_databases_instr error'
-    reporte_bnf.append("<instruccion> ::= <show_databases_instr><error>")
-
-def p_instruccion_error3(t) :
-    'instruccion      : show_tables_instr error'
-    reporte_bnf.append("<instruccion> ::= <show_tables_instr><error>")
-
-def p_instruccion_error4(t) :
-    'instruccion      : drop_database_instr error'
-    reporte_bnf.append("<instruccion> ::= <drop_database_instr><error>")
-
-def p_instruccion_error5(t) :
-    'instruccion      : use_database_instr error'
-    reporte_bnf.append("<instruccion> ::= <use_database_instr><error>")
-
-def p_instruccion_error6(t) :
-    'instruccion      : alterDB_insrt error'
-    reporte_bnf.append("<instruccion> ::= <alterDB_insrt><error>")
-
-def p_instruccion_error7(t) :
-    'instruccion      : update_insrt error'
-    reporte_bnf.append("<instruccion> ::= <update_insrt><error>")
-
-def p_instruccion_error8(t) :
-    'instruccion      : drop_insrt error'
-    reporte_bnf.append("<instruccion> ::= <drop_insrt><error>")
-
-def p_instruccion_error9(t) :
-    'instruccion      : alterTable_insrt error'
-    reporte_bnf.append("<instruccion> ::= <alterTable_insrt><error>")
-
-def p_instruccion_error10(t) :
-    'instruccion      : insert_insrt error'
-    reporte_bnf.append("<instruccion> ::= <insert_insrt><error>")
-
-def p_instruccion_error11(t) :
-    'instruccion      : TIPO_ENUM_INSRT error'
-    reporte_bnf.append("<instruccion> ::= <TIPO_ENUM_INSRT><error>")
-
-def p_instruccion_error12(t) :
-    'instruccion      : delete_insrt error'
-    reporte_bnf.append("<instruccion> ::= <delete_insrt><error>")
-'''
 #?######################################################
 # TODO        GRAMATICA INSTRUCCION DELETE
 #?######################################################
@@ -946,7 +897,7 @@ def p_lista_update_lista(t):
     t[0] = [t[1]]
 
 def p_parametro_update(t):
-    ' parametro_update : ID IGUAL expresion'
+    ' parametro_update : ID IGUAL exclusiva_insert'
     reporte_bnf.append("<parametro_update> ::= ID IGUAL <expresion>")
     t[0] = Create_Parametro_update(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1]),t[3])
 
