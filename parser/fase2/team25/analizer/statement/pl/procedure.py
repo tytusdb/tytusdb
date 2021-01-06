@@ -5,7 +5,7 @@ from analizer.abstract import instruction
 from analizer.reports import Nodo
 from analizer.symbol.environment import Environment
 
-envProcedure = Environment()
+envProcedure = Environment(for3d=True)
 
 class Procedure(instruction.Instruction):
     def __init__(self, name, params, block, row, column) -> None:
