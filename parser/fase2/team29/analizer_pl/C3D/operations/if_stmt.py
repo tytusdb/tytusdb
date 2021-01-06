@@ -3,6 +3,7 @@ from analizer_pl import grammar
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 
+
 class If_Statement(Instruction):
     def __init__(self, row, column, expBool, elseif_list, else_, stmts) -> None:
         super().__init__(row, column)
@@ -66,7 +67,7 @@ class If_Statement(Instruction):
         val = "\tlabel .etiqS" + str(grammar.next_etiq) + "\n"
         grammar.next_etiq += 1
         return val
-        
+
     def dot(self):
         new = Nodo("IF")
         new.addNode(self.expBool.dot())

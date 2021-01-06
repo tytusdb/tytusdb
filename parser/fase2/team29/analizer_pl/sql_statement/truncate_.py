@@ -1,4 +1,5 @@
 from analizer_pl.abstract import instruction
+from analizer_pl.statement.expressions import code
 
 
 class Truncate(instruction.Instruction):
@@ -7,4 +8,9 @@ class Truncate(instruction.Instruction):
         self.name = name
 
     def execute(self, environment):
-        pass
+        out = "fase1.execution(dbtemp + "
+        out += '" '
+        out += "TRUNCATE "
+        out += self.name + ";"
+        out += '")\n'
+        return code.C3D(out, "truncate_database", self.row, self.column)

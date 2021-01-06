@@ -1047,7 +1047,7 @@ class FuncionBinaria(Instruccion):
                 return argumento2
 
             if argumento.type == 'string' or argumento.type == 'ID' :
-                return Primitive('integer',str(argumento.val)[argumento1.val:argumento2.val])
+                return Primitive('string',str(argumento.val)[argumento1.val:argumento2.val])
             else:
                 error = Error('Semántico', 'Error de tipos en LENGTH, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
                 return error
@@ -2402,6 +2402,7 @@ class FuncionMatematicaSimple(Instruccion):
             else:
                 return Error('Semantico', 'El tipo para SUM debe ser numerico o float.', 0, 0)
         elif self.operador == 'count':
+            diccionarioRetorno['type'] = 'integer'
             if diccionarioAgrupacion == {}:
                 val = 0
                 arr = []

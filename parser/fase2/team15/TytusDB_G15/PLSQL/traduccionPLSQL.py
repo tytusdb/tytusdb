@@ -152,6 +152,19 @@ def generarC3D(instrucciones, ts_global):
         elif isinstance(instruccion, AlterTable):
             cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
             cadenaFuncionIntermedia += createAlterTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, InsertTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createInsertTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, SelectTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createSelectTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, SelectUniones):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createSelectUnionesTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, FuncionIndex):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createIndexFuncion(instruccion, ts)
+            
             
         indice = indice + 1
     tablaSimbolos = ts
@@ -634,6 +647,30 @@ def createAlterDatabaseFuncion(instruccion, ts):
     return cadenaSQL
 
 def createAlterTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createInsertTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createSelectTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createSelectUnionesTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createIndexFuncion(instruccion, ts):
     global numFuncionSQL
     print(instruccion.cadena)
     cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)

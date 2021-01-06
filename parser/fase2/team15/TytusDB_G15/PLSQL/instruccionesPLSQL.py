@@ -102,6 +102,21 @@ class AlterTable(Instruccion):
     def __init__(self, cadena):
         self.cadena = cadena
 
+class InsertTable(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class SelectTable(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class SelectUniones(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class FuncionIndex(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
 
 
 

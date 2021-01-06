@@ -378,19 +378,36 @@ precedence = (
 
 def p_init(t) :
     'init            : instrucciones'
-    text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
-
+    t[0] = t[1]
 
 def p_instrucciones_lista(t) :
     'instrucciones : instrucciones instruccion'
-    text = t[1]['text'] + "\n" + t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    texto = ''
+    if 'valSelectPrint' in t[2]:
+        texto += '    valSelectPrint = 1\n'
+
+    text = t[1]['text'] + "\n" + texto + t[2]['text']
+    try:
+        printList = t[1]['printList'] + t[2]['printList']
+    except:
+        printList = t[1]['printList']
+    t[0] =  {'text': text, 'c3d' : '', 'printList': printList}
+
 
 def p_instruciones(t):
     'instrucciones : instruccion'''
-    text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    valSelectPrint = 1\n'
+
+    text += t[1]['text']
+    try:
+        printList = t[1]['printList']
+    except:
+        printList = ''
+
+    t[0] =  {'text': text, 'c3d' : '', 'printList': printList}
+
 
 
 def p_instruccion(t) :
@@ -402,11 +419,14 @@ def p_instruccion(t) :
                         | INSERT insert
                         | UPDATE update
                         | ALTER alter'''
-    text = t[2]['c3d']
-    text += '    ' + tempos.newTemp() + ' = \'' + t[1] +" " + t[2]['text'] + '\' \n'
-    text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += '    ' + 'mediador()\n'
-    t[0] = {'text' : text, 'c3d': ''}
+    if t[2]['text'] == '':
+        text = ''
+    else:
+        text = t[2]['c3d']
+        text += '    ' + tempos.newTemp() + ' = \'' + t[1] +" " + t[2]['text'] + '\' \n'
+        text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
+        text += '    ' + 'mediador(0)\n'
+    t[0] = {'text' : text, 'c3d': '', 'printList': ''}
 
 #----------------testing condiciones--------------------
 #def p_instrcond(t):
@@ -425,50 +445,51 @@ def p_instruccion_ccreateind(t):
 def p_instruccion_ccreateindf(t):
     'instruccion    : CREATE createfunction'
     #print(t[2]['ftext'])
-    t[0] = {'text' : '', 'c3d': ''}
+    t[0] = {'text' : '', 'c3d': '', 'printList': t[2]['printList']}
 
 def p_instruccion_ccreateindpr(t):
     'instruccion    : CREATE createprocedure'
     #print(t[2]['ftext'])
-    t[0] = {'text' : '', 'c3d': ''}
+    t[0] = {'text' : '', 'c3d': '', 'printList': t[2]['printList']}
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
     text = t[1]['c3d']
     text += '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
     text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += '    ' + tempos.getcurrent()+ ' = mediador()\n'
+    text += '    ' + tempos.getcurrent()+ ' = mediador(' + 'valSelectPrint' + ')\n'
 
-    t[0] =  {'text': text, 'c3d' : ''}
+    t[0] =  {'text': text, 'c3d' : '', 'printList':'', 'valSelectPrint': 0}
 
 def p_instruccionQuerys(t):
     'instruccion  : querys PTCOMA'
     text = '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
     text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += '    ' + tempos.getcurrent()+ ' = mediador()\n'
-    t[0] =  {'text': text, 'c3d' : '' }
+    text += '    ' + tempos.getcurrent()+ ' = mediador(0)\n'
+    t[0] =  {'text': text, 'c3d' : '', 'printList': ''}
 
 def p_instruccionraise(t):
     'instruccion  : rise'
     #text = '    '+'rraise = True\n'
     text = t[1]['text']
     #text += '    '+'rraise = False\n'
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'printList': ''}
 
 #-------------------------------------------EXECUTE
 def p_stament_a(t):
     '''instruccion : execute PTCOMA'''
     text = t[1]['text']
     #print(text)
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'printList': ''}
 
 def p_instruccionError(t):
     'instruccion  : problem'
     text = "\n"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'printList': '' }
 
 def p_problem(t):
     '''problem  :  error PTCOMA'''
+    t[0] =  {'text': '', 'c3d' : '', 'printList': str(t[1]) + '\n' }
 
 
 
@@ -487,7 +508,11 @@ def p_riseB(t):
 
 def p_riseC(t):
     '''rise : RAISE instruccion'''
-    text = t[2]['text']
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    valSelectPrint = 1\n'
+
+    text += t[1]['text']
     text += '    print ('+tempos.getcurrent()+')\n'
     t[0] = {'text': text, 'c3d': ''}
 
@@ -740,7 +765,6 @@ def p_lista_de_seleccionados_funcion_params(t):
     cant = len(t[3]['c3d']) - 1
     arr = []
     c3d = ''
-    print(t[3])
     for val in t[3]['extra']:
         if val != '':
             c3d += val
@@ -757,17 +781,20 @@ def p_lista_de_seleccionados_funcion_params(t):
 
     text = ''
 
-    try:
-        if t[-1].lower() == 'execute' :
-            ''
-        else :
-            temporal = tempos.newTemp()
-            c3d += '    ' + temporal + ' = heap.pop()\n'
-            text = '\\\'\' + str(' + temporal + ') + \'\\\''
-    except:
-        temporal = tempos.newTemp()
-        c3d += '    ' + temporal + ' = heap.pop()\n'
-        text = '\\\'\' + str(' + temporal + ') + \'\\\''
+    l.readData(datos)
+    if 'funciones_' in datos.tablaSimbolos:
+        for nombres in datos.tablaSimbolos['funciones_']:
+            if nombres['name'] == t[1]:
+                if nombres['tipo'] == 'Procedimiento':
+                    ''
+                else:
+                    temporal = tempos.newTemp()
+                    c3d += '    ' + temporal + ' = heap.pop()\n'
+
+                    if nombres['return'] == 'varchar' or nombres['return'] == 'text' or nombres['return'] == 'char' or nombres['return'] == 'character':
+                        text = '\\\'\' + str(' + temporal + ') + \'\\\''
+                    else:
+                        text = '\' + str(' + temporal + ') + \''
 
     t[0] =  {'text': text, 'c3d' : c3d}
 
@@ -775,8 +802,20 @@ def p_lista_de_seleccionados_funcion(t):
     'funcionesLlamada : ID PARENIZQ PARENDER'
     c3d = '    ' + t[1] + '()\n'
     val = tempos.newTemp()
-    c3d += '    ' + val + ' = heap.pop()\n'
-    text = '\\\'\' + str(' + val + ') + \'\\\''
+    text = ''
+    l.readData(datos)
+    if 'funciones_' in datos.tablaSimbolos:
+        for nombres in datos.tablaSimbolos['funciones_']:
+            if nombres['name'] == t[1]:
+                if nombres['tipo'] == 'Procedimiento':
+                    ''
+                else:
+                    if nombres['return'] == 'varchar' or nombres['return'] == 'text' or nombres['return'] == 'char' or nombres['return'] == 'character':
+                        text = '\\\'\' + str(' + val + ') + \'\\\''
+                    else:
+                        text = '\' + str(' + val + ') + \''
+                    c3d += '    ' + val + ' = heap.pop()\n'
+
     t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_params_FR(t):
@@ -1229,10 +1268,9 @@ def p_argument_noterminal(t):
     text = t[1]['text']
     tempo = tempos.newTemp()
     c3d = "    "+tempo+ " = '"+ t[1]['text']+"'\n"
-    c3d += "    "+"heap.append("+tempo+")\n" 
-    c3d += "    "+tempo + " = mediador()\n"
+    c3d += "    "+"heap.append("+tempo+")\n"
+    c3d += "    "+tempo + " = mediador(0)\n"
     #print(text)
-    print ( str(t[1]['c3d']))
     t[0] =  {'text': text, 'c3d' : c3d, 'tflag': tempo}
 
 
@@ -1645,7 +1683,6 @@ def p_boleano(t):
 
 def p_argument_funcion(t):
     'argument : funcionesLlamada'
-    print(t[1])
     t[0] = {'text' : t[1]['text'], 'c3d' : t[1]['c3d'], 'tflag':str(tempos.getcurrent()), 'select': t[1]['c3d']}
 
 #-------------------------------------------CREATEEE----------------------------------------------------
@@ -2205,7 +2242,6 @@ def p_instruccionesdelete_e(t):
 #-------------------------------------------------------INSERT------------------------------------------
 def p_instrucciones_insert(t):
     '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
-    text = ""
     text = "INTO "+t[2] + " VALUES ( " +t[5]['text']+ " ) ;"
     c3d = t[5]['c3d']
     t[0] =  {'text': text, 'c3d' : c3d }
@@ -2218,23 +2254,27 @@ def p_instrucciones_insert_err(t):
 def p_values_rec(t):
     '''values   : values COMA value'''
     text = str(t[1]['text']) + " , " +str(t[3]['text'])
-    c3d = t[1]['c3d'] + t[3]['c3d']
+    select = ''
+    if 'select' in t[3]:
+        select = t[3]['select']
+
+    c3d = t[1]['c3d'] + select
     t[0] =  {'text': text, 'c3d' : c3d }
 
 def p_values(t):
     '''values   : value'''
-    text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    select = ''
+    if 'select' in t[1]:
+        select = t[1]['select']
+    t[0] = {'text':t[1]['text'], 'c3d':'', 'select':select}
 
 def p_value_funcion(t):
     'value : funcionesLlamada'
-    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'] }
+    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'], 'select':t[1]['c3d'] }
 
 def p_value(t):
     '''value   : ENTERO'''
-    text = t[1]['text']
-    c3d = t[1]['c3d']
-    t[0] =  {'text': text, 'c3d' : c3d }
+    t[0] =  {'text': t[1], 'c3d' : str(t[1]) }
 
 def p_valuef(t):
     '''value   : DECIMAL'''
@@ -2318,23 +2358,38 @@ def p_instrucciones_update_condsopsE(t):
 #----------------------------------------NUEVO---------------------------------------------------------
 #------------------------------------------------------------PROCEDURE--------------------------------------------------------------------
 def p_createprocedure(t):
-    'createprocedure : orreplaceopcional PROCEDURE ID PARENIZQ argumentos PARENDER LANGUAGE ID AS DOLARS bodystrcpr DOLARS '
+    'createprocedure : orreplaceopcional PROCEDURE ID PARENIZQ argumentosp PARENDER LANGUAGE ID AS DOLARS bodystrcpr DOLARS '
     ftext = '@with_goto\n' + 'def ' + t[3] + '():\n'
     ftext += t[5]['text']
     ftext += t[11]['text']
 
+    printList = ''
     try:
         if t[1].lower() == 'or' :
-            f = open('./PyF/procedimientos/'+t[2]+'.py', "w")
+            f = open('./Funciones/'+t[2]+'.py', "w")
             f.write(ftext)
             f.close()
     except:
-        #----Validando procedimiento--------
-        f = open('./PyF/procedimientos/'+t[2]+'.py', "w")
-        f.write(ftext)
-        f.close()
-        #--------------------------------
-    t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext}
+        l.readData(datos)
+        if not 'funciones_' in datos.tablaSimbolos:
+            datos.tablaSimbolos['funciones_'] = []
+        found = False
+        for func in datos.tablaSimbolos['funciones_'] :
+            if func['name'] == t[3] and func['tipo'] == 'Procedimiento':
+                found = True
+                break
+        if not found :
+            datos.tablaSimbolos['funciones_'].append({'name' : t[3], 'return' : None, 'tipo': 'Procedimiento'})
+            #-----Creando archivo de función
+            f = open('./Funciones/'+t[3]+'.py', "w")
+            f.write(ftext)
+            f.close()
+            #-------------------------------
+        else :
+            printList = 'La funcion ' + t[3] + ' ya esta creada.\n'
+
+        l.writeData(datos)
+    t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList}
 
 def p_orreplaceopcional(t):
     '''orreplaceopcional :  OR REPLACE'''
@@ -2390,7 +2445,12 @@ def p_stament_caspr(t):
 
 def p_statement_pr(t):
     'statementpr : instruccion'
-    text = t[1]['text']
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    valSelectPrint = 1\n'
+
+    text += t[1]['text']
+
     t[0] = {'text': text, 'c3d': ''}
 
 #--------------------------------------------------------------------FUNCIONES--------------------------------------------------------------
@@ -2400,41 +2460,35 @@ def p_createfunction(t):
     ftext += t[4]['text']
     ftext += t[9]['text']
     #----Validando función--------
-
-    '''burger = ts.DataFile()
-    burger.readData(datos)
-
-    if not 'funciones' in datos.tablaSimbolos:
-        datos.tablaSimbolos['funciones'] = []
+    l.readData(datos)
+    printList = ''
+    if not 'funciones_' in datos.tablaSimbolos:
+        datos.tablaSimbolos['funciones_'] = []
     found = False
-    for func in datos.tablaSimbolos['funciones'] :
-        if func.name == t[2] :
+    for func in datos.tablaSimbolos['funciones_'] :
+        if func['name'] == t[2] and func['tipo'] == 'Funcion':
             found = True
             break
     if not found :
-        datos.tablaSimbolos['funciones'].append({'name' : t[2], 'return' : t[7]['text']})
+        datos.tablaSimbolos['funciones_'].append({'name' : t[2], 'return' : t[7]['text'], 'tipo': 'Funcion'})
         #-----Creando archivo de función
-        f = open('./PyF/funciones/'+t[2]+'.py', "w")
+        f = open('./Funciones/'+t[2]+'.py', "w")
         f.write(ftext)
         f.close()
         #-------------------------------
     else :
-        print('La funcion ' + t[2] + ' ya esta creada.')
+        printList = 'La funcion ' + t[2] + ' ya esta creada.\n'
 
-    #print(datos)
-    burger.writeData(datos)'''
-    f = open('./PyF/funciones/'+t[2]+'.py', "w")
-    f.write(ftext)
-    f.close()
-    #--------------------------------
-    t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext}
+    l.writeData(datos)
+    t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList}
+
 
 def p_argumento_p(t):
     '''argumentosp : argumentos'''
     text = t[1]['text']
     t[0] =  {'text': text, 'c3d' : '' }
 
-def p_argumento_p(t):
+def p_argumento_p_ep(t):
     'argumentosp : '
     t[0] =  {'text': '', 'c3d' : '' }
 
@@ -2561,7 +2615,11 @@ def p_stament_casf(t):
 
 def p_statement_b(t):
     'statement : instruccion'
-    text = t[1]['text']
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    valSelectPrint = 1\n'
+
+    text += t[1]['text']
     t[0] = {'text': text, 'c3d': ''}
 
 def p_asigment(t):
@@ -2582,7 +2640,11 @@ def p_finasigment_args(t):
 
 def p_finasigment_inst(t):
     '''fasign   : instruccion'''
-    text = t[1]['text']
+    text = ''
+    if 'valSelectPrint' in t[1]:
+        text += '    ' +'valSelectPrint = 0\n'
+
+    text += t[1]['text']
     t[0] = {'text': tempos.getcurrent(), 'c3d': text}
 
 def p_igualdadcf(t):
@@ -2727,6 +2789,7 @@ def p_error(t):
     description = "Error sintactico con: " + str(t.value)
     mistake = error("Sintactico", description, str(t.lineno))
     errores.append(mistake)
+    print(mistake.toString())
     return None
 
 def getMistakes():
