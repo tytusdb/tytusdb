@@ -169,12 +169,15 @@ def generarC3D(instrucciones, ts_global):
         elif isinstance(instruccion, FuncionIndex):
             cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
             cadenaFuncionIntermedia += createIndexFuncion(instruccion, ts)
-            
+        elif isinstance(instruccion, UpdateTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createUpdateTableFuncion(instruccion, ts)   
             
         indice = indice + 1
     tablaSimbolos = ts
     
-    cadenaTraduccion += "\n\tprint(inter.Reportes())"
+    if numFuncionSQL > 0:
+        cadenaTraduccion += "\n\tprint(inter.Reportes())"
 
     cadenaTraduccion += '\t\n'
     cadenaTraduccion += '\tgoto. end'
@@ -196,6 +199,7 @@ def generarC3D(instrucciones, ts_global):
 
 def generarPrincipal(instruccion, ts):
     global cadenaTraduccion
+    global cadenaFuncionIntermedia,numFuncionSQL
     indice = 0
     instrucciones = instruccion.instrucciones
     while indice < len(instrucciones):
@@ -216,6 +220,12 @@ def generarPrincipal(instruccion, ts):
             generarEtiqueta(instruccion, ts)
         elif isinstance(instruccion, Salto):
             generarSalto(instruccion,ts)
+        elif isinstance(instruccion, InsertTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createInsertTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, UpdateTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createUpdateTableFuncion(instruccion, ts)
         indice = indice + 1
 
 def generarEtiqueta(instruccion, ts):
@@ -674,6 +684,13 @@ def createIndexFuncion(instruccion, ts):
     print(instruccion.cadena)
     cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
     return cadenaSQL
+
+def createUpdateTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
 
 def generarFuncionesSQL(instruccionSQL,numero):
     global numFuncionSQL

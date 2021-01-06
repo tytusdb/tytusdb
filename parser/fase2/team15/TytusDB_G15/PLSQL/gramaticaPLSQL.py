@@ -537,6 +537,7 @@ def p_instrucciones_global_sent(t):
                                     | alterDB_insrt
                                     | alterTable_insrt
                                     | insert_insrt
+                                    | update_insrt
                                     | createIndex'''
     t[0] = t[1]
 
@@ -571,6 +572,8 @@ def p_instrucciones_funct_sent(t):
                                     | sentencia_switch
                                     | PTCOMA
                                     | llamada_funcion
+                                    | insert_insrt
+                                    | update_insrt
                                     | empty'''
     t[0] = t[1]
 
@@ -1000,6 +1003,31 @@ def p_extract_time4(t):
 def p_extract_time5(t):
     ' extract_time : SECOND '
     t[0] = ' ' + t[1] + ' '
+
+#?######################################################
+# TODO        GRAMATICA UPDATE TABLE
+#?######################################################
+
+def p_update_insrt(t):
+    ' update_insrt : UPDATE ID SET lista_update cond_where PTCOMA'
+    cadena = ""
+    for i in t[4]:
+        cadena+= str(i)
+    t[0] = UpdateTable(' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ cadena + ' '+ str(t[5]) + ';')
+
+def p_lista_update(t):
+    ' lista_update :  lista_update COMA parametro_update'
+    t[1].append(t[2])
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_update_lista(t):
+    ' lista_update : parametro_update'
+    t[0] = [t[1]]
+
+def p_parametro_update(t):
+    ' parametro_update : ID IGUAL exclusiva_insert'
+    t[0] = ' ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' '
 
 # DROP
 #?######################################################
