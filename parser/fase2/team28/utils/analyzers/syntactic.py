@@ -93,6 +93,7 @@ def p_sql_instruction(p):
     p[0] = p[1]
     if p.slice[1].type != "error":
         contador_instr += 1
+    print("STRING PARA PASARLO: \n" + p[0]._tac)
 
 
 def p_use_statement(p):
@@ -115,7 +116,6 @@ def p_create_statement(p):
     '''createstatement : CREATE optioncreate SEMICOLON'''
     p[0] = p[2]
     p[0]._tac = f'CREATE {p[2]._tac};'
-    print("createstatement: \n" + p[0]._tac)
 
 def p_option_create(p):
     '''optioncreate : TYPE SQLNAME AS ENUM LEFT_PARENTHESIS typelist RIGHT_PARENTHESIS
@@ -129,6 +129,13 @@ def p_option_create(p):
 
     if len(p) == 8:
         p[0] = CreateType(p[2], p[6], generateC3D(p))
+
+        string = ''
+        for index, var in enumerate(p[6]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+
+        p[0]._tac = f"TYPE {p[2]._tac} AS ENUM ({string})"
         
     elif len(p) == 3:
         p[0] = CreateDB(p[2], False, generateC3D(p), noLine, noColumn)
@@ -276,8 +283,11 @@ def p_column(p):
 
     elif len(p) == 6:
         p[0] = PrimaryKey(p[4])
-        p[0]._tac = f'PRIMARY KEY ({p[4]._tac})'
-
+        string = ''
+        for index, var in enumerate(p[9]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+        p[0]._tac = f'PRIMARY KEY ({p[4]._tac}) REFERENCES {p[7]}({string})'
     elif len(p) == 11:
         p[0] = ForeignKey(p[4], p[7], p[9])
         p[0]._tac = f'FOREIGN KEY ({p[4]._tac})'
@@ -393,10 +403,28 @@ def p_type_col(p):
         else:
             p[0] = ColumnTipo(ColumnsTypes.VARCHAR, None, None)
 
+
     if len(p) == 2:
         p[0]._tac = p[1].upper()
+    
+    elif p.slice[3].type == "VARYING":
+        if len(p) == 3:
+            p[0]._tac = 'CHARACTER VARYING'
+        else:
+            p[0]._tac = f'CHARACTER VARYING ({p[4]})'
+
+    elif p.slice[2].type == "INTERVAL":
+        p[0]._tac = f'INTERVAL {p[3]._tac}'
+
+    elif p.slice[2].type == "DOUBLE":
+        p[0]._tac = 'DOUBLE PRECISION'
+
     elif len(p) == 5:
         p[0]._tac = f'{p[1].upper()}({p[3]})'
+
+    elif len(p) == 7:
+        p[0]._tac = f'{p[1].upper()}({p[3]}, {p[5]})'
+
 
 #TODO: TIPOS CON MAS PARAMETROS
 
@@ -1133,7 +1161,7 @@ def p_dml(p):
            | UPDATESTATEMENT'''
     p[0] = p[1]
 
-
+#TODO: OBTENER STRING
 def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
@@ -1141,6 +1169,7 @@ def p_update_statement(p):
     if(len(p) == 8):
         p[0] = Update(p[2], p[5], p[6], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        p[0] = f'UPDATE ID {p[3]._tac} SET ;'
     elif(len(p) == 7):
         p[0] = Update(p[2], p[4], p[5], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
@@ -1235,9 +1264,14 @@ def p_delete_statement(p):
     if (len(p) == 6):
         p[0] = Delete(p[3], p[4], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        string = ''
+        for val in p[4]:
+            string += val._tac
+        p[0]._tac = f'DELETE FROM {p[3]} {string};'
     else:
         p[0] = Delete(p[3], None, generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'DELETE FROM {p[3]};'
 
 
 def p_options_list(p):
@@ -1277,18 +1311,28 @@ def p_options1(p):
     '''OPTIONS1 : ASTERISK SQLALIAS
                 | ASTERISK
                 | SQLALIAS'''
-    if(len(p) == 2):
+    if(len(p) == 3):
         p[0] = Opt1(True, p[2])
+
+        p[0]._tac = f'* {p[2]._tac}'
     else:
         if(p[1] == "*"):
             p[0] = Opt1(True, None)
+            p[0]._tac = f'* '
+
         else:
             p[0] = Opt1(False, p[2])
+            p[0]._tac = f'{p[2]._tac} '
 
 
 def p_options2(p):
     '''OPTIONS2 : USING USINGLIST'''
     p[0] = Using(p[2])
+    string = ''
+    for index, var in enumerate(p[2]):
+        if index > 0: string += f', {var._tac}'
+        else: string += f'{var._tac}'
+    p[0]._tac = f'USING {string}'
 
 
 def p_using_list(p):
@@ -1300,15 +1344,16 @@ def p_using_list(p):
     else:
         p[0] = [p[1]]
 
-# def p_options3(p):
-#     '''OPTIONS3 : WHERE SQLEXPRESSION'''
-#     p[0] = Where(p[2]) --------> GRAMATICA SE REPITE
-
-
 def p_options4(p):
     '''OPTIONS4 : RETURNING RETURNINGLIST'''
     p[0] = Returning(p[2])
-
+    string = ''
+    if type(p[2]) is list:
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+    else: string = '* '
+    p[0]._tac = f'RETURNING {string}'
 
 def p_returning_list(p):
     '''RETURNINGLIST   : ASTERISK
@@ -1325,17 +1370,33 @@ def p_returning_expression(p):
     else:
         p[0] = [p[1]]
 
-
 def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
                        | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
     if(len(p) == 12):
         p[0] = Insert(p[3], p[5], p[9], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        string = ''
+        string1 = ''
+        #LISTPARAMSINSERT
+        for index, var in enumerate(p[5]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+        #LISTVALUESINSERT
+        for index, var in enumerate(p[9]):
+            if index > 0: string1 += f', {var._tac}'
+            else: string1 += f'{var._tac}'
+
+        p[0]._tac = f'INSERT INTO {p[3]._tac} ({string}) VALUES ({string1});'
     else:
         p[0] = Insert(p[3], None, p[6], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+        #LISTVALUESINSERT
+        for index, var in enumerate(p[6]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
 
+        p[0]._tac = f'INSERT INTO {p[3]._tac} VALUES ({string});'
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
@@ -1568,7 +1629,7 @@ def p_limit_types(p):
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
     p[0] = Where(p[2])
-
+    p[0]._tac = f'WHERE {p[2]._tac}'
 
 def p_group_by_clause(p):
     '''GROUPBYCLAUSE : GROUP BY SQLEXPRESSIONLIST'''
