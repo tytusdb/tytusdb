@@ -35,3 +35,7 @@ class Print_I(Instruccion):
         self.id = id
 
 
+class Drop_fun_proc(Instruccion):
+    def __init__(self, id, tipo):
+        self.id = id
+        self.tipo = tipo

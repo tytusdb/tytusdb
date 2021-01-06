@@ -1796,6 +1796,17 @@ def p_instruccion_dml_comandos_DROP_TABLE(t):
     rep_gramatica('\n <TR><TD> DML_COMANDOS →     DROP TABLE LISTA_DE_IDS PUNTOCOMA  </TD><TD> t[0] = DropTable(t[3]) </TD></TR>')
 
 
+# DROP FUNCTION
+def p_dml_comandos_DROP_FUNCTION(t):
+    'DML_COMANDOS       : DROP FUNCTION ID PUNTOCOMA'
+    t[0] = Drop_fun_proc(t[3],t[2])
+
+# DROP PROCEDURE
+def p_dml_comandos_DROP_PROCEDURE(t):
+    'DML_COMANDOS       : DROP PROCEDURE ID PUNTOCOMA'
+    t[0] = Drop_fun_proc(t[3],t[2])
+
+
 # LISTADO DE IDS--------------------------------------------------------
 def p_CREATE_TABLE_LISTA_IDS_(t):
     'LISTA_ALTER_EM      : LISTA_ALTER_EM LISTA_ALTER_EM_'
