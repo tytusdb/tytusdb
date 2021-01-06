@@ -2304,14 +2304,22 @@ def p_sentencia_if(t):
     if t[1] == "IF" and len(t) == 11:
         print("Llega")
         t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
-    elif t[1] == "IF" and len(t) == 9:
-        t[0] = condicional_if.IfElseIf(t[2],t[4],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     elif t[1] == "IF" and  len(t) == 8:
         print("Llega")
         t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     elif t[1] == "IF" and len(t) == 10:
         print("Llega")
         t[0] = condicional_if.Ifelse(t[2],t[4],t[6],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "IF" and len(t) == 9:
+        t[0] = condicional_if.IfElseIf(t[2],t[4],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "CASE" and len(t) == 6:
+        t[0] = condicional_case.Case(t[2],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "CASE" and len(t) == 8:
+        t[0] = condicional_case.CaseElse(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "CASE" and len(t) == 7:
+        t[0] = condicional_case.CaseID(t[2],t[3],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "CASE" and len(t) == 9:
+        t[0] = condicional_case.CaseIDElse(t[2],t[3],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
 
 def p_instrucciones_if(t):
     ''' 
@@ -2369,6 +2377,7 @@ def p_condicion_cuando(t):
     condicion_cuando : WHEN l_expresiones THEN instrucciones_if
 
     '''
+    t[0] = condicional_case.condicion_caseID(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
 
 def p_condiciones_cuando_B(t):
     '''

@@ -1,4 +1,5 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Expresiones import Relacional
 
@@ -24,7 +25,7 @@ class Case(Instruccion):
             if isinstance(condicion_case, Excepcion):
                 return condicion_case
             codigo += condicion_case
-        codigo += "\tlabel " + etiquetaSalida + "\n"
+        codigo += "\t\tlabel " + etiquetaSalida + "\n"
         return codigo
         
 class condicion_case(Instruccion):
@@ -41,38 +42,37 @@ class condicion_case(Instruccion):
 
     def traducir(self, tabla, arbol,cadenaTraducida):
          #Si existe algun error en la expresion logica se devuelve el error
-        #expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
-        #if isinstance(expresion_logica, Excepcion):
-        #        return expresion_logica
-
-        #Inicia traduccion
-        codigo = "\t" + self.expLogica + "\n" 
-        etiquetaV = arbol.generaEtiqueta()
-        etiquetaF = arbol.generaEtiqueta()
-        etiquetaSalida = cadenaTraducida
-        codigo += "\tif " + self.expLogica + ":\n"
-        codigo += "\t\tgoto " + etiquetaV + "\n"
-        codigo += "\tgoto " + etiquetaF + "\n"
-        codigo += "\tlabel " + etiquetaV + "\n"
-        #for i in self.instrucciones:
-        #    instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
-        #    if isinstance(instruccion_if, Excepcion):
-        #        return instruccion_if
-        #    codigo += i.codigo
-        codigo += "\t" + self.instrucciones + "\n"
-        codigo += "\tgoto " + etiquetaSalida + "\n"
-        codigo += "\tlabel " + etiquetaF + "\n"
-        
-        return codigo
-        #   ...
-        #   if temporal_logico:
-        #       goto L1
-        #   goto L2
-        #   label L1    
-        #   instrucciones_if
-        #   goto Lsalida
-        #   label L2
-        #   ...
+        expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
+        if isinstance(expresion_logica, Excepcion):
+                return expresion_logica
+        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN:
+            #Inicia traduccion
+            codigo = expresion_logica.codigo
+            etiquetaSalida = cadenaTraducida
+            
+            codigo += "\t\tlabel " + expresion_logica.etiquetaV[:-1] + "\n"
+            for i in self.instrucciones:
+                instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
+                if isinstance(instruccion_if, Excepcion):
+                    return instruccion_if
+                codigo += instruccion_if
+            codigo += "\t\tgoto " + etiquetaSalida + "\n"
+            codigo += "\t\tlabel " + expresion_logica.etiquetaF[:-1] + "\n"
+            return codigo
+            #   ...
+            #   if temporal_logico:
+            #       goto L1
+            #   goto L2
+            #   label L1    
+            #   instrucciones_if
+            #   goto Lsalida
+            #   label L2
+            #   ...
+        else:
+            error = Excepcion('42804',"Semántico","La expresion logica debe ser de tipo boolean",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
 
 class CaseElse(Instruccion):
     '''
@@ -99,14 +99,42 @@ class CaseElse(Instruccion):
             if isinstance(condicion_case, Excepcion):
                 return condicion_case
             codigo += condicion_case
-        #for i in self.instrucciones:
-        #    instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
-        #    if isinstance(instruccion_if, Excepcion):
-        #        return instruccion_if
-        #    codigo += i.codigo
-        codigo += "\t" + self.instrCaseFalso + "\n"
-        codigo += "\tlabel " + etiquetaSalida + "\n"
+        for i in self.instrCaseFalso:
+            instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
+            if isinstance(instruccion_if, Excepcion):
+                return instruccion_if
+            codigo += instruccion_if
+        codigo += "\t\tlabel " + etiquetaSalida + "\n"
         return codigo
+
+class CaseID(Instruccion):
+    '''
+    La clase CaseID, recibe una variable a evaluar, una lista de condiciones 
+    y cada una de ellas tiene una lista de instrucciones
+    '''
+
+    def __init__(self,identificador,l_condiciones,strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram,strSent)
+        self.identificador = identificador
+        self.l_condiciones = l_condiciones
+        #desde aqui voy a mandar la etiqueta de escape
+
+    def ejecutar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + self.identificador + "\n"
+        etiquetaSalida = arbol.generaEtiqueta()
+        #Si existe algun error en la condicion se devuelve el error
+        for condicion in self.l_condiciones:
+            condicion_case = condicion.traducir(tabla, arbol,etiquetaSalida,temporal)
+            if isinstance(condicion_case, Excepcion):
+                return condicion_case
+            codigo += condicion_case
+        codigo += "\t\tlabel ." + etiquetaSalida + "\n"
+        return codigo
+
 
 class condicion_caseID(Instruccion):
     '''
@@ -120,33 +148,34 @@ class condicion_caseID(Instruccion):
     def ejecutar(self, tabla, arbol):
         pass
 
-    def traducir(self, tabla, arbol,cadenaTraducida,operadorI):
+    def traducir(self, tabla, arbol,cadenaTraducida,temporal):
         #Si existe algun error en la expresion logica se devuelve el error
+        temporal = temporal
         codigo = ""
-        for  expre in self.expLogica:
+        for expre in self.expLogica:
             expresion_logica = expre.traducir(tabla, arbol,cadenaTraducida)
             if isinstance(expresion_logica, Excepcion):
                 return expresion_logica
-            codigo += "\t" + expresion_logica.codigo + "\n"
-            #relacional = Relacional.Relacional(operadorI,)
-        #Inicia traduccion
-        codigo = "\t" + self.expLogica + "\n" 
-        etiquetaV = arbol.generaEtiqueta()
-        etiquetaF = arbol.generaEtiqueta()
-        etiquetaSalida = cadenaTraducida
-        codigo += "\tif " + self.expLogica + ":\n"
-        codigo += "\t\tgoto " + etiquetaV + "\n"
-        codigo += "\tgoto " + etiquetaF + "\n"
-        codigo += "\tlabel " + etiquetaV + "\n"
-        #for i in self.instrucciones:
-        #    instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
-        #    if isinstance(instruccion_if, Excepcion):
-        #        return instruccion_if
-        #    codigo += i.codigo
-        codigo += "\t" + self.instrucciones + "\n"
-        codigo += "\tgoto " + etiquetaSalida + "\n"
-        codigo += "\tlabel " + etiquetaF + "\n"
-        
+            #expresion logica contiene un simbolo3D codigo = temporal = valor
+            codigo += expresion_logica.codigo 
+
+            #Inicia traduccion
+            etiquetaV = arbol.generaEtiqueta()
+            etiquetaF = arbol.generaEtiqueta()
+            etiquetaSalida = cadenaTraducida
+            codigo += "\t\tif (" + temporal + "==" + expresion_logica.temporal + "):\n"
+            codigo += "\t\t\tgoto ." + etiquetaV + "\n"
+            codigo += "\t\tgoto ." + etiquetaF + "\n"
+            codigo += "\t\tlabel ." + etiquetaV + "\n"
+            for i in self.instrucciones:
+                instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
+                if isinstance(instruccion_if, Excepcion):
+                    return instruccion_if
+                codigo += instruccion_if
+
+            codigo += "\t\tgoto ." + etiquetaSalida + "\n"
+            codigo += "\t\tlabel ." + etiquetaF + "\n"
+            
         return codigo
         #   ...
         #   if temporal_logico:
@@ -157,3 +186,37 @@ class condicion_caseID(Instruccion):
         #   goto Lsalida
         #   label L2
         #   ...
+
+class CaseIDElse(Instruccion):
+    '''
+    La clase CaseIDElse, recibe una variablea evaluar, una lista de condiciones y cada una de ellas 
+    tiene una lista de instrucciones, ademas de las instrucciones si todas son falsas
+    '''
+
+    def __init__(self,identificador,l_condiciones,instrCaseFalso,strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram,strSent)
+        self.identificador = identificador
+        self.l_condiciones = l_condiciones
+        self.instrCaseFalso = instrCaseFalso
+        #desde aqui voy a mandar la etiqueta de escape
+
+    def ejecutar(self, tabla, arbol):
+        pass
+
+    def traducir(self, tabla, arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + self.identificador + "\n"
+        etiquetaSalida = arbol.generaEtiqueta()
+        #Si existe algun error en la condicion se devuelve el error
+        for condicion in self.l_condiciones:
+            condicion_case = condicion.traducir(tabla, arbol,etiquetaSalida,temporal)
+            if isinstance(condicion_case, Excepcion):
+                return condicion_case
+            codigo += condicion_case
+        for i in self.instrCaseFalso:
+            instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
+            if isinstance(instruccion_if, Excepcion):
+                return instruccion_if
+            codigo += instruccion_if
+        codigo += "\t\tlabel ." + etiquetaSalida + "\n"
+        return codigo
