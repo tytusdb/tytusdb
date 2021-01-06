@@ -1460,6 +1460,10 @@ def p_ins_create_pl(t):
         func = funcion({'id':t[4], 'parametros':t[6]},t[10])
         t[0].code = func
         t[0].statement = 'CREATE_FUNCTION'
+    else: 
+        func = funcion({'id':t[4], 'parametros':t[6]},t[11])
+        t[0].code = func
+        t[0].statement = 'CREATE_FUNCTION'
 
 def p_op_replace(t):
     '''op_replace :  OR REPLACE
@@ -1576,27 +1580,28 @@ def p_block(t):
 def p_body(t):
     '''body :  declare_statement BEGIN internal_blockopt END '''
     t1 = ""
-    t2 = ""
     t3 = ""
     if t[1] != None:
         t1 = t[1]
     if t[3] != None:
         t3 = t[3]
-    t[0] = t1 + t3
+    if len(t1) == 0 and t[3] != None:
+        t[0] = t3
+    elif len(t3) == 0  == "" and t[1] != None:
+        t[0] = t1
+    else: 
+        t[0] = t3
 
-#TODO: Revisar declare_statement
-#def p_declare(t):
-#    '''declare_statement : DECLARE statements
-#                         | 
-#    '''
 def p_declare(t):
     '''declare_statement : declare_statement DECLARE declares
                         | DECLARE declares
                         | '''
     if len(t) == 3:
         t[0] = t[2]
-    else:
+    elif len(t) == 4:
         t[0] = t[1] + t[3]
+    else: 
+        t[0] = []
 
 def p_declares(t):
     '''declares : declares declaracion
@@ -1806,7 +1811,7 @@ def p_instruccion_case_only(t):
     '''instruccion_case_only : WHEN multiple then'''
 
 def p_multiple(t):
-    '''multiple : exp_plsql COMA exp_plsql
+    '''multiple : multiple COMA exp_plsql
                     | exp_plsql'''
 
 def p_lista_exp(t):
@@ -1848,7 +1853,12 @@ def p_f_query(t):
                 | ins_insert f_return
                 | ins_update f_return
                 | ins_delete f_return'''
-    t[0] = ''
+    if len(t) == 3:
+        if t[2] != None:
+            t[0] = 'parser.parse(\'' + t[1].code + '\')' + '\n' + t[2]
+        else:
+            t[0] = 'parser.parse(\'' + t[1].code + '\')' + '\n'
+            
 
 def p_f_return(t):
     ''' f_return : RETURNING exp_plsql into 
