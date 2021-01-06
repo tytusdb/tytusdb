@@ -146,7 +146,7 @@ class Quadruple(object):
         elif self.instType == OpTAC.PUSH:
             return f'push({self.arg1})'
         elif self.instType == OpTAC.CALL:
-            return f'ExecuteSQL({self.res})'
+            return f'{self.res} = {self.arg1}({self.arg2})'
 
 #This Funtion will unquewe each TAC (Quadruplees) from param list, aply each rule for each TAC and push that TAC to reslut
 # Ohh and save a log for wich rule was applied

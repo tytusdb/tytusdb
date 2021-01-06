@@ -20,9 +20,11 @@ def load_st():
 
 
 def exec_sql(input_string):
-    symbol_table = load_st()
-    execute_from_wrapper(symbol_table, input_string)
-    save_st(symbol_table)
+    #symbol_table = load_st()
+    #execute_from_wrapper(symbol_table, input_string)
+    #save_st(symbol_table)
+    o = GrammarGenerate(input_string)
+    return o.GO()
 
 
 def report_stored_st():

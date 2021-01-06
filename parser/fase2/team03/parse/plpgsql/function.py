@@ -164,6 +164,7 @@ class FuncCall(ASTNode):
         self.param_list = param_list     
         self.graph_ref = graph_ref
         self.qlist = None
+        self.tempTSymbol = None
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -171,11 +172,18 @@ class FuncCall(ASTNode):
         #Load File
         #Execute file
         #return value
-        funcObj = table.get(self.func_name, SymbolType.FUNCTION)
+        if isinstance(table,SymbolType):
+            funcObj = table.get(self.func_name, SymbolType.FUNCTION)
+        else:
+            from grammarReview import ST
+            funcObj = ST.get(self.func_name, SymbolType.FUNCTION)
         tac_modue = __import__(funcObj.tac_file_name)
         
         #set parms to pseudo tack? ore heap? i don't now how is it
         #TODO maybe some type validation ?¿
+        if len(self.param_list) != funcObj.number_params:
+            raise Error(self.line, self.column, ErrorType.SEMANTIC,f'La cantidad de parametros propocionada no coincide con la cantidad de parametros definidos en la función ({funcObj.number_params})')
+
         if isinstance(self.param_list, list):
             for p in self.param_list:
                 paramval = p.execute(table, tree)
@@ -207,6 +215,9 @@ class FuncCall(ASTNode):
     #call this function when the Func call exist in the column retuenes of a query
     def setQueryTable(self, qlist):
         self.qlist=qlist
+
+    def setTepTableSymbol(self, st:TableSymbol):
+        tempTSymbol = st
 
     def generate(self, table, tree):
         return 'No generate code is avaible for FuncCall'

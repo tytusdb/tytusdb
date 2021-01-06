@@ -31,7 +31,7 @@ class Declaration(ASTNode):
             if self.exp is None:
                 this_tac = Quadruple(None, 'None', None, self.name, OpTAC.ASSIGNMENT) #I put the word 'None' for TA python syntax to print the word None
             else:
-                exp_tacs = self.exp.generate(table, tree)#should return the last quadruple generated                
+                exp_tacs = self.exp.generate(table, tree)#should return the last quadruple generated                                
                 this_tac = Quadruple(None,exp_tacs.res if isinstance(exp_tacs, Quadruple) else exp_tacs,None, self.name, OpTAC.ASSIGNMENT)
         else:
             this_tac = Quadruple(None, f'{getParamNameFormat()}{self.alias}', None, self.name, OpTAC.ASSIGNMENT)

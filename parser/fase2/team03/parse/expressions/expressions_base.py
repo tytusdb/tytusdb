@@ -250,7 +250,7 @@ class BinaryExpression(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        if tree:
+        if tree is None:
             if self.operator is None:  # 'Number' or 'artirmetic function' production for example
                 return self.exp1.generate(table, tree)
             if self.operator == OpArithmetic.PLUS:

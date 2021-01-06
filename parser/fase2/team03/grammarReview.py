@@ -537,7 +537,7 @@ def p_valor_asignacion(t):
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("valor_asignacion"), [t[1], t[2], t[3]],childsProduction )
         addCad("**\<VALOR_ASIGNACION>** ::= '('  \<STATEMENTS_SQL> ')'   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = t[2]
 
 
 def p_stm_perform(t):
@@ -677,13 +677,14 @@ def p_if_inst(t):
         graph_ref = graph_node(str("if_inst"), [lista, t[2], t[3]], childsProduction)
         addCad("**\<IF_INST>** ::= if_inst  \<ASIG_BASICA> ';'  ")
         ############
-        if t[1] is None:
-            t[2].graph_ref= graph_ref
-            t[0] = [t[2]]            
-        else:
-            t[1][0].graph_ref = graph_ref
-            t[1].append(t[2])
-            t[0] = t[1]  
+    
+    if t[1] is None:
+        t[2].graph_ref= graph_ref
+        t[0] = [t[2]]            
+    else:
+        t[1][0].graph_ref = graph_ref
+        t[1].append(t[2])
+        t[0] = t[1]  
 
 
 
@@ -1203,9 +1204,9 @@ def p_if_opt(t):
                 | empty'''
     token = t.slice[1]
     if token.type == "IF":
-        graph_ref = graph_node(str(t[1]) )
-        addCad("**\<IF_OPT>** ::= tIf ")
-        t[0] = upNodo(True, 0, 0, graph_ref)
+        #graph_ref = graph_node(str(t[1]) )
+        #addCad("**\<IF_OPT>** ::= tIf ")
+        t[0] = t[1]
         #####
     else:
         t[0]=None
@@ -3668,8 +3669,11 @@ class grammarReview:
         return tabulate(result, result2, tablefmt="rst")
 
 
-class GrammarGenerate:
+class GrammarGenerate():
     def __init__(self, input_text):
+        self.input_text = input_text
+
+    def GO(self):
         print("Executing AST root, please wait ...")
         global r
         r = []
@@ -3677,17 +3681,23 @@ class GrammarGenerate:
         errorsList = []
         global ST
         ST.LoadMETADATA()
-        instructions = parse.parse(input_text)
+        instructions = parse.parse(self.input_text)
         # generateReports()
 
         for instruction in instructions:
             try:
-                val = instruction.generate(ST, None)
+                val = instruction.execute(ST, None)
                 print("AST Generation result: ", val)
-                # if isinstance(instruction, Select) or isinstance(instruction, Union) \
-                #        or isinstance(instruction, Intersect) or isinstance(instruction, Except):
-                #    val = tabulate(val[1], val[0], tablefmt="psql")
-                self.set_result(str(val) + '\n\n')
+                if isinstance(instruction, Select) or isinstance(instruction, Union) \
+                    or isinstance(instruction, Intersect) or isinstance(instruction, Except):
+                    val = val[1]#exclude column names
+                    if len(val) == 1: #only one row
+                        val = val[0]
+                        if len(val) == 1:
+                            return val[0]
+                   
+                return val
+                
             except our_error as named_error:
                 errorsList.append(named_error)
 
