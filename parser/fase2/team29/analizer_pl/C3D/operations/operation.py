@@ -98,7 +98,9 @@ class Binary(Expression):
             + str(exp2.temp)
             + "\n"
         )
-        grammar.optimizer_.addAritOp(self.temp,str(exp1.temp),exp2.temp,self.operator.lower(),self.row)
+        grammar.optimizer_.addAritOp(
+            self.temp, str(exp1.temp), exp2.temp, self.operator.lower(), self.row
+        )
         return code.C3D(exp, self.temp, self.row, self.column)
 
     def dot(self):
@@ -144,7 +146,9 @@ class Unary(Expression):
             else:
                 exp2 = self.operator[2:]
                 self.operator = " == "
-            grammar.optimizer_.addAritOp(self.temp,exp.temp,exp2,self.operator,self.row)
+            grammar.optimizer_.addAritOp(
+                self.temp, exp.temp, exp2, self.operator, self.row
+            )
             exp2 = values.get(exp2, exp2)
             exp = (
                 exp.value

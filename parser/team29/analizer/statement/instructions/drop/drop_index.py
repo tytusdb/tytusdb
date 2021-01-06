@@ -4,7 +4,6 @@ from analizer.reports import Nodo
 
 
 class Drop(instruction.Instruction):
-
     def __init__(self, exists, names, row, column):
         instruction.Instruction.__init__(self, row, column)
         self.names = names
@@ -23,10 +22,9 @@ class Drop(instruction.Instruction):
             else:
                 Index.pop(name)
                 result.append("INDEX : " + name + " eliminado")
-        
-        File.exportFile(Index,"Index")
-        return result
 
+        File.exportFile(Index, "Index")
+        return result
 
     def dot(self):
         pass

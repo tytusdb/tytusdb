@@ -527,9 +527,19 @@ def p_instruccion6(t) :
     reporte_bnf.append("<instruccion> ::= <alterDB_insrt>")
     t[0] = t[1] 
 
+def p_instruccion66(t) :
+    'instruccion      : alterindex_insrt'
+    reporte_bnf.append("<instruccion> ::= <alterindex_insrt>")
+    t[0] = t[1] 
+
 def p_instruccion7(t) :
     'instruccion      : drop_insrt'
     reporte_bnf.append("<instruccion> ::= <drop_insrt>")
+    t[0] = t[1] 
+
+def p_instruccion77(t) :
+    'instruccion      : drop_insrt_index'
+    reporte_bnf.append("<instruccion> ::= <drop_insrt_index>")
     t[0] = t[1] 
     
 def p_instruccion8(t) :
@@ -3318,6 +3328,51 @@ def p_opclass(t):
                | BPCHAR_PATTERN_OPS '''
     t[0] = t[1]
 
+#?######################################################
+# TODO        GRAMATICA DROP INDEX
+#?######################################################
+
+
+def p_dropIndex(t):
+    ' drop_insrt_index : DROP INDEX lista_drop_id_index PTCOMA'
+    reporte_bnf.append("<drop_insrt> ::= DROP TABLE <lista_drop_id> PTCOMA")
+    t[0] = Crear_Drop_INDEX(t[3])
+
+def p_lista_tabla_lista_index(t):
+    ' lista_drop_id_index :   lista_drop_id_index COMA ID '
+    reporte_bnf.append("<lista_drop_id> ::= <lista_drop_id> COMA ID")
+    t[1].append(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[3]))
+    t[0] = t[1]
+
+def p_lista_tabla_lista_index2(t):
+    ' lista_drop_id_index : ID '
+    reporte_bnf.append("<lista_drop_id> ::= ID")
+    t[0] = [ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1])]
+
+#?######################################################
+# TODO        GRAMATICA ALTER INDEX
+#?######################################################
+
+
+def p_AlterIndex(t):
+    ' alterindex_insrt : ALTER INDEX ID RENAME TO ID PTCOMA'
+    t[0] = Create_AlterIndex(t[3],t[6])
+
+def p_Alter_Index_Column(t):
+    'alterindex_insrt : ALTER INDEX ID ALTER ID opcionIndex PTCOMA'
+    t[0] = Create_AlterIndexColumn(t[3],t[5],t[6])
+
+def p_Alter_Index_Column2(t):
+    'alterindex_insrt : ALTER INDEX IF EXISTS ID ALTER ID opcionIndex PTCOMA'
+    t[0] = Create_AlterIndexColumn(t[5],t[7],t[8])
+
+def p_Alter_Index_Column_Opciones(t):
+    '''opcionIndex : ENTERO'''
+    t[0] = ExpresionEntero('ENTERO',t[1])
+
+def p_Alter_Index_Column_Opciones2(t):
+    '''opcionIndex : ID'''
+    t[0] = ExpresionIdentificador('ID',t[1])
 
 def p_error(t):
     #print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))

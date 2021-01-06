@@ -5,6 +5,7 @@ from analizer_pl.abstract.environment import Environment
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl import grammar
 
+
 class Declaration(Instruction):
     def __init__(self, id, type, ass, row, column):
         super().__init__(row, column)
@@ -20,7 +21,7 @@ class Declaration(Instruction):
             a = self.ass.execute(environment)
             val = a.value
             tmp = a.temp
-        
+
         return code.C3D(val, tmp, self.row, self.column)
 
     def dot(self):

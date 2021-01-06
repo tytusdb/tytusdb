@@ -122,5 +122,17 @@ class UpdateTable(Instruccion):
     def __init__(self, cadena):
         self.cadena = cadena
 
+class DropIndex(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class AlterIndex(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class AlterIndexColumn(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
 
 
