@@ -2220,7 +2220,7 @@ def p_if_3(t):
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):
     '''
-    listaid     :   listaid COMA ID
+    listaid     :   listaid COMA final
     '''
     nodeFather = nodeAst()
     nodeFather.token = 'LISTA_ID'
@@ -2228,23 +2228,19 @@ def p_listaID(t):
     nodeSon1  = t[1]
     nodeFather.son.append(nodeSon1)
 
-    nodeSon3 = nodeAst()
-    nodeSon3.token = 'ID'
-    nodeSon3.lexeme = t[3]
-    nodeFather.son.append(nodeSon3)
+    nodeSon2 = t[3]
+    nodeFather.son.append(nodeSon2)
 
     t[0]=nodeFather
 
 def p_listaID_2(t):
     '''
-    listaid     :   ID
+    listaid     :   final
     '''
     nodeFather = nodeAst()
     nodeFather.token = 'LISTA_ID'
-        
-    nodeSon1 = nodeAst()
-    nodeSon1.token = 'ID'
-    nodeSon1.lexeme = t[1]
+
+    nodeSon1 = t[1]
     nodeFather.son.append(nodeSon1)
 
     t[0]=nodeFather
@@ -2335,7 +2331,8 @@ def p_operacion(t):
                           | operacion MAYOR operacion
                           | operacion MENOR operacion
                           | operacion DIFERENTE operacion
-                          | PARENTESISIZQUIERDA operacion PARENTESISDERECHA                          
+                          | PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                          | PARENTESISIZQUIERDA listaid PARENTESISDERECHA                           
                           '''                          
 # --------------------------------------------------------------------------------------------------------------                          
     if t[2]=='+':
@@ -4038,31 +4035,99 @@ def p_insertBD_1(t):
 
 def p_insertBD_2(t):
     'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
-    #pendiente
+    nodeFather = nodeAst()
+    nodeFather.token = 'INSERT_IN_BD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'INSERT'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'INTO'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'ID'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[5]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'VALUES'
+    nodeSon5.lexeme = t[7]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = t[9]
+    nodeFather.son.append(nodeSon6)
+
+    t[0] = nodeFather
 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_listaParam(t):
-    'listaParam           : listaParam COMA final'
+    '''listaParam         : listaParam COMA listaP
+    '''
     nodeFather = nodeAst()
-    nodeFather.token = 'LISTA_PARAM'
-
+    nodeFather.token = 'listaParam'
+    
     nodeSon1 = t[1]
     nodeFather.son.append(nodeSon1)
 
-    nodeSon3 = t[3]
-    nodeFather.son.append(nodeSon3)
+    nodeSon2 = t[3]
+    nodeFather.son.append(nodeSon2)
 
+    t[0] = nodeFather
+
+def p_listaParam_2(t):
+    '''listaParam           : listaP
+    '''
+    nodeFather = nodeAst()
+    nodeFather.token = 'listaParam'
+    
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
+
+def p_listaP_1(t):
+    'listaP                 : operacion'
+    nodeFather = nodeAst()
+    nodeFather.token = 'listaP'
+    
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+    
+    t[0] = nodeFather
+
+def p_listaP_2(t):
+    'listaP             : ID operacion'
+    nodeFather = nodeAst()
+    nodeFather.token = 'listaP'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ID'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+    
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+    
     t[0] = nodeFather
     
 
-def p_listaParam_2(t):
-    'listaParam           : final'
+def p_listaP_3(t):
+    'listaP             : ID PARENTESISIZQUIERDA PARENTESISDERECHA'
     nodeFather = nodeAst()
-    nodeFather.token = 'LISTA_PARAM'
+    nodeFather.token = 'listaP'
 
-    nodeSon1 = t[1]
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ID'
+    nodeSon1.lexeme = t[1]
     nodeFather.son.append(nodeSon1)
-
+    
     t[0] = nodeFather
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
