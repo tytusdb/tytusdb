@@ -158,6 +158,16 @@ class SqlComandos:
         elif isinstance(i, useClase):
             self.CadenaSQL = "USE " + str(i.id) + ";"
 
+
+        elif isinstance(i, AlterIndiceCol):
+            self.CadenaSQL =self.Grafo_AlterIndexColumna(i)
+
+        elif isinstance(i, AlterIndiceName):
+            self.CadenaSQL =self.Grafo_AlterIndexName(i)
+
+        elif isinstance(i, DropIndice):
+            self.CadenaSQL =self.Grafo_DropIndex(i)
+
         else:
             print("Es Una Instruccion SelectCurrentType")
             return ""
@@ -1504,3 +1514,5 @@ class SqlComandos:
         cadena += ";"
 
         return cadena
+
+

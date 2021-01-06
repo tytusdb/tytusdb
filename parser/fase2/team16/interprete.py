@@ -1646,6 +1646,12 @@ class interprete2:
                 i.Ejecutar()
             elif isinstance(i, CrearIndice):
                 i.Ejecutar()
+            elif isinstance(i, AlterIndiceCol):
+                i.Ejecutar()
+            elif isinstance(i, AlterIndiceName):
+                i.Ejecutar()
+            elif isinstance(i, DropIndice):
+                i.Ejecutar()
             else:
                 print("NO ejecuta")
 
