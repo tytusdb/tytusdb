@@ -385,6 +385,13 @@ class Select(Instruccion):
                 print(nodo)
         return tablaRes2
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
+
+
 '''
 columnas y filas
 matrix = np.array(([[1,"k","t"],[2,"L","a"],[3,"N","y"]]))

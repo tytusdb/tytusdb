@@ -794,7 +794,7 @@ class Relacional(Instruccion):
             return error
         else:
             resultadoIzq = self.opIzq.traducir(tabla, arbol,cadenaTraducida)
-            print("RESULTADO:",resultadoIzq, type(resultadoIzq))
+            
 
         if isinstance(resultadoIzq, Excepcion):
             return resultadoIzq
@@ -806,14 +806,7 @@ class Relacional(Instruccion):
             arbol.consola.append(error.toString())
             return error
         else:
-            resultadoDer=""
-            if self.opDer.tipo.tipo== Tipo_Dato.QUERY:
-                error = Excepcion('42883',"Semántico","No se pueden traducir un query",self.linea,self.columna)
-                arbol.excepciones.append(error)
-                arbol.consola.append(error.toString())
-                return error
-            else:
-                resultadoDer = self.opDer.traducir(tabla, arbol,cadenaTraducida)
+            resultadoDer = self.opDer.traducir(tabla, arbol,cadenaTraducida)
 
         if isinstance(resultadoDer, Excepcion):
             return resultadoDer

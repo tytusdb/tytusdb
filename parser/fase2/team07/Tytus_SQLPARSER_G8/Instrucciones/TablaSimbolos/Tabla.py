@@ -5,6 +5,7 @@ class Tabla():
         self.anterior = anterior
         self.variables = []
         self.funciones = []
+        self.indices = []
         
     def setVariable(self,simbolo):
         tabla = self
@@ -41,8 +42,16 @@ class Tabla():
                     return funcion 
             tabla = tabla.anterior
         return None
-
-
+    
+    def setIndice(self, indice):
+        tabla = self
+        for i in tabla.indices:
+            if i.nombre == indice.nombre:
+                print("El indice " + i.nombre + " ya ha sido declarado.")
+                return "El indice " + i.nombre + " ya ha sido declarado."
+        print("se agrego el indice")
+        self.indices.append(indice)
+        return None
 '''
 from Simbolo import Simbolo
 

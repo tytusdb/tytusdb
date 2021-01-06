@@ -25,9 +25,9 @@ from Instrucciones.Sql_select import GroupBy, Having, Limit, OrderBy, Select, Wh
 from Instrucciones.Sql_truncate import Truncate
 from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
-from Instrucciones import Relaciones
+from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if 
+from Instrucciones.plpgsql import condicional_if, Funcion
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -72,6 +72,11 @@ def p_instrucciones_lista1(t):
 def p_instrucciones_lista2(t):
     'instrucciones : instruccion '
     t[0] = [t[1]]
+
+def p_instrucion_exp(t):
+    '''instruccion  :   expre'''
+
+    t[0] = t[1]
     
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
@@ -274,8 +279,6 @@ def p_instruccion_update(t):
     '''
     strGram = "<instruccion> ::= UPDATE ID SET <lcol> <instructionWhere> PUNTO_COMA"
     strGram2 = ""
-    id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
-    
     strSent = "UPDATE " + t[2] + " SET "
     for col in t[4]:
         if isinstance(col, str):
@@ -284,6 +287,10 @@ def p_instruccion_update(t):
             strSent = strSent + col.strSent + ","
     strSent = strSent[:-1]
     strSent = strSent + " " + t[5].strSent + ";"
+
+    id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos, strSent)
+    
+    
 
     t[0] = UpdateTable.UpdateTable(id1, None, t[4], t[5], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
@@ -295,8 +302,6 @@ def p_instruccion_update2(t):
     '''
     strGram = "<instruccion> ::= UPDATE ID SET <lcol> PUNTO_COMA"
     strGram2 = ""
-    id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
-    
     strSent = "UPDATE " + t[2] + " SET "
     for col in t[4]:
         if isinstance(col, str):
@@ -305,6 +310,9 @@ def p_instruccion_update2(t):
             strSent = strSent + col.strSent + ","
     strSent = strSent[:-1]
     strSent = strSent + ";"
+    id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos, strSent)
+    
+    
 
     t[0] = UpdateTable.UpdateTable(id1, None, t[4], None, strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
@@ -713,8 +721,6 @@ def p_instruccion_select2(t):
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <instructionWhere>"
     strGram2 = ""
     val = []
-    val.append(Select.Select(t[2], t[3], t[5], None, t[6], None, strGram,t.lexer.lineno, t.lexer.lexpos))
-    
     strSent = "SELECT " + t[2]
     for col in t[3]:
         if isinstance(col, str):
@@ -730,6 +736,10 @@ def p_instruccion_select2(t):
             strSent = strSent + col.strSent + ","
     strSent = strSent[:-1]
     strSent = strSent + " " + t[6].strSent
+
+    val.append(Select.Select(t[2], t[3], t[5], None, t[6], None, strGram,t.lexer.lineno, t.lexer.lexpos, strSent))
+    
+    
 
 
     t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos, strSent)
@@ -976,26 +986,25 @@ def p_operadores_relacionales(t):
     '''
     strGram = ""
     strSent = ""
-    if t[2] == "IGUAL":
+    if t[2] == "=":
         strGram = "<expre> ::= <expre> IGUAL <expre>"
         strSent = t[1].strSent + " = " + t[3].strSent
-    elif t[2] == "MAYORQ":
+    elif t[2] == ">":
         strGram = "<expre> ::= <expre> MAYORQ <expre>"
         strSent = t[1].strSent + " > " + t[3].strSent
-    elif t[2] == "MENORQ":
+    elif t[2] == "<":
         strGram = "<expre> ::= <expre> MENORQ <expre>"
         strSent = t[1].strSent + " < " + t[3].strSent
-    elif t[2] == "MAYOR_IGUALQ":
+    elif t[2] == ">=":
         strGram = "<expre> ::= <expre> MAYOR_IGUALQ <expre>"
         strSent = t[1].strSent + " >= " + t[3].strSent
-    elif t[2] == "MENOR_IGUALQ":
+    elif t[2] == "<=":
         strGram = "<expre> ::= <expre> MENOR_IGUALQ <expre>"
         strSent = t[1].strSent + " <= " + t[3].strSent
-    elif t[2] == "DISTINTO":
+    elif t[2] == "<>":
         strGram = "<expre> ::= <expre> DISTINTO <expre>"
         strSent = t[1].strSent + " <> " + t[3].strSent
 
-    
     t[0] = Relacional.Relacional(t[1], t[3], t[2],strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_operadores_aritmeticos(t):
@@ -1009,22 +1018,22 @@ def p_operadores_aritmeticos(t):
     
     strGram = ""
     strSent = ""
-    if t[2] == "MAS":
+    if t[2] == "+":
         strGram = "<expre> ::= <expre> MAS <expre>"
         strSent = t[1].strSent + " + " + t[3].strSent
-    elif t[2] == "MENOS":
+    elif t[2] == "-":
         strGram = "<expre> ::= <expre> MENOS <expre>"
         strSent = t[1].strSent + " - " + t[3].strSent
-    elif t[2] == "POR":
+    elif t[2] == "*":
         strGram = "<expre> ::= <expre> POR <expre>"
         strSent = t[1].strSent + " * " + t[3].strSent
-    elif t[2] == "DIVIDIDO":
+    elif t[2] == "/":
         strGram = "<expre> ::= <expre> DIVIDIDO <expre>"
         strSent = t[1].strSent + " / " + t[3].strSent
-    elif t[2] == "EXPONENCIACION":
+    elif t[2] == "^":
         strGram = "<expre> ::= <expre> EXPONENCIACION <expre>"
         strSent = t[1].strSent + " ^ " + t[3].strSent
-    elif t[2] == "MODULO":
+    elif t[2] == "%":
         strGram = "<expre> ::= <expre> MODULO <expre>"
         strSent = t[1].strSent + " % " + t[3].strSent
 
@@ -1829,6 +1838,16 @@ def p_expresion7(t):
 def p_expresion8(t):
     '''expresion : ID PARIZQ lcol PARDER
     '''
+    strGram = "<expresion> ::= ID PARIZQ <lcol> PARDER\n"
+    strSent = t[1] + "("
+    for col in t[3]:
+        if isinstance(col, str):
+            strSent = strSent + col + ","
+        else:
+            strSent = strSent + col.strSent + ","
+    strSent = strSent[:-1]
+    strSent = strSent + ")"
+    t[0] = LlamadoFuncion.LlamadoFuncion(strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_expresion9(t):
     '''expresion : TRUE
@@ -2054,38 +2073,62 @@ def p_tipo_datos2(t):
 
 ########################################### GRAMATICA FASE 2 ########################################
 
+def p_procedimiento(t):
+    '''
+    instruccion     :   CREATE PROCEDURE ID PARIZQ parametros_funcion PARDER LANGUAGE PLPGSQL AS DOLLAR DOLLAR declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR
+    '''
+
+
 
 #DECLARACION DE UNA FUNCION
 def p_funciones(t):
     '''
     instruccion    :   CREATE FUNCTION ID PARIZQ parametros_funcion PARDER returns_n retorno_funcion declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
+    t[0] = Funcion.Funcion(t[3], t[5], t[8], t[9], t[10], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 def p_parametros_funcion(t):
     '''
     parametros_funcion  : lista_parametros_funcion 
     '''
+    t[0] = t[1]
+
 def p_parametros_funcion_e(t):
     '''
     parametros_funcion  :
     '''
+    t[0] = None
 
 def p_lista_parametros_funcion(t):
     '''
     lista_parametros_funcion    :   lista_parametros_funcion COMA parametro_fucion
-						        |	parametro_fucion
     '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_parametros_funcion2(t):
+    '''
+    lista_parametros_funcion    :   parametro_fucion
+    '''
+    t[0] = [t[1]]
 
 def p_parametro_fucion(t):
     '''
     parametro_fucion 	: 	ID tipo
 					    |	tipo
     '''
+    if len(t) == 3:
+        t[0] = t[1]
+    else:
+        t[0] = "$"
+
 
 def p_returns(t):
     '''
     returns_n 	:	RETURNS
     '''
+
+
 def p_returns_e(t):
     '''
     returns_n   :
@@ -2097,27 +2140,50 @@ def p_retorno_funcion(t):
 				    |   TABLE PARIZQ lista_campos_tabla PARDER AS DOLLAR DOLLAR
 				    |   AS DOLLAR DOLLAR
     '''
+    if len(t) == 4:
+        t[0] = "NINGUNO"
+    elif len(t) == 5:
+        t[0] = t[1].strSent
+    else:
+        t[0] = "TABLA"
 
 def p_lista_campos_tabla(t):
     '''
     lista_campos_tabla  :	lista_campos_tabla COMA ID tipo
-					    |	ID tipo
     '''
+    t[1].append(t[3] + " " + t[4].strSent)
+    t[0] = t[1]
+
+def p_lista_campos_tabla2(t):
+    '''
+    lista_campos_tabla  :	ID tipo
+    '''
+    t[0] = [t[1] + " " + t[2].strSent]
 
 def p_declaraciones_funcion(t):
     '''
     declaraciones_funcion 	: 	DECLARE list_dec_var_funcion
     '''
+    t[0] = t[2]
+
 def p_declaraciones_funcion_e(t):
     '''
     declaraciones_funcion   :
     '''    
+    t[0] = None
 
 def p_list_dec_var_funcion(t):
     '''
     list_dec_var_funcion 	:	list_dec_var_funcion dec_var_funcion PUNTO_COMA
-						    |	dec_var_funcion PUNTO_COMA
     '''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_list_dec_var_funcion2(t):
+    '''
+    list_dec_var_funcion 	:	dec_var_funcion PUNTO_COMA
+    '''
+    t[0] = [t[1]]
 
 def p_dec_var_funcion(t):
     '''
@@ -2126,6 +2192,7 @@ def p_dec_var_funcion(t):
 				    |	ID ALIAS FOR ID
 				    |	ID tabla_typerow MODULO type_row
     '''
+
 
 
 def p_tabla_typerow(t):
@@ -2184,9 +2251,15 @@ def p_contenido_funcion(t):
                         | cont_funcion ''' 
     
     
-def p_cont_funcion(t):    
+def p_cont_funcion(t):
     '''
-     cont_funcion : IF expre THEN instrucciones_if condicionesif ELSE  instrucciones_if END IF PUNTO_COMA
+    cont_funcion    :   sentencia_if
+                    |   instruccion
+    '''
+
+def p_sentencia_if(t):    
+    '''
+     sentencia_if : IF expre THEN instrucciones_if condicionesif ELSE  instrucciones_if END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if condicionesif END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if ELSE  instrucciones_if END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if END IF PUNTO_COMA
@@ -2286,7 +2359,7 @@ def p_identificadores(t):
 
 def p_instruccion_index(t):
     '''
-    instruccion : CREATE unique_op INDEX ID ON hash_op PARIZQ l_indexes PARDER instructionWhere PUNTO_COMA
+    instruccion : CREATE unique_op INDEX ID ON ID hash_op PARIZQ l_indexes PARDER where_op PUNTO_COMA
     '''
 
 def p_index_unique(t):
@@ -2318,6 +2391,11 @@ def p_index_index(t):
     l_indexes : ID order_op null_op first_last_op
     '''
 
+def p_index_func(t):
+    '''
+    l_indexes : ID PARIZQ ID PARDER
+    '''
+
 def p_index_order(t):
     '''
     order_op : ASC
@@ -2331,7 +2409,7 @@ def p_index_order_e(t):
 
 def p_index_null(t):
     '''
-    null_op : NULL
+    null_op : NULLS
     '''
 
 def p_index_null_e(t):
@@ -2348,6 +2426,16 @@ def p_index_first_last(t):
 def p_index_first_last_e(t):
     '''
     first_last_op : 
+    '''
+
+def p_index_where(t):
+    '''
+    where_op : instructionWhere
+    '''
+
+def p_index_where_e(t):
+    '''
+    where_op : 
     '''
 
 #FIN DE LA GRAMATICA
@@ -2395,5 +2483,3 @@ def ejecutar_analisis(texto):
     print("inicio")
     return parser.parse(texto)
     
-
-
