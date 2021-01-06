@@ -531,7 +531,8 @@ def p_instrucciones_global_sent(t):
                                     | drop_insrt
                                     | alterDB_insrt
                                     | alterTable_insrt
-                                    | insert_insrt'''
+                                    | insert_insrt
+                                    | createIndex'''
     t[0] = t[1]
 
 def p_instrucciones_global_sent1(t):
@@ -2714,6 +2715,121 @@ def p_sum_insert(t):
 def p_count_insrt(t):
     ' count_insrt : COUNT agrupacion_expresion '
     t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '
+
+#? ###################################################################
+# SECTION             AGREGADOS CAPITULO 11
+#? ###################################################################
+
+
+#? ###################################################################
+# TODO                         INDEX
+#? ###################################################################
+def p_createIndex(t):
+    ' createIndex : CREATE INDEX ID ON ID opc_index PTCOMA '
+    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';')
+    
+def p_createIndex1(t):
+    ' createIndex : CREATE INDEX ID ON ID opc_index cond_where PTCOMA '
+    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ';')
+
+def p_createIndex2(t):
+    ' createIndex : CREATE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA '
+    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ';')
+
+def p_createIndex3(t):
+    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index PTCOMA '
+    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7])+';')
+
+def p_createIndex4(t):
+    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index cond_where PTCOMA '
+    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8])+ ';')
+
+def p_createIndex5(t):
+    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA '
+    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ str(t[9]) + ';')
+
+def p_otro_index(t):
+    'createIndex : CREATE INDEX ID ON ID PARA ID opclass PARC PTCOMA'
+    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ str(t[9]) + ';')
+    
+def p_otro_index1(t):
+    'createIndex : CREATE INDEX ID ON ID PARA ID opclass sortoptions PARC PTCOMA'
+    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ str(t[9]) + ' '+ str(t[10]) + ';')
+
+def p_createIndex6(t):
+    '''opc_index :  PARA opc_index_par PARC'''
+    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '
+
+def p_createIndex7(t):
+    '''opc_index :  USING HASH PARA ID PARC'''
+    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '
+
+def p_createIndex2_0(t):
+    ' opc_index_par : campos_c '
+
+    cadena = ""
+    for i in t[1]:
+        cadena += str(i)
+    t[0] = ' '+ cadena + ' '
+
+def p_createIndex2_1(t):
+    ' opc_index_par : ID NULLS first_last'
+    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '
+
+def p_createIndex2_1_1(t):
+    ' opc_index_par : ID orden NULLS first_last '
+    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+
+
+def p_createIndex2_3(t):
+    ' opc_index_par : ID COLLATE string_type '   
+    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '
+
+def p_createIndex2_30(t):
+    ' opc_index_par : LOWER PARA ID PARC '
+    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+
+def p_createIndex_5(t):
+    ' opc_index_par : ID PARA ID PARC '
+    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+
+
+def p_first_last(t):
+    ''' first_last : FIRST
+                   | LAST'''
+    t[0] = ' '+ str(t[1]) + ' '
+
+
+def p_sortoptions(t):
+    'sortoptions : sortoptions sortoption'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_sortoptions0(t):
+    'sortoptions : sortoption'
+    t[0] = [t[1]]
+
+
+def p_sortoptions1(t):
+    '''sortoption : COLLATE
+                    | ASC
+                    | DESC '''
+    t[0] = ' '+ str(t[1]) + ' '
+
+
+ 
+def p_sortoptions2(t):
+    '''sortoption :  NULLS FIRST
+                    | NULLS LAST '''
+    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '
+
+
+def p_opclass(t):
+    '''opclass : TEXT_PATTERN_OPS
+               | VARCHAR_PATTERN_OPS
+               | BPCHAR_PATTERN_OPS '''
+    t[0] = ' '+ str(t[1]) + ' '
+
 
 
 # Errores Sintacticos
