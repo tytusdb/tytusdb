@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case, Procedimiento
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case, Procedimiento, DeclaracionRetorno, AsignacionVariable
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -2278,6 +2278,7 @@ def p_cont_funcion(t):
     cont_funcion    :   sentencia_if
                     |   instruccion
                     |   sentencia_retorno
+                    |   asignacion_var
     '''
     t[0] = t[1]
 
@@ -2286,6 +2287,17 @@ def p_sentencia_retorno(t):
     sentencia_retorno   :  RETURN PUNTO_COMA
                         | RETURN expre PUNTO_COMA
     '''
+    if len(t) == 3:
+        t[0] = DeclaracionRetorno.DeclaracionRetorno(None, "", t.lexer.lineno, t.lexer.lexpos, "")
+    else:
+        t[0] = DeclaracionRetorno.DeclaracionRetorno(t[2], "", t.lexer.lineno, t.lexer.lexpos, "")
+
+def p_asignacion_var(t):
+    '''
+    asignacion_var  :   ID IGUAL expre PUNTO_COMA
+                    |   ID DOSP_IGUAL expre PUNTO_COMA
+    '''
+    t[0] = AsignacionVariable.AsignacionVariable(t[1], t[3], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 
 def p_sentencia_if(t):    
