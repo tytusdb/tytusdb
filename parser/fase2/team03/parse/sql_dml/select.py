@@ -1,10 +1,10 @@
 from parse.ast_node import ASTNode
 from jsonMode import *
 from util import *
-from parse.symbol_table import *
-from TAC.tac_enum import *
-from TAC.quadruple import *
-
+from parse.plpgsql.function import FuncCall
+from TAC.quadruple import Quadruple
+from TAC.tac_enum import OpTAC
+from parse.symbol_table import generate_tmp
 
 class Select(ASTNode):
     def __init__(self, is_distinct, col_names, tables, where, group_by, having, order_by, limit, offset, line, column,
@@ -84,7 +84,7 @@ class Select(ASTNode):
                 #    resutCols.append(selCol.alias)#for header
                 for row in megaunion:
                     rrow = []
-                    for col in self.col_names:
+                    for col in self.col_names:                        
                         rrow.append(col.execute(row, header))
                     lrows.append(rrow)
                 return [resutCols, lrows]
@@ -102,15 +102,19 @@ class Select(ASTNode):
         col_str = ''
         table_str = ''
         for col in self.col_names:
-            col_str = f'{col_str}{col.generate(table, tree)},'
-
-        for table in self.tables:
-            table_str = f'{table_str}{table.generate(table, tree)},'
-
-        return Quadruple(None, f'SELECT{" DISTINCT" if self.is_distinct else ""} {col_str[:-1]}'
-                               f'{f" FROM {table_str[:-1]}" if self.tables is not None else ""} {self.where.generate(table, tree)};'
-                         , None, generate_tmp(), OpTAC.CALL)
-
+            col_str = f'{col_str}{col.generate(table, None)},'
+        if isinstance(self.tables, list):
+            for table in self.tables:
+                table_str = f'{table_str}{table.generate(table, tree)},'
+        ret = f'SELECT{" DISTINCT" if self.is_distinct else ""} {col_str[:-1]}'
+        if table_str:
+            ret += f'{f" FROM {table_str[:-1]}" if self.tables is not None else ""}'
+        if self.where is not None:
+            ret += f'{self.where.generate(table, None)}'
+        quad = Quadruple(None, 'exec_sql', f'\'{ret};\'', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
+       
     def generate_pure(self, table, tree):
         super().generate(table, tree)
         col_str = ''
