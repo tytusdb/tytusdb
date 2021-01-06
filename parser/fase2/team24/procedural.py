@@ -2,9 +2,7 @@ import hashlib
 from InstruccionesDGA import tabla as ts
 import tablaDGA as TAS
 import InstruccionesDGA as dga
-import mathtrig as mt
-from datetime import date
-
+from Interfaz import lista
 funciones = []
 
 class pl():
@@ -844,8 +842,10 @@ class exp_diferentep(expresion):
         #print(codigo,valor)
         return codigo,valor,res
 
-
-class pl_mathtrig(pl):
+class inst_procedural(expresion):
+    def __init__(self,val):
+        self.val = val
+class mathtrig(pl):
     'Abstract Class'
 
 class math_absp(pl_mathtrig):
