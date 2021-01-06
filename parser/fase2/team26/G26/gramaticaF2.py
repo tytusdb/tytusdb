@@ -1227,8 +1227,13 @@ def p_argument_noterminal(t):
                 | funcionesdefechas
                 | funcionesbinarias'''
     text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
-
+    tempo = tempos.newTemp()
+    c3d = "    "+tempo+ " = '"+ t[1]['text']+"'\n"
+    c3d += "    "+"heap.append("+tempo+")\n" 
+    c3d += "    "+tempo + " = mediador()\n"
+    #print(text)
+    print ( str(t[1]['c3d']))
+    t[0] =  {'text': text, 'c3d' : c3d, 'tflag': tempo}
 
 
 #------------------------------------------------------CONDICIONES-----------------------------------------
@@ -2390,7 +2395,7 @@ def p_statement_pr(t):
 
 #--------------------------------------------------------------------FUNCIONES--------------------------------------------------------------
 def p_createfunction(t):
-    'createfunction :  FUNCTION ID PARENIZQ argumentos PARENDER RETURNS tipo AS body LANGUAGE ID PTCOMA'
+    'createfunction :  FUNCTION ID PARENIZQ argumentosp PARENDER RETURNS tipo AS body LANGUAGE ID PTCOMA'
     ftext = '@with_goto\n' + 'def ' + t[2] + '():\n'
     ftext += t[4]['text']
     ftext += t[9]['text']
@@ -2423,6 +2428,15 @@ def p_createfunction(t):
     f.close()
     #--------------------------------
     t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext}
+
+def p_argumento_p(t):
+    '''argumentosp : argumentos'''
+    text = t[1]['text']
+    t[0] =  {'text': text, 'c3d' : '' }
+
+def p_argumento_p(t):
+    'argumentosp : '
+    t[0] =  {'text': '', 'c3d' : '' }
 
 
 def p_argumentos_cfr(t):
@@ -2593,12 +2607,12 @@ def p_if_(t):
     c3d +=  "    "+"if (" + t[2]['tflag'] + "):   goto ."+ temp1 +"  \n"
     c3d += "    "+"goto ."+temp2+"\n"
     c3d += "    "+"label ." +temp1 +"\n"
-    c3d += t[4]['text']+"\n"
-    c3d += "    "+"label ." +temp2 +"\n"
+    c3d += t[4]['text']
     c3d += "    "+"goto ." +t[5]['tflagif']+"\n"
+    c3d += "    "+"label ." +temp2 +"\n"
     c3d += t[5]['c3d']+"\n"
     c3d += "    "+"label ."+t[5]['tflagif']
-    print(c3d)
+    #print(c3d)
     t[0] = {'text': text, 'c3d': c3d}
 
 def p_if_end(t):
@@ -2622,9 +2636,9 @@ def p_if_end(t):
         c3d +=  "    "+"if (" + t[2]['tflag'] + "):   goto ."+ temp1 +"  \n"
         c3d += "    "+"goto ."+temp2+"\n"
         c3d += "    "+"label ." +temp1 +"\n"
-        c3d += t[4]['text']+"\n"
-        c3d += "    "+"label ." +temp2 +"\n"
+        c3d += t[4]['text']
         c3d += "    "+"goto ." +t[5]['tflagif']+"\n"
+        c3d += "    "+"label ." +temp2 +"\n"
         c3d += t[5]['c3d']+"\n"
     t[0] = {'text': text, 'c3d': c3d,'tflagif' : tflagif}
 
