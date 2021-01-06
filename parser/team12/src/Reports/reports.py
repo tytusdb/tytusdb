@@ -16,6 +16,11 @@ def reporte_ts(arbol):
             for db in data:
                 cadena += "DATABASE: "+db +"\n"
                 dbactual = data[db]["tables"]
+                indexes = data[db]["indexes"]
+                for indx in indexes:
+                    cadena += "\t"+"INDICE: "+str(indx["name"])+"\n"
+                    cadena += "\t\t"+"table: "+str(indx["table"])+"\n"
+                    cadena += "\t\t"+"Method: "+str(indx["method"])+"\n"
                 for table in dbactual:
                     cadena += "\t"+"TABLA: "+table+"\n"
                     columnas = data[db]["tables"][table]["columnas"]

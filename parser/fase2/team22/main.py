@@ -22,7 +22,10 @@ from storageManager.jsonMode import *
 
 import sintactico
 
-# import AST as AST
+# REPORTE PARA AST 
+import webbrowser
+import img2pdf 
+from PIL import Image 
 
 global arbol
 arbol = None
@@ -117,9 +120,9 @@ class interfaz():
         lblsalida= Label(self.window,text="Consola de Salida:",height=1, width=15,bg='#80b192')
         lblsalida.place(x=20,y=350)
         lblsalida= Label(self.window,text="Codigo 3 Direcciones:",height=1, width=20,bg='#80b192')
-        lblsalida.place(x=670,y=350)
+        lblsalida.place(x=690,y=75)
         lblsalida= Label(self.window,text="Código 3 Direccciones Optimizado:",height=1, width=27,bg='#80b192')
-        lblsalida.place(x=690,y=480)
+        lblsalida.place(x=1030,y=75)
 
         #redimensionar los elementos
         #self.window.bind('<Configure>',self.resizeEvent)
@@ -189,7 +192,10 @@ class interfaz():
         arbol = None         
 
     def ast_click(self):
-        print("ast")   
+        try:
+            webbrowser.open_new_tab('AST.svg')
+        except:
+            print('Error al abrir el reporte AST.')
     
     def repDin_click(self):
         global arbol
@@ -222,8 +228,8 @@ class interfaz():
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
         
         #3D
-        file3D = open("Codigo3D.py", "w")
-        file3DOptimizado = open("Codigo3DOptimizado.py", "w")
+        file3D = open("Codigo3D.py", "w", encoding='utf8')
+        file3DOptimizado = open("Codigo3DOptimizado.py", "w", encoding='utf8')
 
         content = c3d.getEncabezado()
         
@@ -262,7 +268,7 @@ class interfaz():
         self.salidaC3d[-1].insert(INSERT, entrada+"")
 
     def btnOptimizarC3D_click(self):
-        archivo = open("C3DOptimo.py", "r")
+        archivo = open("Codigo3DOptimizado.py", "r")
         entrada = archivo.read()
         archivo.close()
         self.salidaC3dOpt[self.tab.index("current")].delete(1.0,END)
@@ -278,17 +284,17 @@ class interfaz():
         self.tab_frame[-1].pack(fill='both', expand=1)
         self.tab_frame[-1].config(bd=5)
         self.tab.add(self.tab_frame[-1],text=nombre)
-        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15))
+        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=80,height=15))
         self.txtentrada[-1].place(x=0,y=25)
         self.txtentrada[-1].insert(INSERT,entrada+"")
         #self.txtentrada[-1].bind("<MouseWheel>", self.OnMouseWheel)
 
-        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=80,height=15,background="#070707",foreground="#FEFDFD"))
+        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15,background="#070707",foreground="#FEFDFD"))
         self.txtsalida[-1].place(x=0,y=298)
-        self.salidaC3d.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=80,height=6))
-        self.salidaC3d[-1].place(x=660,y=298)
-        self.salidaC3dOpt.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=80,height=6))
-        self.salidaC3dOpt[-1].place(x=660,y=430)
+        self.salidaC3d.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=38,height=15))
+        self.salidaC3d[-1].place(x=665,y=25)
+        self.salidaC3dOpt.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=38,height=15))
+        self.salidaC3dOpt[-1].place(x=995,y=25)
         #nombre del archivo
         #print(self.tab.tab(self.tab.select(),"text"))
         self.tab.select(int(len(self.tab_frame)-1))

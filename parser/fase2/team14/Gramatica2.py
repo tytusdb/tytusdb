@@ -1,7 +1,14 @@
 from Instrucciones.Asignacion import Asignacion
+from Instrucciones.Bloque import Bloque
+from Instrucciones.Case import *
 from Instrucciones.Declaracion import Declaracion
+from Instrucciones.Execute import Execute
+from Instrucciones.Funcion import *
 from Instrucciones.Ifclass import Ifclass
-#from Instrucciones.Raise import Raise
+from Instrucciones.Procedure import Procedure
+from Instrucciones.Raise import Raise
+from Instrucciones.Return import Return
+
 reservadas = {
     'show': 'show',
     'database': 'databases',
@@ -116,39 +123,29 @@ reservadas = {
     'nulls': 'nulls',
     'last': 'last',
     'first': 'first',
-    'asc': 'asc',
-    'desc': 'desc',
     'rowtype': 'rowtype',
-    'type': 'type',
     'record': 'record',
     'constant': 'constant',
-    'if': 'if',
     'elsif': 'elsif',
-    'else': 'else',
-    'then': 'then',
-    'end': 'end',
-    'procedure':'procedure',
-    'language':'language',
-    'begin':'begin',
-    'end':'end',
-    'as':'as',
-    'call':'call',
-    'do':'do',
-    'raise':'raise',
-    'notice':'notice',
-    'plpgsql':'plpgsql',
-    'inout':'inout',
+    'procedure': 'procedure',
+    'language': 'language',
+    'begin': 'begin',
+    'call': 'call',
+    'execute': 'execute',
+    'do': 'do',
+    'raise': 'raise',
+    'notice': 'notice',
+    'plpgsql': 'plpgsql',
+    'inout': 'inout',
     'info': 'info',
     'debug': 'debug',
-    'log': 'log',
-    'notice': 'notice',
     'warning': 'warning',
     'exception': 'exception',
-    'format':'format',
-    'declare':'declare',
-    'returns':'returns',
-    'return':'return',
-    'function':'function'
+    'format': 'format',
+    'declare': 'declare',
+    'returns': 'returns',
+    'return': 'return',
+    'function': 'function'
 
 }
 
@@ -289,17 +286,12 @@ import ply.lex as lex
 
 lexer = lex.lex()
 
-from Expresion.Aritmetica import Aritmetica
-from Expresion.Relacional import Relacional
+
 from Expresion.Extract import Extract
-from Tipo import Tipo
-from Expresion.Terminal import Terminal
-from Expresion.Logica import Logica
-from Expresion.Unaria import Unaria
-from Instrucciones.CreateTable import *
-from Instrucciones.Select import *
+
+from Instrucciones.Select import Select,Limit,Alias,Combi
 from Instrucciones.CreateDB import *
-from Expresion.FuncionesNativas import FuncionesNativas
+
 from Instrucciones.Insert import *
 from Instrucciones.Drop import *
 from Instrucciones.Delete import Delete
@@ -406,7 +398,7 @@ def p_instruccion8(t):
 
 
 def p_instruccion9(t):
-    '''instruccion      : CASE'''
+    '''instruccion      : CASE ptcoma'''
     listaBNF.append("INSTRUCCION ::= CASE")
     t[0] = t[1]
 
@@ -447,132 +439,231 @@ def p_instruccion15(t):
     t[0] = t[1]
 
 
-def p_instruccion16(t):
-    'instruccion      : DECLARACIONES  ptcoma'
-    t[0]=t[1]
 
 def p_instruccion17(t):
     'instruccion      : ASIGNACION  ptcoma'
-    t[0]=t[1]
+    listaBNF.append("INSTRUCCION ::= ASIGNACION")
+    t[0] = t[1]
+
 
 def p_instruccion18(t):
     '''instruccion      : CONDICIONIF  ptcoma'''
+    listaBNF.append("INSTRUCCION ::= CONDICIONIF ptcoma")
     t[0] = t[1]
+
 
 def p_instruccion19(t):
     '''instruccion      : PROCEDIMIENTOS '''
+    listaBNF.append("INSTRUCCION ::= PROCEDIMIENTOS")
+    t[0]=t[1]
 
 def p_instruccion20(t):
-    '''instruccion      : FUNCIONES'''
+    'instruccion      : FUNCIONES'
+    listaBNF.append("INSTRUCCION ::= FUNCIONES")
+    t[0]=t[1]
+def p_instruccion21(t):
+    'instruccion      : CALLPROCEDURE ptcoma'
+    listaBNF.append("INSTRUCCION ::= CALLPROCEDURE ptcoma")
+    t[0]=t[1]
 
+def p_instruccion22(t):
+    'instruccion      : DROPFUNC ptcoma'
+    listaBNF.append("INSTRUCCION ::= DROPFUNC ptcoma")
+    t[0]=t[1]
 
 # INICIAMOS A RECONOCER LA FASE 2 -----------------------------------------------------------------
 
 def p_RETURN(t):
-    '''RETURN : return LEXP
+    '''RETURN : return EXP
     '''
-def p_RETURN1(t):
-    '''RETURN : return id para LEXP parc 
-    '''
+    listaBNF.append("RETURN::= return EXP")
+    t[0]=Return(t[2])
+
 
 def p_FUNCIONES(t):
-    '''FUNCIONES : create function id para LPARAM parc RETURNP LENGUAJE LCONTENIDOP
-    '''
+    'FUNCIONES : create function id para LPARAM parc RETURNP LENGUAJE LCONTENIDOP'
+    listaBNF.append("FUNCIONES::= create function "+t[3]+' para LPARAM parc RETURNP LENGUAJE LCONTENIDOP')
+    t[0]=Funcion(t[3],t[5],t[9],t[7])
+
+def p_FUNCIONES0(t):
+    'FUNCIONES : create function id para parc RETURNP LENGUAJE LCONTENIDOP'
+    listaBNF.append("FUNCIONES::= create function "+t[3]+' para  parc RETURNP LENGUAJE LCONTENIDOP')
+    t[0] = Funcion(t[3], None, t[8], t[6])
+
 def p_FUNCIONES1(t):
-    '''FUNCIONES : create function id para LPARAM parc RETURNP LCONTENIDOP LENGUAJE 
-    '''
+    'FUNCIONES : create function id para LPARAM parc RETURNP LCONTENIDOP LENGUAJE'
+    listaBNF.append("FUNCIONES::= create function " + t[2] + ' para LPARAM parc RETURNP  LCONTENIDOP LENGUAJE')
+    t[0] = Funcion(t[3], t[5], t[8], t[7])
+
+def p_FUNCIONES2(t):
+    'FUNCIONES : create function id para  parc RETURNP LCONTENIDOP LENGUAJE'
+    listaBNF.append('FUNCIONES ::= create function '+t[3]+' para parc RETURNP LCONTENIDOP LENGUAJE')
+    t[0] = Funcion(t[3], None, t[7], t[6])
+
+
+def p_DROPFUNC(t):
+    'DROPFUNC : drop function id'
+    listaBNF.append('DROPFUNC ::= drop function '+t[3])
+    t[0] = DropFunction(t[3])
+
+
 
 def p_RETURNP(t):
-    '''RETURNP : returns  TIPO as dolarn
+    '''RETURNP : returns  TIPO
     '''
+    listaBNF.append("RETURNP ::= returns TIPO")
+    t[0]=t[2]
 
 
 def p_CALLPROCEDURE(t):
-    '''CALLPROCEDURE : call id para LEXP parc 
+    '''CALLPROCEDURE : execute id para LEXP parc
     '''
+    listaBNF.append("CALLPROCEDURE ::= execute "+t[2]+ ' para LEXP parc')
+    t[0] = Execute(t[2],t[4])
 
-def p_PROCEDIMIENTOS(t):
+def p_CALLPROCEDURE1(t):
+    '''CALLPROCEDURE : execute id para  parc
+    '''
+    listaBNF.append("CALLPROCEDURE ::= execute "+t[2]+ ' para parc')
+    t[0]=Execute(t[2],None)
+
+def p_PROCEDIMIENTOS0(t):
     '''PROCEDIMIENTOS : create procedure id para LPARAM parc LENGUAJE  LCONTENIDOP
     '''
+    listaBNF.append("PROCEDIMIENTOS ::= create procedure "+t[3]+' para LPARAM  parc LENGUAJE LCONTENIDOP')
+    t[0]=Procedure(t[3],t[5],t[8])
+
+def p_PROCEDIMIENTOS(t):
+    '''PROCEDIMIENTOS : create procedure id para  parc LENGUAJE  LCONTENIDOP
+    '''
+    listaBNF.append("PROCEDIMIENTOS ::= create procedure " + t[3] + ' para  parc LENGUAJE LCONTENIDOP')
+    t[0] = Procedure(t[3], None, t[7])
+
 def p_PROCEDIMIENTOS1(t):
     '''PROCEDIMIENTOS : create procedure id para LPARAM parc LCONTENIDOP LENGUAJE
     '''
+    listaBNF.append("PROCEDIMIENTOS ::= create procedure " + t[3] + ' para LPARAM  parc LCONTENIDOP LENGUAJE ')
+    t[0] = Procedure(t[3], t[5], t[7])
+
+def p_PROCEDIMIENTOS2(t):
+    '''PROCEDIMIENTOS : create procedure id para parc LCONTENIDOP LENGUAJE
+    '''
+    listaBNF.append("PROCEDIMIENTOS ::= create procedure " + t[3] + ' para  parc LCONTENIDOP LENGUAJE ')
+    t[0] = Procedure(t[3], None, t[6])
+
 
 def p_LCONTENIDOP(t):
-    '''LCONTENIDOP : LCONTENIDOP CONTENIDOP 
+    '''LCONTENIDOP : LCONTENIDOP CONTENIDOP
     '''
+    listaBNF.append("LCONTENIDOP ::= LCONTENIDOP CONTENIDOP")
+    t[1].append(t[2])
+    t[0]=t[1]
+
 def p_LCONTENIDOP1(t):
     '''LCONTENIDOP : CONTENIDOP
     '''
+    listaBNF.append("LCONTENIDOP ::= CONTENIDOP")
+    t[0] = t[1]
+
 
 def p_CONTENIDOP(t):
-    '''CONTENIDOP : as dolarn LISTACONTENIDO dolarn ptcoma
+    '''CONTENIDOP : as dolarn LISTACONTENIDO dolarn
     '''
-def p_CONTENIDOP1(t):
-    '''CONTENIDOP : do dolarn LISTACONTENIDO dolarn ptcoma
-    '''
+    listaBNF.append("CONTENIDOP ::=  as dolarn LISTACONTENIDO dolarn")
+    t[0]=t[3]
 
-def p_CONTENIDOP2(t):
-    '''CONTENIDOP :  LISTACONTENIDO
+def p_CONTENIDOP1(t):
+    '''CONTENIDOP : do dolarn LISTACONTENIDO dolarn
     '''
+    listaBNF.append("CONTENIDOP ::= do dolarn LISTACONTENIDO dolarn")
+    t[0]=t[3]
+
+
 
 def p_LPARA(t):
-    '''LPARAM : LPARAM coma inout id TIPO
-    '''
+    'LPARAM : LPARAM coma inout id TIPO'
+    listaBNF.append("LPARAM ::= LPARAM coma inout "+t[4]+" TIPO")
+    t[0]=t[1].append(Parametro(t[4],t[3],t[5]))
+    t[0]=t[1]
+
 def p_LPARA2(t):
-    '''LPARAM : LPARAM coma  id TIPO
-    '''
+    'LPARAM : LPARAM coma  id TIPO'
+    listaBNF.append("LPARAM ::= LPARAM coma "+t[3]+' TIPO')
+    t[0]=t[1].append(Parametro(t[3],None,t[4]))
+    t[0]=t[1]
 
 def p_LPARA1(t):
     '''LPARAM :  inout id TIPO
     '''
+    listaBNF.append("LPARAM ::= inout " + t[3] + ' TIPO')
+    t[0]=[Parametro(t[2],t[1],t[3])]
+
 def p_LPARA4(t):
     '''LPARAM :  id TIPO
     '''
+    listaBNF.append("PARAM ::= " + t[1] + ' TIPO')
+    t[0]=[Parametro(t[1],None,t[2])]
+
 
 def p_LENGUAJE(t):
     '''LENGUAJE : language plpgsql
     '''
-def p_LENGUAJE1(t):
-    '''LENGUAJE : dolarn language plpgsql
-    '''
+    listaBNF.append("LENGUAJE ::= language plpgsql")
+    t[0] = "language plpgsql"
+
+
 def p_LENGUAJE2(t):
-    '''LENGUAJE : dolarn language plpgsql ptcoma
+    '''LENGUAJE : language plpgsql ptcoma
     '''
+    listaBNF.append("LENGUAJE ::= language plpgsql ptcoma")
+    t[0] = "language plpgsql;"
+
 
 def p_BEGINEND(t):
-    '''BEGINEND : begin LISTACONTENIDO end
+    '''BEGINEND :  begin LISTACONTENIDO end
     '''
+    listaBNF.append("BEGINEND ::= begin LISTACONTENIDO end")
+    t[0]=Bloque(t[2])
+
+
 
 def p_CREATEINDEX(t):
     '''CREATEINDEX      : create index id on id para LEXP parc '''
     listaBNF.append("CREATEINDEX ::= create index " + str(t[3]) + " on " + str(t[5]) + " para LEXP parc")
-    t[0] = Index(str(t[3]),str(t[5]),t[7])
+    t[0] = Index(str(t[3]), str(t[5]), t[7])
+
 
 def p_CREATEINDEX3(t):
     '''CREATEINDEX      : create unique index id on id para LEXP parc '''
     listaBNF.append("CREATEINDEX ::= create unique index " + str(t[4]) + " on " + str(t[6]) + " para LEXP parc")
-    i = Index(str(t[4]),str(t[6]),t[8])
+    i = Index(str(t[4]), str(t[6]), t[8])
     i.unique = True
     t[0] = i
+
 
 def p_CREATEINDEX1(t):
     '''CREATEINDEX      : create index id on id using hash para LEXP parc '''
     listaBNF.append("CREATEINDEX ::= create index " + str(t[3]) + " on " + str(t[5]) + " using hash para LEXP parc")
-    i = Index(str(t[3]),str(t[5]),t[9])
+    i = Index(str(t[3]), str(t[5]), t[9])
     i.hash = True
     t[0] = i
 
 
 def p_CREATEINDEX2(t):
     '''CREATEINDEX      : create index id on id  para id ORDEN parc '''
-    listaBNF.append("CREATEINDEX ::= create index " + str(t[3]) + " on " + str(t[5]) + " para " + str(t[7]) + " ORDEN parc")
-    i = Index(str(t[3]),str(t[5]),[Terminal("identificador",str(t[7]))])
+    listaBNF.append(
+        "CREATEINDEX ::= create index " + str(t[3]) + " on " + str(t[5]) + " para " + str(t[7]) + " ORDEN parc")
+    i = Index(str(t[3]), str(t[5]), [Identificador("identificador", str(t[7]))])
     i.orden = t[8]
     t[0] = i
 
+
 def p_CREATEINDEX4(t):
     '''CREATEINDEX      : create  index id on id para id  id ORDEN parc '''
+
+
+def p_CREATEINDEX5(t):
+    '''CREATEINDEX      : create  index id on id para id  id  parc '''
 
 
 def p_ORDEN(t):
@@ -581,50 +672,73 @@ def p_ORDEN(t):
     listaBNF.append("ORDEN ::= " + str(t[1]))
     t[0] = str(t[1])
 
+
 def p_ORDEN2(t):
     '''ORDEN      : nulls first
                  | nulls last '''
     listaBNF.append("ORDEN ::= " + str(t[1]) + " " + str(t[2]))
     t[0] = str(t[1]) + " " + str(t[2])
 
+
 def p_ORDEN3(t):
     '''ORDEN      : asc nulls first
                  | desc nulls last
                  | desc nulls first
-                 | asc nulls last
-                 | '''
+                 | asc nulls last'''
 
     if len(t) > 2:
         listaBNF.append("ORDEN ::= " + str(t[1]) + " " + str(t[2]) + " " + str(t[3]))
         t[0] = str(t[1]) + " " + str(t[2]) + " " + str(t[3])
 
+
+
+def p_LDEC1(t):
+    'LDEC :  LDEC DECLARACIONES'
+    listaBNF.append("LDEC ::= LDEC DECLARACIONES")
+    l=[]
+    l.append(t[1])
+    l.append(t[2])
+    t[0]=Bloque(l)
+
+
+def p_LDEC2(t):
+    'LDEC : DECLARACIONES'
+    listaBNF.append("LDEC ::= DECLARACIONES")
+    t[0]=t[1]
+
 def p_Declaraciones(t):
-    ''' DECLARACIONES : id TIPO not null ASIG
+    ''' DECLARACIONES : id TIPO not null ASIG ptcoma
     '''
-    if t[4]==None:
+    listaBNF.append("DECLARACIONES ::= "+t[1]+" TIPO not null ASIG ptcoma")
+    if t[4] == None:
         print('Error se le intenta asignar un valor nulo a una variable not null')
         return
     else:
-        t[0] = Declaracion(t[1],False, t[2], t[5],False)
+        t[0] = Declaracion(t[1], False, t[2], t[5], False)
+
 
 def p_Declaraciones1(t):
-    ' DECLARACIONES : id TIPO ASIG'
+    ' DECLARACIONES : id TIPO ASIG ptcoma'
+    listaBNF.append("DECLARACIONES ::= " + t[1] + " TIPO  ASIG ptcoma")
     t[0] = Declaracion(t[1], False, t[2], t[3])
 
 
 def p_Declaraciones2(t):
-    ''' DECLARACIONES : id constant TIPO not null ASIG
+    ''' DECLARACIONES : id constant TIPO not null ASIG ptcoma
     '''
-    if t[4]==None:
+    listaBNF.append("DECLARACIONES ::= " + t[1] + " constant TIPO not null ASIG ptcoma")
+    if t[4] == None:
         print('Error se le intenta asignar un valor nulo a una variable not null')
         return
     else:
-        t[0] = Declaracion(t[1], t[2], t[3], t[6],False)
+        t[0] = Declaracion(t[1], t[2], t[3], t[6], False)
+
 
 def p_Declaraciones3(t):
-    ''' DECLARACIONES : id constant TIPO ASIG
+    ''' DECLARACIONES : id constant TIPO ASIG ptcoma
     '''
-    t[0]=Declaracion(t[1],t[2],t[3],t[4])
+    listaBNF.append("DECLARACIONES ::= " + t[1] + " constant TIPO ASIG ptcoma")
+    t[0] = Declaracion(t[1], t[2], t[3], t[4])
 
 
 def p_ASIG(t):
@@ -632,173 +746,246 @@ def p_ASIG(t):
                  | dospuntos igual EXP
                  | igual EXP
                  | '''
+
     if len(t) == 1:
+        listaBNF.append("ASIG ::= ")
         t[0] = None
     elif len(t) == 4:
+        listaBNF.append("ASIG ::= dospuntos igual EXP")
         t[0] = t[3]
     else:
+        listaBNF.append("ASIG ::=  igual EXP")
         t[0] = t[2]
 
 
 def p_ASIGNACION(t):
     '''ASIGNACION : id dospuntos igual EXP
                  | id igual EXP'''
-    if len(t)==4:
-        t[0]=Asignacion(t[1],t[3])
+    if len(t) == 4:
+        listaBNF.append("ASIGNACION ::=  "+t[1]+" dospuntos igual EXP")
+        t[0] = Asignacion(t[1], t[3])
     else:
+        listaBNF.append("ASIGNACION ::=  "+t[1]+"  igual EXP")
         t[0] = Asignacion(t[1], t[4])
+
 
 def p_CONDICIONIF1(t):
     'CONDICIONIF : if EXP then LISTACONTENIDO ELSEF  end if'
-    t[0] = Ifclass(t[2], t[4],None, t[5])
+    listaBNF.append("CONDICIONIF ::= if EXP then LISTACONTENIDO ELSEF  end if")
+    t[0] = Ifclass(t[2], t[4], None, t[5])
+
 
 def p_CONDICIONIF2(t):
     'CONDICIONIF : if EXP then LISTACONTENIDO LELIF   end if'
-    t[0] = Ifclass(t[2], t[4],t[5])
+    listaBNF.append("CONDICIONIF ::= if EXP then LISTACONTENIDO LELIF  end if")
+    t[0] = Ifclass(t[2], t[4], t[5])
+
 
 def p_CONDICIONIF3(t):
     'CONDICIONIF : if EXP then LISTACONTENIDO end if'
-    t[0]=Ifclass(t[2],t[4])
+    listaBNF.append("CONDICIONIF ::= if EXP then LISTACONTENIDO  end if")
+    t[0] = Ifclass(t[2], t[4])
+
 
 def p_CONDICIONIF4(t):
     'CONDICIONIF : if EXP then LISTACONTENIDO LELIF ELSEF end if'
+    listaBNF.append("CONDICIONIF ::= if EXP then LISTACONTENIDO LELIF ELSEF  end if")
+    t[0] = Ifclass(t[2], t[4], t[5], t[6])
 
-    t[0]=Ifclass(t[2],t[4],t[5],t[6])
 
 def p_CONDICIONIF24(t):
     'LELIF : LELIF elsif EXP then LISTACONTENIDO'
+    listaBNF.append("LELIF ::= LELIF elsif EXP then LISTACONTENIDO")
     elsif = Ifclass(t[3], t[5], None, None)
     t[1].append(elsif)
     t[0] = t[1]
 
+
 def p_ELIF(t):
     'LELIF : elsif EXP then LISTACONTENIDO'
+    listaBNF.append("LELIF ::=  elsif EXP then LISTACONTENIDO")
     t[0] = [Ifclass(t[2], t[4])]
+
 
 def p_ELSEF(t):
     'ELSEF : else LISTACONTENIDO'
-    t[0]=t[2]
-  
+    listaBNF.append("ELSEF ::=  else  LISTACONTENIDO")
+    t[0] = t[2]
 
 
 def p_CASE(t):
-    'CASE : case LEXP  LISTAWHEN ELSEF  end case'
-    
+    'CASE : case EXP  LISTAWHEN ELSEF  end case'
+    listaBNF.append("CASE ::= case EXP  LISTAWHEN ELSEF  end case")
+    t[0] = Case(t[2], t[3],t[4])
+
 def p_CASE1(t):
-    'CASE : case LEXP  LISTAWHEN   end case'
+    'CASE : case EXP  LISTAWHEN   end case'
+    listaBNF.append("CASE ::= case EXP  LISTAWHEN  end case")
+    t[0]=Case(t[2],t[3])
 
 def p_CASE2(t):
-    ''' CASE : case  LISTAWHEN ELSE end
+    ''' CASE : case  LISTAWHEN ELSEF end case
     '''
+    listaBNF.append("CASE ::= case  LISTAWHEN ELSEF  end case")
+    t[0] = Case(None, t[2],t[3])
+
 def p_CASE3(t):
-    ''' CASE :  case LISTAWHEN end
+    ''' CASE :  case LISTAWHEN end case
     '''
-    
+    listaBNF.append("CASE ::= case  LISTAWHEN  end case")
+    t[0]=Case(None,t[2])
+
 def p_LISTACONTENIDO(t):
     'LISTACONTENIDO : LISTACONTENIDO CONTENIDO'
+    listaBNF.append("LISTACONTENIDO ::= LISTACONTENIDO CONTENIDO")
     t[1].append(t[2])
     t[0] = t[1]
 
 
-
 def p_LISTACONTENIDO1(t):
     'LISTACONTENIDO : CONTENIDO'
+    listaBNF.append("LISTACONTENIDO ::=  CONTENIDO")
     t[0] = [t[1]]
 
 
 def p_CONTENIDO(t):
     '''CONTENIDO : ASIGNACION ptcoma
     '''
-    t[0]=t[1]
-
-def p_CONTENIDO1(t):
-    '''CONTENIDO : DECLARACIONES ptcoma
-    '''
+    listaBNF.append("CONTENIDO ::= ASIGNCION ptcoma")
     t[0] = t[1]
+
 
 def p_CONTENIDO2(t):
     'CONTENIDO : CONDICIONIF ptcoma'
+    listaBNF.append("CONTENIDO ::= CONDICIONIF ptcoma")
     t[0] = t[1]
+
 
 def p_CONTENIDO3(t):
     'CONTENIDO : RAISE ptcoma'
+    listaBNF.append("CONTENIDO ::= RAISE ptcoma")
     t[0] = t[1]
+
 
 def p_CONTENIDO4(t):
     'CONTENIDO : BEGINEND ptcoma'
+    listaBNF.append("CONTENIDO ::= BEGINEND ptcoma")
     t[0] = t[1]
+
 
 def p_CONTENIDO5(t):
     'CONTENIDO : CALLPROCEDURE ptcoma '
+    listaBNF.append("CONTENIDO ::= CALLPROCEDURE ptcoma")
     t[0] = t[1]
 
-#def p_CONTENIDO6(t):
-#    'CONTENIDO : DECLARACIONES ptcoma  '
-#    t[0] = t[1]
+
+def p_CONTENIDO6(t):
+    'CONTENIDO : declare LDEC  '
+    listaBNF.append("CONTENIDO ::= declare LDEC")
+    t[0] = t[2]
 
 def p_CONTENIDO7(t):
     'CONTENIDO : RETURN ptcoma  '
+    listaBNF.append("CONTENIDO ::= RETURN ptcoma")
     t[0] = t[1]
 
+
 def p_CONTENIDO8(t):
+    'CONTENIDO : INSERT ptcoma '
+    listaBNF.append("CONTENIDO ::= INSERT ptcoma")
+    t[0] = t[1]
+
+def p_CONTENIDO9(t):
+    'CONTENIDO : SELECT ptcoma '
+    listaBNF.append("CONTENIDO ::= SELECT ptcoma")
+    t[0] = t[1]
+
+def p_CONTENIDO10(t):
+    'CONTENIDO : UPDATE ptcoma '
+    listaBNF.append("CONTENIDO ::= UPDATE ptcoma")
+    t[0] = t[1]
+
+def p_CONTENIDO11(t):
+    'CONTENIDO : DELETE ptcoma '
+    listaBNF.append("CONTENIDO ::= DELETE ptcoma")
+    t[0] = t[1]
+
+def p_CONTENIDO12(t):
     'CONTENIDO : CASE ptcoma '
+    listaBNF.append("CONTENIDO ::= CASE ptcoma")
     t[0] = t[1]
 
 
 def p_RAISE(t):
     'RAISE :  raise LEVEL FORMAT'
-    t[0]=Raise(t[2],t[3])
+    listaBNF.append("RAISE ::= raise LEVEL FORMAT")
+    t[0] = Raise(t[2], t[3])
+
 
 def p_RAISE1(t):
     'RAISE :  raise LEVEL EXP'
-    t[0]=Raise(t[2],t[3])
+    listaBNF.append("RAISE ::= raise LEVEL EXP")
+    t[0] = Raise(t[2], t[3])
+
+
 def p_RAISE2(t):
     'RAISE : raise LEVEL '
-    t[0]=Raise(t[2],None)
+    listaBNF.append("RAISE ::= raise LEVEL")
+    t[0] = Raise(t[2], None)
+
+
 def p_RAISE3(t):
     'RAISE : raise'
-    t[0]=Raise(None,None)
+    listaBNF.append("RAISE ::= raise ")
+    t[0] = Raise(None, None)
 
 
 def p_RAISE4(t):
     'RAISE : raise LEVEL cadena coma id'
+    listaBNF.append("RAISE ::= raise LEVEL "+t[3]+" coma "+t[5])
 
 
 def p_LEVEL(t):
     '''LEVEL : info
         | debug
-        | log
         | notice
         | warning
         | exception'''
-    t[0]=t[1]
+    listaBNF.append("LEVEL ::= "+t[1])
+    t[0] = t[1]
 
 
 def p_FORMAT(t):
     'FORMAT : format para EXP  coma LEXP parc'
 
 
-
-
-
 # AQUI TERMINA LO DE LA FASE 2
 def p_LISTAWHEN(t):
     ''' LISTAWHEN : LISTAWHEN WHEN
     '''
+    listaBNF.append("LISTAWHEN ::= LISTAWHEN WHEN")
+    t[1].append(t[2])
+    t[0]=t[1]
+
 def p_LISTAWHEN1(t):
     ''' LISTAWHEN :  WHEN
     '''
+    listaBNF.append("LISTAWHEN ::=  WHEN")
+    t[0]=[t[1]]
 
 def p_WHEN(t):
-    ''' WHEN : when LEXP then LISTACONTENIDO'''
+    ''' WHEN : when EXP then LISTACONTENIDO'''
+    listaBNF.append("WHEN ::= when EXP then LISTACONTENIDO")
+    t[0]=when(t[2],t[4])
 
-def p_WHEN1(t):
-    ''' WHEN : when LEXP then LEXP'''
+#def p_WHEN1(t):
+#    ''' WHEN : when EXP then LEXP'''
 
 
 def p_ELSE(t):
     '''ELSE : else LEXP'''
     listaBNF.append("ELSE ::= else LEXP")
+    t[0]=t[2]
 
 
 def p_INSERT(t):
@@ -821,20 +1008,24 @@ def p_DROPALL(t):
 
 def p_DROP(t):
     '''DROP : drop table id
+             | drop index id
              | drop databases if exist id
              | drop databases id '''
     if len(t) == 4:
         if (t[2].lower() == 'table'):
             listaBNF.append("DROP ::= drop table " + str(t[3]))
             t[0] = DropTable(t[3])
+        elif (t[2].lower() == 'index'):
+            listaBNF.append("DROP ::= drop index " + str(t[3]))
+            t[0] = DropIndex(str(t[3]))
 
         else:
             listaBNF.append("DROP ::= drop databases " + str(t[3]))
-            t[0] = DropDb(str(t[3]),'')
+            t[0] = DropDb(str(t[3]), '')
 
     elif len(t) == 6:
         listaBNF.append("DROP ::= drop databases if exist " + str(t[5]))
-        t[0] = DropDb(str(t[5]),'if exists')
+        t[0] = DropDb(str(t[5]), 'if exists')
 
 
 def p_ALTER(t):
@@ -844,15 +1035,35 @@ def p_ALTER(t):
     if len(t) == 7:
         listaBNF.append("ALTER ::= alter databases " + str(t[3]) + " " + str(t[4]) + " to " + str(t[6]))
         if (str(t[4]).lower() == 'rename'):
-            cad='alter database '+str(t[3])+' rename to '+str(t[6])
-            t[0] = AlterDb(str(t[3]), t[6],cad)
+            cad = 'alter database ' + str(t[3]) + ' rename to ' + str(t[6])
+            t[0] = AlterDb(str(t[3]), t[6], cad)
         else:
             print("renombrar owner")
-            cad='alter database '+str(t[3])+' owner to '+str(t[6])
-           
+            cad = 'alter database ' + str(t[3]) + ' owner to ' + str(t[6])
+
     elif len(t) == 5:
         listaBNF.append("ALTER ::= alter table " + str(t[3]) + " LOP")
         t[0] = AlterTable(str(t[3]), t[4])
+
+def p_ALTERIDX(t):
+    'ALTER : alter index id alter id'
+    listaBNF.append("ALTER ::= alter index " + str(t[3]) + " alter " + str(t[5]))
+    t[0] = AlterIndex(str(t[3]),False,False,str(t[5]))
+
+def p_ALTERIDX1(t):
+    'ALTER : alter index if exist id alter id'
+    listaBNF.append("ALTER ::= alter index if exists " + str(t[5]) + " alter " + str(t[7]))
+    t[0] = AlterIndex(str(t[5]),True,False,str(t[7]))
+
+def p_ALTERIDX2(t):
+    'ALTER : alter index id alter column id'
+    listaBNF.append("ALTER ::= alter index " + str(t[3]) + " alter column " + str(t[6]))
+    t[0] = AlterIndex(str(t[3]),False,True,str(t[6]))
+
+def p_ALTERIDX3(t):
+    'ALTER : alter index if exist id alter column id'
+    listaBNF.append("ALTER ::= alter index if exists " + str(t[5]) + " alter column " + str(t[8]))
+    t[0] = AlterIndex(str(t[5]),True,True,str(t[8]))
 
 
 def p_LOP(t):
@@ -948,6 +1159,7 @@ def p_op7(t):
 def p_alc(t):
     '''OP : alter column id type TIPO'''
     listaBNF.append("ALC ::= alter column " + str(t[3]) + " type TIPO")
+    listaBNF.append("OP ::= alter column " + str(t[3]) + " type TIPO")
     t[0] = AlterType(str(t[3]), t[5])
 
 
@@ -977,33 +1189,35 @@ def p_CREATEDB(t):
     '''
     if len(t) == 7:
         listaBNF.append("CREATEDB ::= create RD if not exist " + str(t[6]))
-        t[0] = CreateDb(str(t[6]), str(t[2]).lower(), 'if not exists','')
+        t[0] = CreateDb(str(t[6]), str(t[2]).lower(), 'if not exists', '')
     elif len(t) == 8:
         listaBNF.append("CREATEDB ::= create RD if not exist " + str(t[6]) + " OPCCDB")
-        t[0] = CreateDb(str(t[6]), str(t[2]).lower(), 'if not exists',t[7])
+        t[0] = CreateDb(str(t[6]), str(t[2]).lower(), 'if not exists', t[7])
     elif len(t) == 4:
         listaBNF.append("CREATEDB ::= create RD " + str(t[3]))
-        t[0] = CreateDb(str(t[3]), str(t[2]).lower(), '','')
+        t[0] = CreateDb(str(t[3]), str(t[2]).lower(), '', '')
     elif len(t) == 5:
         listaBNF.append("CREATEDB ::= create RD " + str(t[3]) + " OPCCDB")
-        t[0] = CreateDb(str(t[3]), str(t[2]).lower(), '',t[4])
+        t[0] = CreateDb(str(t[3]), str(t[2]).lower(), '', t[4])
 
 
 def p_OPCCDB(t):
     '''OPCCDB : PROPIETARIO'''
     listaBNF.append("OPCCDB ::= PROPIETARIO")
-    t[0]= t[1]
+    t[0] = t[1]
+
 
 def p_OPCCDB1(t):
     '''OPCCDB : MODO'''
     listaBNF.append("OPCCDB :: = MODO")
-    t[0]= t[1]
+    t[0] = t[1]
 
 
 def p_OPCCDB2(t):
     '''OPCCDB : PROPIETARIO MODO'''
     listaBNF.append("OPCCDB ::= PROPIETARIO MODO")
-    t[0]= t[1] +' '+ t[2]
+    t[0] = t[1] + ' ' + t[2]
+
 
 def p_RD(t):
     '''RD : or replace databases
@@ -1020,34 +1234,38 @@ def p_RD(t):
 def p_PROPIETARIO(t):
     '''PROPIETARIO : owner igual id '''
     listaBNF.append("PROPIETARIO ::= owner igual " + str(t[3]))
-    t[0]='owner = '+str(t[3])
+    t[0] = 'owner = ' + str(t[3])
+
 
 def p_PROPIETARIO_1(t):
     '''PROPIETARIO : owner igual cadena
     '''
     listaBNF.append("PROPIETARIO ::= owner igual " + str(t[3]))
-    t[0]='owner = \''+str(t[3])+ '\''
+    t[0] = 'owner = \'' + str(t[3]) + '\''
+
 
 def p_PROPIETARIO_2(t):
     '''PROPIETARIO :  owner igual cadenaString'''
     listaBNF.append("PROPIETARIO ::= owner igual " + str(t[3]))
-    t[0]='owner = \"'+str(t[3])+ '\"'
+    t[0] = 'owner = \"' + str(t[3]) + '\"'
 
 
 def p_PROPIETARIO_3(t):
     '''PROPIETARIO : owner id'''
-    t[0]='owner '+ str(t[2])
+    t[0] = 'owner ' + str(t[2])
     listaBNF.append("PROPIETARIO ::= owner " + str(t[2]))
+
 
 def p_PROPIETARIO_4(t):
     '''PROPIETARIO : owner cadena
     '''
-    t[0]='owner \''+ str(t[2])+'\''
+    t[0] = 'owner \'' + str(t[2]) + '\''
     listaBNF.append("PROPIETARIO ::= owner " + str(t[2]))
+
 
 def p_PROPIETARIO_5(t):
     '''PROPIETARIO : owner cadenaString'''
-    t[0]='owner \"'+ str(t[2])+'\"'
+    t[0] = 'owner \"' + str(t[2]) + '\"'
     listaBNF.append("PROPIETARIO ::= owner " + str(t[2]))
 
 
@@ -1056,9 +1274,9 @@ def p_MODO(t):
 	    | mode int'''
     if len(t) == 3:
         listaBNF.append("MODO ::= mode " + str(t[2]))
-        t[0]='mode = '+str(t[3])
+        t[0] = 'mode = ' + str(t[3])
     else:
-        t[0]='mode = '+str(t[3])
+        t[0] = 'mode = ' + str(t[3])
         listaBNF.append("MODO ::= mode igual " + str(t[3]))
 
 
@@ -1146,9 +1364,7 @@ def p_OPCOLUMN2(t):
 def p_OPCOLUMN22(t):
     '''OPCOLUMN : check para CONDCHECK parc'''
     listaBNF.append("OPCOLUMN ::= check para CONDCHECK parc")
-    atrCheck = Atributo(AtributosColumna.CHECK)
-    atrCheck.exp = t[3]
-    t[0] = atrCheck
+    t[0] = Atributo(AtributosColumna.CHECK, None, t[3])
 
 
 def p_OPCOLUMN3(t):
@@ -1273,15 +1489,16 @@ def p_LIMIT(t):
     if len(t) == 3:
         listaBNF.append("LIMIT ::= " + str(t[1]) + " " + str(t[2]))
         if str(t[1]).lower() == 'limit':
-            t[0] = Limit(t[2], -1)
+            t[0] = Limit(t[2], -1,str(t[1]) + " " + str(t[2]))
         elif str(t[1]).lower() == 'offset':
-            t[0] = Limit(-1, t[2])
+            t[0] = Limit(-1, t[2],str(t[1]) + " " + str(t[2]))
     elif len(t) == 5:
         listaBNF.append("LIMIT ::= " + str(t[1]) + " " + str(t[2]) + " " + str(t[3]) + " " + str(t[4]))
         if str(t[1]).lower() == 'limit':
-            t[0] = Limit(t[2], t[4])
+            t[0] = Limit(t[2], t[4],str(t[1]) + " " + str(t[2]) + " " + str(t[3]) + " " + str(t[4]))
         elif str(t[1]).lower() == 'offset':
-            t[0] = Limit(t[4], t[2])
+            t[0] = Limit(t[4], t[2],str(t[1]) + " " + str(t[2]) + " " + str(t[3]) + " " + str(t[4]))
+
 
 
 def p_WHERE(t):
@@ -1630,14 +1847,21 @@ def p_EXP2(t):
 def p_EXPalias(t):
     '''EXP :  EXP as cadenaString %prec lsel
                | EXP cadenaString %prec lsel
-               | EXP as id %prec lsel
-               | EXP id  %prec lsel
                | EXP as cadena %prec lsel
                | EXP cadena %prec lsel'''
     if len(t) == 3:
-        t[0] = Alias(t[1], t[2])
+        t[0] = Alias(t[1], t[2],'\''+t[2]+'\'')
     elif len(t) == 4:
-        t[0] = Alias(t[1], t[3])
+        t[0] = Alias(t[1], t[3],'as \''+t[3]+'\'')
+
+def p_EXPalias1(t):
+    '''EXP :  EXP as id %prec lsel
+               | EXP id  %prec lsel
+    '''
+    if len(t) == 3:
+        t[0] = Alias(t[1], t[2],t[2])
+    elif len(t) == 4:
+        t[0] = Alias(t[1], t[3],'as '+t[3])
 
 
 def p_EXP1(t):
@@ -1677,7 +1901,7 @@ def p_EXPV2(t):
     tipo = Tipo('varchar', t[4], -1, -1)
     tipo.getTipo()
     ter = Terminal(tipo, t[4])
-    rel = Relacional(t[1], ter, 'like')
+    rel = Relacional(t[1], ter, 'not like')
     t[0] = Unaria(rel, 'not')
 
 
@@ -1692,10 +1916,10 @@ def p_EXPJ(t):
         t[0] = t[1]
 
 
-def p_EXPJ1(t):
-    '''EXP : CASE'''
-    listaBNF.append("EXP ::= CASE")
-    t[0] = t[1]
+#def p_EXPJ1(t):
+#   '''EXP : CASE'''
+#    listaBNF.append("EXP ::= CASE")
+#   t[0] = t[1]
 
 
 def p_EXP_FuncNativas(t):
@@ -1707,15 +1931,19 @@ def p_EXP_FuncNativas(t):
 def p_EXP_FuncNativas2(t):
     '''EXP : id para parc '''
     listaBNF.append("EXP ::= " + str(t[1]).lower() + " para parc")
-    tipo = None
+    tipo = Tipo('indefinido',None,-1,-1)
     if t[1].lower() == 'now':
         tipo = Tipo('timestamp without time zone', t[1], len(t[1]), -1)
+        t[0] = Terminal(tipo, t[1].lower())
     elif t[1].lower() == 'random':
         tipo = Tipo('double', t[1], len(t[1]), -1)
+        t[0] = Terminal(tipo, t[1].lower())
     elif t[1].lower() == 'pi':
         tipo = Tipo('double', t[1], len(t[1]), -1)
+        t[0] = Terminal(tipo, t[1].lower())
+    else:
+        t[0]=LLamadaFuncion(t[1],None)
 
-    t[0] = Terminal(tipo, t[1].lower())
 
 
 def p_EXP(t):
@@ -1782,7 +2010,8 @@ def p_EXPT7(t):
     'EXP : id'
     listaBNF.append("EXP ::= " + str(t[1]).lower())
     tipo = Tipo('indefinido', t[1], len(t[1]), -1)
-    t[0]=Identificador(tipo,t[1])
+    t[0] = Identificador(tipo, t[1])
+
 
 def p_EXPT8(t):
     'EXP : multiplicacion %prec lsel'

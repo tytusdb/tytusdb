@@ -1767,29 +1767,28 @@ class IndexCreate(instruccion):
             if isinstance(self.createind2, createind3):
                 "createind2 es createind3"
                 columnasdeindice = []
-                if isinstance(self.createind2.listacolind, listacolind):
-                    "es el objeto de listas listacolind"
-                    for elemento in self.createind2.listacolind.listacolind:
-                        if isinstance(elemento, columnaind):
-                            if isinstance(elemento.propiedad, ordenind):
-                                if NuevoIndice.ordenind == "":
-                                    NuevoIndice.ordenind = elemento.propiedad.orden
-                            else:
-                                columnasdeindice.append(elemento.propiedad)
-                            columnasdeindice.append(elemento.id)
-                        else:
-                            columnasdeindice.append(elemento)
-                else:
-                    "es una lista con un elemento"
-                    if isinstance(self.createind2.listacolind, columnaind):
-                        if isinstance(self.createind2.listacolind.propiedad, ordenind):
+                columnastexto = ""
+                for columna in self.createind2.listacolind:
+                    if isinstance(columna, columnaind):
+                        "ES UN OBJETO"
+                        if isinstance(columna.propiedad, ordenind):
                             if NuevoIndice.ordenind == "":
-                                NuevoIndice.ordenind = self.createind2.listacolind.propiedad.orden
+                                NuevoIndice.ordenind = columna.propiedad.orden
+                                columnasdeindice.append(columna.id)
                             else:
-                                columnasdeindice.append(self.createind2.listacolind.id)
-                            columnasdeindice.append(elemento.id)
+                                NuevoIndice.ordenind = "Ninguno"
+                                columnasdeindice.append(columna.id)
                         else:
-                            columnasdeindice.append(elemento)
+                            NuevoIndice.ordenind = "Ninguno"
+                            columnasdeindice.append(columna.propiedad)
+                    else:
+                        if NuevoIndice.ordenind == "":
+                            NuevoIndice.ordenind = "Ninguno"
+                        columnasdeindice.append(columna)
+                for elemento in columnasdeindice:
+                    columnastexto += elemento + " "
+                NuevoIndice.columnaind = columnastexto
+                NuevoIndice.listacolind = columnasdeindice
             tabla.agregar(NuevoIndice)
             return "Se agrego el indice " + self.id1 + " a la tabla de simbolos"
         except:
@@ -1799,10 +1798,6 @@ class createind3(instruccion):
     def __init__(self,listacolind, indwhere):
         self.listacolind = listacolind
         self.indhwere = indwhere
-
-class listacolind(instruccion):
-    def __init__(self,listacolind):
-        self.listacolind = listacolind
 
 class columnaind(instruccion):
     def __init__(self,id, propiedad):
@@ -1831,3 +1826,94 @@ class indwherecond(instruccion):
         self.signo = signo
         self.valortipo = valortipo
 #----------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------CLASES PARA DROP INDICES--------------------------------------------------
+class IndexDrop(instruccion):
+    def __init__(self, tipo, listaindices, orden):
+        self.tipo = tipo
+        self.listaindices = listaindices
+        self.orden = orden
+
+    def ejecutar(self):
+        global resultadotxt
+        global cont
+        global tabla
+        global NombreDB
+        global contambito
+        textores = ""
+        try:
+            eliminar = []
+            for indice in self.listaindices:
+                if tabla.BuscarNombre(indice):
+                    eliminarindice = tabla.BuscarNombre(indice)
+                    eliminar.append(eliminarindice)
+                else:
+                    textores += "No se encontro el indice " + indice + "\n"
+            for simbolo in eliminar:
+                if simbolo.tipo == TS.TIPO.INDICE:
+                    tabla.simbolos.pop(simbolo.id)
+                    textores += "Se elimino el indice " + simbolo.nombre + " de la tabla de simbolos\n"
+            return textores
+        except:
+            return "Error en " + self.tipo
+
+#--------------------------------------------CLASES PARA ALTER INDICES-------------------------------------------------
+class IndexAlter(instruccion):
+    def __init__(self, tipo, alterind2):
+        self.tipo = tipo
+        self.alterind2 = alterind2
+
+    def ejecutar(self):
+        global resultadotxt
+        global cont
+        global tabla
+        global NombreDB
+        global contambito
+        try:
+            if self.alterind2.tipocambio.lower() == "alter" or self.alterind2.tipocambio.lower() == "alter column":
+                if isinstance(self.alterind2.listacol, alterind):
+                    if tabla.BuscarNombre(self.alterind2.id):
+                        Indice = tabla.BuscarNombre(self.alterind2.id)
+                        iter = 0
+                        for col in Indice.listacolind:
+                            if col == self.alterind2.listacol.buscarid:
+                                Indice.listacolind[iter] = self.alterind2.listacol.nuevoid
+                                break 
+                            iter+=1
+                        
+                        columnastexto = ""
+                        for elemento in Indice.listacolind:
+                            columnastexto += elemento + " "
+                        Indice.columnaind = columnastexto
+                        tabla.actualizar(Indice)
+                        if Indice.listacolind[iter] == self.alterind2.listacol.buscarid:
+                            return "No existe la columna " +  self.alterind2.listacol.buscarid + " en el indice " + self.alterind2.id
+                        return "Se cambio la columna " + self.alterind2.listacol.buscarid + " por " + self.alterind2.listacol.nuevoid + " del indice " + self.alterind2.id
+                    else:
+                        return "No existe el indice" + self.alterind2.id
+            else:
+                NuevoAlterIndex = TS.Simbolo(cont,self.alterind2.id,TS.TIPO.INDICE,contambito)
+                cont+=1
+                contambito+=1
+                NuevoAlterIndex.tipoind = self.tipo
+                NuevoAlterIndex.indicesind = self.alterind2.id
+                NuevoAlterIndex.ordenind = self.alterind2.tipocambio
+                NuevoAlterIndex.tablaind = "Ninguno"
+                coltexto = ""
+                for col in self.alterind2.listacol:
+                    coltexto += col + " "
+                NuevoAlterIndex.columnaind = coltexto
+                tabla.agregar(NuevoAlterIndex)
+                return "Se agrego el " + self.tipo + " a la tabla de simbolos"
+        except:
+            return "Error en " + self.tipo
+
+class propalter(instruccion):
+    def __init__(self, tipocambio, id, listacol):
+        self.tipocambio = tipocambio
+        self.id = id
+        self.listacol = listacol
+
+class alterind(instruccion):
+    def __init__(self,buscarid,nuevoid):
+        self.buscarid = buscarid
+        self.nuevoid = nuevoid

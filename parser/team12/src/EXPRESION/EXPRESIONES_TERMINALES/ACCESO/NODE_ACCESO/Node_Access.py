@@ -137,3 +137,18 @@ class Access_Expresion(Expresion):
                     self.tipo = Type_Expresion(Data_Type.error)
                     self.valorExpresion = None
                     return self.valorExpresion
+
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+
+        infoNameTable = self.hijos[0]
+        infoIdTable = self.hijos[1]
+
+        if infoIdTable.nombreNodo == '*':
+            textoAccess = infoNameTable.valor + '.*'
+            return textoAccess
+        else:
+            textoAccess = infoNameTable.valor + '.'+infoIdTable.valor
+            return textoAccess

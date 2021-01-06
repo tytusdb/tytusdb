@@ -22,3 +22,10 @@ class Function_Random(Expresion):
         self.tipo = Type_Expresion(Data_Type.numeric)
         self.valorExpresion = random.random()
         return self.valorExpresion
+    
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+        stringReturn = 'random()'
+        return stringReturn

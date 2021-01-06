@@ -1,4 +1,4 @@
-from Entorno.Simbolo import Simbolo
+
 from graphviz import Digraph
 
 class Entorno:
@@ -7,6 +7,9 @@ class Entorno:
         self.database = "" 
         self.tablaSimbolo = {}
         self.consola = []
+        self.temp=0
+        self.label=0
+        self.codigo=''
 
     def nuevoSimbolo(self, symbol):
         x = self.tablaSimbolo.get(symbol.nombre)
@@ -86,6 +89,36 @@ class Entorno:
             ent = ent.anterior
         
         return None
+    
+    def eliminarIndex(self,nombreIndex):
+        eliminado:bool = False
+        ent = self
+
+        while ent != None:
+            x = 0
+            for x in ent.tablaSimbolo.copy():
+                ix:str = ent.tablaSimbolo[x].indexId
+                if ix == nombreIndex:
+                    ent.tablaSimbolo.pop(x)
+                    eliminado = True
+
+            ent = ent.anterior
+        
+        return eliminado
+
+    def buscarIndex(self,nombreIndex):
+        ent = self
+
+        while ent != None:
+            x = 0
+            for x in ent.tablaSimbolo.copy():
+                ix:str = ent.tablaSimbolo[x].indexId
+                if ix == nombreIndex:
+                    return ent.tablaSimbolo[x]
+
+            ent = ent.anterior
+        
+        return None
 
     def renombrarDatabase(self,viejaDB,nuevaDB):
         ent = self
@@ -116,3 +149,14 @@ class Entorno:
             ent.tablaSimbolo = {}
 
             ent = ent.anterior
+
+    def newtemp(self):
+        self.temp+=1
+        return 't'+str(self.temp)
+
+    def newlabel(self,nombre=''):
+        if nombre=='':
+            self.label += 1
+            return '.L' + str(self.label)
+        else:
+            return '.L'+str(nombre)

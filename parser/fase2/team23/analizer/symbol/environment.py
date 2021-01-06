@@ -21,7 +21,7 @@ class Environment:
         self.conta_temp = 0
         self.conta_exec = 0
         self.conta_etiqueta = 0
-        self.codigo = "from goto import with_goto \nimport C3D \n\n@with_goto  # Decorador necesario\ndef main():\n"
+        self.codigo = "from goto import with_goto \nimport C3D \n\n@with_goto  # Decorador necesario\n"
         self.count_tabs = []
 
     def updateVar(self, id, value, type_):
@@ -101,6 +101,10 @@ class Environment:
             env = env.previous
         return type
 
+    def updateVar(self, id, sym):
+        env = self
+        env.variables[id] = sym
+
     def getVar(self, id):
         env = self
         while env != None:
@@ -145,4 +149,5 @@ class Environment:
     def getEtiqueta(self):
         env = self
         env.conta_etiqueta += 1
-        return "L"+str(env.conta_etiqueta) 
+        return "L"+str(env.conta_etiqueta)
+

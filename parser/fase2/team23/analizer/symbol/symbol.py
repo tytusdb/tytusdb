@@ -5,7 +5,7 @@ class Symbol:
     expresiones.
     """
 
-    def __init__(self, value, type_, row, column, col_creada, cons, return_func = None, params_func = None, bloque_func = None) -> None:
+    def __init__(self, value, type_, row, column, col_creada, cons, return_func = None, params_func = None, bloque_func = None, val_var = None) -> None:
         self.value = value
         self.type = type_
         self.row = row
@@ -16,4 +16,6 @@ class Symbol:
         self.return_func = return_func
         self.params_func = params_func
         self.bloque_func = bloque_func
+        self.val_var = val_var
+        
 

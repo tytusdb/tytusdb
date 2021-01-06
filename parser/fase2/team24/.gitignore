@@ -7,7 +7,6 @@ parsetab.py
 pruebas.py
 tree.svg
 tree.svg.pdf
-ayuda.py
 data/
 reporteTabla.gv.pdf
 tree.gv
@@ -18,3 +17,4 @@ entrada2.txt
 reporteErrores.gv
 reporteErrores.gv.pdf
 reporteTabla.gv
+c3d.py

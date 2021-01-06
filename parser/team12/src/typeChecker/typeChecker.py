@@ -36,6 +36,26 @@ class Column():
         self.isCheck = None
         self.referenceColumn = None
 
+class Index():
+    def __init__(self):
+        self.name = None
+        self.table = None
+        self.method = None
+        self.listaAttribb = []
+        self.sentenciaWhere = None
+
+class Atribb():
+    def __init__(self):
+        self.column = None
+        self.order = None
+        self.nulls = None
+
+class Procedure:
+    def __init__(self):
+        self.nombre = None
+        self.C3D = None  
+
+
 file_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))+ '\\estructura.json')
 
 
@@ -46,14 +66,13 @@ class TypeChecker():
             data = json.load(file)
             if database not in data:
                 return False
-            return True
+            return True 
 
     def UseDB(self,database : str):
         return self.existeDB(database)
 
-            
     #.#############################################Adds a new database
-    def createDatabase(self,database : str,owner : str, mode) -> bool:
+    def createDatabase(self,database : str,owner : str, mode, indexes = [],procedures = []) -> bool:
         dataFinal = None
         with open(file_dir) as file:
             #Load data as a dictionary
@@ -63,7 +82,9 @@ class TypeChecker():
                     database:{
                         "tables" : {},
                         "owner" : owner,
-                        "mode" : mode
+                        "mode" : mode,
+                        "indexes" : indexes,
+                        "procedures" : procedures
                     }   
                 }
                 data.update(creacion)
@@ -93,6 +114,96 @@ class TypeChecker():
     #.##################################################Replace database
     def replaceDatabase(self,database : str, owner : str = None, mode : str = None):
         return self.deleteDatabase(database) and self.createDatabase(database,owner,mode)
+
+
+    ######################## CreateProcedure
+    def create_procedure(self, database : str, procedure : Procedure):
+        dataFinal = None
+        with open(file_dir) as file:
+            data = json.load(file)
+            if database in data:
+                procedures = data[database]["procedures"]
+                listanombres = []
+                for ind in procedures:
+                    listanombres.append(ind["nombre"])
+                if procedure.nombre not in listanombres:
+                    procedures.append({
+                        "nombre" : procedure.nombre,
+                        "C3D" : procedure.C3D
+                        })
+                    dataFinal = json.dumps(data)
+                else:
+                    return None
+            else:
+                return None
+        if dataFinal is not None:
+            file = open(file_dir,'w')
+            file.write(dataFinal)
+            file.close()
+
+    ######################## CreateIndex
+    def create_index(self, database : str, index : Index):
+        dataFinal = None
+        with open(file_dir) as file:
+            data = json.load(file)
+            if database in data:
+                indices = data[database]["indexes"]
+                listanombres = []
+                for ind in indices:
+                    listanombres.append(ind["name"])
+                if index.name not in listanombres:
+                    listaAttribs = []
+                    for indice in index.listaAtribb:
+                        listaAttribs.append({
+                            "column" : str(indice.column),
+                            "order" : str(indice.order),
+                            "nulls" : str(indice.nulls)
+                        })
+                    indices.append({
+                        "name" : index.name,
+                        "table" : index.table,
+                        "method" : index.method,
+                        "listaAttribb" : listaAttribs,
+                        "sentenciaWhere" : index.sentenciaWhere
+                        })
+                    dataFinal = json.dumps(data)
+                else:
+                    return None
+            else:
+                return None
+        if dataFinal is not None:
+            file = open(file_dir,'w')
+            file.write(dataFinal)
+            file.close()
+
+    def return_indexJSON(self, database : str):
+        if self.existeDB(database):
+            with open(file_dir) as file:
+                data = json.load(file)
+                return data[database]["indexes"]
+        return []        
+
+    def return_indexesObject(self,database : str):
+        lista = self.return_indexJSON(database)
+        retorno = []
+        for indx in lista:
+            index_tmp = Index()
+            index_tmp.name = indx["name"]
+            index_tmp.table = indx["table"]
+            index_tmp.method = indx["method"]
+            l = []
+
+            for item in indx["listaAttribb"]:
+                attr_tmp = Atribb()
+                attr_tmp.column = item["column"]
+                attr_tmp.order = item["order"]
+                attr_tmp.nulls = item["nulls"]
+                l.append(attr_tmp)
+
+            index_tmp.listaAttribb = l
+            index_tmp.sentenciaWhere = indx["sentenciaWhere"]
+            retorno.append(index_tmp)
+        return retorno
 
 
     #.####################################Creates a table in the database
@@ -390,6 +501,53 @@ class TypeChecker():
 
                     
 
+    ###################################################### Drop procedure
+    def drop_procedure(self,database, procedure_name):
+        dataFinal = None
+        with open(file_dir) as file:
+            data = json.load(file)
+            if database in data:
+                procedures = data[database]["procedures"]
+                l = []
+                for inx in procedures:
+                    if inx["nombre"].upper() != procedure_name.upper():
+                        l.append(inx)
+                if len(l) == len(procedures):
+                    return None
+                else:
+                    data[database]["procedures"] = l
+                    dataFinal = json.dumps(data)
+            else:
+                return None
+        if dataFinal is not None:
+            file = open(file_dir,'w')
+            file.write(dataFinal)
+            file.close()
+            return True
+    ###################################################### Drop index
+    def drop_index(self,database, index_name):
+        dataFinal = None
+        with open(file_dir) as file:
+            data = json.load(file)
+            if database in data:
+                indexes = data[database]["indexes"]
+                l = []
+                for inx in indexes:
+                    if inx["name"].upper() != index_name.upper():
+                        l.append(inx)
+                if len(l) == len(indexes):
+                    return None
+                else:
+                    data[database]["indexes"] = l
+                    dataFinal = json.dumps(data)
+            else:
+                return None
+        if dataFinal is not None:
+            file = open(file_dir,'w')
+            file.write(dataFinal)
+            file.close()
+            return True
+
     ###################################################### Drop table
     def drop_table(self, database : str, table_name : str):
         dataFinal = None
@@ -408,6 +566,7 @@ class TypeChecker():
             file = open(file_dir,'w')
             file.write(dataFinal)
             file.close()
+            return True
 
     #######################################################Alter database (rename)
     def rename_database(self,old_db_name : str, new_db_name : str):

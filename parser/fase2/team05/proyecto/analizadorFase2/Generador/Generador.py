@@ -1,3 +1,5 @@
+from analizadorFase2.Instrucciones.EliminarFuncion import EliminarFuncion
+from analizadorFase2.Instrucciones.Llamada import Llamada
 from analizadorFase2.Instrucciones.Else import Else_inst
 from analizadorFase2.Instrucciones.If import If_inst
 from analizadorFase2.Operaciones.TiposOperacionesLR import TiposOperacionesLR
@@ -10,7 +12,7 @@ from analizadorFase2.Instrucciones.Asignacion import Asignacion
 from analizadorFase2.Operaciones.Operaciones_Aritmeticcas import Operaciones_Aritmeticas
 from analizadorFase2.Operaciones.TiposOperacionesA import TiposOperaciones
 from analizadorFase2.Operaciones.OperacionesUnarias import OperacionesUnarias
-
+from analizadorFase2.Instrucciones.Return import Return_inst
 class Generador:
     def __init__(self, numero_temp, numero_labl, inst):
         self.temp = numero_temp
@@ -35,6 +37,10 @@ class Generador:
 
     def generarGoto(self, etiqueta):
         inst = self.generarTab() + "goto " + etiqueta 
+        self.codigo3d.append(inst)
+
+    def generarLlamada(self, id):
+        inst = self.generarTab() + id + "()"
         self.codigo3d.append(inst)
 
     def agregarEtiqueta(self, etiqueta):
@@ -63,18 +69,53 @@ class Generador:
         for instruccion in self.inst:
             if isinstance(instruccion, Funcion):
                 self.compilarFuncion(instruccion)
-
         for linea in self.codigo3d:
             print(linea)
 
     def compilarFuncion(self, instruccion):
         self.agregarFuncion(instruccion.id)
+        if instruccion.numparametros != 0:
+            temporal = self.generarTemporal()
+            self.generarAsignacion(temporal, "0")
+            for param in instruccion.parametros :
+                self.generarAsignacion(param.id, "simulador_pila[" + temporal + "]")
+                self.generarAsignacion(temporal, temporal + " + 1")
         for instruccion1 in instruccion.cuerpo:
             if isinstance(instruccion1, Asignacion):
                 self.compilarAsignacion(instruccion1)
             elif isinstance(instruccion1, If_inst):
                 self.compilarIf(instruccion1)
+            elif isinstance(instruccion1, Return_inst):
+                self.compilarReturn(instruccion1)
+            elif isinstance(instruccion1, Llamada):
+                self.compilarLlamada(instruccion1)
+            elif isinstance(instruccion1, Primitivo):
+                self.compilarPrimitivo
+            elif isinstance(instruccion1, EliminarFuncion):
+                self.compilarDropFunction(instruccion1)
         self.numerotab -= 1
+    
+    def compilarLlamada(self, instruccion):
+        if instruccion.numparametros != 0:
+            temporal = self.generarTemporal()
+            self.generarAsignacion(temporal, "0")
+            for param in instruccion.parametros:
+                valor_param = self.compilarOperacionLogicaRelacional(param.valor)
+                self.generarAsignacion("simulador_pila[" + temporal + "]", valor_param.valor)
+                self.generarAsignacion(temporal, temporal + " + 1")
+        self.generarLlamada(instruccion.id)
+        temp = self.generarTemporal()
+        self.generarAsignacion(temp, "0")
+        temp1 = self.generarTemporal()
+        self.generarAsignacion(temp1, "simulador_pila[" + temp + "]")
+        return RetornoOp(temp1, None)
+
+    def compilarReturn(self, instruccion):
+        if not instruccion.valor is None:
+            val = self.compilarOperacionLogicaRelacional(instruccion.valor)
+            temporal = self.generarTemporal()
+            self.generarAsignacion(temporal, "0")
+            self.generarAsignacion("simulador_pila[" + temporal + "]", str(val.valor))
 
     def compilarcuerpoif(self, instruccion):
         for instruccion1 in instruccion:
@@ -82,6 +123,14 @@ class Generador:
                 self.compilarAsignacion(instruccion1)
             elif isinstance(instruccion1, If_inst):
                 self.compilarIf(instruccion1)
+            elif isinstance(instruccion1, Return_inst):
+                self.compilarReturn(instruccion1)
+            elif isinstance(instruccion1, Llamada):
+                self.compilarLlamada(instruccion1)
+            elif isinstance(instruccion1, Primitivo):
+                self.compilarPrimitivo
+            elif isinstance(instruccion1, EliminarFuncion):
+                self.compilarDropFunction(instruccion1)
 
     def compilarIf(self, instruccion):
         if isinstance(instruccion, If_inst):
@@ -120,6 +169,13 @@ class Generador:
         elif isinstance(instruccion.valor, Operaciones_Aritmeticas):
             ret = self.compilarOperacionAritmetica(instruccion.valor)
             self.generarAsignacion(instruccion.id, ret.valor)
+        elif isinstance(instruccion.valor, Llamada):
+            ret = self.compilarLlamada(instruccion.valor)
+            self.generarAsignacion(instruccion.id, ret.valor)
+
+    def compilarDropFunction(self, instruccion):
+        inst = self.generarTab() + "del " + instruccion.id
+        self.codigo3d.append(inst)
 
     def compilarOperacionLogicaRelacional(self, instruccion):
         if isinstance(instruccion, OperacionesLogicasRelacionales):
@@ -336,7 +392,7 @@ class Generador:
                 
         elif isinstance(instruccion, Operaciones_Aritmeticas):
             return self.compilarOperacionAritmetica(instruccion)
-        elif isinstance(instruccion, Primitivo):
+        elif isinstance(instruccion, Primitivo) or isinstance(instruccion, Llamada):
             return self.compilarPrimitivo(instruccion)
 
     def compilarOperacionAritmetica(self, instruccion):
@@ -383,25 +439,37 @@ class Generador:
             return self.compilarPrimitivo(instruccion)
 
     def compilarPrimitivo(self, instruccion):
-        if instruccion.tipo == Tipos.Booleano:
-            if instruccion.trueLabel == '':
-                instruccion.trueLabel = self.generarEtiqueta()
-            
-            if instruccion.falseLabel == '':
-                instruccion.falseLabel = self.generarEtiqueta()
-            temporal = self.generarTemporal()
-            if instruccion.valor is True:
-                self.generarGoto(instruccion.trueLabel)
-                self.agregarEtiqueta(instruccion.trueLabel)
-                self.generarAsignacion(temporal, True)
+        if isinstance(instruccion, Primitivo):
+            if instruccion.tipo == Tipos.Booleano:
+                if instruccion.trueLabel == '':
+                    instruccion.trueLabel = self.generarEtiqueta()
+                
+                if instruccion.falseLabel == '':
+                    instruccion.falseLabel = self.generarEtiqueta()
+                temporal = self.generarTemporal()
+                if instruccion.valor is True:
+                    self.generarGoto(instruccion.trueLabel)
+                    self.agregarEtiqueta(instruccion.trueLabel)
+                    self.generarAsignacion(temporal, True)
+                else:
+                    self.generarGoto(instruccion.falseLabel)
+                    self.agregarEtiqueta(instruccion.falseLabel)
+                    self.generarAsignacion(temporal, False)
+                ret = RetornoOp(temporal, Tipos.Id)
+                ret.trueLabel = instruccion.trueLabel
+                ret.falseLabel = instruccion.falseLabel
+                return ret
+            elif instruccion.tipo == Tipos.Id:
+                temporal = self.generarTemporal()
+                self.generarAsignacion(temporal, instruccion.valor)
+                return RetornoOp(temporal, instruccion.tipo)
+            elif instruccion.tipo == Tipos.ISQL:
+                temporal = self.generarTemporal()
+                self.generarAsignacion(temporal, instruccion.valor)
+                self.generarAsignacion("lista", "[" + temporal + "]")
+                self.generarLlamada("funcionintermedia")
             else:
-                self.generarGoto(instruccion.falseLabel)
-                self.agregarEtiqueta(instruccion.falseLabel)
-                self.generarAsignacion(temporal, False)
-            ret = RetornoOp(temporal, Tipos.Id)
-            ret.trueLabel = instruccion.trueLabel
-            ret.falseLabel = instruccion.falseLabel
-            return ret
-        else:
-            ret = RetornoOp(instruccion.valor, instruccion.tipo)
-            return ret
+                ret = RetornoOp(instruccion.valor, instruccion.tipo)
+                return ret
+        elif isinstance(instruccion, Llamada):
+            return self.compilarLlamada(instruccion)
