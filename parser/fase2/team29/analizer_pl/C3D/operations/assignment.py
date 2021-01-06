@@ -4,6 +4,7 @@ from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl import grammar
 
+
 class Assignment(Instruction):
     def __init__(self, id, value, row, column):
         super().__init__(row, column)
@@ -15,7 +16,7 @@ class Assignment(Instruction):
         # TODO: Error
         if environment.getVar(self.id) != None:
             self.value = exp.value + "\t" + self.id + " = " + str(exp.temp) + "\n"
-            grammar.optimizer_.addScalarAsig(self.id,exp.temp,self.row)
+            grammar.optimizer_.addScalarAsig(self.id, exp.temp, self.row)
             return code.C3D(self.value, self.id, self.row, self.column)
 
     def dot(self):
