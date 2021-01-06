@@ -2,6 +2,7 @@ from analizer_pl.abstract.expression import Expression
 from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
+from analizer_pl.abstract.environment import Environment
 
 class Ternary(Expression):
     def __init__(self, temp, exp1, exp2, exp3, operator, row, column):
@@ -70,7 +71,7 @@ class Binary(Expression):
 
     def execute(self, environment):
         tab = ""
-        if environment:
+        if isinstance(environment, Environment):
             tab = "\t"
         exp1 = self.exp1.execute(environment)
         exp2 = self.exp2.execute(environment)
@@ -116,7 +117,7 @@ class Unary(Expression):
 
     def execute(self, environment):
         tab = ""
-        if environment:
+        if isinstance(environment, Environment):
             tab = "\t"
         exp = self.exp.execute(environment)
         if self.operator == "+":
