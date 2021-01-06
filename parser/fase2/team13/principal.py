@@ -5191,17 +5191,55 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 for q_cols in Qselect.cols:
 
                     if isinstance(q_cols.cols,SFuncAgregacion):
-                        print("Sí soy una funcion de agregación")
-                        print(q_cols.cols)
+                        
                         if q_cols.cols.param == "*":
                             el_string = q_cols.cols.funcion.lower() + "(" + q_cols.cols.param + ")"
+                            
                             if el_string not in encabezados:
                                 indices.append(ind)
                                 encabezados.append(el_string)
 
                                 if q_cols.cols.funcion.lower() == "count":
                                     resultado_2 = [[len(resultado_2)]]
-                    
+                        
+                        else:
+                            la_columna = q_cols.cols.param.valor
+                            el_string = q_cols.cols.funcion.lower() + "(" + la_columna + ")"
+                            if la_columna == columnas[ind]:
+                                indices.append(0)
+                                encabezados.append(el_string)
+                                resultado = 0
+                                contador = 0
+                                if q_cols.cols.funcion.lower() == "sum":
+                                    for reg in resultado_2:
+                                        resultado += reg[ind]
+                                    resultado_2 = [[resultado]]
+                                elif q_cols.cols.funcion.lower() == "avg":
+                                    for reg in resultado_2:
+                                        resultado += reg[ind]
+                                        contador += 1
+                                    resultado_2 = [[resultado/contador]]
+                                elif q_cols.cols.funcion.lower() == "max":
+                                    el_R = None
+                                    for reg in resultado_2:
+                                        if el_R == None:
+                                            el_R = reg[ind]
+                                        else:
+                                            if reg[ind] > el_R:
+                                                el_R = reg[ind]
+
+                                    resultado_2 = [[el_R]]
+                                elif q_cols.cols.funcion.lower() == "min":
+                                    el_R = None
+                                    for reg in resultado_2:
+                                        if el_R == None:
+                                            el_R = reg[ind]
+                                        else:
+                                            if reg[ind] < el_R:
+                                                el_R = reg[ind]
+
+                                    resultado_2 = [[el_R]]
+                                    
                     else:
 
                         if q_cols.cols.valor == columnas[ind]:
