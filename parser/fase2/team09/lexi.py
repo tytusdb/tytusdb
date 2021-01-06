@@ -1,8 +1,6 @@
 from os import error
 from ply import *
 
-from reportes.error import *
-from Instrucciones.Excepcion import Excepcion
 
 
 # Construyendo el analizador léxico y sintactico
@@ -19,71 +17,15 @@ columna=0
 
 reservadas = (
 
-    'TABLE', 'INT', 'VARCHAR', 'DATE', 'CHAR', 'DOUBLE', 'DECIMAL', 'NULL', 'PRIMARY', 'KEY', 'REFERENCES', 'FOREIGN',
-    #'FLOAT',
-    'BETWEEN',
-    'LIKE',
-    'IN',
-    'TYPE', 'INHERITS',
-    'ENUM', 'IS', 'SHOW', 'DATABASES', 'USE', 'RENAME', 'TO', 'OWNER', 'CURRENT_USER', 'SESSION_USER',
-    'IF', 'EXISTS', 'MODE', 'REPLACE', 'DEFAULT', 'UNIQUE', 'CONSTRAINT', 'CHECK', 'DISTINCT',
-    # INDEXES
-    'INDEX', 'USING', 'HASH', 'LOWER',
-    # NUMERIC TYPES
-    'SMALLINT', 'INTEGER', 'BIGINT', 'NUMERIC', 'REAL', 'PRECISION', 'MONEY', 
-    # CHARACTER TYPES
-    'CHARACTER', 'VARYING', 'TEXT',
-    # DATE/TIME TYPES
-    'TIMESTAMP', 'TIME', 'INTERVAL',
-    #PARA FECHAS
-    'EXTRACT', 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND',
-    'NOW', 'DATE_PART','CURRENT_DATE', 'CURRENT_TIME',
-    # BOOLEAN TYPE
-    'BOOLEAN', 'TRUE', 'FALSE',
-    # OPERADORES LOGICOS
-    'AND', 'OR', 'NOT',
-    # SENTENCIAS DML
-    'SELECT', 'FROM', 'WHERE', 'AS',
-    'INSERT', 'INTO', 'VALUES',
-    'UPDATE', 'SET',
-    'DELETE',
-    # SENTENCIAS DDL
-    'CREATE', 'DROP', 'ALTER', 'COLUMN', 'ADD', 'TRUNCATE', 'DATABASE',
-    # SENTENCIAS DE AGREGACIÓN
-    'SUM', 'MAX', 'MIN', 'AVG', 'COUNT', 'TOP',
-    # JOIN
-    'INNER', 'JOIN', 'LEFT', 'RIGHT', 'FULL', 'OUTER', 'ON',
-    # FUNCTIONS
-    'GROUP' , 'HAVING', 
-    # MATHEMATICAL FUNCTIONS
-    'ABS', 'CBRT', 'CEIL', 'CEILING', 'DEGREES', 'DIV', 
-    'EXP', 'FACTORIAL', 'FLOOR', 'GCD',
-    'LCM', 'LN', 'LOG', 'LOG10', 'MIN_SCALE', 
-    'MOD', 'PI', 'POWER', 'RADIANS', 'ROUND', 'SCALE', 'SIGN', 
-    'SQRT', 'TRIM_SCALE', 'TRUNC', 'WIDTH_BUCKET', 'RANDOM', 'SETSEED',
-    # BINARY STRING FUNCTIONS
-    'LENGTH', 'SUBSTRING', 'TRIM', 'GET_BYTE', 'MD5', 'SET_BYTE', 
-    'SHA256', 'SUBSTR', 'CONVERT', 'ENCODE', 'DECODE',
-    # TRIGONOMETRIC FUNCTIONS
-    'ACOS', 'ACOSD', 'ASIN', 'ASIND', 'ATAN', 'ATAND', 'ATAN2', 'ATAN2D', 
-    'COS', 'COSD', 'COT', 'COTD', 'SIN', 'SIND', 'TAN', 'TAND', 'SINH',
-    'COSH', 'TANH', 'ASINH', 'ACOSH', 'ATANH',
-    # SORTING ROWS
-    'ORDER', 'BY', 'FIRST', 'LAST', 'ASC', 'DESC', 'NULLS', 
-    #EXPRESSIONS
-    'CASE','WHEN','THEN','ELSE', 'LEAST', 'GREATEST',
-    #LIMIT AND OFFSET
-    'LIMIT', 'OFFSET',
-    #COMBINING QUERIES
-    'UNION', 'INTERSECT', 'EXCEPT', 'ALL',
-    # Begin
-    'FUNCTION', 'BEGIN', 'END',
-    'DECLARE'
+    'FROM', 'IMPORT', 'INT', 'CHAR', 'RETURN', 'DEF', '__INIT__', 
+    'SELF', 'CLASS', 'DECIMAL', 'HEAP', 'STACK', 'H', 'P'
+
 )
 
 tokens = reservadas + (
     # OPERADORES COMPARADORES
-    'IGUAL', 'BLANCO',
+    'IGUAL', 
+    'BLANCO',
     'MAYORQ',
     'MENORQ',
     'MAYOR_IGUALQ',
@@ -91,13 +33,12 @@ tokens = reservadas + (
     'DISTINTO',
     'PARIZQ',
     'PARDER',
-    #'CORIZQ', 'CORDER',
+    'CORIZQ',
+    'CORDER',
     'MAS',
-    #'LLAVEA', 'LLAVEC',
     'MENOS',
     'POR',
     'DIVIDIDO',
-    'EXPONENCIACION',
     'MODULO',
     'ENTERO',
     'PUNTO_COMA',
@@ -109,15 +50,14 @@ tokens = reservadas + (
     'CARACTER',
     'COMENTARIO_MULTILINEA',
     'COMENTARIO_SIMPLE',
-    'ARROBA'
+    'TEMPORAL'
 )
 
 # EXPRESIONES REGULARES BASICAS
-t_ARROBA = r'@'
 t_PARIZQ = r'\('
 t_PARDER = r'\)'
-#t_CORIZQ = r'\['
-#t_CORDER = r'\]'
+t_CORIZQ = r'\['
+t_CORDER = r'\]'
 t_PUNTO_COMA = r';'
 t_COMA = r','
 t_PUNTO = r'\.'
@@ -126,15 +66,15 @@ t_MAS = r'\+'
 t_MENOS = r'-'
 t_POR = r'\*'
 t_DIVIDIDO = r'/'
-t_EXPONENCIACION = r'\^'
 t_MODULO = r'%'
 # OPERADORES RELACIONALES
-t_DISTINTO = r'\<\>'
 t_IGUAL = r'\='
 t_MAYORQ = r'\>'
 t_MENORQ = r'\<'
 t_MAYOR_IGUALQ = r'\>\='
 t_MENOR_IGUALQ = r'\<\='
+
+t_TEMPORAL = r't[0-9]+'
 
 
 
@@ -197,13 +137,13 @@ def t_ENTERO(t):
 
 
 def t_COMENTARIO_MULTILINEA(t):
-    r'/\*(.|\n)*?\*/'
+    r'\'\'\'(.|\n)*\'\'\''
     t.lexer.lineno += t.value.count('\n')
 
 
 # Comentario simple // ...
 def t_COMENTARIO_SIMPLE(t):
-    r'--.*\n'
+    r'\#.*\n'
     t.lexer.lineno += 1
 
 
@@ -228,6 +168,7 @@ t_ignore = "\r"
 
 
 def t_error(t):
+    '''
     global columna
     #print("Illegal character '%s'" % t.value[0])
     #print(t.value)
@@ -237,7 +178,7 @@ def t_error(t):
     dato = Excepcion(0,"Error Lexico", f"El Simbolo << {t.value[0]} >> No Pertenece al Lenguaje", t.lexer.lineno, col)
     lista_errores_lexico.append(dato)
     t.lexer.skip(1)
-
+    '''
 
 import re
 

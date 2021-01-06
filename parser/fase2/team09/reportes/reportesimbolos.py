@@ -45,12 +45,17 @@ def reporte_tabla(tabla):
     cadena += "<th><center>Size</center></th>\n"
     cadena += "<th><center>Restriction</center></th>\n"
     cadena += "</tr>\n"
-
-    # Recorrido
     contador = 0
+    if tabla is None:
+        cadena += "</table>\n"
+        cadena += "</body>\n"
+        cadena += "</html>"
+        return cadena
     for db in tabla.listaBd:
         for t in db.tablas:
             for c in t.lista_de_campos:
+                if c is None:
+                    break
                 cadena += "<tr>\n"
                 cadena += "<td><center>" + str(contador) + "</center></td>\n"
                 cadena += "<td><center>" + db.nombreTabla + "</center></td>\n"
@@ -70,22 +75,6 @@ def reporte_tabla(tabla):
                     cadena += "<td><center> - </center></td>\n"
                 cadena += "</tr>\n"
                 contador += 1
-                #print("-------------------->",db.nombreTabla,t.nombreDeTabla, c.nombre, c.tipo.toString(),c.tipo.dimension,c.constraint)
-
-    '''
-    while tabla != None:
-        for s in tabla.variables:
-            cadena += "<tr>\n"
-            cadena += "<td><center>" + str(contador) + "</center></td>\n"
-            cadena += "<td><center>" + s.id + "</center></td>\n"
-            cadena += "<td><center>" + s.tipo + "</center></td>\n"
-            cadena += "<td><center>" + s.valor + "</center></td>\n"
-            cadena += "<td><center>" + str(s.linea) + "</center></td>\n"
-            cadena += "<td><center>" + str(s.columna) + "</center></td>\n"
-            cadena += "</tr>\n"
-            contador += 1
-        tabla = tabla.anterior
-    '''
     cadena += "</table>\n"
     cadena += "</body>\n"
     cadena += "</html>"

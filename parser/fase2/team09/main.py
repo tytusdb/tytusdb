@@ -22,6 +22,8 @@ from storageManager.jsonMode import *
 
 import sintactico
 
+import gramatica as op
+
 global arbol
 arbol = None
 '''
@@ -60,7 +62,7 @@ class interfaz():
         #img = PhotoImage(file='img/icons/Postgresql.ico')
         #self.window.tk.call('wm', 'iconphoto', self.window._w, img)
         self.window.configure(background="#6a8d92")
-        self.window.title("Query Tool - Grupo 8")
+        self.window.title("Query Tool - Grupo 9")
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
         w, h = 1370,670
         self.window.geometry("%dx%d+0+0" % (w, h))
@@ -91,6 +93,10 @@ class interfaz():
         img3 = PhotoImage(file='img/icons/play32.png')
         btnejecutar = Button(self.window,image = img3 , bg="#6a8d92",height=35, width=40,command=self.btnejecutar_click)
         btnejecutar.place(x=115,y=5)
+
+        img4 = PhotoImage(file='img/icons/op.png')
+        btnoptimizar = Button(self.window, image=img4, bg="#6a8d92",height=35, width=40,command=self.btnoptimizar_click)
+        btnoptimizar.place(x=200,y=5)
 
         ##############################################PESTAÑAS####################################
         self.tab = ttk.Notebook(self.window)
@@ -204,8 +210,11 @@ class interfaz():
         arbol.lRepDin.append("<init> ::= <instrucciones>")
         arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
-        
+        if arbol is None or arbol.instrucciones is None:
+            return
         for i in arbol.instrucciones:
+            if i is None:
+                break
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
             resultado = i.ejecutar(tablaGlobal,arbol)
         # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
@@ -219,8 +228,11 @@ class interfaz():
         
         
 
+    def btnoptimizar_click(self):
+        print('Se optimizará el código')
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
         
-
+        inst = op.ejecutar_analisis(input)
 
     def btnejecutar_click(self):
         print("se va ejecutar el archivo")
