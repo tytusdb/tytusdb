@@ -1,11 +1,11 @@
 #from Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import Id
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import Id
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
 #from storageManager.jsonMode import *
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as ts
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 
 
 
