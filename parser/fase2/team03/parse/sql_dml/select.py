@@ -1,6 +1,9 @@
 from parse.ast_node import ASTNode
 from jsonMode import *
 from util import *
+from parse.symbol_table import *
+from TAC.tac_enum import *
+from TAC.quadruple import *
 
 
 class Select(ASTNode):
@@ -95,6 +98,20 @@ class Select(ASTNode):
         return [header, megaunion]
 
     def generate(self, table, tree):
+        super().generate(table, tree)
+        col_str = ''
+        table_str = ''
+        for col in self.col_names:
+            col_str = f'{col_str}{col.generate(table, tree)},'
+
+        for table in self.tables:
+            table_str = f'{table_str}{table.generate(table, tree)},'
+
+        return Quadruple(None, f'SELECT{" DISTINCT" if self.is_distinct else ""} {col_str[:-1]}'
+                               f'{f" FROM {table_str[:-1]}" if self.tables is not None else ""} {self.where.generate(table, tree)};'
+                         , None, generate_tmp(), OpTAC.CALL)
+
+    def generate_pure(self, table, tree):
         super().generate(table, tree)
         col_str = ''
         table_str = ''
