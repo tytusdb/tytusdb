@@ -69,7 +69,7 @@ class Intermedio():
 
 	def procesar_funcion3(self):
 		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss
-		instrucciones = g.parse('ALTER TABLE usuario  ALTER COLUMN nombre TYPE  VARCHAR ( 80 )  ;')
+		instrucciones = g.parse('INSERT INTO usuario VALUES (     1    , SUBSTR ( \'julio\' ,    0    ,    2    ) , SUBSTRING ( \'cotzo\' ,    0    ,    2    ) , NOW ( )  );')
 		erroressss = ErrorHTML()
 		if  erroressss.getList()== []:
 			instrucciones_Global = instrucciones
@@ -85,7 +85,23 @@ class Intermedio():
 
 	def procesar_funcion4(self):
 		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss
-		instrucciones = g.parse('ALTER TABLE usuario  ALTER COLUMN apellido TYPE  VARCHAR ( 90 )  , ALTER COLUMN fecha TYPE  VARCHAR ( 100 )  ;')
+		instrucciones = g.parse('INSERT INTO usuario ( id_usuario,nombre,apellido ) VALUES (     2    , MD5 ( \'julio1\' ) , TRIM ( \'             cotzo2\' )  );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
+			return salida
+		else:
+			return 'Parser Error'
+
+
+	def procesar_funcion5(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss
+		instrucciones = g.parse('INSERT INTO usuario ( id_usuario,nombre,apellido ) VALUES (     3    , MD5 ( \'julio2\' ) ,   \'             cotzo2\'    );')
 		erroressss = ErrorHTML()
 		if  erroressss.getList()== []:
 			instrucciones_Global = instrucciones

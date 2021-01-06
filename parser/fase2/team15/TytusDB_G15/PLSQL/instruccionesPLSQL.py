@@ -102,6 +102,10 @@ class AlterTable(Instruccion):
     def __init__(self, cadena):
         self.cadena = cadena
 
+class InsertTable(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
 
 
 
