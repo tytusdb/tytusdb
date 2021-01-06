@@ -153,7 +153,7 @@ class TypeChecker():
                     listanombres.append(ind["name"])
                 if index.name not in listanombres:
                     listaAttribs = []
-                    for indice in index.listaAttribb:
+                    for indice in index.listaAtribb:
                         listaAttribs.append({
                             "column" : str(indice.column),
                             "order" : str(indice.order),

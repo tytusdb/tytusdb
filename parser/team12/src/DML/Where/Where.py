@@ -141,3 +141,10 @@ class Where():
             return matrizMult
         #Tenemos la estructura llena, sin valores.
 
+    def compile(self,parent):
+        textoRetorno = " WHERE "
+        if parent != None:
+            for hijo in parent.hijos:
+                if hijo.nombreNodo == "E":
+                    textoRetorno = textoRetorno + hijo.getText()
+        return textoRetorno

@@ -52,7 +52,7 @@ class mainWindow:
         self.menu.add_cascade(label = "Archivo", menu=self.subMenuFile)
         self.subMenuFile.add_command(label="Abrir archivo", command =  self.openDocumentMethod)
         self.subMenuFile.add_command(label="Compilar", command =  self.compileMethod)
-        #self.subMenuFile.add_command(label="Analizar ", command = self.analyzeMethod)
+        self.subMenuFile.add_command(label="Analizar ", command = self.analyzeMethod)
         self.menu.add_cascade(label = "Reportes", menu=self.subMenuReportes)
         self.subMenuReportes.add_command(label="AST ", command = self.reportar_ast)
         self.subMenuReportes.add_command(label="Gramática", command = self.report_bnf)

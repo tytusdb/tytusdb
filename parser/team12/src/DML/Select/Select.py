@@ -9,6 +9,9 @@ sys.path.append(select_path)
 storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\typeChecker')
 sys.path.append(storage)
 
+variables_globales = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')))
+sys.path.append(variables_globales)
+
 response_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\Response')
 sys.path.append(response_path)
 
@@ -17,7 +20,7 @@ from jsonMode import *
 from typeChecker.typeChecker import *
 tc = TypeChecker()
 
-
+from VariablesGlobales import *
 from Where import Where
 from Where import Info_Tabla
 from Where import Info_Column
@@ -193,6 +196,8 @@ class Select():
         
         encabezados = []
         for hijo in nodoLista.hijos:
+            global selectAgregate
+            selectAgregate.append(None)
             if hijo.nombreNodo == "E":
                 respuesta = hijo.execute(self.listaEstructuras)
                 resultado.append(respuesta)
@@ -215,6 +220,8 @@ class Select():
     #endregion
 
     def execute(self, parent, enviroment = None):
+        global selectAgregate
+        selectAgregate.clear()
         # Se verifican las variables, si esta seleccionada la base de datos 
         self.dbUse = self.verificarDBActiva()
         if self.dbUse == None:
@@ -246,16 +253,53 @@ class Select():
             resultado =  nuevoFiltro.execute(parent.hijos[2],listaDataTemp,listaTablasTemp,self.listaColumnasWhere,self.tableResultData)
             
         
+        
         self.ejecutarSelect(parent.hijos[0])
+        
+        
 
+        #region Agregacion
+        dataTemporalAgregacion = []
+        dataTemporalGlobal = []
+        #Inicia el pocedimiento de funciones de agregación
+        hayNoAgregate = False
+        hayAgregate = False
+        if len(selectAgregate)>= len(self.encabezadoRetorno):
+            for i in range(0,len(self.encabezadoRetorno)):
+                #selectAgregate
+                if selectAgregate[i] == "AVG":
+                    hayAgregate = True
+                    dataTemporalAgregacion.append(self.realizarAVG(i,self.tablaRetorno))
+                elif selectAgregate[i] == "COUNT":
+                    hayAgregate = True
+                    dataTemporalAgregacion.append(self.realizarCount(i,self.tablaRetorno))
+                elif selectAgregate[i] == "MAX":
+                    hayAgregate = True
+                    dataTemporalAgregacion.append(self.realizarMax(i,self.tablaRetorno))
+                elif selectAgregate[i] == "MIN":
+                    hayAgregate = True
+                    dataTemporalAgregacion.append(self.realizarMin(i,self.tablaRetorno))
+                elif selectAgregate[i] == "SUM":
+                    hayAgregate = True
+                    dataTemporalAgregacion.append(self.realizarSum(i,self.tablaRetorno))
+                elif selectAgregate[i] == None:
+                    hayNoAgregate = True
+        if hayAgregate and not hayNoAgregate:
+            dataTemporalGlobal.append(dataTemporalAgregacion)
+        else:
+            dataTemporalGlobal = self.tablaRetorno
+        #endregion
+        
+        
         tablaResultado = TableResult()
         tablaResultado.nombre = stringName
         tablaResultado.alias = stringName
         tablaResultado.columnas = self.encabezadoRetorno
         tablaResultado.noColumnas = len(self.encabezadoRetorno)
-        tablaResultado.data = self.tablaRetorno
-        tablaResultado.noFilas = len(self.tablaRetorno)
+        tablaResultado.data = dataTemporalGlobal
+        tablaResultado.noFilas = len(dataTemporalGlobal)
         tablaResultado.listaEncabezados = self.encabezadoRetorno
+        
         return tablaResultado
 
 
@@ -267,5 +311,39 @@ class Select():
                 infTab.lista[listaTablas[i].listaEncabezados[j].nombre.upper()] = infCol
             self.listaEstructuras[listaTablas[i].nombre.upper()] = infTab
         
+    def realizarAVG(self, indice, data):
+        dividendo = len(data)
+        
+        temporal = 0
+        for fila in data:
+            temporal = temporal + fila[indice]
+        return temporal/dividendo
 
+    def realizarCount(self, indice, data):
+        dividendo = len(data)
+        return dividendo
 
+    def realizarMax(self, indice, data):
+        temporal = None
+        for fila in data:
+            print(fila[indice])
+            if temporal == None:
+                temporal = fila[indice]
+            elif fila[indice]>temporal:
+                temporal = fila[indice]
+        return temporal
+
+    def realizarMin(self, indice, data):
+        temporal = None
+        for fila in data:
+            if temporal == None:
+                temporal = fila[indice]
+            elif fila[indice]<temporal:
+                temporal = fila[indice]
+        return temporal
+
+    def realizarSum(self, indice, data):
+        temporal = 0
+        for fila in data:
+            temporal = temporal + fila[indice]
+        return temporal

@@ -28,6 +28,11 @@ from DML.UPDATE.UPDATE_COL.UpdateCol import *
 from DML.INSERT.Insert import *
 from DML.ALTER.Alter import *
 from DML.IDENTIFICADOR.IdentificadorDML import *
+from FUNCIONES_NATIVAS.AGREGATE_FUNCTION.Avg import *
+from FUNCIONES_NATIVAS.AGREGATE_FUNCTION.Count import *
+from FUNCIONES_NATIVAS.AGREGATE_FUNCTION.Max import *
+from FUNCIONES_NATIVAS.AGREGATE_FUNCTION.Min import *
+from FUNCIONES_NATIVAS.AGREGATE_FUNCTION.Sum import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Abs import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Cbrt import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Ceil import *
@@ -161,6 +166,7 @@ keywords = {
 'EXISTS' : 'EXISTS',
 'EXP' : 'EXP',
 'EXTRACT' : 'EXTRACT',
+'EXECUTE' : 'EXECUTE',
 'FACTORIAL' : 'FACTORIAL',
 'FALSE' : 'FALSE',
 'FIRST' : 'FIRST',
@@ -205,6 +211,7 @@ keywords = {
 'LN' : 'LN',
 'LOG' : 'LOG',
 'LOG10' : 'LOG10',
+'LOWER' : 'LOWER',
 'MAX' : 'MAX',
 'MD5' : 'MD5',
 'MIN' : 'MIN',
@@ -456,6 +463,7 @@ def p_instruccion(t):
                     | sentencia_except
                     | sentencia_index
                     | sentencia_procedure
+                    | sentencia_execute
                     | Exp
                     | error'''
     reportebnf.append(bnf["p_instruccion"])                    
@@ -467,6 +475,23 @@ def p_error(t):
         tok = yacc.token()
         if not tok or tok.type == 'PUNTOYCOMA': break
     yacc.restart()
+
+#------------------------------- Sentencia Execute-----------------------------------------
+def p_sentencia_execute(t):
+    '''sentencia_execute : EXECUTE IDENTIFICADOR sent_parametros_execute'''
+    t[0] = Start("EXECUTE")
+    t[0].createTerminal(t.slice[2])
+    if t[3] != None:
+        t[0].addChild(t[3])
+
+def p_sent_parametros_execute_1(t):
+    '''sent_parametros_execute : PARENTESISIZQ PARENTESISDER'''
+
+def p_sent_parametros_execute_2(t):
+    '''sent_parametros_execute : PARENTESISIZQ lista_exp PARENTESISDER'''
+    t[0] = t[2]
+
+#------------------------------- Sentencia Execute-----------------------------------------
 
 #------------------------------- Produccion Union ------------------------------------------
 def p_sentencia_union(t):
@@ -1061,31 +1086,31 @@ def p_select_funciones_55(t):
 def p_select_funciones_56(t):
     'funcion_agregada : AVG PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_56"])  
-    t[0] = Start("FUNCION_AVG",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_AVG("FUNCION_AVG",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_57(t):
     'funcion_agregada : COUNT PARENTESISIZQ list_count PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_57"])  
-    t[0] = Start("FUNCION_COUNT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = FunctionCount("FUNCION_COUNT",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_58(t):
     'funcion_agregada : MAX PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_58"])  
-    t[0] = Start("FUNCION_MAX",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_MAX("FUNCION_MAX",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_59(t):
     'funcion_agregada : MIN PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_59"])  
-    t[0] = Start("FUNCION_MIN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_MIN("FUNCION_MIN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_60(t):
     'funcion_agregada : SUM PARENTESISIZQ Exp PARENTESISDER'
     reportebnf.append(bnf["p_select_funciones_60"])  
-    t[0] = Start("FUNCION_SUM",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Sum("FUNCION_SUM",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 #-------------------------------------------------------------------------------------------
 #----------------------------------- List Count --------------------------------------------
@@ -1839,11 +1864,23 @@ def p_sentencia_index_1(t):
 def p_sentencia_index_2(t):
     '''sentencia_index : CREATE UNIQUE INDEX IDENTIFICADOR ON IDENTIFICADOR sentencia_index_p opcional_where_index'''
     nuevo = Start("CREATE_UNIQUE_INDEX")
-    nuevo.createChild(t.slice[4])
-    nuevo.createChild(t.slice[6])
+    nuevo.createTerminal(t.slice[4])
+    nuevo.createTerminal(t.slice[6])
     nuevo.addChild(t[7])
     if t[8] != None:
         nuevo.addChild(t[8])
+    t[0] = nuevo
+
+def p_sentencia_index_3(t):
+    '''sentencia_index : CREATE INDEX ON IDENTIFICADOR sentencia_index_p opcional_where_index'''
+    print("Entro aca")
+    nuevo = Start("CREATE_INDEX")
+    nuevo.createTerminal(t.slice[4])
+    #nuevo.hijos[0].nombreNodo = "idx_" + nuevo.hijos[0].nombreNodo
+    nuevo.createTerminal(t.slice[4])
+    nuevo.addChild(t[5])
+    if t[6] != None:
+        nuevo.addChild(t[6])
     t[0] = nuevo
 
 def p_sentencia_index_p(t):
@@ -1891,6 +1928,13 @@ def p_atrib_exp_index(t):
     if t[3] != None:
         t[0].addChild(t[3])
     
+def p_atrib_exp_index_2(t):
+    '''atrib_exp_index : PARENTESISIZQ atrib_exp_index PARENTESISDER'''
+    t[0] = t[2]
+
+def p_atrib_exp_index_3(t):
+    '''atrib_exp_index : LOWER PARENTESISIZQ atrib_exp_index PARENTESISDER'''
+    t[0] = t[3]
 
 def p_opc_order(t):
     '''opc_order : ASC
