@@ -161,6 +161,11 @@ def Seleccionar():
             print('Tipo: ' + str(i.tipo))
             print('----------------------------------------------')
 
+        for i in result.ReporteTS_Funciones:
+            print('Nombre: ' + str(i.nombre))
+            print('Tipo: ' + str(i.tipo))
+            print('Estado: ' + str(i.estado))
+            print('----------------------------------------------')
         #for item in result.console:
         #    consola = consola + item
 

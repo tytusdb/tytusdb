@@ -94,9 +94,17 @@ class Arbol:
 
     # soporte para simulacion de funciones
     def dropFuncione(self, id):
+        #contador:int = 0
+        #for i in self.ReporteTS_Funciones:
+        #    if str(i.nombre) == str(id):
+        #        self.ReporteTS_Funciones.pop(contador)
+        #        return
+        #    contador = contador + 1
+
         for i in self.ReporteTS_Funciones:
             if str(i.nombre) == str(id):
-                i.pop()
+                i.estado = 'INACTIVO'
+                return
         return
 
     def existFun(self, id):
