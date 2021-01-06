@@ -47,6 +47,7 @@
     | <alttbdrop>
     | <alttbalterv>
     | <alttbname>
+    | <alterindex> 
 
 <alttbname> ::= "RENAME" <alttbrename1>
 
@@ -86,6 +87,18 @@
     | "UNIQUE" "(" <CADENA1> ")"
     | "PRIMARY" "KEY" "(" <CADENA1> ")"
     | "FOREIGN" "KEY" "(" <CADENA1> ")" "REFERENCES"  <ID> "(" <CADENA1> ")"
+
+<alterindex> ::= "ALTER" "INDEX" <ID> "RENAME" "TO" <ID>
+    | "ALTER" "INDEX" <existencia> <ID> <alterop> <column_id> <valor_alter>
+
+<alterop> : "ALTER"
+    | ""
+
+<column_id> : "COLUMN"
+    | <ID>
+
+<valor_alter> : "ENTERO"
+    | <ID>
 
 <insertar> ::= "INSERT" "INTO" <ID> "VALUES" "(" <lista_exp> ")"
 
@@ -305,7 +318,14 @@ cuerpo_where ::= <condicion_boleana>
     | "width_bucket" "(" <lista_exp> ")"
     | ""
 
-<funcion_date> ::= ""
+<funcion_math> ::= "lower" "(" exp ")" 
+
+<funcion_math> ::= "@" "ID" "(" <parametros_fun> ")"
+
+<parametros_fun> ::= <lista_exp>
+                     | ""
+
+<funcion_date> ::= <extract>
 
 <mostrar> ::= "SHOW" "DATABASES"
 
@@ -387,6 +407,95 @@ cuerpo_where ::= <condicion_boleana>
 <crear> ::= "CREATE" <reemplazar> "DATABASE" <verificacion> <ID> <propietario> <modo>
     | "CREATE" "TABLE" <ID> "(" <columnas> ")" <herencia>
     | "CREATE" "TYPE" <ID> "AS" "ENUM" ""(""<lista_exp> "")""
+    | "CREATE" <unicidad_index> "INDEX" "ID" "ON" "ID" <tipo_index> "("<lista_exp> <value_direction> <value_rang>")" <cond_where>
+    | "CREATE" <reemplazar> "FUNCTION" "ID" "(" <lparametros> ")" "RETURNS" <tipo> <lenguaje_funcion> "AS" <dollar_var> <cuerpo_funcion>
+    <dollar_var> <lenguaje_funcion>
+    | "CREATE"<reemplazar> "PROCEDURE" "ID" "(" <lparametros> ")" <lenguaje_funcion> "AS" <dollar_var> <cuerpo_funcion> <dollar_var>
+
+<dollar_var> ::= "DOBLEDOLLAR"
+    | "DOLLAR" "ID" "DOLLAR"
+
+<lenguaje_funcion> ::= "LANGUAGE PLPGSQL"
+    | "LANGUAGE SQL"
+    | ""
+
+<lparametros> ::= <lparametros> "COMA" <parametro>
+    | <parametro>
+
+<declare_op> ::= "DECLARE"
+    | ""
+
+<parametro> ::= <declare_op> "ID" <tipo> <valortipo> <asig_valor>
+    | <declare_op> "ID" "ASIGNACION" <exp>
+    | ""
+
+<asig_valor> ::= "ASIGNACION" <exp>
+    | ""
+
+<begin_op> ::= "BEGIN"
+    | ""
+
+<end_op> ::= "END" "PTCOMA"
+    | ""
+
+<cuerpo_funcion> ::= <declare_variables> <funcion_begin>
+    | <begin_op> <tipo_funcionalidad> <end_op>
+
+<declare_variables> ::= "DECLARE" <declaraciones> "PTCOMA"
+    | ""
+
+<funcion_begin> ::= "BEGIN" <lfuncionalidad> "END" "PTCOMA"
+    | ""
+
+<tipo_funcionalidad> ::= <lfuncionalidad>
+    | <lista_proc>
+
+<lista_proc> ::= <lista_proc> <func_proc>
+    | <func_proc>
+
+<func_proc> ::= <insertar> "PTCOMA"
+    | <actualizar> "PTCOMA"
+    | <eliminar> "PTCOMA"
+    | <seleccionH> "PTCOMA"
+
+<declaraciones> ::= <declaraciones> "PTCOMA" <parametro>
+	| <parametro>
+
+<lfuncionalidad> ::= <lfuncionalidad> <funcionalidad>
+    | <funcionalidad>
+
+<funcionalidad> ::= <seleccion_funcion>
+	| <sentencia_If>
+    | <sentencia_case>
+    | <operacion_expresion>
+
+<seleccion_funcion> ::= "SELECT" <cantidad_select> <parametros_select> <asignation> <cuerpo_select> "PTCOMA"
+
+<asignation> ::= "INTO" "ID"
+
+<operacion_expresion> ::= "ID" "ASIGNACION" <exp> "PTCOMA"
+    | "RAISE" <exp> "PTCOMA"
+    | "RETURN" <exp> "PTCOMA"
+
+<sentencia_If> ::= "IF" <exp> "THEN" <lfuncionalidad> <sentencia_elif_else> "END" "IF" "PTCOMA"
+
+<sentencia_elif_else> ::= <sentencia_elif_else> <sentencia_condicional> 
+    | <sentencia_condicional>
+
+<sentencia_condicional> ::= "ELSIF" <exp> "THEN" <lfuncionalidad>
+    | "ELSE" <lfuncionalidad>
+    | ""
+
+<sentencia_case> ::= "CASE" <busqueda_case> <lsentencia_when> "END" "CASE" "PTCOMA"
+
+<busqueda_case> ::= <exp>
+    | ""
+
+<lsentencia_when> ::= <lsentencia_when> <sentencia_when>
+    | <sentencia_when>
+
+<sentencia_when> ::= "WHEN" <exp> "THEN" <lfuncionalidad>
+                       | "ELSE" <lfuncionalidad>
 
 <reemplazar> ::= "OR" "REPLACE"
     | ""
@@ -474,6 +583,9 @@ cuerpo_where ::= <condicion_boleana>
 
 <liberar> ::= "DROP" "TABLE" <existencia> <ID>
     | "DROP" "DATABASE" <existencia> <ID>
+    | "DROP" "FUNCTION" <lnombres>
+    | "DROP" "PROCEDURE" <lnombres>
+    | "DROP" "INDEX" <lnombres>
 
 <existencia> ::= "IF" "EXISTS"
                   | ""
@@ -532,6 +644,7 @@ cuerpo_where ::= <condicion_boleana>
     | <alttbdrop>
     | <alttbalterv>
     | <alttbname>
+    | <alterindex>
 
 <alttbname> ::= "RENAME" <alttbrename1>
 
@@ -549,6 +662,18 @@ cuerpo_where ::= <condicion_boleana>
     | "UNIQUE" "(" <CADENA1> ")"
     | "PRIMARY" "KEY" "(" <CADENA1> ")"
     | "FOREIGN" "KEY" "(" <CADENA1> ")" "REFERENCES"  <ID> "(" <CADENA1> ")"
+
+<alterindex> ::= "ALTER" "INDEX" <ID> "RENAME" "TO" <ID>
+    | "ALTER" "INDEX" <existencia> <ID> <alterop> <column_id> <valor_alter>
+
+<alterop> : "ALTER"
+    | ""
+
+<column_id> : "COLUMN"
+    | <ID>
+
+<valor_alter> : "ENTERO"
+    | <ID>
 
 <insertar> ::= "INSERT" "INTO" <ID> "VALUES" "(" <lista_exp> ")"
 
@@ -780,7 +905,14 @@ cuerpo_where ::= <condicion_boleana>
     | "width_bucket" "(" <lista_exp> ")"
     | ""
 
-<funcion_date> ::= ""
+<funcion_math> ::= "lower" "(" exp ")" 
+
+<funcion_math> ::= "@" "ID" "(" <parametros_fun> ")"
+
+<parametros_fun> ::= <lista_exp>
+    | ""
+
+<funcion_date> ::= <extract>
 
 <mostrar> ::= "SHOW" "DATABASES"
 
@@ -863,7 +995,109 @@ cuerpo_where ::= <condicion_boleana>
 
 <crear> ::= "CREATE" <reemplazar> "DATABASE" <verificacion> <ID> <propietario> <modo>
     | "CREATE" "TABLE" <ID> "(" <columnas> ")" <herencia>
-    | "CREATE" "TYPE" <ID> "AS" "ENUM" ""(""<lista_exp> "")""
+    | "CREATE" "TYPE" <ID> "AS" "ENUM"""(""<lista_exp> "")""
+    | "CREATE" <unicidad_index> "INDEX" "ID" "ON" "ID" <tipo_index> "("<lista_exp> <value_direction> <value_rang>")" <cond_where>
+    | "CREATE" <reemplazar> "FUNCTION" "ID" "(" <lparametros> ")" "RETURNS" <tipo> <lenguaje_funcion> "AS" <dollar_var> <cuerpo_funcion>
+    <dollar_var> <lenguaje_funcion>
+    | "CREATE"<reemplazar> "PROCEDURE" "ID" "(" <lparametros> ")" <lenguaje_funcion> "AS" <dollar_var> <cuerpo_funcion> <dollar_var>
+
+<dollar_var> ::= "DOBLEDOLLAR"
+    | "DOLLAR" "ID" "DOLLAR"
+
+<lenguaje_funcion> ::= "LANGUAGE PLPGSQL"
+    | "LANGUAGE SQL"
+    | ""
+
+<lparametros> ::=  "COMA" <parametro> <lparametrosp> 
+    
+<lparametrosp> ::= "COMA" <parametro> <lparametrosp>
+    | ""
+
+<declare_op> ::= "DECLARE"
+    | ""
+
+<parametro> ::= <declare_op> "ID" <tipo> <valortipo> <asig_valor>
+    | <declare_op> "ID" "ASIGNACION" <exp>
+    | ""
+
+<asig_valor> ::= "ASIGNACION" <exp>
+    | ""
+
+<begin_op> ::= "BEGIN"
+    | ""
+
+<end_op> ::= "END" "PTCOMA"
+    | ""
+
+<cuerpo_funcion> ::= <declare_variables> <funcion_begin>
+    | <begin_op> <tipo_funcionalidad> <end_op>
+
+<declare_variables> ::= "DECLARE" <declaraciones> "PTCOMA"
+    | ""
+
+<funcion_begin> ::= "BEGIN" <lfuncionalidad> "END" "PTCOMA"
+    | ""
+
+
+
+
+<tipo_funcionalidad> ::= <lfuncionalidad>
+    | <lista_proc>
+
+<lista_proc> ::= <func_proc> <lista_procp>
+
+<lista_procp> ::= <func_proc> <lista_procp>
+    | ""
+
+<func_proc> ::= <insertar> "PTCOMA"
+    | <actualizar> "PTCOMA"
+    | <eliminar> "PTCOMA"
+    | <seleccionH> "PTCOMA"
+
+<declaraciones> ::= <declaraciones> "PTCOMA" <parametro>
+	| <parametro>
+
+<lfuncionalidad> ::= <funcionalidad> <lfuncionalidadp>
+
+<lfuncionalidadp> ::= <funcionalidad> <lfuncionalidadp>
+    | ""
+
+<funcionalidad> ::= <seleccion_funcion>
+	| <sentencia_If>
+    | <sentencia_case>
+    | <operacion_expresion>
+
+<seleccion_funcion> ::= "SELECT" <cantidad_select> <parametros_select> <asignation> <cuerpo_select> "PTCOMA"
+
+<asignation> ::= "INTO" "ID"
+
+<operacion_expresion> ::= "ID" "ASIGNACION" <exp> "PTCOMA"
+    | "RAISE" <exp> "PTCOMA"
+    | "RETURN" <exp> "PTCOMA"
+
+<sentencia_If> ::= "IF" <exp> "THEN" <lfuncionalidad> <sentencia_elif_else> "END" "IF" "PTCOMA"
+
+<sentencia_elif_else> ::= <sentencia_condicional> <sentencia_elif_elsep> 
+
+<sentencia_elif_elsep> ::= <sentencia_condicional> <sentencia_elif_elsep> 
+    | ""
+
+<sentencia_condicional> ::= "ELSIF" <exp> "THEN" <lfuncionalidad>
+    | "ELSE" <lfuncionalidad>
+    | ""
+
+<sentencia_case> ::= "CASE" <busqueda_case> <lsentencia_when> "END" "CASE" "PTCOMA"
+
+<busqueda_case> ::= <exp>
+    | ""
+
+<lsentencia_when> ::= <sentencia_when> <lsentencia_whenp>
+
+<lsentencia_whenp> ::= <sentencia_when> <sentencia_when>
+    | ""
+
+<sentencia_when> ::= "WHEN" <exp> "THEN" <lfuncionalidad>
+                       | "ELSE" <lfuncionalidad>
 
 <reemplazar> ::= "OR" "REPLACE"
     | ""
@@ -959,6 +1193,9 @@ cuerpo_where ::= <condicion_boleana>
 
 <liberar> ::= "DROP" "TABLE" <existencia> <ID>
     | "DROP" "DATABASE" <existencia> <ID>
+    | "DROP" "FUNCTION" <lnombres>
+    | "DROP" "PROCEDURE" <lnombres>
+    | "DROP" "INDEX" <lnombres>
 
 <existencia> ::= "IF" "EXISTS"
                   | ""

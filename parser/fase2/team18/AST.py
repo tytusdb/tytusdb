@@ -152,6 +152,66 @@ def AlterIndice_Renombrar(instr,ts):
     else:
         agregarMensjae('error','No se renombro,index '+nmnuevo+' registrado','')
 
+def AlterIndice_Col(instr,ts):
+    agregarMensjae('normal','Alter Index Column','')
+    nombreIndex=resolver_operacion(instr.nombreindex,ts)
+    colindex=''
+    colnueva=''
+    if instr.colvieja != False:
+        colindex=resolver_operacion(instr.colvieja,ts)
+        colnueva=resolver_operacion(instr.colnueva,ts)
+        if buscarIndice(nombreIndex):
+            pos=0
+            while pos< len(outputTS):
+                if pos+1 < len(outputTS):
+                    if(outputTS[pos].instruccion=="INDEX" and outputTS[pos+1].identificador==nombreIndex):
+                        outputTS[pos+1].columnas=modificar_columnas(nombreIndex,outputTS[pos+1].columnas,outputTS[pos+1].referencia,colindex,colnueva)
+                        break
+                    else:
+                        pos=pos+1
+                else:
+                    break
+        else:
+            agregarMensjae('error','Indice '+nombreIndex+' no registrado','')
+    else:
+        agregarMensjae('error','Se necesita columna a modificar de indice '+nombreIndex,'')
+
+def modificar_columnas(nombreindex,columnasindex,tabla,colvieja,nuevacol):
+    lcols=[]
+    lcols=columnasindex.split(sep=',')
+    encontrada=False
+    if isinstance(nuevacol, int): # nueva col es numero
+        cont=0
+        contt=0
+        for col in lcols:
+            if colvieja==col:
+                tb=buscarTabla(baseActiva,tabla)
+                for c in tb.atributos:
+                    if contt==(nuevacol-1):
+                        lcols[cont]=c.nombre
+                        encontrada=True
+                        agregarMensjae('exito','Indice '+nombreindex+" cambio columna "+colvieja+" por "+c.nombre,'')
+                    contt+=1
+            cont+=1
+        if encontrada==False:
+            agregarMensjae('error','Indice no corresponde a ninguna columna de tabla '+tabla,'')
+    else: # nueva col es nombrecol
+        cont=0
+        for col in lcols:
+            if colvieja==col:
+                lcols[cont]=nuevacol
+                agregarMensjae('exito','Indice '+nombreindex+" cambio columna "+colvieja+" por "+nuevacol,'')
+            cont+=1
+    #revertir split
+    cont=0
+    result=""
+    for col in lcols:
+        result+=col
+        if cont!=(len(lcols)-1):
+            result+=","
+        cont+=1
+    return result
+
 def buscarIndice(nombre):
     global outputTS
     pos=0
@@ -4285,6 +4345,7 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, Procedimiento): Crear_Procedimiento(instr,ts)
             elif isinstance(instr, Drop_Indice): EliminarIndice(instr,ts)
             elif isinstance(instr, Alter_Index_Rename): AlterIndice_Renombrar(instr,ts)
+            elif isinstance(instr, Alter_Index_Col): AlterIndice_Col(instr,ts)
             else: 
                 if instr is not None:
                     for val in instr:
