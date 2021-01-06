@@ -559,6 +559,7 @@ class Main(tk.Tk):
 
             # Start parser
             ins = g.parse(tytus)
+            #g.gramaticaBNF(tytus)
             temp = g.contador
             gen = Generador(temp, 0, ins.getInstruccion())
             gen.ejecutar()
@@ -566,7 +567,6 @@ class Main(tk.Tk):
             #reporteOptimizacion(reglasOpt)
             C3D = g.codigo_3D
             crearArchivo(C3D, gen.codigo3d)
-           ##g.analizar(tytus)
             st_global = st.SymbolTable()
             es_global = es.ListaErroresSemanticos()
             ct_global = ct.crearTabla()
@@ -590,19 +590,23 @@ class Main(tk.Tk):
 
         for inst in p_instruccion:
             if isinstance(inst, IfExist1):
-                self.do_drop_db(inst, p_st, es_global)
+                self.do_drop_db(inst, p_st, es_global,st.SymbolTable())
             elif isinstance(inst, CreateDatabase):
                 self.do_create_database(inst, p_st, es_global)
             elif isinstance(inst, Insert):
                 self.do_insert_tb(inst, p_st, es_global)
             elif isinstance(inst, DropT):
-                self.do_drop_tb(inst, p_st, es_global)
+                self.do_drop_tb(inst, p_st, es_global,st.SymbolTable())
             elif isinstance(inst, CreateTable):
                 self.do_create_tb(inst, p_st, es_global, ct_global)
             elif isinstance(inst, Index) or isinstance(inst, IndexMM) or isinstance(inst,IndexW) or isinstance(inst, IndexOrden):
                 self.do_index(inst, p_st, es_global)
             elif isinstance(inst,Funcion):
                 self.do_funcion(inst,p_st,es_global)
+            elif isinstance(inst,DropIndex):
+                self.do_dropIndex(inst,p_st,es_global,st.SymbolTable())
+            elif isinstance(inst,AlterRenameIn):
+                self.do_AlterRIndex(inst,p_st,es_global,st.SymbolTable())
             else:
                 print(inst)
 
@@ -652,13 +656,17 @@ class Main(tk.Tk):
             p_st.add(simbolo)
 
     # ELIMINACIÓN DE BASE DE DATOS
-    def do_drop_db(self, p_inst, p_st, p_es):
+    def do_drop_db(self, p_inst, p_st, p_es,tSimbolo):
         sKey = 'CBD_' + p_inst.nombre
         existe = p_st.get(sKey)
 
         if existe:
-            simbolo = st.Symbol('DDB_' + p_inst.nombre, p_inst.nombre, 'drop', '','','')
-            p_st.add(simbolo)
+            for key, v in tSimbolo.symbols.items():
+                if p_inst.nombre == v.id and v.type == "create":
+                    v.id = ""
+                    v.type = ""
+                    v.value = ""
+                    v.p_Orden = ""
 
     # CREACIÓN DE LISTADO DE TIPOS
     def do_create_type(self, p_inst, p_st):
@@ -672,9 +680,9 @@ class Main(tk.Tk):
         key = 'CI_' + p_inst.name
         if isinstance(p_inst, Index):
             if p_inst.Unique == True:
-                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Unique','')
+                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Index tipo: '+'Unique','')
             elif p_inst.Using == True:
-                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Using Hash','')
+                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Metodo: '+'Using Hash','')
             else:
                 simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'','')
         elif isinstance(p_inst,IndexW):
@@ -695,29 +703,64 @@ class Main(tk.Tk):
             elif p_inst.Orden == 'NL':
                 p_inst.Orden = 'NULLS LAST'
 
-            simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.valor,p_inst.Orden,'')
+            simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.valor,'Orden: '+p_inst.Orden,'')
 
         existe = p_st.get(key)
         if not existe:
             p_st.add(simbolo)
 
+    def do_dropIndex(self, p_inst, p_st, p_es,tSimbolo):
+        sKey = 'CI_' + p_inst.idI
+        existe = p_st.get(sKey)
+
+        if existe:
+            for key, v in tSimbolo.symbols.items():
+                if p_inst.idI == v.id and v.type == "INDEX":
+                    v.id = ""
+                    v.type = ""
+                    v.value = ""
+                    v.p_Orden = ""
+
+    def do_AlterRIndex(self, p_inst, p_st, p_es,tSimbolo):
+        sKey = 'CI_' + p_inst.nombreIn
+        existe = p_st.get(sKey)
+
+        if existe:
+            for key, v in tSimbolo.symbols.items():
+                if p_inst.nombreIn == v.id:
+                    v.id = p_inst.nuevoNom
+
     def do_funcion(self, p_inst, p_st, p_es):
         key = 'CFUN_'+p_inst.id
         existe = p_st.get(key)
         parametros = ""
+        declaraciones = ""
 
         if p_inst.parametros != None:
             for parametro in p_inst.parametros:
-                parametros += parametro.id + ','
-            
+                parametros += parametro.id + ' Tipo: ' + str(parametro.tipo._instruccion) +'<br>'
             if not existe:
-                simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',parametros[:-1],'','')
-                p_st.add(simbolo)
+                if p_inst.declaraciones != None:
+                    for declaracion in p_inst.declaraciones:
+                        declaraciones += declaracion.id + ' Tipo: ' +declaracion.tipo + '<br>'
+                    simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',parametros,'',declaraciones)
+                    p_st.add(simbolo)
+                else:
+                    simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',parametros,'',p_inst.declaraciones)
+                    p_st.add(simbolo)
         
         else:
             if not existe:
-                simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',None,'','')
-                p_st.add(simbolo)
+                if p_inst.declaraciones != None:
+                    for declaracion in p_inst.declaraciones:
+                        declaraciones += declaracion.id + ' Tipo: ' +declaracion.tipo + '<br>'
+                    simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',None,'',declaraciones)
+                    p_st.add(simbolo)
+                else:
+                    simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',None,'',p_inst.declaraciones)
+                    p_st.add(simbolo)
+            
+
 
     # CREACIÓN DE TABLAS EN BASE DE DATOS
     def do_create_tb(self, p_inst, p_st, p_es, p_ct):
@@ -730,14 +773,22 @@ class Main(tk.Tk):
     # INSERTAR DATOS A TABLA EN BASE DE DATOS
     def do_insert_tb(self, p_inst, p_st, p_es):
         key = 'ITB_'+p_inst.tabla
-        simbolo = st.Symbol(key, p_inst.tabla, 'insert table', '','','')
+        simbolo = st.Symbol(key, p_inst.tabla, 'insert table', str(p_inst.valores).replace('\'',' '),'','')
         p_st.add(simbolo)
 
     # DROP A TABLAS EN BASE DE DATOS
-    def do_drop_tb(self, p_inst, p_st, p_es):
-        key = 'DTB_'+p_inst.nombre
-        simbolo = st.Symbol(key, p_inst.nombre, 'drop table','','','')
-        p_st.add(simbolo)
+    def do_drop_tb(self, p_inst, p_st, p_es,tSimbolo):
+        key = 'CTB_'+p_inst.nombre+'_'
+        existe = p_st.get(key)
+
+        if existe:
+            for key, v in tSimbolo.symbols.items():
+                print(v.id)
+                if p_inst.nombre == v.id and v.type == "create table":
+                    v.id = ""
+                    v.type = ""
+                    v.value = ""
+                    v.p_Orden = ""
 
     # SHOW DATABASES
     def do_show(self, p_inst, p_st, es_global, ct_global):
