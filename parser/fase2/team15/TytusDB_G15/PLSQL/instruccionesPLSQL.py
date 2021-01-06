@@ -65,6 +65,30 @@ class Parametro(Instruccion):
         self.tipo = tipo
         self.id = id
 
+#FASE 1
+class CreateDatabase(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class DropDatabase(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class ShowDatabases(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class UseDatabase(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class CreateTable(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class ShowTables(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
 
 
 

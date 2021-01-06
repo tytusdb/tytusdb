@@ -9,7 +9,10 @@ import ply.yacc as yacc
 from sys import path
 from os.path import dirname as dir
 from analizer_pl.C3D.operations.BackFill import BackFill
+from analizer_pl.reports.Nodo import Nodo
+from analizer_pl.reports import AST
 
+ast = AST.AST()
 path.append(dir(path[0]))
 
 
@@ -80,6 +83,7 @@ def p_instruction(t):
     | block
     | execute S_PUNTOCOMA
     """
+    listInst.append(t[1].dot())
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -2542,7 +2546,24 @@ def p_useStmt(t):
 # endregion
 
 # endregion
+def InitTree():
+    init = Nodo("INSTRUCTION_LIST")
+    Tree(init)
+    makeAst(init)
 
+
+def Tree(n):
+    if len(listInst) > 0:
+        l = listInst.pop()
+        n.addNode(l)
+        inst = Nodo("INST")
+        n.addNode(inst)
+        Tree(inst)
+
+
+def makeAst(root):
+    ast.makeAst(root)
+    
 syntax_errors = list()
 PostgreSQL = list()
 
