@@ -1,4 +1,5 @@
 from analizer_pl.abstract import instruction
+from analizer_pl.statement.expressions import code
 
 
 class Delete(instruction.Instruction):
@@ -8,4 +9,12 @@ class Delete(instruction.Instruction):
         self.fromcl = fromcl
 
     def execute(self, environment):
-        pass
+        out = "fase1.execution(dbtemp + "
+        out += '" '
+        out += "DELETE "
+        out += self.exists + " "
+        out += self.name + " ("
+        out += self.columns + " )"
+        out += self.inherits + ";"
+        out += '")\n'
+        return code.C3D(out, "delete", self.row, self.column)

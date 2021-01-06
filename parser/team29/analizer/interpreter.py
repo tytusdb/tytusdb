@@ -103,6 +103,22 @@ def symbolReport():
     return report
 
 
+def selectFirstValue(input):
+    """
+    Funcion para obtener el primer valor de un select
+    """
+    result = grammar.parse(input)
+    if len(result) > 1:
+        result = result[0].execute(None)
+        result = result[1].execute(None)[0].iloc[0].iloc[0]
+    else:
+        result = result[0].execute(None)[0].iloc[0].iloc[0]
+    return result
+
+
+print(selectFirstValue("SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');"))
+
+
 def indexReport():
     index = File.importFile("Index")
     enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]

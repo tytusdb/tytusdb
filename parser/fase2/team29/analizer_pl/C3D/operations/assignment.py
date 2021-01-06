@@ -3,6 +3,7 @@ from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 
+
 class Assignment(Instruction):
     def __init__(self, id, value, row, column):
         super().__init__(row, column)
