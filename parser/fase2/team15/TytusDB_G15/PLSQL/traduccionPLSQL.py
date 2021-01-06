@@ -4,6 +4,8 @@ from PLSQL.instruccionesPLSQL import *
 from PLSQL.expresionesPLSQL import *
 import PLSQL.gramaticaPLSQL as g
 from PLSQL.report_astPLSQL import *
+from PLSQL.report_optimizacionPLSQL import *
+
 
 temporalT = 0
 temporalA = 0
@@ -346,43 +348,35 @@ def generarExpresion(expresion, ts):
         exp2 = generarExpresion(expresion.exp2, ts)
         operador = getOperador(expresion.operador)
         if operador == '+' and exp2 == 0:
-            # Regla 8 | 12
-            print("Regla 8 | 12")
-            cadenaTraduccion += '\n\t# REGLA 8 - OPTIMIZACION POR MIRILLA'
-            tablaOptimizacion.append(Optimizacion('Regla 8|12', str(exp1) + " " + str(operador) + " " + str(exp2)))
+            reglaOptimizacion = OptimizacionR('Regla 12',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '-' and exp2 == 0:
-            # Regla 9 | 13
-            print("Regla 9 | 13")
-            tablaOptimizacion.append(Optimizacion('Regla 9|13', str(exp1) + " " + str(operador) + " " + str(exp2)))
+            reglaOptimizacion = OptimizacionR('Regla 13',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '*' and exp2 == 1:
-            # Regla 10 | 14
-            print("Regla 10 | 14")
-            tablaOptimizacion.append(Optimizacion('Regla 10|14', str(exp1) + " " + str(operador) + " " + str(exp2)))
+            reglaOptimizacion = OptimizacionR('Regla 14',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '/' and exp2 == 1:
-            # Regla 11 | 15
-            print("Regla 11 | 15")
-            tablaOptimizacion.append(Optimizacion('Regla 11|15', str(exp1) + " " + str(operador) + " " + str(exp2)))
+            reglaOptimizacion = OptimizacionR('Regla 15',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '*' and exp2 == 2:
-            # Regla 16
-            print("Regla 16")
-            tablaOptimizacion.append(Optimizacion('Regla 16', str(exp1) + " " + str(operador) + " " + str(exp2)))
             cadena = str(exp1) + " + " + str(exp1) + ''
+            reglaOptimizacion = OptimizacionR('Regla 16',str(exp1) + " " + str(operador) + " " + str(exp2),str(cadena) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return cadena
         elif operador == '*' and exp2 == 0:
-            # Regla 17
-            print("Regla 17")
-            tablaOptimizacion.append(Optimizacion('Regla 17', str(exp1) + " " + str(operador) + " " + str(exp2)))
             cadena = str(0)
+            reglaOptimizacion = OptimizacionR('Regla 17',str(exp1) + " " + str(operador) + " " + str(exp2),str(cadena) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return cadena
         elif operador == '/' and exp1 == 0:
-            # Regla 18
-            print("Regla 18")
-            tablaOptimizacion.append(Optimizacion('Regla 18', str(exp1) + " " + str(operador) + " " + str(exp2)))
             cadena = str(0)
+            reglaOptimizacion = OptimizacionR('Regla 18',str(exp1) + " " + str(operador) + " " + str(exp2),str(cadena) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return cadena
         else:
             temporal = generarTemporalT()
@@ -555,6 +549,8 @@ def getEmpty(tipo):
         return "\'\'"
     elif tipo == TIPO_DATO.BOOLEAN:
         return False
+    else:
+        return 0
 
 def getOperador(operador):
     if operador == OPERADOR.MAS:
@@ -712,6 +708,7 @@ def generarFuncionesSQLREPORTES():
     cadenaFuncionSQL += "\n\t\ttypeC.crearReporte(tc_global1)"
     cadenaFuncionSQL += "\n\t\tRTablaS = RTablaDeSimbolos()"
     cadenaFuncionSQL += "\n\t\tRTablaS.crearReporte(ts_global1,ts_globalIndex1)"
+    cadenaFuncionSQL += "\n\t\tRTablaS.crearReporte1(ts_global1,ts_globalIndex1)"
     cadenaFuncionSQL += "\n\t\treturn \'\'\n\n"
     return cadenaFuncionSQL
 
