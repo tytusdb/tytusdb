@@ -3,15 +3,16 @@ from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 
 class FunctionDeclaration(Instruction):
-    def __init__(self, id, params, returns, row, column) -> None:
+    def __init__(self, proc, id, params, returns, row, column) -> None:
         super().__init__(row, column)
         self.id = id
         self.params = params
         self.returns = returns
+        self.proc = proc
 
     def execute(self, environment):
         environment.globalEnv.addFunction(self.id, self.returns, len(self.params))
-        cd = "\ndef " + self.id + "():\n"
+        cd = "\n@with_goto\ndef " + self.id + "():\n"  
         for p in self.params:
             cd += "\t" + p.execute(environment).temp + " = stack.pop()\n"
 
