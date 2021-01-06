@@ -78,6 +78,7 @@ reservadas = (
     'FUNCTION', 'BEGIN', 'END',
     'DECLARE',
     #PALABRAS DE LA FASE 2
+    'PROCEDURE',
     'CONSTANT',
     'LANGUAGE',
     'PLPGSQL',

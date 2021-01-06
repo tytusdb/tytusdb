@@ -15,7 +15,7 @@ from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional,
 from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
 
 from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck
-from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set
+from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set, CreateIndex
 from Instrucciones.Sql_declare import Declare
 from Instrucciones.Sql_delete import DeleteTable
 from Instrucciones.Sql_drop import DropDatabase, DropTable
@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if 
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -73,10 +73,7 @@ def p_instrucciones_lista2(t):
     'instrucciones : instruccion '
     t[0] = [t[1]]
 
-def p_instrucion_exp(t):
-    '''instruccion  :   expre'''
 
-    t[0] = t[1]
     
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
@@ -279,8 +276,6 @@ def p_instruccion_update(t):
     '''
     strGram = "<instruccion> ::= UPDATE ID SET <lcol> <instructionWhere> PUNTO_COMA"
     strGram2 = ""
-    id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
-    
     strSent = "UPDATE " + t[2] + " SET "
     for col in t[4]:
         if isinstance(col, str):
@@ -289,6 +284,10 @@ def p_instruccion_update(t):
             strSent = strSent + col.strSent + ","
     strSent = strSent[:-1]
     strSent = strSent + " " + t[5].strSent + ";"
+
+    id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos, strSent)
+    
+    
 
     t[0] = UpdateTable.UpdateTable(id1, None, t[4], t[5], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
@@ -300,8 +299,6 @@ def p_instruccion_update2(t):
     '''
     strGram = "<instruccion> ::= UPDATE ID SET <lcol> PUNTO_COMA"
     strGram2 = ""
-    id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
-    
     strSent = "UPDATE " + t[2] + " SET "
     for col in t[4]:
         if isinstance(col, str):
@@ -310,6 +307,9 @@ def p_instruccion_update2(t):
             strSent = strSent + col.strSent + ","
     strSent = strSent[:-1]
     strSent = strSent + ";"
+    id1 = Identificador(t[2], strGram2 ,t.lexer.lineno, t.lexer.lexpos, strSent)
+    
+    
 
     t[0] = UpdateTable.UpdateTable(id1, None, t[4], None, strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
@@ -2070,38 +2070,62 @@ def p_tipo_datos2(t):
 
 ########################################### GRAMATICA FASE 2 ########################################
 
+def p_procedimiento(t):
+    '''
+    instruccion     :   CREATE PROCEDURE ID PARIZQ parametros_funcion PARDER LANGUAGE PLPGSQL AS DOLLAR DOLLAR declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR
+    '''
+
+
 
 #DECLARACION DE UNA FUNCION
 def p_funciones(t):
     '''
     instruccion    :   CREATE FUNCTION ID PARIZQ parametros_funcion PARDER returns_n retorno_funcion declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
+    t[0] = Funcion.Funcion(t[3], t[5], t[8], t[9], t[11], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 def p_parametros_funcion(t):
     '''
     parametros_funcion  : lista_parametros_funcion 
     '''
+    t[0] = t[1]
+
 def p_parametros_funcion_e(t):
     '''
     parametros_funcion  :
     '''
+    t[0] = None
 
 def p_lista_parametros_funcion(t):
     '''
     lista_parametros_funcion    :   lista_parametros_funcion COMA parametro_fucion
-						        |	parametro_fucion
     '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_parametros_funcion2(t):
+    '''
+    lista_parametros_funcion    :   parametro_fucion
+    '''
+    t[0] = [t[1]]
 
 def p_parametro_fucion(t):
     '''
     parametro_fucion 	: 	ID tipo
 					    |	tipo
     '''
+    if len(t) == 3:
+        t[0] = t[1]
+    else:
+        t[0] = "$"
+
 
 def p_returns(t):
     '''
     returns_n 	:	RETURNS
     '''
+
+
 def p_returns_e(t):
     '''
     returns_n   :
@@ -2113,34 +2137,72 @@ def p_retorno_funcion(t):
 				    |   TABLE PARIZQ lista_campos_tabla PARDER AS DOLLAR DOLLAR
 				    |   AS DOLLAR DOLLAR
     '''
+    if len(t) == 4:
+        t[0] = "NINGUNO"
+    elif len(t) == 5:
+        t[0] = t[1].strSent
+    else:
+        t[0] = "TABLA"
 
 def p_lista_campos_tabla(t):
     '''
     lista_campos_tabla  :	lista_campos_tabla COMA ID tipo
-					    |	ID tipo
     '''
+    t[1].append(t[3] + " " + t[4].strSent)
+    t[0] = t[1]
+
+def p_lista_campos_tabla2(t):
+    '''
+    lista_campos_tabla  :	ID tipo
+    '''
+    t[0] = [t[1] + " " + t[2].strSent]
 
 def p_declaraciones_funcion(t):
     '''
     declaraciones_funcion 	: 	DECLARE list_dec_var_funcion
     '''
+    t[0] = t[2]
+
 def p_declaraciones_funcion_e(t):
     '''
     declaraciones_funcion   :
     '''    
+    t[0] = None
 
 def p_list_dec_var_funcion(t):
     '''
     list_dec_var_funcion 	:	list_dec_var_funcion dec_var_funcion PUNTO_COMA
-						    |	dec_var_funcion PUNTO_COMA
     '''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_list_dec_var_funcion2(t):
+    '''
+    list_dec_var_funcion 	:	dec_var_funcion PUNTO_COMA
+    '''
+    t[0] = [t[1]]
 
 def p_dec_var_funcion(t):
     '''
-    dec_var_funcion : 	ID constant_n tipo collate_n nnull aisgnacion_valor 
-				    |	ID ALIAS FOR DOLLAR ENTERO
+    dec_var_funcion : 	ID constant_n tipo nnull aisgnacion_valor 
+    '''
+    t[0] = DeclaracionVariable.DeclaracionVariable(t[1], t[2], t[3], t[4], t[5], "", t.lexer.lineno, t.lexer.lexpos, "")
+    
+def p_dec_var_funcion2(t):
+    '''
+    dec_var_funcion : 	ID ALIAS FOR DOLLAR ENTERO
 				    |	ID ALIAS FOR ID
-				    |	ID tabla_typerow MODULO type_row
+    '''
+
+    if len(t) == 5:
+        t[0] = DeclaracionAlias.DeclaracionAlias(t[1], t[4], None, "", t.lexer.lineno, t.lexer.lexpos, "")
+    else:
+        t[0] = DeclaracionAlias.DeclaracionAlias(t[1], None, t[5], "", t.lexer.lineno, t.lexer.lexpos, "")
+
+
+def p_dec_var_funcion3(t):
+    '''
+    dec_var_funcion : 	ID tabla_typerow MODULO type_row
     '''
 
 
@@ -2150,14 +2212,6 @@ def p_tabla_typerow(t):
                     |   ID
     '''
 
-def p_constant(t):
-    '''
-    constant_n  :   CONSTANT
-    '''
-def p_constant_e(t):
-    '''
-    constant_n  :   
-    '''
 
 def p_type_row(t):
     '''
@@ -2165,23 +2219,30 @@ def p_type_row(t):
 			    |	ROWTYPE
     '''
 
-def p_collate(t):
+
+def p_constant(t):
     '''
-    collate_n : COLLATE CADENA
+    constant_n  :   CONSTANT
     '''
-def p_collate_e(t):
+    t[0] = t[1]
+
+def p_constant_e(t):
     '''
-    collate_n :
+    constant_n  :   
     '''
+    t[0] = None
 
 def p_nnull(t):
     '''
     nnull : NOT NULL
     '''
+    t[0] = "NOT NULL"
+
 def p_nnull_e(t):
     '''
     nnull :
     '''
+    t[0] = None
 
 def p_aisgnacion_valor(t):
     '''
@@ -2189,50 +2250,73 @@ def p_aisgnacion_valor(t):
 					    |	DOSP_IGUAL expre 
 					    |	IGUAL expre 
     '''
+    t[0] = t[2]
+
+
 def p_aisgnacion_valor_e(t):
     '''
     aisgnacion_valor    :
     '''
+    t[0] = None
 
 def p_contenido_funcion(t):
     '''
-    contenido_funcion   : contenido_funcion cont_funcion
-                        | cont_funcion ''' 
-    
-    
-def p_cont_funcion(t):    
+    contenido_funcion   : contenido_funcion cont_funcion''' 
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_contenido_funcion2(t):
     '''
-     cont_funcion : IF expre THEN instrucciones_if condicionesif ELSE  instrucciones_if END IF PUNTO_COMA
+    contenido_funcion   : cont_funcion '''
+    t[0] = [t[1]]
+    
+    
+def p_cont_funcion(t):
+    '''
+    cont_funcion    :   sentencia_if
+                    |   instruccion
+    '''
+    t[0] = t[1]
+
+def p_sentencia_if(t):    
+    '''
+     sentencia_if : IF expre THEN instrucciones_if condicionesif ELSE  instrucciones_if END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if condicionesif END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if ELSE  instrucciones_if END IF PUNTO_COMA
 				  | IF expre THEN instrucciones_if END IF PUNTO_COMA
-				  | CASE ID condiciones_cuando ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE ID condiciones_cuando ELSE instrucciones_if END CASE PUNTO_COMA
 				  | CASE ID condiciones_cuando END CASE PUNTO_COMA
-				  | CASE condiciones_cuandoB ELSE instrucciones END CASE PUNTO_COMA
+				  | CASE condiciones_cuandoB ELSE instrucciones_if END CASE PUNTO_COMA
 				  | CASE condiciones_cuandoB END CASE PUNTO_COMA
 				  | BEGIN instrucciones_if EXCEPTION WHEN l_identificadores THEN instrucciones_if END PUNTO_COMA
 				  | BEGIN instrucciones_if EXCEPTION WHEN sql_states THEN instrucciones_if END PUNTO_COMA
     '''
-    if t[1] == "IF" and  len(t) == 8:
+    if t[1] == "IF" and len(t) == 11:
+        print("Llega")
+        t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
+    elif t[1] == "IF" and len(t) == 9:
+        t[0] = condicional_if.IfElseIf(t[2],t[4],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "IF" and  len(t) == 8:
         print("Llega")
         t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     elif t[1] == "IF" and len(t) == 10:
         print("Llega")
         t[0] = condicional_if.Ifelse(t[2],t[4],t[6],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
-    elif t[1] == "IF" and len(t) == 11:
-        print("Llega")
-        t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
 
 def p_instrucciones_if(t):
     ''' 
     instrucciones_if : instrucciones_if instruccion_if 
                      | instruccion_if
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
     
 def p_instruccion_if(t):
     '''
     instruccion_if : cont_funcion
-                   | instruccion
                    | expre PUNTO_COMA
                    | RETURN PUNTO_COMA
                    | RETURN expre PUNTO_COMA
@@ -2241,11 +2325,12 @@ def p_instruccion_if(t):
                    | RAISE NOTICE CARACTER PUNTO_COMA
                    | RAISE NOTICE CARACTER COMA ID PUNTO_COMA
     '''
+    t[0] = t[1]
 
 def p_condiciones_if(t):
     '''
-condicionesif : condicionesif condicionif
-			  | condicionif
+    condicionesif : condicionesif condicionif
+			      | condicionif
     '''
     if len(t) == 3:
         t[1].append(t[2])
@@ -2255,43 +2340,55 @@ condicionesif : condicionesif condicionif
 
 def p_condicion_if(t):
     '''
-condicionif : ELSIF expre THEN instrucciones_if 
-			| ELSEIF expre THEN instrucciones_if  
+    condicionif : ELSIF expre THEN instrucciones_if 
+			    | ELSEIF expre THEN instrucciones_if  
     '''
     t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     
 def p_condiciones_cuando(t):
     '''
-condiciones_cuando : condiciones_cuando condicion_cuando
-				   | condicion_cuando
+    condiciones_cuando : condiciones_cuando condicion_cuando
+				       | condicion_cuando
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_condicion_cuando(t):
     '''
-condicion_cuando : WHEN l_expresiones THEN instrucciones
+    condicion_cuando : WHEN l_expresiones THEN instrucciones_if
 
     '''
 
 def p_condiciones_cuando_B(t):
     '''
-condiciones_cuandoB : condiciones_cuandoB condicion_cuandoB
-					| condicion_cuandoB
+    condiciones_cuandoB : condiciones_cuandoB condicion_cuandoB
+					    | condicion_cuandoB
     '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 def p_condicion_cuando_B(t):
     '''
-condicion_cuandoB ::= WHEN expre THEN instrucciones
+    condicion_cuandoB : WHEN expre THEN instrucciones_if
     '''
+    print("regresando")
+    t[0] = condicional_case.condicion_case(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
 
 def p_sql_states(t):
     '''
-sql_states ::= sql_states OR sql_state
-			 | sql_state
+    sql_states : sql_states OR sql_state
+			   | sql_state
     '''
 
 def p_sql_state(t):
     '''
-sql_state ::= SQLSTATE CADENA
+    sql_state : SQLSTATE CADENA
     '''
 
 def p_identificadores(t):
@@ -2302,84 +2399,138 @@ def p_identificadores(t):
 
 def p_instruccion_index(t):
     '''
-    instruccion : CREATE unique_op INDEX ID ON ID hash_op PARIZQ l_indexes PARDER where_op PUNTO_COMA
+    instruccion : CREATE unique_op INDEX nombre_op ON ID hash_op PARIZQ l_indexes PARDER where_op PUNTO_COMA
     '''
+    strId = ""
+    if isinstance(t[9] , list):
+        for i in t[9][:-1]:
+            strId += i + ","
+        strId += t[9][-1]
+    else:
+        strId = t[9]
+    strTipo = t[2] + " INDEX " + t[7]
+    strSent = "CREATE " + t[2] + " INDEX " + t[4] + " ON " + t[6] + " " + t[7] + " (" + strId +") " + t[11] + ";"
+    t[0] = CreateIndex.CreateIndex(t[4], strTipo, t[6], strId, "", t.lexer.lineno, t.lexer.lexpos, strSent)
+
+def p_index_nombre(t):
+    '''
+    nombre_op : ID
+    '''
+    t[0] = t[1]
+
+def p_index_nombre_e(t):
+    '''
+    nombre_op : 
+    '''
+    t[0] = ""
 
 def p_index_unique(t):
     '''
     unique_op : UNIQUE
     '''
+    t[0] = "UNIQUE"
 
 def p_index_unique_e(t):
     '''
     unique_op : 
     '''
+    t[0] = ""
+
 def p_index_hash(t):
     '''
     hash_op : USING HASH
     '''
+    t[0] = "USING HASH"
 
 def p_index_hash_e(t):
     '''
     hash_op : 
     '''
+    t[0] = ""
 
 def p_index_indexes(t):
     '''
     l_indexes : l_indexes COMA ID order_op null_op first_last_op
     '''
+    cadena = t[3]
+    if t[4] != "":
+        cadena += " " + t[4]
+    if t[5] != "":
+        cadena += " " + t[5]
+    if t[6] != "":
+        cadena += " " + t[6]
+    t[1].append(cadena)
+    t[0] = t[1]
 
 def p_index_index(t):
     '''
     l_indexes : ID order_op null_op first_last_op
     '''
+    cadena = t[1]
+    if t[2] != "":
+        cadena += " " + t[2]
+    if t[3] != "":
+        cadena += " " + t[3]
+    if t[4] != "":
+        cadena += " " + t[4]
+    t[0] = [cadena]
 
 def p_index_func(t):
     '''
     l_indexes : ID PARIZQ ID PARDER
     '''
+    cadena = t[1] + " (" + t[3] + ")"
+    t[0] = cadena
 
 def p_index_order(t):
     '''
     order_op : ASC
             | DESC
     '''
+    t[0] = t[1]
 
 def p_index_order_e(t):
     '''
     order_op : 
     '''
+    t[0] = ""
 
 def p_index_null(t):
     '''
     null_op : NULLS
     '''
+    t[0] = "NULLS"
 
 def p_index_null_e(t):
     '''
     null_op : 
     '''
+    t[0] = ""
 
 def p_index_first_last(t):
     '''
     first_last_op : FIRST
                 | LAST
     '''
+    t[0] = t[1]
 
 def p_index_first_last_e(t):
     '''
     first_last_op : 
     '''
+    t[0] = ""
 
 def p_index_where(t):
     '''
     where_op : instructionWhere
     '''
+    t[0] = t[1].strSent
 
 def p_index_where_e(t):
     '''
     where_op : 
     '''
+    t[0] = ""
 
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
@@ -2426,5 +2577,3 @@ def ejecutar_analisis(texto):
     print("inicio")
     return parser.parse(texto)
     
-
-

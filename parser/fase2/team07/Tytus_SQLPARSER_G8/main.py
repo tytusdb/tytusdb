@@ -27,6 +27,9 @@ import sintactico
 
 global arbol
 arbol = None
+global tablaSym
+tablaSym = None
+
 '''
 instruccion = CreateDatabase("bd1",None,"TRUE",None,None,None,None, 1,2)
 instruccion.ejecutar(None,None)
@@ -141,6 +144,7 @@ class interfaz():
     def traducirc3d_click(self):
         global arbol
         arbol = None
+        global tablaSym
         dropAll()
         os.system ("cls")
         #Elimina el Contenido de txtsalida
@@ -156,6 +160,7 @@ class interfaz():
             resultado += i.traducir(tablaGlobal,arbol,"")
 
         FuncionesPara3D.FuncionesPara3D.GenerarArchivo(resultado)
+        tablaSym = tablaGlobal
         print("Archivo Traducido")
         pass
 
@@ -174,8 +179,10 @@ class interfaz():
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(3,\"David\");")
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("SELECT * FROM persona;")'''
 
-
-        #Codigo3D.Codigo3D.ejecutar()
+        #c3d = Codigo3D.Codigo3D()
+        #c3d.ejecutar()
+        
+        #self.txtsalida[self.tab.index("current")].insert(INSERT,c3d.mensaje)
         pass
 
     def abrir_click(self):
@@ -216,7 +223,8 @@ class interfaz():
     def tblsimbolos_click(self):
         # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
         global arbol
-        rs.crear_tabla(arbol)  
+        global tablaSym
+        rs.crear_tabla(arbol, tablaSym)  
         arbol = None         
 
     def ast_click(self):
@@ -231,6 +239,7 @@ class interfaz():
     def btnanalizar_click(self):
         global arbol
         arbol = None
+        global tablaSym
         dropAll()
         os.system ("cls")
         #Elimina el Contenido de txtsalida
@@ -259,6 +268,7 @@ class interfaz():
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
         # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
+        tablaSym = tablaGlobal
         mensaje = ''
         for m in arbol.consola:
             mensaje += m + '\n'
