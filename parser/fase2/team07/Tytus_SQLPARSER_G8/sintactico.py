@@ -15,7 +15,7 @@ from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional,
 from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
 
 from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck
-from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set
+from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set, CreateIndex
 from Instrucciones.Sql_declare import Declare
 from Instrucciones.Sql_delete import DeleteTable
 from Instrucciones.Sql_drop import DropDatabase, DropTable
@@ -2393,8 +2393,30 @@ def p_identificadores(t):
 
 def p_instruccion_index(t):
     '''
-    instruccion : CREATE unique_op INDEX ID ON ID hash_op PARIZQ l_indexes PARDER where_op PUNTO_COMA
+    instruccion : CREATE unique_op INDEX nombre_op ON ID hash_op PARIZQ l_indexes PARDER where_op PUNTO_COMA
     '''
+    strId = ""
+    if isinstance(t[9] , list):
+        for i in t[9][:-1]:
+            strId += i + ","
+        strId += t[9][-1]
+    else:
+        strId = t[9]
+    strTipo = t[2] + " INDEX " + t[7]
+    strSent = "CREATE " + t[2] + " INDEX " + t[4] + " ON " + t[6] + " " + t[7] + " (" + strId +") " + t[11] + ";"
+    t[0] = CreateIndex.CreateIndex(t[4], strTipo, t[6], strId, "", t.lexer.lineno, t.lexer.lexpos, strSent)
+
+def p_index_nombre(t):
+    '''
+    nombre_op : ID
+    '''
+    t[0] = t[1]
+
+def p_index_nombre_e(t):
+    '''
+    nombre_op : 
+    '''
+    t[0] = ""
 
 def p_index_unique(t):
     '''
@@ -2424,17 +2446,35 @@ def p_index_indexes(t):
     '''
     l_indexes : l_indexes COMA ID order_op null_op first_last_op
     '''
+    cadena = t[3]
+    if t[4] != "":
+        cadena += " " + t[4]
+    if t[5] != "":
+        cadena += " " + t[5]
+    if t[6] != "":
+        cadena += " " + t[6]
+    t[1].append(cadena)
+    t[0] = t[1]
 
 def p_index_index(t):
     '''
     l_indexes : ID order_op null_op first_last_op
     '''
+    cadena = t[1]
+    if t[2] != "":
+        cadena += " " + t[2]
+    if t[3] != "":
+        cadena += " " + t[3]
+    if t[4] != "":
+        cadena += " " + t[4]
+    t[0] = [cadena]
 
 def p_index_func(t):
     '''
     l_indexes : ID PARIZQ ID PARDER
     '''
-    t[0] = 
+    cadena = t[1] + " (" + t[3] + ")"
+    t[0] = cadena
 
 def p_index_order(t):
     '''
@@ -2478,7 +2518,7 @@ def p_index_where(t):
     '''
     where_op : instructionWhere
     '''
-    t[0] = t[1]
+    t[0] = t[1].strSent
 
 def p_index_where_e(t):
     '''
