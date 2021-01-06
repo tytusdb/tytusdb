@@ -293,7 +293,7 @@ def callNative(id, listaParámetros):
             paramsTemp.append(aux['temp'])
             c3d += aux['c3d']
       temporal = getTemp()
-      c3d += temporal + '=' + id + '('
+      c3d += temporal + '=' + str(get_lower(id)) + '('
       for temp in paramsTemp:
             c3d += temp + ','
       c3d = c3d[:-1]
@@ -328,3 +328,79 @@ def resFinal(funciones, codigo):
             resultado += f +'\n'
       resultado += codigo 
       return resultado     
+
+
+"""
+DICCIONARIO PARA LOS METODOS
+______________________________________________________________
+
+"""
+dict_Func = {
+      'LENGTH':'length',
+      'SUBSTRING':'substring',
+      'TRIM':'trim',
+      'MD5':'md5',
+      'SHA256':'sha256',
+      'SUBSTR':'substr',
+      'GET_BYTE':'get_byte',
+      'SET_BYTE':'set_byte',
+      'CONVERT':'convert'
+      'DECODE':'decode',
+      'ENCODE':'encode',
+      'NOW':'now',
+      'EXTRACT':'extract',
+      'DATE_PART':'date_part',
+      'CURRENT_DATE':'current_date',
+      'CURRENT_TIME':'current_time',
+      'ABSOLUTE':'absolute',
+      'CBRT':'cbrt',
+      'CEIL':'ceil',
+      'CEILING':'ceiling',
+      'DEGREES':'degrees',
+      'DIV':'div',
+      'EXP':'exp',
+      'FACTORIAL':'factorial',
+      'FLOOR':'floor',
+      'GCD':'gcd',
+      'LN':'ln',
+      'LOG':'log',
+      'PI':'pi',
+      'POWER':'power',
+      'RADIANS':'radians',
+      'SIGN':'sign',
+      'SQRT':'sqrt',
+      'TRUNC':'trunc',
+      'RANDOM':'random',
+      'ACOS':'acos',
+      'ACOSD':'acosd',
+      'ASIN':'asin',
+      'ASIND':'asind',
+      'ATAN':'atan',
+      'ATAND':'atand',
+      'ATAN2':'atan2',
+      'ATAN2D':'atan2d',
+      'COS':'cos',
+      'COSD':'cosd',
+      'COT':'cot',
+      'COTD':'cotd',
+      'SIN':'sin',
+      'SIND':'sind',
+      'TAN':'tan',
+      'TAND':'tand',
+      'SINH':'sinh',
+      'COSH':'cosh',
+      'TANH':'tanh',
+      'ASINH':'asinh',
+      'ACOSH':'acosh',
+      'ATANH':'atanh'
+}
+
+
+"""
+DICCIONARIO PARA LOS METODOS
+______________________________________________________________
+funcion para castear un strig de mayusculas a minusculas
+"""
+
+def get_lower(name_func):
+     return dict_Func.get(name_func, name_func)
