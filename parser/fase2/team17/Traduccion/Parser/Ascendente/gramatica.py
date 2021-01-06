@@ -30,7 +30,8 @@ from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
 from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
 from graphviz import Digraph
 #import Interprete.Arbol as ArbolErrores
-
+from InterpreteF2.CASE.whenelse import WhenElse
+from InterpreteF2.CASE.when import When
 from InterpreteF2.Primitivos.CADENAS import CADENAS
 from InterpreteF2.Primitivos.ENTERO import ENTERO
 from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
@@ -599,15 +600,6 @@ def p_exception_when(t):
     set('<TR> \n <TD> exception_when → WHEN exp THEN stmts | END : </TD> \n <TD>  exception_when = when(t[2], t[4]) </TD> \n </TR> \n')
 
 
-# ================= DECLARE =================
-
-
-def p_declare(t):
-    '''
-         declare : DECLARE
-    '''
-
-
 # ================= FUNCTION =================
 
 
@@ -687,6 +679,8 @@ def p_statements_conditionals(t):
                    | exit
                    | asignacionvar
                    | declarer
+                   | drop_function
+                   | drop_procedure
     '''
     t[0] = t[1]
     set('<TR> \n <TD> statements → conditionals | return | execute_procedure | PRAISE | callfunction | exit | asignacionvar: </TD> \n <TD> statements = t[1] </TD> \n </TR> \n')
@@ -730,7 +724,7 @@ def p_statements_return(t):
 def p_conditionals(t):
     '''
         conditionals : ifheader
-                     | case
+                     | caseheader
     '''
     t[0] = t[1]
 # ================= IF =================
@@ -758,35 +752,45 @@ def p_if(t):
 
 # ================= CASE =================
 
+def p_caseheader(t):
+    '''
+        caseheader : CASE exp case END CASE
+                   | CASE case END CASE
+    '''
+    if len(t) == 6:
+        t[3].expression = t[2]
+        t[0] = t[3]
+    else:
+        t[0] = t[2]
+
 
 def p_case(t):
     '''
-        case : CASE exp WHEN exp_list THEN stmts END CASE
-             | CASE WHEN exp_list THEN stmt END CASE
-             | CASE exp WHEN exp_list THEN stmts when_or_else END CASE
-             | CASE WHEN exp_list THEN stmts when_or_else END CASE
+        case : WHEN exp THEN stmts ELSE stmts
+             | WHEN exp THEN stmts case
+             | WHEN exp THEN stmts
+    '''
+    if len(t) == 7:
+        t[0] = WhenElse(1, 1, t[2], t[4], t[6])
+    elif len(t) == 6:
+        t[0] = WhenElse(1, 1, t[2], t[4], t[5])
+    else:
+        t[0] = When(1, 1, t[2], t[4])
+
+
+# ================= DROP FUNCTION Y PROCEDURE =================
+
+def p_drop_function(t):
+    '''
+        drop_function : DROP FUNCTION ID
     '''
 
 
-def p_when_or_else(t):
+def p_drop_procedure(t):
     '''
-        when_or_else : other_when_list ELSE
-                     | other_when_list
-                     | ELSE
+        drop_procedure : DROP PROCEDURE ID
     '''
 
-
-def p_other_when_list(t):
-    '''
-        other_when_list : other_when_list other_when
-                        | other_when
-    '''
-
-
-def p_other_when(t):
-    '''
-        other_when : WHEN exp_list THEN stmts
-    '''
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
 
