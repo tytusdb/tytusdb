@@ -170,3 +170,24 @@ class Blockchain:
         file.write(json.dumps(JSblock_list))
         file.close()
         
+        
+    # ------------------------------------------------------- FILES ----------------------------------------------------
+    def load_json(self, nombre):
+        if os.path.isdir(os.getcwd() + "\\DataJsonBC"):
+            file = open(os.getcwd() + "\\DataJsonBC\\" + nombre + ".json", "+w")
+            return file
+        os.makedirs(os.getcwd() + "\\DataJsonBC")
+        file = open(os.getcwd() + "\\DataJsonBC\\" + nombre + ".json", "+w")
+        return file
+
+    def pathImageGraph(self):
+        if not os.path.isdir(os.getcwd() + "\\ImageBlockChain"):
+            os.makedirs(os.getcwd() + "\\ImageBlockChain")
+        direccion = os.getcwd() + "\\ImageBlockChain"
+        return direccion
+
+    def removeFilesBlock(self, nameJson):
+        if os.path.isdir(os.getcwd() + "\\DataJsonBC"):
+            if os.path.isfile(os.getcwd() + "\\DataJsonBC\\" + nameJson + ".json"):
+                os.remove(os.getcwd() + "\\DataJsonBC\\" + nameJson + ".json")
+        
