@@ -31,7 +31,7 @@ root = Tk()
 root.title('SQL Tools')
 root.geometry("1200x660")
 # =====================Para leer una archivo de pureba
-#f = open("./../Parser/Ascendente/entrada.txt", "r")
+#f = open("./../Parser/Ascendente/entrada.sql", "r")
 #input = f.read()
 input = ''
 

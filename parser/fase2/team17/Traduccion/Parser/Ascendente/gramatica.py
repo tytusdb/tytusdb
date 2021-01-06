@@ -55,12 +55,25 @@ from InterpreteF2.retorno.retorno_simple import retorno_simple
 from InterpreteF2.DML.insert.insert import insert
 from InterpreteF2.Soporte_aFun.callfunction import callfunction
 from InterpreteF2.DML.drops.droptable import droptable
+from InterpreteF2.indices.alterindex import alterindex
 
 ArbolErrores:Arbol = Arbol(None)
 
 
 reservadas = {
 
+#LOWER
+
+    'lower': 'LOWER',
+    'owned': 'OWNED',
+    'reset': 'RESET',
+    'nowait': 'NOWAIT',
+    'statistics': 'STATISTICS',
+    'extension': 'EXTENSION',
+    'depends': 'DEPENDS',
+    'partition': 'PARTITION',
+    'attach': 'ATTACH',
+    'tablespace': 'TABLESPACE',
     'cascade': 'CASCADE',
     'restrict': 'RESTRICT',
     'concurrently': 'CONCURRENTLY',
@@ -952,6 +965,7 @@ def p_index(t):
     '''
         index : create_index
               | drop_index
+              | alter_index
     '''
     t[0]=t[1]
 
@@ -960,43 +974,55 @@ def p_index(t):
 
 def p_create_index1(t):
     '''
-       create_index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER
+       create_index : CREATE        index_id_on_id             PARIZQ index_params PARDER
     '''
-    t[0] = indice(t[3], 1, 1)
+    t[0] = indice(t[2], 1, 1)
 
 def p_create_index2(t):
     '''
-        create_index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER conditions
+        create_index : CREATE        index_id_on_id             PARIZQ index_params PARDER conditions
     '''
-    t[0] = indice(t[3], 1, 1)
+    t[0] = indice(t[2], 1, 1)
 
 
 def p_create_index3(t):
     '''
-        create_index : CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER conditions
+        create_index : CREATE UNIQUE index_id_on_id             PARIZQ index_params PARDER conditions
     '''
-    t[0] = indice(t[4], 1, 1)
+    t[0] = indice(t[3], 1, 1)
 
 def p_create_index4(t):
     '''
-        create_index : CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER
+        create_index : CREATE UNIQUE index_id_on_id             PARIZQ index_params PARDER
     '''
-    t[0] = indice(t[4], 1, 1)
+    t[0] = indice(t[3], 1, 1)
 
 def p_create_index5(t):
     '''
-        create_index : CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER
+        create_index : CREATE        index_id_on_id USING HASH  PARIZQ index_params PARDER
     '''
-    t[0] = indice(t[3], 1, 1)
+    t[0] = indice(t[2], 1, 1)
 
 
 def p_create_index(t):
     '''
-        create_index : CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER conditions
+        create_index : CREATE        index_id_on_id USING HASH  PARIZQ index_params PARDER conditions
     '''
-    t[0] = indice(t[3], 1, 1)
+    t[0] = indice(t[2], 1, 1)
 
 # ================= INDEX_PARAMS =================
+
+def p_index_id_on_id(t):
+    '''
+        index_id_on_id : INDEX ID ON ID
+                       | INDEX    ON ID
+    '''
+    if len(t)==5:
+        t[0] = t[2]
+    if len(t) == 4:
+        t[0] = str(t[3])+'_idx'
+
+
 
 def p_index_params(t):
     '''
@@ -1008,6 +1034,8 @@ def p_index_param(t):
     '''
         index_param     :  ID options
                         |  ID
+                        |  exp
+                        |  exp options
     '''
 
 def p_options(t):
@@ -1068,6 +1096,41 @@ def p_drop_cascade_strict(t):
                         | RESTRICT
     '''
     t[0]=t[1]
+
+# ================= alter index =================
+
+def p_alter_index1(t):
+    '''
+        alter_index  : sub_alter  ID RENAME TO ID
+    '''
+    t[0] = alterindex(t[2],t[5],t.lineno,t.lexpos)
+
+
+def p_alter_index(t):
+    '''
+        alter_index  : sub_alter ID SET TABLESPACE ID
+
+                     | sub_alter ID ATTACH PARTITION TO ID
+
+                     | sub_alter ID DEPENDS ON EXTENSION TO ID
+
+                     | sub_alter ID ALTER COLUMN ENTERO SET STATISTICS ENTERO
+                     | sub_alter ID ALTER        ENTERO SET STATISTICS ENTERO
+
+                     | sub_alter ID SET PARIZQ exp_list PARDER
+                     | sub_alter ID RESET PARIZQ exp_list PARDER
+
+                     | sub_alter ALL IN TABLESPACE ID OWNED BY idlist SET TABLESPACE ID NOWAIT
+    '''
+    t[0] = alterindex(t[2],'l',t.lineno,t.lexpos)
+
+
+def p_sub_alter(t):
+    '''
+        sub_alter : ALTER INDEX IF EXISTS
+                  | ALTER INDEX
+    '''
+    pass
 
 
 
@@ -1307,6 +1370,18 @@ def p_exp_list(t):
 # --------------------------------------------------------------------------------------
 # ------------------------------------ EXPRESSION  --------------------------------------------
 # --------------------------------------------------------------------------------------
+def p_exp_call(t):
+    '''
+        exp   : LOWER PARIZQ exp PARDER
+              |       PARIZQ exp PARDER
+    '''
+    if len(t)==4:
+        set('<TR> \n <TD> exp → LOWER PARIZQ exp PARDER: </TD> \n <TD>  exp = lower(t[3]) </TD> \n </TR> \n')
+    else:
+        set('<TR> \n <TD> exp →  PARIZQ exp PARDER: </TD> \n <TD>  exp  = t[3] </TD> \n </TR> \n')
+
+
+
 def p_exp_count(t):
     '''
         exp   : COUNT PARIZQ exp PARDER
