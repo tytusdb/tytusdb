@@ -124,27 +124,11 @@ class condicion_caseID(Instruccion):
         #Si existe algun error en la expresion logica se devuelve el error
         codigo = ""
         for  expre in self.expLogica:
-           expresion_logica = expre.traducir(tabla, arbol,cadenaTraducida)
-           if isinstance(expresion_logica, Excepcion):
+            expresion_logica = expre.traducir(tabla, arbol,cadenaTraducida)
+            if isinstance(expresion_logica, Excepcion):
                 return expresion_logica
-            codigo += "\t" + expresion_logica.codigo + "\n"    
-            relacional = Relacional.Relacional(operadorI,)
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            codigo += "\t" + expresion_logica.codigo + "\n"
+            #relacional = Relacional.Relacional(operadorI,)
         #Inicia traduccion
         codigo = "\t" + self.expLogica + "\n" 
         etiquetaV = arbol.generaEtiqueta()
