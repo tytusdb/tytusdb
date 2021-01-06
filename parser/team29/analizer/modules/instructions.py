@@ -1,15 +1,17 @@
 from analizer.statement.instructions import delete
 from analizer.statement.instructions import insert
 from analizer.statement.instructions import update
-from analizer.statement.instructions import drop
 from analizer.statement.instructions import truncate
 from analizer.statement.instructions import show
+from analizer.statement.instructions import assignment
+from analizer.statement.instructions.drop import drop_table
+from analizer.statement.instructions.drop import drop_index
+from analizer.statement.instructions.alter import alter_data_base
+from analizer.statement.instructions.alter import alter_table
+from analizer.statement.instructions.alter import alter_index
 from analizer.statement.instructions.create import create_data_base
 from analizer.statement.instructions.create import create_table
 from analizer.statement.instructions.create import create_type
-from analizer.statement.instructions.alter import alter_data_base
-from analizer.statement.instructions.alter import alter_table
-from analizer.statement.instructions import assignment
 from analizer.statement.instructions.select import select
 from analizer.statement.instructions.select import from_
 from analizer.statement.instructions.select import where
@@ -112,7 +114,7 @@ def CreateType(exists, name, row, column, values=[]):
 
 
 def Drop(structure, name, exists, row, column):
-    return drop.Drop(structure, name, exists, row, column)
+    return drop_table.Drop(structure, name, exists, row, column)
 
 
 def Truncate(name, row, column):
@@ -139,3 +141,11 @@ def CreateIndex(unique, idIndex, idTable, usingHash, whereCl, optList):
     return create_index.CreateIndex(
         unique, idIndex, idTable, usingHash, whereCl, optList
     )
+
+
+def AlterIndex(name, exists, newName, row, column, idOrNumber = None):
+    return alter_index.AlterIndex(name, exists, newName, row, column, idOrNumber)
+
+
+def DropIndex( exists, names, row, column):
+    return drop_index.Drop(exists, names, row, column)
