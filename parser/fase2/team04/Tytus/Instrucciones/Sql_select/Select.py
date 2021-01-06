@@ -23,6 +23,7 @@ class Select(Instruccion):
         self.where = where
         self.lrows = lrows
 
+
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         if(self.lcol == "*"):
@@ -109,6 +110,7 @@ class Select(Instruccion):
                     
                     arbol.setNombreTabla(val)
                     tablaSelect = extractTable(arbol.getBaseDatos(),val)
+                    
                     '''
                     val = self.lcol2[x].devolverTabla(tabla,arbol)
                     arbol.setNombreTabla(val)
@@ -125,6 +127,7 @@ class Select(Instruccion):
                         val = self.lcol2[x].devolverTabla(tabla,arbol)
 
                     tablaSelect2 = extractTable(arbol.getBaseDatos(),val)
+                   
                     tablaSelect = self.unirTablas(tablaSelect,tablaSelect2)
 
             arbol.setTablaActual(tablaSelect)
@@ -145,7 +148,7 @@ class Select(Instruccion):
                 elif isinstance(self.lcol[x], SelectLista.Alias):
                     print(self.lcol[x].id,self.lcol[x].expresion)
                     valor = tabla.getVariable(self.lcol[x].id)
-                    print(valor)
+                    #print(valor)
                     valores = arbol.devolverColumnasTabla(valor.valor)
                     #valores = self.lcol[x].expresion.devolverTabla(tabla,arbol)
 
@@ -224,7 +227,7 @@ class Select(Instruccion):
                         lrows = self.lrows[x].ejecutar(tabla,arbol)
                     
                     if isinstance(resultado, OrderBy):
-                        print("BIENVENIDO A ORDER-BY")
+                      #  print("BIENVENIDO A ORDER-BY")
                         self.lrows[x].setTabla(val)
                         orden = self.lrows[x].ejecutar(tabla,arbol)
                         #orden = self.lrows[x].ejecutar(tabla,arbol)
@@ -234,9 +237,7 @@ class Select(Instruccion):
                         print("BIENVENIDO A LIMIT")
                         limite = self.lrows[x].ejecutar(tabla,arbol)
                         tablaSelect = self.devolverTablaLimite(tablaSelect,limite)
-
-                print(tablaSelect)
-
+                
             return tablaSelect
 
 #---------------------------GROUP BY
@@ -273,15 +274,15 @@ class Select(Instruccion):
             # Sort 2D numpy array by 2nd Column
             sortedArr = np.sort(arr2D, axis = 0)
             sortedArr = sortedArr[::-1]
-            print('Sorted 2D Numpy Array')
-            print(sortedArr)
+            #print('Sorted 2D Numpy Array')
+            #print(sortedArr)
             tablaRes = sortedArr
         else:
             sort = np.sort(arr2D,axis=0)
             #sort = np.sort(arr2D, axis = 0)
             #sort = np.sort(arr2D)
             #sort = sort[::1]
-            print(sort)
+            #print(sort)
             tablaRes = sort
 
         #vamos a volverlo otra ves una tabla
@@ -327,9 +328,9 @@ class Select(Instruccion):
                     col = self.lcol[x].devolverId(tabla,arbol)
                     arr.append(col)
                 elif isinstance(self.lcol[x], SelectLista.Alias):
-                    print(self.lcol[x].id,self.lcol[x].expresion)
+                    #print(self.lcol[x].id,self.lcol[x].expresion)
                     valor = tabla.getVariable(self.lcol[x].id)
-                    print(valor)
+                    #print(valor)
                     valores = arbol.devolverColumnasTabla(valor.valor)
                     #valores = self.lcol[x].expresion.devolverTabla(tabla,arbol)
 
@@ -383,8 +384,68 @@ class Select(Instruccion):
                 #print(nodo)
                 if(nodo != []):
                    tablaRes2.append(nodo)
-                print(nodo)
+                #print(nodo)
         return tablaRes2
+
+
+    def getCodigo(self, tabla, arbol):
+        nombre =f""
+        aster  =f""
+        dist   =f""
+        donde  =f""
+        stan   =f""
+        order  =f""
+        ident  =f""
+        dsd    =f""  
+        columnas = f""
+
+        if(self.lcol == "*"):
+             aster  = "*"
+        else:
+            for item in self.lcol: 
+              columnas += f"{item.getCodigo(tabla,arbol)}{',' if self.lcol.index(item) < len(self.lcol) - 1 else ''}" 
+            
+        for item2 in self.lcol2:
+              nombre += f"{item2.getCodigo(tabla,arbol)}{',' if self.lcol2.index(item2) < len(self.lcol2) -1 else ''}  "
+        
+        if(self.where != None):
+              
+              donde = "where"
+              stan = self.where.getCodigo(arbol,tabla)
+              
+  
+        if(self.lrows != None):
+             for item in self.lrows:
+                    a,b = item.toString()
+            
+             order = "order by"
+             ident = a
+             dsd = b
+
+
+        cadena = f"select {aster} {dist} {columnas} from {nombre} {donde} {stan} {order} {ident} {dsd};"
+        
+        num_params = 1
+        temp_param1 = arbol.getTemporal()
+        temp_tam_func = arbol.getTemporal()
+        temp_index_param1 = arbol.getTemporal()
+        temp_return = arbol.getTemporal()
+        temp_result = arbol.getTemporal()
+
+        codigo = f"\t#SELECT 3D\n"
+        codigo += f"\t{temp_param1} = \"{cadena}\"\n"
+        codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
+        codigo += f"\t{temp_index_param1} = {temp_tam_func} + 1\n"
+        codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
+
+        codigo += f"\tpointer = pointer + {num_params}\n"
+        codigo += f"\tinter()\n"
+        codigo += f"\t{temp_return} = pointer + 0\n"
+        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        codigo += f"\tpointer = pointer - {num_params}\n"
+        codigo += f"\t({temp_result})\n"
+        
+        arbol.consola.append(codigo)
 
 '''
 columnas y filas
@@ -397,5 +458,4 @@ Numero de columnas
 a.shape[1]
 limite
 a = sorted(a, key=lambda a_entry: a_entry[2])
-
 '''    
