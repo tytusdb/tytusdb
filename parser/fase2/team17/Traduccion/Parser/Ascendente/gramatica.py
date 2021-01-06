@@ -552,6 +552,7 @@ def p_plpgsql(t):
                 | functions_or_procedures BEGIN definitions plpgsql_ending
                 | label BEGIN definitions plpgsql_ending
                 | definitions BEGIN definitions plpgsql_ending
+                | DECLARE BEGIN definitions plpgsql_ending
                 | BEGIN definitions plpgsql_ending
     '''
     if len(t) == 6:
