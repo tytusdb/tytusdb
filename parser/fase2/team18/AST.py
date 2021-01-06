@@ -107,6 +107,63 @@ def eliminarProcedure(name):
         if(listaProcedure[i].nombre==name):
             listaProcedure.pop(i)
 
+def EliminarIndice(instr,ts):
+    global outputTS
+    agregarMensjae('normal','Drop Index','')
+    for nm in instr.nombres:
+        eliminado=True
+        pos=0
+        while pos< len(outputTS):
+            if pos+1 < len(outputTS):
+                if(outputTS[pos].instruccion=="INDEX" and outputTS[pos+1].identificador==nm):
+                    agregarMensjae('exito','Indice '+nm+" eliminado",'')
+                    outputTS.pop(pos+1)
+                    outputTS.pop(pos)
+                    eliminado=False
+                    break
+                else:
+                    pos=pos+1
+            else:
+                break
+        if eliminado:
+            agregarMensjae('error','Indice '+nm+' no registrado','')
+
+def AlterIndice_Renombrar(instr,ts):
+    global outputTS
+    agregarMensjae('normal','Alter Index Renombrar','')
+    modificado=True
+    nmviejo = resolver_operacion(instr.nombreviejo,ts)
+    nmnuevo = resolver_operacion(instr.nombrenuevo,ts)
+    if buscarIndice(nmnuevo)==False:
+        pos=0
+        while pos< len(outputTS):
+            if pos+1 < len(outputTS):
+                if(outputTS[pos].instruccion=="INDEX" and outputTS[pos+1].identificador==nmviejo):
+                    agregarMensjae('exito','Indice '+nmviejo+" renombrado a "+nmnuevo,'')
+                    outputTS[pos+1].identificador=nmnuevo
+                    modificado=False
+                    break
+                else:
+                    pos=pos+1
+            else:
+                break
+        if modificado:
+            agregarMensjae('error','Indice '+nmviejo+' no registrado','')
+    else:
+        agregarMensjae('error','No se renombro,index '+nmnuevo+' registrado','')
+
+def buscarIndice(nombre):
+    global outputTS
+    pos=0
+    while pos< len(outputTS):
+        if pos+1 < len(outputTS):
+            if(outputTS[pos].instruccion=="INDEX" and outputTS[pos+1].identificador==nombre):
+                return True
+            else:
+                pos=pos+1
+        else:
+            break
+    return False   
 
 def insertartabla(columnas,nombre):
     global listaTablas
@@ -4226,6 +4283,8 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, Drop_Function): Eliminar_Funcion(instr,ts)
             elif isinstance(instr, Drop_Procedure): Eliminar_Procedimientos(instr,ts)
             elif isinstance(instr, Procedimiento): Crear_Procedimiento(instr,ts)
+            elif isinstance(instr, Drop_Indice): EliminarIndice(instr,ts)
+            elif isinstance(instr, Alter_Index_Rename): AlterIndice_Renombrar(instr,ts)
             else: 
                 if instr is not None:
                     for val in instr:
