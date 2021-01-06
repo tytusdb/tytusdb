@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk, filedialog
+import tkinter as tk
 from gramatica import run_method
 from gramatica import errores,reportebnf
 from ERROR.Error import Error,Tipo
@@ -19,6 +20,10 @@ class mainWindow:
         self.textArea = Text(master)
         self.textArea.configure(bg='#CFCFCF')
         self.textArea.grid(column = 0, row = 0, padx = 15, pady = 15, columnspan=3)
+
+        
+        
+
         self.textArea2 = Text(master, state = 'disabled')
         self.textArea2.configure(bg='#B1B1B1')
         self.textArea2.grid(column = 8, row = 0, padx = 15, pady = 15, columnspan=4)
@@ -46,14 +51,24 @@ class mainWindow:
         self.subMenuReportes = Menu(self.menu)
         self.menu.add_cascade(label = "Archivo", menu=self.subMenuFile)
         self.subMenuFile.add_command(label="Abrir archivo", command =  self.openDocumentMethod)
+        self.subMenuFile.add_command(label="Compilar", command =  self.compileMethod)
         self.subMenuFile.add_command(label="Analizar ", command = self.analyzeMethod)
-
         self.menu.add_cascade(label = "Reportes", menu=self.subMenuReportes)
         self.subMenuReportes.add_command(label="AST ", command = self.reportar_ast)
         self.subMenuReportes.add_command(label="Gramática", command = self.report_bnf)
         self.subMenuReportes.add_command(label="Tabla de simbolos", command = self.reportar_ts)
         
         master.config(menu=self.menu, width = 1000, height=100)
+
+    def compileMethod(self):
+        self.consoleArea.delete(*self.consoleArea.get_children())
+        entrada = self.textArea.get("1.0",END)
+        resp = run_method(entrada)
+        resp.compile(None)
+        #var = resp.getText()
+        #print(var)
+        self.resp = resp
+        
 
     def reportar_ast(self):
         if self.resp is not None:

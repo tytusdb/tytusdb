@@ -9,6 +9,7 @@ from analizer_pl.C3D.operations import if_stmt
 from analizer_pl.C3D.operations import else_stmt
 from analizer_pl.C3D.operations import elseif_stmt
 from analizer_pl.C3D.operations import func_call
+from analizer_pl.C3D.operations import execute_
 from analizer_pl.sql_statement.create import create_database
 from analizer_pl.sql_statement.create import create_index
 from analizer_pl.sql_statement.create import create_table
@@ -121,3 +122,7 @@ def Truncate(name, row, column):
 
 def FunctionCall(id, params, isBlock, temp, row, column):
     return func_call.FunctionCall(id, params, isBlock, temp, row, column)
+
+
+def Execute_(procedures, row, column):
+    return execute_.Execute(procedures, row, column)

@@ -2627,6 +2627,16 @@ def p_statement_type_dml_sql(p):
     nodo.production += f'{p[1].production}'
     p[0] = nodo
 
+
+def p_statement_type_ddl_sql(p):
+    '''statementType : ddl 
+    '''
+    nodo = Node('statementType')
+    nodo.add_childrens(p[1])
+    nodo.production = f'<statementType> := <ddl>\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
 def p_statement_type_call_procedures(p):
     '''statementType : CALL_FUNCTIONS_PROCEDURE SEMICOLON 
     '''

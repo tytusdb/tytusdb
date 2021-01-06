@@ -263,6 +263,7 @@ def funcion(diccionarioFuncion, codigo3D):
       codigo3D = '\n' +  codigo3D
       codigo3D = codigo3D.replace('\n', '\n\t')
       codigo3D = codigo3D[:-1]
+      temporales.clear()
       return codigoGenerado +"\t#INICIA DECLARE"+ codigo3D
 """
 ______________________________________________________________
@@ -397,7 +398,8 @@ dict_Func = {
       'TANH':'tanh',
       'ASINH':'asinh',
       'ACOSH':'acosh',
-      'ATANH':'atanh'
+      'ATANH':'atanh',
+      'ABS':'abs'
 }
 
 
@@ -426,9 +428,47 @@ ______________________________________________________________
 
 """
 def resFinal(funciones, codigo):
-      resultado = 'from goto import with_goto\nfrom parser import parser\n\n'
+      resultado = 'from goto import with_goto\nfrom parser import parser\nfrom libraries.bstring_functions import *\n'
+      resultado += 'from libraries.datetime_functions import *\nfrom libraries.math_functions import *\nfrom libraries.trigonometric_functions import *\n\n' 
       for f in funciones:
             resultado += f +'\n'
       resultado += codigo 
       funciones = []
       return resultado    
+
+"""
+______________________________________________________________
+
+"""
+def AddTs(id, tipo, operacion):
+      #else variable .-      if id in temporales:
+      if id in temporales:
+            variable = {'id':id, 'tipo':tipo, 'temporal': temporales[id],'operacion':operacion}
+      else:
+            variable = {'id':id, 'tipo':tipo, 'temporal': 'None','operacion':operacion}
+      funcionAux.append(variable)
+
+
+"""
+_______________________________________________________________
+"""
+def modifyTs(id,valor, operacion):
+      encontrada = {}
+      for i in range(len(funcionAux)):
+            if id == funcionAux[i]['id']:
+                  encontrada['id'] = funcionAux[i]['id']
+                  encontrada['tipo'] = funcionAux[i]['tipo']
+                  encontrada['temporal'] = valor
+                  encontrada['operacion'] = operacion
+                  funcionAux.append(encontrada)
+                  break
+
+"""
+_______________________________________________________________
+"""
+def genTable(functionId):
+      aux = []
+      for v in funcionAux:
+            aux.append(v)
+      arregloF.append({'id':functionId,'valor':aux})
+      funcionAux.clear()
