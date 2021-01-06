@@ -2,97 +2,67 @@
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <show_databases_instr>
+<instruccion> ::= <alterTable_insrt>
  
-<show_databases_instr> ::= SHOW DATABASES PTCOMA
+<alterTable_insrt> ::= ALTER TABLE ID <alterTable_alter> PTCOMA
  
-<init> ::= <instrucciones>
+<alterTable_alter> ::= <alterTable_alter> COMA <Table_alter>
  
-<instrucciones> ::= <instruccion>
+<Table_alter> ::= ALTER COLUMN ID TYPE <TIPO_DATO>
  
-<instruccion> ::= <alterDB_insrt>
+<TIPO_DATO> ::= VARCHAR PAR_A ENTERO PAR_C
  
-<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
+<alterTable_alter> ::= <Table_alter>
  
-<usuariosDB> ::= CADENA
+<Table_alter> ::= ALTER COLUMN ID TYPE <TIPO_DATO>
  
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <show_databases_instr>
- 
-<show_databases_instr> ::= SHOW DATABASES PTCOMA
+<TIPO_DATO> ::= VARCHAR PAR_A ENTERO PAR_C
  
 <init> ::= <instrucciones>
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <alterDB_insrt>
+<instruccion> ::= <alterTable_insrt>
  
-<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
+<alterTable_insrt> ::= ALTER TABLE ID <alterTable_alter> PTCOMA
  
-<usuariosDB> ::= ID
+<alterTable_alter> ::= <Table_alter>
  
-<init> ::= <instrucciones>
+<Table_alter> ::= ALTER COLUMN ID TYPE <TIPO_DATO>
  
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <show_databases_instr>
- 
-<show_databases_instr> ::= SHOW DATABASES PTCOMA
+<TIPO_DATO> ::= VARCHAR PAR_A ENTERO PAR_C
  
 <init> ::= <instrucciones>
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <alterDB_insrt>
+<instruccion> ::= <create_Table_isnrt>
  
-<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
+<create_Table_isnrt> ::= CREATE TABLE ID PAR_A <cuerpo_createTable_lista> PAR_C PTCOMA 
  
-<usuariosDB> ::= ID
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
  
-<init> ::= <instrucciones>
+<campos_c> ::= ID <TIPO_DATO_DEF>
  
-<instrucciones> ::= <instruccion>
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
  
-<instruccion> ::= <show_databases_instr>
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
  
-<show_databases_instr> ::= SHOW DATABASES PTCOMA
+<campos_c> ::= ID <TIPO_DATO_DEF>
  
-<init> ::= <instrucciones>
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
  
-<instrucciones> ::= <instruccion>
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
  
-<instruccion> ::= <alterDB_insrt>
+<campos_c> ::= ID <TIPO_DATO_DEF>
  
-<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
  
-<usuariosDB> ::= ID
+<cuerpo_createTable_lista> ::= <cuerpo_createTable>
  
-<init> ::= <instrucciones>
+<campos_c> ::= ID <TIPO_DATO_DEF>
  
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <show_databases_instr>
- 
-<show_databases_instr> ::= SHOW DATABASES PTCOMA
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <alterDB_insrt>
- 
-<alterDB_insrt> ::= ALTER DATABASE ID RENAME TO ID PTCOMA
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <show_databases_instr>
- 
-<show_databases_instr> ::= SHOW DATABASES PTCOMA
+<TIPO_DATO_DEF> ::= INTEGER
  
 <init> ::= <instrucciones>
  
@@ -101,30 +71,6 @@
 <instruccion> ::= <use_database_instr>
  
 <use_database_instr> ::= USE ID PTCOMA
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <createDB_insrt>
- 
-<createDB_insrt> ::= CREATE DATABASE ID PTCOMA
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <createDB_insrt>
- 
-<createDB_insrt> ::= CREATE DATABASE ID PTCOMA
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
-<instruccion> ::= <createDB_insrt>
- 
-<createDB_insrt> ::= CREATE DATABASE ID PTCOMA
  
 <init> ::= <instrucciones>
  
