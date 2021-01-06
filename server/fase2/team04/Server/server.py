@@ -2,12 +2,26 @@
 #Dev by Group 4
 #BD1 2020
 
-import cgi
+import sys
+sys.path.append('../../../../parser/team26/G26/')
+sys.path.append('../../../../parser/team26/G26/Utils')
+sys.path.append('../../../../parser/team26/G26/Expresiones')
+sys.path.append('../../../../parser/team26/G26/Instrucciones')
+sys.path.append('../../../../parser/team26/G26/Librerias')
+
+# Server imports
 from http.server import HTTPServer, BaseHTTPRequestHandler
-import socketserver
 import io
 import os
 import json
+
+# Parser imports
+
+import gramatica as g
+import Utils.Lista as l
+
+# Data list
+datos = l.Lista({}, '')
 
 
 # Setting server port
@@ -33,9 +47,36 @@ class MyRequestHandler(BaseHTTPRequestHandler):
             self.do_Check()
         elif self.path == "/createUser":
             self.do_createUser()
+        elif self.path == "/runQuery":
+            self.do_runQuery()
         else:
             self.send_response(400) 
             self.wfile.write(bytes("",'utf-8'))
+
+    def do_runQuery(self):
+        global datos
+        try:
+            dataSize = int(self.headers['Content-Length'])
+            reqBody = self.rfile.read(dataSize)
+            reqData = json.loads(reqBody.decode("utf-8"))
+            texto = reqData["text"]
+            print("Data received: " + str(reqData))
+            #ENVIANDO AL PARSER
+            instrucciones = g.parse(texto)
+            print(instrucciones)
+            erroresSemanticos = []
+             
+            #FIN PARSER    
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(bytes(texto,'utf-8'))
+        except:
+            myResponse = "error"
+            self.send_response(404)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(bytes(myResponse, 'utf-8'))
 
     def do_createUser(self):
         try:
@@ -105,7 +146,6 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(myFile, 'utf-8'))
 
-
     def do_root(self):
         dataSize = int(self.headers['Content-Length']) #Getting size of data
         myData = self.rfile.read(dataSize) #Reading data (form)
@@ -115,7 +155,6 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.saveFile("database.tytus", bytes(decodedData, 'utf-8'))
         self.wfile.write(bytes(decodedData, 'utf-8'))
-
 
     #Method to create file on server
     def saveFile(self, filename, content):

@@ -7,7 +7,8 @@ import sintactico
 tablaGlobal = Tabla(None)
 arbol = Arbol()
 
-def ejecutar3D():
+def call_funcion_intermedia():
+    dropAll()
     input = ""
     for i in stack:
         input += stack[i] + "\n"
@@ -43,9 +44,22 @@ def exec():
     t11 = t10 + ");"
     stack[p] = t11
     p = p + 1
-    t12 = "CREATE INDEX test2_mm_idx ON tabla(id);"
-    stack[p] = t12
+    t12 = "CREATE TABLE tbbodega (\n"
+    t13 = "id integer"
+    t14 = t13 + ",\n"
+    t15 = t12 + t14
+    t16 = "bodega varchar"
+    t17 = t16 + "(120)"
+    t18 = t17 + ",\n"
+    t19 = t15 + t18
+    t20 = "id2 integer"
+    t21 = t19 + t20
+    t22 = t21 + ");"
+    stack[p] = t22
+    p = p + 1
+    t23 = "CREATE INDEX test2_mm_idx ON tabla(id);"
+    stack[p] = t23
     p = p + 1
 
 exec()
-ejecutar3D()
+call_funcion_intermedia()

@@ -79,10 +79,12 @@ class AlterTableAddColumn(Instruccion):
         code.append(c3d.asignacionString(t0, "ALTER TABLE " + self.tabla))
         t1 = c3d.getTemporal()
         for col in self.lista_col:
-            #code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" ADD COLUMN " + col.id + "\\'\" ", "STRING"), OP_ARITMETICO.SUMA))
-            col.generar3D()
+            code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" ADD COLUMN " + col.id + " " + col.tipo.toString() + "\" ", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
 
-        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t1))
         code.append(c3d.aumentarP())
 
         return code

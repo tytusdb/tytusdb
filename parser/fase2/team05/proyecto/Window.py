@@ -550,7 +550,7 @@ class Main(tk.Tk):
             gen = Generador(temp, 0, ins.getInstruccion())
             gen.ejecutar()
             C3D = g.codigo_3D
-            crearArchivo(C3D)
+            crearArchivo(C3D, gen.codigo3d)
            ##g.analizar(tytus)
             st_global = st.SymbolTable()
             es_global = es.ListaErroresSemanticos()
