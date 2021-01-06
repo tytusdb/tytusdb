@@ -13,7 +13,7 @@ class main():
 
     # CREAR BASE DE DATOS
 
-    def createDatabase(self, database, mode, encoding):
+    def createDatabase(self, database, mode, encoding='ascii'):
         if self.identify(str(database)):
             if self.verifyMode(mode):
                 if not self.searchDB2(database):
@@ -33,7 +33,7 @@ class main():
     # ---------------------FUNCIONES DE ADMINISTRACION DEL MODO DE ALMACENAMIENTO----------------------#
 
     # CAMBIA EL MODO DE UNA TABLA
-    
+
     def alterTableMode(self, database, table, mode):
         if self.identify(str(database)):
             if self.verifyMode(mode):
@@ -79,7 +79,7 @@ class main():
         return 1
 
     # CAMBIA EL MODO DE UNA BASE DE DATOS
-    
+
     def alterDatabaseMode(self, database, mode):
         if self.identify(str(database)):
             if self.verifyMode(mode):
@@ -113,6 +113,44 @@ class main():
     # ---------------------FUNCIONES DE ADMINISTRACION DE INDICES----------------------#
 
     # ---------------------FUNCIONES DE ADMINISTRACION DE LA CODIFICACION----------------------#
+
+    def alterDatabaseEncoding(self, dataBase, codi):
+        try:
+            if codi == '' or codi == None:
+                codi = 'ascii'
+            leLlave = []
+            for i in self.listMode: #para saber si existe la base
+                if self.searchDB(dataBase, i):
+                    if self.verifyEncoding(codi):
+                        tb = self.showTables(dataBase)
+                        if tb != []: #saber si tiene o no tablas la base
+                            for j in tb: #para cod los nombres de las tablas
+                                tp = self.extractTable(dataBase, j) #jalar las tuplas
+                                if tp != []: #para codificar tuplas
+                                    llave = self.godGuide[i][dataBase][0][j][1]
+                                    for k in range(0,len(tp)):
+                                        leTP = []
+                                        for l in tp[k]:
+                                            #para saber si viene codificado ya
+                                            if type(l) is bytes:
+                                                x = l.decode(self.godGuide[i][dataBase][0][j][2])
+                                                leTP += [str(x).encode(encoding= codi, errors= 'backslashreplace')]
+                                            else:
+                                                leTP += [str(l).encode(encoding= codi, errors= 'backslashreplace')]
+                                        for h in llave:
+                                            leLlave.append(tp[k][h])
+                                        leNewtp = {}
+                                        for n in range(0,len(leTP)):
+                                            leNewtp[n] = leTP[n]
+                                        self.update(dataBase,j,leNewtp,leLlave)
+                                        leLlave = []
+                        self.godGuide[i][dataBase][0][j][2] = codi
+                        return 0
+                    else:
+                        return 3
+            return 2
+        except:
+            return 1
 
     # ---------------------FUNCIONES DE GENERACION DEL CHECKSUM----------------------#
 
@@ -176,7 +214,7 @@ class main():
     # ---------------------FUNCIONES DE SEGURIDAD----------------------#
 
     # ---------------------FUNCIONES DE GRAFOS----------------------#
-    
+
     #---------------------FUNCIONES BASES DE DATOS (ANTERIORES)----------------------#
 
     # LISTA DE BASES DE DATOS ALMACENADAS
@@ -194,7 +232,7 @@ class main():
         for i in self.listMode:
             if self.searchDB(databaseOld, i):
                 for i in self.listMode:
-                    if not self.searchDB2(databaseNew):                        
+                    if not self.searchDB2(databaseNew):
                         re = switch.switchMode(i).alterDatabase(databaseOld, databaseNew)
         if re == 0:
 
@@ -421,29 +459,30 @@ class main():
         if key in switch.switchMode(mode).showDatabases():
             return True
         return False
-    
+
     def searchDB2(self, key):
         for i in self.listMode:
             if key in switch.switchMode(i).showDatabases():
                 return True
         return False
-    
+
     def searchTB(self, database, table):
         for i in self.listMode:
             for j in switch.switchMode(i).showDatabases():
                 if table in switch.switchMode(i).showTables(j):
                         return True
         return False
-    
+
     def extTB(self, database, table):
         for i in self.listMode:
             for j in switch.switchMode(i).showDatabases():
                 if table in switch.switchMode(i).showTables(j):
                         return switch.switchMode(i).extractTable(j, table)
-    
+
     def delTB(self, database, table):
         for i in self.listMode:
             for j in switch.switchMode(i).showDatabases():
                 if table in switch.switchMode(i).showTables(j):
                     switch.switchMode(i).dropTable(j, table)
                     return None
+
