@@ -6,6 +6,7 @@ e = -1
 def getEncabezado():
     content = "from goto import with_goto\n"
     content += "from Instrucciones.TablaSimbolos.Tabla import Tabla\n"
+    content += "from Instrucciones.Sql_insert import insertTable\n"
     content += "from Instrucciones.TablaSimbolos.Arbol import Arbol\n"
     content += "from storageManager.jsonMode import *\n"
     content += "import sintactico\n\n"
@@ -23,6 +24,14 @@ def getEncabezado():
     content += "    arbol = Arbol(inst)\n"
     content += "    for i in arbol.instrucciones:\n"
     content += "        resultado = i.ejecutar(tablaGlobal,arbol)\n\n"
+
+    #Funcion para insertar elementos en tabla c3d
+    content += "def call_insert_table():\n"
+    content += "    arbolAux = arbol\n"
+    content += "    arbolAux.bdUsar = heap[p-3]\n"
+    content += "    tabla = insertTable.insertTable(heap[p-2], None, heap[p-1], heap[p], '', 0, 0)\n"
+    content += "    tabla.ejecutar(tablaGlobal, arbolAux)\n\n"
+
 
     content += "stack = {}\nheap = {}\n"
     content += "p = 0\nh = 0\n\n"

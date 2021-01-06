@@ -5546,7 +5546,9 @@ parser = yacc.yacc()
 
 
 def parse(p_input):
-    global counter_lexical_error, counter_syntactic_error
+    global counter_lexical_error, counter_syntactic_error, codigo_3D, contador
+    codigo_3D = []
+    contador = 0
     counter_lexical_error = 1
     counter_syntactic_error = 1
     return parser.parse(p_input)

@@ -17,3 +17,4 @@ class F1(instruction.Instruction):
         if self.cadena != None:
             instruccionC3D = f'\t{tn} = "{self.cadena}"'
             instanciaAux.addToCode(instruccionC3D)
+        return  tn # POR SI FUERA UN SELECT

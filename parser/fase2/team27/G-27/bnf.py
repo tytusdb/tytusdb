@@ -258,6 +258,7 @@ def p_instrucciones_evaluar(t):
                    | ins_update
                    | ins_delete
                    | exp
+                   | execute
                    | ins_create_pl
                    | create_index'''
     t[0] = GenerarBNF()
@@ -765,15 +766,20 @@ def p_list_id(t):
 
 def p_list_vls(t):
     '''list_vls : list_vls COMA exp
-                | exp '''
+                | exp 
+                | '''
     if len(t) == 4:
         t[0] = GenerarBNF()
         t[0].produccion = '<LIST_VLS>'
         t[0].code += '\n' + '<LIST_VLS>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + t[1].code + ' ' + t[3].code
-    else:
+    elif len(t) == 2:
         t[0] = GenerarBNF()
         t[0].produccion = '<LIST_VLS>'
         t[0].code += '\n' + '<LIST_VLS>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
+    else: 
+        t[0] = GenerarBNF()
+        t[0].produccion = '<LIST_VLS>'
+        t[0].code += '\n' + '<LIST_VLS>' + ' ::= EPSILON'
     
 
 def p_val_value(t):
@@ -1033,12 +1039,18 @@ def p_op_numero(t):
                 | SIGNO_MENOS NUM_DECIMAL %prec UMENOS'''
     if len(t) == 2:
         t[0] = GenerarBNF()
-        t[0].produccion = '<NUMERO>'
-        t[0].code += '\n' + '<NUMERO>' + ' ::= ' + str(t[1])
+        t[0].produccion = '<OP_NUMERO>'
+        t[0].code += '\n' + '<OP_NUMERO>' + ' ::= ' + str(t[1])
     else:
         t[0] = GenerarBNF()
-        t[0].produccion = '<NUMERO>'
-        t[0].code += '\n' + '<NUMERO>' + ' ::= ' + str(t[1]) + ' ' + str(t[2])
+        t[0].produccion = '<OP_NUMERO>'
+        t[0].code += '\n' + '<OP_NUMERO>' + ' ::= ' + str(t[1]) + ' ' + str(t[2])
+
+def p_op_numero_exp(t):
+    '''  op_numero : exp'''
+    t[0] = GenerarBNF()
+    t[0].produccion = '<OP_NUMERO>'
+    t[0].code += '\n' + '<OP_NUMERO>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
 
 def p_arg_num(t):
     ''' arg_num : COMA NUMERO 
@@ -1111,6 +1123,12 @@ def p_s_param(t):
         t[0] = GenerarBNF()
         t[0].produccion = '<S_PARAM>'
         t[0].code += '\n' + '<S_PARAM>' + ' ::= ' + str(t[1])
+
+def p_s_param_exp(t):
+    '''s_param  :   exp'''
+    t[0] = GenerarBNF()
+    t[0].produccion = '<S_PARAM>'
+    t[0].code += '\n' + '<S_PARAM>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
 
 def p_string_op(t):
     '''string_op    :   SIGNO_PIPE
@@ -1751,17 +1769,18 @@ def p_body(t):
     t[0].code += '\n' + '<BODY>' + ' ::= ' + t[1].produccion + ' ' + str(t[2])+ ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[1].code + ' ' + t[3].code
     
 def p_declare(t):
-    '''declare_statement :  DECLARE
-                        | declare_statement statements 
-                        | '''
-    if len(t) == 3:
+    '''declare_statement : declare_statement DECLARE statements
+                         | DECLARE statements
+                         | 
+    '''
+    if len(t) == 4:
         t[0] = GenerarBNF()
         t[0].produccion = '<DECLARE_STATEMENT>'
-        t[0].code += '\n' + '<DECLARE_STATEMENT>' + ' ::= ' + t[1].produccion + ' ' + t[2].produccion + ' ' + t[1].code + ' ' + t[2].code
-    elif len(t) == 2:
+        t[0].code += '\n' + '<DECLARE_STATEMENT>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + t[1].code + ' ' + t[3].code
+    elif len(t) == 3:
         t[0] = GenerarBNF()
         t[0].produccion = '<DECLARE_STATEMENT>'
-        t[0].code += '\n' + '<DECLARE_STATEMENT>' + ' ::= ' + str(t[1])
+        t[0].code += '\n' + '<DECLARE_STATEMENT>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[2].code
     else: 
         t[0] = GenerarBNF()
         t[0].produccion = '<DECLARE_STATEMENT>'
@@ -2107,10 +2126,16 @@ def p_f_query(t):
         t[0].code += '\n' + '<F_QUERY>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[3].produccion + ' ' + t[4].produccion + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + t[7].produccion + ' ' + t[8].produccion + ' ' + t[9].produccion + ' ' + t[10].produccion + ' ' + t[11].produccion + ' ' + str(t[12]) + ' ' + t[2].code + ' ' + t[3].code + ' ' + t[4].code + ' ' + t[6].code + ' ' + t[7].code + ' ' + t[8].code + ' ' + t[9].code + ' ' + t[10].code + ' ' + t[11].code
 
 def p_f_return(t):
-    ''' f_return : RETURNING exp into '''
-    t[0] = GenerarBNF()
-    t[0].produccion = '<F_RETURN>'
-    t[0].code += '\n' + '<F_RETURN>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion +' ' + t[3].produccion + ' ' + t[2].code + ' ' + t[3].code
+    ''' f_return : RETURNING exp into 
+                    | '''
+    if len(t) == 4:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<F_RETURN>'
+        t[0].code += '\n' + '<F_RETURN>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion +' ' + t[3].produccion + ' ' + t[2].code + ' ' + t[3].code
+    else: 
+        t[0] = GenerarBNF()
+        t[0].produccion = '<F_RETURN>'
+        t[0].code += '\n' + '<F_RETURN>' + ' ::= EPSILON' 
 
 def p_into(t):
     '''into : INTO ID '''
@@ -2125,19 +2150,19 @@ def p_into_strict(t):
     t[0].code += '\n' + '<INTO>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) 
 
 def p_execute(t):
-    '''execute : EXECUTE CADENA into USING exp_list'''
+    '''execute : EXECUTE CADENA into USING exp_list PUNTO_COMA'''
     t[0] = GenerarBNF()
     t[0].produccion = '<EXECUTE>'
     t[0].code += '\n' + '<EXECUTE>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + t[3].code + ' ' + t[5].code
 
 def p_execute_use(t):
-    '''execute : EXECUTE CADENASIMPLE into USING exp_list'''
+    '''execute : EXECUTE CADENASIMPLE into USING exp_list PUNTO_COMA'''
     t[0] = GenerarBNF()
     t[0].produccion = '<EXECUTE>'
     t[0].code += '\n' + '<EXECUTE>' + ' ::= ' + str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + t[3].code + ' ' + t[5].code
 
 def p_execute_exp(t):
-    '''execute : EXECUTE exp'''
+    '''execute : EXECUTE exp PUNTO_COMA'''
     t[0] = GenerarBNF()
     t[0].produccion = '<EXECUTE>'
     t[0].code += '\n' + '<EXECUTE>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[2].code

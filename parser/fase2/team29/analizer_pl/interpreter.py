@@ -1,3 +1,4 @@
+from re import S
 from sys import path
 from os.path import dirname as dir
 
@@ -10,7 +11,9 @@ from analizer_pl.abstract import global_env
 def traducir(input):
     result = grammar2.parse(input)
     env = global_env.GlobalEnvironment()
-    c3d = "from analizer import interpreter as fase1\ndbtemp = None\n"
+    c3d = "from analizer import interpreter as fase1\n"
+    c3d += "from goto import with_goto\n"
+    c3d += 'dbtemp = ""\n'
     c3d += "stack = []\n"
     c3d += "\n"
     for r in result:
@@ -18,7 +21,10 @@ def traducir(input):
             c3d += r.execute(env).value
         else:
             c3d += "Instruccion SQL \n"
-    print(c3d)
+    f = open("test-output/c3d.py", "w+")
+    f.write(c3d)
+    f.close()
+    # grammar2.InitTree()
     reporteFunciones(env)
 
 
@@ -27,81 +33,50 @@ def reporteFunciones(env):
     for (f, x) in env.functions.items():
         r = []
         r.append(x.id)
-        r.append(x.returnType.name)
+        if x.returnType:
+            r.append(x.returnType.name)
+        else:
+            r.append("NULL")
         r.append(x.params)
         rep[1].append(r)
     print(rep)
 
 
 s = """ 
-CREATE procedure myFuncion(texto text, puta integer) RETURNS text AS $$
+CREATE function foo(i integer) RETURNS integer AS $$
 declare 
-    texto2 integer := 2;
+	j integer := i + 1;
+	k integer;
 BEGIN
-    case when 1=2 then
-    texto2 := 25; 
-        case when texto is true then
-            puta = 'cisco';
-        else
-            puta = 'alv';
-        end case;
-    else 
-    texto := 'd'; 
-    puta := 'i'; 
+	case 
+        when i > 10 then
+            k = 0;
+            RETURN j * k + 1;
+        when i < 10 then
+            k = 1;
+            RETURN j * k + 2;
+        else 
+            k = 2;
+            RETURN j * k + 3;
     end case;
-    RETURN (5+2>81 and  1+33 != 4) is not TRUE;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE function alv(texto text) RETURNS text AS $$
+CREATE procedure p1() AS $$
 declare 
-    texto2 integer := 2;
-    puta text;
+	k integer;
 BEGIN
-    case when 1=2 then
-    texto2 := 25; 
-        case when texto is true then
-            puta = 'cisco';
-        else
-            puta = 'alv';
-        end case;
-    else 
-    texto := 'd'; 
-    puta := 'i'; 
-    end case;
-    RETURN (5+2>81 and  1+33 != 4) is not TRUE;
-END;
-$$ LANGUAGE plpgsql;
-
-
-CREATE or replace DATABASE  test
-    OWNER = 'root'
-    MODE = 1;
-
-CREATE DATABASE  califica
-
-    MODE = 2;
-
-CREATE FUNCTION sales_tax(nombre integer) RETURNS integer AS $$
-DECLARE
-    x integer := 12;
-    msg integer := 0;
-BEGIN
-CASE
-    WHEN x BETWEEN 0 AND 10 THEN
-        msg := 'value is between zero and ten';
-    WHEN x BETWEEN 11 AND 20 THEN
-        msg := 'value is between eleven and twenty';
-END CASE;
+	k = foo(5);
+    k = foo(10);
+    k = foo(15);
 END;
 $$ LANGUAGE plpgsql;
 """
 
-sql = \
-"""
+sql = """
 CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
 CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
 CREATE INDEX ON tbbodega ((lower(bodega)));
 """
 
-traducir(sql)
+traducir(s)
