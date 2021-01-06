@@ -538,7 +538,7 @@ def extractTable(database: str, table: str) -> list:
     if bd:
 
         tb = _table(database, table)
-
+        encodingold = bd["encoding"]
         if tb:
 
             mode = tb["modo"]
@@ -566,6 +566,15 @@ def extractTable(database: str, table: str) -> list:
             elif mode == "dict":
                 val = dict.extractTable(database, table)
 
+            for x in val:
+                i = 0
+                for y in x:
+                    if type(y) == str:
+                        try:
+                            x[i] = y.decode(encodingold, "strict")
+                        except: 
+                            return 1
+                    i += 1
             return val
 
         else:
@@ -1032,8 +1041,16 @@ def insert(database: str, table: str, register: list) -> int:
 
             # if _Comprobar(database, table, register):
 
+            encoding = bd["encoding"]
             mode = tb["modo"]
-
+            i = 0
+            for y in register:
+                if type(y) == str:
+                    try:
+                        register[i] = y.encode(encoding, "strict")
+                    except: 
+                        return 1
+                i += 1
             val = -1
 
             if mode == "avl":
@@ -1770,12 +1787,47 @@ def alterDatabaseEncoding(database: str, encoding: str) -> int:
     if bd:
 
         if bd["encoding"] == encoding or encoding not in ["utf8", "ascii", "iso-8859-1"]:
-            return 4
-
-        bd["encoding"] = encoding
-
-        # verificar que se cumpla el nuevo encoding
-
+            return 3
+        else:
+            res = 0
+            aux = {}
+            encodingold = bd["encoding"]
+            bd["encoding"] = encoding
+            try:
+                table = _database(database)["tablas"]
+                for t in table:
+                    val = t.extractTable(database, t)
+                    aux.update({t:val[:]})
+                    truncate(database,t)
+                    if len(val):
+                        for x in val:
+                            i = 0
+                            for y in x:
+                                if type(y) == str:
+                                    try:
+                                        x[i] = y.decode(encodingold, "strict")
+                                    except: 
+                                        res = 1
+                                        break
+                                i += 1
+                            if res:
+                                break
+                            res = insert(database, t, x)
+                            if res:
+                                break
+                        if res:
+                            break        
+                if res:
+                    for t in list(aux.keys()):
+                        truncate(database,t)
+                        for x in aux[t]:
+                            insert(database, t, x)
+                else:
+                    # Aplicar la serealización
+                    #sr.rollback(_main_path)
+                    return 0
+            except:
+                return 1
     else:
         return 2
 

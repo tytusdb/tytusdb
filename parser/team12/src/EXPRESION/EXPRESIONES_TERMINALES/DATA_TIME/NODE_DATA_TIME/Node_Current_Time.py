@@ -22,3 +22,9 @@ class Current_Time_Expresion(Expresion):
         self.tipo = Type_Expresion(Data_Type.data_time)
         self.valorExpresion = datetime.datetime.now().time()
         return self.valorExpresion
+    
+    def compile(self, eviroment):
+        print("text")
+
+    def getText(self):
+        return str("CURRENT_TIME")

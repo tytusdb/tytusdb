@@ -89,3 +89,60 @@ class Drop(Instruccion):
 
     def __repr__(self):
         return str(self.__dict__)
+
+class DropFunction(Instruccion):
+
+    def __init__(self, id):
+        self.id = id
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+    def execute(self, data):
+        if not 'funciones_' in data.tablaSimbolos :
+            return 'función no encontrada'
+        i = 0
+        for func in data.tablaSimbolos['funciones_'] :
+            if self.id == func['name'] :
+                'eliminar funcion'
+                data.tablaSimbolos['funciones_'].pop(i)
+                return 'función eliminada'
+            i += 1
+        return 'función no encontrada'
+
+class DropProc(Instruccion):
+
+    def __init__(self, id):
+        self.id = id
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+    def execute(self, data):
+        if not 'funciones_' in data.tablaSimbolos :
+            return 'procedimiento no encontrado'
+        i = 0
+        for proc in data.tablaSimbolos['funciones_'] :
+            if self.id == proc['name'] :
+                'eliminar funcion'
+                data.tablaSimbolos['funciones_'].pop(i)
+                return 'procedimiento eliminado'
+            i += 1
+        return 'procedimiento no encontrado'
+
+class DropIndex(Instruccion):
+    def __init__(self, id1):
+        self.id1 = id1
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+    def execute(self, data):
+        i = 0
+        for index in data.tablaSimbolos[data.databaseSeleccionada]['index'] :
+            if index.name == self.id1.upper() :
+                data.tablaSimbolos[data.databaseSeleccionada]['index'].pop(i)
+                return 'Index eliminado.'
+            i += 1
+        error = Error('Semántico', 'Error(???): No se encontró el índice '+self.id1.upper()+'.', 0, 0)
+        return error

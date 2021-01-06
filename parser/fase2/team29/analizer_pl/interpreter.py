@@ -16,6 +16,7 @@ def traducir(input):
     c3d += 'dbtemp = ""\n'
     c3d += "stack = []\n"
     c3d += "\n"
+    optimizacion = c3d
     for r in result:
         if r:
             c3d += r.execute(env).value
@@ -25,6 +26,10 @@ def traducir(input):
     f.write(c3d)
     f.close()
     # grammar2.InitTree()
+    optimizacion += grammar2.optimizer_.optimize()
+    f = open("test-output/c3dopt.py","w+")
+    f.write(optimizacion)
+    f.close()
     reporteFunciones(env)
 
 
