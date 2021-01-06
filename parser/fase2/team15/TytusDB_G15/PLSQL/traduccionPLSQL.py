@@ -140,11 +140,34 @@ def generarC3D(instrucciones, ts_global):
         elif isinstance(instruccion, DropDatabase):
             cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
             cadenaFuncionIntermedia += createDropDatabaseFuncion(instruccion, ts)
+        elif isinstance(instruccion, CreateTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createCreateTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, DropTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createDropTablesFuncion(instruccion, ts)
+        elif isinstance(instruccion, AlterDatabase):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createAlterDatabaseFuncion(instruccion, ts)
+        elif isinstance(instruccion, AlterTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createAlterTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, InsertTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createInsertTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, SelectTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createSelectTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, SelectUniones):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createSelectUnionesTableFuncion(instruccion, ts)
             
             
         indice = indice + 1
     tablaSimbolos = ts
     
+    cadenaTraduccion += "\n\tprint(inter.Reportes())"
+
     cadenaTraduccion += '\t\n'
     cadenaTraduccion += '\tgoto. end'
     agregarFunciones()
@@ -152,6 +175,10 @@ def generarC3D(instrucciones, ts_global):
     cadenaTraduccion += "\n\n\tlabel .end" + "\n"
     cadenaTraduccion += "\treturn" + "\n"
     cadenaTraduccion += "\nmain()" + "\n"
+
+    #REPORTES FASE 1
+    
+    cadenaFuncionIntermedia += generarFuncionesSQLREPORTES()
 
     salidaFuncionIntermedia = open("./FuncionInter.py", "w")
     salidaFuncionIntermedia.write(cadenaFuncionIntermedia)
@@ -302,7 +329,7 @@ def generarExpresion(expresion, ts):
         return ts.obtener(expresion.id).temporal
     elif isinstance(expresion, ExpresionNOT):
         exp = generarExpresion(expresion.exp, ts)
-        return "!" + str(exp)
+        return "not " + str(exp)
     elif isinstance(expresion, ExpresionNOTBIN):
         exp = generarExpresion(expresion.exp, ts)
         return "~" + str(exp)
@@ -533,11 +560,11 @@ def getOperador(operador):
     elif operador == OPERADOR.DIVIDIDO:
         return "/"
     elif operador == OPERADOR.NOT:
-        return "!"
+        return "not"
     elif operador == OPERADOR.AND:
-        return "&&"
+        return "and"
     elif operador == OPERADOR.OR:
-        return "||"
+        return "or"
     elif operador == OPERADOR.XOR:
         return "xor"
     elif operador == OPERADOR.NOTB:
@@ -592,7 +619,49 @@ def createDropDatabaseFuncion(instruccion, ts):
     cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
     return cadenaSQL
 
+def createCreateTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
 def createShowTablesFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createDropTablesFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createAlterDatabaseFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createAlterTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createInsertTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createSelectTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createSelectUnionesTableFuncion(instruccion, ts):
     global numFuncionSQL
     print(instruccion.cadena)
     cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
@@ -616,6 +685,20 @@ def generarFuncionesSQL(instruccionSQL,numero):
     cadenaFuncionSQL += "\n\t\telse:"
     cadenaFuncionSQL += "\n\t\t\treturn 'Parser Error'\n\n"
     numFuncionSQL += 1
+    return cadenaFuncionSQL
+
+
+def generarFuncionesSQLREPORTES():
+    cadenaFuncionSQL = ""
+    cadenaFuncionSQL += "\n\tdef Reportes(self):"
+    cadenaFuncionSQL += "\n\t\tglobal instrucciones_Global,tc_global1,ts_global1,listaErrores"
+    cadenaFuncionSQL += "\n\t\t#astGraph = AST()"
+    cadenaFuncionSQL += "\n\t\t#astGraph.generarAST(instrucciones_Global)"
+    cadenaFuncionSQL += "\n\t\ttypeC = TipeChecker()"
+    cadenaFuncionSQL += "\n\t\ttypeC.crearReporte(tc_global1)"
+    cadenaFuncionSQL += "\n\t\tRTablaS = RTablaDeSimbolos()"
+    cadenaFuncionSQL += "\n\t\tRTablaS.crearReporte(ts_global1)"
+    cadenaFuncionSQL += "\n\t\treturn \'\'\n\n"
     return cadenaFuncionSQL
 
 '''f = open("./entrada.txt", "r")

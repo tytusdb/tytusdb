@@ -336,6 +336,12 @@ class contCase(query):
         self.contcase = contcase
         self.elsee = elsee
 
+class contIf(query):
+    def __init__(self, condicion, then, sino):
+        self.condicion = condicion
+        self.then = then
+        self.sino = sino
+        
 class QueryWhere(query):
     '''
         Esta clase represente la variante de un alter anidado

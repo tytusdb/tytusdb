@@ -13,6 +13,8 @@ tokens = reservadas + (
     'ID', 'CADENA', 'ENTERO', 'DECIMAL', 'CARACTER',
     #Relacional
     'DIFERENTE', 'MAYOR', 'MENOR','MAYORIGUAL', 'MENORIGUAL', 'ESIGUAL'
+    #Simbolos de agrupacion
+    'CORIZQ', 'CORDER', 'PARIZQ', 'PARDER', 'PUNTO'
 )
 
 t_DOS_PUNTOS = r'\:'
@@ -28,6 +30,11 @@ t_MENOR = r'\<'
 t_MAYORIGUAL = r'\>\='
 t_MENORIGUAL = r'\<\='
 t_ESIGUAL = r'\=\='
+t_CORIZQ = r'\['
+t_CORDER = r'\]'
+t_PARIZQ = r'\('
+t_PARIZQ = r'\)'
+t_PUNTO = r'\.'
 
 def t_CADENA(t):
     r'\".*?\"'
