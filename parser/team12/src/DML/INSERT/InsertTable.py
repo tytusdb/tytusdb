@@ -169,9 +169,11 @@ class InsertTable():
                 int(variable)
             elif tipo == 2:
                 print('caracter')
+            elif tipo == 3:
+                print('validacion Fecha')
             elif tipo == 4:
                 if not(variable.upper() == 'TRUE' or variable.upper() == 'FALSE'):
-                    return 0
+                    return 1
             else:
                 print('No tiene validacion')
             return 1 
