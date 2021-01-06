@@ -1,4 +1,5 @@
 from analizer_pl.abstract import instruction
+from analizer_pl.statement.expressions import code
 
 
 class InsertInto(instruction.Instruction):
@@ -9,4 +10,12 @@ class InsertInto(instruction.Instruction):
         self.columns = columns
 
     def execute(self, environment):
-        pass
+        out = "fase1.execution(dbtemp + "
+        out += '" '
+        out += "INSERT "
+        out += self.exists + " "
+        out += self.name + " ("
+        out += self.columns + " )"
+        out += self.inherits + ";"
+        out += '")\n'
+        return code.C3D(out, "insert", self.row, self.column)

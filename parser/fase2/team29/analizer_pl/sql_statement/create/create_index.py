@@ -1,8 +1,11 @@
 from analizer_pl.abstract import instruction
 from analizer_pl.statement.expressions import code
 
+
 class CreateIndex(instruction.Instruction):
-    def __init__(self, unique, idIndex, idTable, usingMethod, whereCl, row, column, optList):
+    def __init__(
+        self, unique, idIndex, idTable, usingMethod, whereCl, row, column, optList
+    ):
         super().__init__(row, column)
         self.unique = unique
         self.idIndex = idIndex
@@ -12,8 +15,8 @@ class CreateIndex(instruction.Instruction):
         self.usingMethod = usingMethod
 
     def execute(self, environment):
-        out = "fase1.execute("
-        out += "\""
+        out = "fase1.execution(dbtemp + "
+        out += '" '
         out += "CREATE "
         out += self.unique + " "
         out += "INDEX "
@@ -22,6 +25,6 @@ class CreateIndex(instruction.Instruction):
         out += self.idTable
         out += self.usingMethod + " ("
         out += self.optList + ")"
-        out += self.whereCl +";"
-        out += "\")\n"
-        return code.C3D(out, "create_tb", self.row, self.column)
+        out += self.whereCl + ";"
+        out += '")\n'
+        return code.C3D(out, "create_index", self.row, self.column)

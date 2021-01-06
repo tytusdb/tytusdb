@@ -57,7 +57,7 @@ class DropDB(Instruction):
         self._database_name = database_name
         self._noLine = noLine
         self._noColumn = noColumn
-        self._tac = tac
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -136,7 +136,7 @@ class AlterDatabase(Instruction):
         self._newValue = newValue
         self._noLine = noLine
         self._noColumn = noColumn
-        self._tac = tac
+        self._tac = ''
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()

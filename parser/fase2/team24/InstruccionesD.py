@@ -119,6 +119,8 @@ class showdb(instruccion):
         traduccion = '\t'
         traduccion += 'sql.execute("SHOW DATABASES '+ self.nombre + ';")'
         traduccion += '\n'
+        print(traduccion)
+        return traduccion
 
 
     def ejecutar(self):
@@ -157,6 +159,7 @@ class alterdb(instruccion):
             traduccion += ' RENAME TO ' + self.alterdb2.alterdb3.iden
         traduccion += ';")'
         traduccion += '\n'
+        print(traduccion)
         return traduccion
 
     def ejecutar(self):
@@ -596,6 +599,9 @@ class insert(instruccion):
                 traduccion += str(v) + ","
             elif isinstance(v, str):
                 traduccion += "'"+ v + "'" + ","
+            elif isinstance(v, bool):
+                traduccion += str(v) + ","
+
         traduccion = traduccion.replace(",)",")")
         traduccion += ';")'
         traduccion += '\n'
@@ -1377,7 +1383,6 @@ class trig_tanh2(funcionestrig):
     def __init__ (self,exp):
         self.exp = exp
 
-
     def ejecutar(self):
 
         try:
@@ -1394,7 +1399,6 @@ class trig_tanh2(funcionestrig):
 class trig_asinh2(funcionestrig):
     def __init__ (self,exp):
         self.exp = exp
-
 
     def ejecutar(self):
 
@@ -1627,8 +1631,39 @@ class update(instruccion):
         self.cond = cond
         self.wherecond = wherecond
 
-    def traduccion(self):
-        '''pendiente'''
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("UPDATE'
+        traduccion += ' ' + self.iden
+        NombreColumna = self.cond.iden
+        traduccion += ' SET ' + NombreColumna
+        traduccion += ' = '
+        if isinstance(self.cond.tipo , (int, float, complex)):
+            traduccion += str(self.cond.tipo)
+        elif isinstance(self.cond.tipo , str):
+            traduccion += "'" + self.cond.tipo + "'"
+        elif isinstance(self.cond.tipo, bool):
+            traduccion += str(self.cond.tipo )
+        else:
+            try:
+                temp = self.cond.tipo.ejecutar()
+                if isinstance(temp, (int, float, complex)):
+                    traduccion += str(temp)
+                elif isinstance(temp, str):
+                    traduccion += temp
+                elif isinstance(temp, bool):
+                    traduccion += str(temp)
+            except:
+                '''error'''
+
+        try:
+            traduccion += ' ' + auxiliar(wherecond) + ' '
+        except:
+            '''error'''
+
+        traduccion += ';")'
+        traduccion += '\n'
+        return traduccion
 
     def ejecutar(self):
         global resultadotxt
@@ -1738,7 +1773,6 @@ class delete(instruccion):
 
     def traducir(self):
         '''pendiente'''
-
 
     def ejecutar(self):
         global resultadotxt
@@ -1932,3 +1966,26 @@ class indwherecond(instruccion):
         self.signo = signo
         self.valortipo = valortipo
 #----------------------------------------------------------------------------------------------------------------------
+
+def auxiliar(condicional):
+    concat = ' WHERE '
+
+    if isinstance(condicional, wherecond):
+        identificador = condicional.iden
+        valor1 = condicional.tipo
+        valor2 = condicional.tipo2
+        concat += identificador + ' '
+        concat += ' BETWEEN '
+        concat += str(valor1) + ' AND ' + (valor2) + ' '
+    elif isinstance(condicional, wherecond1):
+        identificador = condicional.iden
+        valor = condicional.tipo
+        sign = condicional.signo
+        concat += identificador
+        concat += ' ' + str(sign) + ' '
+        if isinstance(valor, str):
+            concat += " '" + str(valor) + "' "
+        else:
+            concat += ' ' + str(valor) + ' '
+    return concat
+

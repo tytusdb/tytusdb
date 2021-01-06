@@ -1,7 +1,7 @@
 def crearArchivo(input, instfuncion):
     archivo = ''
-    f = open("proyecto/team29/ui/codigo3D.py", "w")
-    file1 = open("proyecto/salida/header.txt", "r")
+    f = open("team29/ui/codigo3D.py", "w")
+    file1 = open("salida/header.txt", "r")
 
     archivo += file1.read()
 
@@ -15,8 +15,11 @@ def crearArchivo(input, instfuncion):
     archivo += 'def main3d(): \n'
     archivo += '\tglobal lista \n'
     for a in input:
-        if a.find("del") != -1:
+        if a.find("del ") != -1:
             archivo += '\t' + a + '\n'
+            continue
+        if a.find("C3D_") != -1:
+            archivo += a
             continue
         archivo += '\t'+ a + '\n'
         subA = a.split("=")

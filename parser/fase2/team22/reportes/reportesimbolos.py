@@ -72,8 +72,8 @@ def reporte_tabla(tabla):
     #Para la tabla de simbolos de la fase 2
     cadena += "<th><center>Alias - Indice</center></th>\n"
     # cadena += "<th><center>Nombre</center></th>\n"
-    cadena += "<th><center>Tipo Indice</center></th>\n"
     cadena += "<th><center>Columnas en Indices</center></th>\n"
+    cadena += "<th><center>Tipo Indice</center></th>\n"
     # cadena += "<th><center>Consideraciones</center></th>\n"
     # cadena += "<th><center>Fila</center></th>\n"
     cadena += "</tr>\n"
@@ -111,24 +111,34 @@ def reporte_tabla(tabla):
                 #print("-------------------->",db.nombreTabla,t.nombreDeTabla, c.nombre, c.tipo.toString(),c.tipo.dimension,c.constraint)
 
             for indice in t.lista_de_indices:
-                cadena += "<tr>\n"
-                cadena += "<td><center>" + str(contador) + "</center></td>\n"
-                cadena += "<td><center>" + db.nombreTabla + "</center></td>\n"
-                cadena += "<td><center>" + t.nombreDeTabla + "</center></td>\n"
-                cadena += "<td><center>" + str(indice.nombre.id) + "</center></td>\n"
-                cadena += "<td><center> INDEX" + "</center></td>\n"
-                cadena += "<td><center> - </center></td>\n"
-                
-                cadena += isExist(indice)
-                cadena += "<td><center>" + str(indice.nombre.id) + "</center></td>\n"   # ESTE ES EL ALIAS
-                cadena += "<td><center>" + " ASC </center></td>\n"   # TIPO, ASC POR DEFECTO
+                if str(indice.nombre.id) != '':
+                        a = str(indice.nombre.id)
+                        cadena += "<tr>\n"
+                        cadena += "<td><center>" + str(contador) + "</center></td>\n"
+                        cadena += "<td><center>" + db.nombreTabla + "</center></td>\n"
+                        cadena += "<td><center>" + t.nombreDeTabla + "</center></td>\n"
+                        cadena += "<td><center>" + str(indice.nombre.id) + "</center></td>\n"
+                        cadena += "<td><center> INDEX" + "</center></td>\n"
+                        cadena += "<td><center> - </center></td>\n"
+                        
+                        cadena += isExist(indice)
+                        cadena += "<td><center>" + str(indice.nombre.id) + "</center></td>\n"   # ESTE ES EL ALIAS
 
-                if len(indice.lRestricciones) > 0:
-                    cadena += "<td><center>" + ",".join(indice.lRestricciones) + "</center></td>\n"
-                else:
-                    cadena += "<td><center> None </center></td>\n"
-                cadena += "</tr>\n"
-                contador += 1
+                        if len(indice.lRestricciones) > 0:
+                            consideraciones = str(indice.lRestricciones).replace("[", "").replace("'", "").replace("\"", "").replace("]", "").replace(",", "")
+                            column_index = consideraciones.split("#")
+                            cadena += "<td><center>" + column_index[0]+ "</center></td>\n"
+                        else:
+                            cadena += "<td><center> None </center></td>\n"
+
+                        
+                        cadena += "<td><center>" + column_index[1]+ "</center></td>\n"
+                        
+                        # cadena += "<td><center>" + " ASC </center></td>\n"   # TIPO, ASC POR DEFECTO
+
+                        cadena += "</tr>\n"
+                        contador += 1
+
     '''
     while tabla != None:
         for s in tabla.variables:

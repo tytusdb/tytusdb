@@ -185,32 +185,16 @@ def funcionIntermedia():
 @with_goto
 def main3d(): 
 	global lista 
+	t0 = "use dbfase2;"
+	lista = [t0 ] 
+	funcionIntermedia() 
+	t1 = "SELECT COUNT(*) from tbProducto where estado = 2;"
+	lista = [t1 ] 
+	funcionIntermedia() 
+	t2 = "SELECT COUNT(*) from tbbodega;"
+	lista = [t2 ] 
+	funcionIntermedia() 
 
-def p():
-	goto .L1
-	label .L1
-	T0=False
-	val=T0
-	T1=val
-	goto .L2
-	label .L2
-	T2=True
-	if T1==T2: goto .L4
-	goto .L5
-	label .L4
-	T3=True
-	goto .L6
-	label .L5
-	T3=False
-	label .L6
-	if T3 == True: goto .L7
-	goto .L8
-	label .L7
-	val=2
-	goto .L9
-	label .L8
-	val=4
-	label .L9
 
 
 if __name__ == "__main__": 

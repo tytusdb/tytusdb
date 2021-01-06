@@ -398,25 +398,67 @@ class insertTable(Instruccion):
 
         code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" VALUES (\" ", "STRING"), OP_ARITMETICO.SUMA))
         t0 = t1
-        t1 = c3d.getTemporal()
         sizeCol = len(self.lexpre)
         contador = 1
         for col in self.lexpre:
-            if col != None:
-                code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(col.generar3D(tabla, arbol)) + "\"", "STRING"), OP_ARITMETICO.SUMA))
-            t0 = t1
-            t1 = c3d.getTemporal()
-            if contador != sizeCol:
-                code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))
+            result = col.generar3D(tabla, arbol)
+            if not isinstance(result, list):
+                t1 = c3d.getTemporal()
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(result) + "\"", "STRING"), OP_ARITMETICO.SUMA))
+                '''if col != None:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(col.generar3D(tabla, arbol)) + "\"", "STRING"), OP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = c3d.getTemporal()
+                if contador != sizeCol:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))'''
                 t0 = t1
                 t1 = c3d.getTemporal()
             else:
+                code += result
+                t0 = c3d.getLastTemporal()
+                t1 = c3d.getTemporal()
+
+            if contador != sizeCol:
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))
+            else:
                 code.append(c3d.operacion(t1, Identificador(t0), Valor("\");\"", "STRING"), OP_ARITMETICO.SUMA))
-                t0 = t1
+            t0 = t1
             contador += 1
             
 
         code.append(c3d.asignacionTemporalStack(t0))
         code.append(c3d.aumentarP())
 
+        return code
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t00 = c3d.getTemporal()
+        code.append(t00 + ' = "' + arbol.bdUsar + '"')
+        code.append('heap[h] = ' + t00)
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        code.append(t0 + ' = "' + self.valor + '"')
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        if self.lcol != None:
+            code.append('heap[h] = []')
+            for columna in self.lcol:
+                t1 = c3d.getTemporal()
+                code.append(t1 + ' = ["' + columna + '"]')
+                code.append('heap[h] = heap[h] + ' + t1)
+        else:
+            code.append('heap[h] = None')
+        code.append('h = h + 1')
+        code.append('heap[h] = []')
+        for valor in self.lexpre:
+            t2 = c3d.getTemporal()
+            code.append(t2 + ' = [' + str(valor.generar3D(tabla, arbol)) + ']')
+            code.append('heap[h] = heap[h] + ' + t2)
+        code.append('p = h')
+        code.append('call_insert_table()')
+        
         return code
