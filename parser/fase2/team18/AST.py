@@ -4126,7 +4126,7 @@ def Crear_Procedimiento(instr,ts):
                 param.tipo=x.tipo.lower()
                 #validar el tipo
                 if(validarTipoF(param.tipo)==False):
-                    msg="El tipo "+param.tipo+" no es posible asignarlo al parametro "+parAux.nombre
+                    msg="El tipo "+param.tipo+" no es posible asignarlo al parametro "+param.nombre
                     agregarMensjae("error",msg,"")
                     flag=False
             #agregar size
@@ -4158,7 +4158,7 @@ def Crear_Procedimiento(instr,ts):
         #verificar que no exista
         if(findProcedure(name)==None):
             addProcedure(name,cuerpo,parametros)
-            #CD3.PCreateProcedure(name,cuerpo,parametros,0)
+            CD3.PCreateProcedure(name,cuerpo,parametros,0)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
         else:
@@ -4167,7 +4167,7 @@ def Crear_Procedimiento(instr,ts):
                 #eliminar la funcion
                 eliminarProcedure(name)
                 addProcedure(name,cuerpo,parametros)
-                #CD3.PCreateProcedure(name,cuerpo,parametros,1)
+                CD3.PCreateProcedure(name,cuerpo,parametros,1)
                 msg="Funcion reemplazada"
                 agregarMensjae("alert",msg,"")
             else:
@@ -4218,7 +4218,7 @@ def cuerpo_Procedure(body,ts):
                 agregarMensjae("error",msg,"")
                 flag=False
             else:  
-                parametro.tipo=o.tipo.lower()
+                parametro.tipo=i.tipo.lower()
                 #validar el tipo
                 if(validarTipoF(parametro.tipo)==False):
                     msg="El tipo "+parametro.tipo+" no es posible asignarlo al parametro "+parametro.nombre
@@ -4231,7 +4231,7 @@ def cuerpo_Procedure(body,ts):
             #agregar valor
             if(i.valor!=False):
                 val=resolver_operacion(i.valor,ts)
-                result=validarTipo(parAux.tipo,val)
+                result=validarTipo(parametro.tipo,val)
                 if(result==None):
                     flag=False
                     msg="no es posible asignar "+str(val)+" en "+parametro.nombre
@@ -4270,9 +4270,9 @@ def Execute_Procedimiento(instr,ts):
     global listaProcedure
     print("Metodo para ejecutar el stored procedure")
     print(instr)
-    agregarMensjae('normal','Execute procedure: '+ str(instr.procedimiento),'')
     #Nombre del Procedimiento
     nombreProc=resolver_operacion(instr.procedimiento,ts)
+    agregarMensjae('normal','Execute procedure: '+ str(nombreProc),'')
     print(nombreProc)
     nombreProc=nombreProc.lower()
     #Parametros del Procedimiento
@@ -4306,12 +4306,14 @@ def Execute_Procedimiento(instr,ts):
                     lvalores[contval]=result
                 contval+=1
             if ejecucion:
+                agregarMensjae('exito','Procedimiento '+nombreProc+' ejecutado','')
                 result=EjecucionProc_Contenido(lvalores,Bproc,Bproc.contenido.contenido,[],ts)
                 print(result) 
         else:
             msg = "Cantidad de parametros invalida para procedimiento "+nombreProc
             agregarMensjae('error',msg,'')
     else:
+        agregarMensjae('error','Procedimiento '+nombreProc+' no registrado','')
         print("proc no existe")
     
 
