@@ -442,23 +442,33 @@ def p_instruccion15(t):
 
 def p_instruccion17(t):
     'instruccion      : ASIGNACION  ptcoma'
+    listaBNF.append("INSTRUCCION ::= ASIGNACION")
     t[0] = t[1]
 
 
 def p_instruccion18(t):
     '''instruccion      : CONDICIONIF  ptcoma'''
+    listaBNF.append("INSTRUCCION ::= CONDICIONIF ptcoma")
     t[0] = t[1]
 
 
 def p_instruccion19(t):
     '''instruccion      : PROCEDIMIENTOS '''
+    listaBNF.append("INSTRUCCION ::= PROCEDIMIENTOS")
     t[0]=t[1]
 
 def p_instruccion20(t):
     'instruccion      : FUNCIONES'
+    listaBNF.append("INSTRUCCION ::= FUNCIONES")
     t[0]=t[1]
 def p_instruccion21(t):
     'instruccion      : CALLPROCEDURE ptcoma'
+    listaBNF.append("INSTRUCCION ::= CALLPROCEDURE ptcoma")
+    t[0]=t[1]
+
+def p_instruccion22(t):
+    'instruccion      : DROPFUNC ptcoma'
+    listaBNF.append("INSTRUCCION ::= DROPFUNC ptcoma")
     t[0]=t[1]
 
 # INICIAMOS A RECONOCER LA FASE 2 -----------------------------------------------------------------
@@ -466,25 +476,36 @@ def p_instruccion21(t):
 def p_RETURN(t):
     '''RETURN : return EXP
     '''
+    listaBNF.append("RETURN::= return EXP")
     t[0]=Return(t[2])
 
 
 def p_FUNCIONES(t):
     'FUNCIONES : create function id para LPARAM parc RETURNP LENGUAJE LCONTENIDOP'
+    listaBNF.append("FUNCIONES::= create function "+t[3]+' para LPARAM parc RETURNP LENGUAJE LCONTENIDOP')
     t[0]=Funcion(t[3],t[5],t[9],t[7])
 
 def p_FUNCIONES0(t):
     'FUNCIONES : create function id para parc RETURNP LENGUAJE LCONTENIDOP'
+    listaBNF.append("FUNCIONES::= create function "+t[3]+' para  parc RETURNP LENGUAJE LCONTENIDOP')
     t[0] = Funcion(t[3], None, t[8], t[6])
 
 def p_FUNCIONES1(t):
     'FUNCIONES : create function id para LPARAM parc RETURNP LCONTENIDOP LENGUAJE'
+    listaBNF.append("FUNCIONES::= create function " + t[2] + ' para LPARAM parc RETURNP  LCONTENIDOP LENGUAJE')
     t[0] = Funcion(t[3], t[5], t[8], t[7])
 
 def p_FUNCIONES2(t):
     'FUNCIONES : create function id para  parc RETURNP LCONTENIDOP LENGUAJE'
     listaBNF.append('FUNCIONES ::= create function '+t[3]+' para parc RETURNP LCONTENIDOP LENGUAJE')
     t[0] = Funcion(t[3], None, t[7], t[6])
+
+
+def p_DROPFUNC(t):
+    'DROPFUNC : drop function id'
+    listaBNF.append('DROPFUNC ::= drop function '+t[3])
+    t[0] = DropFunction(t[3])
+
 
 
 def p_RETURNP(t):
@@ -497,76 +518,90 @@ def p_RETURNP(t):
 def p_CALLPROCEDURE(t):
     '''CALLPROCEDURE : execute id para LEXP parc
     '''
+    listaBNF.append("CALLPROCEDURE ::= execute "+t[2]+ ' para LEXP parc')
     t[0] = Execute(t[2],t[4])
 
 def p_CALLPROCEDURE1(t):
     '''CALLPROCEDURE : execute id para  parc
     '''
+    listaBNF.append("CALLPROCEDURE ::= execute "+t[2]+ ' para parc')
     t[0]=Execute(t[2],None)
 
 def p_PROCEDIMIENTOS0(t):
     '''PROCEDIMIENTOS : create procedure id para LPARAM parc LENGUAJE  LCONTENIDOP
     '''
+    listaBNF.append("PROCEDIMIENTOS ::= create procedure "+t[3]+' para LPARAM  parc LENGUAJE LCONTENIDOP')
     t[0]=Procedure(t[3],t[5],t[8])
 
 def p_PROCEDIMIENTOS(t):
     '''PROCEDIMIENTOS : create procedure id para  parc LENGUAJE  LCONTENIDOP
     '''
+    listaBNF.append("PROCEDIMIENTOS ::= create procedure " + t[3] + ' para  parc LENGUAJE LCONTENIDOP')
     t[0] = Procedure(t[3], None, t[7])
 
 def p_PROCEDIMIENTOS1(t):
     '''PROCEDIMIENTOS : create procedure id para LPARAM parc LCONTENIDOP LENGUAJE
     '''
+    listaBNF.append("PROCEDIMIENTOS ::= create procedure " + t[3] + ' para LPARAM  parc LCONTENIDOP LENGUAJE ')
     t[0] = Procedure(t[3], t[5], t[7])
 
 def p_PROCEDIMIENTOS2(t):
     '''PROCEDIMIENTOS : create procedure id para parc LCONTENIDOP LENGUAJE
     '''
+    listaBNF.append("PROCEDIMIENTOS ::= create procedure " + t[3] + ' para  parc LCONTENIDOP LENGUAJE ')
     t[0] = Procedure(t[3], None, t[6])
 
 
 def p_LCONTENIDOP(t):
     '''LCONTENIDOP : LCONTENIDOP CONTENIDOP
     '''
+    listaBNF.append("LCONTENIDOP ::= LCONTENIDOP CONTENIDOP")
     t[1].append(t[2])
     t[0]=t[1]
 
 def p_LCONTENIDOP1(t):
     '''LCONTENIDOP : CONTENIDOP
     '''
+    listaBNF.append("LCONTENIDOP ::= CONTENIDOP")
     t[0] = t[1]
 
 
 def p_CONTENIDOP(t):
     '''CONTENIDOP : as dolarn LISTACONTENIDO dolarn
     '''
+    listaBNF.append("CONTENIDOP ::=  as dolarn LISTACONTENIDO dolarn")
     t[0]=t[3]
 
 def p_CONTENIDOP1(t):
     '''CONTENIDOP : do dolarn LISTACONTENIDO dolarn
     '''
+    listaBNF.append("CONTENIDOP ::= do dolarn LISTACONTENIDO dolarn")
     t[0]=t[3]
 
 
 
 def p_LPARA(t):
     'LPARAM : LPARAM coma inout id TIPO'
+    listaBNF.append("LPARAM ::= LPARAM coma inout "+t[4]+" TIPO")
     t[0]=t[1].append(Parametro(t[4],t[3],t[5]))
     t[0]=t[1]
 
 def p_LPARA2(t):
     'LPARAM : LPARAM coma  id TIPO'
+    listaBNF.append("LPARAM ::= LPARAM coma "+t[3]+' TIPO')
     t[0]=t[1].append(Parametro(t[3],None,t[4]))
     t[0]=t[1]
 
 def p_LPARA1(t):
     '''LPARAM :  inout id TIPO
     '''
+    listaBNF.append("LPARAM ::= inout " + t[3] + ' TIPO')
     t[0]=[Parametro(t[2],t[1],t[3])]
 
 def p_LPARA4(t):
     '''LPARAM :  id TIPO
     '''
+    listaBNF.append("PARAM ::= " + t[1] + ' TIPO')
     t[0]=[Parametro(t[1],None,t[2])]
 
 
@@ -587,6 +622,7 @@ def p_LENGUAJE2(t):
 def p_BEGINEND(t):
     '''BEGINEND :  begin LISTACONTENIDO end
     '''
+    listaBNF.append("BEGINEND ::= begin LISTACONTENIDO end")
     t[0]=Bloque(t[2])
 
 
@@ -658,6 +694,7 @@ def p_ORDEN3(t):
 
 def p_LDEC1(t):
     'LDEC :  LDEC DECLARACIONES'
+    listaBNF.append("LDEC ::= LDEC DECLARACIONES")
     l=[]
     l.append(t[1])
     l.append(t[2])
@@ -666,11 +703,13 @@ def p_LDEC1(t):
 
 def p_LDEC2(t):
     'LDEC : DECLARACIONES'
+    listaBNF.append("LDEC ::= DECLARACIONES")
     t[0]=t[1]
 
 def p_Declaraciones(t):
     ''' DECLARACIONES : id TIPO not null ASIG ptcoma
     '''
+    listaBNF.append("DECLARACIONES ::= "+t[1]+" TIPO not null ASIG ptcoma")
     if t[4] == None:
         print('Error se le intenta asignar un valor nulo a una variable not null')
         return
@@ -680,12 +719,14 @@ def p_Declaraciones(t):
 
 def p_Declaraciones1(t):
     ' DECLARACIONES : id TIPO ASIG ptcoma'
+    listaBNF.append("DECLARACIONES ::= " + t[1] + " TIPO  ASIG ptcoma")
     t[0] = Declaracion(t[1], False, t[2], t[3])
 
 
 def p_Declaraciones2(t):
     ''' DECLARACIONES : id constant TIPO not null ASIG ptcoma
     '''
+    listaBNF.append("DECLARACIONES ::= " + t[1] + " constant TIPO not null ASIG ptcoma")
     if t[4] == None:
         print('Error se le intenta asignar un valor nulo a una variable not null')
         return
@@ -696,6 +737,7 @@ def p_Declaraciones2(t):
 def p_Declaraciones3(t):
     ''' DECLARACIONES : id constant TIPO ASIG ptcoma
     '''
+    listaBNF.append("DECLARACIONES ::= " + t[1] + " constant TIPO ASIG ptcoma")
     t[0] = Declaracion(t[1], t[2], t[3], t[4])
 
 
@@ -704,11 +746,15 @@ def p_ASIG(t):
                  | dospuntos igual EXP
                  | igual EXP
                  | '''
+
     if len(t) == 1:
+        listaBNF.append("ASIG ::= ")
         t[0] = None
     elif len(t) == 4:
+        listaBNF.append("ASIG ::= dospuntos igual EXP")
         t[0] = t[3]
     else:
+        listaBNF.append("ASIG ::=  igual EXP")
         t[0] = t[2]
 
 
@@ -716,34 +762,40 @@ def p_ASIGNACION(t):
     '''ASIGNACION : id dospuntos igual EXP
                  | id igual EXP'''
     if len(t) == 4:
+        listaBNF.append("ASIGNACION ::=  "+t[1]+" dospuntos igual EXP")
         t[0] = Asignacion(t[1], t[3])
     else:
+        listaBNF.append("ASIGNACION ::=  "+t[1]+"  igual EXP")
         t[0] = Asignacion(t[1], t[4])
 
 
 def p_CONDICIONIF1(t):
     'CONDICIONIF : if EXP then LISTACONTENIDO ELSEF  end if'
+    listaBNF.append("CONDICIONIF ::= if EXP then LISTACONTENIDO ELSEF  end if")
     t[0] = Ifclass(t[2], t[4], None, t[5])
 
 
 def p_CONDICIONIF2(t):
     'CONDICIONIF : if EXP then LISTACONTENIDO LELIF   end if'
+    listaBNF.append("CONDICIONIF ::= if EXP then LISTACONTENIDO LELIF  end if")
     t[0] = Ifclass(t[2], t[4], t[5])
 
 
 def p_CONDICIONIF3(t):
     'CONDICIONIF : if EXP then LISTACONTENIDO end if'
+    listaBNF.append("CONDICIONIF ::= if EXP then LISTACONTENIDO  end if")
     t[0] = Ifclass(t[2], t[4])
 
 
 def p_CONDICIONIF4(t):
     'CONDICIONIF : if EXP then LISTACONTENIDO LELIF ELSEF end if'
-
+    listaBNF.append("CONDICIONIF ::= if EXP then LISTACONTENIDO LELIF ELSEF  end if")
     t[0] = Ifclass(t[2], t[4], t[5], t[6])
 
 
 def p_CONDICIONIF24(t):
     'LELIF : LELIF elsif EXP then LISTACONTENIDO'
+    listaBNF.append("LELIF ::= LELIF elsif EXP then LISTACONTENIDO")
     elsif = Ifclass(t[3], t[5], None, None)
     t[1].append(elsif)
     t[0] = t[1]
@@ -751,117 +803,146 @@ def p_CONDICIONIF24(t):
 
 def p_ELIF(t):
     'LELIF : elsif EXP then LISTACONTENIDO'
+    listaBNF.append("LELIF ::=  elsif EXP then LISTACONTENIDO")
     t[0] = [Ifclass(t[2], t[4])]
 
 
 def p_ELSEF(t):
     'ELSEF : else LISTACONTENIDO'
+    listaBNF.append("ELSEF ::=  else  LISTACONTENIDO")
     t[0] = t[2]
 
 
 def p_CASE(t):
     'CASE : case EXP  LISTAWHEN ELSEF  end case'
+    listaBNF.append("CASE ::= case EXP  LISTAWHEN ELSEF  end case")
     t[0] = Case(t[2], t[3],t[4])
 
 def p_CASE1(t):
     'CASE : case EXP  LISTAWHEN   end case'
+    listaBNF.append("CASE ::= case EXP  LISTAWHEN  end case")
     t[0]=Case(t[2],t[3])
 
 def p_CASE2(t):
     ''' CASE : case  LISTAWHEN ELSEF end case
     '''
-
+    listaBNF.append("CASE ::= case  LISTAWHEN ELSEF  end case")
+    t[0] = Case(None, t[2],t[3])
 
 def p_CASE3(t):
     ''' CASE :  case LISTAWHEN end case
     '''
-    #case()
+    listaBNF.append("CASE ::= case  LISTAWHEN  end case")
+    t[0]=Case(None,t[2])
 
 def p_LISTACONTENIDO(t):
     'LISTACONTENIDO : LISTACONTENIDO CONTENIDO'
+    listaBNF.append("LISTACONTENIDO ::= LISTACONTENIDO CONTENIDO")
     t[1].append(t[2])
     t[0] = t[1]
 
 
 def p_LISTACONTENIDO1(t):
     'LISTACONTENIDO : CONTENIDO'
+    listaBNF.append("LISTACONTENIDO ::=  CONTENIDO")
     t[0] = [t[1]]
 
 
 def p_CONTENIDO(t):
     '''CONTENIDO : ASIGNACION ptcoma
     '''
+    listaBNF.append("CONTENIDO ::= ASIGNCION ptcoma")
     t[0] = t[1]
 
 
 def p_CONTENIDO2(t):
     'CONTENIDO : CONDICIONIF ptcoma'
+    listaBNF.append("CONTENIDO ::= CONDICIONIF ptcoma")
     t[0] = t[1]
 
 
 def p_CONTENIDO3(t):
     'CONTENIDO : RAISE ptcoma'
+    listaBNF.append("CONTENIDO ::= RAISE ptcoma")
     t[0] = t[1]
 
 
 def p_CONTENIDO4(t):
     'CONTENIDO : BEGINEND ptcoma'
+    listaBNF.append("CONTENIDO ::= BEGINEND ptcoma")
     t[0] = t[1]
 
 
 def p_CONTENIDO5(t):
     'CONTENIDO : CALLPROCEDURE ptcoma '
+    listaBNF.append("CONTENIDO ::= CALLPROCEDURE ptcoma")
     t[0] = t[1]
 
 
 def p_CONTENIDO6(t):
     'CONTENIDO : declare LDEC  '
+    listaBNF.append("CONTENIDO ::= declare LDEC")
     t[0] = t[2]
 
 def p_CONTENIDO7(t):
     'CONTENIDO : RETURN ptcoma  '
+    listaBNF.append("CONTENIDO ::= RETURN ptcoma")
     t[0] = t[1]
 
 
 def p_CONTENIDO8(t):
     'CONTENIDO : INSERT ptcoma '
+    listaBNF.append("CONTENIDO ::= INSERT ptcoma")
     t[0] = t[1]
 
 def p_CONTENIDO9(t):
     'CONTENIDO : SELECT ptcoma '
+    listaBNF.append("CONTENIDO ::= SELECT ptcoma")
     t[0] = t[1]
 
 def p_CONTENIDO10(t):
     'CONTENIDO : UPDATE ptcoma '
+    listaBNF.append("CONTENIDO ::= UPDATE ptcoma")
     t[0] = t[1]
 
 def p_CONTENIDO11(t):
     'CONTENIDO : DELETE ptcoma '
+    listaBNF.append("CONTENIDO ::= DELETE ptcoma")
+    t[0] = t[1]
+
+def p_CONTENIDO12(t):
+    'CONTENIDO : CASE ptcoma '
+    listaBNF.append("CONTENIDO ::= CASE ptcoma")
     t[0] = t[1]
 
 
 def p_RAISE(t):
     'RAISE :  raise LEVEL FORMAT'
+    listaBNF.append("RAISE ::= raise LEVEL FORMAT")
     t[0] = Raise(t[2], t[3])
 
 
 def p_RAISE1(t):
     'RAISE :  raise LEVEL EXP'
+    listaBNF.append("RAISE ::= raise LEVEL EXP")
     t[0] = Raise(t[2], t[3])
 
 
 def p_RAISE2(t):
     'RAISE : raise LEVEL '
+    listaBNF.append("RAISE ::= raise LEVEL")
     t[0] = Raise(t[2], None)
 
 
 def p_RAISE3(t):
     'RAISE : raise'
+    listaBNF.append("RAISE ::= raise ")
     t[0] = Raise(None, None)
 
 
 def p_RAISE4(t):
     'RAISE : raise LEVEL cadena coma id'
+    listaBNF.append("RAISE ::= raise LEVEL "+t[3]+" coma "+t[5])
 
 
 def p_LEVEL(t):
@@ -870,6 +951,7 @@ def p_LEVEL(t):
         | notice
         | warning
         | exception'''
+    listaBNF.append("LEVEL ::= "+t[1])
     t[0] = t[1]
 
 
@@ -881,16 +963,19 @@ def p_FORMAT(t):
 def p_LISTAWHEN(t):
     ''' LISTAWHEN : LISTAWHEN WHEN
     '''
+    listaBNF.append("LISTAWHEN ::= LISTAWHEN WHEN")
     t[1].append(t[2])
     t[0]=t[1]
 
 def p_LISTAWHEN1(t):
     ''' LISTAWHEN :  WHEN
     '''
+    listaBNF.append("LISTAWHEN ::=  WHEN")
     t[0]=[t[1]]
 
 def p_WHEN(t):
     ''' WHEN : when EXP then LISTACONTENIDO'''
+    listaBNF.append("WHEN ::= when EXP then LISTACONTENIDO")
     t[0]=when(t[2],t[4])
 
 #def p_WHEN1(t):
