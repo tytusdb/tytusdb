@@ -1,4 +1,4 @@
-# Manual de Usuario Proyecto, Fase 2 : *TytusDB*
+# Manual de Usuario Proyecto 1 : *TytusDB*
 <p align="center">
   <img src="img/tytus.png" width="100" alt="Presentación">
 </p>
@@ -7,10 +7,10 @@
         Facultad de ingeniería
         Escuela de Ciencias y Sistemas 
         781 Organización de lenguajes y compiladores 2
-        Manual de usuario proyecto, Fase 2
+        Manual de usuario proyecto 1
 
                                                    Perteneciente a: Grupo 11
-                                                
+                                                 
                                                    
 
 ***
@@ -108,12 +108,6 @@ El programa se ha desarrollado en el IDE Visual Studio Code:
   <img src="img/manualimg/errores.png" width="700" alt="Presentación">
 </p>
 
-#### Paso 6: *En la pestaña de Codigo 3d podras visualizar el código que fue creado a partir de las sentencias SQL.*
-<p align="center">
-  <img src="img/manualimg/C3D.png" width="700" alt="Presentación">
-</p>
-
-
 #### *Podrás abrir, guardar y guardar como las instrucciones SQL que ejecutaras en el programa TytusDB*
 <p align="center">
   <img src="img/manualimg/a.png" width="700" alt="Presentación">
@@ -127,9 +121,4 @@ El programa se ha desarrollado en el IDE Visual Studio Code:
 #### *El reporte AST se generará a través del botón asignado, por medio graphviz*
 <p align="center">
   <img src="img/manualimg/ast.png" width="700" alt="Presentación">
-</p>
-
-#### *El reporte Tabla de simbolos completo podrá ser visualizado en un html*
-<p align="center">
-  <img src="img/manualimg/ts.png" width="700" alt="Presentación">
 </p>
