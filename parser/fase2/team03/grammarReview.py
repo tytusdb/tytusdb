@@ -452,7 +452,8 @@ def p_statement(t):
                     | stm_index PUNTOCOMA
                     | stm_drop_index PUNTOCOMA
                     | stm_alter_index PUNTOCOMA
-                    | stm_create_procedure PUNTOCOMA 
+                    | stm_create_procedure PUNTOCOMA
+                    | stm_drop_procedure PUNTOCOMA 
                     '''
 
     #                    |    stm_select PUNTOCOMA
@@ -1479,7 +1480,7 @@ def p_expression_opt(t):
     else:
         t[0] = None
 
-def p_stm_drop_function_0(t):
+def p_stm_drop_function(t):
     '''stm_drop_function    : DROP FUNCTION if_exists_opt ID PARA list_param_function_opt PARC mode_drop_function_opt
                             | DROP FUNCTION if_exists_opt name_list '''
     if len(t) == 9:
@@ -1497,6 +1498,24 @@ def p_stm_drop_function_0(t):
         addCad("**\<STM_DROP_FUNCTION** ::= tDrop tFunction [\<IF_EXISTS_OPT>] \<NAME_LIST> ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####
+
+def p_stm_drop_procedure(t):
+    '''stm_drop_procedure   : DROP PROCEDURE if_exists_opt ID PARA list_param_function_opt PARC mode_drop_function_opt
+                            | DROP PROCEDURE if_exists_opt name_list '''
+    if len(t) == 9:
+        childsProduction  = addNotNoneChild(t,[3, 6, 8])
+        graph_ref = graph_node(str("stm_drop_procedure"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]],  childsProduction )
+        addCad("**\<STM_DROP_PROCEDURE** ::= tDrop tProcedure [\<IF_EXISTS_OPT>] tIdentifier '(' \<NAME_LIST> ')'")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+    elif len(t) == 5:
+        lista = None
+        childsProduction  = addNotNoneChild(t,[3])
+        if t[4] != None:
+             lista = t[4][0]
+             childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("stm_drop_procedure"), [t[1], t[2], t[3], lista] ,childsProduction )
+        addCad("**\<STM_DROP_PROCEDURE** ::= tDrop tProcedure [\<IF_EXISTS_OPT>] \<NAME_LIST> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
         
 def p_name_list(t):
     '''name_list    : name_list COMA ID
