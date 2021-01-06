@@ -52,7 +52,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'TRUNC','RADIANS','RANDOM','WIDTH_BUCKET'
               ,'BEGIN','DECLARE','PROCEDURE','LANGUAJE','PLPGSSQL','CALL','INDEX','HASH','INCLUDE','COLLATE', 'CONSTANT', 'ALIAS', 'FOR', 'RETURN', 'NEXT', 'ELSIF',
               'ROWTYPE', 'RECORD', 'QUERY', 'STRICT', 'VAR', 'EXECUTE',
-              'FUNCTION','LANGUAGE','RETURNS','ANYELEMENT','ANYCOMPATIBLE','VOID', 'OUT'
+              'FUNCTION','LANGUAGE','RETURNS','ANYELEMENT','ANYCOMPATIBLE','VOID', 'OUT', 'PERFORM'
               ]
 
 tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -63,7 +63,6 @@ tokens = reservadas + ['FECHA_HORA','FECHA','HORA','PUNTO','PUNTO_COMA','CADENAS
                        'F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT','DOSPUNTOS','DOLAR',
                        'DOLAR_LABEL'
                        ]
-
 # ======================================================================
 #                      EXPRESIONES REGULARES TOKEN
 # ======================================================================
@@ -273,6 +272,7 @@ def p_instrucciones_evaluar(t):
                    | ins_update
                    | ins_delete
                    | exp
+                   | execute
                    | ins_create_pl
                    | create_index'''
    # if isinstance(t[1],Ins_If):
@@ -708,13 +708,17 @@ def p_list_id(t):
 
 def p_list_vls(t):
     '''list_vls : list_vls COMA exp
-                | exp '''
+                | exp 
+                | '''
     if len(t) == 4:
         t[0] = GenerarC3D()
         t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
-    else:
+    if len(t) == 2:
         t[0] = GenerarC3D()
         t[0].code += t[1].code
+    else: 
+        t[0] = GenerarC3D()
+        t[0].code += ''
 
 def p_val_value(t):
     '''val_value : CADENA
@@ -1446,7 +1450,7 @@ def p_ins_delete(t):
 
 def p_ins_create_pl(t):
     '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameteropt PARCIERRE returns AS block LANGUAGE ID PUNTO_COMA
-                     | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE AS  block LANGUAGE ID PUNTO_COMA
+                     | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE LANGUAGE ID AS  block 
                      '''
     t[0] = GenerarC3D()
     if len(t) == 14:
@@ -1577,10 +1581,15 @@ def p_body(t):
         t3 = t[3]
     t[0] = t1 + t3
 
+#TODO: Revisar declare_statement
+#def p_declare(t):
+#    '''declare_statement : DECLARE statements
+#                         | 
+#    '''
 def p_declare(t):
-    '''declare_statement : DECLARE statements
-                         | 
-    '''
+    '''declare_statement : declare_statement DECLARE statements
+                        | DECLARE statements
+                        | '''
     if len(t) == 3:
         t[0] = t[2][:-1]
     else:
@@ -1781,7 +1790,11 @@ def p_cases_ins_null(t):
     '''cases : '''
 
 def p_instruccion_case_only(t):
-    '''instruccion_case_only : WHEN exp_plsql then'''
+    '''instruccion_case_only : WHEN multiple then'''
+
+def p_multiple(t):
+    '''multiple : exp_plsql COMA exp_plsql
+                    | exp_plsql'''
 
 def p_lista_exp(t):
     ''' lista_exp : lista_exp COMA exp_plsql'''
@@ -1825,7 +1838,8 @@ def p_f_query(t):
     t[0] = ''
 
 def p_f_return(t):
-    ''' f_return : RETURNING exp_plsql into '''
+    ''' f_return : RETURNING exp_plsql into 
+            |'''
     t[0] = ''
 
 def p_into(t):
@@ -1837,15 +1851,15 @@ def p_into_strict(t):
     t[0] = ''
 
 def p_execute(t):
-    '''execute : EXECUTE CADENA into USING exp_list'''
+    '''execute : EXECUTE CADENA into USING exp_list PUNTO_COMA'''
     t[0] = ''
 
 def p_execute_use(t):
-    '''execute : EXECUTE CADENASIMPLE into USING exp_list'''
+    '''execute : EXECUTE CADENASIMPLE into USING exp_list PUNTO_COMA'''
     t[0] = ''
 
 def p_execute_exp(t):
-    '''execute : EXECUTE exp_plsql'''
+    '''execute : EXECUTE exp_plsql PUNTO_COMA'''
     t[0] = ''
 
 def p_null(t):
