@@ -48,7 +48,17 @@ reservadas = {
     'or' : 'OR',
     'replace' : 'REPLACE',
     'raise' : 'RAISE',
-    'select' : 'SELECT'
+    'select' : 'SELECT',
+    'database': 'DATABASE',
+    'not' : 'NOT',
+    'exists' : 'EXISTS',
+    'owner': 'OWNER',
+    'mode' : 'MODE',
+    'show': 'SHOW',
+    'tables':'TABLES',
+    'use' : 'USE',
+    'drop': 'DROP',
+    'databases': 'DATABASES',
 }
 
 # Declaracion tokens
@@ -58,7 +68,7 @@ tokens = [
     'CADENA',
     'ID',
     'DOSPUNTOS',
-    'PUNTOYCOMA',
+    'PTCOMA',
     'PARA',
     'PARC',
     'LLAVEA',
@@ -83,7 +93,7 @@ tokens = [
     'MAYORIGUAL',
     'MENORIGUAL',
     'NOTIGUAL',
-    'NOT',
+    'NOTT',
     'MAYOR',
     'MENOR',
     'IGUAL',
@@ -93,7 +103,7 @@ tokens = [
 # Tokens ER
 t_DOSPUNTOS = r':'
 t_COMA = r','
-t_PUNTOYCOMA = r';'
+t_PTCOMA = r';'
 t_PARA = r'\('
 t_PARC = r'\)'
 t_LLAVEA = r'{'
@@ -118,7 +128,7 @@ t_IGUAL = r'='
 t_MAYORIGUAL = r'>='
 t_MENORIGUAL = r'<='
 t_NOTIGUAL = r'!='
-t_NOT = r'!'
+t_NOTT = r'!'
 t_MAYOR = r'>'
 t_MENOR = r'<'
 t_DOLAR = r'\$'
@@ -201,7 +211,7 @@ precedence = (
     ('left', 'SHIFTD', 'SHIFTI'),
     ('left', 'MAS', 'MENOS'),
     ('left', 'POR', 'DIV', 'MOD'),
-    ('right', 'NOT', 'NOTB', 'UMENOS'),
+    ('right', 'NOTT', 'NOTB', 'UMENOS'),
     ('left', 'PARA', 'PARC')
     )
 
@@ -232,7 +242,12 @@ def p_instrucciones_globales_list_sent(t):
 
 def p_instrucciones_global_sent(t):
     '''instrucciones_global_sent    : funcion
-                                    | llamada_funcion'''
+                                    | llamada_funcion
+                                    | createDB_insrt
+                                    | show_databases_instr
+                                    | show_tables_instr
+                                    | use_database_instr
+                                    | drop_database_instr'''
     t[0] = t[1]
 
 def p_instrucciones_global_sent_error(t):
@@ -253,7 +268,7 @@ def p_instrucciones_funct_sent(t):
                                     | imprimir
                                     | sentencia_if
                                     | sentencia_switch
-                                    | PUNTOYCOMA
+                                    | PTCOMA
                                     | llamada_funcion
                                     | empty'''
     t[0] = t[1]
@@ -261,12 +276,158 @@ def p_instrucciones_funct_sent(t):
 def p_instrucciones_funct_sent_error(t):
     'instrucciones_funct_sent    : error'
 
+#CREATE TABLE 
+def p_createDB(t):
+    'createDB_insrt : CREATE DATABASE ID PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ';')
+
+def p_createDB_wRP(t):
+    'createDB_insrt : CREATE OR REPLACE DATABASE ID PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ';')
+
+def p_createDB_wIfNot(t):
+    'createDB_insrt : CREATE DATABASE IF NOT EXISTS ID PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ';')
+
+def p_createDB_wRP_wIN(t):
+    'createDB_insrt : CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8]+ ';')
+
+#?######################################################
+# ANCHOR        UN PARAMETRO
+#?######################################################
+
+def p_createDB_up(t):
+    'createDB_insrt : CREATE DATABASE ID createDB_unParam PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ';')
+
+def p_createDB_wRP_up(t):
+    'createDB_insrt : CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ';')
+
+def p_createDB_wIfNot_up(t):
+    'createDB_insrt : CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ';')
+
+def p_createDB_wRP_wIN_up(t):
+    'createDB_insrt : CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8]+ ' ' + t[9]+ ';')
+
+#?######################################################
+# ANCHOR          DOS PARAMETROS
+#?######################################################
+
+def p_createDB_dp(t):
+    'createDB_insrt : CREATE DATABASE ID createDB_dosParam PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ';')
+
+
+def p_createDB_wRP_dp(t):
+    'createDB_insrt : CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ';')
+
+def p_createDB_wIfNot_dp(t):
+    'createDB_insrt : CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ';')
+
+def p_createDB_wRP_wIN_dp(t):
+    'createDB_insrt : CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA'
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8]+ ' ' + t[9]+ ';')
+
+
+
+def p_createDB_dosParam_Owner(t):
+    '''createDB_dosParam : OWNER string_type MODE ENTERO
+                         | MODE ENTERO OWNER string_type'''
+    cadena = str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' '+ str(t[4]) + ' '
+    t[0] = cadena
+
+def p_createDB_dosParam_Owner2(t):
+    '''createDB_dosParam : OWNER string_type MODE IGUAL ENTERO
+                         | OWNER IGUAL string_type MODE ENTERO
+                         | MODE ENTERO OWNER IGUAL string_type
+                         | MODE IGUAL ENTERO OWNER ID'''
+    cadena = str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '
+    t[0] = cadena
+
+def p_createDB_dosParam_Owner3(t):
+    '''createDB_dosParam : OWNER IGUAL string_type MODE IGUAL ENTERO
+                         | MODE IGUAL ENTERO OWNER IGUAL ID'''
+    cadena = str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '
+    t[0] = cadena
+
+def p_createDB_unParam_Owner(t):
+    '''createDB_unParam : OWNER IGUAL string_type
+                        | MODE IGUAL ENTERO'''
+    cadena = t[1] + ' ' + t[2] + ' ' + str(t[3]) + ' '
+    t[0] = cadena
+
+def p_createDB_unParam_MODE(t):
+    '''createDB_unParam : OWNER string_type
+                        | MODE ENTERO'''
+    cadena = t[1] + ' ' + str(t[2]) + ' '
+    t[0] = cadena
+
+
+#?######################################################
+# TODO        GRAMATICA DROP DATABASE
+#?######################################################
+
+
+def p_instruccion_drop_database(t):
+    '''drop_database_instr : DROP DATABASE IF EXISTS ID PTCOMA'''
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + t[5]+ ';')
+
+def p_instruccion_drop_database1(t):
+    '''drop_database_instr : DROP DATABASE ID PTCOMA'''
+    t[0] = CreateDatabase(t[1] + ' ' + t[2] + ' ' + t[3]+ ';')
+
+
+
+#?######################################################
+# TODO        GRAMATICA SHOW DATABASE
+#?######################################################
+
+def p_instruccion_show_databases(t):
+    'show_databases_instr : SHOW DATABASES PTCOMA'
+    t[0] = ShowDatabases(t[1] + ' ' + t[2] +';')
+
+#?######################################################
+# ANCHOR        GRAMATICA SHOW TABLES
+#?######################################################
+
+
+def p_instruccion_showTables(t):
+    'show_tables_instr : SHOW TABLES PTCOMA'
+    t[0] = ShowTables(t[1] + ' ' + t[2] +';')
+
+#?######################################################
+# TODO        GRAMATICA USE DATABASE
+#?######################################################
+
+
+def p_instruccion_use_database(t):
+    'use_database_instr : USE ID PTCOMA'
+    t[0] = UseDatabase(t[1] + ' ' + t[2] +';')
+
+def p_string_type(t):
+    ''' string_type : CADENA '''
+    cadena = '\\\''+t[1]+'\\\''
+    t[0] = cadena
+
+def p_string_type2(t):
+    ' string_type : ID'
+    t[0] = t[1]
+
+
+
+
 def p_funcion(t):
-    'funcion    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    'funcion    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_funcion2(t):
-    'funcion    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    'funcion    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
     for instru1 in t[13]:
         instrucs.append(instru1)
@@ -275,11 +436,11 @@ def p_funcion2(t):
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
 def p_funcion_r(t):
-    'funcion    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    'funcion    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_funcion2_r(t):
-    'funcion    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    'funcion    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
     for instru1 in t[15]:
         instrucs.append(instru1)
@@ -289,11 +450,11 @@ def p_funcion2_r(t):
 
 #PROCEDURE
 def p_procedure(t):
-    'funcion    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    'funcion    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_procedure2(t):
-    'funcion    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    'funcion    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
     for instru1 in t[13]:
         instrucs.append(instru1)
@@ -302,11 +463,11 @@ def p_procedure2(t):
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
 def p_procedure_r(t):
-    'funcion    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    'funcion    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_procedure2_r(t):
-    'funcion    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    'funcion    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
     for instru1 in t[15]:
         instrucs.append(instru1)
@@ -316,11 +477,11 @@ def p_procedure2_r(t):
     
 
 def p_llamada_funcion(t):
-    'llamada_funcion    : SELECT ID PARA params PARC PUNTOYCOMA'
+    'llamada_funcion    : SELECT ID PARA params PARC PTCOMA'
     t[0] = LlamadaFuncion(t[2], t[4])
 
 def p_llamada_funcion1(t):
-    'llamada_funcion    : CALL ID PARA params PARC PUNTOYCOMA'
+    'llamada_funcion    : CALL ID PARA params PARC PTCOMA'
     t[0] = LlamadaFuncion(t[2], t[4])
 
 def p_params_list(t):
@@ -352,7 +513,7 @@ def p_parametro2(t):
     t[0] = None
 
 def p_sentencia_switch(t):
-    'sentencia_switch   : CASE expresion case_list END CASE PUNTOYCOMA'
+    'sentencia_switch   : CASE expresion case_list END CASE PTCOMA'
     t[0] = SentenciaCase(t[2], t[3])
 
 def p_case_list_list(t):
@@ -373,7 +534,7 @@ def  p_case_default(t):
     t[0] = Caso(None, Principal(t[2]))
 
 def p_sentencia_if(t):
-    'sentencia_if   : IF expresion THEN instrucciones_funct_list else END IF PUNTOYCOMA'
+    'sentencia_if   : IF expresion THEN instrucciones_funct_list else END IF PTCOMA'
     t[0] = SentenciaIf(t[2], Principal(t[4]), t[5])
 
 def p_sentencia_if_else1(t):
@@ -389,7 +550,7 @@ def p_sentencia_if_else3(t):
     t[0] = None
 
 def p_imprimir(t):
-    'imprimir   : RAISE lista_imprimir PUNTOYCOMA'
+    'imprimir   : RAISE lista_imprimir PTCOMA'
     t[0] = Impresion(t[2])
 
 def p_imprimir_lista(t):
@@ -406,19 +567,19 @@ def p_imprimir_sent(t):
     t[0] = t[1]
 
 def p_asignacion(t):
-    'asignacion    : ID DOSPUNTOS IGUAL expresion PUNTOYCOMA'
+    'asignacion    : ID DOSPUNTOS IGUAL expresion PTCOMA'
     t[0] = Asignacion(t[1], t[4])
 
 def p_definicion(t):
-    'declaracion    :  ID tipo DOSPUNTOS IGUAL expresion PUNTOYCOMA'
+    'declaracion    :  ID tipo DOSPUNTOS IGUAL expresion PTCOMA'
     t[0] = ListaDeclaraciones(t[2], [Declaracion(t[1], t[5])])
 
 def p_definicion_2(t):
-    'declaracion    :  ID tipo PUNTOYCOMA'
+    'declaracion    :  ID tipo PTCOMA'
     t[0] = ListaDeclaraciones(t[2], [Declaracion(t[1], None)])
 
 def p_definicion_3(t):
-    'declaracion    :  ID tipo DEFAULT expresion PUNTOYCOMA'
+    'declaracion    :  ID tipo DEFAULT expresion PTCOMA'
     t[0] = ListaDeclaraciones(t[2], [Declaracion(t[1], t[4])])
 
 def p_tipo_dato(t):
@@ -571,7 +732,7 @@ def p_arit_numero(t):
                 | FLOTANTE
                 | MENOS expresion %prec UMENOS
                 | NOTB expresion
-                | NOT expresion'''
+                | NOTT expresion'''
     if t[1] == '-' :
         t[0] = ExpresionNegativo(t[2])
     elif t[1] == '~' :
