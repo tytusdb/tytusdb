@@ -599,7 +599,7 @@ class Application(ttk.Frame):
 
        concatena = ""
        self.T.delete(1.0,tk.END)
-       encabezado = "# -*- coding: latin1 -*-\nimport  math\nimport random\nimport hashlib\nimport base64\nimport time\nfrom goto import with_goto\nfrom Compi2RepoAux.team21.Analisis_Ascendente.ascendente import T,T3,procesar_instrucciones\nstack =[]\n@with_goto  # Decorador necesario.\ndef main():\n"
+       encabezado = "# -*- coding: latin1 -*-\nimport  math\nimport random\nimport hashlib\nimport base64\nimport time\nfrom goto import with_goto\nfrom  tytus.parser.fase2.team21.Analisis_Ascendente.ascendente import T,T3,procesar_instrucciones\nstack =[]\n@with_goto  # Decorador necesario.\ndef main():\n"
        #self.T.insert(tk.END, encabezado)
        concatena += encabezado
        salida = parser.ejecutarTraduccion(texto)
