@@ -1,8 +1,8 @@
-from Interprete.NodoAST import NodoArbol
-from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
-from Interprete.Arbol import Arbol
-from Interprete.Valor.Valor import Valor
-from Interprete.Primitivos.TIPO import TIPO
+from InterpreteF2.NodoAST import NodoArbol
+from InterpreteF2.Tabla_de_simbolos import Tabla_de_simbolos
+from InterpreteF2.Arbol import Arbol
+from InterpreteF2.Valor.Valor import Valor
+from InterpreteF2.Primitivos.TIPO import TIPO
 
 class BOOLEANO(NodoArbol):
 
@@ -15,7 +15,10 @@ class BOOLEANO(NodoArbol):
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         temp = arbol.getTemp()
-        arbol.addC3D(temp + " = " + str(self.data))
+        if self.data.lower() == "true":
+            arbol.addC3D(temp + " = " + "True")
+        elif self.data.lower() == "false":
+            arbol.addC3D(temp + " = " + "False")
         return temp
 
     def execute(self, entorno:Tabla_de_simbolos, arbol:Arbol):
