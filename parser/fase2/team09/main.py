@@ -8,7 +8,6 @@ from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import messagebox
 import os
-#from sintactico import ejecutar_analisis
 import reportes.RealizarReportes
 import reportes.reportesimbolos as rs
 import reportes.RealizarGramatica
@@ -21,8 +20,6 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from storageManager.jsonMode import *
 
 import sintactico
-
-import gramatica as op
 
 global arbol
 arbol = None
@@ -232,7 +229,7 @@ class interfaz():
         print('Se optimizará el código')
         input=self.txtentrada[self.tab.index("current")].get(1.0,END)
         
-        inst = op.ejecutar_analisis(input)
+        inst = sintactico.optimizar(input)
 
     def btnejecutar_click(self):
         print("se va ejecutar el archivo")

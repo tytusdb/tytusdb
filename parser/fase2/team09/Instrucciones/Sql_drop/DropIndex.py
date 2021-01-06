@@ -1,5 +1,5 @@
+from Instrucciones.Excepcion import Excepcion
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
-from Instrucciones.Excepcion import *
 
 class DropIndex(Instruccion):
     def __init__(self, existe, nombre, strGram, linea, columna):

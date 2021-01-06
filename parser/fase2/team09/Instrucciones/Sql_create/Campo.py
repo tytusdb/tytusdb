@@ -9,28 +9,29 @@ class Campo(Instruccion):
         self.null = null
         self.existe = False
         self.dupli = False
+        self.restricciones = ";"
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla, arbol)
-        restricciones = ""
+        self.restricciones = ""
         if self.lower:
-            restricciones = ".lower()"
+            self.restricciones = ".lower()"
         else:
             self.lower = None
         self.orden = self.orden.ejecutar(tabla, arbol)
         if self.orden is not None:
             if self.lower is not None:
-                restricciones = restricciones + ", "
+                self.restricciones = self.restricciones + ", "
             else:
-                restricciones = restricciones + " "
-            restricciones = restricciones + self.orden
+                self.restricciones = self.restricciones + " "
+            self.restricciones = self.restricciones + self.orden
         self.null = self.null.ejecutar(tabla, arbol)
         if self.null is not None:
             if self.orden is not None:
-                restricciones = restricciones + " "
+                self.restricciones = self.restricciones + " "
             elif self.lower is not None:
-                restricciones = restricciones + ", "
+                self.restricciones = self.restricciones + ", "
             else:
-                restricciones = restricciones + " "
-            restricciones = restricciones + self.null
-        return restricciones + "; "
+                self.restricciones = self.restricciones + " "
+            self.restricciones = self.restricciones + self.null
+        self.restricciones = self.restricciones + "; "

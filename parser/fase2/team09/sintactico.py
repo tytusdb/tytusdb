@@ -5,7 +5,6 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from tkinter.constants import HORIZONTAL
 from ply import *
 from lexico import *
-#tokens= lexico.tokens
 from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 from Instrucciones.FunctionAgregate import Avg, Count, Greatest, Least, Max, Min, Sum, Top
 from Instrucciones.FunctionMathematical import Abs, Cbrt, Ceil, Ceiling, Degrees, Div, Exp, Factorial, Floor, Gcd, Lcm, Ln, Log, Log10, MinScale, Mod, PI, Power, Radians, Random, Round, Scale, SetSeed, Sign, Sqrt, TrimScale, Trunc, WidthBucket
@@ -13,7 +12,6 @@ from Instrucciones.FunctionTrigonometric import Acos, Acosd, Acosh, Asin, Asind,
 from Instrucciones.FunctionBinaryString import Convert, Decode, Encode, GetByte, Length, Md5, SetByte, Sha256, Substr, Substring, Trim
 from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional, Between
 from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
-
 from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck
 from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set
 from Instrucciones.Sql_declare import Declare
@@ -26,19 +24,18 @@ from Instrucciones.Sql_truncate import Truncate
 from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
-
 from Instrucciones.Sql_create import CreateIndex, Campo
 from Instrucciones.Undefined import Undefined
 from Instrucciones.Sql_drop import DropIndex
-
-# IMPORTAMOS EL STORAGE
+from Instrucciones.Sql_alter import AlterIndex
 from storageManager import jsonMode as storage
 from Instrucciones.Sql_create.Tipo_Constraint import *
+# para C3D
+import op_aritmeticas as op
 
 lista_lexicos=lista_errores_lexico
 
 # INICIA EN ANALISIS SINTACTICO
-
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -60,10 +57,10 @@ precedence = (
     ('right', 'UMENOS')
 )
 
-# Definición de la gramática
+# Definición de la gramática sql
 
 def p_init(t):
-    'init : instrucciones'
+    'init : instrucciones' # gramática SQL
     t[0] = t[1]
 
 def p_instrucciones_lista1(t):
@@ -182,16 +179,45 @@ def p_op_where2(t):
     
 # DROP INDEX
 def p_instruccion_drop_index1(t):
-    '''instruccion : DROP INDEX ID PUNTO_COMA
+    '''instruccion : DROP INDEX op_exists ID PUNTO_COMA
     '''
-    strGram = "<instruccion> ::= DROP INDEX ID PUNTO_COMA"
-    t[0] = DropIndex.DropIndex(True, t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::= DROP INDEX <op_exists> ID PUNTO_COMA"
+    t[0] = DropIndex.DropIndex(t[3], t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_instruccion_drop_index2(t):
-    '''instruccion : DROP INDEX IF EXISTS ID PUNTO_COMA
+def p_op_exists1(t):
+    '''op_exists : IF EXISTS
     '''
-    strGram = "<instruccion> ::= DROP INDEX IF EXISTS ID PUNTO_COMA"
-    t[0] = DropIndex.DropIndex(False, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = False
+
+def p_op_exists(t):
+    '''op_exists : 
+    '''
+    t[0] = True
+
+# ALTER INDEX
+def p_instruccion_alter_index1(t):
+    '''instruccion : ALTER INDEX op_exists ID op_alter ID ID PUNTO_COMA
+    '''
+    strGram = "<instruccion> : ALTER INDEX <op_exists> ID <op_alter> ID ID PUNTO_COMA"
+    t[0] = AlterIndex.AlterIndex(t[3], t[4], t[6], t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
+    
+def p_instruccion_alter_index2(t):
+    '''instruccion : ALTER INDEX op_exists ID op_alter ID ENTERO PUNTO_COMA
+    '''
+    strGram = "<instruccion> : ALTER INDEX <op_exists> ID <op_alter> ID ENTERO PUNTO_COMA"
+    t[0] = AlterIndex.AlterIndex(t[3], t[4], t[6], t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_alter1(t):
+    '''op_alter : ALTER COLUMN
+    '''
+
+def p_op_alter2(t):
+    '''op_alter : ALTER 
+    '''
+
+def p_op_alter3(t):
+    '''op_alter : 
+    '''
 
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
@@ -302,7 +328,6 @@ def p_instruccion_create_enumerated_type(t):
     strGram = "<instruccion> ::= CREATE TYPE ID AS ENUM PARIZQ <l_expresiones> PARDER PUNTO_COMA"
     t[0] =CreateType.CreateType(t[3],None,t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-
 def p_instruccion_truncate(t):
     '''instruccion : TRUNCATE TABLE ID PUNTO_COMA
     '''
@@ -339,14 +364,12 @@ def p_instruccion_drop2(t):
     strGram = "<instruccion> ::= DROP ID"
     t[0] =DropTable.DropTable(t[2],None, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-
 def p_instruccion_where(t):
     '''
         instructionWhere :  WHERE expre
     '''
     strGram = "<instructionWhere> ::=  WHERE <expre>"
     t[0] = Where.Where(t[2],None, strGram, t.lexer.lineno, t.lexer.lexpos)
-
 
 # update tabla set campo = valor , campo 2= valor where condicion
 
@@ -400,7 +423,6 @@ def p_funciones3(t):
     strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER AS <expresion> BEGIN <instrucciones> END PUNTO_COMA"
     t[0] = CreateFunction.CreateFunction(t[3],None, t[5], t[8], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-
 def p_declaracion(t):
     '''
      instruccion : DECLARE expresion AS expresion PUNTO_COMA
@@ -422,14 +444,12 @@ def p_set(t):
     strGram = "<instruccion> ::= SET <expresion> IGUAL <expre> PUNTO_COMA"
     t[0] =Set.Set(t[2], None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-
 # ALTER DATABASE name RENAME TO new_name
 def p_instruccion_alter_database1(t):
     '''instruccion : ALTER DATABASE ID RENAME TO ID PUNTO_COMA
     '''
     strGram = "<instruccion> ::= ALTER DATABASE ID RENAME TO ID PUNTO_COMA"
     t[0] = AlterDatabase.AlterDatabase(t[3], None, t[4], t[6], strGram ,t.lexer.lineno, t.lexer.lexpos)
-
 
 # ALTER DATABASE name OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
 def p_instruccion_alter_database2(t):
@@ -439,7 +459,6 @@ def p_instruccion_alter_database2(t):
     strGram = strGram + "<list_owner> ::= ID| CURRENT_USER| SESSION_USER" 
     
     t[0] = AlterDBOwner.AlterDBOwner(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
-
 
 # { new_owner | CURRENT_USER | SESSION_USER }
 def p_list_owner(t):
@@ -511,7 +530,6 @@ def p_instruccion_alter4(t):
     '''
     strGram = "<instruccion> ::= ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ <lista_id> PARDER PUNTO_COMA"
     t[0] = AlterTableAddConstraint.AlterTableAddConstraint(t[3], t[6], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
-
 
 def p_instruccion_altercfk(t):
     '''instruccion : ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER PUNTO_COMA
@@ -599,7 +617,6 @@ def p_lista_querys2(t):
     '''
     t[0] = t[1]
 
-
 def p_tipo_relaciones(t):
     '''relaciones : UNION
                 | INTERSECT
@@ -671,7 +688,6 @@ def p_instruccion_select3(t):
     val.append(Select.Select(t[2], t[3], t[5], t[6], None, None, strGram,t.lexer.lineno, t.lexer.lexpos))
     t[0] = SelectLista.SelectLista(val, strGram2 , t.lexer.lineno, t.lexer.lexpos)
 
-
 def p_instruccion_select4(t):
     '''
     query : SELECT dist lcol FROM lcol linners instructionWhere lrows
@@ -702,7 +718,6 @@ def p_instruccion_select6(t):
     strGram = "<query> ::= SELECT <dist> <lcol>"
     t[0] = SelectLista.SelectLista(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-
 def p_instruccion_select7(t):
     '''
     query   : SELECT dist lcol FROM lcol lrows
@@ -723,7 +738,6 @@ def p_lista_case2(t):
     '''lcase : case
     '''
     t[0] = t[1]
-
 
 def p_instruccion_case(t):
     '''
@@ -796,7 +810,6 @@ def p_instruccion_row2(t):
     strGram = "<rows> ::= LIMIT ENTERO OFFSET ENTERO"
     t[0] = Limit.Limit(t[2], t[4], strGram, t.lexer.lineno, t.lexer.lexpos) 
 
-
 def p_linner_join(t):
     '''linners : linners inners
     '''
@@ -827,7 +840,6 @@ def p_operadores_logicos(t):
         strGram = "<expre> ::= <expre> AND <expre>"
 
     t[0] = Logica.Logica(t[1], t[3], t[2].upper(), strGram, t.lexer.lineno, t.lexer.lexpos)
-
 
 def p_operadores_unarios(t):
     ''' expre : NOT expre
@@ -1281,7 +1293,6 @@ def p_operadores_parentesis(t):
     '''
     t[0] = t[2]
 
- 
 def p_operadores_logicos5(t):
     ''' expre :  expresion
     '''
@@ -1389,13 +1400,11 @@ def p_lista_id2(t):
     '''
     t[0] = [t[1]]
 
-
 def p_lista_op1(t):
     '''lista_op : lista_op opcion
     '''
     t[1].append(t[2])
     t[0] = t[1]
-
 
 def p_lista_op2(t):
     '''lista_op : opcion
@@ -1476,7 +1485,6 @@ def p_expresion1(t):
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= CARACTER"
     t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.CHAR), strGram, t.lexer.lineno, t.lexer.lexpos)
-    
 
 def p_expresion2(t):
     '''expresion : ENTERO
@@ -1529,7 +1537,6 @@ def p_expresion62(t):
     t[0] = SelectLista.Alias(t[1],t[3])
     #t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-
 def p_expresion7(t):
     '''expresion : ARROBA ID
     '''
@@ -1576,7 +1583,6 @@ def p_lista_columas2(t):
     '''
     t[1].append(SelectLista.Alias(t[5],t[3]))
     t[0] = t[1]
-
 
 def p_lista_columas01(t):
     '''lcol : POR
@@ -1737,6 +1743,99 @@ def p_tipo_datos2(t):
     t[0].nombre = t[1]
 
 #FIN DE LA GRAMATICA
+
+codigo_optimizado = ""
+reglas = []
+optimizacion = []
+pendiente = []
+
+def p_init2(t):
+    'init : instrucciones_generales' # gramática de optimización 3D
+
+def p_inst_generales(t):
+    '''instrucciones_generales  : instrucciones_generales encabezado
+                                | instrucciones_generales instruccion2
+                                | encabezado
+                                | instruccion2'''
+
+def p_encabezado(t):
+    '''encabezado   : HEAP CORIZQ ENTERO CORDER
+                    | STACK CORIZQ ENTERO CORDER
+                    | H
+                    | P'''
+    global codigo_optimizado
+    if t[1] == 'HEAP':
+        codigo_optimizado = codigo_optimizado + 'heap[' + t[3] + ']\n'
+    elif t[1] ==  'STACK':
+        codigo_optimizado = codigo_optimizado + 'stack[' + t[3] + ']\n'
+    elif t[1] == 'H':
+        codigo_optimizado = codigo_optimizado + 'H\n'
+    elif t[1] == 'P':
+        codigo_optimizado = codigo_optimizado + 'P\n'
+
+def p_instruccion_2(t):
+    '''instruccion2 : asignacion'''
+
+def p_asignacion(t):
+    '''asignacion   : literal IGUAL operacion_aritmetica'''
+    if t[2] == "=":
+        if t[3] == 'HEAP':
+            print('HEAP')
+        elif t[3] == 'STACK':
+            print('STACK')
+        else:
+            const = op.Aritmetica(t[1], t[3], t.lexer.lineno)
+            optimizacion.append(const)
+
+def p_operacion_aritmetica(t):
+    '''operacion_aritmetica : literal MAS literal
+                            | literal MENOS literal
+                            | literal POR literal
+                            | literal DIVIDIDO literal
+                            | literal MODULO literal'''
+    arr = []
+    if t[2] == '+':
+        arr.append(t[1])
+        arr.append('+')
+        arr.append(t[3])
+    elif t[2] == '-':
+        arr.append(t[1])
+        arr.append('-')
+        arr.append(t[3])
+    if t[2] == '*':
+        arr.append(t[1])
+        arr.append('*')
+        arr.append(t[3])
+    elif t[2] == '/':
+        arr.append(t[1])
+        arr.append('/')
+        arr.append(t[3])
+    elif t[2] == '%':
+        arr.append(t[1])
+        arr.append('%')
+        arr.append(t[3])
+    else:
+        arr.append(t[1])
+    t[0] = arr
+
+def p_literal(t):
+    '''literal  : TEMPORAL
+                | FDECIMAL
+                | ENTERO
+                | ID
+                | H
+                | P
+                | MENOS TEMPORAL
+                | MENOS FDECIMAL
+                | MENOS ENTERO'''
+
+    #print('Entró a literal')
+
+    if t[1] == 'MENOS':
+        t[0] = '-' + t[2]
+    else:
+        t[0] = t[1]
+
 # MODO PANICO ***************************************
 
 def p_error(p):
@@ -1770,15 +1869,30 @@ def find_column(input,token):
 
 parser = yacc.yacc()
 def ejecutar_analisis(texto):
-    
-    #LIMPIAR VARIABLES
     columna=0
     lista_lexicos.clear()
-    #se limpia analisis lexico
     lexer.input("")
     lexer.lineno = 0
-    #se obtiene la acción de analisis sintactico
     print("inicio")
     return parser.parse(texto)
 
+def optimizar(texto):
+    lexer.input("")
+    lexer.lineno = 0
+    parse = parser.parse(texto)
+    global optimizacion, reglas, pendiente
+    print('Optimizacion -> ' + str(len(optimizacion)))
+    mensaje = ''
+    for cons in optimizacion:
+        cons.optimizacion(reglas, pendiente) 
+    for i in pendiente:
+        print(i)
 
+    #print('Las reglas que se utilizaron fueron:\n' + str(reglas))
+    #LIMPIAR VARIABLES
+    columna=0
+    #lista_lexicos.clear()
+    #se limpia analisis lexico
+    
+    #se obtiene la acción de analisis sintactico
+    return None

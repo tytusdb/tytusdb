@@ -1,5 +1,5 @@
-from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 
 class CreateIndex(Instruccion):
@@ -51,10 +51,10 @@ class CreateIndex(Instruccion):
                                     if not l.existe:
                                         l.existe = True
                     for l in self.campos:
+                        l.ejecutar(tabla, arbol)
                         if l.existe:
-                            restricciones = restricciones + " " + l.nombre + l.ejecutar(tabla, arbol)
+                            restricciones = restricciones + " " + l.nombre + l.restricciones
                         else:
-                            l.ejecutar(tabla, arbol)
                             error = Excepcion("INX01", "Semántico", "No existe el campo «" + l.nombre + "» en la tabla «" + self.tabla + "»", self.linea, self.columna)
                             arbol.excepciones.append(error)
                             arbol.consola.append("\n" + error.toString())

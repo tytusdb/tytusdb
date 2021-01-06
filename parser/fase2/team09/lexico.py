@@ -4,23 +4,19 @@ from ply import *
 from reportes.error import *
 from Instrucciones.Excepcion import Excepcion
 
-
 # Construyendo el analizador léxico y sintactico
 
 # definicion del analizador lexico
 
 # NOMBRE QUE IDENTIFICA A CADA TOKEN
 
-
-
 lista_errores_lexico=[]
 global columna
 columna=0
 
 reservadas = (
-
+    #### SQL
     'TABLE', 'INT', 'VARCHAR', 'DATE', 'CHAR', 'DOUBLE', 'DECIMAL', 'NULL', 'PRIMARY', 'KEY', 'REFERENCES', 'FOREIGN',
-    #'FLOAT',
     'BETWEEN',
     'LIKE',
     'IN',
@@ -78,10 +74,15 @@ reservadas = (
     'UNION', 'INTERSECT', 'EXCEPT', 'ALL',
     # Begin
     'FUNCTION', 'BEGIN', 'END',
-    'DECLARE'
+    'DECLARE',
+
+    #### C3D
+    'IMPORT', 'RETURN', 'DEF', '__INIT__', 
+    'SELF', 'CLASS', 'HEAP', 'STACK', 'H', 'P'
 )
 
 tokens = reservadas + (
+    'TEMPORAL',
     # OPERADORES COMPARADORES
     'IGUAL', 'BLANCO',
     'MAYORQ',
@@ -91,7 +92,7 @@ tokens = reservadas + (
     'DISTINTO',
     'PARIZQ',
     'PARDER',
-    #'CORIZQ', 'CORDER',
+    'CORIZQ', 'CORDER',
     'MAS',
     #'LLAVEA', 'LLAVEC',
     'MENOS',
@@ -112,12 +113,13 @@ tokens = reservadas + (
     'ARROBA'
 )
 
+t_TEMPORAL = r't[0-9]+'
 # EXPRESIONES REGULARES BASICAS
 t_ARROBA = r'@'
 t_PARIZQ = r'\('
 t_PARDER = r'\)'
-#t_CORIZQ = r'\['
-#t_CORDER = r'\]'
+t_CORIZQ = r'\['
+t_CORDER = r'\]'
 t_PUNTO_COMA = r';'
 t_COMA = r','
 t_PUNTO = r'\.'
@@ -136,26 +138,20 @@ t_MENORQ = r'\<'
 t_MAYOR_IGUALQ = r'\>\='
 t_MENOR_IGUALQ = r'\<\='
 
-
-
 # EXPRESIONES REGULARES CON ESTADOS
 
 # OPERADORES RELACIONALES
-#   'INNER', 'JOIN','LEFT','RIGHT','FULL', 'OUTER','ON'
-
 
 def t_CADENA(t):
     r'\".*?\"'
     t.value = t.value[1:-1]  # remuevo las comillas dobles
     return t
 
-
 def t_CARACTER(t):
     r'\'.*?\''
     t.value = t.value[1:-1]  # remuevo las comillas simples
     #print('esto es un caracter: ', t.value)
     return t
-
 
 def t_FDECIMAL(t):
     r'\d+\.\d+'
@@ -165,7 +161,6 @@ def t_FDECIMAL(t):
         print("Float value too large %d", t.value)
         t.value = 0
     return t
-
 
 def t_ID(t):
     r'[a-zA-Z][a-zA-Z_0-9_]*'
@@ -183,7 +178,6 @@ def t_ID(t):
         
     return t
 
-
 def t_ENTERO(t):
     r'\d+'
     try:
@@ -195,22 +189,17 @@ def t_ENTERO(t):
         t.value = 0
     return t
 
-
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
-
 
 # Comentario simple // ...
 def t_COMENTARIO_SIMPLE(t):
     r'--.*\n'
     t.lexer.lineno += 1
 
-
 def t_BLANCO(t):
     r' |\t'
-
-
 
 def t_NEWLINE(t):
     r'\n+'
@@ -226,21 +215,14 @@ def columas(args):
 # Caracteres ignorados
 t_ignore = "\r"
 
-
 def t_error(t):
     global columna
-    #print("Illegal character '%s'" % t.value[0])
-    #print(t.value)
-    #print("fila ", t.lexer.lineno)
-    #print("Columna ", columas(columna))
     col = columas(columna)
     dato = Excepcion(0,"Error Lexico", f"El Simbolo << {t.value[0]} >> No Pertenece al Lenguaje", t.lexer.lineno, col)
     lista_errores_lexico.append(dato)
     t.lexer.skip(1)
 
-
 import re
 
 print("---------------------------------------")
 lexer = lex.lex(reflags=re.IGNORECASE)
-
