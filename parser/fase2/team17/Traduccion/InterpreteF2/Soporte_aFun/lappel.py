@@ -6,7 +6,8 @@ from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 from InterpreteF2.Reporteria.ErroresSemanticos import ErroresSemanticos
 
-class callfunction(NodoArbol):
+
+class lappel(NodoArbol):
 
     def __init__(self, identificador, expres, line, coliumn):
         super().__init__(line, coliumn)
@@ -26,7 +27,7 @@ class callfunction(NodoArbol):
             reportero = ErroresSemanticos(descripcion, str(self.linea), str(self.columna), 'lappel')
             arbol.ErroresSemanticos.append(reportero)
             return
-        # ------------------------------------------
+        #------------------------------------------
 
         argumentos = ''
         contador = 0
@@ -54,4 +55,3 @@ class callfunction(NodoArbol):
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         pass
-

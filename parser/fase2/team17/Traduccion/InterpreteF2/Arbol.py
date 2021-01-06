@@ -113,3 +113,10 @@ class Arbol:
             if str(i.nombre) == str(id):
                 return True
         return False
+
+    def lFun_isINACTIVE(self, id):
+        for i in self.ReporteTS_Funciones:
+            if str(i.nombre) == str(id):
+                if str(i.estado) == 'INACTIVO':
+                    return True
+        return False

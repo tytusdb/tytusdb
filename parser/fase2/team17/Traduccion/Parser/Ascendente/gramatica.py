@@ -56,6 +56,8 @@ from InterpreteF2.DML.insert.insert import insert
 from InterpreteF2.Soporte_aFun.callfunction import callfunction
 from InterpreteF2.DML.drops.droptable import droptable
 from InterpreteF2.indices.alterindex import alterindex
+from InterpreteF2.Soporte_aFun.dropfun import dropfun
+from InterpreteF2.Soporte_aFun.lappel import lappel
 
 ArbolErrores:Arbol = Arbol(None)
 
@@ -800,12 +802,13 @@ def p_drop_function(t):
     '''
         drop_function : DROP FUNCTION ID
     '''
-
+    t[0] = dropfun(t[3], 1, 1)
 
 def p_drop_procedure(t):
     '''
         drop_procedure : DROP PROCEDURE ID
     '''
+    t[0] = dropfun(t[3], 1, 1)
 
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
@@ -959,6 +962,12 @@ def p_callfunction(t):
     t[0] = callfunction(t[2], t[4], 1, 1)
     set('<TR> \n <TD> callfunction → SELECT ID PARIZQ exp_list PARDER: </TD> \n <TD> callfunction = call_function(t[2], t[4]) </TD> \n </TR> \n')
 
+def p_callfunction_lappel(t):
+    '''
+        callfunction : ID PARIZQ exp_list PARDER
+    '''
+    t[0] = lappel(t[1], t[3], 1, 1)
+    set('<TR> \n <TD> callfunction → SELECT ID PARIZQ exp_list PARDER: </TD> \n <TD> callfunction = call_function(t[2], t[4]) </TD> \n </TR> \n')
 
 # =================  INDEX =================
 def p_index(t):
