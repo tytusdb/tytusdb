@@ -487,6 +487,8 @@ def p_query(t):
                     | operacionJJBH
                     | statementValores
                     | createIndex
+                    | alterIndex
+                    | dropIndex
                     | execFunction
                     | createFunction
                     | createProcedure
@@ -3307,9 +3309,7 @@ def p_statements(t):
 #                                           STATEMENTS - EXEC
 def p_execFunction(t):
     'execFunction    : execOption ID PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \""+str(t[2])+ "\"\n"
-    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
-    h.conteoTemporales+=1
+    a="print("+str(t[2])+")" + "\n"
     t[0]= a
 
 def p_execFunction_1(t):
@@ -3318,16 +3318,12 @@ def p_execFunction_1(t):
     for param in t[4]:
         parametro+=param+","
     param = parametro[0:-1]
-    a="t"+str(h.conteoTemporales)+"= \""+str(t[2])+ "(" + param + ")"  + "\"\n"
-    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
-    h.conteoTemporales+=1
+    a="print("+str(t[2])+ "(" + param + "))"  + "\n"
     t[0]= a
 
 def p_execFunction_2(t):
     'execFunction    : execOption ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \""+str(t[2])+ "()\"\n"
-    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
-    h.conteoTemporales+=1
+    a="print("+str(t[2])+ "())" + "\n"
     t[0]= a
 
 def p_execOption_1(t):
@@ -3350,6 +3346,14 @@ def p_createIndex(t):
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
+
+def p_createIndex_5(t):
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) + " )"+  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
 def p_createIndex_1_1(t):
     'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA'
     a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) + str(t[8]) + " )"+  ";\"\n"
@@ -3445,7 +3449,62 @@ def p_createIndex_3_1_2(t):
     h.conteoTemporales+=1
     t[0]= a
 
+# -------------------------------------------------------------DROP INDEX--------------------------------------------------------
+def p_dropIndex(t):
+    'dropIndex    : DROP INDEX ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"DROP INDEX "+str(t[3]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+def p_dropIndex_1(t):
+    'dropIndex    : DROP INDEX IF EXISTS ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"DROP INDEX IF EXISTS "+str(t[5]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+# ------------------------------------------------------------ALTER INDEX---------------------------------------------------------
+def p_alterIndex(t):
+    'alterIndex    : ALTER INDEX ID RENAME TO ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " RENAME TO " + str(t[6]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
 
+def p_alterIndex_1(t):
+    'alterIndex    : ALTER INDEX IF EXISTS ID RENAME TO ID PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ " RENAME TO " + str(t[8]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+# ------------------------------------------------------ALTER INDEX COLUMN ----------------------------------------------------
+def p_alterIndex_2(t):
+    'alterIndex    : ALTER INDEX ID ALTER final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER " + str(t[5]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_alterIndex_3(t):
+    'alterIndex    : ALTER INDEX ID ALTER COLUMN final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER COLUMN " + str(t[6]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_alterIndex_4(t):
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ " ALTER " + str(t[7]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+
+def p_alterIndex_5(t):
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER COLUMN final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ "  ALTER COLUMN " + str(t[8]) +  ";\"\n"
+    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]= a
+# --------------------------------------------------------------------------------------------------------------------------------
 def p_indexParams(t):
     'indexParams    : sort'
     t[0] = t[1]
@@ -3492,9 +3551,10 @@ def p_sortOptions_2_2(t):
     a="ASC NULLS LAST"
     t[0]= a
 
-
-
-
+def p_lower(t):
+    'lower    : ID PARENTESISIZQUIERDA ID PARENTESISDERECHA'
+    a= t[1] + "(" + t[3] + ")"
+    t[0]= a
 
 
 #para manejar los errores sintacticos
