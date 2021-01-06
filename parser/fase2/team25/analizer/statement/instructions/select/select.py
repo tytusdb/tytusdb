@@ -209,3 +209,7 @@ class SelectOnlyParams(Select):
             for p in self.params:
                 paramNode.addNode(p.dot())
         return new
+
+
+    def generate3d(self, environment, instanciaAux):
+        pass

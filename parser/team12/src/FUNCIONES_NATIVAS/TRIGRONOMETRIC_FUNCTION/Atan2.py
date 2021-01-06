@@ -41,3 +41,12 @@ class Function_Atan2(Expresion):
             self.tipo = Type_Expresion(Data_Type.error)
             self.valorExpresion = None
             return self.valorExpresion
+
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+        exp = self.hijos[0]
+        exp2 = self.hijos[1]
+        stringReturn = 'atan2('+ exp.getText() + ',' + exp2.getText() + ')'
+        return stringReturn

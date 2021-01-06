@@ -32,3 +32,14 @@ class Function_Trim(Expresion):
             self.tipo = Type_Expresion(Data_Type.error)
             self.valorExpresion = None
             return self.valorExpresion
+
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+
+        exp = self.hijos[0]
+        exp2 = self.hijos[1]
+
+        stringReturn = 'trim(' + exp.getText() + ' from ' + exp2.getText() + ')'
+        return stringReturn

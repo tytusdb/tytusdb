@@ -1,17 +1,18 @@
 class FunctionSymbol:
-    def __init__(self, id, returnType, params) -> None:
+    def __init__(self, type_, id, returnType, params) -> None:
         self.id = id
         self.returnType = returnType
         self.params = params
+        self.type = type_
 
 
 class GlobalEnvironment:
     def __init__(self) -> None:
         self.functions = {}
 
-    def addFunction(self, id, returnType, params):
+    def addFunction(self, type_, id, returnType, params):
         if id not in self.functions:
-            self.functions[id] = FunctionSymbol(id, returnType, params)
+            self.functions[id] = FunctionSymbol(type_, id, returnType, params)
 
     def getFunction(self, id):
         """

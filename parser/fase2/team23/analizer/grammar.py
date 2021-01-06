@@ -102,7 +102,6 @@ def p_ifStmt(t):
 
     """ifStmt : R_IF S_PARIZQ expresion S_PARDER R_THEN List_body  else_"""
     t[0] = instruction.IfCls(t[3],t[6], None, t[7],t.lineno(1), t.lexpos(1))
-    print("todo bien, nada mal")
     repGrammar.append(t.slice)
 
 def p_els_(t):
@@ -115,7 +114,6 @@ def p_els_(t):
             t[0] = t[2]
         else:
             t[0] = t[1]
-        print("todo bien, nada mal -> R_ELSE")
     except:
         t[0]=[]
 
@@ -143,10 +141,8 @@ def p_elsif_(t):
     try:
         t[0] = instruction.IfCls(t[3], t[6], [], [], t.lineno(1), t.lexpos(1))
 
-        print("todo bien, nada mal -> R_ELSIF")
     except:
         pass
-        print("todo bien, nada mal -> epsilon")
 
     repGrammar.append(t.slice)
 
@@ -218,7 +214,7 @@ def p_createbody(t):
 def p_createopts_index(t):
     """createOpts : unique_index R_INDEX ID R_ON ID using_hash_index S_PARIZQ idList indexasc_desc indexNullS S_PARDER whereCl"""
     t[0] = instruction.IndexCls(t[1],t[3], t[5],t[8], t[9], t[10], t[12], t.lineno(1), t.lexpos(1))
-    print("todo bien, nada mal")
+    #print("todo bien, nada mal")
     repGrammar.append(t.slice)
 
 def p_unique_index(t):
@@ -226,10 +222,10 @@ def p_unique_index(t):
                     | """
     try:
         t[0] = t[1]
-        print("todo bien, nada mal -> unique ")
+        #print("todo bien, nada mal -> unique ")
     except:
         t[0] = None
-        print("todo bien, nada mal -> epsilon ")
+        #print("todo bien, nada mal -> epsilon ")
     repGrammar.append(t.slice)
 
 def p_using_hash_index(t):
@@ -237,10 +233,10 @@ def p_using_hash_index(t):
                     | """
     try:
         t[0] = t[1]
-        print("todo bien, nada mal -> using_hash ")
+        #print("todo bien, nada mal -> using_hash ")
     except:
         t[0] = None
-        print("todo bien, nada mal -> epsilon ")
+        #print("todo bien, nada mal -> epsilon ")
     repGrammar.append(t.slice)
 
 def p_orderNullS(t):
@@ -250,10 +246,10 @@ def p_orderNullS(t):
     """
     try:
         t[0] = t[2]
-        print("todo bien, nada mal -> indexNullS ")
+        #print("todo bien, nada mal -> indexNullS ")
     except:
         t[0] = None
-        print("todo bien, nada mal -> epsilon ")
+        #print("todo bien, nada mal -> epsilon ")
 
     repGrammar.append(t.slice)
 
@@ -264,12 +260,16 @@ def p_indexasc_desc(t):
     """
     try:
         t[0] = t[1]
-        print("todo bien, nada mal -> indexasc_desc ")
+        #print("todo bien, nada mal -> indexasc_desc ")
     except:
         t[0] = None
-        print("todo bien, nada mal -> epsilon ")
+        #print("todo bien, nada mal -> epsilon ")
 
     repGrammar.append(t.slice)
+
+
+
+
 #----------------------------- FIN SENTENCIA INDEX ---------------------------------#
 
 def p_createopts_table(t):
@@ -670,7 +670,7 @@ def p_referencesOpt(t):
 def p_expresion(t):
     """
     expresion : datatype
-            | expBool
+              | expBool
     """
     t[0] = t[1]
     repGrammar.append(t.slice)
@@ -1258,6 +1258,7 @@ def p_idOrLiteral(t):
 def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE idOrString alterDb
     | R_ALTER R_TABLE idOrString alterTableList
+    | R_ALTER R_INDEX ifExists idOrString R_ALTER col_op idList
     """
     if t[2] == "DATABASE":
         t[0] = instruction.AlterDataBase(t[4][0], t[3], t[4][1])
@@ -1265,6 +1266,13 @@ def p_alterStmt(t):
         t[0] = instruction.AlterTable(t[3], t[4])
     repGrammar.append(t.slice)
 
+def p_col_op(t):
+    """col_op : R_COLUMN
+    |
+    """
+    t[0] = t[1]
+
+    repGrammar.append(t.slice)
 
 def p_alterDb(t):
     """alterDb : R_RENAME R_TO idOrString
@@ -1376,11 +1384,18 @@ def p_dropStmt(t):
     """
     dropStmt : R_DROP R_TABLE ifExists idOrString
     | R_DROP R_DATABASE ifExists idOrString
+    | R_DROP R_PROCEDURE ifExists idOrString S_PARIZQ S_PARDER
+    | R_DROP R_INDEX concurrenly ifExists idOrString
     """
     exists = True
     if t[3] == None:
         exists = False
-    t[0] = instruction.Drop(t[2], t[4], exists)
+
+    if str(t[2].lower()) == "index":
+        t[0] = instruction.Drop(t[2], t[5], exists)
+    else:
+        t[0] = instruction.Drop(t[2], t[4], exists)
+
     repGrammar.append(t.slice)
 
 
@@ -1389,6 +1404,10 @@ def p_ifExists(t):
     |
     """
 
+def p_concurrenly(t):
+    """concurrenly : R_CONCURRENTLY
+    |
+    """
     repGrammar.append(t.slice)
 
 
@@ -2050,7 +2069,8 @@ def p_beingStmt2(t):
 
 def p_beginItem(t):
     """beginItem : stmt
-                 | returnStmt S_PUNTOCOMA"""
+                 | returnStmt S_PUNTOCOMA
+                 | asignacionStmt S_PUNTOCOMA"""
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -2071,7 +2091,12 @@ def p_labelEnd(t):
 
 def p_asignacionStmt(t):
     """asignacionStmt : ID S_DOSPUNTOS S_IGUAL expresion"""
-    t[0] = t[4]
+    t[0] = instruction.AsignacionPL(t[1], t[4], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+def p_asignacionStmt2(t):
+    """asignacionStmt : ID S_IGUAL expresion"""
+    t[0] = instruction.AsignacionPL(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 def p_procedureStmt(t):
@@ -2097,7 +2122,7 @@ def p_dolarEndProc2(t):
     repGrammar.append(t.slice)
 
 def p_dolarEndProc(t):
-    """dolarEndProcedure : S_DOLAR S_DOLAR S_PUNTOCOMA"""
+    """dolarEndProcedure : S_DOLAR S_DOLAR"""
     repGrammar.append(t.slice)
 
 def p_beginProcWord2(t):
@@ -2119,13 +2144,8 @@ def p_procedureLanguage2(t):
     repGrammar.append(t.slice)
 
 def p_executePL(t):
-    """executePL : R_EXECUTE ID S_PARIZQ executeParams S_PARDER"""
-    t[0] = instruction.llamadaFunction(t[2], t[4], t.slice[1].lineno, t.slice[1].lexpos)
-    repGrammar.append(t.slice)
-
-def p_executePL2(t):
-    """executePL : R_EXECUTE ID S_PARIZQ S_PARDER"""
-    t[0] = instruction.llamadaFunction(t[2], None, t.slice[1].lineno, t.slice[1].lexpos)
+    """executePL : R_EXECUTE funcCall"""
+    t[0] = t[2]
     repGrammar.append(t.slice)
 
 def p_executeParams(t):

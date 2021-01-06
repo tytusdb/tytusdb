@@ -7,6 +7,11 @@ import PLSQL.tsPLSQL as TSPL
 import PLSQL.tfPLSQL as TFPL
 import PLSQL.gramaticaPLSQL as gPL
 import PLSQL.traduccionPLSQL as TRADUC
+import PLSQL.report_astPLSQL as AST3D
+import PLSQL.report_erroresPLSQL as ERRORES_G
+import PLSQL.report_tsPLSQL as RTS_PLSQL
+import PLSQL.report_optimizacionPLSQL as ROPTIMIZACION_PLSQL
+
 
 import sys
 from io import StringIO
@@ -27,7 +32,8 @@ ts_global1 = []
 
 ts_globalPL = []
 
-#erroressss = ErrorHTML()
+
+erroressss = ERRORES_G.ErrorHTML()
 
 root = Tk() 
 w, h = root.winfo_screenwidth(), root.winfo_screenheight()
@@ -40,15 +46,22 @@ selected = False
 
 # ACTIONS
 def analizar(txt):
+    global instrucciones_GlobalPL
     instruccionesPL = TRADUC.runC3D(txt)
-    instrucciones_GlobalPL = instruccionesPL
-    ts_globalPL = TSPL.TablaDeSimbolos()
-    codigo3D = ""
-    codigo3D = TRADUC.generarC3D(instruccionesPL, ts_globalPL)
-    salida3D = open("./salida3D.py", "w")
-    salida3D.write(codigo3D)
-    salida3D.close()
-    salida_table(2,'3D GENERADO CON EXITO')
+    
+
+    if erroressss.getList() == []:
+        instrucciones_GlobalPL = instruccionesPL
+        ts_globalPL = TSPL.TablaDeSimbolos()
+        codigo3D = ""
+        codigo3D = TRADUC.generarC3D(instruccionesPL, ts_globalPL)
+        salida3D = open("./salida3D.py", "w")
+        salida3D.write(codigo3D)
+        salida3D.close()
+        salida_table(2,'3D GENERADO CON EXITO')
+    else:
+        salida_table(2,"PARSER ERROR")
+    
 
 
 def analizar_select(e):
@@ -76,7 +89,9 @@ def analizar_select(e):
             
 
 def generarReporteAST():
-    print(':v')
+    global instrucciones_GlobalPL
+    AST3DD = AST3D.AST()
+    AST3DD.generarAST(instrucciones_GlobalPL) 
     '''global instrucciones_Global
     astGraph = AST()
     astGraph.generarAST(instrucciones_Global)'''
@@ -88,11 +103,15 @@ def generarReporteTC():
     typeC.crearReporte(tc_global1)'''
 
 def generarReporteErrores():
-    print(':v')
-    '''erroressss.crearReporte()'''
+    erroressss.crearReporte()
+
+def generarReporteOptimizacion():
+    reporteOptimizacion = ROPTIMIZACION_PLSQL.ROptimizacion3D()
+    reporteOptimizacion.crearReporte(TRADUC.tablaOptimizacion)
 
 def generarReporteTS():
-    print(':v')
+    reporteTS = RTS_PLSQL.RTablaDeSimbolosF()
+    reporteTS.crearReporte(TRADUC.tf)
     '''global ts_global1
     RTablaS = RTablaDeSimbolos()
     RTablaS.crearReporte(ts_global1)'''
@@ -174,6 +193,7 @@ reportes_menu.add_command(label = "Tabla de Simbolos", command = lambda: generar
 reportes_menu.add_command(label = "Tabla de Tipos", command = lambda: generarReporteTC())
 reportes_menu.add_command(label = "AST", command = lambda: generarReporteAST())
 reportes_menu.add_command(label = "Errores", command = lambda: generarReporteErrores())
+reportes_menu.add_command(label = "Optimizacion3D", command = lambda: generarReporteOptimizacion())
 
 analizar_button = Button(toolbar_frame)
 photoCompila = PhotoImage(file="iconos/all.png")

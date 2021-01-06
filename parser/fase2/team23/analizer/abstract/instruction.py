@@ -692,7 +692,7 @@ class Drop(Instruction):
 
     def execute(self, environment):
         try:
-            if self.structure == "TABLE":
+            if str(self.structure).upper() == "TABLE":
                 if dbtemp != "":
                     valor = jsonMode.dropTable(dbtemp, self.name)
                     if valor == 2:
@@ -717,6 +717,21 @@ class Drop(Instruction):
                         Struct.dropTable(dbtemp, self.name)
                         print("DROP TABLE Se elimino la tabla: " + self.name)
                 print("Error: 42000: Base de datos no especificada ")
+
+            elif str(self.structure).upper() == "PROCEDURE":
+                try:
+                    del environment.variables[self.name]
+                    print("Se elimino el procedure correctamente")
+                except:
+                    print("Error: No existe el procedure "+ self.name)
+
+            elif str(self.structure).upper() == "INDEX":
+                try:
+                    del environment.variables[self.name]
+                    # print("Se elimino el procedure correctamente")
+                except:
+                    print("Error: No existe el procedure " + self.name)
+
             else:
                 valor = jsonMode.dropDatabase(self.name)
                 if valor == 1:
@@ -1666,7 +1681,7 @@ class IndexCls(Instruction):
         self.nombre_tabal = nombre_tabal
 
     def execute(self, environment):
-       newEnv = Environment(environment, dbtemp)
+       newEnv = environment
        global envVariables
        envVariables.append(newEnv)
 
@@ -1748,7 +1763,8 @@ class FunctionPL(Instruction):
         self.nombre = nombre
         self.params = params
         self.returnStmt = returnStmt
-        self.bloqueStmt = bloqueStmt    
+        self.bloqueStmt = bloqueStmt
+        self.pos = None  
 
     def execute(self, environment):
         newEnv = environment
@@ -1761,7 +1777,7 @@ class FunctionPL(Instruction):
                 "FUNCTION", # TYPE DE RETORNO
                 self.row,    # FILA
                 self.column, # COLUMNA
-                None,    
+                self.pos,    
                 self.returnStmt[0],
                 self.returnStmt, # BLOQUE DE RETURN
                 self.params, # PARAMETROS
@@ -1773,7 +1789,7 @@ class FunctionPL(Instruction):
                 "FUNCTION", # TYPE DE RETORNO
                 self.row,    # FILA
                 self.column, # COLUMNA
-                None,    
+                self.pos,    
                 None,
                 self.returnStmt, # BLOQUE DE RETURN
                 self.params, # PARAMETROS
@@ -1853,6 +1869,7 @@ class FunctionPL(Instruction):
 
         # FIN DE LA FUNCIÓN
         environment.count_tabs.pop()
+        environment.conta_exec += 1
 
 
 class DeclarationPL(Instruction):
@@ -1876,9 +1893,6 @@ class DeclarationPL(Instruction):
         valor_ = ""
         if self.default != None:
             valor_ = self.default.execute(environment)
-
-        # SI ES UN VALOR CONSTANTE MANDAR ERROR SI VALOR_ = NONE
-        
 
         # GUARDAR VARIABLE EN LA TABLA DE SIMBOLOS       
         sym = Symbol(
@@ -1934,6 +1948,43 @@ class DeclarationPL(Instruction):
         environment.codigo += "".join(environment.count_tabs) + "t[1] = 3 + 3\n"
 
 
+class AsignacionPL(Instruction):
+    def __init__(self, nombre, expresion, row, column):
+        Instruction.__init__(self, row, column)
+        self.nombre = nombre
+        self.expresion = expresion
+
+    def execute(self, environment):
+        var = environment.getVar(self.nombre)
+
+        if var != None:
+            new_val = self.expresion.execute(environment)
+            sym = Symbol(
+                new_val,
+                var.type,
+                var.row,
+                var.column,
+                var.col_creada,
+                var.cons,
+                var.return_func,
+                var.params_func,
+                var.bloque_func,
+                var.val_var
+            )
+            environment.updateVar(str(self.nombre), sym)
+        else:
+            print("NO SE ENCONTRO LA VARIABLE")
+
+    def dot(self):
+        new = Nodo.Nodo("ASIGNACION")
+        asignacion_nombre = Nodo.Nodo(self.nombre)
+        new.addNode(asignacion_nombre)
+        new.addNode(self.expresion.dot())
+        return new
+
+    def c3d(self, environment):
+        pass
+
 class returnStmt(Instruction):
     def __init__(self, expresion, row, column):
         Instruction.__init__(self, row, column)
@@ -1941,7 +1992,10 @@ class returnStmt(Instruction):
 
     def execute(self, environment):
         resultado = self.expresion.execute(environment)
-        return resultado
+        if isinstance(resultado, Symbol):
+            return resultado.value.value
+        else:
+            return resultado.value
 
     def dot(self):
         new = Nodo.Nodo("RETURN")
@@ -1951,70 +2005,6 @@ class returnStmt(Instruction):
     def c3d(self, environment):
         environment.codigo += "".join(environment.count_tabs) + "# RETURN\n"
         self.expresion.c3d(environment)
-
-
-class llamadaFunction(Instruction):
-    def __init__(self, nombre, params, row, column):
-        Instruction.__init__(self, row, column)
-        self.nombre = nombre
-        self.params = params
-
-    def execute(self, environment):
-        # EXTRAER LA FUNCIÓN DE LA TABLA DE SIMBOLOS
-        func_ = environment.getVar(self.nombre)
-
-        if func_ != None:
-            # ENCONTRAMOS LA FUNCION
-            # GUARDAR LOS PARAMETROS
-            if len(self.params) != len(func_.params_func):
-                print("ERROR CON LOS PARAMETROS")
-            else:
-                rango_param = range(len(self.params))
-
-                for n in rango_param:
-                    # EXTRAER EL VALOR DEL PARAMETRO
-                    valor_param = self.params[n].execute(environment)
-
-                    # GUARDAR VARIABLE EN LA TABLA DE SIMBOLOS     
-                    sym = Symbol(
-                        valor_param,
-                        func_.params_func[n][1][0],
-                        func_.row,
-                        func_.column,
-                        None,
-                        None,
-                        None,
-                        None,
-                        None,
-                        valor_param
-                    )
-                    
-                    environment.addSymbol(func_.params_func[n][0], sym)
-
-            # EJECUTAR FUNCION
-            valor = None
-            try:               
-                for item in func_.bloque_func[1]:
-                    if valor == None:
-                        valor = item.execute(environment)
-            except:
-                for item in func_.bloque_func:
-                    if valor == None:
-                        valor = item.execute(environment)
-            print("valor: " + str(valor.value))
-        else:
-            # MARCAR ERROR
-            print("No se encontró la función")
-
-    def dot(self):
-        new = Nodo.Nodo("LLAMADA")
-        id_call = Nodo.Nodo(self.nombre)
-        new.addNode(id_call)
-        for param in self.params:
-            new.addNode(param.dot())        
-
-    def c3d(self, environment):
-        pass
 
 
 class ProcedureStmt(Instruction):
@@ -2028,9 +2018,10 @@ class ProcedureStmt(Instruction):
         self.params = params
         self.instruccions = instruccions
         self.language = language
+        self.pos = 0
 
     def execute(self, environment):
-        newEnv = Environment(environment, dbtemp)
+        newEnv = environment
         global envVariables
         envVariables.append(newEnv)
 
@@ -2041,7 +2032,7 @@ class ProcedureStmt(Instruction):
             "PROCEDURE", # TYPE DE RETORNO
             self.row,    # FILA
             self.column, # COLUMNA
-            None,    
+            self.pos,    
             None,
             None, # BLOQUE DE RETURN
             self.params, # PARAMETROS
@@ -2076,13 +2067,12 @@ class ProcedureStmt(Instruction):
 
         # INSTRUCCIONES DEL PROCEDURE        
         for item in self.instruccions:
-            print(item)
             new.addNode(item.dot())
         
         return new
 
     def c3d(self, environment):
-        pass
+        environment.conta_exec += 1
 
 #ya
 class IfCls(Instruction):

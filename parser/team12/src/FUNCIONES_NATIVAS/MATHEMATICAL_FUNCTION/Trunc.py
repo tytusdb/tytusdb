@@ -66,3 +66,23 @@ class Function_Trunc(Expresion):
                 self.tipo = Type_Expresion(Data_Type.error)
                 self.valorExpresion = None
                 return self.valorExpresion
+    
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+        
+        cantExp = len(self.hijos)        
+
+        if cantExp == 1 :
+
+            exp = self.hijos[0]
+            stringReturn = 'trunc(' + exp.getText() + ')'
+            return stringReturn
+        
+        else:
+
+            exp = self.hijos[0]
+            exp2 = self.hijos[1]
+            stringReturn = 'trunc(' + exp.getText() + ',' + exp2.getText() + ')'
+            return stringReturn

@@ -109,11 +109,12 @@ def generar_codigo_3d(entrada):
     parserTo3D(entrada)
     lErrors = gramaticaFase2.returnLexicalErrors()
     sErrors = gramaticaFase2.returnSyntacticErrors()
+    semanticErrors = gramaticaFase2.returnSemanticErrors()
     symbols = symbolReport()
     obj = {
         "err_lexicos": lErrors,
         "err_sintacticos": sErrors,
-        #"semantic": semanticErrors,
+        "semantic": semanticErrors,
         "symbols": symbols,
     }
     astReport()

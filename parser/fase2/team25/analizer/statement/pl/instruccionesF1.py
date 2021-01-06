@@ -14,6 +14,11 @@ class F1(instruction.Instruction):
 
     def generate3d(self, environment, instanciaAux):
         tn = instanciaAux.getNewTemporal()
+        tres = instanciaAux.getNewTemporal()#TEMPORAL RESULTANTE
         if self.cadena != None:
             instruccionC3D = f'\t{tn} = "{self.cadena}"'
             instanciaAux.addToCode(instruccionC3D)
+            instanciaAux.addToCode(f'\tstack.push({tn})')
+            instanciaAux.addToCode(f"\t{tres} = funcionIntermedia()")
+
+        return  tres # POR SI FUERA UN SELECT

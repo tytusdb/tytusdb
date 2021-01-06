@@ -211,6 +211,16 @@ class Delete(Instruccion):
 
         return None
 
+    def traducir(self, Entorno):
+        if(self.tabla!=None or self.tabla!=""):
+            self.codigo3d = 'ci.ejecutarsql('+'"'+'delete from '+self.tabla
+
+            if self.where != None:
+                self.codigo3d += ' Where '
+                self.codigo3d += self.where.stringsql
+
+            self.codigo3d += ' ;'+'"'+')\n'
+            return self
 
 class Campo():
     def __init__(self,columna,exp):
