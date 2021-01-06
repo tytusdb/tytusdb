@@ -1,8 +1,8 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import  Time
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select as Select
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time import  Time
+from tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select as Select
 
 from prettytable import PrettyTable
 

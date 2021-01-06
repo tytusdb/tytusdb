@@ -1,13 +1,13 @@
 #from Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,ColCase,Case
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import  IdAsId,Id,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import  Trigonometrica
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario as Binario
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where as Where
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time as Time
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,ColCase,Case
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import  IdAsId,Id,IdId
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import  Trigonometrica
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario as Binario
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where as Where
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time as Time
 
 class Select(Instruccion):
     '''#1 time
