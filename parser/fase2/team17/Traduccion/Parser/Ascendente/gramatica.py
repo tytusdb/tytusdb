@@ -1,6 +1,6 @@
-from Interprete.CREATE_DATABASE.create_database import CreateDatabase
+from InterpreteF2.DML.create.createdatabase import CreateDatabase
 from Interprete.CREATE_TABLE.create_table import CreateTable
-from Interprete.DROP_DATABASE.drop_database import DropDatabase
+from InterpreteF2.DML.drops.dropdatabase import DropDatabase
 from Interprete.DROP_TABLE.drop_table import DropTable
 from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relacionales
 from Interprete.Condicionantes.Condicion import Condicion
@@ -11,9 +11,9 @@ from Interprete.Insert.insert import Insert
 from Interprete.SELECT.select_simples_date import Select_simples_date
 from Interprete.SHOW_DATABASES.show_databases import ShowDatabases
 from Interprete.USE_DATABASE.use_database import UseDatabase
-from Interprete.ALTER_DATABASE.alter_database import AlterDatabase
+from InterpreteF2.DML.alter.alterdatabase import AlterDatabase
 from Interprete.CREATE_TABLE import clases_auxiliares
-from Interprete.UPDATE.update import Update
+from InterpreteF2.DML.update.update import Update
 from Interprete.OperacionesConExpresiones.OperadoresCondicionales import OperadoresCondicionales
 from Interprete.OperacionesConExpresiones.OperacionesLogicas import OperacionesLogicas
 from Interprete.SELECT.Select_simples import Select_simples
@@ -30,8 +30,11 @@ from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
 from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
 from graphviz import Digraph
 #import Interprete.Arbol as ArbolErrores
+from InterpreteF2.DML.delete.delete import Delete
 from InterpreteF2.CASE.whenelse import WhenElse
 from InterpreteF2.CASE.when import When
+from InterpreteF2.DML.show.show import Show
+from InterpreteF2.DML.use.use import Use
 from InterpreteF2.Primitivos.CADENAS import CADENAS
 from InterpreteF2.Primitivos.ENTERO import ENTERO
 from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
@@ -926,8 +929,8 @@ def p_statements_insert(t):
 # ================= update =================
 def p_statements_update(t):
     '''
-        statements : UPDATE ID SET setcolumns WHERE exp returning
-                   | UPDATE ID SET setcolumns           returning
+        statements : UPDATE ID SET exp_list WHERE exp returning
+                   | UPDATE ID SET exp_list           returning
     '''
     set('<TR> \n <TD> statements → UPDATE ID SET setcolumns WHERE exp returning | UPDATE ID SET setcolumns returning: </TD> \n <TD> statements  = update(t[2], t[4], t[6]) </TD> \n </TR> \n')
 
@@ -937,8 +940,6 @@ def p_statements_delete(t):
     '''
     statements : DELETE                FROM ID WHERE exp returning
                | DELETE 			   FROM ID           returning
-               | DELETE groupatributes FROM ID WHERE exp returning
-               | DELETE groupatributes FROM ID           returning
     '''
     set('<TR> \n <TD> statements → DELETE FROM ID WHERE exp returning | DELETE FROM ID returning | DELETE groupatributes FROM ID WHERE exp returning | DELETE groupatributes FROM ID returning: </TD> \n <TD> statements  = delete(t[2], t[4], t[6]) </TD> \n </TR> \n')
 
@@ -1171,14 +1172,14 @@ def p_DataManipulationLenguage_show_databases(t):
     '''
         DataManipulationLenguage  : SHOW DATABASES
     '''
-    t[0] = ShowDatabases(t.lineno, 0)
+    t[0] = Show(1, 1)
     set('<TR> \n <TD> DataManipulationLenguage → SHOW DATABASES : </TD> \n <TD>  DataManipulationLenguage = ShowDatabases() </TD> \n </TR> \n')
 
 def p_use_database(t):
     '''
         use_database : USE ID
     '''
-    t[0] = UseDatabase(t.lineno, 0, t[2])
+    t[0] = Use(t[2], 1, 1)
     set('<TR> \n <TD> use_database → USE ID : </TD> \n <TD> use_database = UseDatabase(t[2]) </TD> \n </TR> \n')
 
 def p_DataManipulationLenguage_createTB(t):
@@ -1206,6 +1207,7 @@ def p_DataManipulationLenguage_deletetable(t):
     '''
         DataManipulationLenguage  : deletetable
     '''
+    t[0] = t[1]
     set('<TR> \n <TD> DataManipulationLenguage → deletetable : </TD> \n <TD>  DataManipulationLenguage = DeleteTable() </TD> \n </TR> \n')
 
 def p_DataManipulationLenguage_droptable(t):
@@ -2281,7 +2283,6 @@ def p_createTB(t):
 
     set('<TR> \n <TD> creatTB  → CREATE TABLE ID PARIZQ atributesTable COMA especs inherits: </TD> \n <TD> createTB  = t[1] </TD> \n </TR> \n')
 
-#todo:no se que hacer con PARDER FALTA ? O SOLO ASI ES ?
 def p_inherits(t):
     '''
         inherits : PARDER INHERITS PARIZQ ID PARDER
@@ -2387,7 +2388,7 @@ def p_especificaciones(t):
     '''
 
     if t[1].lower() == 'default':
-        t[0] = clases_auxiliares.Default(t[2])
+        t[0] = t[1] + t[2]
     elif t[1].lower() == 'primary':
         t[0] = clases_auxiliares.PrimaryKey()
     elif t[1].lower() == 'references':
@@ -2414,7 +2415,7 @@ def p_especificaciones(t):
 # --------------------------------------------------------------------------------------
 def p_definitionTypes(t):
     '''
-        definitionTypes : types
+        definitionTypes : f2types
     '''
     t[0] = t[1]
     set('<TR> \n <TD> definitionTypes → types: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
@@ -2425,6 +2426,41 @@ def p_definitionTypes_id(t):
     '''
     t[0] = t[1]
     set('<TR> \n <TD> definitionTypes → ID: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
+
+def p_f2types(t):
+    '''
+        f2types : SMALLINT
+              | INTEGER
+              | BIGINT
+              | DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
+              | NUMERIC
+              | REAL
+              | MONEY
+              | TEXT
+              | FLOAT
+              | TIME
+              | DATE
+              | TIMESTAMP
+              | INTERVAL
+              | BOOLEAN
+              | DOUBLE PRECISION
+              | CHARACTER VARYING PARIZQ ENTERO PARDER
+              | VARCHAR PARIZQ ENTERO PARDER
+              | CHAR PARIZQ ENTERO PARDER
+              | STRING
+    '''
+    if len(t) == 2:
+        t[0] = t[1]
+    elif len(t) == 3:
+        t[0] = t[1] + ' ' + t[2]
+    elif len(t) == 7:
+        t[0] = t[1] + t[2] + t[3] + t[4] + t[5] + t[6]
+    elif len(t) == 6:
+        t[0] = t[1] + t[2] + t[3] + t[4] + t[5]
+    elif len(t) == 5:
+        t[0] = t[1] + t[2] + t[3] + t[4]
+
+
 
 def p_types(t):
     '''
@@ -2528,40 +2564,17 @@ def p_idlist(t):
 # --------------------------------------------------------------------------------------
 def p_update(t):
     '''
-        update : UPDATE ID SET setcolumns WHERE exp
-               | UPDATE ID SET setcolumns
+        update : UPDATE ID SET exp_list WHERE exp
+               | UPDATE ID SET exp_list
     '''
     if len(t)==7:
         #UPDATE ID SET setcolumns WHERE exp
         t[0] = Update(t.lineno, 0, t[2], t[4], t[6])
     elif len(t)==5:
+        t[0] = Update(t.lineno, 0, t[2], t[4])
         #UPDATE ID SET setcolumns
         pass
     set('<TR> \n <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> \n <TD> update = Update(t[2], t[4], t[6]) </TD> \n </TR> \n')
-
-
-def p_setcolumns(t):
-    '''
-        setcolumns : setcolumns COMA updateAsign
-                   | updateAsign
-    '''
-    if len(t) == 4:#setcolumns COMA updateAsign
-        t[0] = t[1]
-        t[0].append(t[3])
-        set('<TR><TD> setcolumns → setcolumns COMA updateAsign </TD><TD> updateAsign=t[1].append(t[2]) <BR/> idList=t[1] </TD></TR>')
-
-    else:#updateAsign
-        t[0] = [t[1]]
-        set('\n <TR><TD> updateAsign </TD><TD> updateAsign(t[1]) </TD></TR>')
-
-
-def p_updateAsign(t):
-    '''
-        updateAsign : ID IGUAL exp
-    '''
-    t[0] = Opera_Relacionales(t[1], t[3], "u:=", 1, 1)
-
-    set('<TR> \n <TD> updateAsign → ID IGUAL exp: </TD> \n <TD> updateAsign = Opera_Relaciones(t[1], t[3]) </TD> \n </TR> \n')
 
 
 # --------------------------------------------------------------------------------------
@@ -2646,38 +2659,15 @@ def p_deletetable(t):
     '''
         deletetable : DELETE FROM ID WHERE exp
                     | DELETE FROM ID
-                    | DELETE groupatributes FROM ID WHERE exp
-                    | DELETE groupatributes FROM ID
     '''
     if len(t)==6:
         #DELETE FROM ID WHERE exp
+        t[0] = Delete(t[3], t[5], 1, 1)
         pass
     elif len(t) == 4:
-        #DELETE FROM ID
+        t[0] = Delete(t[3], None, 1, 1)
         pass
-    elif len(t) == 7:
-        #DELETE groupatributes FROM ID WHERE exp
-        pass
-    elif len(t) == 5:
-        # DELETE groupatributes FROM ID
-        pass
-    set('<TR> \n <TD> deletetable → DELETE FROM ID WHERE exp | DELETE FROM ID | DELETE groupatributes FROM ID WHERE exp | DELETE groupatributes FROM ID: </TD> \n <TD> defAcces = deleteTable(t[2], t[4]) </TD> \n </TR> \n')
-
-
-# --------------------------------------------------------------------------------------
-# --------------------------------- groupatributes--------------------------------------
-# --------------------------------------------------------------------------------------
-def p_groupatributes(t):
-    '''
-        groupatributes : groupatributes COMA defAcces
-                       | defAcces
-    '''
-    if len(t) == 4:#groupatributes COMA defAcces
-        t[0] = t[1]
-        t[0].append(t[3])
-    else:#defAcces
-        t[0] = [t[1]]
-    set('<TR> \n <TD> groupatributes → groupatributes COMA defAcces | defAcces: </TD> \n <TD> defAcces = atributes(t[2], t[4]) </TD> \n </TR> \n')
+    set('<TR> \n <TD> deletetable → DELETE FROM ID WHERE exp | DELETE FROM ID: </TD> \n <TD> defAcces = deleteTable(t[2], t[4]) </TD> \n </TR> \n')
 
 
 # -------------------------------------------------------------------------------------
@@ -2693,16 +2683,20 @@ def p_create_db(t):
 
     if len(t)==9:
         #CREATE OR REPLACE DATABASE IF NOT EXISTS createdb_extra
-        t[0] = CreateDatabase(t.lineno, 0, t[8], True, True)
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8]
+        t[0] = CreateDatabase(string, 1, 1)
     elif len(t)==6:
         #CREATE OR REPLACE DATABASE createdb_extra
-        t[0] = CreateDatabase(t.lineno, 0, t[5], True, False)
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
+        t[0] = CreateDatabase(string, 1, 1)
     elif len(t)==7:
         #CREATE DATABASE IF NOT EXISTS createdb_extra
-        t[0] = CreateDatabase(t.lineno, 0, t[6], False, True)
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+        t[0] = CreateDatabase(string, 1, 1)
     elif len(t)==4:
         #CREATE DATABASE createdb_extra
-        t[0] = CreateDatabase(t.lineno, 0, t[3], False, False)
+        string = t[1] + ' ' + t[2] + ' ' + t[3]
+        t[0] = CreateDatabase(string, 1, 1)
 
     set('<TR> \n <TD> create_db → CREATE DATABASE createdb_extra: </TD> \n <TD>  create_db = CreateDatabase(t[8]) </TD> \n </TR> \n')
 
@@ -2823,12 +2817,8 @@ def p_alter_database(t):
                        | ALTER DATABASE ID OWNER TO CURRENT_USER
                        | ALTER DATABASE ID OWNER TO SESSION_USER
     '''
-    if t[4].lower()=='rename':
-        t[0] = AlterDatabase(t.lineno, 0, t[3], t[6])
-    elif t[4].lower()=='owner':
-        #ALTER DATABASE ID OWNER TO ID <- aqui no hay progra xd
-        pass
-
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    t[0] = AlterDatabase(string, 1, 1)
     set('<TR> \n <TD> alter_database → ALTER DATABASE ID RENAME TO ID: </TD> \n <TD>  alter_database = AlterDatabase(t[3], t[6]) </TD> \n </TR> \n')
 
 # ------------------------------------------------------------------------------------
@@ -2840,11 +2830,13 @@ def p_drop_database(t):
                       | DROP DATABASE ID
     '''
     if len(t)==6:
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
         #DROP DATABASE IF EXISTS ID
-        t[0] = DropDatabase(t.lineno, 0, t[5])
+        t[0] = DropDatabase(string, 1, 1)
     elif len(t) == 4:
         #DROP DATABASE ID
-        t[0] = DropDatabase(t.lineno, 0, t[3])
+        string = t[1] + ' ' + t[2] + ' ' + t[3]
+        t[0] = DropDatabase(string, 1, 1)
 
     set('<TR> \n <TD> drop_database → DROP DATABASE ID: </TD> \n <TD>  drop_database = DropDatabase(t[3]) </TD> \n </TR> \n')
 
