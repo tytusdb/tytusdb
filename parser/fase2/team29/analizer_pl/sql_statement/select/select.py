@@ -1,4 +1,5 @@
 from analizer_pl.abstract import instruction
+from analizer_pl.statement.expressions import code
 
 
 class Select(instruction.Instruction):
@@ -26,4 +27,12 @@ class Select(instruction.Instruction):
         self.distinct = distinct
 
     def execute(self, environment):
-        pass
+        out = "fase1.execution(dbtemp + "
+        out += '" '
+        out += "SELECT "
+        out += self.exists + " "
+        out += self.name + " ("
+        out += self.columns + " )"
+        out += self.inherits + ";"
+        out += '")\n'
+        return code.C3D(out, "select", self.row, self.column)

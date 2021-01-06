@@ -2,6 +2,7 @@ from analizer_pl.abstract.instruction import Instruction
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 
+
 class FunctionDeclaration(Instruction):
     def __init__(self, proc, id, params, returns, row, column) -> None:
         super().__init__(row, column)
@@ -11,8 +12,10 @@ class FunctionDeclaration(Instruction):
         self.proc = proc
 
     def execute(self, environment):
+        if not self.params:
+            self.params = []
         environment.globalEnv.addFunction(self.id, self.returns, len(self.params))
-        cd = "\n@with_goto\ndef " + self.id + "():\n"  
+        cd = "\n@with_goto\ndef " + self.id + "():\n"
         for p in self.params:
             cd += "\t" + p.execute(environment).temp + " = stack.pop()\n"
 
@@ -38,5 +41,5 @@ class FunctionDeclaration(Instruction):
             new.addNode(returnsNode)
             typ = Nodo(str(self.returns))
             returnsNode.addNode(typ)
-        
+
         return new

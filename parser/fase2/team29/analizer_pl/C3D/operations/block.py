@@ -5,6 +5,7 @@ from analizer_pl.abstract.environment import Environment
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.C3D.operations import return_
 
+
 class Block(Instruction):
     def __init__(
         self, function, declaration, blocks, exception, label, row, column
@@ -37,7 +38,9 @@ class Block(Instruction):
         else:
             for b in self.blocks:
                 bl += b.execute(newEnv).value
-        return code.C3D(defFunc + decl + bl + "\tlabel .endLabel\n", "block", self.row, self.column)
+        return code.C3D(
+            defFunc + decl + bl + "\tlabel .endLabel\n", "block", self.row, self.column
+        )
 
     def dot(self):
         new = Nodo("BLOCK")
