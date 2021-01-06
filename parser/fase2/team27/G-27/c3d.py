@@ -140,7 +140,7 @@ def t_NUMERO(t):
 def t_F_HORA(t):
     r'\'\s*(\d+\s+(hours|HOURS))?(\s*\d+\s+(minutes|MINUTES))?(\s*\d+\s+(seconds|SECONDS))?\s*\''
     t.value = t.value[1:-1]
-    return t
+    return t.replace('\'','\"')
 
 # EXPRESION REGULAR PARA FORMATO FECHA HORA
 def t_FECHA_HORA(t):
@@ -178,7 +178,7 @@ def t_HORA(t):
 # EXPRESION REGULAR PARA CADENA SIMLE
 def t_CADENASIMPLE(t):
     r'\'(\s*|.*?)\''
-    t.value = str(t.value)
+    t.value = str(t.value).replace('\'','\"')
     return t
     
 # EXPRESION REGULAR PARA FORMATO CADENAS
@@ -713,7 +713,7 @@ def p_list_vls(t):
     if len(t) == 4:
         t[0] = GenerarC3D()
         t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code
-    if len(t) == 2:
+    elif len(t) == 2:
         t[0] = GenerarC3D()
         t[0].code += t[1].code
     else: 
@@ -862,7 +862,7 @@ def p_functions(t):
                     |   trig
                     |   string_func
                     |   time_func
-                     '''
+                    '''
     t[0] = GenerarC3D()
     t[0].code += t[1].code
 
@@ -1122,6 +1122,10 @@ def p_arg_having(t):
     else:
         t[0] = GenerarC3D()
         t[0].code += ''
+def p_exp_aux(t):
+    ''' exp : ID PARABRE list_vls PARCIERRE'''
+    t[0] = GenerarC3D()
+    t[0].code = '\' + ' + t[1] + t[2] + t[3].code + t[4] + '+ \''
 
 def p_exp(t):
     '''exp  : exp SIGNO_MAS exp
@@ -1152,7 +1156,6 @@ def p_exp(t):
             | arg_greatest
             | arg_least 
             | val_value
-            | ID PARABRE list_vls PARCIERRE
             | PARABRE exp PARCIERRE
             | data NOT IN PARABRE ins_select PARCIERRE '''
     if len(t) == 7:
@@ -1587,13 +1590,23 @@ def p_body(t):
 #                         | 
 #    '''
 def p_declare(t):
-    '''declare_statement : declare_statement DECLARE statements
-                        | DECLARE statements
+    '''declare_statement : declare_statement DECLARE declares
+                        | DECLARE declares
                         | '''
     if len(t) == 3:
-        t[0] = t[2][:-1]
+        t[0] = t[2]
     else:
-        t[0] = ""
+        t[0] = t[1] + t[3]
+
+def p_declares(t):
+    '''declares : declares declaracion
+               | declaracion
+    '''
+    if len(t) == 3:
+        t[1] += t[2]
+        t[0] = t[1]
+    else:
+        t[0] = t[1]
 
 def p_declaracion(t):
     '''declaracion  : ID constante t_dato not_null declaracion_default PUNTO_COMA'''
@@ -1886,7 +1899,6 @@ def p_exp_plsql(t):
             | exp_plsql SIGNO_MENORQUE_MAYORQUE exp_plsql
             | exp_plsql SIGNO_NOT exp_plsql 
             | NOT exp_plsql
-            | ID PARABRE list_vls_plsql PARCIERRE
             | PARABRE exp_plsql PARCIERRE
             | val_value_plsql'''
     if len(t)== 4:
@@ -1897,8 +1909,6 @@ def p_exp_plsql(t):
             t[0] = t[2]
     elif len(t) == 3:
         t[0] = {'left': t[2], 'right': None, 'data': t[1]}
-    elif len(t) == 5:
-        t[0] = call(t[1], t[3])
     else:
         t[0] = t[1]
 
@@ -1914,21 +1924,115 @@ def p_val_value_plsql(t):
                 |   F_HORA
                 |   FECHA
                 |   HORA
-                |   ID'''
+                |   ID
+                |   ffunctions
+                |   ID PARABRE paramopt PARCIERRE
+                '''
     if t[1] == 'TRUE':
         t[1] = 'True'
     elif t[1] == 'FALSE':
         t[1] = 'False'
-    t[0] = {'left':None, 'right': None, 'data': t[1]}
+    if len(t) == 5:
+        t[0] = call(t[1], t[3])
+    else:
+        t[0] = {'left':None, 'right': None, 'data': t[1]}
 
-def p_list_vls_plsql(t):
-    '''list_vls_plsql : list_vls_plsql COMA exp_plsql
-                | exp_plsql '''
+def p_ffunctions(t):
+    '''ffunctions : fmath
+                  | ftrig
+                  | fstring_func
+                  | ftime_func'''
+    t[0] = t[1]
+
+def p_fmath(t):
+    '''fmath :    ABS PARABRE paramopt PARCIERRE
+                |   CBRT PARABRE paramopt PARCIERRE
+                |   CEIL PARABRE paramopt PARCIERRE
+                |   CEILING PARABRE paramopt PARCIERRE
+                |   DEGREES PARABRE paramopt PARCIERRE
+                |   DIV PARABRE paramopt PARCIERRE
+                |   EXP PARABRE paramopt PARCIERRE
+                |   FACTORIAL PARABRE paramopt PARCIERRE
+                |   FLOOR PARABRE paramopt PARCIERRE
+                |   GCD PARABRE paramopt PARCIERRE
+                |   LN PARABRE paramopt PARCIERRE
+                |   LOG PARABRE paramopt PARCIERRE
+                |   MOD PARABRE paramopt PARCIERRE
+                |   PI PARABRE paramopt  PARCIERRE
+                |   POWER PARABRE paramopt PARCIERRE 
+                |   ROUND PARABRE paramopt PARCIERRE 
+                |   SQRT PARABRE paramopt PARCIERRE 
+                |   SIGN PARABRE paramopt PARCIERRE
+                |   TRUNC PARABRE paramopt PARCIERRE
+                |   RANDOM PARABRE paramopt PARCIERRE
+                |   RADIANS PARABRE paramopt PARCIERRE
+                |   WIDTH_BUCKET PARABRE paramopt PARCIERRE'''
+    t[0] = callNative(t[1], t[3])
+def p_ftrig(t):
+    '''ftrig :   ACOS PARABRE paramopt PARCIERRE
+                |   ACOSD PARABRE paramopt PARCIERRE
+                |   ASIN PARABRE paramopt PARCIERRE
+                |   ASIND PARABRE paramopt PARCIERRE
+                |   ATAN PARABRE paramopt PARCIERRE
+                |   ATAND PARABRE paramopt PARCIERRE
+                |   ATAN2 PARABRE paramopt PARCIERRE
+                |   ATAN2D PARABRE paramopt PARCIERRE
+                |   COS PARABRE paramopt PARCIERRE
+                |   COSD PARABRE paramopt PARCIERRE
+                |   COT PARABRE paramopt PARCIERRE
+                |   COTD PARABRE paramopt PARCIERRE
+                |   SIN PARABRE paramopt PARCIERRE
+                |   SIND PARABRE paramopt PARCIERRE
+                |   TAN PARABRE paramopt PARCIERRE
+                |   TAND PARABRE paramopt PARCIERRE
+                |   SINH PARABRE paramopt PARCIERRE
+                |   COSH PARABRE paramopt PARCIERRE
+                |   TANH PARABRE paramopt PARCIERRE
+                |   ASINH PARABRE paramopt PARCIERRE
+                |   ACOSH PARABRE paramopt PARCIERRE
+                |   ATANH PARABRE paramopt PARCIERRE  '''
+    t[0] = callNative(t[1], t[3])
+def p_fstring_func(t):
+    '''fstring_func  :  LENGTH PARABRE paramopt PARCIERRE
+                    |   SUBSTRING PARABRE paramopt PARCIERRE
+                    |   TRIM PARABRE paramopt PARCIERRE
+                    |   GET_BYTE PARABRE paramopt PARCIERRE
+                    |   MD5 PARABRE paramopt PARCIERRE
+                    |   SET_BYTE PARABRE paramopt PARCIERRE
+                    |   SHA256 PARABRE paramopt PARCIERRE
+                    |   SUBSTR PARABRE paramopt PARCIERRE
+                    |   CONVERT PARABRE paramopt PARCIERRE
+                    |   ENCODE PARABRE paramopt PARCIERRE
+                    |   DECODE PARABRE paramopt PARCIERRE '''
+    t[0] = callNative(t[1], t[3])
+def p_ftime_func(t):
+    '''ftime_func    :   DATE_PART PARABRE  paramopt PARCIERRE 
+                    |   NOW PARABRE paramopt PARCIERRE
+                    |   EXTRACT PARABRE paramopt PARCIERRE
+                    |   TIMESTAMP CADENASIMPLE
+                    |   CURRENT_TIME
+                    |   CURRENT_DATE'''
+    if len(t) == 4:
+        t[0] = callNative(t[1], t[3])
+def p_paramopt(t):
+    ''' paramopt : fparametros
+                 | 
+    '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        t[0] = []
+
+def p_fparametros(t):
+    '''fparametros : fparametros COMA exp_plsql
+                   | exp_plsql
+    '''
     if len(t) == 4:
         t[1].append(t[3])
         t[0] = t[1]
     else:
         t[0] = [t[1]]
+
 # ======================================================================
 #                         INSTRUCCIONES SQL
 # ======================================================================

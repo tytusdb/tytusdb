@@ -235,6 +235,8 @@ def traduct(raiz):
                               if data in temporales:
                                     temporal = temporales[data]
                               value['temp'] = temporal
+                        elif isinstance(data,dict):
+                              value = data
                         else:
                               value['temp'] = str(data)
                   return value
@@ -249,7 +251,8 @@ def funcion(diccionarioFuncion, codigo3D):
       codigoGenerado = "def " + id + '('
       for v in diccionarioFuncion['parametros']:
             codigoGenerado += v + ','
-      codigoGenerado = codigoGenerado[:-1]
+      if codigoGenerado[len(codigoGenerado)-1] == ',':
+            codigoGenerado = codigoGenerado[:-1]
       codigoGenerado += '):\n'
       codigo3D = '\n' +  codigo3D
       codigo3D = codigo3D.replace('\n', '\n\t')
@@ -260,6 +263,23 @@ ______________________________________________________________
 
 """
 def call(id, listaParámetros):
+      c3d = ""
+      paramsTemp = []
+      for v in listaParámetros:
+            aux = traduct(v)
+            paramsTemp.append(aux['temp'])
+            c3d += aux['c3d']
+      temporal = getTemp()
+      c3d += temporal + '=' + id + '('
+      for temp in paramsTemp:
+            c3d += temp + ','
+      if c3d[len(c3d)-1] == ',':
+            c3d = c3d[:-1]
+      c3d += ')\n'
+      retorno = {'c3d':c3d,'temp':temporal}
+      return retorno
+
+def callNative(id, listaParámetros):
       c3d = ""
       paramsTemp = []
       for v in listaParámetros:

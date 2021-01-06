@@ -96,7 +96,7 @@ class ThreeAddressCode(object):
         """
         self.__content = 'from goto import with_goto'
         self.__content += '\nfrom controllers.three_address_code import ThreeAddressCode'
-        self.__content += '\nStack = [None]*10000\n'
+        self.__content += '\nStack = [None]*10000\nP = 0'
 
         self.__content += '\n\n@with_goto'
         self.__content += '\ndef main():'
@@ -144,7 +144,7 @@ class ThreeAddressCode(object):
 
         self.__function = '\n\n@with_goto'
         self.__function += f"\ndef {name}():"
-        self.__content += '\n\tglobal Stack'
+        self.__function += '\n\tglobal Stack, P'
         self.__function += self.__instructionList
 
         self.__functions.append(self.__function)

@@ -1,3 +1,4 @@
+from analizadorFase2.Instrucciones.EliminarFuncion import EliminarFuncion
 from analizadorFase2.Instrucciones.Llamada import Llamada
 from analizadorFase2.Instrucciones.Else import Else_inst
 from analizadorFase2.Instrucciones.If import If_inst
@@ -18,7 +19,6 @@ class Generador:
         self.label = numero_labl
         self.inst = inst
         self.codigo3d = []
-        self.codigo3d.append("simulador_pila = [None]*100")
         self.numerotab = 0
         self.dentroetiqueta = False
 
@@ -69,7 +69,6 @@ class Generador:
         for instruccion in self.inst:
             if isinstance(instruccion, Funcion):
                 self.compilarFuncion(instruccion)
-
         for linea in self.codigo3d:
             print(linea)
 
@@ -92,6 +91,8 @@ class Generador:
                 self.compilarLlamada(instruccion1)
             elif isinstance(instruccion1, Primitivo):
                 self.compilarPrimitivo
+            elif isinstance(instruccion1, EliminarFuncion):
+                self.compilarDropFunction(instruccion1)
         self.numerotab -= 1
     
     def compilarLlamada(self, instruccion):
@@ -128,6 +129,8 @@ class Generador:
                 self.compilarLlamada(instruccion1)
             elif isinstance(instruccion1, Primitivo):
                 self.compilarPrimitivo
+            elif isinstance(instruccion1, EliminarFuncion):
+                self.compilarDropFunction(instruccion1)
 
     def compilarIf(self, instruccion):
         if isinstance(instruccion, If_inst):
@@ -169,6 +172,10 @@ class Generador:
         elif isinstance(instruccion.valor, Llamada):
             ret = self.compilarLlamada(instruccion.valor)
             self.generarAsignacion(instruccion.id, ret.valor)
+
+    def compilarDropFunction(self, instruccion):
+        inst = self.generarTab() + "del " + instruccion.id
+        self.codigo3d.append(inst)
 
     def compilarOperacionLogicaRelacional(self, instruccion):
         if isinstance(instruccion, OperacionesLogicasRelacionales):
