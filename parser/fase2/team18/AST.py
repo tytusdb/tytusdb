@@ -3906,7 +3906,7 @@ def Crear_Procedimiento(instr,ts):
         #verificar que no exista
         if(findProcedure(name)==None):
             addProcedure(name,cuerpo,parametros)
-            CD3.PCreateProcedure(name,cuerpo,parametros,0)
+            CD3.PCreateProcedure(name,cuerpo,parAuxF,0)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
         else:
@@ -3936,7 +3936,7 @@ def cuerpo_Procedure(body,ts):
     flag = True
 
     if (isinstance(body,list)):
-        instrucciones = cuerpo
+        instrucciones = body
     else:
         print("No tiene una lista")
         declaraciones = body.declaraciones
@@ -3993,14 +3993,14 @@ def cuerpo_Procedure(body,ts):
 
     cuerpo.declaraciones=parametros
 
-    '''if(instrucciones != None):
+    if(instrucciones != None):
         for ins in instrucciones:
             if isinstance(ins,Insertar):
                 ''
             elif isinstance(ins,Actualizar):
                 ''
             elif isinstance(ins,Eliminar):
-                '''
+                ''
 
     cuerpo.contenido = instrucciones  
 
@@ -4018,6 +4018,29 @@ def Execute_Procedimiento(instr,ts):
     print("Metodo para ejecutar el stored procedure")
     print(instr)
     agregarMensjae('normal','Execute procedure: '+ str(instr.procedimiento),'')
+
+    nombre = resolver_operacion(instr.procedimiento,ts)
+    nombre = nombre.lower()
+   
+    
+    procedimiento = findProcedure(nombre)
+
+    instrucciones = procedimiento.contenido.contenido
+
+    for proc in instrucciones:
+        if isinstance(proc,Insertar):
+            print("insertar")
+            insertar_en_tabla(proc,ts)
+        elif isinstance(proc,Actualizar):
+            print("Actualizar")
+            actualizar_en_tabla(proc,ts)
+        elif isinstance(proc,Eliminar):
+            print("Eliminar")
+            eliminar_de_tabla(proc,ts)
+        else: 
+            print("Ninguna funcion")
+
+    
     
 
 #Eliminar procedimiento 
