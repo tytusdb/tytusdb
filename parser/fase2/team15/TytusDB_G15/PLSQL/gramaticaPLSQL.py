@@ -538,7 +538,8 @@ def p_instrucciones_global_sent(t):
                                     | alterTable_insrt
                                     | insert_insrt
                                     | update_insrt
-                                    | createIndex'''
+                                    | createIndex
+                                    | drop_insrt_index'''
     t[0] = t[1]
 
 def p_instrucciones_global_sent1(t):
@@ -2887,6 +2888,29 @@ def p_opclass(t):
                | VARCHAR_PATTERN_OPS
                | BPCHAR_PATTERN_OPS '''
     t[0] = ' '+ str(t[1]) + ' '
+
+# DROP
+#?######################################################
+# TODO        GRAMATICA DROP INDEX
+#?######################################################
+
+
+def p_dropIndex(t):
+    ' drop_insrt_index : DROP INDEX lista_drop_id_index PTCOMA'
+    cadena = ""
+    for i in t[3]:
+        cadena+= ' ' + str(i)
+    t[0] = DropIndex(' ' + t[1] + ' '+ t[2] + ' '+ cadena + ';')
+
+def p_lista_tabla_lista_index(t):
+    ' lista_drop_id_index :   lista_drop_id_index COMA ID '
+    t[1].append(t[2])
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_tabla_lista_index2(t):
+    ' lista_drop_id_index : ID '
+    t[0] = [t[1]]
 
 
 

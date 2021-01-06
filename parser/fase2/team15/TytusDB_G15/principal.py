@@ -575,10 +575,22 @@ def procesar_update(instr,ts,tc):
             llaves.append(llavesTemp)
         iU += 1
     
+    valorReturn = 0
     for llavesPk in llaves:
-        j.update(str(useCurrentDatabase),str(instr.identificador.val),updateDicc,llavesPk)
+        valorReturn = j.update(str(useCurrentDatabase),str(instr.identificador.val),updateDicc,llavesPk)
 
-    salida = '\nUPDATE'
+    
+
+    if valorReturn == 0:
+        salida = '\nUPDATE'
+    elif valorReturn == 1 :
+        salida = "\nERROR:  internal_error \nSQL state: XX000 "
+    elif valorReturn == 2 :
+        salida = "\nERROR:  database \"" + str(useCurrentDatabase) +"\" does not exist \nSQL state: 3D000"
+    elif valorReturn == 3 :
+        salida = "\nERROR:  table \"" + str(instr.identificador.val) +"\" does not exist \nSQL state: 42P01"
+    elif valorReturn == 4 :
+        salida = "\nERROR:  PK does not exist \nSQL state: 42P01"
     
 
 def procesar_drop(instr,ts,tc):
@@ -2966,8 +2978,16 @@ def obtener_indexbody(instr):
         print(instr.identificador)
         print(instr.expresion)
 
-    
-    salida = '\nCREATE INDEX'
+def procesar_dropIndex(instr,ts,tc,tsIndex):
+    if instr.lista_ids != []:
+        for datos in instr.lista_ids:
+            result = tsIndex.deleteIndex(datos.val)
+            global salida
+            if result == 0:
+                global salida
+                salida = "\nDROP INDEX"
+            elif result == 1 :
+                salida = "\nERROR:  index  \"" + str(datos.val) +"\" does not exist \nSQL state: 42704"
     
 
 def procesar_instrucciones(instrucciones,ts,tc,tsIndex) :
@@ -2989,6 +3009,8 @@ def procesar_instrucciones(instrucciones,ts,tc,tsIndex) :
                 procesar_Expresion_Relacional(instr,ts,tc)
             elif isinstance(instr, Funcion_Index) :
                 procesar_index(instr,ts,tc,tsIndex)
+            elif isinstance(instr, Crear_Drop_INDEX) :
+                procesar_dropIndex(instr,ts,tc,tsIndex)
             elif isinstance(instr, ExpresionBinaria) : 
                 procesar_Expresion_Binaria(instr,ts,tc)
             elif isinstance(instr, ExpresionLogica) : 
