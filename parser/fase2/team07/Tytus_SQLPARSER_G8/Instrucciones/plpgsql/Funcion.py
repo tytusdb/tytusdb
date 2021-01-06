@@ -40,7 +40,7 @@ class Funcion(Instruccion):
         for dec in self.declaraciones:
             codigo += dec.traducir(tabla,arbol,cadenaTraducida) + "\n"
 
-        #Se agrega todo el contenido traducido a 3D
+        #Se agrega todo el contenido de las instrucciones traducido a 3D
         for ins in self.instrucciones:
             codigo += ins.traducir(tabla,arbol,cadenaTraducida) + "\n"
 

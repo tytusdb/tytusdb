@@ -2138,7 +2138,7 @@ def p_retorno_funcion(t):
 				    |   AS DOLLAR DOLLAR
     '''
     if len(t) == 4:
-        t[0] = "NINGUNO"
+        t[0] = "NO ESPECIFICADO"
     elif len(t) == 5:
         t[0] = t[1].strSent
     else:
@@ -2206,6 +2206,7 @@ def p_dec_var_funcion3(t):
     '''
 
 
+
 def p_tabla_typerow(t):
     '''
     tabla_typerow   :   ID PUNTO ID
@@ -2251,6 +2252,7 @@ def p_aisgnacion_valor(t):
 					    |	IGUAL expre 
     '''
     t[0] = t[2]
+
 
 
 def p_aisgnacion_valor_e(t):

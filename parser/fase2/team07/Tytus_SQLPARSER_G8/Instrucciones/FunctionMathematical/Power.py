@@ -3,6 +3,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
+
 class Power(Instruccion):
     def __init__(self, opIzq, opDer, strGram, linea, columna, strSent):
         Instruccion.__init__(self,Tipo("",Tipo_Dato.NUMERIC),linea,columna,strGram,strSent)
@@ -36,3 +38,10 @@ class Power(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
+
+    def traducir(self, tabla, arbol, cadenaTraducida):
+        codigo = ""
+        temporal = arbol.generaTemporal()
+        codigo += "\t\t" + temporal + " = " + str(self.ejecutar(tabla, arbol)) + "\n"
+        nuevo = Simbolo3d(Tipo("",Tipo_Dato.INTEGER), temporal, codigo, None, None)
+        return nuevo
