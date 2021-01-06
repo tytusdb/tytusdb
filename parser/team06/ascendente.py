@@ -4358,3 +4358,38 @@ def procesar_select_Tipo5A(query,ts):
         print("el resultado despues de filtros es: \n",e)
         h.textosalida+="TYTUS>>Se ha ejecutado EL SUBQUERY\n"+str(e)+"\n"
         return e
+
+    
+def procesar_dropFunction(BD,ambito):
+    print("eliminando una funcion")
+    a = ""
+    if TS.TablaDeSimbolos().verificarFuncion(ambito,BD)==1:
+        conttemp = 0
+        contvar = TS.TablaDeSimbolos().contVariablesFunction(BD,ambito)
+        while conttemp < contvar:
+            TS.TablaDeSimbolos().eliminarVariablesFuncion(BD,ambito)
+            conttemp+=1
+        #a += 'print("Se eliminaron variables de funcion",'+'"'+ambito+'")\n'
+        h.textosalida+="TYTUS>> Se eliminaron variables de funcion "+ambito+"\n"
+        if TS.TablaDeSimbolos().eliminarFunction(ambito,BD)==1:
+            #a += 'print("Se elimino funcion",'+'"'+ambito+'")\n'
+            h.textosalida+="TYTUS>> Se eliminaron funcion "+ambito+"\n"
+        else:
+            #a += 'print("No se encontro ninguna funcion")'
+            h.textosalida+="TYTUS>> No se encontro ninguna funcion"+ambito+"\n"
+    else:
+        #a += 'print("No se encontro ninguna funcion")'
+        h.textosalida+="TYTUS>> No se encontro ninguna funcion "+ambito+"\n"
+
+
+def agregarFuncionaTS(nombre,BD):
+    simbolo = TS.Simbolo(None,nombre,None,None,BD,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
+    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+
+def agregarProcedureaTS(nombre,BD):
+    simbolo = TS.Simbolo(None,nombre,None,None,BD,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Procedimiento')
+    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+
+def agregarVariableaTS(nombre,tipo,BD,ambito):
+    simbolo = TS.Simbolo(None,nombre,tipo,None,BD,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,ambito,'Variable local')
+    TS.TablaDeSimbolos().agregarVariable(simbolo)

@@ -490,6 +490,7 @@ def p_query(t):
                     | execFunction
                     | createFunction
                     | createProcedure
+                    | dropFunction 
                     | statements
                     | declaraciones
     '''
@@ -2813,108 +2814,163 @@ def p_otroTipoJoin(t):
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                                     LABEL
 def p_Function_1(t):
-    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
-    vartip = t[5].split(',')
-    a = "def "+t[3]+" ( "
-    simbolo = TS.Simbolo(None,t[3],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
-    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
-    conttemp = 0
-    for i in vartip:
-        x = i.split(' ')
-        a+=str(x[0])
-        conttemp+=1
-        simbolo = TS.Simbolo(None,x[0],x[1],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[3],'Variable local')
-        TS.TablaDeSimbolos().agregarVariable(simbolo)
-        if conttemp < len(vartip):
-            a+=", "
-        conttemp+=1
-    a +=" ):\n"
+    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    a = 'salida=analizador.agregarFuncionaTS("'+t[3]+'",h.bd_enuso)\n'
+    a+= 'salida=analizador.agregarVariableaTS("'+t[7]+'",None,h.bd_enuso,"'+t[3]+'")\n'
 
-    simbolo = TS.Simbolo(None,t[8],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[3],'Variable local')
-    TS.TablaDeSimbolos().agregarVariable(simbolo)
+    a += "def "+t[3]+" ():\n"
+    a +='   print("FUNCTION")\n'
 
     t[0] = a
 
 def p_Function_2(t):
+    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    a = 'salida=analizador.agregarFuncionaTS("'+t[3]+'",h.bd_enuso)\n'
+
+    vartip = t[5].split(',')
+    conttemp1 = 0
+    for i in vartip:
+        x = i.split(' ')
+        conttemp1+=1
+        a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[3]+'")\n'
+        conttemp1+=1
+    a+= 'salida=analizador.agregarVariableaTS("'+t[8]+'",None,h.bd_enuso,"'+t[3]+'")\n\n'
+    
+    a += "def "+t[3]+" ( "
+    
+    conttemp2 = 0
+    for i in vartip:
+        x = i.split(' ')
+        a+=str(x[0])
+        conttemp2+=1
+        
+        if conttemp2 < len(vartip):
+            a+=", "
+        conttemp2+=1
+    a +=" ):\n"
+    a +='   print("FUNCTION")\n'
+
+    
+
+    t[0] = a
+
+
+def p_Function_3(t):
+    'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    a = 'salida=analizador.agregarFuncionaTS("'+t[5]+'",h.bd_enuso)\n'
+    a+= 'salida=analizador.agregarVariableaTS("'+t[9]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
+
+    a += "def "+t[5]+" ():\n"
+    a +='   print("REPLACE FUNCTION")'
+    t[0] = a
+
+
+def p_Function_4(t):
     'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
-    
-    
     vartip = t[7].split(',')
-    a = "def "+t[5]+" ( "
-    simbolo = TS.Simbolo(None,t[5],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
-    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+    
+    a = 'salida=analizador.agregarFuncionaTS("'+t[5]+'",h.bd_enuso)\n'
+
+    vartip = t[7].split(',')
+    conttemp1 = 0
+    for i in vartip:
+        x = i.split(' ')
+        conttemp1+=1
+        a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[5]+'")\n'
+        conttemp1+=1
+    a += 'salida=analizador.agregarVariableaTS("'+t[10]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
+    
+    a += "def "+t[5]+" ( "
     conttemp = 0
     for i in vartip:
         x = i.split(' ')
         a+=str(x[0])
         conttemp+=1
-        simbolo = TS.Simbolo(None,x[0],x[1],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[5],'Variable local')
-        TS.TablaDeSimbolos().agregarVariable(simbolo)
         if conttemp < len(vartip):
             a+=", "
         conttemp+=1
     a +=" ):\n"
-
-    simbolo = TS.Simbolo(None,t[10],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[5],'Variable local')
-    TS.TablaDeSimbolos().agregarVariable(simbolo)
+    a +='   print("REPLACE FUNCTION")\n'
 
     t[0] = a
 
 
 def p_Procedure_1(t):
     'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
-    a = "def "+t[3]+"():\n"
-    simbolo = TS.Simbolo(None,t[3],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
-    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
-
+    a = 'salida=analizador.agregarProcedureaTS("'+t[3]+'",h.bd_enuso)\n\n'
+    a += "def "+t[3]+"():\n"
+    a += '   print("PROCEDURE")\n'
     t[0] = a
 
 def p_Procedure_2(t):
     'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
     vartip = t[5].split(',')
-    a = "def "+t[3]+" ( "
-    simbolo = TS.Simbolo(None,t[3],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
-    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+    
+    a = 'salida=analizador.agregarProcedureaTS("'+t[3]+'",h.bd_enuso)\n'
+
+    vartip = t[5].split(',')
+    conttemp1 = 0
+    for i in vartip:
+        x = i.split(' ')
+        conttemp1+=1
+        a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[3]+'")\n'
+        conttemp1+=1
+    
+    a += "def "+t[3]+" ( "
     conttemp = 0
     for i in vartip:
         x = i.split(' ')
         a+=str(x[0])
         conttemp+=1
-        simbolo = TS.Simbolo(None,x[0],x[1],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[3],'Variable local')
-        TS.TablaDeSimbolos().agregarVariable(simbolo)
         if conttemp < len(vartip):
             a+=", "
         conttemp+=1
     a +=" ):\n"
-    t[0] = a
-
-def p_Procedure_4(t):
-    'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
-    a = "def "+t[3]+"():\n"
-    simbolo = TS.Simbolo(None,t[3],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
-    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
-
+    a +='   print("PROCEDURE")\n'
     t[0] = a
 
 def p_Procedure_3(t):
+    'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
+    a = 'salida=analizador.agregarProcedureaTS("'+t[5]+'",h.bd_enuso)\n'
+
+    a += "def "+t[3]+"():\n"
+    a += '   print("REPLACE PROCEDURE")\n'
+    t[0] = a
+
+def p_Procedure_4(t):
     'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
 
     vartip = t[7].split(',')
-    a = "def "+t[5]+" ( "
-    simbolo = TS.Simbolo(None,t[5],None,None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Funcion')
-    TS.TablaDeSimbolos().agregarSimbolo(simbolo)
+    
+    a = 'salida=analizador.agregarProcedureaTS("'+t[5]+'",h.bd_enuso)\n'
+
+    vartip = t[7].split(',')
+    conttemp1 = 0
+    for i in vartip:
+        x = i.split(' ')
+        conttemp1+=1
+        a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[5]+'")\n'
+        conttemp1+=1
+    a += 'salida=analizador.agregarVariableaTS("'+t[10]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
+    
+    a += "def "+t[5]+" ( "
     conttemp = 0
     for i in vartip:
         x = i.split(' ')
         a+=str(x[0])
         conttemp+=1
-        simbolo = TS.Simbolo(None,x[0],x[1],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,t[5],'Variable local')
-        TS.TablaDeSimbolos().agregarVariable(simbolo)
         if conttemp < len(vartip):
             a+=", "
         conttemp+=1
     a +=" ):\n"
+    a += '   print("REPLACE PROCEDURE")\n'
     t[0] = a
+
+
+def p_dropfunction(t):
+    'dropFunction               : DROP FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA'
+    a='salida = analizador.procesar_dropFunction(h.bd_enuso,"'+t[3]+'")'
+    t[0]=a
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                               DECLARATIONS
