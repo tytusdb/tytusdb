@@ -8,6 +8,10 @@ from analizer_pl.C3D.operations import return_
 from analizer_pl.C3D.operations import if_stmt
 from analizer_pl.C3D.operations import else_stmt
 from analizer_pl.C3D.operations import elseif_stmt
+from analizer_pl.sql_statement.create import create_database
+from analizer_pl.sql_statement.create import create_index
+from analizer_pl.sql_statement.create import create_table
+from analizer_pl.sql_statement.create import create_type
 
 def TernaryOperation(temp, exp1, exp2, exp3, operator, row, column):
     return operation.Ternary(temp, exp1, exp2, exp3, operator, row, column)
@@ -32,20 +36,38 @@ def Declaration(id, type, ass, row, column):
 def Block(function, declaration, blocks, exception, label, row, column):
     return block.Block(function, declaration, blocks, exception, label, row, column)
 
+
 def FunctionDeclaration(id, params, returns, row, column):
     return function.FunctionDeclaration(id, params, returns, row, column)
+
 
 def Case(expBool, blockStmt, elseCase, elseStmt, row, column):
     return case.Case(expBool, blockStmt, elseCase, elseStmt, row, column)
 
+
 def Return(exp, row, column):
     return return_.Return(exp, row, column)
 
-def IfStatement(row, column,expBool, elseif_list,else_,stmts):
-    return if_stmt.If_Statement(row, column,expBool, elseif_list,else_,stmts)
 
-def ElseIfStatement(row, column,expBool,stmt ):
-    return elseif_stmt.ElseIfStmt( row, column,expBool,stmt )
+def IfStatement(row, column, expBool, elseif_list, else_, stmts):
+    return if_stmt.If_Statement(row, column, expBool, elseif_list, else_, stmts)
 
-def ElseStatement(row, column,stmt):
-    return else_stmt.ElseStmt(row, column,stmt)
+
+def ElseIfStatement(row, column, expBool, stmt):
+    return elseif_stmt.ElseIfStmt(row, column, expBool, stmt)
+
+
+def ElseStatement(row, column, stmt):
+    return else_stmt.ElseStmt(row, column, stmt)
+
+def CreateDatabase(replace, exists, name, owner, mode, row, column):
+    return create_database.CreateDatabase(replace, exists, name, owner, mode, row, column)
+
+def CreateTable(exists, name, inherits, row, column, columns):
+    return create_table.CreateTable(exists, name, inherits, row, column, columns)
+
+def CreateType(exists, name, row, column, values):
+    return create_type.CreateType(exists, name, row, column, values)
+
+def CreateIndex(unique, idIndex, idTable, usingMethod, whereCl, row, column, optList):
+    return create_index.CreateIndex(unique, idIndex, idTable, usingMethod, whereCl, row, column, optList)

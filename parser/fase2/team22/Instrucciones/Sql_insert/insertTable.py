@@ -398,21 +398,31 @@ class insertTable(Instruccion):
 
         code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" VALUES (\" ", "STRING"), OP_ARITMETICO.SUMA))
         t0 = t1
-        t1 = c3d.getTemporal()
         sizeCol = len(self.lexpre)
         contador = 1
         for col in self.lexpre:
-            if col != None:
-                code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(col.generar3D(tabla, arbol)) + "\"", "STRING"), OP_ARITMETICO.SUMA))
-            t0 = t1
-            t1 = c3d.getTemporal()
-            if contador != sizeCol:
-                code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))
+            result = col.generar3D(tabla, arbol)
+            if not isinstance(result, list):
+                t1 = c3d.getTemporal()
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(result) + "\"", "STRING"), OP_ARITMETICO.SUMA))
+                '''if col != None:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(col.generar3D(tabla, arbol)) + "\"", "STRING"), OP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = c3d.getTemporal()
+                if contador != sizeCol:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))'''
                 t0 = t1
                 t1 = c3d.getTemporal()
             else:
+                code += result
+                t0 = c3d.getLastTemporal()
+                t1 = c3d.getTemporal()
+
+            if contador != sizeCol:
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))
+            else:
                 code.append(c3d.operacion(t1, Identificador(t0), Valor("\");\"", "STRING"), OP_ARITMETICO.SUMA))
-                t0 = t1
+            t0 = t1
             contador += 1
             
 

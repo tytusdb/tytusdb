@@ -1,94 +1,62 @@
 <init> ::= <instrucciones>
  
-<instrucciones> ::= <instrucciones><instruccion>
- 
-<cond_where> ::= WHERE <expresion_where>
- 
-<expresion_where> ::= <expresion_logica_w>
- 
-<expresion_logica_w> ::= NOT <expresion_logica_w>
- 
-<expresion_logica_w> ::= <expresion_whereb>
- 
-<expresion_whereb> ::= <expresion_wherea>
- 
-<expresion_wherea> ::= <expresion>
- 
-<expresion> ::= PAR_A <expresion_logica> PAR_C
- 
-<expresion_logica> ::= <expresion_relacional> AND <expresion_logica>
- 
-<expresion_logica> ::= <expresion_relacion>
- 
-<expresion_relacional> ::= <expresion> MENQUE <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <string_type>
- 
-<string_type> ::= ID
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <string_type>
- 
-<string_type> ::= ID
- 
-<expresion_relacional> ::= <expresion> MAYQUE <expresion>
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <string_type>
- 
-<string_type> ::= ID
- 
-<expresion> ::= <expresion_dato>
- 
-<expresion_dato> ::= <string_type>
- 
-<string_type> ::= ID
- 
-<campos_c> ::= ID
- 
-<instrucciones> ::= <instrucciones><instruccion>
- 
-<instrucciones> ::= <instrucciones><instruccion>
- 
-<campos_c> ::= <campos_c> COMA ID
- 
-<campos_c> ::= <campos_c> COMA ID
- 
-<campos_c> ::= ID
- 
-<instrucciones> ::= <instrucciones><instruccion>
- 
-<orden> ::= DESC
- 
-<instrucciones> ::= <instrucciones><instruccion>
- 
-<instrucciones> ::= <instrucciones><instruccion>
- 
-<campos_c> ::= <campos_c> COMA ID
- 
-<campos_c> ::= ID
- 
-<instrucciones> ::= <instrucciones><instruccion>
- 
-<instrucciones> ::= <instrucciones><instruccion>
- 
-<campos_c> ::= ID
- 
-<instrucciones> ::= <instrucciones><instruccion>
+<instrucciones> ::= <instruccion>
  
 <instruccion> ::= <alterTable_insrt>
  
-<alterTable_insrt> ::= ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C  PTCOMA
+<alterTable_insrt> ::= ALTER TABLE ID <alterTable_alter> PTCOMA
  
-<instrucciones> ::= <instrucciones><instruccion>
+<alterTable_alter> ::= <alterTable_alter> COMA <Table_alter>
+ 
+<Table_alter> ::= ALTER COLUMN ID TYPE <TIPO_DATO>
+ 
+<TIPO_DATO> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<alterTable_alter> ::= <Table_alter>
+ 
+<Table_alter> ::= ALTER COLUMN ID TYPE <TIPO_DATO>
+ 
+<TIPO_DATO> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <alterTable_insrt>
+ 
+<alterTable_insrt> ::= ALTER TABLE ID <alterTable_alter> PTCOMA
+ 
+<alterTable_alter> ::= <Table_alter>
+ 
+<Table_alter> ::= ALTER COLUMN ID TYPE <TIPO_DATO>
+ 
+<TIPO_DATO> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
  
 <instruccion> ::= <create_Table_isnrt>
  
 <create_Table_isnrt> ::= CREATE TABLE ID PAR_A <cuerpo_createTable_lista> PAR_C PTCOMA 
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
+ 
+<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
+ 
+<campos_c> ::= ID <TIPO_DATO_DEF>
+ 
+<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
  
 <cuerpo_createTable_lista> ::= <cuerpo_createTable>
  
@@ -96,11 +64,15 @@
  
 <TIPO_DATO_DEF> ::= INTEGER
  
-<instrucciones> ::= <instrucciones><instruccion>
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
  
 <instruccion> ::= <use_database_instr>
  
 <use_database_instr> ::= USE ID PTCOMA
+ 
+<init> ::= <instrucciones>
  
 <instrucciones> ::= <instruccion>
  

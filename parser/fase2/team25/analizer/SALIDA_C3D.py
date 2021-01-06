@@ -1,31 +1,64 @@
 from goto import with_goto
 from interpreter import execution
-from c3d.stack import  Stack
+from c3d.stack import Stack
 
 stack = Stack()
+RETURN=[None]
+
 
 
 @with_goto
 def principal():
-	t0 = "use mydb;"
-	stack.push(t0)
-	funcionIntermedia()
-	t1 = "select * from unatabla;"
-	t2 = 9 > 1
-	if t2: goto .L0
+	nomnbre =  'asdads'
+	t0 =  -5
+	numero =  t0
+	indice =  5
+	t1 = indice * 5
+	t2 = numero + t1
+	final =  t2
+	t3 = 9 > 0
+	t4 = 9 + 5
+	t5 = t4 == 14
+	t6 = t3 and t5
+	if t6: goto .L0
 	goto .L1
-	label .L0 #eTrue
-	t3 = 7979 + 9
-	return t3
-	t4 = 1 + 2
-	return t4
-	return 7
-	t5 = "select * from tanb;"
-	stack.push(t5)
-	funcionIntermedia()
+	label .L0 #etiqueta true
+	RETURN[0] = final
+	goto .L2 #EXIT
+
+	label .L1 #etiqueta false
+	t7 = 97 == 90
+	if t7: goto .L3
+	goto .L4
+	label .L3 #etiqueta true
+	RETURN[0] = 0
+	goto .L2 #EXIT
+
+	label .L4 #etiqueta false
+	t8 = 99 == 90
+	if t8: goto .L5
+	goto .L6
+	label .L5 #etiqueta true
+	RETURN[0] = 80
+	goto .L2 #EXIT
+
+	label .L6 #etiqueta false
+	t9 = 100 == 100
+	if t9: goto .L7
+	goto .L8
+	label .L7 #etiqueta true
+	RETURN[0] = 100
+	goto .L2 #EXIT
+
+	label .L8 #etiqueta false
+	RETURN[0] = 60
+
+	label .L2 # SALE DEL IF
 
 
 
 def funcionIntermedia():
-	execution("select 9*9;")
+	execution(stack.pop())
 principal()
+
+print(RETURN[0])

@@ -86,7 +86,8 @@ class Relational(Expression):
         exp1 = self.exp1.generate3d(environment ,instanciaAux)
         exp2 = self.exp2.generate3d(environment ,instanciaAux)
         operator = self.operator
-
+        if operator == "=":
+            operator = "=="
         tn = instanciaAux.getNewTemporal()#va llevar su control de getTempola tambien
         instanciaAux.addToCode(f'\t{tn} = {exp1} {operator} {exp2}')
         return tn

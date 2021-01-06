@@ -1802,15 +1802,18 @@ def p_can_where(t):
 
 def p_l_expresiones_atri(t) :
     '''l_expresiones    : l_expresiones COMA expre lista_options'''
-    t[1] = t[1].append(t[3], t[4])
-    t[0] = t[1]
+    t[3] = [t[3]]
+    t[3].append(t[4])
+    t[0] = [t[1], t[3]]
+    print(t[0])
     strGram = "<l_expresiones> := <l_expresiones> COMA <expre> <lista_options>\n"
     agregaGram(strGram)
 
 def p_l_expresiones_atri_ind(t) :
     '''l_expresiones    : expre lista_options'''
-    t[1] = t[1].append(t[2])
-    t[0] = t[1]
+    
+    t[0] = [t[1]]
+    t[0].append(t[2])
     strGram = "<l_expresiones> := <expre> <lista_options>\n"
     agregaGram(strGram)
 
@@ -1827,7 +1830,7 @@ def p_operadores_is_not_true(t):
 
 def p_lista_options(t) :
     'lista_options  : lista_options options'
-    t[1] = t[1].append(t[2])
+    t[1].append(t[2])
     t[0] = t[1]
     strGram = "<lista_options> := <lista_options> <options>\n"
     agregaGram(strGram)
@@ -1837,7 +1840,7 @@ def p_lista_options_2(t) :
 # <<<<<<< HEAD
 #     t[0] = [t[1]]
 # =======
-    t[0] = t[1]
+    t[0] = [t[1]]
     strGram = "<lista_options> := <options>\n"
     agregaGram(strGram)
 # >>>>>>> upstream/main
@@ -1855,7 +1858,7 @@ def p_options(t) :
     if len(t) == 2:
         t[0] = t[1]
     else:
-        t[0] = t[1] + t[2]
+        t[0] = t[1] + ' ' + t[2]
 
     strGram = ""
     if t[1] == "ASC":
@@ -2623,7 +2626,7 @@ def find_column(input,token):
 parser = yacc.yacc()
 
 def ejecutar_analisis(texto):
-    instrucciones = parser.parse(texto)
+    instrucciones = None
     # reporte = AST.AST(instrucciones)
     # reporte.ReportarAST()
 
@@ -2642,5 +2645,5 @@ def ejecutar_analisis(texto):
     lexer.lineno = 0
     #se obtiene la acción de analisis sintactico
     print("inicio")
-    return parser.parse(texto)
+    return instrucciones
 

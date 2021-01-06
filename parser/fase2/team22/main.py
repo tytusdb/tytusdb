@@ -268,7 +268,7 @@ class interfaz():
         self.salidaC3d[-1].insert(INSERT, entrada+"")
 
     def btnOptimizarC3D_click(self):
-        archivo = open("C3DOptimo.py", "r")
+        archivo = open("C3DOptimizado.py", "r")
         entrada = archivo.read()
         archivo.close()
         self.salidaC3dOpt[self.tab.index("current")].delete(1.0,END)
