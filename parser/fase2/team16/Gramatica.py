@@ -232,6 +232,7 @@ reservadas = {
 
     'index' : 'INDEX',
     'hash' : 'HASH',
+    'statistics':'STATISTICS'
 
 }
 
@@ -514,6 +515,9 @@ def p_instruccion(t):
                     | COMENTARIONORMAL
                     | FUNCIONESS
                     | crear_indice
+                    | EDITINDEX
+                    | EDITNAMEINDEX
+                    | DROPEINDEX
                     | EJECUTARFUNCION PUNTOCOMA'''
 
     if t[1] != 'COMENTARIONORMAL' and t[1] != 'COMENTARIOMULTI':
@@ -3258,8 +3262,45 @@ def p_where_in_e(t):
     'where_in : '
     t[0] = None
 
+# ====================== ALTER  INDICE =============================
 
 
+def p_AlterIndex(t):
+    'EDITINDEX  :   ALTER INDEX  IFEXISTI  ID ALTER COLE  ENTERO SET STATISTICS  ENTERO  PUNTOCOMA'
+    t[0] = AlterIndiceCol(t[4],t[7],t[10])
+
+
+def p_AlterNameIndex(t):
+    'EDITNAMEINDEX  :  ALTER INDEX IFEXISTI ID RENAME ID PUNTOCOMA'
+    t[0]  = AlterIndiceName(t[4],t[6])
+
+
+#------------- if exists
+def p_IfExistAlterIndex(t):
+    'IFEXISTI  :  IF EXISTS'
+    t[0] = "IF EXISTS"
+
+def p_IfExistAlterIndex(t):
+    'IFEXISTI  :  '
+    t[0]  = ""
+
+#-------------  cole
+
+def p_ColeIndex(t):
+    'COLE   :   COLUMN'
+    t[0] = t[1]
+
+def p_ColeIndexEpsilon(t):
+    'CODE   :   '
+    t[0]= ""
+
+
+
+
+# ====================== DROP   INDICE =============================
+def p_DropIndex(t):
+    'DROPEINDEX   :   DROP  INDEX IFEXISTI ID PUNTOCOMA'
+    t[0]  = DropIndice(t[4])
 
 
 

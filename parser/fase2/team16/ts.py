@@ -181,7 +181,53 @@ class TablaDeSimbolos():
         else:
             return self.Indices[id_indice]
 
+
+
     def agregarIndice(self, indice):
         self.Indices[indice.id_indice] = indice
 
 
+
+
+    def alterNameIndice(self,id_indice, new_indice):
+        if not id_indice in self.Indices:
+            print("No esta el indice")
+        else:
+
+
+            print("Estos datos llegan ")
+            print(id_indice)
+            print(new_indice)
+            var:CrearIndice  = self.Indices.pop(id_indice)
+            var.id_indice = new_indice
+            self.Indices[new_indice] = var
+            print("Este es el nuevo diccionario  ")
+            print(self.Indices)
+
+
+
+# ---------------  Eliminar el indice
+    def alterColumnIndice(self, id_indice, no_col, Tipo):
+        Contador = 0
+        if not id_indice in self.Indices:
+            print("No esta el indice")
+        else:
+            ob: CrearIndice = self.obtenerIndice(id_indice)
+
+            # buscamos la columna con el numero asociado
+            for l in ob.columnas:
+                if (Contador == no_col):
+                    print("Este editaremos")
+                    self.Indices[id_indice].columnas[Contador].statistics = Tipo
+                    print("Se cambia el dato de la columna por el nuevo")
+                Contador += 1
+
+
+
+#---------------  Eliminar el indice
+    def DropIndice(self, id_indice):
+        if not id_indice in self.Indices:
+            print("No esta el indice")
+        else:
+            del self.Indices[id_indice]
+            print(self.Indices)

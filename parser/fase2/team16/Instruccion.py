@@ -1557,6 +1557,7 @@ from graphviz import Graph
 from graphviz import escape
 
 def tabla_simbolos():
+    global ts_global
     #print("------------SIMBOLOS---------------")
     ts=ts_global
     SymbolT =  Graph('g', filename='bsimbolos.gv', format='png',node_attr={'shape': 'plaintext', 'height': '.1'})
@@ -1565,28 +1566,28 @@ def tabla_simbolos():
     cadena=''
     for fn in ts.Datos:
         fun=ts.obtenerDato(fn)
-        cadena+='<TR><TD>'+str(fun.bd)+'</TD>'+'<TD>'+str(fun.tabla)+'</TD>'+'<TD>'+str(fun.columna)+'</TD>'+'<TD>'+str(fun.valor)+'</TD>'+'<TD>'+str(fun.fila)+'</TD></TR>'
+        cadena+='<TR><TD>'+str(fun.bd)+'</TD>'+'<TD>'+str(fun.tabla)+'</TD>'+'<TD>'+str(fun.columna)+'</TD>'+'<TD>'+str(fun.valor)+'</TD>'+'<TD>'+str(fun.fila)+'</TD>'+'<TD> </TD>'+'</TR>'
 
     cadena4 = ''
     for fn in ts.Tipos:
         fun:DatoTipo = ts.obtenerTipo(fn)
-        cadena4 += '<TR><TD>' + str(fun.bd) + '</TD>' + '<TD>' + str(fun.tipo) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + '</TD>' + '<TD>' + '</TD></TR>'
+        cadena4 += '<TR><TD>' + str(fun.bd) + '</TD>' + '<TD>' + str(fun.tipo) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + '</TD>' + '<TD>' + '</TD>'+'<TD> </TD>'+'</TR>'
 
     cadena5 = ''
     for fn in ts.Validaciones:
         fun = ts.Validaciones.get(fn)
         if isinstance(fun, constraintTabla):
             #print("ESTE SI LO IMPRIMEEEeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
-            cadena5 += '<TR><TD>' + str(fun.idRef) + '</TD>' + '<TD>' + str(fun.listas_id) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD></TR>'
+            cadena5 += '<TR><TD>' + str(fun.idRef) + '</TD>' + '<TD>' + str(fun.listas_id) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD>'+'<TD> </TD>'+'</TR>'
         else:
-            cadena5 += '<TR><TD>' + str(fun.tabla) + '</TD>' + '<TD>' + str(fun.campo) + '</TD>' + '<TD>' + str(fun.validacion) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD></TR>'
+            cadena5 += '<TR><TD>' + str(fun.tabla) + '</TD>' + '<TD>' + str(fun.campo) + '</TD>' + '<TD>' + str(fun.validacion) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD>'+'<TD> </TD>'+'</TR>'
 
 
     cadena = ''
     for fn in ts.Datos:
         fun = ts.obtenerDato(fn)
         cadena += '<TR><TD>' + str(fun.bd) + '</TD>' + '<TD>' + str(fun.tabla) + '</TD>' + '<TD>' + str(
-            fun.columna) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + str(fun.fila) + '</TD></TR>'
+            fun.columna) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + str(fun.fila) + '</TD>'+'<TD> </TD>'+'</TR>'
 
     #DICIONARIO Tablas
     cadena2=''
@@ -1595,37 +1596,37 @@ def tabla_simbolos():
 
         if fun.inhe == None:
             print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INHE VACIO")
-            cadena2 += '<TR><TD COLSPAN="5" bgcolor="#A9F5E1"> </TD></TR>'
+            cadena2 += '<TR><TD COLSPAN="6" bgcolor="#A9F5E1"> </TD>'+'</TR>'
         else:
             print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INHE SI TIENE")
-            cadena2 += '<TR><TD COLSPAN="5" bgcolor="#A9F5E1"> HERENCIA: '+ fun.inhe.id +'</TD></TR>'
+            cadena2 += '<TR><TD COLSPAN="6" bgcolor="#A9F5E1"> HERENCIA: '+ fun.inhe.id +'</TD>'+'</TR>'
 
         for cuerpos in fun.cuerpo:
             if isinstance(cuerpos, CampoTabla):
                 if isinstance(cuerpos.tipo, valorTipo):
-                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo.valor)+'('+str(cuerpos.tipo.expresion.val)+')'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
+                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo.valor)+'('+str(cuerpos.tipo.expresion.val)+')'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD> </TD>'+'</TR>'
                 else:
-                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
+                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD> </TD>'+'</TR>'
             else:
                 print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> UN C")
     cadena3=''
     for fn in ts.BasesDatos:
         fun=ts.obtenerBasesDatos(fn)
-        cadena3 +='<TR><TD>'+str(fun.idBase)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
+        cadena3 +='<TR><TD>'+str(fun.idBase)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD> </TD>'+'</TR>'
 
 
     cadena6 = ""
     cadena7 = ""
     for id_indice in ts.Indices:
         indice = ts.obtenerIndice(id_indice)
-        cadena6 += '<TR><TD>'+str(indice.id_indice)+'</TD>'+'<TD>'+ str(indice.id_tabla) + '</TD>'+'<TD>'+str(indice.unique) + '</TD>'+'<TD>'+ str(indice.hash) + '</TD>'+'<TD>'+'</TD></TR>'
+        cadena6 += '<TR><TD>'+str(indice.id_indice)+'</TD>'+'<TD>'+ str(indice.id_tabla) + '</TD>'+'<TD>'+str(indice.unique) + '</TD>'+'<TD>'+ str(indice.hash) + '</TD>'+'<TD>'+'</TD>'+'<TD> </TD>'+'</TR>'
         for columna in indice.columnas:
-            cadena7 += '<TR><TD>'+str(columna.id_columna)+'</TD>'+'<TD>'+ str(columna.orden) + '</TD>' +'<TD>'+ str(columna.nulls) + '</TD>' +'<TD>'+str(indice.id_tabla) + '</TD>'+'<TD>'+ str(indice.id_indice) + '</TD>'+'</TR>'
+            cadena7 += '<TR><TD>'+str(columna.id_columna)+'</TD>'+'<TD>'+ str(columna.orden) + '</TD>' +'<TD>'+ str(columna.nulls) + '</TD>' +'<TD>'+str(columna.statistics) + '</TD>' +'<TD>'+str(indice.id_tabla) + '</TD>'+'<TD>'+ str(indice.id_indice) + '</TD>'+ '</TR>'
 
 
     SymbolT.node('table','''<<TABLE border="1" cellpadding="0" cellspacing="0"   >
                             <TR>
-                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>DATOS</B> </TD>
+                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>DATOS</B> </TD>
                             </TR>
                             <TR bgcolor="#BEF781">
                                 <TD bgcolor="#BEF781">BASE DATOS</TD>
@@ -1633,6 +1634,7 @@ def tabla_simbolos():
                                 <TD bgcolor="#BEF781">COLUMNA</TD>
                                 <TD bgcolor="#BEF781">VALOR </TD>
                                 <TD bgcolor="#BEF781">FILA</TD>
+                                <TD bgcolor="#BEF781"></TD>
                             </TR>
                             '''
                             +cadena+
@@ -1642,15 +1644,17 @@ def tabla_simbolos():
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
+                                <TD></TD>
                             </TR>
                             <TR>
-                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>VALIDACIONES</B> </TD>
+                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>VALIDACIONES</B> </TD>
                             </TR>
                             <TR bgcolor="#BEF781">
                                 <TD bgcolor="#BEF781">TABLA</TD>
                                 <TD bgcolor="#BEF781">CAMPO</TD>
                                 <TD bgcolor="#BEF781">TIPO</TD>
                                 <TD bgcolor="#BEF781">ID</TD>
+                                <TD bgcolor="#BEF781"> </TD>
                                 <TD bgcolor="#BEF781"> </TD>
                             </TR>
                             '''
@@ -1661,14 +1665,16 @@ def tabla_simbolos():
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
+                                <TD></TD>
                             </TR>
                             <TR>
-                                <TD COLSPAN="5" bgcolor="#FA8258"><B> TABLAS</B> </TD>
+                                <TD COLSPAN="6" bgcolor="#FA8258"><B> TABLAS</B> </TD>
                             </TR>
                             <TR bgcolor="#BEF781">
                                 <TD bgcolor="#BEF781">ID TABLA</TD>
                                 <TD bgcolor="#BEF781">ID COLUMNA</TD>
                                 <TD bgcolor="#BEF781">TIPO COLUMNA</TD>
+                                <TD bgcolor="#BEF781">  </TD>
                                 <TD bgcolor="#BEF781">  </TD>
                                 <TD bgcolor="#BEF781">  </TD>
                             </TR>'''
@@ -1679,14 +1685,16 @@ def tabla_simbolos():
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
+                                <TD></TD>
                             </TR>
                             <TR>
-                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>TIPOS </B></TD>
+                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>TIPOS </B></TD>
                             </TR>
                             <TR bgcolor="#BEF781">
                                 <TD bgcolor="#BEF781">BASE DE DATOS</TD>
                                 <TD bgcolor="#BEF781"> TIPO </TD>
                                 <TD bgcolor="#BEF781">VALOR</TD>
+                                <TD bgcolor="#BEF781">  </TD>
                                 <TD bgcolor="#BEF781">  </TD>
                                 <TD bgcolor="#BEF781">  </TD>
                             </TR>'''
@@ -1697,12 +1705,14 @@ def tabla_simbolos():
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
+                                <TD></TD>
                             </TR>
                             <TR>
-                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>BASES DE DATOS</B> </TD>
+                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>BASES DE DATOS</B> </TD>
                             </TR>
                             <TR>
                                 <TD bgcolor="#BEF781">ID BASE DE DATOS</TD>
+                                <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
@@ -1718,13 +1728,14 @@ def tabla_simbolos():
                                 <TD></TD>
                             </TR>
                             <TR>
-                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>INDICES</B> </TD>
+                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>INDICES</B> </TD>
                             </TR>
                             <TR>
                                 <TD bgcolor="#BEF781">ID INDICE</TD>
                                 <TD bgcolor="#BEF781">ID TABLA</TD>
                                 <TD bgcolor="#BEF781">UNIQUE</TD>
                                 <TD bgcolor="#BEF781">HASH</TD>
+                                <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
                             </TR>'''
                             + cadena6 +
@@ -1735,14 +1746,16 @@ def tabla_simbolos():
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
+                                <TD></TD>
                             </TR>
                             <TR>
-                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>COLUMNAS INDICE</B> </TD>
+                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>COLUMNAS INDICE</B> </TD>
                             </TR>
                             <TR>
                                 <TD bgcolor="#BEF781">ID COLUMNA</TD>
                                 <TD bgcolor="#BEF781">ORDEN</TD>
                                 <TD bgcolor="#BEF781">NULLS</TD>
+                                <TD bgcolor="#BEF781">STATISTICS</TD>
                                 <TD bgcolor="#BEF781">ID INDICE</TD>
                                 <TD bgcolor="#BEF781">ID TABLA</TD>
                             </TR>'''
@@ -8079,6 +8092,9 @@ class ColumnaIndice():
         self.id_columna = id_columna
         self.orden = orden
         self.nulls = nulls
+        self.statistics = None
+
+
 
 
 class CrearIndice(Instruccion):
@@ -8104,3 +8120,87 @@ class CrearIndice(Instruccion):
             imprir("CREATE INDEX:  El Indice No se Creo ya que existe!")
             er = ErrorRep('Semantico', 'El indice ya existe', 0)
             LisErr.agregar(er)
+
+
+
+
+
+
+
+
+#------------------------  Alter index Nombrecol
+class AlterIndiceCol(Instruccion):
+    def __init__(self, id_indice, no_col, tipo_set):
+        self.id_indice = id_indice
+        self.no_col    = no_col
+        self.tipo_set  = tipo_set
+
+    def Ejecutar(self):
+
+        global ts_global, baseActual
+        global LisErr
+        Contador=0
+
+        r = ts_global.obtenerIndice(self.id_indice)
+        #si no existe
+        if r is None:
+            imprir("ALTER INDEX:  Indice " + str(self.id_indice) + " No Existe!")
+            er = ErrorRep('Semantico', 'El indice No  existe', 0)
+            LisErr.agregar(er)
+
+        else:
+            ts_global.alterColumnIndice(self.id_indice, self.no_col, self.tipo_set)
+            imprir("ALTER INDEX: La Columna en el  Indice " + str(self.id_indice) +  " Se actualizo correctamente!")
+
+
+# ------------------------  Alter index Name
+class AlterIndiceName(Instruccion):
+    def __init__(self, id_indice,new_Indice):
+        self.id_indice  = id_indice
+        self.new_Indice = new_Indice
+
+    def Ejecutar(self):
+        global ts_global, baseActual
+        global LisErr
+
+        r = ts_global.obtenerIndice(self.id_indice)
+        # si no existe
+        if r is None:
+            print("si entre pero no existe el indice ")
+            imprir("ALTER INDEX:  Indice " + str(self.id_indice) + " No Existe!")
+            er = ErrorRep('Semantico', 'El indice No  existe', 0)
+            LisErr.agregar(er)
+
+        else:
+            print("si entre y si realice el cambio  ")
+            ts_global.alterNameIndice(self.id_indice,self.new_Indice)
+            imprir("ALTER INDEX:  El Indice " + str(self.id_indice) + "Se Actualizo !")
+
+
+
+# ------------------------  Drop Index
+class DropIndice(Instruccion):
+    def __init__(self, id_indice):
+        self.id_indice  = id_indice
+
+    def Ejecutar(self):
+        global ts_global, baseActual
+        global LisErr
+
+
+        r = ts_global.obtenerIndice(self.id_indice)
+        # si no existe
+        if r is None:
+            imprir("CREATE INDEX:  Indice " + str(self.id_indice) + " No Existe!")
+            er = ErrorRep('Semantico', 'El indice No  existe', 0)
+            LisErr.agregar(er)
+
+        else:
+            ts_global.DropIndice(self.id_indice)
+            imprir("CREATE INDEX:  El Indice " + str(self.id_indice) + "Se elimino !")
+
+
+
+
+
+
