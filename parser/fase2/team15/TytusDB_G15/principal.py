@@ -1,4 +1,5 @@
 import gramatica as g
+import ts_index as TSINDEX
 import ts as TS
 import tc as TC
 from expresiones import *
@@ -484,11 +485,100 @@ def procesar_alterdatabase(instr,ts,tc):
             salida = "\nERROR:  database \"" + str(instr.tipo_id) +"\" alredy exists\nSQL state: 42P04"
 
 def procesar_update(instr,ts,tc):
-    print(instr.identificador.val)
-    if instr.lista_update != []:
-        for datos in instr.lista_update:
-            print(datos.ids.val)
-            print(datos.expresion.val)
+    global salida
+    arrayPK = []
+    arrayFilter = []
+    arrayColumnasIds = []
+    columnas = tc.obtenerColumns(str(useCurrentDatabase),instr.identificador.val)
+    iPk = 0
+    for ic in columnas:
+        get = tc.obtenerReturn(str(useCurrentDatabase),instr.identificador.val,ic)
+        if get:
+            for icons in get.listaCons:
+                if icons == OPCIONES_CONSTRAINT.PRIMARY:
+                    arrayPK.append(iPk)
+
+        iPk += 1
+    
+    #print(arrayPK)
+    for ii in instr.lista_update:
+        arrayColumnasIds.append(ii.ids.val)
+
+    #print(arrayColumnasIds)
+
+    #WHERE
+    columnsTable = tc.obtenerColumns(str(useCurrentDatabase),instr.identificador.val)
+    resultArray = j.extractTable(str(useCurrentDatabase),str(instr.identificador.val))
+    arrayWhere = resultArray
+    arrayWhere.insert(0,columnsTable)   
+    #print(resultArray)
+
+    arrayFilter.append(arrayWhere[0])
+    arrayupdateNum = []
+    i = 1
+    coli = 0
+    while i < len(arrayWhere):
+        arrayTS = []
+        arrayTS.append(arrayWhere[0])
+        arrayTS.append(arrayWhere[i])
+        val = resolver_expresion_logica(instr.expresion.expresion,arrayTS)
+        if val == 1:
+            arrayFilter.append(arrayWhere[i])
+            arrayupdateNum.append(coli)
+        i+=1
+        coli += 1
+    
+    #print(arrayupdateNum)
+
+    arrayPosColumna = []
+    iiPC = 0
+    for iPC in columnas:
+        for iPC2 in arrayColumnasIds:
+            if iPC == iPC2:
+                arrayPosColumna.append(iiPC)
+        iiPC += 1
+
+    #print(arrayPosColumna) #POS COLUMN
+        
+    valores = []
+    idic = 1
+    for parametros in instr.lista_update:
+        if isinstance(parametros.expresion,Funcion_Exclusivas_insert):
+            arrTC = []
+            salidaR = resolver_expresion_aritmetica(parametros.expresion,arrTC)
+            valores.append(salidaR)
+        else:
+            valores.append(parametros.expresion.val)
+        idic += 1
+
+    #print(valores)
+    updateDicc = {}
+    if len(valores) == len(arrayPosColumna):
+        Dicc = 0
+        while Dicc < len(valores):
+            updateDicc[arrayPosColumna[Dicc]] = valores[Dicc]
+            Dicc += 1
+
+        #print(updateDicc)
+
+    resultArraynew = j.extractTable(str(useCurrentDatabase),str(instr.identificador.val))
+
+    llaves = []
+    iU = 0
+    while iU < len(resultArraynew):
+        llavesTemp = []
+        for pks in arrayPK:
+            for colum in arrayupdateNum:
+                if colum == iU:
+                    llavesTemp.append(resultArraynew[iU][pks])
+        if llavesTemp != []:
+            llaves.append(llavesTemp)
+        iU += 1
+    
+    for llavesPk in llaves:
+        j.update(str(useCurrentDatabase),str(instr.identificador.val),updateDicc,llavesPk)
+
+    salida = '\nUPDATE'
     
 
 def procesar_drop(instr,ts,tc):
@@ -2761,61 +2851,97 @@ def procesar_select_for_UNIONES(instr,ts,tc):
 
         return arrayReturn
 
-def procesar_index(instr, ts, tc):
+def procesar_index(instr, ts, tc,tsIndex):
     global salida
-    #print('---------------- si entra al index ---------------------')
-    if instr.etiqueta == INDEX.INDEX:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-        if type(instr.lista_index.identificador) == type([]):
-            for lista in instr.lista_index.identificador:
-                print(lista.val)
-        else:
-            print(instr.lista_index.identificador)
-        
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
     
-    elif instr.etiqueta == INDEX.INDEX_WHERE:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-        for lis in instr.lista_index.identificador:
-            print(lis.val)
+    buscar = tc.obtenerReturnTabla(useCurrentDatabase,instr.nombre_index)
+    if buscar == False:
+        salida = "\nERROR:  relation \"" + str(instr.nombre_index) +"\" does not exist\nSQL state: 42P01"
+    else:
+        #print('---------------- si entra al index ---------------------')
+        if instr.etiqueta == INDEX.INDEX:
+            
+            colums = ""
+            if type(instr.lista_index.identificador) == type([]):
+                for lista in instr.lista_index.identificador:
+                    colums += ' '
+                    colums += str(lista.val)
+                    colums += ' '
+                    '''print(lista.val)'''
+
+            else:
+                colums += ' '
+                colums += str(instr.lista_index.identificador)
+                colums += ' '
+            
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
+
         
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
+        elif instr.etiqueta == INDEX.INDEX_WHERE:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
+            
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
 
-    elif instr.etiqueta == INDEX.INDEX_INCLUDE:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-        for lis in instr.lista_index.identificador:
-            print(lis.val)
+        elif instr.etiqueta == INDEX.INDEX_INCLUDE:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
 
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
 
-    elif instr.etiqueta == INDEX.INDEX_UNIQUE_WHERE:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-        for lis in instr.lista_index.identificador:
-            print(lis.val)
-        
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
+        elif instr.etiqueta == INDEX.INDEX_UNIQUE_WHERE:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
+            
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
 
-    elif instr.etiqueta == INDEX.INDEX_INCLUDE:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
+        elif instr.etiqueta == INDEX.INDEX_INCLUDE:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
+
+        elif instr.etiqueta == INDEX.INDEX_CLASS:
+            #print(instr.identificador)
+            #print(instr.nombre_index)
+            colums = ""
+            for lis in instr.lista_index.identificador:
+                colums += ' '
+                colums += str(lis.val)
+                colums += ' '
+            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,colums,instr.etiqueta)
+            tsIndex.agregar(temp)
+            salida = '\nCREATE INDEX'
     
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
-
-    elif instr.etiqueta == INDEX.INDEX_CLASS:
-        #print(instr.identificador)
-        #print(instr.nombre_index)
-
-        temp = TS.Simbolo(instr.identificador,'INDEX',0,instr.nombre_index)
-        ts.agregar(temp)
 
     
     
@@ -2844,7 +2970,7 @@ def obtener_indexbody(instr):
     salida = '\nCREATE INDEX'
     
 
-def procesar_instrucciones(instrucciones,ts,tc) :
+def procesar_instrucciones(instrucciones,ts,tc,tsIndex) :
     try:
         global salida,useCurrentDatabase
         salida = ""
@@ -2862,7 +2988,7 @@ def procesar_instrucciones(instrucciones,ts,tc) :
             elif isinstance(instr, ExpresionRelacional) : 
                 procesar_Expresion_Relacional(instr,ts,tc)
             elif isinstance(instr, Funcion_Index) :
-                procesar_index(instr,ts,tc)
+                procesar_index(instr,ts,tc,tsIndex)
             elif isinstance(instr, ExpresionBinaria) : 
                 procesar_Expresion_Binaria(instr,ts,tc)
             elif isinstance(instr, ExpresionLogica) : 

@@ -3,6 +3,7 @@ import analizer_pl.modules.expressions as expression
 from analizer_pl.abstract.expression import incTemp
 from analizer_pl.abstract.expression import newTemp
 from analizer_pl.abstract.expression import TYPE
+from optimizer_folder.optimizer import Optimizer
 from analizer_pl.tokens import *
 import ply.lex as lex
 import ply.yacc as yacc
@@ -21,6 +22,7 @@ current_etiq = 0
 next_etiq = 0
 if_stmt = 0
 back_fill = BackFill()
+optimizer_= Optimizer()
 lexer = lex.lex()
 # Asociación de operadores y precedencia
 listInst = []
