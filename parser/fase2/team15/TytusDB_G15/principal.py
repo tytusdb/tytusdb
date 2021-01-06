@@ -2139,8 +2139,8 @@ def resolver_expresion_logica(expLog,ts):
 
 
 def procesar_select_uniones(instr,ts,tc):
-    print(instr.etiqueta)
-    print(instr.ins)
+    #print(instr.etiqueta)
+    #print(instr.ins)
     global salida
     
     if instr.etiqueta == OPCIONES_UNIONES.UNION:
@@ -2148,25 +2148,25 @@ def procesar_select_uniones(instr,ts,tc):
         arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
         union_arr = procesar_UNION(arraySelect1,arraySelect2)
         salida = toPretty(union_arr)
-        print(salida)
+        #print(salida)
     elif instr.etiqueta == OPCIONES_UNIONES.UNION_ALL:
         arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
         arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
         union_arr = procesar_UNION_ALL(arraySelect1,arraySelect2)
         salida = toPretty(union_arr)
-        print(salida)
+        #print(salida)
     elif instr.etiqueta == OPCIONES_UNIONES.INTERSECT or instr.etiqueta == OPCIONES_UNIONES.INTERSECT_ALL:
         arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
         arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
         intersect_arr = procesar_INTERSECT(arraySelect1,arraySelect2)
         salida = toPretty(intersect_arr)
-        print(salida)
+        #print(salida)
     elif instr.etiqueta == OPCIONES_UNIONES.EXCEPTS or instr.etiqueta == OPCIONES_UNIONES.EXCEPTS_ALL:
         arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
         arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
         except_arr = procesar_EXCEPT(arraySelect1,arraySelect2)
         salida = toPretty(except_arr)
-        print(salida)
+        #print(salida)
 
 def procesar_UNION(arr1,arr2):
     if len(arr1[0]) != len(arr2[0]):
