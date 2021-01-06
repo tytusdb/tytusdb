@@ -65,7 +65,7 @@ class Arithmetic(Expression):
                 + str(self.row)
             )
         except:
-            raise expression.list_errors.append(
+            expression.list_errors.append(
                 "Error: XX000: Error interno (Binary Aritmethic Operation)"
                 + "\n En la linea: "
                 + str(self.row)

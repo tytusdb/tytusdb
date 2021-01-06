@@ -1,6 +1,8 @@
 from analizer.abstract.expression import Expression
 from analizer.abstract import expression
+from analizer.symbol.environment import Environment
 from analizer.reports import Nodo
+import analizer.symbol.c3dSymbols as SymbolTable
 
 
 class Identifiers(Expression):
@@ -19,36 +21,53 @@ class Identifiers(Expression):
         self.type = None
 
     def execute(self, environment):
-        if not self.table:
-            table = environment.ambiguityBetweenColumns(self.name)
-            if table[0]:  # Si existe ambiguedad
-                return
-            else:
-                if table[1]:
-                    self.table = table[1]
-                    col = self.table + "." + self.name
-                    self.value = environment.dataFrame[col]
+        if isinstance(environment,Environment) and not environment.for3d:
+            print('Probando...')
+            if not self.table:
+                table = environment.ambiguityBetweenColumns(self.name)
+                if table[0]:  # Si existe ambiguedad
+                    return
                 else:
-                    x = environment.getVar(self.name)
-                    if not x:
-                        expression.list_errors.append(
-                            "Error: 42703: columna  "
-                            + str(self.name)
-                            + " no existe \n En la linea: "
-                            + str(self.row)
-                        )
-                        self.table = ""
-                        self.name = ""
-                        self.value = ""
+                    if table[1]:
+                        self.table = table[1]
+                        col = self.table + "." + self.name
+                        self.value = environment.dataFrame[col]
                     else:
-                        self.table = x[0]
-                        self.name = x[1]
-                        self.value = environment.getColumn(self.table, self.name)
+                        x = environment.getVar(self.name)
+                        if not x:
+                            expression.list_errors.append(
+                                "Error: 42703: columna  "
+                                + str(self.name)
+                                + " no existe \n En la linea: "
+                                + str(self.row)
+                            )
+                            self.table = ""
+                            self.name = ""
+                            self.value = ""
+                        else:
+                            self.table = x[0]
+                            self.name = x[1]
+                            self.value = environment.getColumn(self.table, self.name)
+            else:
+                self.value = environment.getColumn(self.table, self.name)
+            type_ = environment.getType(self.table, self.name)
+            self.type = type_
+            return self
         else:
-            self.value = environment.getColumn(self.table, self.name)
-        type_ = environment.getType(self.table, self.name)
-        self.type = type_
-        return self
+            print('LLega a buscar el simbolo')
+            if not SymbolTable.search_symbol(self.name)==0:
+                nombre,tipo,valor=SymbolTable.search_symbol(self.name)
+                self.value=valor
+                self.name=nombre
+                self.type=tipo
+                return self
+            else:
+                expression.list_errors.append(
+                    "Error: 42703: la variable  "
+                    + str(self.name)
+                    + " no existe \n En la linea: "
+                    + str(self.row)
+                )
 
     def dot(self):
         nod = Nodo.Nodo(self.name)

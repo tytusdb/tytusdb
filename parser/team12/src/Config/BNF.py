@@ -64,6 +64,7 @@ bnf ={
     "p_select_funciones_19" : '\n funcion_matematica ::= SQRT PARENTESISIZQ Exp PARENTESISDER',
     "p_select_funciones_20" : '\n funcion_matematica ::= WIDTH_BUCKET PARENTESISIZQ Exp COMA Exp COMA Exp COMA Exp PARENTESISDER',
     "p_select_funciones_21" : '\n funcion_matematica ::= TRUNC PARENTESISIZQ Exp PARENTESISDER',
+    "p_select_funciones_21_1" : '\n funcion_matematica ::= TRUNC PARENTESISIZQ Exp COMA Exp PARENTESISDER',
     "p_select_funciones_22" : '\n funcion_matematica ::= RANDOM PARENTESISIZQ PARENTESISDER',
     "p_select_funciones_23" : '\n funcion_trigonometrica ::= ACOS PARENTESISIZQ Exp PARENTESISDER',
     "p_select_funciones_24" : '\n funcion_trigonometrica ::= ACOSD PARENTESISIZQ Exp PARENTESISDER',

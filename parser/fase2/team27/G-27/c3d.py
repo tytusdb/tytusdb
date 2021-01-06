@@ -15,6 +15,7 @@ from Instrucciones.instruction import *
 from Instrucciones.ins_if import *
 from prettytable import PrettyTable
 from copy import copy
+from environment import arregloFunciones
 # ======================================================================
 #                          ENTORNO Y PRINCIPAL
 # ======================================================================
@@ -202,7 +203,8 @@ def t_newline(t):
 
 # EXPRESION REGULAR PARA RECONOCER ERRORES
 def t_error(t):
-    print('LEXICO' + ' ' + str(t.value) + ' ' + 'TOKEN DESCONOCIDO' + ' ' + str(t.lineno) + ' ' + str(t.lexpos))
+    err = 'LÉXICO. Token = \"' + str(t.value) + '\". TOKEN DESCONOCIDO' + ' ' + str(t.lineno) + ' ' + str(t.lexpos)
+    TokenError.append(err)
     t.lexer.skip(1)
 
 # ======================================================================
@@ -257,7 +259,11 @@ def nuevo_temporal():
 # DEFINICION GRAMATICA
 def p_inicio(t):
     '''inicio : instrucciones '''
-    t[0]= resFinal(ListaFunciones,t[1].code)
+    arreglo = []
+    for value in ListaFunciones:
+        arreglo.append(value)
+    ListaFunciones.clear()
+    t[0]= resFinal(arreglo,t[1].code)
 
 def p_instrucciones_lista(t):
     '''instrucciones : instrucciones instruccion 
@@ -282,6 +288,7 @@ def p_instrucciones_evaluar(t):
                    | exp
                    | execute
                    | ins_create_pl
+                   | drop_pf
                    | create_index
                    | drop_index
                    | alter_index'''
@@ -1464,18 +1471,56 @@ def p_ins_delete(t):
 #                        INSTRUCCIONES PL/SQL
 # ======================================================================
 
+def p_drop_pf(t):
+    ''' drop_pf : DROP drop_case opt_exist ID PARABRE arg_list_opt PARCIERRE PUNTO_COMA'''
+    result = deleteProcFunc(t[2], t[4], t[6])
+    t[0] = GenerarC3D()
+    t[0].code = str(result)
+
+def p_drop_case(t):
+    ''' drop_case : FUNCTION
+                  | PROCEDURE'''
+    t[0] = t[1]
+
+def p_opt_exist(t):
+    ''' opt_exist : IF EXIST
+                  |'''
+    if len(t)== 3:
+        t[0] = True
+    else:
+        t[0] = False
+
+def p_arg_list_opt(t):
+    ''' arg_list_opt : arg_list 
+                     |'''
+    if len(t)== 2:
+        t[0] = t[1]
+    else:
+        t[0] = []
+
+def p_arg_list(t):
+    ''' arg_list : arg_list COMA ID
+             	| ID'''
+    if len(t) == 3:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+
 def p_ins_create_pl(t):
     '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameteropt PARCIERRE returns AS block LANGUAGE ID PUNTO_COMA
                      | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE LANGUAGE ID AS  block 
                      '''
     t[0] = GenerarC3D()
     if len(t) == 14:
-        func = funcion({'id':t[4], 'parametros':t[6]},t[10])
+        meta = {'id':t[4], 'parametros':t[6],'estado': 'ALMACENADO', 'tipo': t[3]}
+        func = funcion(meta,t[10])
         ListaFunciones.append(func)
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
     else: 
-        func = funcion({'id':t[4], 'parametros':t[6]},t[11])
+        meta = {'id':t[4], 'parametros':t[6], 'estado': 'ALMACENADO', 'tipo':t[3]}
+        func = funcion(meta,t[11])
         ListaFunciones.append(func)
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
@@ -2085,27 +2130,27 @@ def p_fparametros(t):
 # ======================================================================
 
 def p_alter_index(t):
-    '''alter_index : ALTER INDEX ID ID argcol arg_punto_coma'''
+    '''alter_index : ALTER INDEX if_exists ID ID argcol arg_punto_coma'''
     bandera = False
     for it in ListaIndices:
-        if it['name'] == str(t[3]):
+        if it['name'] == str(t[4]):
             iterador = 0
             for ite in it['columns']:
-                if ite == str(t[4]):
+                if ite == str(t[5]):
                     bandera = True
                     del it['columns'][iterador]
                     break
                 iterador = iterador + 1
             if bandera == True:
-                if isinstance(t[5],str):
-                    it['columns'].append(str(t[5]))
+                if isinstance(t[6],str):
+                    it['columns'].append(str(t[6]))
                 else:
-                    it['columns'].append('column('+str(t[5])+')')
+                    it['columns'].append('column('+str(t[6])+')')
                 break
     t[0] = GenerarC3D()
     t[0].statement = 'INDEX'
-    t[0].code = t[1] +' '+ t[2]  +' '+t[3]+' '+ t[4]  +' '+str(t[5])
-    
+    t[0].code = t[1] +' '+ t[2]  +' '+t[4]+' '+ t[5]  +' '+str(t[6])
+
 def p_argcol(t):
     '''argcol : ID
               | NUMERO'''
@@ -2287,10 +2332,18 @@ def p_arg_where_param(t):
         t[0] = t[1] +' '+ str(t[2]) +' '+ t[3]
     else: 
         t[0] = str(t[1])
+
 def p_error(t):
     if t != None:
-        print('SINTACTICO ' + str(t.value )+ ' ERROR SINTÁCTICO ' + 'Fila: ' + str(t.lineno) + ' Columna: ' + str(t.lexpos))
+        err = 'SINTACTICO: Token = \"' + str(t.value), '\". ERROR SINTÁCTICO en la linea: '+ str(t.lineno) +' y columna: '+str(t.lexpos)
+        TokenError.append(err)
 
+def get_errores():
+    aux = ""
+    for index in range(len(TokenError)):
+        aux += '\n'+str(index)+'. Error: ' + str(TokenError[index]) 
+    TokenError.clear()
+    return aux
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal
 #"texto" -> en este parametro enviaremos el texto que deseamos analizar
 def analizarSin(texto):
@@ -2322,4 +2375,13 @@ def tab_string():
         tupla = [it['num'],it['name'],it['table'],indic,it['fila'],it['order'],it['null'],it['where'],it['unique']]
         x.add_row(tupla)
     return '\n'+ x.get_string() +'\n'
+
+def tab_func():
+    x = PrettyTable()
+    x.field_names = ['ID', 'PARAMETROS', 'ESTADO', 'TIPO']
+    for value in arregloFunciones:
+        tupla = [value['id'], value['parametros'], value['estado'], value['tipo']]
+        x.add_row(tupla)
+    arregloFunciones.clear()
+    return '\n' + x.get_string() + '\n'
 
