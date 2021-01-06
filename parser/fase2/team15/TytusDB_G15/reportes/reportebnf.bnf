@@ -186,27 +186,9 @@
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <create_Table_isnrt>
+<instruccion> ::= <alterTable_insrt>
  
-<create_Table_isnrt> ::= CREATE TABLE ID PAR_A <cuerpo_createTable_lista> PAR_C PTCOMA 
- 
-<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
- 
-<campos_c> ::= ID <TIPO_DATO_DEF>
- 
-<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
- 
-<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
- 
-<campos_c> ::= ID <TIPO_DATO_DEF>
- 
-<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
- 
-<cuerpo_createTable_lista> ::= <cuerpo_createTable>
- 
-<campos_c> ::= ID <TIPO_DATO_DEF>
- 
-<TIPO_DATO_DEF> ::= INTEGER
+<alterTable_insrt> ::= ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C  PTCOMA
  
 <init> ::= <instrucciones>
  
@@ -215,18 +197,6 @@
 <instruccion> ::= <create_Table_isnrt>
  
 <create_Table_isnrt> ::= CREATE TABLE ID PAR_A <cuerpo_createTable_lista> PAR_C PTCOMA 
- 
-<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
- 
-<campos_c> ::= ID <TIPO_DATO_DEF>
- 
-<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
- 
-<cuerpo_createTable_lista> ::= <cuerpo_createTable_lista> COMA <cuerpo_createTable>
- 
-<campos_c> ::= ID <TIPO_DATO_DEF>
- 
-<TIPO_DATO_DEF> ::= VARCHAR PAR_A ENTERO PAR_C
  
 <cuerpo_createTable_lista> ::= <cuerpo_createTable>
  

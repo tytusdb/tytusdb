@@ -7,6 +7,7 @@ import PLSQL.tsPLSQL as TSPL
 import PLSQL.tfPLSQL as TFPL
 import PLSQL.gramaticaPLSQL as gPL
 import PLSQL.traduccionPLSQL as TRADUC
+import PLSQL.report_astPLSQL as AST3D
 
 import sys
 from io import StringIO
@@ -40,6 +41,7 @@ selected = False
 
 # ACTIONS
 def analizar(txt):
+    global instrucciones_GlobalPL
     instruccionesPL = TRADUC.runC3D(txt)
     instrucciones_GlobalPL = instruccionesPL
     ts_globalPL = TSPL.TablaDeSimbolos()
@@ -49,6 +51,7 @@ def analizar(txt):
     salida3D.write(codigo3D)
     salida3D.close()
     salida_table(2,'3D GENERADO CON EXITO')
+    
 
 
 def analizar_select(e):
@@ -76,6 +79,9 @@ def analizar_select(e):
             
 
 def generarReporteAST():
+    global instrucciones_GlobalPL
+    AST3DD = AST3D.AST()
+    AST3DD.generarAST(instrucciones_GlobalPL) 
     print(':v')
     '''global instrucciones_Global
     astGraph = AST()

@@ -46,6 +46,7 @@ reservadas = {
     'function' : 'FUNCTION',
     'procedure' : 'PROCEDURE',
     'call' : 'CALL',
+    'execute' : 'EXECUTE',
     'returns' : 'RETURNS',
     'as' : 'AS',
     'declare' : 'DECLARE',
@@ -520,7 +521,7 @@ def p_instrucciones_globales_list_sent(t):
     t[0] = [t[1]]
 
 def p_instrucciones_global_sent(t):
-    '''instrucciones_global_sent    : funcion
+    '''instrucciones_global_sent    : funciones
                                     | llamada_funcion
                                     | createDB_insrt
                                     | show_databases_instr
@@ -2244,11 +2245,11 @@ def p_string_type2(t):
 
 
 def p_funcion(t):
-    'funcion    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_funcion2(t):
-    'funcion    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
     for instru1 in t[13]:
         instrucs.append(instru1)
@@ -2257,11 +2258,11 @@ def p_funcion2(t):
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
 def p_funcion_r(t):
-    'funcion    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_funcion2_r(t):
-    'funcion    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
     for instru1 in t[15]:
         instrucs.append(instru1)
@@ -2271,11 +2272,11 @@ def p_funcion2_r(t):
 
 #PROCEDURE
 def p_procedure(t):
-    'funcion    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_procedure2(t):
-    'funcion    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
     for instru1 in t[13]:
         instrucs.append(instru1)
@@ -2284,11 +2285,11 @@ def p_procedure2(t):
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
 def p_procedure_r(t):
-    'funcion    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_procedure2_r(t):
-    'funcion    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
     for instru1 in t[15]:
         instrucs.append(instru1)
@@ -2302,7 +2303,7 @@ def p_llamada_funcion(t):
     t[0] = LlamadaFuncion(t[2], t[4])
 
 def p_llamada_funcion1(t):
-    'llamada_funcion    : CALL ID PARA params PARC PTCOMA'
+    'llamada_funcion    : EXECUTE ID PARA params PARC PTCOMA'
     t[0] = LlamadaFuncion(t[2], t[4])
 
 def p_params_list(t):
@@ -2603,6 +2604,19 @@ def p_expresion1(t):
                      | D_OR expresion'''
                      
     t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '
+
+def p_expresion31_g(t):
+    '''expresion : select_insrt'''
+    t[0] = ' '+ str(t[1]) + ' '
+
+def p_expresion2(t):
+    '''expresion :   AVG PARA expresion PARC 
+                     | MAX PARA expresion PARC
+                     | MIN PARA expresion PARC             
+                     | ALL PARA select_insrt PARC
+                     | SOME PARA select_insrt PARC'''
+                     
+    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
 
 
 

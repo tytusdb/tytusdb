@@ -2,7 +2,7 @@ class RTablaDeSimbolos:
     def __init__(self):
         ''' Reporte Tabla de Simbolos'''
 
-    def crearReporte(self,ts_global):
+    def crearReporte(self,ts_global,ts_globalIndex):
         f = open("reportes/ts.html", "w")
         f.write("<!DOCTYPE html>")
         f.write("<html lang=\"en\" class=\"no-js\">")
@@ -55,6 +55,42 @@ class RTablaDeSimbolos:
         f.write("            </table>")
         f.write("        </div>")
         f.write("    </div><!-- /container -->")
+        if len(ts_globalIndex.simbolos) > 0:
+            f.write("    <div class=\"container\">")
+            f.write("        <!-- Top Navigation -->")
+            f.write("        <header>")
+            f.write("            <h1>Tabla de Simbolos INDEX</h1>")
+            f.write("        </header>")
+            f.write("        <div class=\"component\">")
+            f.write("            <table>")
+            f.write("                <thead>")
+            f.write("                    <tr>")
+            f.write("                        <th>No.</th>")
+            f.write("                        <th>ID</th>")
+            f.write("                        <th>TIPO</th>")
+            f.write("                        <th>COLUMNAS</th>")
+            f.write("                        <th>RESTRICCION</th>")
+            f.write("                        <th>AMBITO</th>")
+            f.write("                    </tr>")
+            f.write("                </thead>")
+            f.write("                <tbody>")
+            if len(ts_globalIndex.simbolos) > 0:
+                i = 0
+                while i < len(ts_globalIndex.simbolos):
+                    f.write("                    <tr>")
+                    f.write("                        <td class=\"text-left\">"+ str(i+1) +"</td>")
+                    f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].id) +"</td>")
+                    f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].tipo) +"</td>")
+                    f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].columnas) +"</td>")
+                    f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].restriccion) +"</td>")
+                    f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].tabla) +"</td>")
+                    f.write("                    </tr>")
+                    i += 1
+            f.write("                </tbody>")
+            f.write("            </table>")
+            f.write("        </div>")
+            f.write("    </div><!-- /container -->")
+
         f.write("    <script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js\"></script>")
         f.write("    <script src=\"http://cdnjs.cloudflare.com/ajax/libs/jquery-throttle-debounce/1.1/jquery.ba-throttle-debounce.min.js\"></script>")
         f.write("    <script src=\"js/jquery.stickyheader.js\"></script>")

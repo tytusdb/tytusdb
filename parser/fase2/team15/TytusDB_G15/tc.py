@@ -92,6 +92,13 @@ class TablaDeTipos() :
 
         return False      
 
+    def obtenerReturnTabla(self,database,tabla) :
+        i = 0
+        while i < len(self.tipos):
+            if self.tipos[i].database == database and self.tipos[i].tabla == tabla:
+                return self.tipos[i]
+            i += 1
+        return False  
 
     def clear(self):
         self.tipos = []
