@@ -279,7 +279,7 @@ def t_INTEGER(t):
 # Funcion para evaluar si el token reconocido es un CHARACTER
 def t_CHARACTER(t):
     r"(\"\\?.\"|\'\\?.\')"
-    t.value = t.value[1:-1]
+    # t.value = t.value[1:-1]
     return t
 
 

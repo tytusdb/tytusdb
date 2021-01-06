@@ -1,4 +1,5 @@
 from analizer_pl.abstract import instruction
+from analizer_pl.statement.expressions import code
 
 
 class CreateDatabase(instruction.Instruction):
@@ -16,4 +17,14 @@ class CreateDatabase(instruction.Instruction):
         self.replace = replace
 
     def execute(self, environment):
-        print(input)
+        out = "fase1.execution("
+        out += '"'
+        out += "CREATE "
+        out += self.replace
+        out += " DATABASE "
+        out += self.exists + " "
+        out += self.name + " "
+        out += self.owner + " "
+        out += self.mode + ";"
+        out += '")\n'
+        return code.C3D(out, "create_db", self.row, self.column)
