@@ -24,7 +24,7 @@ from utils.analyzers.lex import *
 
 from models.Other.funcion import Funcion, Parametro
 from models.Other.declaracion import DeclaracionID, AsignacionID
-from models.procedural.clases import BodyDeclaration
+from models.procedural.clases import BodyDeclaration, ReturnFuncProce
 from models.procedural.if_statement import If,anidarIFs
 
 
@@ -81,6 +81,8 @@ def p_sql_instruction(p):
     '''sqlinstruction : ddl
                       | DML
                       | SQL_FUNCTIONS
+                      | SQL_DROP_FUNCTION
+                      | SQL_DROP_PROCEDURE
                       | SQL_PROCEDURES
                       | usestatement
                       | MULTI_LINE_COMMENT
@@ -785,6 +787,50 @@ def p_sql_functions(p):
     else:
         print("NO ENTRO EN ESA PRODUCCION XD  --- CREATE FUNCTION")
 
+#--->
+
+def p_sql_functions_drop_inst(p):
+    '''SQL_DROP_FUNCTION : DROP FUNCTION IF EXISTS DETAIL_FUNC_DROP SEMICOLON
+                        | DROP FUNCTION DETAIL_FUNC_DROP SEMICOLON
+    '''
+    print('TE AVS A DROPEAR LAS :')
+    if len(p) == 7:
+        p[0] = p[5]
+    else:
+        p[0] = p[3]
+
+def p_sql_procedures_drop_inst(p):
+    '''SQL_DROP_PROCEDURE : DROP PROCEDURE IF EXISTS DETAIL_FUNC_DROP SEMICOLON
+                          | DROP PROCEDURE DETAIL_FUNC_DROP SEMICOLON
+    '''
+    print('TE AVS A DROPEAR LAS :')
+    if len(p) == 7:
+        p[0] = p[5]
+    else:
+        p[0] = p[3]
+
+
+def p_sql_detail_func_drop(p):
+    '''DETAIL_FUNC_DROP : DETAIL_FUNC_DROP COMMA FUNCTIONS_TO_DROP
+                         | FUNCTIONS_TO_DROP
+    '''
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
+
+def p_sql_functions_to_drop(p):
+    '''FUNCTIONS_TO_DROP : ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS
+                         | ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS
+                         | ID
+    '''
+    p[0] = p[1]
+
+
+#--->
+
+
 def p_sql_procedures(p):
     '''SQL_PROCEDURES : CREATE PROCEDURE ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
                       | CREATE PROCEDURE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
@@ -926,14 +972,26 @@ def p_assignation_symbol(p):
 #El tercero es un cuerpo
 def p_staments(p):
     '''STATEMENTS : OPTIONS_STATEMENTS RETURN PLPSQL_EXPRESSION SEMICOLON
+                  | OPTIONS_STATEMENTS RETURN SEMICOLON
                   | RETURN PLPSQL_EXPRESSION SEMICOLON 
+                  | RETURN SEMICOLON 
                   | OPTIONS_STATEMENTS
 
     '''
     if p.slice[1].type == "OPTIONS_STATEMENTS":
+        if len(p) == 4:     #segunda produccion
+            p[1].append(ReturnFuncProce(None))
+        else:               #primera produccion
+            p[1].append(ReturnFuncProce(p[3]))
+
         p[0] = p[1]
-
-
+        
+    elif p.slice[1].type == "RETURN":
+        if len(p) == 3:     #tercera produccion
+            p[0] = ReturnFuncProce(None)
+        else:               #cuarta produccion
+            p[0] = ReturnFuncProce(p[2])
+    
 
 def p_options_statements(p):
     '''OPTIONS_STATEMENTS : OPTIONS_STATEMENTS statementType
@@ -960,6 +1018,7 @@ def p_statement_type(p):
                     |  ifStatement
                     |  CASECLAUSE
                     |  DML
+                    | CALL_FUNCTIONS_PROCEDURE SEMICOLON
     '''
     p[0] = p[1]
 
@@ -969,6 +1028,7 @@ def p_plpsql_expression(p):
                          | PLPSQL_EXPRESSION AND PLPSQL_EXPRESSION
                          | PLPSQL_EXPRESSION OR PLPSQL_EXPRESSION
                          | PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL SQLRELATIONALEXPRESSION
+                         | PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL CALL_FUNCTIONS_PROCEDURE
                          | PLPSQL_PRIMARY_EXPRESSION NOT_EQUAL PLPSQL_PRIMARY_EXPRESSION
                          | PLPSQL_PRIMARY_EXPRESSION GREATE_EQUAL PLPSQL_PRIMARY_EXPRESSION
                          | PLPSQL_PRIMARY_EXPRESSION GREATE_THAN PLPSQL_PRIMARY_EXPRESSION
