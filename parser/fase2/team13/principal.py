@@ -157,8 +157,10 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         if not bandera:
                             if hasattr(tipos[z],'dato'):
                                 valores.append(SExpresion(actualizar[x][z],retornarTipo(tipos[z].dato)))
-                            else:
+                            elif hasattr(tipos[z],'tipo'):
                                 valores.append(SExpresion(actualizar[x][z],tipos[z].tipo))
+                            else:
+                                valores.append(SExpresion(actualizar[x][z],tipos[z]))
 
 
                     validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves[x],tupla)
@@ -175,7 +177,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
         elif isinstance(nodo, STruncateBase):
             truncatebase(nodo, tablaSimbolos)
         elif isinstance(nodo, SInsertBase):
-            InsertTable(nodo, tablaSimbolos,True)
+            InsertTable(nodo, tablaSimbolos,False)
         elif isinstance(nodo, SShowTable):
             tablas = jBase.showTables(useActual)
             for tabla in tablas:
@@ -442,6 +444,7 @@ def alterarIndiceColumna(nodo,tablaSimbolos):
     nombre = nodo.nombre
     viejo = nodo.viejo
     nuevo = None
+    exist = nodo.exist
 
     la_tabla = None
 
@@ -2245,7 +2248,8 @@ def InsertTable(nodo, tablaSimbolos,cod3D):
                                     listaSemanticos.append(Error.ErrorS(
                                             "Error Semantico",
                                             "Error en ENUM TYPE: la colección " + col.tipo.valor + " no ha sido definida. "))
-                            else:
+                            
+                            elif hasattr(col.tipo,"tipo"):
 
                                 if col.tipo.tipo == TipoDato.NUMERICO:
                                     result = validarTiposNumericos(
@@ -2269,6 +2273,14 @@ def InsertTable(nodo, tablaSimbolos,cod3D):
                                 elif col.tipo.tipo == TipoDato.BOOLEAN:
                                     if val.tipo == Expresion.BOOLEAN:
                                         result = True
+                                
+                            else:
+
+                                if val.valor in types[col.tipo]:
+                                    result = True
+                                else:
+                                    result = False
+
                             if not result:
                                 listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                                     "Error de tipos: tipo " + str(col.tipo.tipo) + " columna " + str(col.nombre) + " valor a insertar " + str(
@@ -2388,28 +2400,34 @@ def validarUpdate(tupla, nombres, tablaSimbolos, tabla, diccionario, pk,la_tupla
             col = tabla.getColumna(columnas[i])
             
             val = Interpreta_Expresion(tupla[i],tablaSimbolos,la_tupla,False)
-            if col.tipo.tipo == TipoDato.NUMERICO:
-                result = validarTiposNumericos(
-                    col.tipo.dato.lower(), val)
-            elif col.tipo.tipo == TipoDato.CHAR:
-                if val.tipo == Expresion.CADENA:
-                    result = validarTiposChar(col.tipo, val)
-                    if result == False:
-                        listaSemanticos.append(
-                            Error.ErrorS("Error Semantico", "Error la cadena sobrepasa el limite " + val.valor))
-                        return
+            if hasattr(col.tipo,"tipo"):
+                if col.tipo.tipo == TipoDato.NUMERICO:
+                    result = validarTiposNumericos(
+                        col.tipo.dato.lower(), val)
+                elif col.tipo.tipo == TipoDato.CHAR:
+                    if val.tipo == Expresion.CADENA:
+                        result = validarTiposChar(col.tipo, val)
+                        if result == False:
+                            listaSemanticos.append(
+                                Error.ErrorS("Error Semantico", "Error la cadena sobrepasa el limite " + val.valor))
+                            return
+                    else:
+                        result = False
+                        listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico",
+                            "Error de tipos: tipo " + col.tipo.dato + " columna " + col.nombre + " valor a insertar " + str(
+                                val.tipo)))
+                elif col.tipo.tipo == TipoDato.FECHA:
+                    result = validarTiposFecha(
+                        col.tipo.dato.lower(), val)
+                elif col.tipo.tipo == TipoDato.BOOLEAN:
+                    if val.tipo == Expresion.BOOLEAN:
+                        result = True
+            else:
+                if val.valor in types[col.tipo]:
+                    result = True
                 else:
                     result = False
-                    listaSemanticos.append(Error.ErrorS(
-                        "Error Semantico",
-                        "Error de tipos: tipo " + col.tipo.dato + " columna " + col.nombre + " valor a insertar " + str(
-                            val.tipo)))
-            elif col.tipo.tipo == TipoDato.FECHA:
-                result = validarTiposFecha(
-                    col.tipo.dato.lower(), val)
-            elif col.tipo.tipo == TipoDato.BOOLEAN:
-                if val.tipo == Expresion.BOOLEAN:
-                    result = True
             if not result:
                 listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                     "Error de tipos: tipo " + col.tipo.dato + " columna " + col.nombre + " valor a insertar " + str(
@@ -2895,8 +2913,8 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                 return Etiquetas(False,False,opIzq.EtiquetaF,opIzq.EtiquetaV,False,0)
             else:
                 opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D).valor
-                result = not opIzq
-                return result
+                result = not opIzq.valor
+                return SExpresion(result, Expresion.BOOLEAN)
 
         # Relacionales
         if (expresion.operador == Relacionales.IGUAL):
@@ -2923,7 +2941,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                     ropt=3
                 return Etiquetas(False,False,Etiqueta,Etiqueta2,vopt,ropt)
             else:
-                result = (opIzq == opDer)
+                result = (opIzq.valor == opDer.valor)
                 return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Relacionales.DIFERENTE):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
@@ -2937,7 +2955,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                 textoptimizado+="if(" + str(opIzq.valor) + "!=" + str(opDer.valor) + "): "
                 return Etiquetas(False,False,Etiqueta,Etiqueta2,False,0)
             else:
-                result = (opIzq != opDer)
+                result = (opIzq.valor != opDer.valor)
                 return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Relacionales.MENORIGUAL_QUE):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
@@ -4436,6 +4454,14 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                     if isinstance(q_cols.cols,SFuncAgregacion):
                         print("Sí soy una funcion de agregación")
                         print(q_cols.cols)
+                        if q_cols.cols.param == "*":
+                            el_string = q_cols.cols.funcion.lower() + "(" + q_cols.cols.param + ")"
+                            if el_string not in encabezados:
+                                indices.append(ind)
+                                encabezados.append(el_string)
+
+                                if q_cols.cols.funcion.lower() == "count":
+                                    resultado_2 = [[len(resultado_2)]]
                     
                     else:
 
