@@ -537,6 +537,16 @@ class AlterTableDropConstraint(Sentence):
             '[label=\"' + self.constraint + '\"]\n'
         return dot
 
+class AlterIndex(Sentence):
+    def __init__(self, oldname, newname,ifExistsFlag,isNum):
+        self.oldname = oldname #id
+        self.newname = newname #id
+        self.ifExistsFlag=ifExistsFlag
+        self.isNum=isNum
+    def __str__(self):
+        return "executeSentence(AlterIndex,AlterIndex('"+str(self.oldname)+"','"+str(self.newname)+"',"+str(self.ifExistsFlag)+","+str(self.isNum)+"))"
+    
+
 class Insert(Sentence):
     def __init__(self, table, columns, values):
         self.table = table
@@ -619,6 +629,8 @@ class Delete(Sentence):
     def __init__(self, table, expression):
         self.table = table
         self.expression = expression
+    def __str__(self):
+        return "executeSentence(Delete,Delete('"+str(self.table)+"',"+str(self.expression)+"))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"Delete\"]\n'
@@ -784,12 +796,30 @@ class CreateTable(Sentence):
         return dot
 
 class CreateIndex(Sentence):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, name,table,ascdesc):
+        self.name = name #id
+        self.table= table #id
+        self.ascdesc = ascdesc #ASC |DESC
+    def __str__(self):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.ascdesc)
+        asdc = new_stdout.getvalue()
+        sys.stdout = old_stdout
+        return "executeSentence(CreateIndex,CreateIndex('"+self.name+"','"+self.table+"',"+str(asdc)[:-1]+"))"
     def graphAST(self, dot, parent):
         dot += parent + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"CreateIndex\"]\n'
         return dot
+
+class DropIndex(Sentence):
+    def __init__(self, name,ifExistsFlag):
+        self.name = name #id
+        self.ifExistsFlag= ifExistsFlag  #bool
+    def __str__(self):
+        return "executeSentence(DropIndex,DropIndex('"+self.name+"',"+str(self.ifExistsFlag)+"))"
+    
 
 class Select(Sentence):
     def __init__(self, columns, distinct, tables, options):

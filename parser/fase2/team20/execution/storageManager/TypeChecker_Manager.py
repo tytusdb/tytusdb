@@ -34,6 +34,7 @@ class column:
         self.null_: bool = None
         self.maxlength_: int = None
         self.unique_: bool = None
+        
         #checks
         self.checks = checks
         if self.checks == None:
@@ -81,7 +82,9 @@ def get_TypeChecker_Manager_Aux(json_string: str):
 
                 elif key_two == "TYPES":
                     Database.types = value_two
-
+                
+                elif key_two == "INDEX": 
+                    sssssss=0
                 else:
                     Table = table(key_two, [])
                     Database.tables.append(Table)
@@ -195,7 +198,6 @@ def get_string_json_TypeChecker_Manager(TypeChecker_Manager_: TypeChecker_Manage
                 null_ = TypeChecker_Manager_.databases[i].tables[j].columns[k].null_
                 maxlength_ = TypeChecker_Manager_.databases[i].tables[j].columns[k].maxlength_
                 unique_ = TypeChecker_Manager_.databases[i].tables[j].columns[k].unique_
-                
                 if type_ != None:
                     json_ += "\"TYPE\": \"" + str(type_) + "\""
                 if primary_ != None:
@@ -208,6 +210,7 @@ def get_string_json_TypeChecker_Manager(TypeChecker_Manager_: TypeChecker_Manage
                     json_ += ", \"MAXLENGTH\": " + str(maxlength_)
                 if unique_ != None:
                     json_ += ", \"UNIQUE\": " + str(unique_).lower()
+                
 
                 json_ += "},\n"
 
