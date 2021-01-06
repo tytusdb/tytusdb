@@ -93,6 +93,13 @@ class TablaDeSimbolos() :
             if elem.ambito == ambito and elem.val == id:
                 self.simbolos.remove(elem)
 
+    def deleteIndex(self,id) :
+        for elem in list(self.simbolos):
+            if elem.id == id:
+                self.simbolos.remove(elem)
+                return 0
+        return 1
+
 
     def clear(self):
         self.simbolos = []

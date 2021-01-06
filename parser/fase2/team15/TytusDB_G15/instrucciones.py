@@ -206,3 +206,7 @@ class index_cuerpo(Instruccion):
         self.etiqueta = etiqueta
         self.identificador = identificador
         self.expresion = expresion
+
+class Crear_Drop_INDEX(Instruccion):
+    def __init__(self, lista_ids = []):
+        self.lista_ids = lista_ids

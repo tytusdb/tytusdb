@@ -531,6 +531,11 @@ def p_instruccion7(t) :
     'instruccion      : drop_insrt'
     reporte_bnf.append("<instruccion> ::= <drop_insrt>")
     t[0] = t[1] 
+
+def p_instruccion77(t) :
+    'instruccion      : drop_insrt_index'
+    reporte_bnf.append("<instruccion> ::= <drop_insrt_index>")
+    t[0] = t[1] 
     
 def p_instruccion8(t) :
     'instruccion      : alterTable_insrt'
@@ -3318,6 +3323,26 @@ def p_opclass(t):
                | BPCHAR_PATTERN_OPS '''
     t[0] = t[1]
 
+#?######################################################
+# TODO        GRAMATICA DROP INDEX
+#?######################################################
+
+
+def p_dropIndex(t):
+    ' drop_insrt_index : DROP INDEX lista_drop_id_index PTCOMA'
+    reporte_bnf.append("<drop_insrt> ::= DROP TABLE <lista_drop_id> PTCOMA")
+    t[0] = Crear_Drop_INDEX(t[3])
+
+def p_lista_tabla_lista_index(t):
+    ' lista_drop_id_index :   lista_drop_id_index COMA ID '
+    reporte_bnf.append("<lista_drop_id> ::= <lista_drop_id> COMA ID")
+    t[1].append(ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[3]))
+    t[0] = t[1]
+
+def p_lista_tabla_lista_index2(t):
+    ' lista_drop_id_index : ID '
+    reporte_bnf.append("<lista_drop_id> ::= ID")
+    t[0] = [ExpresionIdentificador(TIPO_VALOR.IDENTIFICADOR,t[1])]
 
 def p_error(t):
     #print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
