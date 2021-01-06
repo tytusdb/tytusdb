@@ -37,7 +37,30 @@ def createDatabase(database, mode, encoding):
         save(databases, 'metadata')
         return 0
 
+    
+# ALTER DATABASEMODE
+def alterDatabaseMode(database, mode):
+    try:
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        actual_mode = dictionary.get(database)[0]
+        encoding = dictionary.get(database)[1]
+        dict_tables = dictionary.get(database)[2]
 
+        if value_db is None:
+            return 2  # database doesn't exist
+        elif dict_modes.get(mode) is None:
+            return 4  # mode incorrect
+
+        insertAgain(database, actual_mode, mode)
+        dictionary.pop(database)
+        dictionary[database] = [mode, encoding, dict_tables]
+        save(dictionary, 'metadata')
+        return 0
+    except:
+        return 1    
+    
+    
 # ---------------------------------------------- AUXILIARY FUNCTIONS  --------------------------------------------------
 # SHOW DICTIONARY
 def showDict(dictionary):
@@ -83,6 +106,81 @@ def checkMode(mode):
         return j
 
 
+def insertAgain(database, mode, newMode):
+    old_mode = checkMode(mode)
+    new_mode = checkMode(newMode)
+    new_mode.createDatabase(database)
+    tables = old_mode.showTables(database)
+
+    dictionary = load('metadata')
+    dict_tables = dictionary.get(database)[2]
+
+    if tables:
+        for name_table in tables:
+            register = old_mode.extractTable(database, name_table) 
+            number_columns = dict_tables.get(name_table)[0]
+            new_mode.createTable(database, name_table, number_columns)
+
+            if register:  # There are registers
+                for list_register in old_mode.extractTable(database, name_table):
+                    new_mode.insert(database, name_table, list_register)
+
+        old_mode.dropDatabase(database)    
+        
+        
+def listGraph(list_):
+    string = 'digraph G{\n'
+    string += 'fontsize = \"30\"\n'
+    string += 'edge[ arrowhead = \"open\"\n ]'
+    string += "node[shape = \"ellipse\", fillcolor = \"turquoise\", style = \"filled\", fontcolor = \"black\" ]\n"
+
+    for i in range(0, len(list_)):
+        string += f'node{hash(list_[i])*hash(list_[i])} [ label = "{list_[i]}"]\n'
+        if i == len(list_)-1:
+            pass
+        else:
+            string += f'node{hash(list_[i])*hash(list_[i])} -> node{hash(list_[i+1])*hash(list_[i+1])}\n'
+
+    string += '}'
+    file = open("List.circo", "w")
+    file.write(string)
+    file.close()
+    os.system("circo -Tpng List.circo -o List.png")        
+
+
+def concatenateStrings(list_):
+    string = ''
+    for i in range(0, len(list_)):
+        if i == len(list_) - 1:
+            string += str(list_[i])
+        else:
+            string += str(list_[i])+', '
+    return string
+
+
+def tupleGraph(list_):
+    string = 'digraph G{\n'
+    string += 'fontsize = \"30\"\n'
+    string += 'edge[ arrowhead = \"open\"\n ]'
+    string += "node[shape = \"ellipse\", fillcolor = \"turquoise\", style = \"filled\", fontcolor = \"black\" ]\n"
+
+    for i in range(0, len(list_)):
+        tuple_i = concatenateStrings(list_[i])
+
+        string += f'node{hash(tuple_i) * hash(tuple_i)} [ label = "{tuple_i}"]\n'
+        if i == len(list_)-1:
+            pass
+        else:
+            tuple_iplus = concatenateStrings(list_[i + 1])
+            string += f'node{hash(tuple_i)*hash(tuple_i)} -> node{hash(tuple_iplus)*hash(tuple_iplus)}\n'
+
+    string += '}'
+    file = open("List.circo", "w")
+    file.write(string)
+    file.close()
+    os.system("circo -Tpng List.circo -o List.png")   
+    
+    
 # ------------------------------------------------------- FILES --------------------------------------------------------
 def save(objeto, nombre):
     file = open(nombre + ".bin", "wb")
