@@ -1,5 +1,5 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-import Compi2RepoAux.team21.Analisis_Ascendente.ascendente as tr
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+import tytus.parser.fase2.team21.Analisis_Ascendente.ascendente as tr
 
 class Procedure(Instruccion):
     '''en replace sube True o False

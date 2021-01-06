@@ -1,6 +1,6 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
-import Compi2RepoAux.team21.Analisis_Ascendente.ascendente as tr
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
+import tytus.parser.fase2.team21.Analisis_Ascendente.ascendente as tr
 
 class When(Instruccion):
     def __init__(self, E, instrucciones, fila, columna):

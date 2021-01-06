@@ -1,10 +1,10 @@
 import  math
 import random
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-import  Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as  Trigonometrica
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId as IdAsId
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
+import  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as  Trigonometrica
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId as IdAsId
 import hashlib
 class Math_(Instruccion):
     def __init__(self, nombre, E1, E2,fila,columna):

@@ -1,9 +1,9 @@
 import  math
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math  as Math
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import *
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math  as Math
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
 
 class Trigonometrica(Instruccion):
     def __init__(self, trig, E, E2,fila,columna):

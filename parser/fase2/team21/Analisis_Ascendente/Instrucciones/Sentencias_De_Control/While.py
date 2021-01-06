@@ -1,4 +1,4 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 
 class While(Instruccion):
     def __init__(self, opNot, E, instrucciones, fila, columna):

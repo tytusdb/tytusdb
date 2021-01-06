@@ -1,5 +1,5 @@
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
+import tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
 
 class Instruccion:
     'clase abstracta'

@@ -1,4 +1,4 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 
 class For(Instruccion):
     def __init__(self, caso, E1, reverse, E2, E3, E4, instrucciones, inst, fila, columna):
