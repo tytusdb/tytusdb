@@ -44,8 +44,8 @@ from InterpreteF2.Soporte_aVar.var_acceso import var_acceso
 from InterpreteF2.Soporte_aFun.argumento import argumento
 from InterpreteF2.Soporte_aFun.funheader import funheader
 from InterpreteF2.Soporte_aFun.funexecute import funexecute
-from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 from InterpreteF2.indices.indice import indice
+from InterpreteF2.indices.dropindex import dropindex
 from InterpreteF2.retorno.retorno_simple import retorno_simple
 from InterpreteF2.DML.insert.insert import insert
 from InterpreteF2.Soporte_aFun.callfunction import callfunction
@@ -56,6 +56,9 @@ ArbolErrores:Arbol = Arbol(None)
 
 reservadas = {
 
+    'cascade': 'CASCADE',
+    'restrict': 'RESTRICT',
+    'concurrently': 'CONCURRENTLY',
     # INDEXES
     'index': 'INDEX',
     'hash': 'HASH',
@@ -926,7 +929,6 @@ def p_returning(t):
 
 
 # -------------------------------Jonathan PL/PGSQL ---------------------------------------------
-
 #callfunction
 
 def p_callfunction(t):
@@ -937,45 +939,56 @@ def p_callfunction(t):
     set('<TR> \n <TD> callfunction → SELECT ID PARIZQ exp_list PARDER: </TD> \n <TD> callfunction = call_function(t[2], t[4]) </TD> \n </TR> \n')
 
 
-# ================= INDEX =================
+# =================  INDEX =================
+def p_index(t):
+    '''
+        index : create_index
+              | drop_index
+    '''
+    t[0]=t[1]
+
+
+# ================= CREATE INDEX =================
 
 def p_create_index1(t):
     '''
-        index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER
+       create_index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER
     '''
     t[0] = indice(t[3], 1, 1)
 
 def p_create_index2(t):
     '''
-        index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER conditions
+        create_index : CREATE        INDEX ID ON ID             PARIZQ index_params PARDER conditions
     '''
-    t[0] = ReporteTS('',t[3],'index','asc', 1, 1)
+    t[0] = indice(t[3], 1, 1)
+
 
 def p_create_index3(t):
     '''
-        index : CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER conditions
+        create_index : CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER conditions
     '''
-    t[0] = ReporteTS('',t[4],'index','asc', 1, 1)
+    t[0] = indice(t[4], 1, 1)
 
 def p_create_index4(t):
     '''
-        index : CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER
+        create_index : CREATE UNIQUE INDEX ID ON ID             PARIZQ index_params PARDER
     '''
-    t[0] = ReporteTS('',t[4],'index','asc', 1, 1)
+    t[0] = indice(t[4], 1, 1)
 
 def p_create_index5(t):
     '''
-        index : CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER
+        create_index : CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER
     '''
-    t[0] = ReporteTS('',t[3],'index','asc', 1, 1)
+    t[0] = indice(t[3], 1, 1)
 
 
 def p_create_index(t):
     '''
-        index : CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER conditions
+        create_index : CREATE        INDEX ID ON ID USING HASH  PARIZQ index_params PARDER conditions
     '''
-    t[0] = ReporteTS('',t[3],'index','asc', 1, 1)
+    t[0] = indice(t[3], 1, 1)
 
+# ================= INDEX_PARAMS =================
 
 def p_index_params(t):
     '''
@@ -983,13 +996,11 @@ def p_index_params(t):
                         | index_param
     '''
 
-
 def p_index_param(t):
     '''
         index_param     :  ID options
                         |  ID
     '''
-
 
 def p_options(t):
     '''
@@ -1008,7 +1019,52 @@ def p_option(t):
                   | LAST
     '''
 
+
+# ================= drop index =================
+
+def p_drop_index1(t):
+    '''
+        drop_index    : DROP INDEX CONCURRENTLY IF EXISTS list_cascade
+    '''
+    t[0] = dropindex(t[6],t.lineno,t.lexpos)
+
+def p_drop_index2(t):
+    '''
+        drop_index    : DROP INDEX CONCURRENTLY           list_cascade
+    '''
+    t[0] = dropindex(t[4],t.lineno,t.lexpos)
+
+def p_drop_index3(t):
+    '''
+        drop_index    : DROP INDEX  IF EXISTS list_cascade
+    '''
+    t[0] = dropindex(t[5],t.lineno,t.lexpos)
+
+def p_drop_index4(t):
+    '''
+        drop_index    : DROP INDEX            list_cascade
+    '''
+    t[0] = dropindex(t[3],t.lineno,t.lexpos)
+
+
+def p_list_cascade(t):
+    '''
+        list_cascade    : idlist cascade_strict
+                        | idlist
+    '''
+    t[0]=t[1]
+
+def p_drop_cascade_strict(t):
+    '''
+        cascade_strict  : CASCADE
+                        | RESTRICT
+    '''
+    t[0]=t[1]
+
+
+
 # ------------------------------------------------------------------------------------------
+
 # --------------------------------Fin PL/PGSQL ---------------------------------------------
 # ------------------------------------------------------------------------------------------
 

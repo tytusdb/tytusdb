@@ -90,6 +90,11 @@ class Sql:
 		print(self.console)
 
 
+	def query(self, input):
+		self.parse(input)
+		self.analize(input)
+		print(self.console)
+
 
 if __name__ == '__main__':
 	f = open("entrada.txt", "r")

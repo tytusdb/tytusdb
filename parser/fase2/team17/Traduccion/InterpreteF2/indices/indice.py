@@ -19,6 +19,14 @@ class indice(NodoArbol):
         pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+
+        for i in range(len(arbol.ReporteTS)):
+            temp:ReporteTS =arbol.ReporteTS[i]
+            if temp.nombre == self.identificador:
+                pass
+
+
+
         nodo = ReporteTS(str(self.identificador), str(self.identificador), 'index', 'ASC', str(self.linea), str(self.columna))
         arbol.ReporteTS.append(nodo)
         return

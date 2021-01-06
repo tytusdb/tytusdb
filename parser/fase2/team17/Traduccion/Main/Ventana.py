@@ -246,7 +246,6 @@ def Err_Lexico():
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
-
 def Err_Sintactico():
     global arboAux_errores
 
@@ -377,7 +376,6 @@ def Tabla_Simbolos():
             ts.write(texto)
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
-
 
 def generar():
     global COD3D
