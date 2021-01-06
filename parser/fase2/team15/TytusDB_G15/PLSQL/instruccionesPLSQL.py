@@ -98,6 +98,10 @@ class AlterDatabase(Instruccion):
     def __init__(self, cadena):
         self.cadena = cadena
 
+class AlterTable(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
 
 
 

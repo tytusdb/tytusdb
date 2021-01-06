@@ -529,7 +529,8 @@ def p_instrucciones_global_sent(t):
                                     | drop_database_instr
                                     | create_Table_isnrt
                                     | drop_insrt
-                                    | alterDB_insrt'''
+                                    | alterDB_insrt
+                                    | alterTable_insrt'''
     t[0] = t[1]
 
 def p_instrucciones_global_sent_error(t):
@@ -1036,6 +1037,196 @@ def p_usuarioDB4(t):
     t[0] = ' ' + cadena + ' '
 
 
+#?######################################################
+# TODO        GRAMATICA ALTER TABLE
+#?######################################################
+
+
+def p_alterTable3(t):
+    'alterTable_insrt : ALTER TABLE ID DROP CONSTRAINT campos_c PTCOMA'
+    cadena = ""
+    for i in t[6]:
+        cadena += str(i)
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + cadena + ';')
+
+def p_alterTable_Drop(t):
+    'alterTable_insrt : ALTER TABLE ID DROP COLUMN campos_c PTCOMA'
+    cadena = ""
+    for i in t[6]:
+        cadena += str(i)
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + cadena + ';')
+
+def p_alterTable4(t):
+    'alterTable_insrt : ALTER TABLE ID RENAME COLUMN ID TO ID PTCOMA'
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8] + ';')
+
+def p_alterTable5(t):
+    'alterTable_insrt : ALTER TABLE ID ADD COLUMN campos_add_Column PTCOMA' 
+    cadena = ""
+    for i in t[6]:
+        cadena += str(i)
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + cadena + ';')
+
+def p_alterTable6(t):
+    'alterTable_insrt : ALTER TABLE ID ADD CHECK PARA expresion_logica PARC PTCOMA' 
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8] + ';')
+
+def p_alterTable8(t):
+    'alterTable_insrt : ALTER TABLE ID ADD FOREIGN KEY PARA ID PARC REFERENCES ID PARA ID PARC PTCOMA' 
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8]+ ' ' + t[9]+ ' ' + t[10]+ ' ' + t[11]+ ' ' + t[12]+ ' ' + t[13]+ ' ' + t[14] + ';')
+
+def p_alterTable7(t):
+    'alterTable_insrt : ALTER TABLE ID ADD CONSTRAINT ID CHECK PARA expresion_logica PARC PTCOMA' 
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8]+ ' ' + t[9]+ ' ' + t[10]+';')
+
+
+def p_constraint_esp(t):
+    'alterTable_insrt : ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARA campos_c PARC PTCOMA'
+    cadena = ""
+    for i in t[9]:
+        cadena += str(i)
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8]+ ' ' + cadena + ' ' + t[10]+';')
+
+def p_constraint_esp_1(t):
+    'alterTable_insrt : ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PARA ID PARC REFERENCES ID PARA ID PARC  PTCOMA'
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8]+ ' ' + t[9]+ ' ' + t[10]+ ' ' + t[11]+ ' ' + t[12]+ ' ' + t[13]+ ' ' + t[14]+ ' ' + t[15]+ ' ' + t[16] + ';')
+
+def p_constraint_esp_null(t):
+    'alterTable_insrt : ALTER TABLE ID ALTER COLUMN ID SET NULL PTCOMA'
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8]+';')
+
+def p_constraint_esp_Notnull(t):
+    'alterTable_insrt : ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA'
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + t[4]+ ' ' + t[5]+ ' ' + t[6]+ ' ' + t[7]+ ' ' + t[8]+ ' ' + t[9] + ';')
+
+def p_alterTable2(t):
+    'alterTable_insrt : ALTER TABLE ID alterTable_alter PTCOMA'
+    cadena = ""
+    for i in t[4]:
+        cadena += str(i)
+    t[0] = AlterTable(t[1] + ' ' + t[2] + ' ' + t[3]+ ' ' + cadena + ';')
+
+def p_alerTable_alter(t):
+    'alterTable_alter : alterTable_alter COMA Table_alter'
+    t[1].append(t[2])
+    t[1].append(t[3])
+    t[0] = t[1]
+    
+def p_alerTable_alter_1(t):
+    'alterTable_alter : Table_alter'
+    t[0] = [t[1]]
+
+def p_Table_alter(t):
+    'Table_alter : ALTER COLUMN ID TYPE TIPO_DATO'
+    t[0] = ' ' + t[1] + ' ' + t[2] + ' ' + t[3] + ' '+ t[4] + ' '+ t[5] + ' '
+
+
+def p_alterTable_add_column(t):
+    'campos_add_Column : campos_add_Column COMA tipos_datos_columnas '
+    t[1].append(t[2])
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_alterTable_add_columna(t):
+    'campos_add_Column : tipos_datos_columnas '
+    t[0] = [t[1]]
+
+def p_alterTable_add_tipodato(t):
+    'tipos_datos_columnas : ID TIPO_DATO'
+    t[0] = ' ' + t[1] + ' '+ t[2] + ' '
+
+#?######################################################
+# TODO      TIPO DE DATO
+#?######################################################
+
+def p_tipo_dato_text(t):
+    ' TIPO_DATO : TEXT'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_float(t):
+    ' TIPO_DATO : FLOAT'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_integer(t):
+    ' TIPO_DATO : INTEGER'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_BOOLEAN(t):
+    ' TIPO_DATO : BOOLEAN'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_smallint(t):
+    ' TIPO_DATO : SMALLINT'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_money(t):
+    ' TIPO_DATO : MONEY'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_decimal(t):
+    ' TIPO_DATO : DECIMAL PARA ENTERO COMA ENTERO PARC'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '
+
+def p_tipo_dato_numerico(t):
+    ' TIPO_DATO : NUMERIC PARA ENTERO COMA ENTERO PARC'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '
+
+def p_tipo_dato_bigint(t):
+    ' TIPO_DATO : BIGINT'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_real(t):
+    ' TIPO_DATO : REAL'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_double_precision(t):
+    ' TIPO_DATO : DOUBLE PRECISION'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '
+
+def p_tipo_dato_interval_to(t):
+    ' TIPO_DATO : INTERVAL extract_time TO extract_time'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+
+def p_tipo_dato_interval(t):
+    ' TIPO_DATO :  INTERVAL'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_time(t):
+    ' TIPO_DATO :  TIME'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_interval_tsmp(t):
+    ' TIPO_DATO :  TIMESTAMP'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato(t):
+    'TIPO_DATO : DATE'
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_tipo_dato_character_varying(t):
+    ' TIPO_DATO : CHARACTER VARYING PARA ENTERO PARC'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '
+
+
+def p_tipo_dato_varchar(t):
+    ' TIPO_DATO : VARCHAR PARA ENTERO PARC'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+
+def p_tipo_dato_char(t):
+    ' TIPO_DATO : CHAR PARA ENTERO PARC'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+
+def p_tipo_dato_character(t):
+    ' TIPO_DATO : CHARACTER PARA ENTERO PARC'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+
+def p_tipo_dato_char_no_esp(t):
+    ' TIPO_DATO : CHAR PARA PARC'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '
+
+def p_tipo_dato_character_no_esp(t):
+    ' TIPO_DATO : CHARACTER PARA PARC'
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '
 
 #?######################################################
 # TODO      STRING TYPE
