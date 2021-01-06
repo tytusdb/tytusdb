@@ -1996,10 +1996,12 @@ def p_exp(t):
         #t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
         if t[2]=='&':
             #exp ANDBB exp
-            t[0] = OperacionesLogicas(t[1], t[3], "&", 1, 1)
+            #t[0] = OperacionesLogicas(t[1], t[3], "&", 1, 1)
+            t[0] = OperaRelacional(t[1], t[3], "and", 1, 1)
             pass
         elif t[2]=='|':
             # exp ORBB exp
+            t[0] = OperaRelacional(t[1], t[3], "or", 1, 1)
             pass
         elif t[2]=='#':
             # exp NUMERAL exp
@@ -2077,9 +2079,11 @@ def p_exp(t):
             pass
         elif t[2].lower()=='and':
             # exp AND exp
+            t[0] = OperaRelacional(t[1], t[3], "and", 1, 1)
             pass
         elif t[2].lower()=='or':
             # exp OR exp
+            t[0] = OperaRelacional(t[1], t[3], "or", 1, 1)
             pass
     elif len(t) == 5:
         # exp NOT IN exp
