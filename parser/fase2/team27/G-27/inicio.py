@@ -33,7 +33,8 @@ etiqueta2.place(x = 100 , y = 350)
 def analizar_texto():
     response= txt_consultas.get("1.0","end")
     salida_lexico_ast = analizarLex(response)
-    analizarSin(response)
+    texto = analizarSin(response)
+    txt_salida.insert('end',texto+ '\n\n\n')
     print(tab_string())
 
 # Metodo para limpiar la salida de gramatica
@@ -96,11 +97,11 @@ botonLimpiar.place(x= 12,y = 315)
 #                           TEXTAREA
 # ======================================================================
 # TEXTAREA Entrada
-txt_consultas = Text(ventana,height = 20,width = 130,bg = "black",fg = "white")
+txt_consultas = Text(ventana,height = 20,width = 180,bg = "black",fg = "white")
 txt_consultas.place(x = 100 , y = 60)
 
 # TEXTAREA Salida
-txt_salida = Text(ventana,height = 15,width = 130,bg = "black",fg = "green")
+txt_salida = Text(ventana,height = 15,width = 180,bg = "black",fg = "green")
 txt_salida.place(x = 100 , y = 380)
 scrollb = tkinter.Scrollbar( command=txt_salida.yview)
 txt_salida['yscrollcommand'] = scrollb.set
