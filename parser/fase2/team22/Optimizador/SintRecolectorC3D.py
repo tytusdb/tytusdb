@@ -34,6 +34,14 @@ def p_instruccion_asignacion(t):
     'instruccion    : ID IGUAL valor'
     t[0] = Asignacion(Identificador(t[1]), t[3])
 
+def p_instruccion_asignacion_listaPosicion(t):
+    'instruccion    : ID CORIZQ ID CORDER IGUAL valor'
+    t[0] = Asignacion(ListaPosicion(Identificador(t[1]), Identificador(t[3])), t[6])
+
+def p_isntruccion_llamFuncion(t):
+    'instruccion    : ID PARIZQ PARDER'
+    t[0] = LlamFuncion(Identificador(t[1]))
+
 def p_instruccion_if(t):
     'instruccion    : IF condicion GOTO ID'
     t[0] = SentenciaIF(t[2], Identificador(t[4]))
@@ -101,6 +109,10 @@ def p_valorOp_valor_true_false(t):
     '''valorOp      : TRUE
                     | FALSE'''
     t[0] = Valor(t[1], 'BOOLEAN')
+
+def p_valorOp_valor_lista(t):
+    '''valorOp  : CORIZQ valorOp CORDER'''
+    t[0] = ValorLista(t[2])
 
 def p_condicion_mayor(t):
     'condicion  : valorOp MAYOR valorOp'

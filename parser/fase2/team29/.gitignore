@@ -12,3 +12,4 @@ data
 Databases.json
 Types.json
 ReporteGramatica.bnf
+analizer_pl/ply/**

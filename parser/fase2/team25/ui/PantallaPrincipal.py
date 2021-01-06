@@ -174,12 +174,12 @@ class Pantalla:
         res = interpreter.generar_codigo_3d(entrada)
         self.lexicalErrors = res["err_lexicos"]
         self.syntacticErrors = res["err_sintacticos"]
-        #self.semanticErrors = res["semantic"]
+        self.semanticErrors = res["semantic"]
         self.ts = res["symbols"]
         if (
             len(self.lexicalErrors)
             + len(self.syntacticErrors)
-           # + len(self.semanticErrors)
+           + len(self.semanticErrors)
            # + len(self.postgreSQL)
             > 0
            ):

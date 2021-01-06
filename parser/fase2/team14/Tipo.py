@@ -14,7 +14,7 @@ class Tipo():
             cad += '(' + str(self.size)
         
         if self.decimales > 0:
-            cad += ',' + str(self.decimales) + ')'
+            cad += ',' + str(self.decimales)
         
         if self.size > 0 or self.decimales > 0:
             cad += ')'

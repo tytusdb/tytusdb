@@ -10,7 +10,7 @@ class TIPO_DE_DATO(Enum) :
 class Simbolo() :
     'Esta clase representa un simbolo dentro de nuestra tabla de simbolos'
 
-    def __init__(self, id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default, idConstraintFK, idConstraintPK) :
+    def __init__(self, id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default, idConstraintFK, idConstraintPK, tipoIndex, sortIndex, ambito, rol) :
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -31,6 +31,10 @@ class Simbolo() :
         self.default = default
         self.idConstraintFK = idConstraintFK
         self.idConstraintPK = idConstraintPK
+        self.tipoIndex = tipoIndex
+        self.sortIndex = sortIndex
+        self.ambito = ambito
+        self.rol = rol
         
 
 
@@ -154,6 +158,45 @@ class TablaDeSimbolos() :
             print('Error1: variable ', nombre, ' no definida.')
             return("no definida")
         return self.simbolos[nombre]
+
+    #-----------------------------------------------------------------------------------------------------------------------
+    #Funciones
+    def agregarSimbolo(self,simbolo):
+        clave = str(simbolo.nombre)+str(simbolo.BD)
+        self.simbolos[clave] = simbolo
+
+    def agregarVariable(self, simbolo):
+        clave = str(simbolo.nombre)+str(simbolo.BD)+str(simbolo.ambito)
+        self.simbolos[clave] = simbolo
+
+    def verificarFuncion(self,nombre,BD):
+        clave = str(nombre)+str(BD)
+        if not clave in self.simbolos:
+            return 0
+        return 1
+    
+    def eliminarVariablesFuncion(self,BD,ambito):
+        for simb in self.simbolos:
+            if self.simbolos[simb].BD == BD and self.simbolos[simb].ambito == ambito:
+                del self.simbolos[simb]
+                return 1
+        return 0
+    
+    def contVariablesFunction(self,BD,ambito):
+        contt=0
+        for simb in self.simbolos:
+            if self.simbolos[simb].BD == BD and self.simbolos[simb].ambito == ambito:
+                contt+=1
+        return contt
+
+    def eliminarFunction(self,nombre,BD):
+        clave = str(nombre)+str(BD)
+        for simb in self.simbolos:
+            if clave == simb:
+                del self.simbolos[simb]
+                return 1
+        return 0
+        
 
     #-----------------------------------------------------------------------------------------------------------------------
     def agregarnuevTablaBD(self,simbolo):
@@ -312,6 +355,13 @@ class TablaDeSimbolos() :
             return 0
         return len(self.simbolos[clave].valor)
 
+    def numerodeDatosenprimeraColumna(self,tabla,BD):
+        for simb in self.simbolos:
+            if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == BD and self.simbolos[simb].id == 0:
+                if self.simbolos[simb].valor == None:
+                    return 0
+                return len(self.simbolos[simb].valor)
+        return 0
 
     def actualizandoDefaultColumna(self,nombre,BD,tabla):
         clave = str(nombre)+str(BD)+str(tabla)
@@ -623,6 +673,9 @@ class TablaDeSimbolos() :
     def verificarIndex(self,nombre,BD,tabla):
         clave = str(nombre) + str(BD) + str(tabla)
         if not clave in self.simbolos :
-            h.textosalida+='Error: El indice: ' + nombre + ' no definida.'+"\n"
             return 0
-        return 1
+        else:
+            return 1
+
+
+

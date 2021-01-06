@@ -2,6 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import Excepcion
 import collections
 from storageManager.jsonMode import *
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class AlterTableAddColumn(Instruccion):
     def __init__(self, tabla, lista_col, strGram,linea, columna):
@@ -69,3 +71,20 @@ class AlterTableAddColumn(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "ALTER TABLE " + self.tabla))
+        t1 = c3d.getTemporal()
+        for col in self.lista_col:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" ADD COLUMN " + col.id + " " + col.tipo.toString() + "\" ", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t1))
+        code.append(c3d.aumentarP())
+
+        return code
