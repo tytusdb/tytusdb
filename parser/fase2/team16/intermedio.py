@@ -8,7 +8,22 @@ def main():
 	global heap
 	global stack
 
+<<<<<<< Updated upstream
 	t0 = """CREATE DATABASE DBFase2;"""
+=======
+	t0 = """
+ CREATE TABLE tbProducto (
+  
+ idproducto  integer   not null     primary key    
+,   
+ producto  varchar( 150)   not null    
+,   
+ fechacreacion  date   not null    
+,   
+ estado  integer  
+  );
+"""
+>>>>>>> Stashed changes
 	heap.append(t0)
 	F3D.ejecutarSQL()
 
