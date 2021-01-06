@@ -19,6 +19,11 @@ class SI(NodoArbol):
         pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+
+        # REGLA 4
+        if self.exp.validador_Regla4(entorno, Arbol):
+            return self.traducir_regla4(entorno, arbol)
+
         Bv = arbol.getLabel()
         Bf = arbol.getLabel()
         validacion = str(self.exp.traducir(entorno, arbol))
@@ -36,8 +41,9 @@ class SI(NodoArbol):
         original = "if " + validacion + " goto " + str(Bv) + ' goto ' + str(Bf)
         optimizado = "if " + validacion + " goto " + str(Bf)
         reportero = ReporteOptimizacion('Regla 3', original, optimizado, str(self.linea), str(self.columna))
+        #arbol.
         # ----------------------------------------------------------------
-        pass
+        return
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         pass
@@ -47,3 +53,26 @@ class SI(NodoArbol):
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         pass
+
+    # Reglas de optimizacion
+
+    # Regla 4
+    def traducir_regla4(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+        Bv = arbol.getLabel()
+        Bf = arbol.getLabel()
+        validacion = str(self.exp.traducir(entorno, arbol))
+        arbol.addC3D(Bv + ":")
+        arbol.addIdentacion()
+        # arbol.addC3D(self.body.traducir(entorno, arbol))
+        for item in self.body:
+            item.traducir(entorno, arbol)
+        arbol.popIdentacion()
+
+        # optimizacion ---------------------------
+        # Regla no.4:
+        original = "if " + validacion + " goto " + str(Bv) + ' goto ' + str(Bf)
+        optimizado = " goto " + str(Bv)
+        reportero = ReporteOptimizacion('Regla 3', original, optimizado, str(self.linea), str(self.columna))
+        # ----------------------------------------------------------------
+
+        return

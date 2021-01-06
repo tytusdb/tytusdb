@@ -12,6 +12,7 @@ class OperaRelacional(NodoArbol):
         self.izq = izq
         self.der = der
         self.tipoOperaRelacional = tipoOperaRelacional
+        self.Isvalidador_Regla4 = False
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         tipoRes = COMPROBADOR_deTipos(self.izq.analizar_semanticamente(entorno, arbol), self.der.analizar_semanticamente(entorno, arbol), "+")
@@ -35,4 +36,11 @@ class OperaRelacional(NodoArbol):
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         pass
+
+    def validador_Regla4(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        izquierdo:Valor = self.izq.getValueAbstract(entorno, arbol)  # <-- tiene un temporal
+        derecho:Valor = self.der.getValueAbstract(entorno, arbol)  # <-- tiene un temporal
+        if str(izquierdo.data) == str(derecho.data):
+            return True
+        return False
 
