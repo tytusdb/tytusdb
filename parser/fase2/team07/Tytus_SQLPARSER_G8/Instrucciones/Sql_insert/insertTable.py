@@ -371,32 +371,112 @@ class insertTable(Instruccion):
     def traducir(self,tabla,arbol,cadenaTraducida):
         temporal = arbol.generaTemporal()
         codigo = ""
+
+        #Es un insert values sin campos especificos
         if self.lcol is None:
             codigo = "\t\t" + temporal + " = " + "\"INSERT INTO " + self.valor + " VALUES(\"\n"
             
             for col in self.lexpre[:-1]:
-                temporal2 = arbol.generaTemporal()
-
-                
-                if col.tipo == None:
-                    codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + col.strSent + ",\"" + "\n"
-                #Es un dato primitivo
-                else:
-                    if col.tipo.toString() == "text" or col.tipo.toString() == "varchar":
-                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"\\\"" + col.strSent + "\\\",\"" + "\n"
-                    elif col.tipo.toString() == "char":
-                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"'" + col.strSent + "',\"" + "\n"
+            
+                if "(" in col.strSent:
+                    #Se verifica si el parametro es una funcion nativa
+                    if arbol.esFuncionNativa(col.strSent):
+                        temporal2 = arbol.generaTemporal()
+                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + col.strSent + ",\"\n"
+                        temporal = temporal2
                     else:
-                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + col.strSent + ",\"" + "\n"
-                
-                
-                
+                        temporal2 = arbol.generaTemporal()
+                        codigo += "\t\t" + temporal2 + " = " + "str(" + col.strSent + ") + ','\n"
+                        temporal3 = temporal2
+                        temporal2 = arbol.generaTemporal()
+                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + temporal3 + "\n"
+                        temporal = temporal2
+                else:
+                    temporal2 = arbol.generaTemporal()
+                    codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + col.strSent + ",\"\n"
+                    temporal = temporal2
+
+            if "(" in self.lexpre[-1].strSent:
+                if arbol.esFuncionNativa(self.lexpre[-1].strSent):
+                    temporal2 = arbol.generaTemporal()
+                    codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + self.lexpre[-1].strSent + "\"\n"
+                    temporal = temporal2
+                else:
+                    temporal2 = arbol.generaTemporal()
+                    codigo += "\t\t" + temporal2 + " = " + "str(" + self.lexpre[-1].strSent + ")\n"
+                    temporal3 = temporal2
+                    temporal2 = arbol.generaTemporal()
+                    codigo += "\t\t" + temporal2 + " = " + temporal + " + " + temporal3 + "\n"
+                    temporal = temporal2
+            else:
+                temporal2 = arbol.generaTemporal()
+                codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + self.lexpre[-1].strSent + "\"\n"
                 temporal = temporal2
 
             temporal2 = arbol.generaTemporal()
             codigo += "\t\t" + temporal2 + " = " + temporal + " + ');'\n" 
             codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal2 + ")\n\n"
+
+        #Es un insert con campos especificos
         else:
-            ccodigo = "\t\t" + temporal + " = " + "\"INSERT INTO " + self.valor + "(\"\n"
+            codigo = "\t\t" + temporal + " = " + "\"INSERT INTO " + self.valor + "(\"\n"
+            
+            for col in self.lcol[:-1]:
+                temporal2 = arbol.generaTemporal()
+                codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + col + ",\"\n"
+                temporal = temporal2
+            
+            temporal2 = arbol.generaTemporal()
+            codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + self.lcol[-1] + "\"\n"
+            temporal = temporal2
+
+            temporal2 = arbol.generaTemporal()
+            codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\") VALUES (\"\n"
+            temporal = temporal2
+
+
+            for col in self.lexpre[:-1]:
+            
+                if "(" in col.strSent:
+                    #Se verifica si el parametro es una funcion nativa
+                    if arbol.esFuncionNativa(col.strSent):
+                        temporal2 = arbol.generaTemporal()
+                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + col.strSent + ",\"\n"
+                        temporal = temporal2
+                    else:
+                        temporal2 = arbol.generaTemporal()
+                        codigo += "\t\t" + temporal2 + " = " + "str(" + col.strSent + ") + ','\n"
+                        temporal3 = temporal2
+                        temporal2 = arbol.generaTemporal()
+                        codigo += "\t\t" + temporal2 + " = " + temporal + " + " + temporal3 + "\n"
+                        temporal = temporal2
+                else:
+                    temporal2 = arbol.generaTemporal()
+                    codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + col.strSent + ",\"\n"
+                    temporal = temporal2
+
+            if "(" in self.lexpre[-1].strSent:
+                if arbol.esFuncionNativa(self.lexpre[-1].strSent):
+                    temporal2 = arbol.generaTemporal()
+                    codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + self.lexpre[-1].strSent + "\"\n"
+                    temporal = temporal2
+                else:
+                    temporal2 = arbol.generaTemporal()
+                    codigo += "\t\t" + temporal2 + " = " + "str(" + self.lexpre[-1].strSent + ")\n"
+                    temporal3 = temporal2
+                    temporal2 = arbol.generaTemporal()
+                    codigo += "\t\t" + temporal2 + " = " + temporal + " + " + temporal3 + "\n"
+                    temporal = temporal2
+            else:
+                temporal2 = arbol.generaTemporal()
+                codigo += "\t\t" + temporal2 + " = " + temporal + " + " + "\"" + self.lexpre[-1].strSent + "\"\n"
+                temporal = temporal2
+
+            temporal2 = arbol.generaTemporal()
+            codigo += "\t\t" + temporal2 + " = " + temporal + " + ');'\n" 
+            codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal2 + ")\n\n"
+
 
         return codigo
+
+    

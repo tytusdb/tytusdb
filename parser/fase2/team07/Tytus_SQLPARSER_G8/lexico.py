@@ -170,13 +170,13 @@ t_DOSP_IGUAL = r'\:\='
 def t_CADENA(t):
     r'\".*?\"'
     t.value = t.value[1:-1]  # remuevo las comillas dobles
+    t.value = "'" + t.value + "'"
     return t
 
 
 def t_CARACTER(t):
     r'\'.*?\''
     t.value = t.value[1:-1]  # remuevo las comillas simples
-    t.value = "\\\"" + t.value + "\\\""
     #print('esto es un caracter: ', t.value)
     return t
 
