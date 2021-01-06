@@ -26,7 +26,7 @@ class Select(Instruction):
         self.order_option = order_option
         self.limit_option = limit_option
         self.alias = f'{self.instrs.alias}'
-        self._tac = tac
+        self._tac = ''
         self.line = 0
         self.column = 0
 
@@ -76,6 +76,7 @@ class TypeQuerySelect(Instruction):
         self.line = line
         self.column = column
         self.alias = f'{arr_select[0].alias}'
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
     
@@ -140,6 +141,7 @@ class SelectQ(Instruction):
             self.alias = f'{from_clause.alias}'
         self.line = line
         self.column = column
+        self._tac = self.alias
 
     def __repr__(self):
         return str(vars(self))
@@ -390,6 +392,7 @@ class OrderClause(Instruction):
         self.type_order = type_order
         self.line = line
         self.column = column
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -425,6 +428,7 @@ class LimitClause(Instruction):
         self.offset = offset
         self.line = line
         self.column = column
+        self._tac = ''
         
     def __repr__(self):
         return str(vars(self))
@@ -476,6 +480,7 @@ class AgreggateFunctions(Instruction):
         self.alias = f'{self.type_agg}({cont_agg.alias})'
         self.line = line
         self.column = column
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
     

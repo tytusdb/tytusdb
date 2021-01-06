@@ -289,6 +289,7 @@ class Opt1(Instruction):
     def __init__(self, isAsterisco, alias):
         self.isAsterisco = isAsterisco
         self.alias = alias
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))

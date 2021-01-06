@@ -1,6 +1,6 @@
 import arbol.AST as a
 import gramatica2 as g
-import GramaticaTrad as gt
+from prueba import prueba
 import os
 from tkinter import *
 from reportes import *
@@ -63,16 +63,39 @@ def traducir():
     variables.consola.configure(state='normal')
 
     Principal = Entorno()
-    jsonMode.dropAll()
+    #jsonMode.dropAll()
 
     instrucciones = g.parse(contenido)
     variables.consola.insert(INSERT, "Salida de traduccion\n")
-    salida=''
+    salida='from goto import with_goto\n'
+    salida+='from CodigoIntermedio import CodigoIntermedio\n'
+    salida+='from Entorno.Entorno import Entorno\n'
+    salida+='@with_goto\n'
+    salida+='def prueba():\n'
+    salida+='\tstack =[]\n'
+    salida+='\tci = CodigoIntermedio(Entorno())\n'
+
+    salida2=''
     for instr in instrucciones:
         if instr != None:
-            salida+=instr.traducir(Principal).codigo3d
+            s=instr.traducir(Principal)
+            if s!=None:
+                salida2+=s.codigo3d
+    filas=salida2.split('\n')
+    salida2=''
+    for fila in filas:
+        salida2+='\t'+fila +'\n'
+
+    salida=salida+salida2
+    for i in range(0,salida.count('goto temp')):
+        salida=salida.replace('goto temp','goto '+str(variables.stack[i]),1)
 
     print(salida)
+    f = open('prueba.py', 'w')
+    f.write(salida)
+    f.close()
+
+
 
 
 def reporte_lex_sin():
@@ -170,6 +193,7 @@ ej_menu = Menu(menu_bar)
 menu_bar.add_cascade(label="Ejecutar", menu=ej_menu)
 ej_menu.add_command(label="Analizar Entrada", command=send_data)
 ej_menu.add_command(label="Traducir a 3d", command=traducir)
+ej_menu.add_command(label="Ejecutar codigo traducido", command=prueba)
 
 # Menu Reportes
 
@@ -179,9 +203,4 @@ reps_menu.add_command(label="Errores Lexicos y Sintacticos", command=mostrarimag
 reps_menu.add_command(label="Tabla de Simbolos", command=verSimbolos)
 reps_menu.add_command(label="AST", command=arbol_ast)
 reps_menu.add_command(label="Gramatica", command=gramatica)
-class Interfaz:
-    def desplegarinterfaz(self):
-        variables.ventana.mainloop()
-
-inter=Interfaz()
-inter.desplegarinterfaz()
+variables.ventana.mainloop()

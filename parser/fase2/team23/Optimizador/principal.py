@@ -89,9 +89,9 @@ input = f.read()
 
 instrucciones = g.parse(input)
 
-print(g.respuesta)
 for e in g.respuesta:
-    print(e,end="")
+    print(e)
+
 #ts_global = TS.TablaDeSimbolos()
 
 #procesar_instrucciones(instrucciones, ts_global)

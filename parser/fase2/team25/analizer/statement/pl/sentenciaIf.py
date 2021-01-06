@@ -1,5 +1,6 @@
 from analizer.abstract import instruction
-
+from analizer.reports.Nodo import Nodo
+from analizer.reports.AST import AST
 
 class IfSimple(instruction.Instruction):
     def __init__(self, if_exp , if_inst, row , column, else_inst = None):
@@ -37,6 +38,36 @@ class IfSimple(instruction.Instruction):
         if eSalida and self.else_inst:
             instanciaAux.addToCode(f'\n\tlabel .{eSalida} # SALE DEL IF')
 
+    def Dot(self):
+            texto = "ELSE IF"
+            nuevo_nodo = Nodo(texto)
+            expresion_texto = "EXPRESION"
+            expresion_nodo = Nodo(expresion_texto)
+            expresion_nodo.addNode(self.if_exp.dot())
+            nuevo_nodo.addNode(expresion_nodo)
+            instrucciones_texto = "INSTRUCCIONES"
+            instrucciones_nodo = Nodo(instrucciones_texto)
+            for instruccion in self.if_inst:
+                instrucciones_nodo.addNode(instruccion.dot())
+            nuevo_nodo.addNode(instrucciones_nodo)
+            return nuevo_nodo
+    
+    def dot(self):
+        nuevo_nodo = Nodo("IF")
+        expresion_nodo = Nodo("EXPRESION")
+        expresion_nodo.addNode(self.if_exp.dot())
+        nuevo_nodo.addNode(expresion_nodo)
+        instrucciones_nodo = Nodo("INSTRUCCIONES")
+        for instruccion in self.if_inst:
+            instrucciones_nodo.addNode(instruccion.dot())
+        nuevo_nodo.addNode(instrucciones_nodo)
+        if self.else_inst:
+            else_nodo = Nodo("ELSE")
+            for instruccion in self.else_inst:
+                else_nodo.addNode(instruccion.dot())
+            nuevo_nodo.addNode(else_nodo)
+        return nuevo_nodo
+
 class If_Elseif(instruction.Instruction):
     def __init__(self, if_exp , if_inst, lista_elifs , row , column, else_inst = None):
         instruction.Instruction.__init__(self, row , column)
@@ -70,3 +101,28 @@ class If_Elseif(instruction.Instruction):
                 ins.generate3d(environment,instanciaAux)
 
         instanciaAux.addToCode(f'\n\tlabel .{eSalida} # SALE DEL IF')
+
+    def dot(self):
+        texto = "IF"
+        nuevo_nodo = Nodo(texto)
+        expresion_texto  = "EXPRESION"
+        expresion_nodo = Nodo(expresion_texto)
+        expresion_nodo.addNode(self.if_exp.dot())
+        instrucciones_texto = "INSTRUCCIONES"
+        instrucciones_nodo = Nodo(instrucciones_texto)
+        for instruccion in self.if_inst:
+            instrucciones_nodo.addNode(instruccion.dot())
+        expresion_nodo.addNode(instrucciones_nodo)
+        nuevo_nodo.addNode(expresion_nodo)
+        for item in self.lista_elifs:
+            nuevo_nodo.addNode(item.Dot())
+        if self.else_inst:
+            else_texto = "ELSE"
+            else_nodo = Nodo(else_texto)
+            instrucciones_else_texto = "INSTRUCCIONES"
+            instrucciones_else_nodo = Nodo(instrucciones_else_texto)
+            for instruccion in self.else_inst:
+                instrucciones_else_nodo.addNode(instruccion.dot())
+            else_nodo.addNode(instrucciones_else_nodo)
+            nuevo_nodo.addNode(else_nodo)
+        return nuevo_nodo

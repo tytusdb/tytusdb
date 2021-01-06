@@ -25,3 +25,10 @@ class Id(Exp):
         self.id = id
         self.fila = fila
         self.columna = columna
+
+class Funcion(Exp):
+    def __init__(self,id,expresiones,fila,columna):
+        self.id = id
+        self.listaexpresiones = expresiones
+        self.fila = fila
+        self.columna = columna

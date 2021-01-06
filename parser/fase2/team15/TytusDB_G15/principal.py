@@ -19,12 +19,24 @@ import base64
 import binascii
 import re
 import hashlib
+from prettytable import PrettyTable
 
 from storageManager import jsonMode as j
 
 salida = ""
 useCurrentDatabase = ""
 pks = []
+
+def toPretty(arr):
+    x = PrettyTable()
+    x.field_names = arr[0]
+    if len(arr) > 1:
+        i = 1
+        while i < len(arr):
+            x.add_row(arr[i])
+            i+=1 
+    
+    return str(x)
 
 def procesar_createTable(instr,ts,tc) :
     global pks
@@ -386,7 +398,7 @@ def procesar_showDatabases(instr,ts,tc):
     if dataTables == []:
         salida = "\nERROR:  databases does not exist \nSQL state: 3D000"
     else:
-        salida = data
+        salida = toPretty(data)
 
 def procesar_showTables(instr,ts,tc):
     print("SHOW TABLES")
@@ -399,7 +411,7 @@ def procesar_showTables(instr,ts,tc):
     if dataTables == []:
         salida = "\nERROR:  Tables does not exist \nSQL state: 3D000"
     else:
-        salida = dataT
+        salida = toPretty(dataT)
 
 def procesar_dropDatabase(instr,ts,tc):
     global salida
@@ -1198,8 +1210,9 @@ def procesar_select_time(instr,ts,tc):
             noww = str(current_time.year)+ '-'+ str(current_time.month)+'-'+str(current_time.day)+' '+ str(current_time.hour)+':'+str(current_time.minute)+':'+str(current_time.second)+'.'+str(current_time.microsecond)
             arrayReturn.append(['now'])
             arrayReturn.append([noww])
-    print(arrayReturn)
-    salida = arrayReturn
+    #print(arrayReturn)
+    
+    salida = toPretty(arrayReturn)
 
 def procesar_select1(instr,ts,tc):
     if instr.etiqueta == OPCIONES_SELECT.GREATEST:
@@ -1283,7 +1296,7 @@ def procesar_select_general(instr,ts,tc):
             for filas in resultArray:
                 arrayReturn.append(filas)
 
-            salida = arrayReturn
+            salida = toPretty(arrayReturn)
         else:
             columnsTable = tc.obtenerColumns(useCurrentDatabase,tables[0])
             resultArray = j.extractTable(str(useCurrentDatabase),str(tables[0]))
@@ -1297,7 +1310,7 @@ def procesar_select_general(instr,ts,tc):
                     #print(colF)
                 arrayReturn.append(arrayTemp)
 
-            salida = arrayReturn
+            salida = toPretty(arrayReturn)
             print(arrayReturn)
 
         
@@ -1414,7 +1427,7 @@ def procesar_select_general(instr,ts,tc):
             for filas in arrayFilter:
                 arrayReturn.append(filas)
 
-            salida = arrayReturn
+            salida = toPretty(arrayReturn)
             print(arrayReturn)
 
         else:
@@ -1426,7 +1439,7 @@ def procesar_select_general(instr,ts,tc):
                     #print(colF)
                 arrayReturn.append(arrayTemp)
 
-            salida = arrayReturn
+            salida = toPretty(arrayReturn)
             print(arrayReturn)
 
         '''if instr.instr2.expgb != None:
@@ -1559,7 +1572,7 @@ def procesar_select_general(instr,ts,tc):
             for filas in arrayFilter:
                 arrayReturn.append(filas)
 
-            salida = arrayReturn
+            salida = toPretty(arrayReturn)
             print(arrayReturn)
 
         else:
@@ -1572,7 +1585,7 @@ def procesar_select_general(instr,ts,tc):
                     #print(colF)
                 arrayReturn.append(arrayTemp)
 
-            salida = arrayReturn
+            salida = toPretty(arrayReturn)
             print(arrayReturn)
 
         if instr.instr3.expgb != None:
@@ -1748,7 +1761,7 @@ def procesar_select_general(instr,ts,tc):
                     arrayReturn.append([datos.expresion.operador])
                     arrayReturn.append([resolver_expresion_aritmetica(datos.expresion,ts)])
 
-        salida = arrayReturn
+        salida = toPretty(arrayReturn)
         print(salida)
 
 def getPosition(ts,id):    
@@ -2126,34 +2139,34 @@ def resolver_expresion_logica(expLog,ts):
 
 
 def procesar_select_uniones(instr,ts,tc):
-    print(instr.etiqueta)
-    print(instr.ins)
+    #print(instr.etiqueta)
+    #print(instr.ins)
     global salida
     
     if instr.etiqueta == OPCIONES_UNIONES.UNION:
         arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
         arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
         union_arr = procesar_UNION(arraySelect1,arraySelect2)
-        salida = union_arr
-        print(salida)
+        salida = toPretty(union_arr)
+        #print(salida)
     elif instr.etiqueta == OPCIONES_UNIONES.UNION_ALL:
         arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
         arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
         union_arr = procesar_UNION_ALL(arraySelect1,arraySelect2)
-        salida = union_arr
-        print(salida)
+        salida = toPretty(union_arr)
+        #print(salida)
     elif instr.etiqueta == OPCIONES_UNIONES.INTERSECT or instr.etiqueta == OPCIONES_UNIONES.INTERSECT_ALL:
         arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
         arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
         intersect_arr = procesar_INTERSECT(arraySelect1,arraySelect2)
-        salida = intersect_arr
-        print(salida)
+        salida = toPretty(intersect_arr)
+        #print(salida)
     elif instr.etiqueta == OPCIONES_UNIONES.EXCEPTS or instr.etiqueta == OPCIONES_UNIONES.EXCEPTS_ALL:
         arraySelect1 = procesar_select_for_UNIONES(instr.ins[0],ts,tc)
         arraySelect2 = procesar_select_for_UNIONES(instr.ins[1],ts,tc)
         except_arr = procesar_EXCEPT(arraySelect1,arraySelect2)
-        salida = except_arr
-        print(salida)
+        salida = toPretty(except_arr)
+        #print(salida)
 
 def procesar_UNION(arr1,arr2):
     if len(arr1[0]) != len(arr2[0]):
@@ -2828,7 +2841,7 @@ def obtener_indexbody(instr):
         print(instr.expresion)
 
     
-    salida = 'hola'
+    salida = '\nCREATE INDEX'
     
 
 def procesar_instrucciones(instrucciones,ts,tc) :
@@ -2903,7 +2916,7 @@ def procesar_instrucciones(instrucciones,ts,tc) :
     except:
         pass
 
-f = open("./entrada.txt", "r")
+'''f = open("./entrada.txt", "r")
 input = f.read()
 instrucciones = g.parse(input)
 
@@ -2922,7 +2935,7 @@ else:
     erroressss = ErrorHTML()
     erroressss.crearReporte()
     listaErrores = []
-
+'''
 
 
 

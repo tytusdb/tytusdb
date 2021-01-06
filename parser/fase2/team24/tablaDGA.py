@@ -51,7 +51,9 @@ class Simbolo() :
     #tipoind = tipo de indice
     #ordenind = orden del indice
     #columnaind = columna del indice
-    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False, uniqueind="", tablaind = "", tipoind="", ordenind="", columnaind = "", indicesind = ""):
+    #indicesind = indices que afectan al indice
+    #listacolind = mismos elementos que columnaind pero en una lista
+    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False, uniqueind="", tablaind = "", tipoind="", ordenind="", columnaind = "", indicesind = "", listacolind = ""):
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -75,6 +77,7 @@ class Simbolo() :
         self.ordenind = ordenind
         self.columnaind = columnaind
         self.indicesind = indicesind
+        self.listacolind = listacolind
 
 
 class Tabla() :
@@ -87,9 +90,19 @@ class Tabla() :
     
     def obtener(self, id) :
         if not id in self.simbolos :
-            print('(obtener)Error: variable ', id, ' no definida.')
+            print('Error: variable ', id, ' no definida.')
+            return None
 
         return self.simbolos[id]
+
+    def getVariable(self,name):
+        for s in self.simbolos.values():
+            if s.nombre == name:
+                if s.tipo > 20 or s.tipo < 4:
+                    continue
+                return s.valor
+        return None
+
 
     def BuscarNombre(self, nombre) :
         for simbolo in self.simbolos:
@@ -196,13 +209,13 @@ class Tabla() :
 
         return idf
 
-    def modificar_valor(id, nuevo_valor):
+    def modificar_valor(self,id, nuevo_valor):
         for simbolo in self.simbolos.values(): 
             if simbolo.nombre == id and ambito_funcion(simbolo.ambito) : 
                 self.valor = nuevo_valor
         
 
-    def ambito_funcion(ambito):
+    def ambito_funcion(self,ambito):
         
         for simbolo in self.simbolos.values():  
             
@@ -211,14 +224,14 @@ class Tabla() :
 
         return False
     
-    def existe_id(nomre):
+    def existe_id(self,name):
         for simbolo in self.simbolos.values():
-            if simbolo.nombre == nomre:
+            if simbolo.nombre == name:
                 return True
         
         return False
 
-    def id_db(name):
+    def id_db(self,name):
         for simbolo in self.simbolos.values():
             if simbolo.nombre == name and simbolo.tipo == TIPO.DATABASE:
                 return simbolo.id
