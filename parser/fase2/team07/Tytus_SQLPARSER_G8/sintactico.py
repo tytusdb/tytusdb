@@ -2304,20 +2304,25 @@ def p_index_unique(t):
     '''
     unique_op : UNIQUE
     '''
+    t[0] = "UNIQUE"
 
 def p_index_unique_e(t):
     '''
     unique_op : 
     '''
+    t[0] = ""
+
 def p_index_hash(t):
     '''
     hash_op : USING HASH
     '''
+    t[0] = "USING HASH"
 
 def p_index_hash_e(t):
     '''
     hash_op : 
     '''
+    t[0] = ""
 
 def p_index_indexes(t):
     '''
@@ -2333,48 +2338,57 @@ def p_index_func(t):
     '''
     l_indexes : ID PARIZQ ID PARDER
     '''
+    t[0] = 
 
 def p_index_order(t):
     '''
     order_op : ASC
             | DESC
     '''
+    t[0] = t[1]
 
 def p_index_order_e(t):
     '''
     order_op : 
     '''
+    t[0] = ""
 
 def p_index_null(t):
     '''
     null_op : NULLS
     '''
+    t[0] = "NULLS"
 
 def p_index_null_e(t):
     '''
     null_op : 
     '''
+    t[0] = ""
 
 def p_index_first_last(t):
     '''
     first_last_op : FIRST
                 | LAST
     '''
+    t[0] = t[1]
 
 def p_index_first_last_e(t):
     '''
     first_last_op : 
     '''
+    t[0] = ""
 
 def p_index_where(t):
     '''
     where_op : instructionWhere
     '''
+    t[0] = t[1]
 
 def p_index_where_e(t):
     '''
     where_op : 
     '''
+    t[0] = ""
 
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************
