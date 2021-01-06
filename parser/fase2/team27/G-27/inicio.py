@@ -4,6 +4,7 @@ from tkinter import *
 import tkinter
 from c3d import analizarLex, analizarSin,tab_string
 from bnf import analizarBNFLex, analizarBNFSin
+from reporte import analizarASTLex, analizarASTSin
 
 # creamos una nueva ventana
 ventana = Tk()
@@ -46,6 +47,10 @@ def limpiar():
 def reporte():
     print("REPORTE AST")
     response = txt_consultas.get("1.0","end")
+    salida_lexico_ast = analizarASTLex(response)  # se envia el texto a el analizador lexico
+    print(salida_lexico_ast)
+    analizarASTSin(response)  # se envia el texto a el analizador sintactico
+    print(salida_lexico_ast)
 
 # Metodo reporte BNF
 def reporteBNF():
