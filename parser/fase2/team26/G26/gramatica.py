@@ -401,6 +401,12 @@ def p_instruccion_ccreateind(t):
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 
+def p_instruccion_argumento(t):
+    'instruccion : argument'
+    grafo.newnode('INSTRUCCION')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<instrucción> ::= <argument>\n" + t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionAlter(t):
     '''instruccion  :  ALTER alter'''
