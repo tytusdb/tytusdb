@@ -2279,6 +2279,21 @@ def p_drop_options2(t):
     reportebnf.append(bnf["p_drop_options2"])
     t[0] = nuevo
 
+def p_drop_options3(t):
+    ''' drop_options : INDEX IDENTIFICADOR '''
+    nuevo = Start('drop_option')
+    nuevo.addChild(Start('INDEX',t.lineno(1),t.lexpos(1)+1))
+    nuevo.addChild(Start('IDENTIFICADOR',t.lineno(2),t.lexpos(2)+1,t[2]))
+    t[0] = nuevo
+
+def p_drop_options4(t):
+    ''' drop_options : PROCEDURE IDENTIFICADOR PARENTESISIZQ PARENTESISDER '''
+    nuevo = Start('drop_option')
+    nuevo.addChild(Start('PROCEDURE',t.lineno(1),t.lexpos(1)+1))
+    nuevo.addChild(Start('IDENTIFICADOR',t.lineno(2),t.lexpos(2)+1,t[2]))
+    t[0] = nuevo    
+
+
 
 
 

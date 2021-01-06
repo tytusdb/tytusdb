@@ -43,7 +43,10 @@ class Delete(Nodo):
 
 
     def compile(self):
-        pass
+        tmp = instanceTemporal.getTemporal()
+        dir = f"{tmp} = '{self.getText()}'\n"
+        dir += f'display[p] = {tmp}\n'
+        dir += 'p = p + 1'
 
     def getText(self):
         table_ =  self.hijos[2].valor.upper()

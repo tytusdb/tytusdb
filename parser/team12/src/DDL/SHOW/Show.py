@@ -19,8 +19,7 @@ class Show(Nodo):
         Nodo.__init__(self,nombreNodo, fila, columna, valor)
 
     def execute(self,enviroment = None):
-        print(self.getText())
-        #Se debe llamar al metodo showDatabases() -> list:
+     #Se debe llamar al metodo showDatabases() -> list:
         lista = showDatabases()
         if(len(self.hijos) < 3):
             print(lista)
@@ -49,7 +48,13 @@ class Show(Nodo):
         self.hijos.append(node)
 
     def compile(self):
-        pass
+        tmp = instanceTemporal.getTemporal()
+        dir = f"{tmp} = '{self.getText()}'\n"
+        dir += f'display[p] = {tmp}\n'
+        dir += 'p = p + 1'
+        
+
+        return dir
 
     def getText(self):
         r = 'SHOW DATABASES '
