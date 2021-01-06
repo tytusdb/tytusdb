@@ -119,6 +119,8 @@ class showdb(instruccion):
         traduccion = '\t'
         traduccion += 'sql.execute("SHOW DATABASES '+ self.nombre + ';")'
         traduccion += '\n'
+        print(traduccion)
+        return traduccion
 
 
     def ejecutar(self):
@@ -157,6 +159,7 @@ class alterdb(instruccion):
             traduccion += ' RENAME TO ' + self.alterdb2.alterdb3.iden
         traduccion += ';")'
         traduccion += '\n'
+        print(traduccion)
         return traduccion
 
     def ejecutar(self):

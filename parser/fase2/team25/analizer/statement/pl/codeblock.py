@@ -19,6 +19,9 @@ class CodeBlock(instruction.Instruction):
 
         for element in self.lista_instrucciones:
             # * LAS INSTRUCCIONES NO DEVUELVEN nada solo se ejecuta su metodo generate 3d
-            element.generate3d(environment, instanciaAux)
+            if element != None:
+                element.generate3d(environment, instanciaAux)
+            else:
+                print('venia un null en codeblock')
 
 

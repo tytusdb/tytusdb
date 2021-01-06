@@ -11,3 +11,4 @@ __pycache__
 src/storageManager
 storageManager
 src/Reports
+.vscode/

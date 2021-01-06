@@ -857,37 +857,33 @@ class ValorIndex(Instruccion):
         self.Lower = Lower
 
 class Index(Instruccion):
-    def __init__(self,name,table,Lindex,Unique,Using,instruccion3d):
+    def __init__(self,name,table,Lindex,Unique,Using):
         self.name = name
         self.table = table
         self.Lindex = Lindex
         self.Unique = Unique
         self.Using = Using
-        self.instruccion3d = instruccion3d
 
 class IndexOrden(Instruccion):
-    def __init__(self,name,table,valor,Orden,instruccion3d):
+    def __init__(self,name,table,valor,Orden):
         self.name = name
         self.table = table
         self.valor = valor
         self.Orden = Orden
-        self.instruccion3d = instruccion3d
 
 class IndexW(Instruccion):
-    def __init__(self,name,table,Lindex,Lwhere,instruccion3d):
+    def __init__(self,name,table,Lindex,Lwhere):
         self.name = name
         self.table = table
         self.Lindex = Lindex
         self.Lwhere = Lwhere
-        self.instruccion3d = instruccion3d
 
 class IndexMM(Instruccion):
-    def __init__(self,name,table,major,minor,instruccion3d):
+    def __init__(self,name,table,major,minor):
         self.name = name
         self.table = table
         self.major = major
         self.minor = minor
-        self.instruccion3d = instruccion3d
 
 class SelectFun(Instruccion):
     def __init__(self,nombrefun,parametros,instruccion3d):
@@ -895,3 +891,17 @@ class SelectFun(Instruccion):
         self.parametros = parametros
         self.instruccion3d = instruccion3d
 
+class DropIndex(Instruccion):
+    def __init__(self,idI):
+        self.idI = idI
+
+class AlterRenameIn(Instruccion):
+    def __init__(self,nombreIn,nuevoNom):
+        self.nombreIn = nombreIn
+        self.nuevoNom = nuevoNom
+
+
+class AlterIndex(Instruccion):
+    def __init__(self,nombre,columna):
+        self.nombre = nombre
+        self.columna = columna

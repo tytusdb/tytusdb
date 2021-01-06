@@ -75,3 +75,6 @@ class Delete(instruction.Instruction):
         if self.wherecl:
             new.addNode(self.wherecl.dot())
         return new
+
+    def generate3d(self, environment, instanciaAux):
+        pass

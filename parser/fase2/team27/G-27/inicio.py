@@ -2,8 +2,9 @@
 #import tkinter
 from tkinter import *
 import tkinter
-from c3d import analizarLex, analizarSin,tab_string
+from c3d import analizarLex, analizarSin,tab_string, tab_func, get_errores, tab_simbolos
 from bnf import analizarBNFLex, analizarBNFSin
+from environment import reset
 
 # creamos una nueva ventana
 ventana = Tk()
@@ -34,8 +35,19 @@ def analizar_texto():
     response= txt_consultas.get("1.0","end")
     salida_lexico_ast = analizarLex(response)
     texto = analizarSin(response)
+    txt_salida.insert('end', '\n>>>\n')
+    txt_salida.insert('end', '\n=====SALIDA C3D======\n')
     txt_salida.insert('end',texto+ '\n\n\n')
-    print(tab_string())
+    txt_salida.insert('end',tab_simbolos())
+    txt_salida.insert('end','\n=====REPORTE DE INDEX======')
+    txt_salida.insert('end',tab_string())
+    txt_salida.insert('end','\n=====REPORTE DE FUNCIONES======')
+    txt_salida.insert('end',tab_func())
+    txt_salida.insert('end','\n=====REPORTE DE ERRORES======')
+    txt_salida.insert('end',get_errores())
+    txt_salida.insert('end', '\n>>>\n')
+
+    reset()
 
 # Metodo para limpiar la salida de gramatica
 def limpiar():
@@ -46,6 +58,10 @@ def limpiar():
 def reporte():
     print("REPORTE AST")
     response = txt_consultas.get("1.0","end")
+    salida_lexico_ast = analizarASTLex(response)  # se envia el texto a el analizador lexico
+    print(salida_lexico_ast)
+    analizarASTSin(response)  # se envia el texto a el analizador sintactico
+    print(salida_lexico_ast)
 
 # Metodo reporte BNF
 def reporteBNF():

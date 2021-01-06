@@ -197,7 +197,9 @@ reservadas = {
     'hash': 'HASH',
     'lower': 'LOWER',
     'desc': 'DESC',
-    'asc' : 'ASC'
+    'asc' : 'ASC',
+    'procedure' : 'PROCEDURE',
+    'function' : 'FUNCTION'
 }
 
 tokens = [
@@ -399,7 +401,6 @@ def p_instruccion_ccreateind(t):
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = '<createops> ::= <createindex>\n' + t[1]['reporte']
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
-
 
 def p_instruccion_argumento(t):
     'instruccion : argument'
@@ -1987,8 +1988,11 @@ def p_likeopcional(t):
 
 ##########DROP
 def p_drop(t):
-    '''drop :   DATABASE dropdb PTCOMA
-            |   TABLE ID PTCOMA'''
+    '''drop : DATABASE dropdb PTCOMA
+            | TABLE ID PTCOMA
+            | FUNCTION ID PTCOMA
+            | PROCEDURE ID PTCOMA
+            | INDEX ID PTCOMA'''
     reporte = "<drop> ::= "
     if t[1].lower() == 'database' :
         reporte +=  "DATABASE <dropdb> PTCOMA\n" + t[2]['reporte']
@@ -1999,6 +2003,24 @@ def p_drop(t):
         grafo.newchildrenE(t[2])
         reporte += "TABLE " + t[2].upper() + " PTCOMA\n"
         t[0] = {'ast' : drop.Drop(ident.Identificador(None, t[2]), False), 'graph' : grafo.index, 'reporte': reporte}
+    elif t[1].lower() == 'function':
+        grafo.newnode('DROP')
+        grafo.newchildrenE('FUNCTION')
+        grafo.newchildrenE(t[2])
+        reporte += "TABLE " + t[2].upper() + " PTCOMA\n"
+        t[0] = {'ast' : drop.DropFunction(t[2]), 'graph' : grafo.index, 'reporte': reporte}
+    elif t[1].lower() == 'procedure':
+        grafo.newnode('DROP')
+        grafo.newchildrenE('PROCEDURE')
+        grafo.newchildrenE(t[2])
+        reporte += "TABLE " + t[2].upper() + " PTCOMA\n"
+        t[0] = {'ast' : drop.DropProc(t[2]), 'graph' : grafo.index, 'reporte': reporte}
+    elif t[1].lower() == 'index':
+        grafo.newnode('DROP')
+        grafo.newchildrenE('INDEX')
+        grafo.newchildrenE(t[2])
+        reporte = "INDEX ID\n"
+        t[0] = {'ast' : drop.DropIndex(t[2]), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_drop_e(t):
     '''drop : problem'''
@@ -2034,9 +2056,29 @@ def p_alterp(t):
         reporte = "<alter> ::= TABLE " + t[2].upper() + " <altertables> PTCOMA\n" + t[3]['reporte']
         t[0] = {'ast' : alter.Alter(ident.Identificadordb(t[2]), t[3]['ast'], True), 'graph' : grafo.index, 'reporte': reporte}
 
-'''def p_alterP(t):
-    'alter  : error PTCOMA'
-    t[0] = { 'ast' : 'error', 'graph' : grafo.index}'''
+def p_alterpi(t):
+    '''alter    : INDEX iexi ID ALTER coluem ID PTCOMA'''
+    grafo.newnode('ALTER')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenE(t[5])
+    grafo.newchildrenE(t[6])
+    reporte = "<alter> ::= INDEX ID ALTER ID ID PTCOMA\n"
+    t[0] = {'ast' : alter.AlterIndex(t[3], t[5], t[6]), 'graph' : grafo.index, 'reporte': reporte}
+
+def p_alterpiiexi(t):
+    '''iexi    : IF EXISTS
+                | '''
+    t[0] = ''
+    
+def p_alterpicoluem(t):
+    '''coluem   : ID
+                | '''
+    try:
+        t[0] = t[1]
+    except:
+        t[0] = ''
+
 def p_alterp_err(t):
     "alter : problem"
     reporte = "<alter> ::= <problem>\n" + t[1]['reporte']
@@ -2667,7 +2709,7 @@ def p_argument_unary(t):
         t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
     else :
         reporte = "<argument> ::=  GUION <argument> UMENOS\n" + t[2]['reporte']
-        t[0] =  t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : arit.ArithmeticUnary(t[2]['ast'], '-'), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_agrupacion(t):
     '''argument : PARENIZQ argument PARENDER'''

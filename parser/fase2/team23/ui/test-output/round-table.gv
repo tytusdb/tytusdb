@@ -1,138 +1,60 @@
 // AST
 digraph {
-	0 [label=INSTRUCTION_LIST]
-	1 [label=SELECT]
-	2 [label=PARAMS]
-	3 [label="*"]
-	4 [label=FROM]
-	5 [label=tbempleadopuesto]
-	6 [label=""]
-	7 [label=INST]
-	8 [label=INSERT_INTO]
-	9 [label=tbempleadopuesto]
-	10 [label=PARAMS]
-	11 [label=5]
-	12 [label=6]
-	13 [label=VENTAS]
-	14 [label=INST]
-	15 [label=INSERT_INTO]
-	16 [label=tbempleadopuesto]
-	17 [label=PARAMS]
-	18 [label=4]
-	19 [label=6]
-	20 [label=VENTAS]
-	21 [label=INST]
-	22 [label=INSERT_INTO]
-	23 [label=tbempleadopuesto]
-	24 [label=PARAMS]
-	25 [label=3]
-	26 [label=3]
-	27 [label=CONTABILIDAD]
-	28 [label=INST]
-	29 [label=INSERT_INTO]
-	30 [label=tbempleadopuesto]
-	31 [label=PARAMS]
-	32 [label=2]
-	33 [label=1]
-	34 [label=CONTABILIDAD]
-	35 [label=INST]
-	36 [label=INSERT_INTO]
-	37 [label=tbempleadopuesto]
-	38 [label=PARAMS]
-	39 [label=1]
-	40 [label=1]
-	41 [label=ADMINISTRACION]
-	42 [label=INST]
-	43 [label=CREATE_TABLE]
-	44 [label=tbempleadopuesto]
-	45 [label=COLUMNS]
-	46 [label=idempleado]
-	47 [label=TYPE]
-	48 [label=INTEGER]
-	49 [label=OPTIONS]
-	50 [label=NOT_NULL]
-	51 [label=idpuesto]
-	52 [label=TYPE]
-	53 [label=INTEGER]
-	54 [label=OPTIONS]
-	55 [label=NOT_NULL]
-	56 [label=departamento]
-	57 [label=TYPE]
-	58 [label=VARCHAR]
-	59 [label=PARAMS]
-	60 [label=50]
-	61 [label=INST]
-	62 [label=USE_DATABASE]
-	63 [label=test]
-	64 [label=INST]
-	65 [label=CREATE_DATABASE]
-	66 [label=test]
-	67 [label=INST]
-	0 -> 1
-	1 -> 2
-	2 -> 3
-	1 -> 4
-	4 -> 5
-	4 -> 6
-	0 -> 7
-	7 -> 8
-	8 -> 9
-	8 -> 10
-	10 -> 11
-	10 -> 12
-	10 -> 13
-	7 -> 14
-	14 -> 15
-	15 -> 16
-	15 -> 17
-	17 -> 18
-	17 -> 19
-	17 -> 20
-	14 -> 21
-	21 -> 22
-	22 -> 23
-	22 -> 24
-	24 -> 25
-	24 -> 26
-	24 -> 27
-	21 -> 28
-	28 -> 29
+	29 [label=INSTRUCTION_LIST]
+	30 [label=DROP]
+	31 [label=INDEX]
+	32 [label=title_idx1]
+	33 [label=INST]
+	34 [label="CREATE INDEX"]
+	35 [label=title_idx3]
+	36 [label=ON]
+	37 [label=test1]
+	38 [label="("]
+	39 [label="['id']"]
+	40 [label=")"]
+	41 [label=INST]
+	42 [label="CREATE INDEX"]
+	43 [label=title_idx2]
+	44 [label=ON]
+	45 [label=test1]
+	46 [label="("]
+	47 [label="['id']"]
+	48 [label=")"]
+	49 [label=INST]
+	50 [label="CREATE INDEX"]
+	51 [label=title_idx1]
+	52 [label=ON]
+	53 [label=test1]
+	54 [label="("]
+	55 [label="['id']"]
+	56 [label=")"]
+	57 [label=INST]
 	29 -> 30
-	29 -> 31
-	31 -> 32
-	31 -> 33
-	31 -> 34
-	28 -> 35
-	35 -> 36
-	36 -> 37
-	36 -> 38
-	38 -> 39
-	38 -> 40
-	38 -> 41
-	35 -> 42
+	30 -> 31
+	30 -> 32
+	29 -> 33
+	33 -> 34
+	34 -> 35
+	34 -> 36
+	34 -> 37
+	34 -> 38
+	34 -> 39
+	34 -> 40
+	33 -> 41
+	41 -> 42
 	42 -> 43
-	43 -> 44
-	43 -> 45
-	45 -> 46
-	45 -> 47
-	47 -> 48
-	45 -> 49
+	42 -> 44
+	42 -> 45
+	42 -> 46
+	42 -> 47
+	42 -> 48
+	41 -> 49
 	49 -> 50
-	45 -> 51
-	45 -> 52
-	52 -> 53
-	45 -> 54
-	54 -> 55
-	45 -> 56
-	45 -> 57
-	57 -> 58
-	57 -> 59
-	59 -> 60
-	42 -> 61
-	61 -> 62
-	62 -> 63
-	61 -> 64
-	64 -> 65
-	65 -> 66
-	64 -> 67
+	50 -> 51
+	50 -> 52
+	50 -> 53
+	50 -> 54
+	50 -> 55
+	50 -> 56
+	49 -> 57
 }

@@ -57,7 +57,6 @@ class Select_Expresion(Expresion):
             #SENTENCIA_SELECT_DISTINCT
             functionSelect = Select()
             result = functionSelect.execute(nodoSelect)
-            
             responseSelect = Response()
 
 
@@ -69,12 +68,14 @@ class Select_Expresion(Expresion):
                 result =  []
                 for res in resultDistinct:
                     result.append(resultDistinct[res])
-            encab = functionSelect.resultEncabezado
-            
-            responseSelect.encabezados = encab 
-            responseSelect.data = result
-            responseSelect.tipos = functionSelect.listaTiposColumnas
+            encabezados = []
+            tipos = []
+            for encabezado in functionSelect.encabezadoRetorno:
+                encabezados.append(encabezado.nombre)
+                tipos.append(encabezado.tipo)
+
+            responseSelect.encabezados = encabezados 
+            responseSelect.data = result.data
+            responseSelect.tipos = tipos
             return responseSelect
-        #print(dataSelect.encabezados)
-        #print(dataSelect.dataRow)
 

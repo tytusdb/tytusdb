@@ -225,8 +225,8 @@ class MainWindow(object):
         else:
             
             ambito = Ambito(None)
-            # for inst in result:
-            #     inst.compile(ambito)
+            for inst in result:
+                inst.compile(ambito)
 
             DataWindow().consoleText(ThreeAddressCode().getCode())
             ThreeAddressCode().writeFile()

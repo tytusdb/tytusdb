@@ -3,6 +3,7 @@ import analizer_pl.modules.expressions as expression
 from analizer_pl.abstract.expression import incTemp
 from analizer_pl.abstract.expression import newTemp
 from analizer_pl.abstract.expression import TYPE
+from optimizer_folder.optimizer import Optimizer
 from analizer_pl.tokens import *
 import ply.lex as lex
 import ply.yacc as yacc
@@ -21,6 +22,7 @@ current_etiq = 0
 next_etiq = 0
 if_stmt = 0
 back_fill = BackFill()
+optimizer_= Optimizer()
 lexer = lex.lex()
 # Asociación de operadores y precedencia
 listInst = []
@@ -2102,6 +2104,8 @@ def p_idOrLiteral(t):
 def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE idOrString alterDb
     | R_ALTER R_TABLE idOrString alterTableList
+    | R_ALTER R_INDEX ifExists idOrString R_RENAME R_TO idOrString
+    | R_ALTER R_INDEX ifExists idOrString R_ALTER column idOrString idOrNumber
     """
     if t[2] == "DATABASE":
         t[0] = code.AlterDataBase(
@@ -2109,6 +2113,20 @@ def p_alterStmt(t):
         )
     else:
         t[0] = code.AlterTable(t[3], t.slice[1].lineno, t.slice[1].lexpos, t[4])
+    repGrammar.append(t.slice)
+
+
+def p_column(t):
+    """column : R_COLUMN
+    |
+    """
+    repGrammar.append(t.slice)
+
+def p_idOrNumber(t):
+    """idOrNumber : ID
+    | INTEGER
+    """
+    t[0] = t.slice[1].value
     repGrammar.append(t.slice)
 
 
@@ -2234,6 +2252,13 @@ def p_dropStmt_database(t):
     dropStmt : R_DROP R_DATABASE ifExists idOrString
     """
     t[0] = code.DropDatabase(t[4], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
+
+
+def p_dropStmt_index(t):
+    """
+    dropStmt : R_DROP R_INDEX ifExists idList
+    """
     repGrammar.append(t.slice)
 
 
