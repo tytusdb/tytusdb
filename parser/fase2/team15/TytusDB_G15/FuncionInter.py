@@ -59,7 +59,7 @@ class Intermedio():
 
 	def procesar_funcion2(self):
 		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
-		instrucciones = g.parse('CREATE TABLE tbUSUARIO (  id_usuario  INTEGER   );')
+		instrucciones = g.parse('CREATE TABLE TABLA (  id  INTEGER  , NOMBRE  INTEGER  , APELLIDO  INTEGER   );')
 		erroressss = ErrorHTML()
 		if  erroressss.getList()== []:
 			instrucciones_Global = instrucciones
@@ -77,7 +77,7 @@ class Intermedio():
 
 	def procesar_funcion3(self):
 		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
-		instrucciones = g.parse('ALTER TABLE tbUSUARIO ADD CONSTRAINT fk_id_usuario FOREIGN KEY ( id_usuario ) REFERENCES tbESTUDIANTE ( id_usuario );')
+		instrucciones = g.parse(' CREATE INDEX IDXNOMBRE ON TABLA  (  id,NOMBRE,APELLIDO  ) ;')
 		erroressss = ErrorHTML()
 		if  erroressss.getList()== []:
 			instrucciones_Global = instrucciones
@@ -95,97 +95,7 @@ class Intermedio():
 
 	def procesar_funcion4(self):
 		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
-		instrucciones = g.parse(' CREATE INDEX mytable_cat_1 ON tbUSUARIO  (  id_usuario  )   WHERE       category    =     1        ;')
-		erroressss = ErrorHTML()
-		if  erroressss.getList()== []:
-			instrucciones_Global = instrucciones
-			ts_global = TS.TablaDeSimbolos()
-			ts_globalIndex = TSINDEX.TablaDeSimbolos()
-			tc_global = TC.TablaDeTipos()
-			tc_global1 = tc_global
-			ts_global1 = ts_global
-			ts_globalIndex1 = ts_globalIndex
-			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
-			return salida
-		else:
-			return 'Parser Error'
-
-
-	def procesar_funcion5(self):
-		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
-		instrucciones = g.parse(' CREATE INDEX mytable_cat_2 ON tbUSUARIO  (  id_usuario  )   WHERE       category    =     2        ;')
-		erroressss = ErrorHTML()
-		if  erroressss.getList()== []:
-			instrucciones_Global = instrucciones
-			ts_global = TS.TablaDeSimbolos()
-			ts_globalIndex = TSINDEX.TablaDeSimbolos()
-			tc_global = TC.TablaDeTipos()
-			tc_global1 = tc_global
-			ts_global1 = ts_global
-			ts_globalIndex1 = ts_globalIndex
-			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
-			return salida
-		else:
-			return 'Parser Error'
-
-
-	def procesar_funcion6(self):
-		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
-		instrucciones = g.parse(' CREATE INDEX mytable_cat_3 ON tbUSUARIO  (  id_usuario  )   WHERE       category    =     3        ;')
-		erroressss = ErrorHTML()
-		if  erroressss.getList()== []:
-			instrucciones_Global = instrucciones
-			ts_global = TS.TablaDeSimbolos()
-			ts_globalIndex = TSINDEX.TablaDeSimbolos()
-			tc_global = TC.TablaDeTipos()
-			tc_global1 = tc_global
-			ts_global1 = ts_global
-			ts_globalIndex1 = ts_globalIndex
-			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
-			return salida
-		else:
-			return 'Parser Error'
-
-
-	def procesar_funcion7(self):
-		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
-		instrucciones = g.parse(' DROP INDEX  mytable_cat_1;')
-		erroressss = ErrorHTML()
-		if  erroressss.getList()== []:
-			instrucciones_Global = instrucciones
-			ts_global = TS.TablaDeSimbolos()
-			ts_globalIndex = TSINDEX.TablaDeSimbolos()
-			tc_global = TC.TablaDeTipos()
-			tc_global1 = tc_global
-			ts_global1 = ts_global
-			ts_globalIndex1 = ts_globalIndex
-			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
-			return salida
-		else:
-			return 'Parser Error'
-
-
-	def procesar_funcion8(self):
-		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
-		instrucciones = g.parse(' DROP INDEX  mytable_cat_1;')
-		erroressss = ErrorHTML()
-		if  erroressss.getList()== []:
-			instrucciones_Global = instrucciones
-			ts_global = TS.TablaDeSimbolos()
-			ts_globalIndex = TSINDEX.TablaDeSimbolos()
-			tc_global = TC.TablaDeTipos()
-			tc_global1 = tc_global
-			ts_global1 = ts_global
-			ts_globalIndex1 = ts_globalIndex
-			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
-			return salida
-		else:
-			return 'Parser Error'
-
-
-	def procesar_funcion9(self):
-		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
-		instrucciones = g.parse(' DROP INDEX  mytable_cat_2 , mytable_cat_3;')
+		instrucciones = g.parse(' CREATE INDEX IDXNOMBRE1 ON TABLA  (  NOMBRE  ) ;')
 		erroressss = ErrorHTML()
 		if  erroressss.getList()== []:
 			instrucciones_Global = instrucciones
