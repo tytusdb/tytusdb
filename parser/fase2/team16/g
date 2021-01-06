@@ -11,7 +11,7 @@ graph g {
                                 <TD bgcolor="#BEF781">VALOR </TD>
                                 <TD bgcolor="#BEF781">FILA</TD>
                             </TR>
-                             <TR>
+                            <TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>1</TD><TD>6</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Laptop Lenovo</TD><TD>6</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>6</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>6</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>2</TD><TD>257</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Bateria para Laptop Lenovo T420</TD><TD>257</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>257</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>257</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>3</TD><TD>330</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Teclado Inalambrico</TD><TD>330</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>330</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>330</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>4</TD><TD>12</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Mouse Inalambrico</TD><TD>12</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>12</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>12</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>5</TD><TD>246</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>WIFI USB</TD><TD>246</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>246</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>246</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>6</TD><TD>228</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Laptop HP</TD><TD>228</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>228</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>228</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>7</TD><TD>54</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Teclado Flexible USB</TD><TD>54</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-05 22:59:11</TD><TD>54</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>54</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>idproducto</TD><TD>8</TD><TD>201</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>producto</TD><TD>Laptop Samsung</TD><TD>201</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>fechacreacion</TD><TD>2021-01-02</TD><TD>201</TD></TR><TR><TD>DBFase2</TD><TD>tbProducto</TD><TD>estado</TD><TD>2</TD><TD>201</TD></TR><TR><TD>DBFase2</TD><TD>tbCalificacion</TD><TD>idcalifica</TD><TD>1</TD><TD>123</TD></TR><TR><TD>DBFase2</TD><TD>tbCalificacion</TD><TD>item</TD><TD>PRUEBA Table and Insert</TD><TD>123</TD></TR><TR><TD>DBFase2</TD><TD>tbCalificacion</TD><TD>punteo</TD><TD>1</TD><TD>123</TD></TR> <TR>
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
@@ -28,7 +28,7 @@ graph g {
                                 <TD bgcolor="#BEF781">ID</TD>
                                 <TD bgcolor="#BEF781"> </TD>
                             </TR>
-                             <TR>
+                            <TR><TD>tbProducto</TD><TD>idproducto</TD><TD>not</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbProducto</TD><TD>idproducto</TD><TD>primary</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbProducto</TD><TD>producto</TD><TD>not</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbProducto</TD><TD>fechacreacion</TD><TD>not</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbCalificacion</TD><TD>idcalifica</TD><TD>not</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbCalificacion</TD><TD>idcalifica</TD><TD>primary</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbCalificacion</TD><TD>item</TD><TD>not</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbCalificacion</TD><TD>punteo</TD><TD>not</TD><TD>auto</TD><TD></TD></TR> <TR>
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
@@ -44,7 +44,7 @@ graph g {
                                 <TD bgcolor="#BEF781">TIPO COLUMNA</TD>
                                 <TD bgcolor="#BEF781">  </TD>
                                 <TD bgcolor="#BEF781">  </TD>
-                            </TR> <TR>
+                            </TR><TR><TD COLSPAN="5" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbProducto</TD><TD>idproducto</TD><TD>integer</TD><TD></TD><TD></TD></TR><TR><TD>tbProducto</TD><TD>producto</TD><TD>varchar(150)</TD><TD></TD><TD></TD></TR><TR><TD>tbProducto</TD><TD>fechacreacion</TD><TD>date</TD><TD></TD><TD></TD></TR><TR><TD>tbProducto</TD><TD>estado</TD><TD>integer</TD><TD></TD><TD></TD></TR><TR><TD COLSPAN="5" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbCalificacion</TD><TD>idcalifica</TD><TD>integer</TD><TD></TD><TD></TD></TR><TR><TD>tbCalificacion</TD><TD>item</TD><TD>varchar(100)</TD><TD></TD><TD></TD></TR><TR><TD>tbCalificacion</TD><TD>punteo</TD><TD>integer</TD><TD></TD><TD></TD></TR> <TR>
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
@@ -76,7 +76,7 @@ graph g {
                                 <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
-                            </TR>
+                            </TR><TR><TD>DBFase2</TD><TD></TD><TD></TD><TD></TD><TD></TD></TR>
                             <TR>
                                 <TD></TD>
                                 <TD></TD>
@@ -93,7 +93,7 @@ graph g {
                                 <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
-                            </TR><TR><TD>myFuncion</TD><TD>Function</TD><TD></TD><TD></TD><TD></TD></TR>
+                            </TR>
                             <TR>
                                 <TD></TD>
                                 <TD></TD>
@@ -110,7 +110,7 @@ graph g {
                                 <TD bgcolor="#BEF781">UNIQUE</TD>
                                 <TD bgcolor="#BEF781">HASH</TD>
                                 <TD bgcolor="#BEF781"></TD>
-                            </TR>
+                            </TR><TR><TD>idx_producto</TD><TD>tbProducto</TD><TD>True</TD><TD>False</TD><TD></TD></TR><TR><TD>idx_califica</TD><TD>tbCalificacion</TD><TD>True</TD><TD>False</TD><TD></TD></TR>
                             <TR>
                                 <TD></TD>
                                 <TD></TD>
@@ -127,5 +127,5 @@ graph g {
                                 <TD bgcolor="#BEF781">NULLS</TD>
                                 <TD bgcolor="#BEF781">ID INDICE</TD>
                                 <TD bgcolor="#BEF781">ID TABLA</TD>
-                            </TR></TABLE>>]
+                            </TR><TR><TD>idproducto</TD><TD>None</TD><TD>None</TD><TD>tbProducto</TD><TD>idx_producto</TD></TR><TR><TD>idcalifica</TD><TD>None</TD><TD>None</TD><TD>tbCalificacion</TD><TD>idx_califica</TD></TR></TABLE>>]
 }
