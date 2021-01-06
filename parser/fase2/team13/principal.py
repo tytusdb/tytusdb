@@ -123,7 +123,7 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 puntero += 1    
                 texttraduccion += identacion+"print("+Eti+")\n" 
             elif isinstance(nodo, SInsertBase):
-                #InsertTable(nodo, tablaSimbolos,True)
+                InsertTable(nodo, tablaSimbolos,True)
                 stack.append(nodo)
                 Eti ="t"+str(contadoresT)
                 contadoresT+=1
@@ -661,6 +661,8 @@ def interpretar_sentencias(arbol,ejecutar3D):
     print("SOY TU TRADUCCION------------------")
     #texttraduccion+="\ndef FunctionInsert():\n"
     #texttraduccion+= identacion+ "print("+"\""+"Aqui va la logica"+"\""+"):\n"
+    texttraduccion+="\ndef FunctionInsert(useActual,NombreTabla,Lista):\n"
+    texttraduccion+= identacion + "p3.functionInsert(useActual,NombreTabla,Lista)\n"
     print(texttraduccion)
     print("YA OPTIMIZADO------------------------- ")
     print(textoptimizado)
@@ -2663,7 +2665,16 @@ def AlterColumnCTipo(nodo, tablaSimbolos):
             listaSemanticos.append(Error.ErrorS(
                 "Error Semantico", "la columna no existe " + col.idcolumna))
 
+def functionInsert(useActual,NombreTabla,lista=[]):
+      rs = jBase.insert(useActual, NombreTabla, lista)
+      if rs == 0:
+          consola += "Se insertó con éxito la tupla" + str(lista) + "\n"
+          print("Se inserto Correctamente")
+      else:
+          print("No inserto Correctamente")
 
+
+            
 
 def InsertTable(nodo, tablaSimbolos,cod3D):
     global consola 
@@ -2674,22 +2685,28 @@ def InsertTable(nodo, tablaSimbolos,cod3D):
     temp2=""
     temp3=""
     Etiqueta=""
+    Etiqueta1=""
+    
     if (cod3D):
 
        #print("********************* Codigo 3D  Edi *************************")
        #print(nodo.id)
        temp1= "t" +str(contadoresT) 
-       texttraduccion +=identacion + temp1+" = " +str(nodo.id) + " \n"
+       texttraduccion +=identacion + temp1+" = " + "\""+str(nodo.id)+"\""+ " \n"
        contadoresT =contadoresT + 1
        temp2 = "t"+str(contadoresT)
        contadoresT =contadoresT + 1
        texttraduccion += identacion + temp2 +" = " +"1" + " \n"
-       texttraduccion += identacion + "if ( "+temp2+" == "+"1 ):" + " \n"    
+       texttraduccion += identacion + "if ( "+temp2+" == "+"1 ):\n"     
        Etiqueta += ".L"+ str(contadoresEtiqueta)
        contadoresEtiqueta +=1 
-       texttraduccion += identacion+ identacion +"goto " + Etiqueta + " \n"
-       texttraduccion += identacion+ identacion + "label " + Etiqueta + " \n"
-       contadoresEtiqueta +=1
+       Etiqueta1 += ".L"+ str(contadoresEtiqueta)
+       texttraduccion += identacion+identacion+"goto " + Etiqueta + " \n"
+       texttraduccion +=identacion+"goto " + Etiqueta1 + " \n"
+       texttraduccion +=identacion+"label " + Etiqueta + " \n"
+       texttraduccion +=identacion+"# Ejecucion de Codigo  \n"
+       
+       #-------------------CODIGO 3D-------------------------------------
        cadena=""
        for i in range(len(nodo.listValores)):
                 if  ( i != (len(nodo.listValores)-1)):                
@@ -2699,8 +2716,11 @@ def InsertTable(nodo, tablaSimbolos,cod3D):
                     cadena+= "\'"+ str(val.valor)+"\'"
        temp3 = "t"+str(contadoresT)             
        contadoresT =contadoresT + 1
-       texttraduccion += identacion+identacion+temp3 +" = [" + cadena + "] \n"
-       texttraduccion +=identacion+identacion+"FunctionInsertar() \n"
+       texttraduccion +=identacion+ temp3 +" = [" + cadena + "] \n"
+       texttraduccion +=identacion+ "FunctionInsert(useActual,"+temp1+","+temp3+") \n"
+       texttraduccion +=identacion+"label " + Etiqueta1 + " \n"
+       
+       contadoresEtiqueta +=1
        
        #print(texttraduccion)
        #print("**********************************************")                          
@@ -2922,8 +2942,7 @@ def InsertTable(nodo, tablaSimbolos,cod3D):
                                     listaSemanticos.append(Error.ErrorS(
                                             "Error Semantico",
                                             "Error en ENUM TYPE: la colección " + col.tipo.valor + " no ha sido definida. "))
-                            
-                            elif hasattr(col.tipo,"tipo"):
+                            else:
 
                                 if col.tipo.tipo == TipoDato.NUMERICO:
                                     result = validarTiposNumericos(
@@ -2947,14 +2966,6 @@ def InsertTable(nodo, tablaSimbolos,cod3D):
                                 elif col.tipo.tipo == TipoDato.BOOLEAN:
                                     if val.tipo == Expresion.BOOLEAN:
                                         result = True
-                                
-                            else:
-
-                                if val.valor in types[col.tipo]:
-                                    result = True
-                                else:
-                                    result = False
-
                             if not result:
                                 listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                                     "Error de tipos: tipo " + str(col.tipo.tipo) + " columna " + str(col.nombre) + " valor a insertar " + str(
@@ -5195,17 +5206,55 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 for q_cols in Qselect.cols:
 
                     if isinstance(q_cols.cols,SFuncAgregacion):
-                        print("Sí soy una funcion de agregación")
-                        print(q_cols.cols)
+                        
                         if q_cols.cols.param == "*":
                             el_string = q_cols.cols.funcion.lower() + "(" + q_cols.cols.param + ")"
+                            
                             if el_string not in encabezados:
                                 indices.append(ind)
                                 encabezados.append(el_string)
 
                                 if q_cols.cols.funcion.lower() == "count":
                                     resultado_2 = [[len(resultado_2)]]
-                    
+                        
+                        else:
+                            la_columna = q_cols.cols.param.valor
+                            el_string = q_cols.cols.funcion.lower() + "(" + la_columna + ")"
+                            if la_columna == columnas[ind]:
+                                indices.append(0)
+                                encabezados.append(el_string)
+                                resultado = 0
+                                contador = 0
+                                if q_cols.cols.funcion.lower() == "sum":
+                                    for reg in resultado_2:
+                                        resultado += reg[ind]
+                                    resultado_2 = [[resultado]]
+                                elif q_cols.cols.funcion.lower() == "avg":
+                                    for reg in resultado_2:
+                                        resultado += reg[ind]
+                                        contador += 1
+                                    resultado_2 = [[resultado/contador]]
+                                elif q_cols.cols.funcion.lower() == "max":
+                                    el_R = None
+                                    for reg in resultado_2:
+                                        if el_R == None:
+                                            el_R = reg[ind]
+                                        else:
+                                            if reg[ind] > el_R:
+                                                el_R = reg[ind]
+
+                                    resultado_2 = [[el_R]]
+                                elif q_cols.cols.funcion.lower() == "min":
+                                    el_R = None
+                                    for reg in resultado_2:
+                                        if el_R == None:
+                                            el_R = reg[ind]
+                                        else:
+                                            if reg[ind] < el_R:
+                                                el_R = reg[ind]
+
+                                    resultado_2 = [[el_R]]
+                                    
                     else:
 
                         if q_cols.cols.valor == columnas[ind]:
