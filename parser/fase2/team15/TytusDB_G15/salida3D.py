@@ -14,6 +14,13 @@ def main():
 	print(inter.procesar_funcion3())
 	print(inter.procesar_funcion4())
 	print(inter.procesar_funcion5())
+	print(inter.procesar_funcion6())
+	print(inter.procesar_funcion7())
+	print(inter.procesar_funcion8())
+	print(inter.procesar_funcion9())
+	print(inter.procesar_funcion10())
+	print(inter.procesar_funcion11())
+	print(inter.procesar_funcion12())
 	print(inter.Reportes())	
 	goto. end	
 	
