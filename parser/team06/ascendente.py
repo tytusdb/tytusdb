@@ -3356,7 +3356,6 @@ def procesar_inheritsBD(query, ts):
                         chk = 1
                         idconscheck = res.objrestriccion.idConstraint
                         condchk = res.objrestriccion.condCheck
-
                     else:
                         print("No se encontro ninguna restriccion")
             

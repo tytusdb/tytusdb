@@ -2,6 +2,7 @@ import re
 from queries import *
 from expresiones import *
 import TablaDeSimbolos as TS
+import time
 # -----------------------------------------------------------------------------
 # Grupo 6
 #
@@ -981,17 +982,17 @@ def p_funcionJJBH_basica(t):
                         | CEIL PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | CEILING PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | DEGREES PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
-                        | DIV PARENTESISIZQUIERDA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
+                        | DIV PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
                         | EXP PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | FACTORIAL PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | FLOOR PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
-                        | GCD PARENTESISIZQUIERDA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
-                        | LCM PARENTESISIZQUIERDA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
+                        | GCD PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
+                        | LCM PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
                         | LN PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | LOG PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
-                        | MOD PARENTESISIZQUIERDA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
+                        | MOD PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
                         | PI PARENTESISIZQUIERDA  PARENTESISDERECHA
-                        | POWER PARENTESISIZQUIERDA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
+                        | POWER PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
                         | RADIANS PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | ROUND PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA                      
                         | SIGN PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
@@ -1006,8 +1007,8 @@ def p_funcionJJBH_basica(t):
                         | ASIND PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA                
                         | ATAN PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | ATAND PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
-                        | ATAN2 PARENTESISIZQUIERDA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
-                        | ATAN2D PARENTESISIZQUIERDA operacionJJBH COMA operacionJJBH PARENTESISDERECHA
+                        | ATAN2 PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
+                        | ATAN2D PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
                         | COS PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
 			            | COSD  PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
                         | COT PARENTESISIZQUIERDA operacionJJBH PARENTESISDERECHA
@@ -1046,66 +1047,160 @@ def p_funcionJJBH_basica(t):
         print(t[3])
         j=t[3].splitlines()
         print(j)
-        b=j[-1].split(" ")[0]
+        b=j[-1].split(" ")
         print(b)
-        if bool(re.search(r'[0-9]', b)):
+        if len(b)>1:
             c=t[3]+"\n"
-            c+="t"+str(h.conteoTemporales)+" = abs("+str(b)+")\n"
+            c+="t"+str(h.conteoTemporales)+" = abs("+str(b[0])+")\n"
             h.conteoTemporales+=1
             t[0]=c
         else:
-            c=t[3]+"\n"
-            c+="t"+str(h.conteoTemporales)+" = abs("+str(b)+")\n"
+            c="t"+str(h.conteoTemporales)+" = abs("+str(b[0])+")\n"
             h.conteoTemporales+=1
             t[0]=c
-
-        #a="t"+str(h.conteoTemporales)+" = abs("+str(t[3])+")"
-        #h.conteoTemporales+=1
-        #t[0]=a
     elif t[1].upper()=="CBRT":
-        a="t"+str(h.conteoTemporales)+" = "+str(t[3])+"**(1/3)\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = "+str(b[0])+"**(1/3)\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = "+str(b[0])+"**(1/3)\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="CEIL":
-        a="t"+str(h.conteoTemporales)+" = mt.ceil("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.ceil("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = mt.ceil("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="CEILING":
-        a="t"+str(h.conteoTemporales)+" = mt.ceil("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.ceil("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = mt.ceil("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="DEGREES":
-        a="t"+str(h.conteoTemporales)+" = mt.degrees("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.degrees("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = mt.degrees("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="DIV":
         a="t"+str(h.conteoTemporales)+" = "+str(t[3])+"/"+str(t[5])+"\n"
         h.conteoTemporales+=1
         t[0]=a
     elif t[1].upper()=="EXP":
-        a="t"+str(h.conteoTemporales)+" = mt.exp("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =  mt.exp("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =  mt.exp("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="FACTORIAL":
-        a="t"+str(h.conteoTemporales)+" = mt.factorial("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =  mt.factorial("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =  mt.factorial("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="FLOOR":
-        a="t"+str(h.conteoTemporales)+" = mt.floor("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =  mt.floor("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =  mt.floor("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="GCD":
         a="t"+str(h.conteoTemporales)+" = mt.gcd("+str(t[3])+","+str(t[5])+")\n"
         h.conteoTemporales+=1
         t[0]=a
     elif t[1].upper()=="LN":
-        a="t"+str(h.conteoTemporales)+" = mt.log("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =  mt.log("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =  mt.log("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="LOG":
-        a="t"+str(h.conteoTemporales)+" = mt.log10("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =  mt.log10("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =  mt.log10("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="MOD":
         a="t"+str(h.conteoTemporales)+" = mt.fmod("+str(t[3])+","+str(t[5])+")\n"
         h.conteoTemporales+=1
@@ -1119,25 +1214,80 @@ def p_funcionJJBH_basica(t):
         h.conteoTemporales+=1
         t[0]=a
     elif t[1].upper()=="RADIANS":
-        a="t"+str(h.conteoTemporales)+" = mt.radians("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =  mt.radians("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =  mt.radians("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="ROUND":
-        a="t"+str(h.conteoTemporales)+" = round("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =  mt.round("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =  mt.round("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="SIGN":
-        a="t"+str(h.conteoTemporales)+" = geek.sign("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =   geek.sign("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =   geek.sign("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="SQRT":
-        a="t"+str(h.conteoTemporales)+" = mt.sqrt("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.sqrt("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.sqrt("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="TRUNC":
-        a="t"+str(h.conteoTemporales)+" = mt.trunc("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.trunc("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.trunc("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="WIDTH_BUCKET":
         t[0]="\"esta no se que hacia\"\n"
     elif t[1].upper()=="RANDOM":
@@ -1145,32 +1295,101 @@ def p_funcionJJBH_basica(t):
         h.conteoTemporales+=1
         t[0]=a
     elif t[1].upper()=="ACOS":
-        a="t"+str(h.conteoTemporales)+" = mt.acos("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.acos("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.acos("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="ACOSD":
-        a="t"+str(h.conteoTemporales)+" = mt.acos("+str(t[3])+")\n"
-        a+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
-        h.conteoTemporales+=2
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.acos("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.acos("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
     elif t[1].upper()=="ASIN":
-        a="t"+str(h.conteoTemporales)+" = mt.asin("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.asin("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.asin("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="ASIND":
-        a="t"+str(h.conteoTemporales)+" = mt.asin("+str(t[3])+")\n"
-        a+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
-        h.conteoTemporales+=2
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.asin("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.asin("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
     elif t[1].upper()=="ATAN":
-        a="t"+str(h.conteoTemporales)+" = mt.atan("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.atan("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.atan("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="ATAND":
-        a="t"+str(h.conteoTemporales)+" = mt.atan("+str(t[3])+")\n"
-        a+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
-        h.conteoTemporales+=2
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.atan("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.atan("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
     elif t[1].upper()=="ATAN2":
         a="t"+str(h.conteoTemporales)+" = mt.atan2("+str(t[3])+","+str(t[5])+")\n"
         h.conteoTemporales+=1
@@ -1181,75 +1400,227 @@ def p_funcionJJBH_basica(t):
         h.conteoTemporales+=2
         t[0]=a
     elif t[1].upper()=="COS":
-        a="t"+str(h.conteoTemporales)+" = mt.cos("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
-    elif t[1].upper()=="COSD":
-        a="t"+str(h.conteoTemporales)+" = mt.cos("+str(t[3])+")\n"
-        a+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
-        h.conteoTemporales+=2
-        t[0]=a
-    elif t[1].upper()=="COT":
-        a="t"+str(h.conteoTemporales)+" = mt.tan("+str(t[3])+")\n"
-        a+="t"+str(h.conteoTemporales+1)+" = 1/"+str(h.conteoTemporales)+")\n"
-        h.conteoTemporales+=2
-        t[0]=a
-    elif t[1].upper()=="COTD":
-        a="t"+str(h.conteoTemporales)+" = mt.tan("+str(t[3])+")\n"
-        a+="t"+str(h.conteoTemporales+1)+" = 1/"+str(h.conteoTemporales)+")\n"
-        a+="t"+str(h.conteoTemporales+2)+" = mt.degrees(t"+str(h.conteoTemporales+1)+")\n"
-        h.conteoTemporales+=3
-        t[0]=a
-    elif t[1].upper()=="SIN":
-        a="t"+str(h.conteoTemporales)+" = mt.sin(("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
-    elif t[1].upper()=="SIND":
-        a="t"+str(h.conteoTemporales)+" = mt.cos("+str(t[3])+")\n"
-        a+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
-        h.conteoTemporales+=2
-        t[0]=a
-    elif t[1].upper()=="TAN":
-        a="t"+str(h.conteoTemporales)+" = mt.tan("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
-    elif t[1].upper()=="TAND":
-        a="t"+str(h.conteoTemporales)+" = mt.tan("+str(t[3])+")\n"
-        a+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
-        h.conteoTemporales+=2
-        t[0]=a
-    elif t[1].upper()=="SINH":
+        print(t[3])
         j=t[3].splitlines()
-        b=j[-1].split(" ")[0]
-        if bool(re.search(r'[0-9]', b)):
-            c="t"+str(h.conteoTemporales)+" = mt.sinh("+str(b)+")\n"
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.cos("+str(b[0])+")\n"
             h.conteoTemporales+=1
             t[0]=c
         else:
+            c="t"+str(h.conteoTemporales)+" =    mt.cos("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+    elif t[1].upper()=="COSD":
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
             c=t[3]+"\n"
-            c+="t"+str(h.conteoTemporales)+" = mt.sinh("+str(b)+")\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.cos("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.cos("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+    elif t[1].upper()=="COT":
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.tan("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = 1/"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.tan("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = 1/"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+    elif t[1].upper()=="COTD":
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.tan("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = 1/"+str(h.conteoTemporales)+")\n"
+            a+="t"+str(h.conteoTemporales+2)+" = mt.degrees(t"+str(h.conteoTemporales+1)+")\n"
+            h.conteoTemporales+=3
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.tan("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = 1/"+str(h.conteoTemporales)+")\n"
+            a+="t"+str(h.conteoTemporales+2)+" = mt.degrees(t"+str(h.conteoTemporales+1)+")\n"
+            h.conteoTemporales+=3
+            t[0]=c
+    elif t[1].upper()=="SIN":
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.sin("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.sin("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+    elif t[1].upper()=="SIND":
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.sin("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.sin("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+    elif t[1].upper()=="TAN":
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.tan("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.tan("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+    elif t[1].upper()=="TAND":
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" =    mt.tan("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" =    mt.tan("+str(b[0])+")\n"
+            c+="t"+str(h.conteoTemporales+1)+" = mt.degrees(t"+str(h.conteoTemporales)+")\n"
+            h.conteoTemporales+=2
+            t[0]=c
+    elif t[1].upper()=="SINH":
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.sinh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = mt.sinh("+str(b[0])+")\n"
             h.conteoTemporales+=1
             t[0]=c
     elif t[1].upper()=="COSH":
-        a="t"+str(h.conteoTemporales)+" = mt.cosh("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.cosh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = mt.cosh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="TANH":
-        a="t"+str(h.conteoTemporales)+" = mt.tanh("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.tanh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = mt.tanh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="ASINH":
-        a="t"+str(h.conteoTemporales)+" = mt.asinh("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.asinh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = mt.asinh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="ACOSH":
-        a="t"+str(h.conteoTemporales)+" = mt.acosh("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.acosh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = mt.acosh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="ATANH":
-        a="t"+str(h.conteoTemporales)+" = mt.atanh("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = mt.atanh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = mt.atanh("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="GREATEST":
         a="t"+str(h.conteoTemporales)+" = max("+str(t[3])+")\n"
         h.conteoTemporales+=1
@@ -1265,9 +1636,20 @@ def p_funcionJJBH_basica(t):
         h.conteoTemporales+=3
         t[0]=a
     elif t[1].upper()=="LENGTH":
-        a="t"+str(h.conteoTemporales)+" = len("+str(t[3])+")\n"
-        h.conteoTemporales+=1
-        t[0]=a
+        print(t[3])
+        j=t[3].splitlines()
+        print(j)
+        b=j[-1].split(" ")
+        print(b)
+        if len(b)>1:
+            c=t[3]+"\n"
+            c+="t"+str(h.conteoTemporales)+" = len("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
+        else:
+            c="t"+str(h.conteoTemporales)+" = len("+str(b[0])+")\n"
+            h.conteoTemporales+=1
+            t[0]=c
     elif t[1].upper()=="TRIM":
         a="t"+str(h.conteoTemporales)+" = "+str(t[3])+"\n"
         a+="t"+str(h.conteoTemporales+1)+" = "+str(t[4])+"\n"
@@ -1314,7 +1696,43 @@ def p_funcionJJBH_basica(t):
     elif t[1].upper()=="SUM":
         print("esta no")
     elif t[1].upper()=="EXTRACT":
-        print("pendiente")
+        print("si llega al extract", t[6])
+        pex=t[6].replace("\\\'","\"")
+        print(pex)
+        ex3=time.strptime(pex,"%Y-%m-%d %H:%M:%S")
+        print(str(ex3))
+        print(t[3])
+        if t[3]=="YEAR":
+            res=ex3.tm_year
+            a="t"+str(h.conteoTemporales)+" = "+str(res)+"\n"
+            h.conteoTemporales+=1
+            t[0]=a
+        elif t[3]=="MONTH":
+            res=ex3.tm_mon
+            a="t"+str(h.conteoTemporales)+" = "+str(res)+"\n"
+            h.conteoTemporales+=1
+            t[0]=a
+        elif t[3].upper()=="DAY":
+            res=ex3.tm_mday
+            a="t"+str(h.conteoTemporales)+" = "+str(res)+"\n"
+            h.conteoTemporales+=1
+            t[0]=a
+        elif t[3]=="HOUR":
+            res=ex3.tm_hour
+            a="t"+str(h.conteoTemporales)+" = "+str(res)+"\n"
+            h.conteoTemporales+=1
+            t[0]=a
+        elif t[3]=="MINUTE":
+            res=ex3.tm_min
+            a="t"+str(h.conteoTemporales)+" = "+str(res)+"\n"
+            h.conteoTemporales+=1
+            t[0]=a
+        elif t[3]=="SECOND":
+            res=ex3.tm_sec
+            a="t"+str(h.conteoTemporales)+" = "+str(res)+"\n"
+            h.conteoTemporales+=1
+            t[0]=a
+
     elif t[1].upper()=="DATE_PART":
         print("esta no")
     elif t[1].upper()=="CURRENT_DATE":
@@ -1493,6 +1911,7 @@ def p_funcion_basica(t):
                         | SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | ID PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacion PARENTESISDERECHA
                         | ID PARENTESISIZQUIERDA operacion COMA INTERVAL operacion PARENTESISDERECHA
+                        | EXTRACT PARENTESISIZQUIERDA opcionTiempo FROM TIMESTAMP operacion PARENTESISDERECHA
                         | CURRENT_TIME
                         | CURRENT_DATE 
     '''
@@ -1671,7 +2090,10 @@ def p_funcion_basica(t):
         print("aun no")
   
     elif t[1].upper()=="EXTRACT":
-        a=" trim("+str(t[3])+" from timestamp"+str(t[6])+")"
+        d=t[6].replace("\\\"","")
+        print(d)
+        a=" extract("+str(t[3])+" from timestamp \""+d+"\")"
+        print(a)
         t[0]=a
     elif t[1].upper()=="DATE_PART":
         print("aun no")
@@ -1741,7 +2163,7 @@ def p_final_invocacion_2(t):
 
 def p_final_cadena(t):
     'final          : CADENA'
-    t[0] = "\\\""+str(t[1])+"\\\""
+    t[0] = "\\\'"+str(t[1])+"\\\'"
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
@@ -2140,6 +2562,7 @@ def p_select_3(t):
     '''
     a="t"+str(h.conteoTemporales)+" = \"SELECT "+str(t[2])
     t[0]= a
+    print("select es: ",a)
 
 
 
@@ -2497,39 +2920,103 @@ def p_Procedure_3(t):
 #                                               DECLARATIONS
 
 def p_declaraciones_1(t):
-    'declaraciones      :   ID tipo PUNTOYCOMA'
+    'declaraciones      :   DECLARE ID tipo PUNTOYCOMA'
     t[0]=str(t[1])+" "+str(t[2])
+    simbolo = TS.Simbolo(None,t[2],t[3],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Variable')
+    TS.TablaDeSimbolos().agregarVariable(simbolo)
+
+
+    
 
 def p_declaraciones_2(t):
-    'declaraciones      :   ID ALIAS FOR ID PUNTOYCOMA'
+    'declaraciones      :   DECLARE ID ALIAS FOR ID PUNTOYCOMA'
     t[0]=str(t[1])+" = "+str(t[4])
 
 
 def p_declaraciones_3(t):
-    'declaraciones      :   ID tipo DOSPUNTOS IGUAL operacionJJBH PUNTOYCOMA'
-    t[0]=str(t[1])+" = "+str(t[5])
+    'declaraciones      :   DECLARE ID tipo DOSPUNTOS IGUAL operacionJJBH PUNTOYCOMA'
+    a=t[6].splitlines()
+    b=a[-1].split(" ")
+    print(len(b))
+    if len(b)>1:
+        d=str(b[0])+"\n"
+        c=t[6]
+        c+=str(t[2])+" = "+str(d)+"\n"
+        t[0]=c
+        simbolo = TS.Simbolo(None,t[2],t[3],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,str(t[6]),None,None,None,None,None,None,'Variable')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
+    else:
+        d=str(b[0])+"\n"
+        c=str(t[2])+" = "+str(d)+"\n"
+        t[0]=c
+    simbolo = TS.Simbolo(None,t[2],t[3],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,str(t[6]),None,None,None,None,None,None,'Variable')
+    TS.TablaDeSimbolos().agregarVariable(simbolo)
+        
 
 def p_declaraciones_4(t):
-    'declaraciones      :   ID IGUAL operacionJJBH PUNTOYCOMA'
-    a=t[3].splitlines()
-    b=a[-1].split(" ")[0]+"\n"
-    c=t[3]
-    c+=str(t[1])+" = "+b+"\n"
-    t[0]=c
+    'declaraciones      :   DECLARE ID IGUAL operacionJJBH PUNTOYCOMA'
+    a=t[4].splitlines()
+    b=a[-1].split(" ")
+    print(len(b))
+    if len(b)>1:
+        d=str(b[0])+"\n"
+        c=t[4]
+        c+=str(t[2])+" = "+str(d)+"\n"
+        t[0]=c
+        simbolo = TS.Simbolo(None,t[2],None,None,None,None,None,None,None,None,None,None,None,None,None,None,str(t[4]),None,None,None,None,None,None,'Variable')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
+    else:
+        d=str(b[0])+"\n"
+        c=str(t[2])+" = "+str(d)+"\n"
+        t[0]=c
+    simbolo = TS.Simbolo(None,t[2],None,None,None,None,None,None,None,None,None,None,None,None,None,None,str(t[4]),None,None,None,None,None,None,'Variable')
+    TS.TablaDeSimbolos().agregarVariable(simbolo)
 
 def p_declaraciones_5(t):
-    'declaraciones      :   ID tipo  IGUAL operacionJJBH PUNTOYCOMA'
+    'declaraciones      :   DECLARE ID tipo  IGUAL operacionJJBH PUNTOYCOMA'
     t[0]=str(t[1])+" = "+str(t[4])
+    simbolo = TS.Simbolo(None,t[2],t[3],None,None,None,None,None,None,None,None,None,None,None,None,None,str(t[5]),None,None,None,None,None,None,'Variable')
+    TS.TablaDeSimbolos().agregarVariable(simbolo)
 
 def p_declaraciones_6(t):
-    'declaraciones      :   ID DOSPUNTOS IGUAL operacionJJBH PUNTOYCOMA'
-    t[0]=str(t[1])+" = "+str(t[4])
+    'declaraciones      :   DECLARE ID DOSPUNTOS IGUAL operacionJJBH PUNTOYCOMA'
+    a=t[5].splitlines()
+    b=a[-1].split(" ")
+    print(len(b))
+    if len(b)>1:
+        d=str(b[0])+"\n"
+        c=t[5]
+        c+=str(t[2])+" = "+str(d)+"\n"
+        t[0]=c
+        simbolo = TS.Simbolo(None,t[2],None,None,None,None,None,None,None,None,None,None,None,None,None,None,str(t[5]),None,None,None,None,None,None,'Variable')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
+    else:
+        d=str(b[0])+"\n"
+        c=str(t[2])+" = "+str(d)+"\n"
+        t[0]=c
+        simbolo = TS.Simbolo(None,t[2],None,None,None,None,None,None,None,None,None,None,None,None,None,None,str(t[5]),None,None,None,None,None,None,'Variable')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
 
-
-
-
-
-
+def p_declaraciones_7(t):
+    '''declaraciones     :   DECLARE ID IGUAL PARENTESISIZQUIERDA selectData PARENTESISDERECHA  PUNTOYCOMA
+                            |   DECLARE ID DOSPUNTOS IGUAL PARENTESISIZQUIERDA selectData PARENTESISDERECHA  PUNTOYCOMA
+    '''
+    if t[3]=="=":
+        a=t[5].replace("\""," ").split("=")[1]
+        b="t"+str(h.conteoTemporales)+" = \""+str(a)+";\"\n"
+        b+=str(t[1])+" =analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+        h.conteoTemporales+=1
+        t[0]=b     
+        simbolo = TS.Simbolo(None,t[2],None,None,None,None,None,None,None,None,None,None,None,None,None,None,str(t[5]),None,None,None,None,None,None,'Variable')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
+    elif t[3]==":":
+        a=t[6].replace("\""," ").split("=")[1]
+        b="t"+str(h.conteoTemporales)+" = \""+str(a)+";\"\n"
+        b+=str(t[1])+" =analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+        h.conteoTemporales+=1
+        t[0]=b
+        simbolo = TS.Simbolo(None,t[2],None,None,None,None,None,None,None,None,None,None,None,None,None,None,str(t[6]),None,None,None,None,None,None,'Variable')
+        TS.TablaDeSimbolos().agregarVariable(simbolo)
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                            PARAMETROS PROC
 
@@ -2556,31 +3043,63 @@ def p_paramproc_1(t):
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                           STATEMENTS - VARIABLES
 def p_statementValores(t):
-    '''statementValores     :   final IGUAL operacionJJBH PUNTOYCOMA
-                            |   final DOSPUNTOS IGUAL operacionJJBH PUNTOYCOMA
-                            |   PERFORM selectData PUNTOYCOMA
+    '''statementValores     :   ID IGUAL operacionJJBH PUNTOYCOMA
     '''
-    if t[1].upper()=="PERFORM":
-        a=str(t[2])+";\""
-        h.conteoTemporales+=1
-        t[0]=a
-    elif t[2]=="=":
-        a=str(t[3])
-        b=a.splitlines()[-1].split("=")[0]
-        a+=str(t[1])+" = "+b
-        t[0]=a
-    elif t[2]==":":
-        a=str(t[4])
-        b=a.splitlines()[-1].split("=")[0]
-        a+=str(t[1])+" = "+b
-        t[0]=a
+    a=t[3].splitlines()
+    b=a[-1].split(" ")
+    print(len(b))
+    if len(b)>1:
+        d=str(b[0])+"\n"
+        c=t[3]
+        c+=str(t[1])+" = "+str(d)+"\n"
+        t[0]=c
+    else:
+        d=str(b[0])+"\n"
+        c=str(t[1])+" = "+str(d)+"\n"
+        t[0]=c
+    
+
+def p_statementValores_3(t):
+    '''statementValores     :   ID DOSPUNTOS IGUAL operacionJJBH PUNTOYCOMA
+    '''
+    a=t[4].splitlines()
+    b=a[-1].split(" ")
+    print(len(b))
+    if len(b)>1:
+        d=str(b[0])+"\n"
+        c=t[4]
+        c+=str(t[1])+" = "+str(d)+"\n"
+        t[0]=c
+    else:
+        d=str(b[0])+"\n"
+        c=str(t[1])+" = "+str(d)+"\n"
+        t[0]=c
+
+def p_statementValores_4(t):
+    '''statementValores     :   PERFORM selectData PUNTOYCOMA
+    '''
+    a=t[2].replace("\""," ").split("=")[1]
+    b="t"+str(h.conteoTemporales)+" = \""+str(a)+";\"\n"
+    b+="salida =analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+    h.conteoTemporales+=1
+    t[0]=b     
 
 def p_statementValores_2(t):
     '''statementValores     :   ID IGUAL PARENTESISIZQUIERDA selectData PARENTESISDERECHA  PUNTOYCOMA
                             |   ID DOSPUNTOS IGUAL PARENTESISIZQUIERDA selectData PARENTESISDERECHA  PUNTOYCOMA
     '''
-    print("llega al statement2")
-
+    if t[2]=="=":
+        a=t[4].replace("\""," ").split("=")[1]
+        b="t"+str(h.conteoTemporales)+" = \""+str(a)+";\"\n"
+        b+=str(t[1])+" =analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+        h.conteoTemporales+=1
+        t[0]=b     
+    elif t[2]==":":
+        a=t[5].replace("\""," ").split("=")[1]
+        b="t"+str(h.conteoTemporales)+" = \""+str(a)+";\"\n"
+        b+=str(t[1])+" =analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
+        h.conteoTemporales+=1
+        t[0]=b
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                           STATEMENTS - IF
 #----------------------------------------------------- IF --------------------------------------------------------------------
