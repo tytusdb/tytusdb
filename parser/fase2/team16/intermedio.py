@@ -18,9 +18,9 @@ def main():
 
 	#Llamada a funcion o procedimiento.
 	p0="INICIO CALIFICACION FASE 2"
-	stack.append("F2")
+	stack.append("F3")
 	goto .F1
-	label .F2
+	label .F3
 
 	goto .END
 
@@ -48,11 +48,37 @@ def main():
 	goto .R
 
 
+	label .F2
+	#**** Funcion *****
+
+	# Parametros 
+	p1
+
+	# Retorno 
+	global r1
+
+	# Declaraciones 
+	#Fin declaraciones
+
+
+	print(" |>> " + str(p1)) 
+
+
+	# Return
+	r1 = p1
+	goto .R
+
+
+	goto .R
+
+
 	label .R
 	u = stack.pop()
 	if u == "F1": 
 		goto .F1
 	if u == "F2": 
 		goto .F2
+	if u == "F3": 
+		goto .F3
 
 	label .END

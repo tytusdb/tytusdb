@@ -1,6 +1,7 @@
 import ts as TS
 import jsonMode as Master
 import interprete as Inter
+from sentencias import *
 from six import string_types
 from errores import *
 from random import *
@@ -1613,6 +1614,13 @@ def tabla_simbolos():
         fun=ts.obtenerBasesDatos(fn)
         cadena3 +='<TR><TD>'+str(fun.idBase)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
 
+    cadena9=''
+    for fn in ts.FuncProc:
+        fun= ts.obtenerFuncProc(fn)
+        if isinstance(fun, Funciones_):
+            cadena9+='<TR><TD>'+str(fun.Nombre)+'</TD>'+'<TD>'+'Function'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
+        elif isinstance(fun, Procedimientos_):
+            cadena9 += '<TR><TD>' + str(fun.Nombre) + '</TD>' + '<TD>'+'Procedure'+ '</TD>' + '<TD>' + '</TD>' + '<TD>' + '</TD>' + '<TD>' + '</TD></TR>'
 
     cadena6 = ""
     cadena7 = ""
@@ -1709,6 +1717,25 @@ def tabla_simbolos():
                                 <TD bgcolor="#BEF781"></TD>
                             </TR>'''
                             +cadena3+
+                            '''
+                            <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>FUNCIONES O PROCEDIMIENTOS</B> </TD>
+                            </TR>
+                            <TR>
+                                <TD bgcolor="#BEF781">NOMBRE</TD>
+                                <TD bgcolor="#BEF781"> TIPO </TD>
+                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781"></TD>
+                            </TR>'''
+                            +cadena9+
                             '''
                             <TR>
                                 <TD></TD>

@@ -31,7 +31,7 @@ class Funcion():
 
 class TablaDeSimbolos():
     
-    def __init__(self, Datos = {}, Tablas={}, BasesDatos={}, Tipos={}, Validaciones={}, ColumnasIndices = {}, Indices = {}):
+    def __init__(self, Datos = {}, Tablas={}, BasesDatos={}, Tipos={}, Validaciones={}, ColumnasIndices = {}, Indices = {}, FuncProc = {}):
         self.Datos = Datos.copy()
         self.Tablas = Tablas.copy()
         self.Tipos = Tipos.copy()
@@ -39,6 +39,7 @@ class TablaDeSimbolos():
         self.Validaciones = Validaciones.copy()
         self.ColumnasIndices = ColumnasIndices
         self.Indices = Indices
+        self.FuncProc = FuncProc
 
     def getDatos(self):
         return self.Datos
@@ -184,4 +185,19 @@ class TablaDeSimbolos():
     def agregarIndice(self, indice):
         self.Indices[indice.id_indice] = indice
 
+# ----------------------- Funciones y procedimientos ---------------------------------
+    def obtenerFuncProc(self, id_fp):
+        if not id_fp in self.FuncProc:
+            return None
+        else:
+            return self.FuncProc[id_fp]
+
+    def agregarFuncProc(self, funcion):
+        self.FuncProc[funcion.Nombre] = funcion
+
+    def eliminarFuncProc(self, idFP):
+        if not idFP in self.FuncProc:
+            print('Error: funcion ', ' no definida.')
+        else:
+            del self.FuncProc[idFP]
 
