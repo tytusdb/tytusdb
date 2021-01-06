@@ -54,6 +54,8 @@ from analizer.statement.pl.sentenciaReturn import  Return_
 from analizer.statement.pl.codeblock import CodeBlock
 from analizer.statement.pl.instruccionesF1 import F1
 from analizer.statement.pl.case import Case, CaseWhen
+from analizer.statement.pl.asignacion import Asignacion
+from analizer.statement.pl.declaration import Declaration
 
 def p_init(t):
     """init : stmtList"""
@@ -178,6 +180,7 @@ def p_createopts_function(t):
     """
     createOpts : R_FUNCTION ID S_PARIZQ S_PARDER R_RETURNS types R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
+    t[9].generate3d(None,instancia_codigo3d)
     global count_ins
     count_ins += 1
     repGrammar.append(t.slice)
@@ -186,6 +189,7 @@ def p_createopts_function_params(t):
     """
     createOpts : R_FUNCTION ID S_PARIZQ typeParamsList S_PARDER R_RETURNS types R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
+    t[10].generate3d(None,instancia_codigo3d)
     global count_ins
     count_ins += 1
     repGrammar.append(t.slice)
@@ -233,6 +237,11 @@ def p_declaration(t):
         | ID types S_ASIGNACION expresion S_PUNTOCOMA
         | ID types S_IGUAL expresion S_PUNTOCOMA
     """
+    if len(t)==6:
+        #print('\t'+str(t[1])+' = '+str(t[4]))
+        t[0] = Declaration(t[1],t[2],t[4],t.slice[1].lineno,t.slice[1].lexpos)
+    else:
+        t[0] = Declaration(t[1],t[2],None,t.slice[1].lineno,t.slice[1].lexpos)
 
     global count_ins
     count_ins += 1
@@ -299,7 +308,7 @@ def p_plInstruction(t):
     | codeBlock S_PUNTOCOMA
     | returnStmt S_PUNTOCOMA
     """
-    t[1].generate3d(None,instancia_codigo3d)
+    t[0]=t[1]
 
     global count_ins
     count_ins += 1
@@ -323,6 +332,7 @@ def p_assignment(t):
     assignment : ID S_ASIGNACION expresion
     | ID S_IGUAL expresion
     """
+    t[0] = Asignacion(t[1],t[3], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 def p_executeStmt(t):
@@ -2173,19 +2183,35 @@ def C3D_INSTRUCCIONES_FASE1_CADENA(t)->str:
 
 parserTo3D("""
 CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
+DECLARE
+    nomnbre varchar:='asdads';
+    
+    numero integer=-5;
+    indice integer:=5;
+    final integer=numero+indice*5;
+
 BEGIN
 
 
 
 
-IF 9 > 0 THEN
-    RETURN 7;
-ELSEIF 10 < 9 THEN
-    return 40;
-ELSE
-    RETURN 2;
+IF 9 > 0  and 9+5 = 14 THEN
+    RETURN final;
 
 
+elseif 97 = 90 then
+   return 0;
+
+
+elseif 99 = 90 then
+   return 80;
+
+
+elseif 100 = 100 then
+   return 100;
+   
+else
+    return 60;
 
 
 END IF;

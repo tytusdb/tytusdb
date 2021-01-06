@@ -1,106 +1,132 @@
 <init> ::= <instrucciones>
  
-<instrucciones> ::= <instrucciones><instruccion>
+<instrucciones> ::= <instruccion>
  
-<cond_where> ::= WHERE <expresion_where>
+<instruccion> ::= <show_databases_instr>
  
-<expresion_where> ::= <expresion_logica_w>
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
  
-<expresion_logica_w> ::= NOT <expresion_logica_w>
+<init> ::= <instrucciones>
  
-<expresion_logica_w> ::= <expresion_whereb>
+<instrucciones> ::= <instruccion>
  
-<expresion_whereb> ::= <expresion_wherea>
+<instruccion> ::= <alterDB_insrt>
  
-<expresion_wherea> ::= <expresion>
+<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
  
-<expresion> ::= PAR_A <expresion_logica> PAR_C
+<usuariosDB> ::= CADENA
  
-<expresion_logica> ::= <expresion_relacional> AND <expresion_logica>
+<init> ::= <instrucciones>
  
-<expresion_logica> ::= <expresion_relacion>
+<instrucciones> ::= <instruccion>
  
-<expresion_relacional> ::= <expresion> MENQUE <expresion>
+<instruccion> ::= <show_databases_instr>
  
-<expresion> ::= <expresion_dato>
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
  
-<expresion_dato> ::= <string_type>
+<init> ::= <instrucciones>
  
-<string_type> ::= ID
+<instrucciones> ::= <instruccion>
  
-<expresion> ::= <expresion_dato>
+<instruccion> ::= <alterDB_insrt>
  
-<expresion_dato> ::= <string_type>
+<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
  
-<string_type> ::= ID
+<usuariosDB> ::= ID
  
-<expresion_relacional> ::= <expresion> MAYQUE <expresion>
+<init> ::= <instrucciones>
  
-<expresion> ::= <expresion_dato>
+<instrucciones> ::= <instruccion>
  
-<expresion_dato> ::= <string_type>
+<instruccion> ::= <show_databases_instr>
  
-<string_type> ::= ID
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
  
-<expresion> ::= <expresion_dato>
+<init> ::= <instrucciones>
  
-<expresion_dato> ::= <string_type>
+<instrucciones> ::= <instruccion>
  
-<string_type> ::= ID
+<instruccion> ::= <alterDB_insrt>
  
-<campos_c> ::= ID
+<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
  
-<instrucciones> ::= <instrucciones><instruccion>
+<usuariosDB> ::= ID
  
-<instrucciones> ::= <instrucciones><instruccion>
+<init> ::= <instrucciones>
  
-<campos_c> ::= <campos_c> COMA ID
+<instrucciones> ::= <instruccion>
  
-<campos_c> ::= <campos_c> COMA ID
+<instruccion> ::= <show_databases_instr>
  
-<campos_c> ::= ID
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
  
-<instrucciones> ::= <instrucciones><instruccion>
+<init> ::= <instrucciones>
  
-<orden> ::= DESC
+<instrucciones> ::= <instruccion>
  
-<instrucciones> ::= <instrucciones><instruccion>
+<instruccion> ::= <alterDB_insrt>
  
-<instrucciones> ::= <instrucciones><instruccion>
+<alterDB_insrt> ::= ALTER DATABASE ID OWNER TO <usuariosDB> PTCOMA
  
-<campos_c> ::= <campos_c> COMA ID
+<usuariosDB> ::= ID
  
-<campos_c> ::= ID
+<init> ::= <instrucciones>
  
-<instrucciones> ::= <instrucciones><instruccion>
+<instrucciones> ::= <instruccion>
  
-<instrucciones> ::= <instrucciones><instruccion>
+<instruccion> ::= <show_databases_instr>
  
-<campos_c> ::= ID
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
  
-<instrucciones> ::= <instrucciones><instruccion>
+<init> ::= <instrucciones>
  
-<instruccion> ::= <alterTable_insrt>
+<instrucciones> ::= <instruccion>
  
-<alterTable_insrt> ::= ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C  PTCOMA
+<instruccion> ::= <alterDB_insrt>
  
-<instrucciones> ::= <instrucciones><instruccion>
+<alterDB_insrt> ::= ALTER DATABASE ID RENAME TO ID PTCOMA
  
-<instruccion> ::= <create_Table_isnrt>
+<init> ::= <instrucciones>
  
-<create_Table_isnrt> ::= CREATE TABLE ID PAR_A <cuerpo_createTable_lista> PAR_C PTCOMA 
+<instrucciones> ::= <instruccion>
  
-<cuerpo_createTable_lista> ::= <cuerpo_createTable>
+<instruccion> ::= <show_databases_instr>
  
-<campos_c> ::= ID <TIPO_DATO_DEF>
+<show_databases_instr> ::= SHOW DATABASES PTCOMA
  
-<TIPO_DATO_DEF> ::= INTEGER
+<init> ::= <instrucciones>
  
-<instrucciones> ::= <instrucciones><instruccion>
+<instrucciones> ::= <instruccion>
  
 <instruccion> ::= <use_database_instr>
  
 <use_database_instr> ::= USE ID PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <createDB_insrt>
+ 
+<createDB_insrt> ::= CREATE DATABASE ID PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <createDB_insrt>
+ 
+<createDB_insrt> ::= CREATE DATABASE ID PTCOMA
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <createDB_insrt>
+ 
+<createDB_insrt> ::= CREATE DATABASE ID PTCOMA
+ 
+<init> ::= <instrucciones>
  
 <instrucciones> ::= <instruccion>
  

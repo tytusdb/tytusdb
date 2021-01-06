@@ -462,6 +462,25 @@ class altertb(instruccion):
         self.iden = iden
         self.altertb2 = altertb2
 
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("ALTER TABLE '+ self.iden + ' '
+        for alteracion in self.altertb2:
+            try:
+                if alteracion.texto and alteracion.texto.lower() == "add":
+                    if alteracion.addprop.texto and alteracion.addprop.texto.lower() == "column":
+                        NuevaColumna = alteracion.addprop.lista
+                        if NuevaColumna.iden != None:
+                            traduccion += 'ADD COLUMN' + NuevaColumna.iden + ' ' + NuevaColumna.tipo
+                if alteracion.texto and alteracion.texto.lower() == "drop column":
+                    traduccion += 'DROP COLUMN' + ' ' + alteracion.iden
+
+            except:
+                '''error'''
+        traduccion += ';")'
+        traduccion += '\n'
+        return traduccion
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -568,6 +587,19 @@ class insert(instruccion):
     def __init__(self,iden, valores):
         self.iden = iden
         self.valores = valores
+
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("INSERT INTO TABLE '+ self.iden + ' VALUES('
+        for v in self.valores:
+            if isinstance(v , (int, float, complex)):
+                traduccion += str(v) + ","
+            elif isinstance(v, str):
+                traduccion += "'"+ v + "'" + ","
+        traduccion = traduccion.replace(",)",")")
+        traduccion += ';")'
+        traduccion += '\n'
+        return traduccion
 
     def ejecutar(self):
         global resultadotxt
@@ -746,7 +778,6 @@ class math_floor2(funcionesmath):
         self.exp = exp
 
     def ejecutar(self):
-        #no es diccionario
         try:
             num = float(self.exp)
             return mt.floor(num)
@@ -1596,6 +1627,9 @@ class update(instruccion):
         self.cond = cond
         self.wherecond = wherecond
 
+    def traduccion(self):
+        '''pendiente'''
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -1701,6 +1735,10 @@ class delete(instruccion):
     def __init__(self,iden, wherecond):
         self.iden = iden
         self.wherecond = wherecond
+
+    def traducir(self):
+        '''pendiente'''
+
 
     def ejecutar(self):
         global resultadotxt
