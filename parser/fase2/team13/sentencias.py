@@ -913,3 +913,17 @@ class SAlterIndex(Sentencia):
         return "{ SAlterIndex | exist: '%s', old_id: '%s', new_id:'%s' }" % (
             str(self.exist), str(self.old_id), str(self.new_id)
         )
+
+
+class SAlterIndexColumna(Sentencia):
+    
+    def __init__(self,nombre,viejo,nuevo,exist):
+        self.nombre = nombre
+        self.viejo = viejo
+        self.nuevo = nuevo
+        self.exist = exist
+
+    def __str__(self):
+        return "{ SAlterIndexColumna | nombre: '%s', viejo: '%s', nuevo: '%s', exist: '%s' }" % (
+            str(self.nombre), str(self.viejo), str(self.nuevo), str(self.exist)
+        )

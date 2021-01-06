@@ -65,6 +65,22 @@ class SimboloTabla:
             str(self.nombre), str(self.padre), str(self.columnas), str(self.indices)
         )
 
+    def modificarColumnaIndice(self,nombre,viejo,nuevo):
+        
+        for i in range(len(self.indices)):
+
+            if nombre == self.indices[i].nombre:
+
+                for j in range(len(self.indices[i].columnas)):
+
+                    if viejo == self.indices[i].columnas[j]:
+                        self.indices[i].columnas[j] = nuevo
+                        return True
+
+        return False
+
+
+
 
     def alterarIndice(self,nombre,nuevo):
         

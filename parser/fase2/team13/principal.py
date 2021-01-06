@@ -415,6 +415,9 @@ def interpretar_sentencias(arbol, tablaSimbolos):
         elif isinstance(nodo, SAlterIndex):
             alterarIndice(nodo,tablaSimbolos)
 
+        elif isinstance(nodo,SAlterIndexColumna):
+            alterarIndiceColumna(nodo,tablaSimbolos)
+
         for i in listaSemanticos:
             consola += "\n" + i.descripcion + "\n"
             listaSemanticos2.append(i)
@@ -430,6 +433,83 @@ def interpretar_sentencias(arbol, tablaSimbolos):
     for i in listaSemanticos2:
         print(i)
     return consola
+
+
+def alterarIndiceColumna(nodo,tablaSimbolos):
+    global useActual
+    global consola
+
+    nombre = nodo.nombre
+    viejo = nodo.viejo
+    nuevo = None
+
+    la_tabla = None
+
+    for indice in ubicacion_indices:
+
+        if nombre == indice.nombre and useActual == indice.base:
+            la_tabla = tablaSimbolos.get(useActual).getTabla(indice.tabla)
+            break
+    
+    if la_tabla is not None:
+
+        if nodo.nuevo.tipo == Expresion.ID:
+            nuevo = nodo.nuevo.valor
+            if la_tabla.modificarColumnaIndice(nombre,viejo,nuevo):
+                consola += "Se modificó con éxito el índice: '%s' de la tabla: '%s', se reemplazó la columna: '%s' por: '%s'.\n" % (
+                str(nombre), str(la_tabla.nombre),str(viejo),str(nuevo)
+                )
+            else:
+                if not exist:
+                    consola += "=>ERROR: Ocurrió un error al momento de modificar el índice '%s' de la tabla '%s'. Columna a modificar: '%s'. Columna nueva: '%s'\n" % (
+                        str(nombre), str(la_tabla.nombre),str(viejo),str(nuevo)
+                        )
+                    listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "=>ERROR: Ocurrió un error al momento de modificar el índice '%s' de la tabla '%s'. Columna a modificar: '%s'. Columna nueva: '%s'\n" % (
+                                str(nombre), str(la_tabla.nombre),str(viejo),str(nuevo)
+                        )))
+
+        else:
+            encontrar = nodo.nuevo.valor
+            j = 1
+            for k in la_tabla.columnas:
+                if encontrar == j:
+                    nuevo = k
+                    break
+                j += 1
+            
+            if nuevo is not None:
+                if la_tabla.modificarColumnaIndice(nombre,viejo,nuevo):
+                    consola += "Se modificó con éxito el índice: '%s' de la tabla: '%s', se reemplazó la columna: '%s' por: '%s'.\n" % (
+                    str(nombre), str(la_tabla.nombre),str(viejo),str(nuevo)
+                    )
+                else:
+                    if not exist:
+                        consola += "=>ERROR: Ocurrió un error al momento de modificar el índice '%s' de la tabla '%s'. Columna a modificar: '%s'. Columna nueva: '%s'\n" % (
+                            str(nombre), str(la_tabla.nombre),str(viejo),str(nuevo)
+                            )
+                        listaSemanticos.append(Error.ErrorS(
+                                "Error Semantico", "=>ERROR: Ocurrió un error al momento de modificar el índice '%s' de la tabla '%s'. Columna a modificar: '%s'. Columna nueva: '%s'\n" % (
+                                    str(nombre), str(la_tabla.nombre),str(viejo),str(nuevo)
+                            )))
+            else:
+                consola += "=>ERROR: Ocurrió un error al momento de modificar el índice '%s' de la tabla '%s'. Es probable que el índice: '%s' exceda el tamaño del número de columnas\n" % (
+                    str(viejo), str(la_tabla.nombre),str(encontrar)
+                    )
+                listaSemanticos.append(Error.ErrorS(
+                        "Error Semantico", "=>ERROR: Ocurrió un error al momento de modificar el índice '%s' de la tabla '%s'. Es probable que el índice: '%s' exceda el tamaño del número de columnas"   % (
+                            str(viejo), str(la_tabla.nombre),str(encontrar)
+                        )))
+
+    else:
+        if not exist:
+            consola += "=>ERROR: Ocurrió un error al momento de modificar el índice '%s'. Es posible que no exista.\n" % (
+                        str(viejo)
+                    )
+            listaSemanticos.append(Error.ErrorS(
+                    "Error Semantico", "=>ERROR: Ocurrió un error al momento de modificar el índice '%s'. Es posible que no exista."  % (
+                        str(viejo)
+                    )))
 
 
 def alterarIndice(nodo,tablaSimbolos):
@@ -469,13 +549,15 @@ def alterarIndice(nodo,tablaSimbolos):
                         )))
     
     else:
-        consola += "=>ERROR: Ocurrió un error al momento de modificar el índice '%s'. Es posible que no exista.\n" % (
-                    str(_old)
-                )
-        listaSemanticos.append(Error.ErrorS(
-                "Error Semantico", "=>ERROR: Ocurrió un error al momento de modificar el índice '%s'. Es posible que no exista."  % (
-                    str(_old)
-                )))
+        if not exist:
+
+            consola += "=>ERROR: Ocurrió un error al momento de modificar el índice '%s'. Es posible que no exista.\n" % (
+                        str(_old)
+                    )
+            listaSemanticos.append(Error.ErrorS(
+                    "Error Semantico", "=>ERROR: Ocurrió un error al momento de modificar el índice '%s'. Es posible que no exista."  % (
+                        str(_old)
+                    )))
 
 def borrarIndice(nodo, tablaSimbolos):
 

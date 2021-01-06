@@ -529,10 +529,18 @@ def p_sentencia(t):
 
 def p_ALTER_INDEX(t):
     ''' ALTER_INDEX : alter index id rename tTo id ptComa
-                    | alter index if exists id rename tTo id ptComa '''
+                    | alter index if exists id rename tTo id ptComa
 
-    if len(t) == 8:
+
+                    | alter index id id E ptComa 
+                    | alter index if exists id id E ptComa 
+    '''
+    if len(t) == 7:
+        t[0] = SAlterIndexColumna(t[3],t[4],t[5],False)
+    elif len(t) == 8:
         t[0] = SAlterIndex(False,t[3],t[6])
+    elif len(t) == 9:
+        t[0] = SAlterIndexColumna(t[5],t[6],t[7],True)
     elif len(t) == 10:
         t[0] = SAlterIndex(True,t[5],t[8])
 
