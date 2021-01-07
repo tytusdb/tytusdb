@@ -51,7 +51,9 @@ class Pantalla:
         navMenu.add_command(label="AST", command=self.open_AST)
         navMenu.add_command(label="AST pdf", command=self.open_PDF)
         navMenu.add_command(label="Codigo 3 Direcciones", command=self.open_3d)
-        navMenu.add_command(label="Codigo 3 Direcciones Optimizado", command=self.open_3dOpt)
+        navMenu.add_command(
+            label="Codigo 3 Direcciones Optimizado", command=self.open_3dOpt
+        )
         navMenu.add_command(
             label="Reporte de errores",
             command=self.open_Reporte,
@@ -225,11 +227,11 @@ class Pantalla:
     def open_PDF(self):
         url = "file:///" + os.path.realpath("test-output/round-table.gv.pdf")
         webbrowser.open(url)
-    
+
     def open_3d(self):
         url = "file:///" + os.path.realpath("test-output/c3d.py")
         webbrowser.open(url)
-    
+
     def open_3dOpt(self):
         url = "file:///" + os.path.realpath("test-output/c3dopt.py")
         webbrowser.open(url)
