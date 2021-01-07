@@ -260,6 +260,7 @@ def p_instrucciones_evaluar(t):
                    | exp
                    | execute
                    | ins_create_pl
+                   | drop_pf
                    | create_index
                    | drop_index
                    | alter_index'''
@@ -2381,6 +2382,58 @@ def p_argcol(t):
     t[0] = GenerarBNF()
     t[0].produccion = '<ARGCOL>'
     t[0].code += '\n' + '<ARGCOL>' + ' ::= ' + str(t[1])
+
+# ======================================================================
+#                         ELIMINACION PLSQL
+# ======================================================================
+def p_drop_pf(t):
+    ''' drop_pf : DROP drop_case opt_exist ID PARABRE arg_list_opt PARCIERRE PUNTO_COMA'''
+    t[0] = GenerarBNF()
+    t[0].produccion = '<DROP_PF>'
+    t[0].code += '\n' + '<DROP_PF>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + str(t[8])  + ' ' + t[2].code + ' ' + t[3].code + ' ' + t[6].code
+
+def p_drop_case(t):
+    ''' drop_case : FUNCTION
+                  | PROCEDURE'''
+    t[0] = GenerarBNF()
+    t[0].produccion = '<DROP_CASE>'
+    t[0].code += '\n' + '<DROP_CASE>' + ' ::= ' + str(t[1])
+
+def p_opt_exist(t):
+    ''' opt_exist : IF EXIST
+                  |'''
+    if len(t)== 3:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<DROP_CASE>'
+        t[0].code += '\n' + '<DROP_CASE>' + ' ::= ' + str(t[1]) + ' ' + str(t[2])
+    else:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<DROP_CASE>'
+        t[0].code += '\n' + '<DROP_CASE>' + ' ::= EPSILON'
+
+def p_arg_list_opt(t):
+    ''' arg_list_opt : arg_list 
+                     |'''
+    if len(t)== 2:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<ARG_LIST_OPT>'
+        t[0].code += '\n' + '<ARG_LIST_OPT>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
+    else:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<ARG_LIST_OPT>'
+        t[0].code += '\n' + '<ARG_LIST_OPT>' + ' ::= EPSILON'
+
+def p_arg_list(t):
+    ''' arg_list : arg_list COMA ID
+             	| ID'''
+    if len(t) == 4:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<ARG_LIST>'
+        t[0].code += '\n' + '<ARG_LIST>' + ' ::= ' + t[1].produccion + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + t[1].code
+    else:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<ARG_LIST>'
+        t[0].code += '\n' + '<ARG_LIST>' + ' ::= ' + str(t[1])
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)

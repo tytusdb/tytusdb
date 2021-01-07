@@ -47,7 +47,7 @@ def traducir(input):
         "symbols": symbols,
         "functions": functions,
     }
-    grammar.InitTree()
+    #grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -94,12 +94,12 @@ def functionsReport(env):
 s = """ 
 CREATE function foo(i integer) RETURNS integer AS $$
 declare 
-	j integer := i + 1;
+	j integer := -i + md5(3+3-md5(4),4);
 	k integer;
 BEGIN
 	case 
-        when i > 10 then
-            k = 0;
+        when i > -10 then
+            k = i;
             RETURN j * k + 1;
         when i < 10 then
             k = 1;
@@ -115,11 +115,14 @@ CREATE procedure p1() AS $$
 declare 
 	k integer;
 BEGIN
+    drop function foo;
 	k = foo(5);
     k = foo(10);
     k = foo(15);
 END;
 $$ LANGUAGE plpgsql;
+
+drop procedure p1;
 """
 
 sql = """
@@ -144,4 +147,4 @@ CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
 execute myFuncion("Francisco");
 """
 
-traducir(sql)
+traducir(s)

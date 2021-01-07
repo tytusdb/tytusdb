@@ -67,11 +67,6 @@ class select_func(query):
                 #print(ptable)
                 return ptable
             
-                
-
-
-
-
 
 class select(query):
 
@@ -87,7 +82,6 @@ class select(query):
         self.offset = offset
         if having is not None and condition is not None:
             self.condition.append(having)
-        
         
 
     def ejecutar(self):

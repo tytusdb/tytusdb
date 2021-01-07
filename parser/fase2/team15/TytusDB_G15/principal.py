@@ -1434,51 +1434,59 @@ def procesar_select_general(instr,ts,tc):
                     #print(datos.val)
             #print(arrayTablas)
             #tc.obtenerColumns(useCurrentDatabase,tables[0])
-            arrayColumnsPrimera = tc.obtenerColumns(useCurrentDatabase,arrayTablas[0][0])
-            arrayColumnsSegunda = tc.obtenerColumns(useCurrentDatabase,arrayTablas[1][0])
-
             arrayColumnsMerge = []
             arrC = 0
             while arrC < len(arrayTablas):
-                if arrC == 0:
-                    for arrCP in arrayColumnsPrimera:
-                        columP = str(arrayTablas[0][1])+"."+str(arrCP)
-                        arrayColumnsMerge.append(columP)
-                if arrC == 1:
-                    for arrCS in arrayColumnsSegunda:
-                        columS = str(arrayTablas[1][1])+"."+str(arrCS)
-                        arrayColumnsMerge.append(columS)
+                arrayColumnsPrimera = []
+                arrayColumnsPrimera = tc.obtenerColumns(useCurrentDatabase,arrayTablas[arrC][0])
+                for arrCP in arrayColumnsPrimera:
+                    columP = str(arrayTablas[arrC][1])+"."+str(arrCP)
+                    arrayColumnsMerge.append(columP)
                 arrC +=1
 
             columnsTable = arrayColumnsMerge
+            #print(columnsTable)
             #print(arrayColumnsMerge)
 
-            arrayPrimera = j.extractTable(str(useCurrentDatabase),str(arrayTablas[0][0]))
-            arraySegunda = j.extractTable(str(useCurrentDatabase),str(arrayTablas[1][0]))
-            
 
-            arrayMerge = []
-            arrayMerge.append(arrayColumnsMerge)           
-            arrP = 0
-            while arrP < len(arrayPrimera):
-                
-                arrS = 0
-                while arrS < len(arraySegunda):
-                    arrFilas = []
-                    arrPP = 0
-                    while arrPP < len(arrayPrimera[arrP]):
-                        arrFilas.append(arrayPrimera[arrP][arrPP])
-                        arrPP +=1
-                    arrSS = 0
-                    while arrSS < len(arraySegunda[arrS]):
-                        arrFilas.append(arraySegunda[arrS][arrSS])
-                        arrSS +=1
-                    #print(arrayPrimera[arrP],arraySegunda[arrS])
-                    arrayMerge.append(arrFilas)
-                    arrS+=1
-                arrP +=1
+            arrayMerge = [] 
+            #arrayMerge.append(columnsTable)
+            arrayPrimera = []
+            arraySegunda = []   
+            temp = []
+            iT = 1
+            while iT < len(arrayTablas):
+                if iT == 1:
+                    arrayPrimera = j.extractTable(str(useCurrentDatabase),arrayTablas[0][0])
+                    arraySegunda = j.extractTable(str(useCurrentDatabase),arrayTablas[1][0])
+                else:
+                    arrayMerge = []
+                    arrayPrimera = temp
+                    arraySegunda = j.extractTable(str(useCurrentDatabase),arrayTablas[iT][0])
+                arrP = 0
+                while arrP < len(arrayPrimera):
+                    
+                    arrS = 0
+                    while arrS < len(arraySegunda):
+                        arrFilas = []
+                        arrPP = 0
+                        while arrPP < len(arrayPrimera[arrP]):
+                            arrFilas.append(arrayPrimera[arrP][arrPP])
+                            arrPP +=1
+                        arrSS = 0
+                        while arrSS < len(arraySegunda[arrS]):
+                            arrFilas.append(arraySegunda[arrS][arrSS])
+                            arrSS +=1
+                        #print(arrayPrimera[arrP],arraySegunda[arrS])
+                        arrayMerge.append(arrFilas)
+                        arrS+=1
+                    arrP +=1
+                    
+                temp = arrayMerge
+                iT +=1
 
-            #print(arrayMerge)
+            arrayMerge.insert(0,columnsTable)
+            #print(toPretty(arrayMerge))
 
                     
         if instr.instr2.expwhere != None:
@@ -1495,15 +1503,13 @@ def procesar_select_general(instr,ts,tc):
                 i+=1
         
             arrayFilter = arrayFilterFilter
-            #print(instr.instr2.expwhere.expresion)
-            #print(instr.instr2.expwhere.etiqueta)
-            #print(instr.instr2.expwhere.expresion.etiqueta)
 
         if '*' in arrayColumnsF:
             for filas in arrayFilter:
                 arrayReturn.append(filas)
 
             salida = toPretty(arrayReturn)
+            #print(arrayReturn)
 
         else:
             for filasF in arrayFilter:
@@ -1515,6 +1521,7 @@ def procesar_select_general(instr,ts,tc):
                 arrayReturn.append(arrayTemp)
 
             salida = toPretty(arrayReturn)
+            #print(arrayReturn)
 
         '''if instr.instr2.expgb != None:
             print(instr.instr2.expgb.etiqueta)
