@@ -4,6 +4,7 @@ from views.data_window import DataWindow
 from models.instructions.shared import *
 from models.instructions.Expression.expression import *
 from models.instructions.DML.special_functions import *
+from models.Other.ambito import Ambito
 from models.procedural.if_statement import anidarIFs, If
 import pandas as pd 
 class Union(Instruction):
@@ -33,13 +34,23 @@ class Select(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def compile(self, instrucction):
-        temp = ThreeAddressCode().newTemp()
+    def compile(self, environment):
         database_id = SymbolTable().useDatabase
-        if database_id is not None:
-            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        new_val = putVarValues(self._tac, environment)
+
+
+        temp = ''
+
+        if new_val == self._tac: #Es un temporal --- quitar comillas
+
+            temp = ThreeAddressCode().newTemp()
+
+            if database_id is not None:
+                ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {new_val}\"")
+            else:
+                ThreeAddressCode().addCode(f"{temp} = \"{new_val}\"")
         else:
-            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+            temp = new_val
         #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
         temp1 = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
@@ -589,3 +600,35 @@ def genTempsOr(counter, array_conditions, id):
         condition = Relop(id, SymbolsRelop.EQUALS, array_conditions[counter], "=", line, column)
 
     return condition
+
+def putVarValues(entry:str, environment: Ambito):
+    variables = environment.getAllVarIds()
+    temp = None
+    entry_lower = entry.lower()
+    for variable in variables:
+        print(f"variable: {variable}")
+        if variable in entry_lower:
+            split = entry_lower.split(variable)
+            newValue = environment.getVar(variable)
+            temp = ThreeAddressCode().newTemp()
+            newString = ''
+            #OBTENIENDO VALOR Y PASARLO A UN TEMPORAL
+            ThreeAddressCode().addCode(f"{temp} = Stack[{newValue.position}]")
+            temp_ant = ''
+            for idx, val in enumerate(split):
+
+                if (idx < len(split) - 1):
+                    temp_ant = temp
+                    temp = ThreeAddressCode().newTemp()
+                    ThreeAddressCode().addCode(f"{temp} = \"{val}\" + str({temp_ant})")
+                    newString += f"{val}{newValue.value}"
+       
+            temp_ant = temp
+            temp = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temp} = {temp_ant} + \";\"")
+            newString += ';'
+
+            print("valor nuevo string: ", newString)
+    
+    if temp is None: return entry
+    else: return temp
