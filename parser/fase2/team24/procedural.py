@@ -1,17 +1,22 @@
 import hashlib
 from datetime import date
-from InstruccionesDGA import tabla as ts
+from variables import tabla as ts
+from variables import NombreDB 
+from variables import cont as ncont
+
 import tablaDGA as TAS
-import InstruccionesDGA as dga
+
 import mathtrig as mt
+import reportError as errores
 #from Interfaz import lista
 funciones = []
 objopt = []
-
+cont = ncont
 class pl():
     'Clase abstacta'
 
 def deleteF(name):
+
     name = name +'():'
     for i in range(len(funciones)):
         x = funciones[i].split(" ")
@@ -57,63 +62,63 @@ class declaration(pl):
         if self.tipo == 'SMALLINT':
                 
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
 
         elif self.tipo == 'INTEGER':
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'BIGINT':
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'DECIMAL':
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'NUMERIC': 
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\ttabla.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'REAL':
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'DOUBLE_PRECISION':   
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.DOUBLE_PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.DOUBLE_PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'DOUBLE':
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'CHARACTER':
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'CHARACTER_VARYING':
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.CHARACTER_VARYING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.CHARACTER_VARYING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'TEXT': 
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         elif self.tipo == 'TIMESTAMP':
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
-            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
+            c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
         return c3d
@@ -207,6 +212,7 @@ class declaration(pl):
         
 
     def ejecutar(self):
+        global cont
         ambitoFuncion = ts.buscarIDF()
         #ambitoFuncion =  ts.buscarIDF()
         
@@ -228,75 +234,75 @@ class declaration(pl):
             if valor == 'None':
                 valor = 0
 
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'INTEGER':
             if valor == 'None':
                 valor = 0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'BIGINT':
             if valor == 'None':
                 valor = 0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'DECIMAL':
             if valor == 'None':
                 valor = 0.0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'NUMERIC': 
             if valor == 'None':
                 valor = 0.0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'REAL':
             if valor == 'None':
                 valor = 0.0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'DOUBLE':  
             if valor == 'None':
                 valor = 0.0 
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'PRECISION':
             if valor == 'None':
                 valor = 0.0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'CHARACTER':
             if valor == 'None':
                 valor = ''
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'CHARACTER_VARYING':
             if valor == 'None':
                 valor = ''
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.CHARACTER_VARING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.CHARACTER_VARING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'TEXT':
             if valor == 'None':
                 valor = ''
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'TIMESTAMP':
             if valor == 'None':
                 valor = ''
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor, self.collate,self.notnull) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
 
 class expre(pl):
     def __init__(self,tipo, exp):
@@ -317,7 +323,9 @@ class llamadaP(pl):
     def traducir(self):
         if  not ts.existeF(str(self.id)):
             print('Funcion '+str(self.id) +' no existe')
-            return '\tprint( \'Funcion '+ str(self.id) + ' no existe\')'
+            e = errores.CError(0,0,"Error en llamada de proceso, no existe",'Semantico') 
+            errores.insert_error(e)
+            return '\tprint( \'Funcion '+ str(self.id) + ' no existe\')\n'
         c3d = ''
         contadorP = 0
         for expresion in self.lparams:
@@ -346,6 +354,8 @@ class llamadaF(pl):
 
     def traducir(self):
         if  not ts.existeF(str(self.id)):
+            e = errores.CError(0,0,"Error en llamada de funcion, no existe",'Semantico') 
+            errores.insert_error(e)
             print('Funcion '+str(self.id) +' no existe')
             return '\tprint( \'Funcion '+ str(self.id) + 'no existe\')\n'
         c3d = ''
@@ -360,10 +370,11 @@ class llamadaF(pl):
             contadorP +=1
 
 
-
-        c3d += self.id+'()\n'
-        valor = 'pila[10]'
-        return c3d,valor,0
+        tmp = getTemp()
+        c3d += self.id+'()'
+        c3d += '\n'
+        c3d += tmp +' = pila[10]\n'
+        return c3d,tmp,0
     
     def c3d():
         return '\n'
@@ -380,12 +391,11 @@ class dropfunc(pl):
         c3d = ''
         self.ejecutar()
         for identificador in self.ids:
-
-            if  not ts.existeF(str(identificador)):
-                print('Funcion '+str(identificador) +' no existe')
-                c3d += '\tprint( \'Funcion '+ str(identificador) + 'no existe\')\n'
-            else:
-                c3d += '\tts.deleteFP(str('+identificador+'))\n'
+            
+            c3d += '\tts.deleteFP(str(\''+identificador+'\'))\n'
+            if  not ts.existeF(str(identificador)):    
+                e = errores.CError(0,0,"Error drop funcion, "+str(identificador)+" no existe como funcion",'Semantico') 
+                errores.insert_error(e)
         return c3d
     
     
@@ -409,18 +419,21 @@ class createfunc(pl):
         return 'Se creo la funcion o procedimiento'
 
     def traducir(self):
+        global cont
         if  ts.existeF(str(self.id)):
             print('Funcion '+str(self.id) +' ya existe')
+            e = errores.CError(0,0,"Error en llamada creacion de funcion/proceso, ya existe",'Semantico') 
+            errores.insert_error(e)
             return '\tprint( \'Funcion '+ str(self.id) + ' ya existe\')\n'
         c3d = ''
         c3d += '\tn_db = ts.buscarIDTB(NombreDB)\n'
-        c3d += '\tNuevoSimbolo = Simbolo(cont,\''+self.id+'\',TIPO.FUNCTION,n_db)\n'
+        c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+self.id+'\',TAS.TIPO.FUNCTION,n_db)\n'
         c3d += '\tts.agregar(NuevoSimbolo)\n'
         c3d += '\tcont+=1\n'
-        ambito = ts.buscarIDTB(dga.NombreDB)
-        NuevoSimbolo = TAS.Simbolo(dga.cont,self.id,TAS.TIPO.FUNCTION,ambito,None, None, None, None, None, None, None ,None,None,None, None,None) 
+        ambito = ts.buscarIDTB(NombreDB)
+        NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.FUNCTION,ambito,None, None, None, None, None, None, None ,None,None,None, None,None) 
         ts.agregar(NuevoSimbolo)
-        dga.cont += 1
+        cont += 1
         #creo la funcion en ts
         funcion = ''
         funcion += 'def '+self.id+'():\n' 
@@ -467,7 +480,7 @@ class createfunc(pl):
     def ejecutar1(self):
         c3d = ''
         c3d += '\tbuscarIDF = buscarIDTB(NombreDB)\n'
-        c3d += '\tNuevoSimbolo = Simbolo(cont,\''+self.id+'\',TIPO.FUNCTION,buscarIDF)\n'
+        c3d += '\tNuevoSimbolo = Simbolo(cont,\''+self.id+'\',TAS.TIPO.FUNCTION,buscarIDF)\n'
         c3d += '\tcont+=1\n'
         
         funcion = ''
@@ -495,7 +508,8 @@ class param(pl):
         return c3d
 
     def ejecutar(self):
-        #ambitoDB = ts.buscarIDDB(dga.NombreDB)
+        global cont
+        #ambitoDB = ts.buscarIDDB(NombreDB)
         ambitoFuncion =  ts.buscarIDF()
         
         valor = 'None'
@@ -505,75 +519,75 @@ class param(pl):
             if valor == 'None':
                 valor = 0
 
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'INTEGER':
             if valor == 'None':
                 valor = 0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'BIGINT':
             if valor == 'None':
                 valor = 0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.BIGINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'DECIMAL':
             if valor == 'None':
                 valor = 0.0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'NUMERIC': 
             if valor == 'None':
                 valor = 0.0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.NUMERIC,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'REAL':
             if valor == 'None':
                 valor = 0.0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.REAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'DOUBLE':  
             if valor == 'None':
                 valor = 0.0 
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.DOUBLE,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'PRECISION':
             if valor == 'None':
                 valor = 0.0
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.PRECISION,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'CHARACTER':
             if valor == 'None':
                 valor = ''
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.CHARACTER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'CHARACTER_VARYING':
             if valor == 'None':
                 valor = ''
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.CHARACTER_VARYING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.CHARACTER_VARYING,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'TEXT':
             if valor == 'None':
                 valor = ''
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.TEXT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
         elif self.tipo.upper() == 'TIMESTAMP':
             if valor == 'None':
                 valor = ''
-            NuevoSimbolo = TAS.Simbolo(dga.cont,self.alias,TAS.TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
+            NuevoSimbolo = TAS.Simbolo(cont,self.alias,TAS.TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,valor) 
             ts.agregar(NuevoSimbolo)
-            dga.cont += 1
+            cont += 1
 
 
 class block(pl):
@@ -633,7 +647,7 @@ class asignacion(instruccion):
             valor = '\''+str(self.traduccion[2])+'\''
         else:
             valor = str(self.traduccion[2])
-        c3d += '\tts.modificar_valor('+ str(self.id) + ', ' + valor +')\n'
+        c3d += '\tts.modificar_valor(\''+ str(self.id) + '\', ' + valor +')\n'
         return c3d   
 
     def traducir(self):
@@ -1873,9 +1887,10 @@ class trig_acoshp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.acosh(tr1[2])
-        valor = 'mt.acosh('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +' = mt.acosh('+tr1[1]+')'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_atanhp(pl_mathtrig):
     def __init__ (self,exp,alias):
@@ -1886,9 +1901,10 @@ class trig_atanhp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.atanh(tr1[2])
-        valor = 'mt.atanh('+tr1[1]+')'
+        tmp = getTemp()
+        codigo +=tmp +' = mt.atanh('+tr1[1]+')'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class pl_function():
     ''' clase abstracta '''
@@ -1902,7 +1918,8 @@ class fun_lengthp(pl_function):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = len(str(tr1[2]))
-        valor = 'len(str('+tr1[1]+'))'
+        tmp = getTemp()
+        resultado +=tmp +' = len(str('+tr1[1]+'))'
 
         return codigo,valor,resultado
 
@@ -1915,9 +1932,10 @@ class fun_trimp(pl_function):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = str(tr1[2]).strip()
-        valor = 'str('+tr1[1]+').strip()'
+        tmp = getTemp()
+        resultado += tmp +' = str('+tr1[1]+').strip()'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class fun_md5p(pl_function):
     def __init__ (self,exp,alias):
@@ -1935,10 +1953,10 @@ class fun_md5p(pl_function):
         codigo += 'crypt = hashlib.md5()\n'
         codigo += 'crypt.update('+tr1[1]+'.encode(\'utf-8\'))\n'
         
+        tmp = getTemp()
+        codigo +=tmp +' = crypt.hexdigest()'
 
-        valor = 'crypt.hexdigest()'
-
-        return codigo,valor,resultado    
+        return codigo,tmp,resultado    
 
 class fun_sha256p(pl_function):
     def __init__ (self,exp,alias):
@@ -1956,10 +1974,10 @@ class fun_sha256p(pl_function):
         codigo += 'crypt = hashlib.sha256()\n'
         codigo += 'crypt.update('+tr1[1]+'.encode(\'utf-8\'))\n'
         
+        tmp = getTemp()
+        codigo += tmp +' = crypt.hexdigest()'
 
-        valor = 'crypt.hexdigest()'
-
-        return codigo,valor,resultado  
+        return codigo,tmp,resultado  
 
 class fun_convertp(pl_function):
     def __init__ (self,exp,tipo,alias):
@@ -1990,10 +2008,10 @@ class fun_substrp(pl_function):
         codigo = tr1[0] + '\n'
 
         resultado = str(tr1[2])[self.min:self.max]
+        tmp = getTemp()
+        codigo += tmp +' = '+tr1[1]+'['+str(self.min)+':'+str(self.max)+']\n'
 
-        valor = ''+tr1[1]+'['+str(self.min)+':'+str(self.max)+']'
-
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class fun_nowp(pl_function):
     def __init__ (self,alias):
