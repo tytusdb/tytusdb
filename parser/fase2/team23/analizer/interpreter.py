@@ -27,7 +27,7 @@ def getc3d(input):
     if len(lexerErrors) + len(syntaxErrors) == 0 and result:
 
         for v in result:
-            if isinstance(v, inst.FunctionPL):
+            if isinstance(v, inst.FunctionPL) or isinstance(v, inst.ProcedureStmt):
                 v.c3d(tabla)
 
         tabla.codigo += "def main():\n"
@@ -43,7 +43,7 @@ def getc3d(input):
                 else:
                     querys.append(None)
 
-            elif isinstance(v, inst.FunctionPL):
+            elif isinstance(v, inst.FunctionPL) or isinstance(v, inst.ProcedureStmt):
                 cont = tabla.conta_exec
                 tabla.codigo += "".join(tabla.count_tabs) + "C3D.pila = "+str(cont)+"\n"
                 tabla.codigo += "".join(tabla.count_tabs) + "C3D.ejecutar() #Llamada\n\n"
@@ -100,7 +100,7 @@ def execution(input):
                     print("\n")
                 else:
                     querys.append(None)
-            elif isinstance(v, inst.FunctionPL):
+            elif isinstance(v, inst.FunctionPL) or isinstance(v, inst.ProcedureStmt):
                 v.pos = cont
                 r = v.execute(tabla)
                 messages.append(r)

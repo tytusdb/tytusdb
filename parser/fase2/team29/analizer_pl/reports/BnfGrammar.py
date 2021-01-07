@@ -1,19 +1,14 @@
-from analizer import grammar as g
-import analizer
+from analizer_pl import grammar as g
+import ply
 import os
-
-
-
 
 
 def grammarReport():
     rep = g.getRepGrammar()
-    print("holaaa")
-    print(rep)
     cad = ""
     for r1 in rep:
         for r2 in r1:
-            if isinstance(r2, analizer.ply.lex.LexToken):
+            if isinstance(r2, ply.lex.LexToken):
                 cad += str(r2.type) + " "
             else:
                 cad += "<" + str(r2) + "> "
@@ -24,6 +19,6 @@ def grammarReport():
 
 
 def crearArchivo(cad):
-    file = open("./reports/ReporteGramatica.bnf", "w")
+    file = open("test-output/ReporteGramatica.bnf", "w")
     file.write(cad)
     file.close()

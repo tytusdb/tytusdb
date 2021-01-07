@@ -1,5 +1,6 @@
 from analizer_pl.abstract import instruction
 from analizer_pl.statement.expressions import code
+from analizer_pl.reports.Nodo import Nodo
 
 
 class Update(instruction.Instruction):
@@ -19,3 +20,5 @@ class Update(instruction.Instruction):
         out += self.inherits + ";"
         out += '")\n'
         return code.C3D(out, "update", self.row, self.column)
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_UPDATE")
