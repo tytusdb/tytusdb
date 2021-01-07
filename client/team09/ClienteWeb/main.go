@@ -14,10 +14,12 @@ func main() {
 	//pagina principal
 	http.HandleFunc("/", login)
 	http.HandleFunc("/inicio", inicio)
+	http.HandleFunc("/registro", registro)
 
 	fmt.Println("simon aqui andamios en el 8000")
 
 	http.ListenAndServe(":8000", nil)
+
 }
 
 func login(escritor http.ResponseWriter, lector *http.Request) {
@@ -27,5 +29,10 @@ func login(escritor http.ResponseWriter, lector *http.Request) {
 
 func inicio(escritor http.ResponseWriter, lector *http.Request) {
 	t := template.Must(template.ParseFiles("index.html"))
+	t.Execute(escritor, "")
+}
+
+func registro(escritor http.ResponseWriter, lector *http.Request) {
+	t := template.Must(template.ParseFiles("registro.html"))
 	t.Execute(escritor, "")
 }
