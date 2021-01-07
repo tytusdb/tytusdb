@@ -25,6 +25,7 @@ from analizer_pl.sql_statement.drop import drop_index
 from analizer_pl.sql_statement import use_
 from analizer_pl.sql_statement import show_
 from analizer_pl.sql_statement import truncate_
+from analizer_pl.sql_statement import insert_
 
 
 def TernaryOperation(temp, exp1, exp2, exp3, operator, row, column):
@@ -151,5 +152,8 @@ def DropIndex(exists, idList, row, column):
     return drop_index.DropIndex(exists, idList, row, column)
 
 
-def AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber = ""):
+def AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber=""):
     return alter_index.AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber)
+
+def Insert(tabla, columns, parametros, row, column):
+    return insert_.InsertInto(tabla, columns, parametros, row, column)

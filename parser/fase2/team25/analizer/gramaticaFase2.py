@@ -2329,55 +2329,91 @@ def C3D_INSTRUCCIONES_FASE1_CADENA(t)->str:
 
 # PARA PROBAR LA GENERACION DE CODIGO 3D
 ast = parserTo3D("""
-raise 'nose' , 'nose2';
-raise 'nose' , '715226';
-insert into tablon values (1,2,3,4,5,6,7,8);
-create table t444 (col integer );
-
-
-
-CREATE FUNCTION CALCULOS() RETURNS integer AS $$
+CREATE FUNCTION CALCULOS(xd TEXT, valor decimal(10,2)) RETURNS integer AS $$
+DECLARE
+    ejemplo integer := valor;
+    example integer := ejemplo / valor;
+    test text;
 BEGIN
-        a = (select 5*5);
-        return 9;
+    valor := 100;
+    IF valor < 1 THEN 
+        CASE valor 
+            WHEN -1 THEN
+                return False;
+            ELSE 
+                return True;
+        END CASE;
+    ELSIF valor > 100 THEN
+        return false;
+    ELSE
+        return True;
+    END IF;
+RETURN VALOR;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS varchar(50) AS $$
-DECLARE
-    nomnbre varchar:='test';
-    absolute integer:=abs(-52);
-    numero integer=-5;
-    indice integer:=5;
-    final integer=numero*5;
-
+CREATE FUNCTION Nacimiento(xd DATE) RETURNS integer AS $$
 BEGIN
-nombre = 'hola';
-CASE valor 
-    WHEN -1 THEN
-    return False;
-    WHEN -2 THEN
-    return 'SHO';
-    WHEN -3 THEN
-    return 'SEXOOOO';
-    ELSE 
-    return True;
-    END CASE;
+    IF xd = '4' THEN
+        return False;
+    ELSE
+        return True;
+    END IF;
+RETURN VALOR;
+END;
+$$ LANGUAGE plpgsql;
 
-IF 9 = 14 THEN
-    raise 'imprime' , 'es 14';
-    RETURN final;
-elseif 97 = 90 then
-   return 0;
+CREATE PROCEDURE Prueba() AS $$
+BEGIN
+    RAISE 'Checha Fuma', 'Marihuano';
+RETURN hola;
+END;
+$$ LANGUAGE plpgsql;
 
-elseif 99 = 90 then
-   return 80;
+CREATE DATABASE DBFase2;
 
-elseif 100 = 100 then
-   return 100;
-else
-    return 60;
-END IF;
+USE DBFase2;
+
+CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+BEGIN
+    RETURN texto;
+END;
+$$ LANGUAGE plpgsql;
+
+select myFuncion('INICIO CALIFICACION FASE 2');
+
+CREATE TABLE tbProducto (idproducto integer not null primary key,
+                           producto varchar(150) not null,
+                           fechacreacion date not null,
+                         estado integer);
+
+CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
+
+CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
+                             item varchar(100) not null,
+                             punteo integer not null);
+
+CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
+
+INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
+INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
+INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
+INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
+INSERT INTO tbProducto values(5,'WIFI USB',now(),1);
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
+DECLARE resultado INTEGER; 
+        retorna   INTEGER;
+BEGIN
+    if tabla = 'tbProducto' then
+        resultado := (SELECT COUNT(*) FROM tbProducto);
+        if cantidad = resultado then
+            retorna = 1;
+        else 
+            retorna = 0;
+        end if;
+    end if;
+RETURN retorna;
 END;
 $$ LANGUAGE plpgsql;
 

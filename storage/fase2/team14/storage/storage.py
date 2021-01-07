@@ -8,7 +8,8 @@ from .AVLMode import avlMode as AVLM
 from .jsonMode import jsonMode as jsonM
 from .DictMode import DictMode as DictM
 import os
-
+import hashlib
+import zlib
 
 #*---------------------------------------others----------------------------------------------*
 
@@ -304,6 +305,126 @@ def alterDropPK(database: str, table: str) -> int:
     except:
         return 1
 
+# vincula una FK entre dos tablas
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database] or tableRef not in databasesinfo[1][database]:
+            result = 3
+        else:
+            if len(columns) >= 1 and len(columnsRef)>= 1:
+                if len(columns) == len(columnsRef):
+                    tableColumns = databasesinfo[1][database][table]['numberColumns']
+                    tableColumnsRef = databasesinfo[1][database][tableRef]['numberColumns']
+                    col1 = True
+                    col2 = True
+                    for values in columns:
+                        if values >= tableColumns:
+                            col1 = False
+                            break
+                    for values in columnsRef:
+                        if values >= tableColumnsRef:
+                            col2 = False
+                            break
+                    if col1 and col2:
+                        register1 = extractTable(database, table)
+                        register2 = extractTable(database, tableRef)
+                        if len(register1) == 0 and len(register2) == 0:
+                            res = createTable(database, table + 'FK', 2)
+                            if res == 0:
+                                res1 = insert(database, table + 'FK', [tableRef, columnsRef])
+                                if res1 == 0:
+                                    dictFK = {indexName: {'columns': columns}}
+                                    FKey = {'FK': dictFK}
+                                    databasesinfo[1][database][table].update(FKey)
+                                    commit(databasesinfo, 'databasesInfo')
+                                else:
+                                    result = 1
+                            else:
+                                result = 1
+                        else:
+                            if len(register1) > 0 and len(register2) == 0:
+                                result = 1
+                            else:
+                                Values1 = []
+                                Rep = True
+                                for value in register2:
+                                    Fk1 = ''
+                                    for i in columns:
+                                        if i == len(value) - 1:
+                                            Fk1 = Fk1 + value[i]
+                                        else:
+                                            Fk1 = Fk1 + value[i] + '_'
+                                    if Fk1 in Values1:
+                                        Rep = False
+                                        break
+                                    else:
+                                        Values1.append(Fk1)
+                                if Rep:
+                                    Val1 = True
+                                    for value in register1:
+                                        Fk2 = ''
+                                        for i in columnsRef:
+                                            if i == len(value) - 1:
+                                                Fk2 = Fk2 + value[i]
+                                            else:
+                                                Fk2 = Fk2 + value[i] + '_'
+                                        if Fk2 not in Values1:
+                                            Val1 = False
+                                            break
+                                    if Val1:
+                                        res = createTable(database,table + 'FK',3)
+                                        if res == 0:
+                                            res1 = insert(database,table+'FK',[indexName,tableRef,columnsRef])
+                                            if res1 == 0:
+                                                dictFK = {indexName: {'columns':columns}}
+                                                FKey = {'FK': dictFK}
+                                                databasesinfo[1][database][table].update(FKey)
+                                                commit(databasesinfo,'databasesInfo')
+                                            else: result = 1
+                                        else:
+                                            result = 1
+                                    else:
+                                        result = 5
+                                else:
+                                    result = 1
+                    else:
+                        result = 1
+                else:
+                    result = 4
+            else:
+                result = 1
+        return result
+    except:
+        return 1
+    
+# elimina el vinculo de una FK entre las tablas
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database]:
+            result = 3
+        else:
+            if 'FK' in databasesinfo[1][database][table]:
+                if indexName in databasesinfo[1][database][table]['FK']:
+                    res = dropTable(database, table+'FK')
+                    if res == 0:
+                        del databasesinfo[1][database][table]['FK'][indexName]
+                        commit(databasesinfo,'databasesinfo')
+                        result = 0
+                    else:
+                        result = 1
+                else:
+                    result = 4
+            else:
+                result = 1
+        return result
+    except:
+        return 1
 
 # cambia el nombre de una tabla      
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
@@ -630,4 +751,61 @@ def truncate(database: str, table: str) -> int:
         return result
     except:
         return 1
+    
+#Genera el checksum de una base de datos
+def checksumDatabase(database: str, mode: str) -> str:
+    try:
+        if database in databasesinfo[0]:
+            if mode.lower() == 'md5':
+                hash = hashlib.md5()
+            elif mode.lower() == 'sha256':
+                hash = hashlib.sha256()
+            else:
+                return None
+            for key, value in list(databasesinfo[1][database].items()):
+                if value['mode'] == 'avl':
+                    hash.update(open('data/avlMode/' + database + '_' + key + '.tbl', 'rb').read())
+                elif value['mode'] == 'b':
+                    hash.update(open('data/BMode/' + database + '-' + key + '-' + 'b'+'.bin', 'rb').read())
+                elif value['mode'] == 'bplus':
+                    hash.update(open('data/BPlusMode/' + database + '/' + key + '/' + key + '.bin', 'rb').read())
+                elif value['mode'] == 'dict':
+                    hash.update(open('data/' + database + '/' + key + '.bin', 'rb').read())
+                elif value['mode'] == 'isam':
+                    hash.update(open('data/ISAMMode/tables/' + database + key + '.bin', 'rb').read())
+                elif value['mode'] == 'json':
+                    hash.update(open('data/json/' + database + '-' + key, 'rb').read())
+                elif value['mode'] == 'hash':
+                    hash.update(open('data/hash/' + database + '/' + key + '.bin', 'rb').read())
+            return hash.hexdigest()
+    except:
+        return None
+    
+#gener el checksum de una tabla especifica
+def checksumTable(database: str, table: str, mode: str) -> str:
+    try:
+        if database in databasesinfo[0]:
+            if mode.lower() == 'md5':
+                hash = hashlib.md5()
+            elif mode.lower() == 'sha256':
+                hash = hashlib.sha256()
+            else:
+                return None
+            if databasesinfo[1][database][table]['mode'] == 'avl':
+                hash.update(open('data/avlMode/' + database + '_' + table+'.tbl', 'rb').read())
+            elif databasesinfo[1][database][table]['mode'] == 'b':
+                hash.update(open('data/BMode/' + database + '-' + table + '-b' + '.bin', 'rb').read())
+            elif databasesinfo[1][database][table]['mode'] == 'bplus':
+                hash.update(open('data/BPlusMode/' + database + '/' + table + '/' + table + '.bin', 'rb').read())
+            elif databasesinfo[1][database][table]['mode'] == 'dict':
+                hash.update(open('data/' + database + '/' + table + '.bin', 'rb').read())
+            elif databasesinfo[1][database][table]['mode'] == 'isam':
+                hash.update(open('data/ISAMMode/tables/' + database + table + '.bin', 'rb').read())
+            elif databasesinfo[1][database][table]['mode'] == 'json':
+                hash.update(open('data/json/' + database + '-' + table, 'rb').read())
+            elif databasesinfo[1][database][table]['mode'] == 'hash':
+                hash.update(open('data/hash/' + database + '/' + table +'.bin', 'rb').read())
+            return hash.hexdigest()
+    except:
+        return None
      
