@@ -26,10 +26,10 @@ class Tabla():
     def setFuncion(self, funcion):
         tabla = self
         for f in tabla.funciones:
-            if f.id == funcion.id:
-                print("La variable " + f.id + " ya ha sido declarada.")
-                return "La variable " + f.id + " ya ha sido declarada."
-        print("se agrego la funcion")
+            if f.nombre == funcion.nombre:
+                print("La función " + f.nombre + " ya ha sido declarada.")
+                return "La función " + f.nombre + " ya ha sido declarada."
+        print("se agrego la funcion", funcion.nombre)
         self.funciones.append(funcion)
         return None
     
@@ -37,7 +37,7 @@ class Tabla():
         tabla = self
         while tabla != None:
             for funcion in tabla.funciones:
-                if funcion.id == id:
+                if funcion.nombre == nombre:
                     return funcion 
             tabla = tabla.anterior
         return None

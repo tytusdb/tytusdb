@@ -146,7 +146,7 @@ class insertTable(Instruccion):
                     ordenados = sorted(listaOrden)
                     listaFinal = [item[1] for item in ordenados]
                     
-                    if len(lista) != len(objetoTabla.lista_de_campos):
+                    if len(lista) != objetoTabla.getColumnCount():
                         return
 
                     resultado = insert(arbol.getBaseDatos(),self.valor,listaFinal)
@@ -179,13 +179,13 @@ class insertTable(Instruccion):
                     
                 # El insert no tiene una lista de columnas
                 else:
-                    if len(self.lexpre) != len(objetoTabla.lista_de_campos):
+                    if len(self.lexpre) != objetoTabla.getColumnCount():
                         error = Excepcion('23505',"Semántico","INSERT tiene más o menos expresiones que columnas de destino",self.linea,self.columna)
                         arbol.excepciones.append(error)
                         arbol.consola.append(error.toString())
                         return error
                     tablaLocal = Tabla(tabla)
-                    for c in range(0,len(objetoTabla.lista_de_campos)):
+                    for c in range(0,objetoTabla.getColumnCount()):
                         res = self.lexpre[c].ejecutar(tabla, arbol)
                         if isinstance(res, Excepcion):
                             return res

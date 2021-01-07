@@ -24,12 +24,14 @@ from Instrucciones.Sql_truncate import Truncate
 from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
+from Instrucciones.Sql_create.Tipo_Constraint import *
 from Instrucciones.Sql_create import CreateIndex, Campo
 from Instrucciones.Undefined import Undefined
 from Instrucciones.Sql_drop import DropIndex
 from Instrucciones.Sql_alter import AlterIndex
+from Instrucciones.Sql_create import Parametro, Variable, Body
+from Instrucciones.Execute import Execute, Llamada
 from storageManager import jsonMode as storage
-from Instrucciones.Sql_create.Tipo_Constraint import *
 # para C3D
 import op_aritmeticas as op
 
@@ -117,6 +119,12 @@ def p_ls_index_col2(t):
     t[0] = []
     t[0].append(t[1])
 
+def p_ls_index_col3(t):
+    '''ls_index_col : PARIZQ ls_index_col PARDER
+    '''
+    strGram = "<ls_index_col> ::= PARIZQ <ls_index_col> PARDER"
+    t[0] = t[2]
+
 def p_val_index_col1(t):
     '''val_index_col : ID op_order op_null
     '''
@@ -182,6 +190,10 @@ def p_instruccion_drop_index1(t):
     '''instruccion : DROP INDEX op_exists ID PUNTO_COMA
     '''
     strGram = "<instruccion> ::= DROP INDEX <op_exists> ID PUNTO_COMA"
+    if t[4]:
+        strGram += "\n<op_exists> ::= "
+    else:
+        strGram += "\n<op_exists> ::= IF EXISTS"
     t[0] = DropIndex.DropIndex(t[3], t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_op_exists1(t):
@@ -198,26 +210,66 @@ def p_op_exists(t):
 def p_instruccion_alter_index1(t):
     '''instruccion : ALTER INDEX op_exists ID op_alter ID ID PUNTO_COMA
     '''
-    strGram = "<instruccion> : ALTER INDEX <op_exists> ID <op_alter> ID ID PUNTO_COMA"
+    strGram = "<instruccion> ::= ALTER INDEX <op_exists> ID <op_alter> ID ID PUNTO_COMA"
+    if t[3]:
+        strGram += "\n<op_exists> ::= \n" + t[5]
+    else:
+        strGram += "\n<op_exists> ::= IF EXISTS\n" + t[5]
     t[0] = AlterIndex.AlterIndex(t[3], t[4], t[6], t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
     
 def p_instruccion_alter_index2(t):
     '''instruccion : ALTER INDEX op_exists ID op_alter ID ENTERO PUNTO_COMA
     '''
-    strGram = "<instruccion> : ALTER INDEX <op_exists> ID <op_alter> ID ENTERO PUNTO_COMA"
+    strGram = "<instruccion> ::= ALTER INDEX <op_exists> ID <op_alter> ID ENTERO PUNTO_COMA"
+    if t[3]:
+        strGram += "\n<op_exists> ::= \n" + t[5]
+    else:
+        strGram += "\n<op_exists> ::= IF EXISTS\n" + t[5]
     t[0] = AlterIndex.AlterIndex(t[3], t[4], t[6], t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_op_alter1(t):
     '''op_alter : ALTER COLUMN
     '''
+    t[0] = "<op_alter> ::= ALTER COLUMN"
 
 def p_op_alter2(t):
     '''op_alter : ALTER 
     '''
+    t[0] = "<op_alter> ::= ALTER"
 
 def p_op_alter3(t):
     '''op_alter : 
     '''
+    t[0] = "<op_alter> ::= "
+
+# EXEC
+def p_instruccion_execute(t):
+    '''instruccion : EXECUTE llamada PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= EXECUTE <llamada>"
+    t[0] = Execute.Execute(t[2].nombre, t[2].parametros, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_llamada1(t):
+    '''llamada : ID PARIZQ PARDER
+    '''
+    strGram = "<llamada> ::= ID PARIZQ PARDER"
+    t[0] = Llamada.Llamada(t[1], [], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_llamada2(t):
+    '''llamada : ID PARIZQ list_exp PARDER
+    '''
+    strGram = "<llamada> ::= ID PARIZQ <list_exp> PARDER"
+    t[0] = Llamada.Llamada(t[1], t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_list_exp1(t):
+    '''list_exp : list_exp COMA expresion
+    '''
+    strGram = "<list_exp> ::= <list_exp> COMA <expresion>"
+
+def p_list_exp2(t):
+    '''list_exp : expresion
+    '''
+    strGram = "<list_exp> ::= <expresion>"
 
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
@@ -270,7 +322,7 @@ def p_instruccion_create_or_database3(t):
 def p_instruccion_create_or_database4(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
     '''
-    strGram = "<instruccion> : CREATE OR REPLACE DATABASE <if_not_exists> ID MODE IGUAL ENTERO PUNTO_COMA"
+    strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID MODE IGUAL ENTERO PUNTO_COMA"
     t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_owner(t):
@@ -386,7 +438,6 @@ def p_instruccion_update(t):
 
 def p_instruccion_update2(t):
     '''instruccion : UPDATE ID SET lcol PUNTO_COMA
-
     '''
     strGram = "<instruccion> ::= UPDATE ID SET <lcol> PUNTO_COMA"
     strGram2 = ""
@@ -395,51 +446,292 @@ def p_instruccion_update2(t):
 
 # DELETE FROM Customers WHERE CustomerName='Alfreds Futterkiste';
 def p_columunas_delete(t):
-    '''
-     instruccion : DELETE FROM ID instructionWhere PUNTO_COMA
+    '''instruccion : DELETE FROM ID instructionWhere PUNTO_COMA
     '''
     strGram = "<instruccion> ::= DELETE FROM ID <instructionWhere> PUNTO_COMA"
     t[0] = DeleteTable.DeleteTable(t[3],None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 #FUNCIONES
-def p_funciones(t):
+def p_functions(t):
+    ''' instruccion : CREATE FUNCTION ID PARIZQ op_lpar PARDER RETURNS tipo AS body LANGUAGE PLPGSQL PUNTO_COMA
     '''
-     instruccion : CREATE FUNCTION ID BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, None, None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <op_lpar> PARDER RETURNS <tipo> AS <body> LANGUAGE PLPGSQL PUNTO_COMA"
+    t[0] = CreateFunction.CreateFunction(t[3], t[8], t[5], t[10].declaraciones, t[10].sentencias, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones2(t):
+def p_procedures(t):
+    ''' instruccion : CREATE PROCEDURE ID PARIZQ op_lpar PARDER LANGUAGE PLPGSQL AS body
     '''
-     instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], None, t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::= CREATE PROCEDURE ID PARIZQ <op_lpar> PARDER RETURNS <tipo> AS <body> LANGUAGE PLPGSQL PUNTO_COMA"
+    t[0] = CreateFunction.CreateFunction(t[3], Tipo(Tipo_Dato.VOID), t[5], t[10].declaraciones, t[10].sentencias, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones3(t):
+def p_op_lpar1(t):
+    '''op_lpar : l_par
     '''
-     instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <lcol> PARDER AS <expresion> BEGIN <instrucciones> END PUNTO_COMA"
-    t[0] = CreateFunction.CreateFunction(t[3],None, t[5], t[8], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<op_lpar> ::= <l_par>"
+    t[0] = t[1]
 
-def p_declaracion(t):
+def p_op_lpar2(t):
+    '''op_lpar : 
     '''
-     instruccion : DECLARE expresion AS expresion PUNTO_COMA
-    '''
-    strGram = "<instruccion> ::= DECLARE <expresion> AS <expresion> PUNTO_COMA"
-    t[0] = Declare.Declare(t[2], None, t[4], strGram ,t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<op_lpar> ::= "
+    t[0] = []
 
-def p_declaracion1(t):
+def p_l_par1(t):
+    '''l_par : l_par COMA par
     '''
-     instruccion : DECLARE expresion tipo PUNTO_COMA
+    strGram = "<l_par> ::= <l_par> COMA <par>"
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_l_par2(t):
+    '''l_par : par
     '''
-    strGram = "<instruccion> ::= DECLARE <expresion> tipo PUNTO_COMA"
-    t[0] = Declare.Declare(t[2], t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<l_par> ::= <par>"
+    t[0] = []
+    t[0].append(t[1])
+
+def p_par1(t):
+    '''par : ID tipo  
+    '''
+    strGram = "<par> ::= ID <tipo>"
+    t[0] = Parametro.Parametro(t[1], t[2], None, None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_par2(t):
+    '''par : ID 
+    '''
+    strGram = "<par> ::= ID"
+    t[0] = Parametro.Parametro(t[1], None, None, None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_body1(t):
+    '''body : LABEL l_dec BEGIN statements END PUNTO_COMA LABEL
+    '''
+    strGram = "<body> ::= LABEL <l_dec> BEGIN statements END PUNTO_COMA LABEL"
+    t[0] = Body.Body(t[2], t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_body2(t):
+    '''body : LABEL BEGIN statements END PUNTO_COMA LABEL
+    '''
+    strGram = "<body> ::= LABEL BEGIN statements END PUNTO_COMA LABEL"
+    t[0] = Body.Body([], t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_l_dec1(t):
+    '''l_dec : l_dec dec_sg
+    '''
+    strGram = "<l_dec> ::= <l_dec> <dec_sg>"
+    for val in t[2]:
+        t[1].append(val)
+    t[0] = t[1]
+
+def p_l_dec2(t):
+    '''l_dec : dec_sg
+    '''
+    strGram = "<l_dec> ::= <dec_sg>"
+    t[0] = t[1]
+
+def p_dec_sg(t):
+    '''dec_sg : DECLARE l_seg
+    '''
+    strGram = "<dec_sg> ::= DECLARE <l_seg>"
+    t[0] = t[2]
+
+def p_l_seg1(t):
+    '''l_seg : l_seg segment
+    '''
+    strGram = "<l_seg> ::= <l_seg> <segment>"
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_l_seg2(t):
+    '''l_seg : segment
+    '''
+    strGram = "<l_seg> ::= <segment>"
+    t[0] = []
+    t[0].append(t[1])
+
+def p_segment1(t):
+    '''segment : ID op_constant tipo op_nulo op_asig PUNTO_COMA
+    '''
+    strGram = "<segment> ::= ID <op_constant> <tipo> <op_nulo> <op_asig> PUNTO_COMA"
+    t[0] = Variable.Variable(t[1], t[2], t[3], t[4], t[5], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_segment2(t):
+    '''segment : ID ALIAS FOR R_PAR PUNTO_COMA
+    '''
+    strGram = "<segment> ::= ID ALIAS FOR R_PAR PUNTO_COMA"
+    cons = Undefined.Undefined("CONSTANT", None, None, t.lexer.lineno, t.lexer.lexpos)
+    nulo = Undefined.Undefined("NULL", "", None, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Variable.Variable(t[1], cons, nulo, None, (t[4].split("$"))[1], t.lexer.lineno, t.lexer.lexpos)
+
+def p_segment3(t):
+    '''segment : ID ALIAS FOR ID PUNTO_COMA
+    '''
+    strGram = "<segment> ::= ID ALIAS FOR ID PUNTO_COMA"
+    cons = Undefined.Undefined("CONSTANT", None, None, t.lexer.lineno, t.lexer.lexpos)
+    nulo = Undefined.Undefined("NULL", "", None, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Variable.Variable(t[1], cons, nulo, None, t[4], t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_constant1(t):
+    '''op_constant : CONSTANT
+    '''
+    strGram = "<op_constant> ::= CONSTANT"
+    t[0] = Undefined.Undefined("CONSTANT", "", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_constant2(t):
+    '''op_constant : 
+    '''
+    strGram = "<op_constant> ::= "
+    t[0] = Undefined.Undefined("CONSTANT", None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_nulo1(t):
+    '''op_nulo : NOT NULL
+    '''
+    strGram = "<op_nulo> ::= NOT NULL"
+    t[0] = Undefined.Undefined("NOT", " NULL", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_nulo2(t):
+    '''op_nulo : NULL
+    '''
+    strGram = "<op_nulo> ::= NULL"
+    t[0] = Undefined.Undefined("NULL", "", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_nulo3(t):
+    '''op_nulo : 
+    '''
+    strGram = "<op_nulo> ::= "
+    t[0] = Undefined.Undefined("NULL", "", strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_op_asig1(t):
+    '''op_asig : DEFAULT expresion
+    '''
+    strGram = "<op_asig> ::= DEFAULT <expresion>"
+    t[0] = []
+    t[0].append(strGram)
+    t[0].append(t[2])
+
+def p_op_asig2(t):
+    '''op_asig : DP_IGUAL expresion
+    '''
+    strGram = "<op_asig> ::= DP_IGUAL <expresion>"
+    t[0] = []
+    t[0].append(strGram)
+    t[0].append(t[2])
+
+def p_op_asig3(t):
+    '''op_asig : IGUAL expresion
+    '''
+    strGram = "<op_asig> ::= IGUAL <expresion>"
+    t[0] = []
+    t[0].append(strGram)
+    t[0].append(t[2])
+
+def p_op_asig4(t):
+    '''op_asig :
+    '''
+    strGram = "<op_asig> ::= "
+    t[0] = []
+    t[0].append(strGram)
+    t[0].append(None)
+
+def p_statements1(t):
+    '''statements : statements statement
+    '''
+    strGram = "<statements> ::= <statements> <statement>"
+    t[1].append(t[2])
+    t[0] = t[1]
+    
+def p_statements2(t):
+    '''statements : statement
+    '''
+    strGram = "<statements> ::= <statement>"
+    t[0] = []
+    t[0].append(t[1])
+
+def p_statement1(t):
+    '''statement : instruccion
+    '''
+    strGram = "<statement> ::= <instruccion>"
+    t[0] = t[1]
+
+def p_statement2(t):
+    '''statement : ID IGUAL expre PUNTO_COMA
+                 | ID DP_IGUAL expre PUNTO_COMA
+    '''
+    strGram = "<statement> ::= ID IGUAL <expre> PUNTO_COMA"
+
+def p_statement3(t):
+    '''statement : ID IGUAL query PUNTO_COMA
+                 | ID DP_IGUAL query PUNTO_COMA
+    '''
+    strGram = "<statement> ::= ID IGUAL <query> PUNTO_COMA"
+
+def p_statement4(t):
+    '''statement : RETURN expre PUNTO_COMA
+    '''
+    strGram = "<statement> ::= RETURN <expre> PUNTO_COMA"
+    t[0] = t[1]
+
+def p_statement5(t):
+    '''statement : IF st_if
+    '''
+    strGram = "<statement> ::= IF <st_if>"
+
+def p_st_if1(t):
+    '''st_if : expre THEN statements END IF PUNTO_COMA
+    '''
+    strGram = "<st_if> ::= <expre> THEN <statements> END IF PUNTO_COMA"
+
+def p_st_if2(t):
+    '''st_if : expre THEN statements ELSE statements END IF PUNTO_COMA
+    '''
+    strGram = "<st_if> ::= <expre> THEN <statements> ELSE <statements> END IF PUNTO_COMA"
+
+def p_st_if3(t):
+    '''st_if : expre THEN statements ELSIF st_if
+    '''
+    strGram = "<st_if> ::= <expre> THEN <statements> ELSIF <st_if>"
+
+def p_statement6(t):
+    '''statement : CASE ID st_case
+    '''
+    strGram = "<statement> ::= CASE ID <st_case>"
+
+def p_st_case1(t):
+    '''st_case : WHEN list_exp THEN statements END CASE PUNTO_COMA
+    '''
+    strGram = "<st_case> ::=  WHEN <list_exp> THEN <statements> END CASE PUNTO_COMA"
+
+def p_st_case2(t):
+    '''st_case : WHEN list_exp THEN statements ELSE statements END CASE PUNTO_COMA
+    '''
+    strGram = "<st_case> ::=  WHEN <list_exp> THEN <statements> ELSE <statements> END CASE PUNTO_COMA"
+
+def p_st_case3(t):
+    '''st_case : WHEN list_exp THEN statements st_case
+    '''
+    strGram = "<st_case> ::=  WHEN <list_exp> THEN <statements> <st_case>"
+
+def p_statement7(t):
+    '''statement : CASE st_case_s
+    '''
+    strGram = "<statement> ::= CASE <st_case_s>"
+
+def p_st_case_s1(t):
+    '''st_case_s : WHEN expre THEN statements END CASE PUNTO_COMA
+    '''
+    strGram = "<st_case_s> ::=  WHEN <expre> THEN <statements> END CASE PUNTO_COMA"
+
+def p_st_case_s2(t):
+    '''st_case_s : WHEN expre THEN statements ELSE statements END CASE PUNTO_COMA
+    '''
+    strGram = "<st_case_s> ::=  WHEN <expre> THEN <statements> ELSE <statements> END CASE PUNTO_COMA"
+
+def p_st_case_s3(t):
+    '''st_case_s : WHEN expre THEN statements st_case_s
+    '''
+    strGram = "<st_case_s> ::=  WHEN <expre> THEN <statements> <st_case_s>"
     
 def p_set(t):
-    '''
-     instruccion : SET expresion IGUAL expre PUNTO_COMA
+    ''' instruccion : SET expresion IGUAL expre PUNTO_COMA
     '''
     strGram = "<instruccion> ::= SET <expresion> IGUAL <expre> PUNTO_COMA"
     t[0] =Set.Set(t[2], None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
@@ -622,14 +914,7 @@ def p_tipo_relaciones(t):
                 | INTERSECT
                 | EXCEPT
     '''
-    if(t[1]=="UNION"):
-        t[0] = "UNION"
-    elif(t[1]=="INTERSECT"):
-        t[0] = "INTERSECT"
-    elif(t[1]=="EXCEPT"):
-        t[0] = "EXCEPT"
-    else:
-        t[0] = None
+    t[0] = t[1]
 
 def p_tipo_relaciones2(t):
     '''relaciones : UNION ALL 

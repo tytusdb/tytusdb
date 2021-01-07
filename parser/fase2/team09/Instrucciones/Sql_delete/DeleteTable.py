@@ -8,7 +8,6 @@ class DeleteTable(Instruccion):
         self.valor = valor
         self.insWhere = insWhere
 
-
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         if(self.valor != None):
@@ -16,10 +15,15 @@ class DeleteTable(Instruccion):
                 #delete(database: str, table: str, columns: list)
                 arregloDeColumnasAEliminar = []
                 #primero vamos a extraer la tabla
-                if(arbol.getBaseDatos()!= None):
+                if(arbol.getBaseDatos() != None):
                     #resE = extractTable(arbol.getBaseDatos(),self.valor) 
                     #print("Entro al delete")
                     tablaSelect = extractTable(arbol.getBaseDatos(),self.valor)
+                    if len(tablaSelect) == 0:
+                        error = Excepcion("DEL90", "Semantico", "No se encontraron datos en la tabla «" + self.valor + "».", self.linea, self.columna)
+                        arbol.excepciones.append(error)
+                        arbol.consola.append(error.toString())
+                        return
                     if(self.insWhere != None):
                         #ejecutar el inswhere que me devuelva las columnas
                         arbol.setTablaActual(tablaSelect)
@@ -53,7 +57,6 @@ class DeleteTable(Instruccion):
             col = columnas[x].obtenerNombre()
             res.append(col)
         return res
-
 
     def devolverIdentificadores(self, tabla, fila):
         print(tabla)

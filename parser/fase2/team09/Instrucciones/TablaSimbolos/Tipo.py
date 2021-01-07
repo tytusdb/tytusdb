@@ -30,6 +30,8 @@ class Tipo_Dato(Enum):
     QUERY = 21
     # INDEX
     INDEX = 22
+    # VOID
+    VOID = 23
 
 class Tipo():
     'Esta clase será de utilidad para la comprobación de tipos.'
@@ -83,3 +85,5 @@ class Tipo():
             return "query"
         elif self.tipo == Tipo_Dato.INDEX:
             return "index"
+        elif self.tipo == Tipo_Dato.VOID:
+            return "void"

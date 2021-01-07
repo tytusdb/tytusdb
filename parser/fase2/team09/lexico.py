@@ -66,25 +66,32 @@ reservadas = (
     'COSH', 'TANH', 'ASINH', 'ACOSH', 'ATANH',
     # SORTING ROWS
     'ORDER', 'BY', 'FIRST', 'LAST', 'ASC', 'DESC', 'NULLS', 
-    #EXPRESSIONS
+    # EXPRESSIONS
     'CASE','WHEN','THEN','ELSE', 'LEAST', 'GREATEST',
     #LIMIT AND OFFSET
     'LIMIT', 'OFFSET',
     #COMBINING QUERIES
     'UNION', 'INTERSECT', 'EXCEPT', 'ALL',
-    # Begin
-    'FUNCTION', 'BEGIN', 'END',
-    'DECLARE',
+    # FUNCTIONS
+    'FUNCTION', 'PROCEDURE', 'RETURNS', 'LANGUAGE', 'PLPGSQL', 
+    'DECLARE', 'CONSTANT', 'ALIAS', 'FOR', 'BEGIN', 'END',
+    'ELSIF', #'LOOP',
+    'EXECUTE',
 
-    #### C3D
+    #### OPTIMIZACIÓN C3D
     'IMPORT', 'RETURN', 'DEF', '__INIT__', 
     'SELF', 'CLASS', 'HEAP', 'STACK', 'H', 'P'
 )
 
 tokens = reservadas + (
+    # OPTIMIZACIÓN C3D
     'TEMPORAL',
+    # FUNCIONES
+    'LABEL',
+    'R_PAR',
+    'DP_IGUAL',
     # OPERADORES COMPARADORES
-    'IGUAL', 'BLANCO',
+    'IGUAL',
     'MAYORQ',
     'MENORQ',
     'MAYOR_IGUALQ',
@@ -108,12 +115,15 @@ tokens = reservadas + (
     'ID',
     'CADENA',
     'CARACTER',
-    'COMENTARIO_MULTILINEA',
-    'COMENTARIO_SIMPLE',
     'ARROBA'
 )
 
+# OPTIMIZACIÓN
 t_TEMPORAL = r't[0-9]+'
+# FUNCIONES
+t_LABEL = r'\$\$'
+t_R_PAR = r'\$[0-9]+'
+t_DP_IGUAL = r':\='
 # EXPRESIONES REGULARES BASICAS
 t_ARROBA = r'@'
 t_PARIZQ = r'\('

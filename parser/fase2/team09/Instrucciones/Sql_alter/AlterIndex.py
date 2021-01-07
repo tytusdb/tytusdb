@@ -39,6 +39,10 @@ class AlterIndex(Instruccion):
                     try:
                         int(self.ncolum)
                         self.obtenerCampo(self.ncolum, ntabla, db.tablas)
+                        if isinstance(self.ncolum, Excepcion):
+                            arbol.excepciones.append(self.ncolum)
+                            arbol.consola.append("\n" + self.ncolum.toString())
+                            return
                     except:
                         ncolum = self.ncolum
                         self.ncolum = None
@@ -55,12 +59,18 @@ class AlterIndex(Instruccion):
                     self.ncolum = Campo(self.ncolum.nombre, False, vacio, vacio, "", 0, 0)
                     for j in range(len(indice.campos)):
                         if indice.campos[j].nombre == self.vcolum:
+                            self.ncolum.restricciones = indice.campos[j].restricciones
                             indice.campos[j] = self.ncolum
                             break
                     restricciones = ""
                     for l in indice.campos:
                         restricciones = restricciones + " " + l.nombre + l.restricciones
-                    indice.constraint[len(indice.constraint) - 1] = Cons(restricciones, "campo(s)")
+                    nCons = None
+                    if len(indice.constraint) == 1:
+                        nCons = Cons(restricciones, "campo(s)")
+                    else:
+                        nCons = Cons(restricciones, "<br>campos(s)")
+                    indice.constraint[len(indice.constraint) - 1] = nCons
                     arbol.consola.append("\nSe ha modificado el índice «" + self.nombre + "» correctamente.")
                     return
 
@@ -74,3 +84,5 @@ class AlterIndex(Instruccion):
                         if actual == indice:
                             self.ncolum = atributo
                             return
+                self.ncolum = Excepcion("INX04", "Semántico", "El número de columna «" + str(indice) + "» no se encuentra en el rango de campos de la tabla «" + ntabla + "».", self.linea, self.columna)
+                return

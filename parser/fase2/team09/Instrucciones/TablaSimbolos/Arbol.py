@@ -88,7 +88,7 @@ class Arbol():
         if(self.existeBd(nombreBd) == 1):
             base = self.devolverBaseDeDatos()
             tabla = base.devolverTabla(nombreTabla)
-            if( tabla == 0):
+            if tabla == 0 or tabla is None:
                 print("No se encontro la tabla")
                 return 0
             else:
@@ -97,7 +97,7 @@ class Arbol():
     def devolverColumnasTabla(self,nombreTabla):
         print(nombreTabla)
         tabla = self.devolviendoTablaDeBase(nombreTabla)
-        if(tabla == 0):    
+        if tabla == 0 or tabla is None:
             print("No se encontro la tabla")
             return 0
         else:
