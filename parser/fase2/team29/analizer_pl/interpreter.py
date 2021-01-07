@@ -47,7 +47,7 @@ def traducir(input):
         "symbols": symbols,
         "functions": functions,
     }
-    #grammar.InitTree()
+    grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -94,19 +94,18 @@ def functionsReport(env):
 s = """ 
 CREATE function foo(i integer) RETURNS integer AS $$
 declare 
-	j integer := -i + md5(3+3-md5(4),4);
-	k integer;
+	j integer := -i + 5;
+	k integer:= date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
+    texto text := "3+3"||md5("Francisco");
+    temp integer := fake("yosoyfr"); 
 BEGIN
 	case 
         when i > -10 then
-            k = i;
-            RETURN j * k + 1;
+            RETURN k;
         when i < 10 then
-            k = 1;
-            RETURN j * k + 2;
+            RETURN texto;
         else 
-            k = 2;
-            RETURN j * k + 3;
+            RETURN k;
     end case;
 END;
 $$ LANGUAGE plpgsql;
@@ -115,36 +114,16 @@ CREATE procedure p1() AS $$
 declare 
 	k integer;
 BEGIN
-    drop function foo;
 	k = foo(5);
     k = foo(10);
     k = foo(15);
 END;
 $$ LANGUAGE plpgsql;
 
-drop procedure p1;
+--drop procedure p1;
+execute foo(5);
+execute foo(20);
 """
 
-sql = """
-CREATE DATABASE DBFase2;
-USE DBFase2;
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$ BEGIN RETURN texto;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TABLE tbProducto (
-  idproducto integer not null primary key,
-  producto varchar(150) not null,
-  fechacreacion date not null,
-  estado integer
-);
-CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
-CREATE TABLE tbCalificacion (
-  idcalifica integer not null primary key,
-  item varchar(100) not null,
-  punteo integer not null
-);
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-execute myFuncion("Francisco");
-"""
 
 traducir(s)
