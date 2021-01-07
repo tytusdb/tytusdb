@@ -4,6 +4,11 @@ sys.path.append(nodo_dir)
 
 storage_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\storageManager\\')
 sys.path.append(storage_dir)
+label_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))+"\\C3D\\")
+sys.path.append(label_dir)
+
+from Label import *
+from Temporal import *
 from prettytable import PrettyTable
 from Nodo import Nodo
 from jsonMode import showDatabases
@@ -14,7 +19,7 @@ class Show(Nodo):
         Nodo.__init__(self,nombreNodo, fila, columna, valor)
 
     def execute(self,enviroment = None):
-        #Se debe llamar al metodo showDatabases() -> list:
+     #Se debe llamar al metodo showDatabases() -> list:
         lista = showDatabases()
         if(len(self.hijos) < 3):
             print(lista)
@@ -41,3 +46,20 @@ class Show(Nodo):
 
     def addChild(self, node):
         self.hijos.append(node)
+
+    def compile(self):
+        tmp = instanceTemporal.getTemporal()
+        dir = f"{tmp} = '{self.getText()}'\n"
+        dir += f'display[p] = {tmp}\n'
+        dir += 'p = p + 1'
+        
+
+        return dir
+
+    def getText(self):
+        r = 'SHOW DATABASES '
+        if(len(self.hijos) < 3):
+            return r
+        else:
+            r += f"LIKE '{self.hijos[2].hijos[1].valor}'"
+            return r

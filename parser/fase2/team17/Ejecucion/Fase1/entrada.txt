@@ -1,0 +1,21 @@
+--  Manipulacion de datos
+ CREATE DATABASE IF NOT EXISTS test
+     OWNER = 'root'
+     MODE = 1;
+
+ SHOW DATABASES;
+
+ USE test;
+
+ create table tbcalifica
+ ( iditem integer primary key,
+   item   varchar(150),
+   puntos decimal(8,2),
+   seccion integer
+ );
+
+ insert into tbcalifica values (1,'Funcionalidades básicas',2.0,0);
+ insert into tbcalifica values (2,'Funciones Date-Extract',2.0,0);
+
+use test;
+SELECT * FROM tbcalifica;

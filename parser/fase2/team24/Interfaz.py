@@ -4,7 +4,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import scrolledtext
 import grammar2 as g
-import tablaDGA as TabladeSimbolos
+from variables import tabla as ts
 from reportAST import *
 from reportError import *
 from reportBNF import *
@@ -15,9 +15,10 @@ from reportBNF import *
 import webbrowser as wb
 import OptimizarMirilla as optm
 import OptimizarObjetos as optobj
+# Esta es la lista de objetos
+from procedural import objopt
 
-default_db = 'DB1'
-ts = TabladeSimbolos.Tabla()
+
 
 def analiz(input):
     raiz = g.parse(input)
@@ -47,7 +48,7 @@ def analiz(input):
     ListaAsignaciones.append(optobj.Asignacion("x","y","0","*"))
     ListaAsignaciones.append(optobj.Asignacion("x","0","y","/"))
 
-    #optm.Optimizador(ListaAsignaciones).ejecutar()
+    print(optm.Optimizador(ListaAsignaciones).ejecutar())
     
     for simbolo in ts.simbolos:
         print("ID: " + str(ts.simbolos[simbolo].id) + " Nombre: " + ts.simbolos[simbolo].nombre + " Ambito: " + str(ts.simbolos[simbolo].ambito) + " Tipo indice: " + str(ts.simbolos[simbolo].tipoind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind))
@@ -66,7 +67,7 @@ def traducir(input):
             print('')
         else:
             results.append(res)
-
+    return results
 root = Tk()
 cont = 1
 
@@ -134,20 +135,67 @@ def Analizar():
         consola.insert(str(float(cont)), '\n')
 
 def Analizar2(texto: str):
-    results = analiz(texto)
+    results = traducir(texto)
     global cont
     for res in results:
         #consola.insert(str(float(cont)), res)
-        print(str(float(cont)), res)
+        #print(str(float(cont)), res)
         if isinstance(res,pt.PrettyTable):
             cont += (res.get_string().count('\n')+2)
         else:
             cont += (res.count('\n')+2)
         #consola.insert(str(float(cont)), '\n')
+        consola.insert(str(float(cont)), res)
         print(str(float(cont)), res)
 
+
+# def para escribir el archivo de 3d y mostrarlo en la interfaz
+def escribir3D(entrada):
+
+    a = open("c3d.py", "w")
+
+    a.write('''from InstruccionesDGA import tabla 
+    from datetime import date
+    from InstruccionesDGA import cont 
+    from InstruccionesDGA import NombreDB
+    from tablaDGA import *
+    from sql import * 
+    import mathtrig as mt
+    #Funcion sql.execute
+    
+    pila = []
+    for i in range(100):
+        pila.append(i)
+    
+    def ejecutar(): \n''')
+
+    input = entrada
+
+    raiz = g.parse(input)
+
+    results = []
+    res =''
+    #executeGraphTree(raiz)
+    for val in raiz:
+        res += val.traducir()
+        #pass
+    a.write(res)
+
+    for fa in g.funciones:
+
+        a.write(fa)
+
+    a.write('''ejecutar() ''')
+    a.close()
+
+    f = open('c3d.py', 'r')
+    file_contents = f.read()
+
+    consola.insert(str(float(0)), file_contents)
+
+
 def Traducir():
-    traducir(texto.get("1.0", "end-1c"))
+    escribir3D(texto.get("1.0", "end-1c"))
 def AbrirAST():
     wb.open_new(r'tree.gv.pdf')
 def AbrirBNF():

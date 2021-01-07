@@ -1,5 +1,5 @@
 from .storageManager import jsonMode
-from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCcreateTable,TCcreateType,TCaddCheckTable,TCaddPrimaryKey,TCaddUnique,TCgetToInherit
+from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCcreateTable,TCcreateType,TCaddCheckTable,TCaddPrimaryKey,TCaddUnique,TCgetToInherit,TCcreateIndex
 from .executeExpression import executeExpression,Relational
 from .AST.sentence import ColumnId,ColumnCheck,ColumnConstraint,ColumnUnique,ColumnPrimaryKey,ColumnForeignKey
 from .AST.error import * 
@@ -365,5 +365,24 @@ def executeCreateType(self, typeEnum):
             print_error("SEMANTIC ERROR",'Mode between 1-5')
             return 1
 
+def executeCreateUnique(self,unique):
+    database=TCgetDatabase()
+    mode=TCSearchDatabase(database)
+    ascdesc='ASC'
+    if(len(unique.ascdesc)==2):
+        ascdesc=unique.ascdesc[1]
+    if(mode==1):
+        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower())
+    elif(mode==2):
+        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower()) 
+    elif(mode==3):
+        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower()) 
+    elif(mode==4):
+        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower())
+    elif(mode==8):
+        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower())
+    else:
+        print_error("SEMANTIC ERROR",'Mode between 1-5')
+        return 1
 
     

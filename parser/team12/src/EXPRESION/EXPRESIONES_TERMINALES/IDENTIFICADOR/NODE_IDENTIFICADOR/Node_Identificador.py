@@ -93,3 +93,8 @@ class Identificator_Expresion(Expresion):
                 self.valorExpresion = None 
                 return self.valorExpresion
             
+    def compile(self, eviroment):
+        print("text")
+
+    def getText(self):
+        return self.valor

@@ -13,7 +13,7 @@ class BodyDeclaration(Instruction):
 
         if self.declare is not None:
             for declaration in self.declare:
-                print(declaration)
+                # print(declaration)
                 declaration.compile(enviroment)
 
         if self.begin is not None:
