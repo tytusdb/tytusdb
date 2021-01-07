@@ -124,7 +124,10 @@ def analizador():
         entornoCero.NuevoAmbito()
         print(result)
         for item in result.instrucciones:
-            item.traducir(entornoCero, result)
+            if item == None:
+                pass
+            else:
+                item.traducir(entornoCero, result)
         print("C3D generado:")
         print(result.getC3D())
 

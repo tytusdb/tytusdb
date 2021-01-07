@@ -16,8 +16,14 @@ class retorno_simple(NodoArbol):
         pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
-        tmp = self.exp.traducir(entorno, arbol)
-        arbol.addC3D("return " + str(tmp) + "")
+        try:
+            if self.exp == None:
+                arbol.addC3D("return")
+            else:
+                tmp = self.exp.traducir(entorno, arbol)
+                arbol.addC3D("return " + str(tmp) + "")
+        except:
+            arbol.addC3D("return")
         return
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):

@@ -37,6 +37,8 @@ from InterpreteF2.DML.show.show import Show
 from InterpreteF2.DML.use.use import Use
 from InterpreteF2.Primitivos.CADENAS import CADENAS
 from InterpreteF2.Primitivos.ENTERO import ENTERO
+from InterpreteF2.Primitivos.DECIMAL import DECIMAL
+from InterpreteF2.Primitivos.BOOLEANO import BOOLEANO
 from InterpreteF2.RAISE.RAISE_simple import RAISE_simple
 from InterpreteF2.RAISE.RAISE_complex import RAISE_complex
 from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
@@ -545,6 +547,12 @@ def p_instruction(t):
 # ------------------------------- PL/PGSQL ---------------------------------------------
 # --------------------------------------------------------------------------------------
 
+def p_cierreplpgsql(t):
+    '''
+        statements : DOLAR DOLAR LANGUAGE ID
+    '''
+    t[0] = None
+
 def p_plpgsql(t):
     '''
         plpgsql : functions_or_procedures definitions BEGIN definitions plpgsql_ending
@@ -789,11 +797,14 @@ def p_statements_return(t):
                | RETURN QUERY select
                | RETURN QUERY EXECUTE exp
                | RETURN QUERY EXECUTE exp USING exp_list
+               | RETURN
     '''
     if len(t) == 3:
         t[0] = retorno_simple(t[2], 1, 1)
     elif len(t) == 4:
         t[0] = retorno_simple(t[3], 1, 1)
+    elif len(t) == 2:
+        t[0] = retorno_simple(None, 1, 1)
     else:
         t[0] = retorno_simple(t[4], 1, 1)
     set('<TR> \n <TD> return → RETURN exp | RETURN QUERY select | RETURN QUERY select | RETURN QUERY EXECUTE exp | RETURN QUERY EXECUTE exp USING exp_list: </TD> \n <TD> return = return(t[2], t[4]) </TD> \n </TR> \n')
@@ -2293,7 +2304,7 @@ def p_expSimples_decimal(t):
     '''
         expSimple   :   TKDECIMAL
     '''
-    #t[0] = DECIMAL(t[1],1,1)
+    t[0] = DECIMAL(t[1],1,1)
     set('<TR> \n <TD> expSimples  → DECIMAL: </TD> \n <TD> expSimple  = decimal(t[1]) </TD> \n </TR> \n')
 
 
@@ -2316,7 +2327,7 @@ def p_expSimples_true(t):
     '''
         expSimple   :   TRUE
     '''
-    #t[0] = BOOLEANO(True,1,1)
+    t[0] = BOOLEANO('true',1,1)
     set('<TR> \n <TD> expSimples  → TRUE: </TD> \n <TD> expSimple  = BOOLEANO(True,1,1) </TD> \n </TR> \n')
 
 
@@ -2324,7 +2335,7 @@ def p_expSimples_false(t):
     '''
         expSimple  :   FALSE
     '''
-    #t[0] = BOOLEANO(False,1,1)
+    t[0] = BOOLEANO('false',1,1)
     set('<TR> \n <TD> expSimples  → FALSE: </TD> \n <TD> expSimple  = BOOLEANO(False,1,1) </TD> \n </TR> \n')
 
 
