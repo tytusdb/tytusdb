@@ -697,6 +697,80 @@ def encrypt(backup,clave):
         devuelve = "1"
     return devuelve
 
+def checksumDatabase(database , mode):
+    texto = ""
+    if buscar(database) is not None:
+        if mode == "MD5" or mode == "SHA256":
+            lista = showTables(database)
+            texto = texto + database
+            for i in lista:
+                texto = texto + i
+                for j in extractTable(database, i):
+                    texto = texto + "".join(j)
+            #print(texto)
+            if mode == "MD5":
+                return md5str(texto)
+            else:
+                return sha256str(texto)
+        else:
+            return None
+    else:
+        return None
+
+def checksumTable(database, table, mode):
+    texto = ""
+    if buscar(database) is not None:
+        if mode == "MD5" or mode == "SHA256":
+            lista = showTables(database)
+            for i in lista:
+                if (i == table):
+                    texto = texto + i
+                for j in extractTable(database, i):
+                    if (i == table):
+                        texto = texto + "".join(j)
+
+            #print(texto)
+            if mode == "MD5":
+                return md5str(texto)
+            else:
+                return sha256str(texto)
+        else:
+            return None
+    else:
+        return None
+
+def md5str(cadena):
+    md5_hash = hashlib.md5()
+    md5_hash.update(cadena.encode('utf8'))
+    digest = md5_hash.hexdigest()
+    return digest
+
+def sha256str(cadena):
+    md5_hash = hashlib.sha256()
+    md5_hash.update(cadena.encode('utf8'))
+    digest = md5_hash.hexdigest()
+    return digest
+
+def alterDatabaseEncoding(database , en):
+    if not en in encoding:
+        return 3
+    else:
+        db = buscar(database)
+        if db is None:
+            return 2
+        else:
+            db[2] = en
+            return 0
+
+def Codtexto(database , texto):
+    for db in lista_db:
+        if database == db[0]:
+            try:
+                texto.encode(db[2])
+                return True
+            except:
+                return False
+
 
 os.system('cls')
 print(encrypt("este es el mensaje","llave"))
