@@ -6,8 +6,10 @@ import os
 import pathlib
 from campo import Campo, MyDialog
 from arbol import Arbol
+from PIL import ImageTk, Image
 import http.client
 import json
+from PIL.ImagePalette import load
 
 formularios=[]
 textos=[]
@@ -253,11 +255,19 @@ def guardarComo():
 
 def CrearVentana():
     global raiz
+    global load
     raiz = Tk()
     #Configuracion de ventana
-    raiz.title("TytuSQL") #Cambiar el nombre de la ventana
+    raiz.title("TytuDB") #Cambiar el nombre de la ventana
+    #cambiar icono de pantalla
+    load = Image.open("../team08/resources/icondb.png")
+    render = ImageTk.PhotoImage(load)
+    img = Label(raiz, image=render)
+    img.image = render
+    img.place(x=0, y=0)
+    raiz.iconphoto(False, ImageTk.PhotoImage(load))
     #raiz.iconbitmap('resources/icon.ico')
-    raiz.configure(bg='gray21')
+    raiz.configure(bg='gray20')
     raiz.rowconfigure(0, minsize=800, weight=1)
     raiz.columnconfigure(1, minsize=800, weight=1)
     raiz.config(menu=CrearMenu(raiz), background='silver')

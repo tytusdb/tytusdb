@@ -29,7 +29,7 @@ class AST:
         global dot
         dot.render("test-output/round-table.gv", view=False)
         "test-output/round-table.gv.jpg"
-        dot.format = "png"
+        dot.format = "svg"
         dot.render("test-output/round-table.gv", view=False)
-        "test-output/round-table.gv.jpg"
+        "test-output/round-table.gv.svg"
         dot = Digraph(comment="AST")

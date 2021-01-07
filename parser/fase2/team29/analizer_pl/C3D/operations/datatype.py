@@ -16,7 +16,7 @@ class Identifier(Expression):
         if environment.isBlock:
             return C3D("", self.id, self.row, self.column)
         if environment.getVar(self.id):
-            return C3D("", "\"+str("+self.id+")+\"", self.row, self.column)
+            return C3D("", '"+str(' + self.id + ')+"', self.row, self.column)
 
         return C3D("", self.id, self.row, self.column)
 
@@ -41,14 +41,13 @@ class BinaryExpression(Expression):
             )
             return op.execute(environment)
 
-        c3d  = ""
+        c3d = ""
         val1 = self.exp1.execute(environment)
         c3d += val1.temp
         c3d += self.operator
         val2 = self.exp2.execute(environment)
         c3d += val2.temp
-        return C3D(val1.value+val2.value, c3d, self.row, self.column)
-
+        return C3D(val1.value + val2.value, c3d, self.row, self.column)
 
     def dot(self):
         n1 = self.exp1.dot()
