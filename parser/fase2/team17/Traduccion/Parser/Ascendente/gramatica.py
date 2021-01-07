@@ -1,5 +1,5 @@
 from InterpreteF2.DML.create.createdatabase import CreateDatabase
-from Interprete.CREATE_TABLE.create_table import CreateTable
+from InterpreteF2.DML.create.createtable import CreateTable
 from InterpreteF2.DML.drops.dropdatabase import DropDatabase
 from Interprete.DROP_TABLE.drop_table import DropTable
 from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relacionales
@@ -12,12 +12,14 @@ from Interprete.SELECT.select_simples_date import Select_simples_date
 from Interprete.SHOW_DATABASES.show_databases import ShowDatabases
 from Interprete.USE_DATABASE.use_database import UseDatabase
 from InterpreteF2.DML.alter.alterdatabase import AlterDatabase
+from InterpreteF2.DML.alter.altertable import AlterTable
 from Interprete.CREATE_TABLE import clases_auxiliares
 from InterpreteF2.DML.update.update import Update
 from Interprete.OperacionesConExpresiones.OperadoresCondicionales import OperadoresCondicionales
 from Interprete.OperacionesConExpresiones.OperacionesLogicas import OperacionesLogicas
 from Interprete.SELECT.Select_simples import Select_simples
 from Interprete.TYPE.type import type
+from InterpreteF2.DML.create.type import Type
 from Interprete.SELECT.Select_simple_simple import select_simple_simple
 from Interprete.Insert.AccesoType import AccesoType
 from Interprete.SELECT.Select_Trig import Select_Trig
@@ -1304,6 +1306,7 @@ def p_DataManipulationLenguage_alter_table(t):
     '''
         DataManipulationLenguage  : alter_table
     '''
+    t[0] = t[1]
     set('<TR> \n <TD> DataManipulationLenguage → alter_table : </TD> \n <TD>  DataManipulationLenguage = AlterTable() </TD> \n </TR> \n')
 
 def p_DataManipulationLenguage_create_type(t):
@@ -1453,6 +1456,17 @@ def p_exp_list(t):
     else:
         t[0] = [t[1]]
         set('\n <TR><TD> exo_list → exp  </TD><TD> t[0] = [t[1]] </TD> </TR> ')
+
+
+def p_expF2_list(t):
+    '''
+        expF2_list   : expF2_list COMA expF2
+                       | expF2
+    '''
+    if len(t) == 4:
+        t[0] = t[1] + ', ' + t[3]
+    else:
+        t[0] = t[1]
 
 # --------------------------------------------------------------------------------------
 # ------------------------------------ EXPRESSION  --------------------------------------------
@@ -2339,6 +2353,787 @@ def p_expSimples_false(t):
     set('<TR> \n <TD> expSimples  → FALSE: </TD> \n <TD> expSimple  = BOOLEANO(False,1,1) </TD> \n </TR> \n')
 
 
+
+# --------------------------------------------------------------------------------------
+# ------------------------------------ expF2RESSION  --------------------------------------------
+# --------------------------------------------------------------------------------------
+def p_expF2_call(t):
+    '''
+        expF2   : LOWER PARIZQ expF2 PARDER
+              |       PARIZQ expF2 PARDER
+    '''
+    if len(t)==4:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+        set('<TR> \n <TD> expF2 → LOWER PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = lower(t[3]) </TD> \n </TR> \n')
+    else:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+
+        set('<TR> \n <TD> expF2 →  PARIZQ expF2 PARDER: </TD> \n <TD>  expF2  = t[3] </TD> \n </TR> \n')
+
+
+
+def p_expF2_count(t):
+    '''
+        expF2   : COUNT PARIZQ expF2 PARDER
+              | COUNT PARIZQ MULTI PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+
+def p_expF2_sum(t):
+    '''
+        expF2   : SUM PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → SUM PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = sum(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_avg(t):
+    '''
+        expF2   : AVG PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → AVG PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = avg(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_greatest(t):
+    '''
+        expF2   : GREATEST PARIZQ expF2_list PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → GREATEST PARIZQ expF2_list PARDER: </TD> \n <TD>  expF2 = avg(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_least(t):
+    '''
+        expF2   : LEAST PARIZQ expF2_list PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → LEAST PARIZQ expF2_list PARDER: </TD> \n <TD>  expF2 = least(t[3]) </TD> \n </TR> \n')
+
+
+def p_expF2_max(t):
+    '''
+        expF2   : MAX PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → MAX PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = max(t[3]) </TD> \n </TR> \n')
+
+
+def p_expF2_min(t):
+    '''
+        expF2   : MIN PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → MIN PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = min(t[3]) </TD> \n </TR> \n')
+
+
+def p_expF2_abs(t):
+    '''
+        expF2   : ABS PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → ABS PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = abs(t[3]) </TD> \n </TR> \n')
+
+
+def p_expF2_cbrt(t):
+    '''
+        expF2   : CBRT PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → CBRT PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = cbrt(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_ceil(t):
+    '''
+        expF2   : CEIL PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → CEIL PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = ceil(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_ceiling(t):
+    '''
+        expF2   : CEILING PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → CEILING PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = ceiling(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_degrees(t):
+    '''
+        expF2   : DEGREES PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → DEGREES PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = degrees(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_div(t):
+    '''
+        expF2   : DIV PARIZQ expF2_list PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → DIV PARIZQ expF2_list PARDER: </TD> \n <TD>  expF2 = div(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_tkexp(t):
+    '''
+        expF2   : TKEXP PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → TKexpF2 PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = expF2(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_factorial(t):
+    '''
+        expF2   : FACTORIAL PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → FACTORIAL PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = factorial(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_floor(t):
+    '''
+        expF2   : FLOOR PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → FLOOR PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = floor(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_gcd(t):
+    '''
+        expF2   : GCD PARIZQ expF2_list PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → GCD PARIZQ expF2_list PARDER: </TD> \n <TD>  expF2 = gcd(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_ln(t):
+    '''
+        expF2   : LN PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → LN PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = ln(t[3]) </TD> \n </TR> \n')
+
+def p_expF2_log(t):
+    '''
+        expF2   : LOG PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → LOG PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = Select_simples(t[3], "LOG", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_mod(t):
+    '''
+        expF2   : MOD PARIZQ expF2_list PARDER
+   '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → MOD PARIZQ expF2_list PARDER: </TD> \n <TD>  expF2 = Select_simples(t[3], "MOD", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_pi(t):
+    '''
+        expF2   : PI PARIZQ PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+
+    set('<TR> \n <TD> expF2 → PI PARIZQ PARDER: </TD> \n <TD> expF2 = Select_simples(None, "PI", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_power(t):
+    '''
+        expF2   : POWER PARIZQ expF2_list PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → POWER PARIZQ expF2_list PARDER: </TD> \n <TD> expF2 = Select_simples(t[3], "POWER", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_radians(t):
+    '''
+        expF2   : RADIANS PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → RADIANS PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_simples(t[3], "RADIANS", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_round(t):
+    '''
+        expF2   : ROUND PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 →  ROUND PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_simples(t[3], "ROUND", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_sign(t):
+    '''
+        expF2   : SIGN PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → SIGN PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_simples(t[3], "SIGN", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_sqrt(t):
+    '''
+        expF2   : SQRT PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → SQRT PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_simples(t[3], "SQRT", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_width(t):
+    '''
+        expF2   : WIDTH_BUCKET PARIZQ expF2 COMA expF2 COMA expF2 COMA expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8] + ' ' + t[9] + ' ' + t[10]
+    set('<TR> \n <TD> expF2 → WIDTH_BUCKET PARIZQ expF2 COMA expF2 COMA expF2 COMA expF2 PARDER: </TD> \n <TD> expF2 = Select_simples(t[3], "WB", 1, 1) </TD> \n </TR> \n')
+
+
+
+def p_expF2_trunc(t):
+    '''
+        expF2   : TRUNC PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+    set('<TR> \n <TD> expF2 → TRUNC PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_simples(t[3], "TRUNC", 1, 1) </TD> \n </TR> \n')
+
+
+
+def p_expF2_random(t):
+    '''
+        expF2   : RANDOM PARIZQ PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    pass
+    set('<TR> \n <TD> expF2 → RANDOM PARIZQ PARDER: </TD> \n <TD> expF2 = Select_simples(None, "RANDOM", 1, 1) </TD> \n </TR> \n')
+
+
+#==================================================================================
+#================================Fin Funciones Trigonometricas  ===================
+#==================================================================================
+
+def p_expF2_acos(t):
+    '''
+        expF2   : ACOS PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 →  ACOS PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"acos", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_acosd(t):
+    '''
+        expF2   : ACOSD PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 →  ACOSD PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"acosd", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_asin(t):
+    '''
+        expF2   : ASIN PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 →  ASIN PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"asin", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_asind(t):
+    '''
+        expF2   : ASIND PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → ASIND PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"asind", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_atan(t):
+    '''
+        expF2   : ATAN PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → ATAN PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"atan", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_atand(t):
+    '''
+        expF2   : ATAND PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → ATAND PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"atand", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_atan2(t):
+    '''
+        expF2   : ATAN2 PARIZQ expF2 COMA expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    set('<TR> \n <TD> expF2 → ATAN2 PARIZQ expF2 COMA expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig([t[3],t[5]],"atan2", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_atan2d(t):
+    '''
+        expF2   : ATAN2D PARIZQ expF2 COMA expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    set('<TR> \n <TD> expF2 → ATAN2D PARIZQ expF2 COMA expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig([t[3],t[5]],"atan2d", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_cos(t):
+    '''
+        expF2   : COS PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → COS PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"cos", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_cosd(t):
+    '''
+        expF2   : COSD PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → COSD PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"cosd", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_cot(t):
+    '''
+        expF2   : COT PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → COT PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"cot", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_cotd(t):
+    '''
+        expF2   : COTD PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → COTD PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"cotd", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_sin(t):
+    '''
+        expF2   : SIN PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → SIN PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"sin", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_sind(t):
+    '''
+        expF2   : SIND PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → SIND PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"sind", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_tan(t):
+    '''
+        expF2   : TAN PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → TAN PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"tan", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_tand(t):
+    '''
+        expF2   : TAND PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → TAND PARIZQ expF2 PARDERR: </TD> \n <TD> expF2 = Select_Trig(t[3],"tand", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_sinh(t):
+    '''
+        expF2   : SINH PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → SINH PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"sinh", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_cosh(t):
+    '''
+        expF2   : COSH PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → COSH PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"cosh", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_tanh(t):
+    '''
+        expF2   : TANH PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → TANH PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"tanh", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_asinh(t):
+    '''
+        expF2   : ASINH PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → ASINH PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"asinh", 1,1) </TD> \n </TR> \n')
+
+
+
+def p_expF2_acosh(t):
+    '''
+        expF2   : ACOSH PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → ACOSH PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"acosh", 1,1) </TD> \n </TR> \n')
+
+
+def p_expF2_atanh(t):
+    '''
+        expF2   : ATANH PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → ATANH PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_Trig(t[3],"atanh", 1,1) </TD> \n </TR> \n')
+
+
+#==================================================================================
+#================================Fin Funciones Trigonometricas  ===================
+#==================================================================================
+
+def p_expF2_length(t):
+    '''
+        expF2   : LENGTH PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → LENGTH PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "LENGTH", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_substring(t):
+    '''
+        expF2   : SUBSTRING PARIZQ expF2 COMA expF2 COMA expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8]
+    set('<TR> \n <TD> expF2 → SUBSTRING PARIZQ expF2 COMA expF2 COMA expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "SUBSTRING", 1, 1, t[5], t[7]) </TD> \n </TR> \n')
+
+
+def p_expF2_trim(t):
+    '''
+        expF2   : TRIM PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → TRIM PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "TRIM", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_md5(t):
+    '''
+        expF2   : MD5 PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → MD5 PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "MD5", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_sha256(t):
+    '''
+        expF2   : SHA256 PARIZQ expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 → SHA256 PARIZQ expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "SHA256", 1, 1) </TD> \n </TR> \n')
+
+
+def p_expF2_substr(t):
+    '''
+        expF2   : SUBSTR PARIZQ expF2 COMA expF2 COMA expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8]
+    set('<TR> \n <TD> expF2 → SUBSTR PARIZQ expF2 COMA expF2 COMA expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "SUBSTR", 1, 1, t[5], t[7]) </TD> \n </TR> \n')
+
+
+def p_expF2_getbyte(t):
+    '''
+        expF2   : GET_BYTE PARIZQ expF2 COMA expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    set('<TR> \n <TD> expF2 → GET_BYTE PARIZQ expF2 COMA expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "GET_BYTE", 1, 1, t[5]) </TD> \n </TR> \n')
+
+
+def p_expF2_setbyte(t):
+    '''
+        expF2   : SET_BYTE PARIZQ expF2 COMA expF2 COMA expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8]
+    set('<TR> \n <TD> expF2 → SET_BYTE PARIZQ expF2 COMA expF2 COMA expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "SET_BYTE", 1, 1, t[5], t[7]) </TD> \n </TR> \n')
+
+
+def p_expF2_convert(t):
+    '''
+        expF2   : CONVERT PARIZQ expF2 AS typesF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    set('<TR> \n <TD> expF2 → CONVERT PARIZQ expF2 AS types PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "CONVERT", 1, 1, t[5]) </TD> \n </TR> \n')
+
+
+def p_expF2_encode(t):
+    '''
+        expF2   : ENCODE PARIZQ expF2 COMA expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    set('<TR> \n <TD> expF2 → ENCODE PARIZQ expF2 COMA expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "ENCODE", 1, 1, t[5]) </TD> \n </TR> \n')
+
+
+def p_expF2_decode(t):
+    '''
+        expF2   : DECODE PARIZQ expF2 COMA expF2 PARDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    set('<TR> \n <TD> expF2 → DECODE PARIZQ expF2 COMA expF2 PARDER: </TD> \n <TD> expF2 = Select_simples_binarias(t[3], "DECODE", 1, 1, t[5]) </TD> \n </TR> \n')
+
+
+
+def p_expF2_opunary(t):
+    '''
+        expF2   : ORBB expF2
+              | ORBBDOBLE expF2
+              | NOTBB expF2
+              | MAS expF2
+              | MENOS expF2
+              | NOT expF2
+              | IS expF2
+              | EXISTS expF2
+    '''
+    t[0] = t[1] + ' ' + t[2]
+    set('<TR> \n <TD> expF2 → ORBB expF2 | ORBBDOBLE expF2 | NOTBB expF2 | MAS expF2 | MENOS expF2 | NOT expF2 | IS expF2 | EXISTS expF2: </TD> \n <TD> expF2 = expF2(t[1]) </TD> \n </TR> \n')
+
+
+def p_expF2_between(t):
+    '''
+        expF2 : expF2 BETWEEN expF2
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    set('<TR> \n <TD> expF2 → expF2 BETWEEN expF2: </TD> \n <TD> expF2 = expF2(t[1], t[3]) </TD> \n </TR> \n')
+
+def p_expF2_distinct(t):
+    '''
+         expF2  : expF2 IS DISTINCT FROM expF2
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
+    set('<TR> \n <TD> expF2 → expF2 IS DISTINCT FROM expF2: </TD> \n <TD> expF2 = expF2(t[1], t[5]) </TD> \n </TR> \n')
+
+def p_expF2_notdistinct(t):
+    '''
+         expF2  : expF2 IS NOT DISTINCT FROM expF2
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    set('<TR> \n <TD> expF2 → expF2 IS NOT DISTINCT FROM expF2: </TD> \n <TD> expF2 = expF2(t[1], t[5]) </TD> \n </TR> \n')
+
+
+def p_expF2(t):
+    '''
+        expF2   : expF2 ANDBB       expF2
+              | expF2 ORBB        expF2
+              | expF2 NUMERAL     expF2
+              | expF2 SHIFTIZQ    expF2
+              | expF2 SHIFTDER    expF2
+              | expF2 TKEXP       expF2
+              | expF2 MULTI       expF2
+              | expF2 DIVISION    expF2
+              | expF2 MODULO      expF2
+              | expF2 MAS         expF2
+              | expF2 MENOS       expF2
+              | expF2 LIKE        expF2
+              | expF2 ILIKE       expF2
+              | expF2 SIMILAR     expF2
+              | expF2 NOT         expF2
+              | expF2 IN          expF2
+              | expF2 IGUALQUE expF2
+              | expF2 IGUAL expF2
+              | expF2 MAYORQUE    expF2
+              | expF2 MENORQUE    expF2
+              | expF2 MAYORIG     expF2
+              | expF2 MENORIG     expF2
+              | expF2 IS          expF2
+              | expF2 ISNULL      expF2
+              | expF2 NOTNULL     expF2
+              | expF2 AND         expF2
+              | expF2 OR          expF2
+              | expSimpleF2
+              | dateFunctionF2
+              | expF2 NOT IN expF2
+    '''
+    if len(t) == 5:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    elif len(t) == 4:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    else:
+        t[0] = t[1]
+    set('<TR> \n <TD> expF2 → expF2 ANDBB expF2| expF2 ORBB expF2 | expF2 NUMERAL expF2 | expF2 SHIFTIZQ expF2 | expF2 SHIFTDER expF2 | expF2 TKexpF2 expF2 | expF2 MULTI expF2 | expF2 DIVISION expF2 | expF2Simple| dateFunction | expF2 NOT IN expF2: </TD> \n <TD> expF2 = expF2(t[1], t[5]) </TD> \n </TR> \n')
+
+
+# --------------------------------------------------------------------------------------
+# ------------------------------------ EXP SIMPLEF2 --------------------------------------
+# --------------------------------------------------------------------------------------
+def p_expSimplesF2(t):
+    '''
+        expSimpleF2   : NULL
+                    | subqueryF2
+                    | DISTINCT expF2
+    '''
+    if len(t) == 3:
+        t[0] = t[1] + ' ' + t[2]
+    else:
+        t[0] = t[1]
+    set('<TR> \n <TD> expSimpleF2 → subquery </TD> \n <TD>  exp = select() </TD> \n </TR> \n')
+
+def p_dateFunctionF2(t):
+    '''
+        dateFunctionF2 : EXTRACT PARIZQ time FROM TIMESTAMP expF2 PARDER
+                     | DATE_PART PARIZQ CADENA COMA INTERVAL expF2 PARDER
+                     | NOW PARIZQ PARDER
+                     | CURRENT_DATE
+                     | CURRENT_TIME
+                     | TIMESTAMP CADENA
+    '''
+    if t[1].lower() == "extract":
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7]
+    elif t[1].lower() == "date_part":
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7]
+    elif t[1].lower() == "now":
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    elif t[1].lower() == "current_date":
+        t[0] = t[1]
+    elif t[1].lower() == "current_time":
+        t[0] = t[1]
+    elif t[1].lower() == "timestamp":
+        t[0] = t[1] + ' ' + t[2]
+    set('<TR> \n <TD> dataFunction → datef: </TD> \n <TD>  exp = dateFUNCTION(t[3]) </TD> \n </TR> \n')
+
+
+def p_expSimplesF2_ACCESO_TYPE(t):
+    '''
+        expSimpleF2 : ID CORIZQ expF2 CORDER
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expSimpleF2  → ID CORIZQ exp CORDER : </TD> \n <TD> expSimpleF2  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
+
+def p_expSimplesF2_ALIAS_MULTI(t):
+    '''
+        expSimpleF2 : ID PT MULTI
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    set('<TR> \n <TD> expSimpleF2  → ID PT MULTI : </TD> \n <TD> expSimpleF2  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
+
+def p_expSimplesF2_MULTI(t):
+    '''
+        expSimpleF2 : MULTI
+    '''
+    t[0] = t[1]
+    set('<TR> \n <TD> expSimpleF2  → MULTI : </TD> \n <TD> expSimpleF2  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
+
+
+def p_expSimplesF2_ID(t):
+    '''
+        expSimpleF2 : ID
+    '''
+    t[0] = t[1]
+    set('<TR> \n <TD> expSimpleF2  → ID : </TD> \n <TD> expSimpleF2  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
+
+def p_expSimplesF2_ID_PT_ID(t):
+    '''
+        expSimpleF2 : ID PT ID
+    '''
+    t[0] = t[1] + t[2] + t[3]
+    set('<TR> \n <TD> expSimpleF2  → ID PT ID : </TD> \n <TD> expSimpleF2  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
+
+def p_expSimplesF2_ID_ID(t):
+    '''
+        expSimpleF2 : ID ID
+    '''
+    t[0] = t[1] + ' ' + t[2]
+    set('<TR> \n <TD> expSimpleF2  → ID ID: </TD> \n <TD> expSimpleF2  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
+
+def p_expSimplesF2_exp_AS_ID(t):
+    '''
+        expSimpleF2 : ID AS ID
+                  | expF2 AS CADENA
+                  | expF2 AS ID
+                  | expF2 AS CADENADOBLE
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    set('<TR> \n <TD> expSimpleF2  →  exp AS CADENA | exp AS ID | exp AS CADENADOBLE : </TD> \n <TD> expSimpleF2  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
+
+# --------------------------------------------------------------------------------------
+# ----------------------------------------- SUBQUERY --------------------------------------
+# --------------------------------------------------------------------------------------
+def p_subqueryF2(t):
+    '''
+        subqueryF2 : PARIZQ select PARDER
+                 | PARIZQ select PARDER ID
+                 | PARIZQ select PARDER AS ID
+    '''
+    if len(t) == 4:
+        #PARIZQ select PARDER
+        pass
+    elif len(t) == 5:
+        #PARIZQ select PARDER ID
+        t[0] = indexador_auxiliar(t[2], t[4], 2)
+    elif len(t) == 6:
+        #PARIZQ select PARDER AS ID
+        t[0] = indexador_auxiliar(t[2], t[5], 2)
+        pass
+    set('<TR> \n <TD> subquery  → PARIZQ select PARDER : </TD> \n <TD> subquery  = select(t[1]) </TD> \n </TR> \n')
+
+
+def p_expSimplesF2_entero(t):
+    '''
+        expSimpleF2   :   ENTERO
+    '''
+    t[0] = str(t[1])
+    set('<TR> \n <TD> expSimplesF2  → ENTERO: </TD> \n <TD> expSimpleF2  = entorno(t[1]) </TD> \n </TR> \n')
+
+
+def p_expSimplesF2_decimal(t):
+    '''
+        expSimpleF2   :   TKDECIMAL
+    '''
+    t[0] = str(t[1])
+    set('<TR> \n <TD> expSimplesF2  → DECIMAL: </TD> \n <TD> expSimpleF2  = decimal(t[1]) </TD> \n </TR> \n')
+
+
+def p_expSimplesF2_cadenas(t):
+    '''
+        expSimpleF2   :   CADENA
+    '''
+    t[0] = '\'' + t[1] + '\''
+    set('<TR> \n <TD> expSimplesF2  → CADENA: </TD> \n <TD> expSimpleF2  = cadena(t[1]) </TD> \n </TR> \n')
+
+def p_expSimplesF2_cadenadoble(t):
+    '''
+        expSimpleF2   :   CADENADOBLE
+    '''
+    t[0] = '\"' + t[1] + '\"'
+    set('<TR> \n <TD> expSimplesF2  → CADENADOBLE: </TD> \n <TD> expSimpleF2  = cadena(t[1]) </TD> \n </TR> \n')
+
+
+def p_expSimplesF2_true(t):
+    '''
+        expSimpleF2   :   TRUE
+    '''
+    t[0] = t[1]
+    set('<TR> \n <TD> expSimplesF2  → TRUE: </TD> \n <TD> expSimpleF2  = BOOLEANO(True,1,1) </TD> \n </TR> \n')
+
+
+def p_expSimplesF2_false(t):
+    '''
+        expSimpleF2  :   FALSE
+    '''
+    t[0] = t[1]
+    set('<TR> \n <TD> expSimplesF2  → FALSE: </TD> \n <TD> expSimpleF2  = BOOLEANO(False,1,1) </TD> \n </TR> \n')
+
+
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- TABLE CREATE --------------------------------------
 # --------------------------------------------------------------------------------------
@@ -2351,15 +3146,20 @@ def p_createTB(t):
     '''
     if len(t)==9:
         # CREATE TABLE ID PARIZQ atributesTable COMA especs inherits
-        t[0] = CreateTable(t.lineno, 0, t[3], t[5], t[7], t[8])
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8]
+        t[0] = CreateTable(string, 1, 1)
     if len(t)==7:
         # CREATE TABLE ID PARIZQ atributesTable inherits
-        t[0] = CreateTable(t.lineno, 0, t[3], t[5], None, t[6])
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+        t[0] = CreateTable(string, 1, 1)
     if len(t)==12:
-        t[0] = CreateTable(t.lineno, 0, t[6], t[8], t[10], t[11])
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8] + ' ' + t[9] + ' ' + t[10] + ' ' + t[11]
+        t[0] = CreateTable(string, 1, 1)
     if len(t)==10:
         #CREATE TABLE IF NOT EXISTS ID PARIZQ atributesTable inherits
-        t[0] = CreateTable(t.lineno, 0, t[6], t[8], None, t[9])
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8] + ' ' + \
+                 t[9]
+        t[0] = CreateTable(string, 1, 1)
 
     set('<TR> \n <TD> creatTB  → CREATE TABLE ID PARIZQ atributesTable COMA especs inherits: </TD> \n <TD> createTB  = t[1] </TD> \n </TR> \n')
 
@@ -2367,7 +3167,7 @@ def p_inherits(t):
     '''
         inherits : PARDER INHERITS PARIZQ ID PARDER
     '''
-    t[0] = clases_auxiliares.Inherits(t[4])
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
     set('<TR> \n <TD> inherits  → PARDER INHERITS PARIZQ ID PARDER: </TD> \n <TD> clases_auxiliares.Inherits(t[4]) </TD> \n </TR> \n')
 
 
@@ -2375,7 +3175,7 @@ def p_inherits_parder(t):
     '''
         inherits : PARDER
     '''
-    t[0] = None
+    t[0] = t[1]
 
 
 def p_atributesTable(t):
@@ -2384,12 +3184,12 @@ def p_atributesTable(t):
                      | atributeTable
     '''
     if len(t) == 4:
-        t[0] = t[1]
-        t[0].append(t[3])
+        t[0] = t[1] + ', ' + t[3]
         set('\n <TR><TD>  atributesTable → atributesTable COMA atributeTable  </TD><TD> t[0] = t[1] </TD> </TR> ')
     else:
-        t[0] = [t[1]]
+        t[0] = t[1]
         set('\n <TR><TD>  atributesTable → atributeTable </TD><TD> atributesTable = t[1] </TD> </TR> ')
+
 
 def p_especs(t):
     '''
@@ -2397,34 +3197,44 @@ def p_especs(t):
                          | nextespec
     '''
     if len(t) == 4:
-        t[0] = t[1]
-        t[0].append(t[3])
+        t[0] = t[1] + ', ' + t[3]
         set('\n <TR><TD>  especs → especs COMA nextespec </TD><TD> t[0] = t[1] </TD> </TR> ')
     else:
-        t[0] = [t[1]]
+        t[0] = t[1]
+        set('\n <TR><TD>  especs → nextespec </TD><TD> especs = t[1] </TD> </TR> ')
+
+
+def p_idlistF2(t):
+    '''
+        idlistF2 : idlistF2 COMA ID
+                 | ID
+    '''
+    if len(t) == 4:
+        t[0] = t[1] + ', ' + t[3]
+        set('\n <TR><TD>  especs → especs COMA nextespec </TD><TD> t[0] = t[1] </TD> </TR> ')
+    else:
+        t[0] = t[1]
         set('\n <TR><TD>  especs → nextespec </TD><TD> especs = t[1] </TD> </TR> ')
 
 
 def p_nextespec(t):
     '''
-        nextespec : PRIMARY KEY PARIZQ idlist PARDER
-                      | FOREIGN KEY PARIZQ idlist PARDER REFERENCES ID PARIZQ idlist PARDER
-                      | CONSTRAINT ID CHECK PARIZQ exp PARDER
-                      | CHECK PARIZQ exp PARDER
-                      | UNIQUE PARIZQ idlist PARDER
+        nextespec : PRIMARY KEY PARIZQ idlistF2 PARDER
+                      | FOREIGN KEY PARIZQ idlistF2 PARDER REFERENCES ID PARIZQ idlistF2 PARDER
+                      | CONSTRAINT ID CHECK PARIZQ expF2 PARDER
+                      | CHECK PARIZQ expF2 PARDER
+                      | UNIQUE PARIZQ idlistF2 PARDER
     '''
     if len(t)==6:
-       t[0] = clases_auxiliares.PrimaryKeyC(t[4])
+       t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
     elif len(t)==11:
-        references = clases_auxiliares.References(t[7], t[9])
-        t[0] = clases_auxiliares.ForeignKeyC(references, t[4])
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8] + ' ' + t[9] + ' ' + t[10]
     elif len(t)==7:
-        constraint = clases_auxiliares.Constraint(t[2])
-        t[0] = clases_auxiliares.Check(t[5], constraint)
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
     elif t[1].lower() == 'check':
-        t[0] = clases_auxiliares.Check(t[3])
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
     elif t[1].lower() == 'unique':
-        t[0] = clases_auxiliares.UniqueC(t[3])
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
     set('<TR> \n <TD> nextespec  → especs : </TD> \n <TD> nextespecs  = t[1] </TD> \n </TR> \n')
 
 
@@ -2434,9 +3244,9 @@ def p_atributeTable(t):
                        | ID definitionTypes
     '''
     if len(t)==4:
-        t[0] = clases_auxiliares.Columna(t[1], t[2], t[3])
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
     elif len(t)==3:
-        t[0] = clases_auxiliares.Columna(t[1], t[2])
+        t[0] = t[1] + ' ' + t[2]
 
     set('<TR> \n <TD> atributeTable  → ID definitionTypes: </TD> \n <TD> atributeTable  = t[1] </TD> \n </TR> \n')
 # --------------------------------------------------------------------------------------
@@ -2448,45 +3258,41 @@ def p_listaespecificaciones(t):
                                | especificaciones
     '''
     if len(t) == 3:
-        t[0] = t[1]
-        t[0].append(t[2])
+        t[0] = t[1] + ' ' + t[2]
         set('<TR><TD> listaespecificaciones → listaespecificaciones especificaciones </TD><TD> listaespecificaciones=t[1].append(t[2]) <BR/> instrucciones=t[1] </TD></TR>')
     else:
-        t[0] = [t[1]]
+        t[0] = t[1]
+
 
 def p_especificaciones(t):
     '''
-        especificaciones : DEFAULT exp
+        especificaciones : DEFAULT expF2
                          | PRIMARY KEY
                          | REFERENCES ID
+                         | REFERENCES ID PARIZQ idlistF2 PARDER
                          | CONSTRAINT ID UNIQUE
-                         | CONSTRAINT ID CHECK PARIZQ exp PARDER
-                         | CHECK PARIZQ exp PARDER
+                         | CONSTRAINT ID CHECK PARIZQ expF2 PARDER
+                         | CHECK PARIZQ expF2 PARDER
                          | UNIQUE
                          | NOT NULL
                          | NULL
+                         | CONSTRAINT ID FOREIGN KEY PARIZQ idlistF2 PARDER
     '''
 
-    if t[1].lower() == 'default':
-        t[0] = t[1] + t[2]
-    elif t[1].lower() == 'primary':
-        t[0] = clases_auxiliares.PrimaryKey()
-    elif t[1].lower() == 'references':
-        t[0] = clases_auxiliares.References(t[2])
+    if len(t) == 2:
+        t[0] = t[1]
+    elif len(t) == 3:
+        t[0] = t[1] + ' ' + t[2]
     elif len(t) == 4:
-        constraint = clases_auxiliares.Constraint(t[2])
-        t[0] = clases_auxiliares.Unique(constraint)
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    elif len(t) == 5:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    elif len(t) == 6:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
     elif len(t) == 7:
-        constraint = clases_auxiliares.Constraint(t[2])
-        t[0] = clases_auxiliares.Check(t[5], constraint)
-    elif t[1].lower() == 'check':
-        t[0] = clases_auxiliares.Check(t[3])
-    elif t[1].lower() == 'unique':
-        t[0] = clases_auxiliares.Unique()
-    elif t[1].lower() == 'not':
-        t[0] = clases_auxiliares.NotNull()
-    elif t[1].lower() == 'null':
-        t[0] = clases_auxiliares.Null()
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    elif len(t) == 8:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7]
 
     set('<TR> \n <TD> especificaciones → especs: </TD> \n <TD> especificaciones = t[1] </TD> \n </TR> \n')
 
@@ -2495,7 +3301,7 @@ def p_especificaciones(t):
 # --------------------------------------------------------------------------------------
 def p_definitionTypes(t):
     '''
-        definitionTypes : f2types
+        definitionTypes : typesF2
     '''
     t[0] = t[1]
     set('<TR> \n <TD> definitionTypes → types: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
@@ -2507,12 +3313,12 @@ def p_definitionTypes_id(t):
     t[0] = t[1]
     set('<TR> \n <TD> definitionTypes → ID: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
 
-def p_f2types(t):
+def p_typesF2(t):
     '''
-        f2types : SMALLINT
+        typesF2 : SMALLINT
               | INTEGER
               | BIGINT
-              | DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
+              | DECIMAL PARIZQ expF2 COMA expF2 PARDER
               | NUMERIC
               | REAL
               | MONEY
@@ -2524,10 +3330,11 @@ def p_f2types(t):
               | INTERVAL
               | BOOLEAN
               | DOUBLE PRECISION
-              | CHARACTER VARYING PARIZQ ENTERO PARDER
-              | VARCHAR PARIZQ ENTERO PARDER
-              | CHAR PARIZQ ENTERO PARDER
+              | CHARACTER VARYING PARIZQ expF2 PARDER
+              | VARCHAR PARIZQ expF2 PARDER
+              | CHAR PARIZQ expF2 PARDER
               | STRING
+              | ID
     '''
     if len(t) == 2:
         t[0] = t[1]
@@ -2826,16 +3633,12 @@ def p_alter_table(t):
                     | ALTER TABLE ID DROP listaespecificaciones
                     | ALTER TABLE ID groupcolumns
     '''
+    string = ''
     if len(t)==6:
-        if t[4].lower() == 'add':
-            #ALTER TABLE ID ADD listaespecificaciones
-            pass
-        elif t[4].lower() == 'drop':
-            #ALTER TABLE ID DROP listaespecificaciones
-            pass
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
     elif len(t)==5:
-        #ALTER TABLE ID groupcolumns
-        pass
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = AlterTable(string, 1, 1)
     set('<TR> \n <TD> alter_table → ALTER TABLE ID ADD listaespecificaciones | ALTER TABLE ID DROP listaespecificaciones | ALTER TABLE ID groupcolumns: </TD> \n <TD>  alter_table = DropTable(t[5]) </TD> \n </TR> \n')
 
 # -------------------------------------------------------------------------------------
@@ -2847,12 +3650,9 @@ def p_groupcolumns(t):
                     | column
     '''
     if len(t) == 4:
-        #groupcolumns COMA column
-        t[0] = t[1]
-        t[0].append(t[3])
+        t[0] = t[1] + ', ' + t[3]
     else:
-        #column
-        t[0] = [t[1]]
+        t[0] = t[1]
     set('<TR> \n <TD> groupcolumnse → groupcolumns COMA column: </TD> \n <TD> column = t[1] </TD> \n </TR> \n')
 
 # ------------------------------------------------------------------------------------
@@ -2861,18 +3661,19 @@ def p_groupcolumns(t):
 def p_column(t):
     '''
         column : ALTER COLUMN ID listaespecificaciones
-               | ADD COLUMN ID types
+               | ALTER COLUMN ID TYPE typesF2
+               | ADD COLUMN ID typesF2
                | DROP COLUMN ID
     '''
     if t[1].lower()=='alter':
-        #ALTER COLUMN ID listaespecificaciones
-        pass
+        if t[4].lower() == 'type':
+            t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
+        else:
+            t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
     elif t[1].lower() == 'add':
-        #ADD COLUMN ID types
-        pass
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
     elif t[1].lower() == 'drop':
-        #DROP COLUMN ID
-        pass
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
     set('<TR> \n <TD> column → ALTER COLUMN ID listaespecificaciones | ADD COLUMN ID types | DROP COLUMN ID: </TD> \n <TD> column = t[1] </TD> \n </TR> \n')
 
 # -------------------------------------------------------------------------------------
@@ -2880,10 +3681,10 @@ def p_column(t):
 # -------------------------------------------------------------------------------------
 def p_create_type(t):
     '''
-        create_type : CREATE TYPE ID AS ENUM PARIZQ exp_list PARDER
+        create_type : CREATE TYPE ID AS ENUM PARIZQ expF2_list PARDER
     '''
-    # t[0] = interprete
-    t[0] = type(t[3], t[7], 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8]
+    t[0] = Type(string, 1, 1)
 
     set('<TR> \n <TD> create_type → CREATE TYPE ID AS ENUM PARIZQ exp_list PARDER: </TD> \n <TD> create_type = Type(t[3], t[7]) </TD> \n </TR> \n')
 

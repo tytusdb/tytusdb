@@ -1,4 +1,4 @@
-from analizer.statement.pl.execute import Execute
+#from analizer.statement.pl.execute import Execute
 from sys import path
 from os.path import dirname as dir
 import re
@@ -64,12 +64,17 @@ from analizer.statement.pl.procedure import Procedure, dropProc
 from analizer.statement.pl.function import Function, dropFunc
 from analizer.statement.pl.index import Index, dropIndex, alterIndex
 from analizer.statement.pl.raise_print import Raise
+from analizer.statement.pl.f2Statement import f2Statement
+from analizer.statement.pl.f1Statement import f1Statement
+from analizer.statement.pl.arbolGeneral import ArbolGeneral
+from analizer.reports.AST import AST
 import analizer.symbol.c3dSymbols as SymbolTable
 
 def p_init(t):
     """init : stmtList"""
     t[0] = t[1]
     repGrammar.append(t.slice)
+    return t[0]
 
 
 
@@ -120,7 +125,7 @@ def p_fase1_stmt(t):
     """
     #listInst.append(t[1].dot()) # * ES NECESARIO DESCOMENTAR PARA LA GENERACION DEL ARBOL, PERO TODAS LAS CLASES DEBEN DE TENER SU METODO DOT
     try:
-        t[0] = t[1]
+        t[0] = f1Statement(row = t.slice[2].lineno, column = t.slice[2].lexpos, statement = t[1])
     except:
         return
     # SOLO CUENTA LOS PUNTO Y COMA
@@ -187,6 +192,7 @@ def p_fase2_stmt(t):
                 | pl_drop S_PUNTOCOMA
                 | raise_main S_PUNTOCOMA
     '''
+    t[0] = f2Statement(row = t.slice[2].lineno, column = t.slice[2].lexpos, statement = t[1])
     repGrammar.append(t.slice)
     global count_ins
     count_ins += 1
@@ -465,7 +471,7 @@ def p_plInstruction2(t):# los separe solo para generar su codigo 3d diferente
     | deleteStmt S_PUNTOCOMA
     | selectStmt S_PUNTOCOMA
     """
-    t[0] = F1([1],C3D_INSTRUCCIONES_FASE1_CADENA(t), t.slice[2].lineno , t.slice[2].lexpos )
+    t[0] = F1(t[1],C3D_INSTRUCCIONES_FASE1_CADENA(t), t.slice[2].lineno , t.slice[2].lexpos)
     global count_ins
     count_ins += 1
     repGrammar.append(t.slice)
@@ -481,7 +487,7 @@ def p_assignment(t):
         cadena = (cadena)[0: len(cadena)-2]
         cadena = cadena +';'
         #print(cadena)
-        t[3] = F1([1],cadena, t.slice[2].lineno , t.slice[2].lexpos )
+        t[3] = F1(t[3],cadena, t.slice[2].lineno , t.slice[2].lexpos )
     t[0] = Asignacion(t[1],t[3], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
@@ -2262,7 +2268,7 @@ def parserTo3D(input)-> None:
     lexer.lineno = 1
     instancia_codigo3d.restart()
     SymbolTable.symbolTable.clear()
-    parser.parse(input)
+    return ArbolGeneral(parser.parse(input))
 
 
 
@@ -2322,49 +2328,61 @@ def C3D_INSTRUCCIONES_FASE1_CADENA(t)->str:
 
 
 # PARA PROBAR LA GENERACION DE CODIGO 3D
-
-# parserTo3D("""
-# raise 'nose' , 'nose2';
-# raise 'nose' , '715226';
-# insert into tablon values (1,2,3,4,5,6,7,8);
-# create table t444 (col integer );
-
+ast = parserTo3D("""
+raise 'nose' , 'nose2';
+raise 'nose' , '715226';
+insert into tablon values (1,2,3,4,5,6,7,8);
+create table t444 (col integer );
 
 
-# CREATE FUNCTION CALCULOS() RETURNS integer AS $$
-# BEGIN
-#         a = (select 2+1);
-#         return 9;
-# END;
-# $$ LANGUAGE plpgsql;
 
-# CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
-# DECLARE
-#     nomnbre varchar:='test';
-#     absolute integer:=abs(-52);
-#     numero integer=-5;
-#     indice integer:=5;
-#     final integer=numero*5;
+CREATE FUNCTION CALCULOS() RETURNS integer AS $$
+BEGIN
+        a = (select 5*5);
+        return 9;
+END;
+$$ LANGUAGE plpgsql;
 
-# BEGIN
-# IF 9 > 0  and 9+5 = 14 THEN
-#     raise 'imprime' , 'es 14';
-#     RETURN final;
-# elseif 97 = 90 then
-#    return 0;
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS varchar(50) AS $$
+DECLARE
+    nomnbre varchar:='test';
+    absolute integer:=abs(-52);
+    numero integer=-5;
+    indice integer:=5;
+    final integer=numero*5;
 
-# elseif 99 = 90 then
-#    return 80;
+BEGIN
+nombre = 'hola';
+CASE valor 
+    WHEN -1 THEN
+    return False;
+    WHEN -2 THEN
+    return 'SHO';
+    WHEN -3 THEN
+    return 'SEXOOOO';
+    ELSE 
+    return True;
+    END CASE;
 
-# elseif 100 = 100 then
-#    return 100;
-   
-# else
-#     return 60;
-# END IF;
-# END;
-# $$ LANGUAGE plpgsql;
+IF 9 = 14 THEN
+    raise 'imprime' , 'es 14';
+    RETURN final;
+elseif 97 = 90 then
+   return 0;
 
-# """)
-# print("\n---------------- SALIDA: -----------------")
-# instancia_codigo3d.showCode()
+elseif 99 = 90 then
+   return 80;
+
+elseif 100 = 100 then
+   return 100;
+else
+    return 60;
+END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+""")
+print("\n---------------- SALIDA: -----------------")
+instancia_codigo3d.showCode()
+graficador = AST()
+graficador.makeAst(ast.dot())
