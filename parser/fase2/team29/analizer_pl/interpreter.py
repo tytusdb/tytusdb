@@ -47,7 +47,7 @@ def traducir(input):
         "symbols": symbols,
         "functions": functions,
     }
-    #grammar.InitTree()
+    # grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -99,11 +99,13 @@ declare
 BEGIN
 	case 
         when i > -10 then
-            RETURN k;
+            RETURN j;
         when i < 10 then
+            texto = "yosoyfr";
             RETURN texto;
         else 
-            RETURN k;
+            j = j + 1;
+            RETURN j;
     end case;
 END;
 $$ LANGUAGE plpgsql;

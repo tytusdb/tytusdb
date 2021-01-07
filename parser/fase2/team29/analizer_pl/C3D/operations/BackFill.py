@@ -47,7 +47,7 @@ class BackFill:
             try:
                 element = next(iterator)
                 ret += "\tlabel .etiv" + str(element) + "\n"
-                grammar.optimizer_.addLabel(str("etiv" + str(element)), row,True)
+                grammar.optimizer_.addLabel(str("etiv" + str(element)), row, True)
             except StopIteration:
                 break
         if index == 0:
@@ -65,7 +65,7 @@ class BackFill:
             try:
                 element = next(iterator)
                 ret += "\tlabel .etif" + str(element) + "\n"
-                grammar.optimizer_.addLabel(str("etif" + str(element)), row,True)
+                grammar.optimizer_.addLabel(str("etif" + str(element)), row, True)
             except StopIteration:
                 break
         if index == 0:
