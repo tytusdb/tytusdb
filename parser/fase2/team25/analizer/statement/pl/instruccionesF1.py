@@ -7,14 +7,18 @@ class F1(instruction.Instruction):
         self.cadena = cadena
 
     def execute(self, environment):
-        return objeto.execute()
+        return self.objeto.execute()
 
     def dot(self):
-        return objeto.dot()
+        return self.objeto.dot()
 
     def generate3d(self, environment, instanciaAux):
         tn = instanciaAux.getNewTemporal()
+        tres = instanciaAux.getNewTemporal()#TEMPORAL RESULTANTE
         if self.cadena != None:
             instruccionC3D = f'\t{tn} = "{self.cadena}"'
             instanciaAux.addToCode(instruccionC3D)
-        return  tn # POR SI FUERA UN SELECT
+            instanciaAux.addToCode(f'\tstack.push({tn})')
+            instanciaAux.addToCode(f"\t{tres} = funcionIntermedia()")
+
+        return  tres # POR SI FUERA UN SELECT

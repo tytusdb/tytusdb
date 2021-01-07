@@ -4,7 +4,8 @@ import {FlatTreeControl} from '@angular/cdk/tree';
 import {NestedTreeControl} from '@angular/cdk/tree';
 import {MatTreeNestedDataSource} from '@angular/material/tree';
 import {BehaviorSubject, Observable, of as observableOf} from 'rxjs';
-
+import {ApiService} from '../services/api.service';
+import { Mandar } from 'src/app/model/mandar';
 /**
  * Food data with nested structure.
  * Each node has a name and an optional list of children.
@@ -36,6 +37,15 @@ export class DashboardComponent implements OnInit {
   nestedTreeControl: NestedTreeControl<FileNode>;
   nestedDataSource: MatTreeNestedDataSource<FileNode>;
   dataChange: BehaviorSubject<FileNode[]> = new BehaviorSubject<FileNode[]>([]);
+  mensaje:string="";
+  mensaje2:string="";
+  listacategorias:any = [];
+  publicar:Mandar={
+    codigo: ''
+  };
+
+  constructor(private TempApi : ApiService) {}
+
   ngOnInit() {
     this.nestedTreeControl = new NestedTreeControl<FileNode>(this._getChildren);
     this.nestedDataSource = new MatTreeNestedDataSource();
@@ -96,7 +106,16 @@ export class DashboardComponent implements OnInit {
 
   consulta(event:Event)
   {
-    alert("Ejecutnado consulta.....");
+    this.publicar.codigo=this.mensaje;
+    this.TempApi.postquery(this.publicar).subscribe(
+      res=>{
+        alert("dio");
+        this.listacategorias = res;
+        this.mensaje2=this.listacategorias.codigo
+      
+      }
+    );
+    //alert(this.mensaje);
   }
 
 }

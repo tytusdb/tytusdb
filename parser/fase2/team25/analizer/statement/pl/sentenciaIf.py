@@ -112,8 +112,8 @@ class If_Elseif(instruction.Instruction):
         instrucciones_nodo = Nodo(instrucciones_texto)
         for instruccion in self.if_inst:
             instrucciones_nodo.addNode(instruccion.dot())
-        expresion_nodo.addNode(instrucciones_nodo)
         nuevo_nodo.addNode(expresion_nodo)
+        nuevo_nodo.addNode(instrucciones_nodo)
         for item in self.lista_elifs:
             nuevo_nodo.addNode(item.Dot())
         if self.else_inst:
