@@ -17,6 +17,7 @@ from analizer_pl.sql_statement.create import create_index
 from analizer_pl.sql_statement.create import create_table
 from analizer_pl.sql_statement.create import create_type
 from analizer_pl.sql_statement.alter import alter_database
+from analizer_pl.sql_statement.alter import alter_index
 from analizer_pl.sql_statement.alter import alter_table
 from analizer_pl.sql_statement.drop import drop_database
 from analizer_pl.sql_statement.drop import drop_table
@@ -144,3 +145,11 @@ def BinaryExpression(temp, exp1, exp2, operator, isBlock, row, column):
 
 def UnaryExpression(temp, exp, operator, isBlock, row, column):
     return datatype.UnaryExpression(temp, exp, operator, isBlock, row, column)
+
+
+def DropIndex(exists, idList, row, column):
+    return drop_index.DropIndex(exists, idList, row, column)
+
+
+def AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber = ""):
+    return alter_index.AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber)
