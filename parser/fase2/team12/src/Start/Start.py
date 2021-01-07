@@ -214,6 +214,10 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'CREATE_DATABASE':
                 textoEntrada += traduccionCreate_database(hijo) 
             elif hijo.nombreNodo == 'CREATE_TABLE':
-                textoEntrada += traduccion_create_table(hijo)                                                           
+                textoEntrada += traduccion_create_table(hijo)
+            elif hijo.nombreNodo == 'CREATE_INDEX':
+                textoEntrada += traduccion_index(hijo) 
+            elif hijo.nombreNodo == 'CREATE_UNIQUE_INDEX':
+                textoEntrada += traduccion_unique_index(hijo)                                                                                           
 
         return textoEntrada

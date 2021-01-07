@@ -10,5 +10,7 @@ data/
 __pycache__
 src/storageManager
 storageManager
-src/Reports
+src/Reports/*.txt
+src/Reports/tree_report
+src/Reports/*.png
 .vscode/

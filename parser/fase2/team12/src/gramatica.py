@@ -1927,8 +1927,8 @@ def p_sentencia_index_1(t):
 def p_sentencia_index_2(t):
     '''sentencia_index : CREATE UNIQUE INDEX IDENTIFICADOR ON IDENTIFICADOR sentencia_index_p opcional_where_index'''
     nuevo = Start("CREATE_UNIQUE_INDEX")
-    nuevo.createChild(t.slice[4])
-    nuevo.createChild(t.slice[6])
+    nuevo.createTerminal(t.slice[4])
+    nuevo.createTerminal(t.slice[6])
     nuevo.addChild(t[7])
     if t[8] != None:
         nuevo.addChild(t[8])

@@ -70,6 +70,84 @@ def traduccionSelect(nodoRaiz):
     stringRetornar += ";\n"
     return stringRetornar
 
+
+def traduccion_unique_index(nodoRaiz):
+    id1 = nodoRaiz.hijos[0].valor
+    id2 = nodoRaiz.hijos[1].valor
+
+    #Resolver sentences
+    if nodoRaiz.hijos[2].nombreNodo == "INDEX_NORMAL":
+        sentences = resolver_index_normal(nodoRaiz.hijos[2].hijos)
+    elif nodoRaiz.hijos[2].nombreNodo == "INDEX_USING":
+        sentences = resolver_index_using(nodoRaiz.hijos[2])
+
+    if len(nodoRaiz.hijos)  == 4:
+        opc_where = ' WHERE ' + nodoRaiz.hijos[3].getText()
+    else:
+        opc_where = ''
+    return f'CREATE UNIQUE INDEX {id1} ON {id2} {sentences} {opc_where} ;'
+
+
+def resolver_index_using(nodo):
+    metodo = nodo.hijos[0].hijos[0].nombreNodo
+    lista = []
+    for i in range(1,len(nodo.hijos)):
+        lista.append(nodo.hijos[i])
+    sentencia = resolver_index_normal(lista)
+    return f'USING {metodo} {sentencia}'
+
+def resolver_index_normal(lista):
+    string_ = ''
+    contador = 0
+    for hijo in lista:
+        if contador >= len(lista) - 1:
+            coma = ''
+        else:
+            coma = ', '
+        contador += 1
+
+        string_ += hijo.hijos[0].valor +' '
+        cantidad_ = len(hijo.hijos)
+        if cantidad_ < 2:
+            string_ += coma
+        elif cantidad_ == 2:
+            if hijo.hijos[1].nombreNodo == "OPC_ORDER":
+                string_ += hijo.hijos[1].hijos[0].valor + coma
+            else:
+                string_ += f' NULLS {hijo.hijos[1].hijos[0].nombreNodo}' + coma
+        elif cantidad_ == 3:
+            if hijo.hijos[1].nombreNodo == "OPC_ORDER":
+                string_ += hijo.hijos[1].hijos[0].valor
+                string_ += f' NULLS {hijo.hijos[2].hijos[0].nombreNodo}' + coma
+            else:
+                string_ += f' NULLS {hijo.hijos[1].hijos[0].nombreNodo}'
+                string_ += hijo.hijos[2].hijos[0].valor + coma
+    return '('+string_+')'
+
+
+def traduccion_index(nodoRaiz):
+    if nodoRaiz.hijos[0].valor == nodoRaiz.hijos[1].valor:
+        id1 = nodoRaiz.hijos[0].valor
+        if nodoRaiz.hijos[2].nombreNodo == "INDEX_NORMAL":
+            sentences = resolver_index_normal(nodoRaiz.hijos[2].hijos)
+        elif nodoRaiz.hijos[2].nombreNodo == "INDEX_USING":
+            sentences = resolver_index_using(nodoRaiz.hijos[2])
+        if len(nodoRaiz.hijos)  == 4:
+            opc_where = ' WHERE ' + nodoRaiz.hijos[3].getText()            
+        return f'CREATE INDEX ON {id1} {sentences} {opc_where};'
+    else:
+        id1 = nodoRaiz.hijos[0].valor
+        id2 = nodoRaiz.hijos[1].valor
+        if nodoRaiz.hijos[2].nombreNodo == "INDEX_NORMAL":
+            sentences = resolver_index_normal(nodoRaiz.hijos[2].hijos)
+        elif nodoRaiz.hijos[2].nombreNodo == "INDEX_USING":
+            sentences = resolver_index_using(nodoRaiz.hijos[2])
+        if len(nodoRaiz.hijos)  == 4:
+            opc_where = ' WHERE ' + nodoRaiz.hijos[3].getText()          
+        return f'CREATE INDEX {id1} ON {id2} {sentences} {opc_where};'
+
+
+
 def traduccion_create_table(nodoRaiz):
     identificador = nodoRaiz.hijos[0].valor
     cuerpo = ''

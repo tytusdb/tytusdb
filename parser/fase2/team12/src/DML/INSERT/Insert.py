@@ -30,13 +30,26 @@ class Insert(Nodo):
         nombre_tabla = self.hijos[0].getText()
         if len(self.hijos) > 2:
             #CON NOMBRES DE COLUMNAS
-            pass
+            lista_ids = self.sacar_ids(self.hijos[1].hijos)
+            parametros = self.hijos[2].hijos
+            str_params = self.getTextParams(parametros)
+            return f'INSERT INTO {nombre_tabla} ({lista_ids}) VALUES ({str_params});'
         else:
             #SOLO VALUES
             parametros = self.hijos[1].hijos
             str_params = self.getTextParams(parametros)
             return f' INSERT INTO {nombre_tabla} VALUES ({str_params});'
 
+    def sacar_ids(self,lista):
+        lista_ids = ''
+        count = 0
+        for item in lista:
+            coma = ','
+            if count == len(lista) - 1:
+                coma = ''
+            count += 1    
+            lista_ids += f'{item.valor}{coma}'
+        return lista_ids
 
     def getTextParams(self,lista):
         string_ = ''

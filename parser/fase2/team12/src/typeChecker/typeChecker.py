@@ -512,7 +512,11 @@ class TypeChecker():
             file.write(dataFinal)
             return table
 
-                    
+
+    #######################################################Replace procedure
+    def replace_procedure(self, database : str, procedure : Procedure):
+        self.drop_procedure(database,procedure.nombre)
+        return self.create_procedure(database,procedure)
 
     ###################################################### Drop procedure
     def drop_procedure(self,database, procedure_name):
