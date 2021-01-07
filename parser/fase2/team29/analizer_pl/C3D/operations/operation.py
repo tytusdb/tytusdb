@@ -83,6 +83,8 @@ class Binary(Expression):
             self.operator = "!="
         elif self.operator == "=":
             self.operator = "=="
+        elif self.operator == "||":
+            self.operator = "+"
         exp1.temp = values.get(exp1.temp, exp1.temp)
         exp2.temp = values.get(exp2.temp, exp2.temp)
         exp = (

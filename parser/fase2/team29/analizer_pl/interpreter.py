@@ -94,19 +94,17 @@ def functionsReport(env):
 s = """ 
 CREATE function foo(i integer) RETURNS integer AS $$
 declare 
-	j integer := i + 1;
-	k integer;
+	j integer := -i + 5;
+	k integer:= date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
+    texto text := "3+3"||md5("Francisco");
 BEGIN
 	case 
-        when i > 10 then
-            k = 0;
-            RETURN j * k + 1;
+        when i > -10 then
+            RETURN k;
         when i < 10 then
-            k = 1;
-            RETURN j * k + 2;
+            RETURN texto;
         else 
-            k = 2;
-            RETURN j * k + 3;
+            RETURN k;
     end case;
 END;
 $$ LANGUAGE plpgsql;
@@ -120,6 +118,10 @@ BEGIN
     k = foo(15);
 END;
 $$ LANGUAGE plpgsql;
+
+--drop procedure p1;
+execute foo(5);
+execute foo(20);
 """
 
 sql = """
@@ -142,6 +144,36 @@ CREATE TABLE tbCalificacion (
 );
 CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
 execute myFuncion("Francisco");
+"""
+
+s2 = """
+--Manipulacion de datos
+CREATE DATABASE IF NOT EXISTS test OWNER = 'root' MODE = 1;
+CREATE DATABASE IF NOT EXISTS califica OWNER = 'root' MODE = 2;
+SHOW DATABASES;
+USE test;
+create table tbcalifica (
+  iditem integer not null primary key,
+  item varchar(150) not null,
+  puntos decimal(8, 2) not null
+);
+CREATE TABLE tbusuario (
+  idusuario integer NOT NULL primary key,
+  nombre varchar(50),
+  apellido varchar(50),
+  usuario varchar(15) UNIQUE NOT NULL,
+  password varchar(15) NOT NULL,
+  fechacreacion date
+);
+CREATE TABLE tbroles (
+  idrol integer NOT NULL primary key,
+  rol varchar(15)
+);
+DROP TABLE tbroles;
+CREATE TABLE tbrol (
+  idrol integer NOT NULL primary key,
+  rol varchar(15)
+);
 """
 
 traducir(sql)

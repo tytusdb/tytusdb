@@ -18,7 +18,7 @@ class DeclaracionID(Expression):
     def compile(self, environment):
         val = self.value.compile(environment)
         pos = ThreeAddressCode().stackCounter
-        environment.addVar(self.id, self.data_type, val, pos, self.line, self.column)
+        environment.addVar(self.id, self.data_type, val.value, pos, self.line, self.column)
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = {val.value}")
         ThreeAddressCode().addStack(temp)
