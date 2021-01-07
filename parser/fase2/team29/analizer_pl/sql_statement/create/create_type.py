@@ -2,7 +2,7 @@ from analizer_pl.abstract import instruction
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
-
+from analizer_pl import grammar
 
 class CreateType(instruction.Instruction):
     def __init__(self, exists, name, row, column, values):
@@ -29,6 +29,7 @@ class CreateType(instruction.Instruction):
 
         out += ");"
         out += '")\n'
+        grammar.optimizer_.addIgnoreString(out,self.row,False)
         return code.C3D(out, "create_type", self.row, self.column)
 
     def dot(self):

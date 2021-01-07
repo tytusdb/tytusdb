@@ -14,3 +14,4 @@ Types.json
 Index.json
 ReporteGramatica.bnf
 analizer_pl/ply/**
+ply
