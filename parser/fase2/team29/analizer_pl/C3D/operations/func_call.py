@@ -3,6 +3,7 @@ from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
+from analizer_pl import grammar
 
 
 class FunctionCall(Expression):
@@ -33,12 +34,25 @@ class FunctionCall(Expression):
                             pval = p.execute(environment)
                             c3d += pval.value
                             c3d += tab + "stack.append(" + pval.temp + ")\n"
+                            grammar.optimizer_.addIgnoreString(
+                                str("stack.append(None)"), self.row
+                            )
                         c3d += tab + self.id + "()\n"
+                        grammar.optimizer_.addIgnoreString(
+                            str(self.id + "()"), self.row
+                        )
                         c3d += tab + "t" + self.temp + " = stack.pop()\n"
+                        grammar.optimizer_.addIgnoreString(
+                            str("t" + self.temp + " = stack.pop()"), self.row
+                        )
                         self.temp = "t" + self.temp
                     else:
                         # TODO: ERROR: parametros no coinciden
                         pass
+                else:
+                    c3d += tab + self.id + "()\n"
+                    c3d += tab + "t" + self.temp + " = stack.pop()\n"
+                    self.temp = "t" + self.temp
             # Si es una funcion matematica
             else:
                 pass
@@ -59,12 +73,25 @@ class FunctionCall(Expression):
                             pval = p.execute(environment)
                             c3d += pval.value
                             c3d += tab + "stack.append(" + pval.temp + ")\n"
+                            grammar.optimizer_.addIgnoreString(
+                                str("stack.append(" + pval.temp + ")"), self.row
+                            )
                         c3d += tab + self.id + "()\n"
+                        grammar.optimizer_.addIgnoreString(
+                            str(self.id + "()"), self.row
+                        )
                         c3d += tab + "t" + self.temp + " = stack.pop()\n"
+                        grammar.optimizer_.addIgnoreString(
+                            str("t" + self.temp + " = stack.pop()"), self.row
+                        )
                         self.temp = '"+t' + self.temp + '+"'
                     else:
                         # TODO: ERROR: parametros no coinciden
                         pass
+                else:
+                    c3d += tab + self.id + "()\n"
+                    c3d += tab + "t" + self.temp + " = stack.pop()\n"
+                    self.temp = '"+t' + self.temp + '+"'
             # Si es una funcion matematica
             else:
                 pass

@@ -205,31 +205,48 @@ class DropIndex(Instruction):
         return False
 
 class AlterIndex(Instruction):
-    def __init__(self, name_index, new_name, line, column):
+    def __init__(self, name_index, new_name, line, column, isColumn):
         self.name_index = name_index
         self.new_name = new_name
         self.line = line
         self.column = column
+        self.isColumn = isColumn
         
 
     def __repr__(self):
         return str(vars(self))
     
     def process(self, enviroment):
-        isChangeName = self.search_index(self.name_index, self.new_name)
-        if isChangeName:
-            DataWindow().consoleText('Query returned successfully: Alter Index')
+        if self.isColumn:
+            isChangeName = self.rename_column(self.name_index, self.new_name)
+            if isChangeName:
+                DataWindow().consoleText('Query returned successfully: Alter Index')
+            else:
+                desc = f": Name of Index not Exists"
+                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
         else:
-            desc = f": Name of Index not Exists"
-            ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
+            isChangeName = self.search_index(self.name_index, self.new_name)
+            if isChangeName:
+                DataWindow().consoleText('Query returned successfully: Alter Index')
+            else:
+                desc = f": Name of Index not Exists"
+                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
         
     def compile(self, enviroment):
-        isChangeName = self.search_index(self.name_index, self.new_name)
-        if isChangeName:
-            DataWindow().consoleText('Query returned successfully: Alter Index')
+        if self.isColumn:
+            isChangeName = self.rename_column(self.name_index, self.new_name)
+            if isChangeName:
+                DataWindow().consoleText('Query returned successfully: Alter Index')
+            else:
+                desc = f": Name of Index not Exists"
+                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
         else:
-            desc = f": Name of Index not Exists"
-            ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
+            isChangeName = self.search_index(self.name_index, self.new_name)
+            if isChangeName:
+                DataWindow().consoleText('Query returned successfully: Alter Index')
+            else:
+                desc = f": Name of Index not Exists"
+                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
 
     def search_index(self, name, new_name):
         for index, c in enumerate(SymbolTable().getList()):
@@ -238,4 +255,14 @@ class AlterIndex(Instruction):
                 SymbolTable().getList()[index].name.variable = new_name
                 SymbolTable().getList()[index].value = new_name
                 return True
+        return False
+    def rename_column(self, name, column):
+        for index, c in enumerate(SymbolTable().getList()):
+            if c.value == name and c.dataType == 'Index' and column != None:
+                if isinstance(column, int):
+                    SymbolTable().getList()[index].name.list_column_reference[0] = 'Changed Column'
+                    return True
+                else:
+                    SymbolTable().getList()[index].name.list_column_reference[0] = column
+                    return True
         return False
