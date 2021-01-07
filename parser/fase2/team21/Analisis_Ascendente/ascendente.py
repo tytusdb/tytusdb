@@ -3470,8 +3470,10 @@ def procesar_instrucciones(instrucciones, ts):
                 print("data5",data)
                 try:
 
-
+                    data = str(data[1][0]).replace("['","")
+                    data = str(data).replace("']","")
                     print("->data5 ", data)
+
                     ret = None
                     try:
                         ret = int(data)
