@@ -227,8 +227,8 @@ if __name__ == "__main__":
             if len(g.errores_sintacticos) == 0:
                 imprimir_consola("") 
                 principal.texttraduccion = ""
-                principal.texttraduccion="import principal as p3 \nfrom goto import with_goto \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n"
-                principal.textoptimizado="import principal as p3 \nfrom goto import with_goto \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n"
+                principal.texttraduccion="import principal as p3 \nfrom goto import with_goto \nstackk=[] \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n    stackk=stack\n"
+                principal.textoptimizado="import principal as p3 \nfrom goto import with_goto \nstackk=[] \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n    stackk=stack\n"
                 data=principal.interpretar_sentencias(arbol,True)
                 #tablaSimbolos.mostrar()
                 imprimir_consola(principal.texttraduccion)

@@ -16,6 +16,7 @@ from hashlib import sha256
 import itertools
 from graphviz import Digraph
 from Error import item3D
+import cod3d as c3ddddd
 
 tablaSimbolos =TS.Entorno(None)
 consola = ""
@@ -65,6 +66,7 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 contadoresT+=1
                 texttraduccion += identacion+Eti+"= p3.showBaseEx(\"stack["+str(puntero)+"]\")\n"
                 #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                puntero += 1
             elif isinstance(nodo, SUse):
                 #stack.append(nodo)
                 useActual=nodo.id
@@ -86,6 +88,7 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 contadoresT+=1
                 texttraduccion += identacion+Eti+"= p3.dropBaseEx(\"stack["+str(puntero)+"]\")\n"
                 #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                puntero += 1
             elif isinstance(nodo, STypeEnum):
                 stack.append(nodo)
                 Eti ="t"+str(contadoresT)
@@ -98,6 +101,7 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 contadoresT+=1
                 texttraduccion += identacion+Eti+"= p3.updateBaseEx(stack["+str(puntero)+"],p3.tablaSimbolos\")\n"
                 #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                puntero += 1
                                                     
             elif isinstance(nodo, SDeleteBase):
                 #deleteBase(nodo, tablaSimbolos)
@@ -133,7 +137,7 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 contadoresT+=1
                 texttraduccion += identacion+Eti+"= p3.dropTableEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
                 #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
-
+                puntero += 1
             elif isinstance(nodo, SAlterTableRenameColumn):
                 #AlterRenameColumn(nodo, tablaSimbolos)
                 stack.append(nodo)
@@ -203,7 +207,8 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 stack.append(nodo)
                 Eti ="t"+str(contadoresT)
                 contadoresT+=1
-                texttraduccion += identacion+Eti+"= p3.queryEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                texttraduccion += identacion+Eti+"= p3.queryEx(stack["+str(puntero)+"],p3.tablaSimbolos,False)\n"
+                #texttraduccion += 
                 puntero += 1    
             elif isinstance(nodo, SCrearIndice):
                 #crearIndice(nodo, tablaSimbolos)
@@ -384,7 +389,7 @@ def interpretar_sentencias(arbol,ejecutar3D):
             elif isinstance(nodo, STruncateBase):
                 truncatebase(nodo, tablaSimbolos)
             elif isinstance(nodo, SInsertBase):
-                InsertTable(nodo, tablaSimbolos,True)
+                InsertTable(nodo, tablaSimbolos,False)
             elif isinstance(nodo, SShowTable):
                 tablas = jBase.showTables(useActual)
                 for tabla in tablas:
@@ -882,14 +887,16 @@ def CrearFuncion(nodo,tablaSimbolos):
         texttraduccion+="("
         parametros(nodo.params,auxNodo)
         texttraduccion+="): \n"
+        texttraduccion+=identacion +"stack=stackk\n"
         TraducirBloque(nodo.contenido,auxNodo,tablaSimbolos)
         if base.crearF(nodo.id,auxNodo):
             consola+="Se creó la funcion/procedimiento "+ nodo.id +" con exito \n"
     else:
-        texttraduccion+=" (stack=[]): \n"
+        texttraduccion+=" (): \n"
         auxNodo=TS.SimboloFuncion(nodo.id,False,nodo.tipo,nodo.retorno,"global")
         base=tablaSimbolos.get(useActual)
-        TraducirBloque(nodo.contenido,nodo.id,tablaSimbolos)
+        texttraduccion+=identacion +"stack=stackk\n"
+        TraducirBloque(nodo.contenido,auxNodo,tablaSimbolos)
         base.crearF(nodo.id,auxNodo)
         if base.crearF(nodo.id,auxNodo):
             consola+="Se creó la funcion/procedimiento "+ nodo.id +" con exito \n"
@@ -905,7 +912,6 @@ def parametros(lista,tablaSimbolos):
         else:
             texttraduccion+=","+param.id
         contador+=1
-    texttraduccion+=", stack=[]"
 
 
 def Declara(nodo,funcion,tablaSimbolos):
@@ -984,6 +990,7 @@ def TraducirBloque(nodo,funcion,tablaSimbolos):
                             contadoresT+=1
                             texttraduccion += identacion+Eti+"= p3.showBaseEx(\"stack["+str(puntero)+"]\")\n"
                             #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                            puntero += 1
                         elif isinstance(sent2, SUse):
                             #stack.append(nodo)
                             useActual=sent2.id
@@ -1005,18 +1012,21 @@ def TraducirBloque(nodo,funcion,tablaSimbolos):
                             contadoresT+=1
                             texttraduccion += identacion+Eti+"= p3.dropBaseEx(\"stack["+str(puntero)+"]\")\n"
                             #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                            puntero += 1
                         elif isinstance(sent2, STypeEnum):
                             stack.append(sent2)
                             Eti ="t"+str(contadoresT)
                             contadoresT+=1
                             texttraduccion += identacion+Eti+"= p3.typeEnumEx(\"stack["+str(puntero)+"]\")\n"
                             #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                            puntero += 1
                         elif isinstance(sent2, SUpdateBase):
                             stack.append(sent2)
                             Eti ="t"+str(contadoresT)
                             contadoresT+=1
                             texttraduccion += identacion+Eti+"= p3.updateBaseEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
-                            #texttraduccion += identacion+Eti+"="+nodo.id +"\n"                                                          
+                            #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                            puntero += 1                                                          
                         elif isinstance(sent2, SDeleteBase):
                             #deleteBase(nodo, tablaSimbolos)
                             stack.append(sent2)
@@ -1049,6 +1059,7 @@ def TraducirBloque(nodo,funcion,tablaSimbolos):
                             Eti ="t"+str(contadoresT)
                             contadoresT+=1
                             texttraduccion += identacion+Eti+"= p3.dropTableEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                            puntero += 1
                             #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
 
                         elif isinstance(sent2, SAlterTableRenameColumn):
@@ -1119,7 +1130,7 @@ def TraducirBloque(nodo,funcion,tablaSimbolos):
                             stack.append(sent2)
                             Eti ="t"+str(contadoresT)
                             contadoresT+=1
-                            texttraduccion += identacion+Eti+"= p3.queryEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
+                            texttraduccion += identacion+Eti+"= p3.queryEx(stack["+str(puntero)+"],p3.tablaSimbolos,False)\n"
                             puntero += 1    
                         elif isinstance(sent2, SCrearIndice):
                             #crearIndice(nodo, tablaSimbolos)
@@ -1161,6 +1172,10 @@ def TraducirBloque(nodo,funcion,tablaSimbolos):
                     TraducirAsignacion(sent,funcion,tablaSimbolos)
                 elif isinstance(sent,SReturn):
                     TraducirRetorno(sent,funcion,tablaSimbolos)
+                elif isinstance(sent,SDeclaracionQuery):
+                    TraducirDeclaracionQuery(sent,funcion,tablaSimbolos)
+                elif isinstance(sent,SAsignaQuery):
+                    TraducirAsignaQuery(sent,funcion,tablaSimbolos)
         
         elif isinstance(bloque,SDeclaracion):
             Declara(bloque,funcion,tablaSimbolos)
@@ -1177,11 +1192,17 @@ def TraducirBloque(nodo,funcion,tablaSimbolos):
         elif isinstance(bloque,SReturn):
             TraducirRetorno(bloque,funcion,tablaSimbolos)
 
+        elif isinstance(bloque,SDeclaracionQuery):
+            TraducirDeclaracionQuery(bloque,funcion,tablaSimbolos)
+
+        elif isinstance(bloque,SAsignaQuery):
+            TraducirAsignaQuery(bloque,funcion,tablaSimbolos)
+
 
 def TraducirExecute(nodo):
     global texttraduccion
     if nodo.params==False:
-        texttraduccion+=identacion+nodo.id+"(stack)"+"\n"
+        texttraduccion+=identacion+nodo.id+"()"+"\n"
 
 
 def TraducirRetorno(nodo,funcion,tablaSimbolos):
@@ -1189,6 +1210,24 @@ def TraducirRetorno(nodo,funcion,tablaSimbolos):
     if nodo.next==False and nodo.query==False:
         valret=Interpreta_Expresion(nodo.expre,funcion.variables,None,True)
         texttraduccion+=identacion+"return "+ valret.valor+" \n"
+
+def TraducirDeclaracionQuery(nodo,funcion,tablaSimbolos):
+    global texttraduccion,contadoresT,puntero,stack
+    stack.append(nodo.query)
+    Eti ="t"+str(contadoresT)
+    contadoresT+=1
+    texttraduccion += identacion+Eti+"= p3.queryEx(stack["+str(puntero)+"],p3.tablaSimbolos,True)\n"
+    texttraduccion += identacion+nodo.id+"="+Eti+"[0][0]\n"
+    puntero += 1
+
+def TraducirAsignaQuery(nodo,funcion,tablaSimbolos):
+    global texttraduccion,contadoresT,puntero,stack
+    stack.append(nodo.query)
+    Eti ="t"+str(contadoresT)
+    contadoresT+=1
+    texttraduccion += identacion+Eti+"= p3.queryEx(stack["+str(puntero)+"],p3.tablaSimbolos,True)\n"
+    texttraduccion += identacion+nodo.id+"="+Eti+"[0][0]\n"
+    puntero += 1
 
 
 def TraducirCase(nodo,funcion,tablaSimbolos):
@@ -1224,11 +1263,11 @@ def TraducirAsignacion(nodo,funcion,tablaSimbolos):
     print("ENTRO EN ASIGNACION---------------------------------")
     banderita = False
     valor = Interpreta_Expresion(nodo.expre,funcion.variables,None,True)
-    valor3 = Interpreta_Expresion(nodo.expre,funcion.variables,None,False) 
+    #valor3 = Interpreta_Expresion(nodo.expre,funcion.variables,None,False) 
     for simbolo in funcion.variables.keys():
         if funcion.variables[simbolo].nombre ==nodo.id:
-            funcion.variables[simbolo].valor = valor3.valor
-            funcion.variables[simbolo].tipo = valor3.tipo
+            #funcion.variables[simbolo].valor = valor3.valor
+            #funcion.variables[simbolo].tipo = valor3.tipo
             banderita = True
 
     if banderita : 
@@ -1796,10 +1835,32 @@ def alterTableDropEx(nodo,tablaSimbolos):
     else:
         AlterTableDropConstraint(nodo, tablaSimbolos)
 
-def queryEx(nodo,tablaSimbolos):
+def queryEx(nodo,tablaSimbolos,banderita):
     global consola,useActual
-    if nodo.ope == False:
-        # print("Query Simple")
+    if isinstance(nodo,SQuery):
+            Qselect = nodo.select
+            Qffrom = nodo.ffrom
+            Qwhere = nodo.where
+            Qgroupby = nodo.groupby
+            Qhaving = nodo.having
+            Qorderby = nodo.orderby
+            Qlimit = nodo.limit
+            base = tablaSimbolos.get(useActual)
+            if useActual != None:
+                if base == None:
+                    listaSemanticos.append(
+                        Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
+                    return
+            pT = PrettyTable()
+            if Qselect!=False and Qffrom==False and Qwhere == False and Qgroupby ==False and Qhaving ==False and Qorderby ==False and Qlimit ==False :
+                e = Qselect
+                ejecutaLlamadaQ(e,base)
+            else:
+                B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT,banderita,tablaSimbolos)
+                if B!=0:
+                    consola += str(pT) + "\n"
+                return B
+    elif isinstance(nodo,Squeries):
         if isinstance(nodo.query1, SQuery):
             Qselect = nodo.query1.select
             Qffrom = nodo.query1.ffrom
@@ -1815,158 +1876,17 @@ def queryEx(nodo,tablaSimbolos):
                         Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
                     return
             pT = PrettyTable()
-            B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
-            if B!=0:
-                consola += str(pT) + "\n"
-
-    else:
-                    print("Query no 1")
-                    consulta1=[]
-                    consulta2=[]
-
-                    Qselect = nodo.query1.select
-                    Qffrom = nodo.query1.ffrom
-                    Qwhere = nodo.query1.where
-                    Qgroupby = nodo.query1.groupby
-                    Qhaving = nodo.query1.having
-                    Qorderby = nodo.query1.orderby
-                    Qlimit = nodo.query1.limit
-                    base = tablaSimbolos.get(useActual)
-                    if useActual != None:
-                        if base == None:
-                            listaSemanticos.append(
-                                Error.ErrorS("Error semantico", "La base de datos " + useActual + "no existe \n"))
-                            return
-                    pT = PrettyTable()
-                    consulta1=hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, False,tablaSimbolos)
-
-                    Qselect2 = nodo.query2.select
-                    Qffrom2 = nodo.query2.ffrom
-                    Qwhere2 = nodo.query2.where
-                    Qgroupby2 = nodo.query2.groupby
-                    Qhaving2 = nodo.query2.having
-                    Qorderby2 = nodo.query2.orderby
-                    Qlimit2 = nodo.query2.limit
-                    base2 = tablaSimbolos.get(useActual)
-                    pT = PrettyTable()
-                    consulta2=hacerConsulta(Qselect2, Qffrom2, Qwhere2, Qgroupby2, Qhaving2, Qorderby2, Qlimit2, base2, pT, False,tablaSimbolos)
-
-                    arrColNames = []
-                    arrFinal = []
-                    arrAux = []
-                    arrAux2 = []
-                    if nodo.ope.lower() == "union":
-                        print("union")
-                        n=0
-                        for e in consulta1:
-                            if n == 0:
-                                arrColNames .append(e)
-                            n+=1
-
-                        m=0
-                        for e in consulta1:
-                            if m != 0 :
-                                for x in e :
-                                    if x not in arrFinal:
-                                        arrFinal.append(x)
-                            m+=1
-
-                        x=0
-                        for e in consulta2:
-                            if x != 0 :
-                                for z in e :
-                                    if z not in arrFinal:
-                                        arrFinal.append(z)
-                            x+=1
-
-                        x = PrettyTable()
-                        x.field_names = arrColNames[0]
-                        for e in arrFinal:
-                            print(e)
-                            x.add_row(e)
-                        consola += str(x) + "\n"
-
-                    elif nodo.ope.lower() == "intersect":
-                        print("intersect")
-                        n=0
-                        for e in consulta1:
-                            if n == 0:
-                                arrColNames .append(e)
-                            n+=1
-
-                        m=0
-                        for e in consulta1:
-                            if m != 0 :
-                                for x in e :
-                                    if x not in arrFinal:
-                                        arrFinal.append(x)
-                                    else :
-                                        arrAux.append(x)
-                            m+=1
-
-                        x=0
-                        for e in consulta2:
-                            if x != 0 :
-                                for z in e :
-                                    if z not in arrFinal:
-                                        arrFinal.append(z)
-                                    else :
-                                        arrAux.append(z)
-                            x+=1
-
-                        x = PrettyTable()
-                        x.field_names = arrColNames[0]
-                        for e in arrAux:
-                            print(e)
-                            x.add_row(e)
-                        consola += str(x) + "\n"
-
-                    elif nodo.ope.lower() == "except":
-                        print("intersect")
-                        n=0
-                        for e in consulta1:
-                            if n == 0:
-                                arrColNames .append(e)
-                            n+=1
-
-                        m=0
-                        for e in consulta1:
-                            if m != 0 :
-                                for x in e :
-                                    if x not in arrFinal:
-                                        arrFinal.append(x)
-                                    else :
-                                        arrAux.append(x)
-                            m+=1
-
-                        x=0
-                        for e in consulta2:
-                            if x != 0 :
-                                for z in e :
-                                    if z not in arrFinal:
-                                        arrFinal.append(z)
-                                    else :
-                                        arrAux.append(z)
-                            x+=1
-
-                        #no Repetidos
-                        g=0
-                        for e in consulta1:
-                            if g != 0 :
-                                for x in e :
-                                    if x not in arrAux:
-                                        arrAux2.append(x)
-                            g+=1
+            if Qselect!=False and Qffrom==False and Qwhere == False and Qgroupby ==False and Qhaving ==False and Qorderby ==False and Qlimit ==False :
+                e = Qselect
+                ejecutaLlamadaQ(e,base)
+            else:
+                B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT,banderita,tablaSimbolos)
+                if B!=0:
+                    consola += str(pT) + "\n"
+                return B
 
 
-                        x = PrettyTable()
-                        x.field_names = arrColNames[0]
-                        for e in arrAux2:
-                            print(e)
-                            x.add_row(e)
-                        consola += str(x) + "\n"
-            
-
+    
 def definirUseActual(id):
     global useActual,consola
     useActual = id
@@ -1974,6 +1894,45 @@ def definirUseActual(id):
     return consola
 
 ####################################################################
+
+def ejecutaLlamadaQ(valor,base):
+    print("AQUI ESTA NUESTRA EJECUCION XD")
+    global stack,consola
+    for e in valor.cols:
+        print(e.id.valor.id)
+        nombreFuncion=e.id.valor.id
+        cadenaEjecutarb = "c3ddddd."+nombreFuncion+"("
+        contador=0
+        for x in e.id.valor.params:
+            #print(x.valor)
+            param=x.valor
+            if contador == 0:
+                if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
+                    cadenaEjecutarb+=str(param)
+                elif x.tipo == Expresion.BOOLEAN:
+                    cadenaEjecutarb+=str(param)
+                elif x.tipo == Expresion.ID:
+                    cadenaEjecutarb+=str(param)
+                else:
+                    cadenaEjecutarb+="\'"+str(param)+"\'"
+               
+            else:
+                if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
+                    cadenaEjecutarb+=","+str(param)
+                elif x.tipo == Expresion.BOOLEAN:
+                    cadenaEjecutarb+=","+str(param)
+                elif x.tipo == Expresion.ID:
+                    cadenaEjecutarb+=","+str(param)
+                else:
+                    cadenaEjecutarb+=",\'"+str(param)+"\'"
+            contador += 1
+
+        cadenaEjecutarb += ")"
+        resultado = eval(cadenaEjecutarb)
+        consola += str(resultado)+"\n"
+        print("RESULTADO->"+str(resultado))
+        
+        
 
 
 def crearBase(nodo, tablaSimbolos):
@@ -3564,201 +3523,189 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         if (expresion.operador == Aritmetica.MAS):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                if cod3D:
-                    aux = item3D("","","")
-                    Etiqueta = "t" + str(contadoresT)
-                    vopt=""
-                    ropt=0
-                    contadoresT += 1
-                    '''OPTIMIZACION REGLAS 12'''
-                    aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor)
-                    if (str(opDer.valor)=="0"):
-                        #contadoresT-=1
-                        vopt=opIzq.valor
-                        aux.opt =vopt
-                        aux.regla ="Regla 12"
-                        arr_optimizacion.append(aux)
-                        ropt=12
-                    
-                    elif(str(opIzq.valor)=="0"):
-                        #contadoresT-=1
-                        vopt=opDer.valor
-                        aux.opt =vopt
-                        aux.regla ="Regla 12"
-                        arr_optimizacion.append(aux)
-                        ropt=12
-                    
-                    elif(str(opIzq.valor)=="0" and str(opDer.valor)=="0"):
-                        #contadoresT-=1
-                        vopt="0"
-                        aux.opt =vopt
-                        aux.regla ="Regla 12"
-                        ropt=12
-                        arr_optimizacion.append(aux)
-                    else:
-                        textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor) +"\n"
-                        vopt=Etiqueta
-                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor) +"\n"
-                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt,ropt)
+            if cod3D:
+                aux = item3D("","","")
+                Etiqueta = "t" + str(contadoresT)
+                vopt=""
+                ropt=0
+                contadoresT += 1
+                '''OPTIMIZACION REGLAS 12'''
+                aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor)
+                if (str(opDer.valor)=="0"):
+                    #contadoresT-=1
+                    vopt=opIzq.valor
+                    aux.opt =vopt
+                    aux.regla ="Regla 12"
+                    arr_optimizacion.append(aux)
+                    ropt=12
+                
+                elif(str(opIzq.valor)=="0"):
+                    #contadoresT-=1
+                    vopt=opDer.valor
+                    aux.opt =vopt
+                    aux.regla ="Regla 12"
+                    arr_optimizacion.append(aux)
+                    ropt=12
+                
+                elif(str(opIzq.valor)=="0" and str(opDer.valor)=="0"):
+                    #contadoresT-=1
+                    vopt="0"
+                    aux.opt =vopt
+                    aux.regla ="Regla 12"
+                    ropt=12
+                    arr_optimizacion.append(aux)
                 else:
-                    result = opIzq.valor + opDer.valor
-                    return SExpresion(result, opIzq.tipo)
+                    textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor) +"\n"
+                    vopt=Etiqueta
+                texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "+" + str(opDer.valor) +"\n"
+                return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt,ropt)
+            else:
+                result = opIzq.valor + opDer.valor
+                return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.MENOS):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                if cod3D:
-                    aux = item3D("","","")
-                    Etiqueta = "t" + str(contadoresT)
-                    contadoresT += 1
-                    vopt=""
-                    ropt=0
-                    '''OPTIMIZACION REGLAS 13'''
-                    aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor)
-                    if (str(opDer.valor)=="0"):
-                        #contadoresT-=1
-                        vopt=opIzq.valor
-                        ropt=13
-                        aux.opt =vopt
-                        aux.regla ="Regla 13"                        
-                        arr_optimizacion.append(aux)                        
-                    elif(str(opIzq.valor)=="0" and str(opDer.valor)=="0"):
-                        #contadoresT-=1
-                        vopt="0"
-                        aux.opt =vopt
-                        aux.regla ="Regla 13"
-                        arr_optimizacion.append(aux)
-                        #ropt13
-                    else:
-                        textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor) +"\n"
-                        vopt=Etiqueta
-                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor) +"\n"
-                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt,ropt)
+            if cod3D:
+                aux = item3D("","","")
+                Etiqueta = "t" + str(contadoresT)
+                contadoresT += 1
+                vopt=""
+                ropt=0
+                '''OPTIMIZACION REGLAS 13'''
+                aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor)
+                if (str(opDer.valor)=="0"):
+                    #contadoresT-=1
+                    vopt=opIzq.valor
+                    ropt=13
+                    aux.opt =vopt
+                    aux.regla ="Regla 13"                        
+                    arr_optimizacion.append(aux)                        
+                elif(str(opIzq.valor)=="0" and str(opDer.valor)=="0"):
+                    #contadoresT-=1
+                    vopt="0"
+                    aux.opt =vopt
+                    aux.regla ="Regla 13"
+                    arr_optimizacion.append(aux)
+                    #ropt13
                 else:
-                    result = opIzq.valor - opDer.valor
-                    return SExpresion(result, opIzq.tipo)
+                    textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor) +"\n"
+                    vopt=Etiqueta
+                texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "-" + str(opDer.valor) +"\n"
+                return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt,ropt)
+            else:
+                result = opIzq.valor - opDer.valor
+                return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.POR):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                if cod3D:
-                    aux = item3D("","","")
-                    Etiqueta = "t" + str(contadoresT)
-                    contadoresT += 1
-                    vopt=""
-                    ropt=0
-                    ''' OPTIMIZACION REGLAS 14,16,17'''
-                    aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor)
-                    if (str(opDer.valor)=="0" or str(opIzq.valor)=="0"):
-                        #contadoresT-=1
-                        vopt="0"
-                        aux.opt =vopt
-                        aux.regla ="Regla 17"
-                        arr_optimizacion.append(aux) 
-                        ropt=17
-                    elif(str(opDer.valor)=="1"):
-                        #contadoresT-=1
-                        vopt=opIzq.valor
-                        aux.opt =vopt
-                        aux.regla ="Regla 14"
-                        arr_optimizacion.append(aux) 
-                        ropt=14
-                    elif(str(opIzq.valor)=="1"):
-                        #contadoresT-=1
-                        vopt=opDer.valor
-                        aux.opt =vopt
-                        aux.regla ="Regla 14"
-                        arr_optimizacion.append(aux) 
-                        ropt=14
-                    elif(str(opDer.valor)=="2"):
-                        textoptimizado +=identacion+ Etiqueta + "="+str(opIzq.valor)+"+" +str(opIzq.valor)+"\n"
-                        vopt=Etiqueta
-                        aux.opt =vopt
-                        aux.regla ="Regla 16"
-                        arr_optimizacion.append(aux)          
-                        ropt=16
-                    elif(str(opIzq.valor)=="2"):
-                        textoptimizado +=identacion+ Etiqueta + "="+str(opDer.valor)+"+" +str(opDer.valor)+"\n"
-                        vopt=Etiqueta
-                        ropt=16
-                        aux.opt =vopt
-                        aux.regla ="Regla 16"
-                        arr_optimizacion.append(aux) 
-                    else:
-                        textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor) +"\n"
-                        vopt=Etiqueta
-                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor) + "\n"
-                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt,ropt)
+            if cod3D:
+                aux = item3D("","","")
+                Etiqueta = "t" + str(contadoresT)
+                contadoresT += 1
+                vopt=""
+                ropt=0
+                ''' OPTIMIZACION REGLAS 14,16,17'''
+                aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor)
+                if (str(opDer.valor)=="0" or str(opIzq.valor)=="0"):
+                    #contadoresT-=1
+                    vopt="0"
+                    aux.opt =vopt
+                    aux.regla ="Regla 17"
+                    arr_optimizacion.append(aux) 
+                    ropt=17
+                elif(str(opDer.valor)=="1"):
+                    #contadoresT-=1
+                    vopt=opIzq.valor
+                    aux.opt =vopt
+                    aux.regla ="Regla 14"
+                    arr_optimizacion.append(aux) 
+                    ropt=14
+                elif(str(opIzq.valor)=="1"):
+                    #contadoresT-=1
+                    vopt=opDer.valor
+                    aux.opt =vopt
+                    aux.regla ="Regla 14"
+                    arr_optimizacion.append(aux) 
+                    ropt=14
+                elif(str(opDer.valor)=="2"):
+                    textoptimizado +=identacion+ Etiqueta + "="+str(opIzq.valor)+"+" +str(opIzq.valor)+"\n"
+                    vopt=Etiqueta
+                    aux.opt =vopt
+                    aux.regla ="Regla 16"
+                    arr_optimizacion.append(aux)          
+                    ropt=16
+                elif(str(opIzq.valor)=="2"):
+                    textoptimizado +=identacion+ Etiqueta + "="+str(opDer.valor)+"+" +str(opDer.valor)+"\n"
+                    vopt=Etiqueta
+                    ropt=16
+                    aux.opt =vopt
+                    aux.regla ="Regla 16"
+                    arr_optimizacion.append(aux) 
                 else:
-                    result = opIzq.valor * opDer.valor
-                    return SExpresion(result, opIzq.tipo)
+                    textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor) +"\n"
+                    vopt=Etiqueta
+                texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "*" + str(opDer.valor) + "\n"
+                return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt,ropt)
+            else:
+                result = opIzq.valor * opDer.valor
+                return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.DIVIDIDO):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                if cod3D:
-                    aux = item3D("","","")
-                    Etiqueta = "t" + str(contadoresT)
-                    contadoresT += 1
-                    vopt=""
-                    ropt=0
-                    aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor)
-                    ''' OPTIMIZACION REGLA 18,15'''
-                    if(str(opDer.valor)=="1"):
-                        #contadoresT-=1
-                        vopt=opIzq.valor
-                        ropt=15
-                        aux.opt =vopt
-                        aux.regla ="Regla 15"
-                        arr_optimizacion.append(aux)
-                    elif (str(opIzq.valor)=="0"):
-                        #contadoresT-=1
-                        vopt="0"
-                        ropt=18
-                        aux.opt =vopt
-                        aux.regla ="Regla 18"
-                        arr_optimizacion.append(aux)
-                    else:
-                        textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor) +"\n"
-                        vopt=Etiqueta
-                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor)+ "\n"
-                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt,ropt)
+            if cod3D:
+                aux = item3D("","","")
+                Etiqueta = "t" + str(contadoresT)
+                contadoresT += 1
+                vopt=""
+                ropt=0
+                aux.cod3d = Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor)
+                ''' OPTIMIZACION REGLA 18,15'''
+                if(str(opDer.valor)=="1"):
+                    #contadoresT-=1
+                    vopt=opIzq.valor
+                    ropt=15
+                    aux.opt =vopt
+                    aux.regla ="Regla 15"
+                    arr_optimizacion.append(aux)
+                elif (str(opIzq.valor)=="0"):
+                    #contadoresT-=1
+                    vopt="0"
+                    ropt=18
+                    aux.opt =vopt
+                    aux.regla ="Regla 18"
+                    arr_optimizacion.append(aux)
                 else:
-                    result = opIzq.valor / opDer.valor
-                    return SExpresion(result, opIzq.tipo)
+                    textoptimizado +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor) +"\n"
+                    vopt=Etiqueta
+                texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "/" + str(opDer.valor)+ "\n"
+                return Etiquetas(Etiqueta,opIzq.tipo,False,False,vopt,ropt)
+            else:
+                result = opIzq.valor / opDer.valor
+                return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.MODULO):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                if cod3D:
-                    Etiqueta = "t" + str(contadoresT)
-                    contadoresT += 1
-                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "%" + str(opDer.valor) + "\n"
-                    textoptimizado += identacion+ Etiqueta + "=" + str(opIzq.valor) + "%" + str(opDer.valor) +"\n"
-                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,Etiqueta,0)
-                else:
-                    result = opIzq.valor % opDer.valor
-                    return SExpresion(result, opIzq.tipo)
+            if cod3D:
+                Etiqueta = "t" + str(contadoresT)
+                contadoresT += 1
+                texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "%" + str(opDer.valor) + "\n"
+                textoptimizado += identacion+ Etiqueta + "=" + str(opIzq.valor) + "%" + str(opDer.valor) +"\n"
+                return Etiquetas(Etiqueta,opIzq.tipo,False,False,Etiqueta,0)
+            else:
+                result = opIzq.valor % opDer.valor
+                return SExpresion(result, opIzq.tipo)
         if (expresion.operador == Aritmetica.POTENCIA):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla, cod3D)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla, cod3D)
-            if (opIzq.tipo == Expresion.ENTERO or opIzq.tipo == Expresion.DECIMAL) and (
-                    opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
-                if cod3D:
-                    ############################################################# potencia xd 
-                    Etiqueta = "t" + str(contadoresT)
-                    contadoresT += 1
-                    texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "" + str(opDer.valor) 
-                    return Etiquetas(Etiqueta,opIzq.tipo,False,False,Etiqueta,0)
-                else:
-                    result = opIzq.valor ** opDer.valor
-                    return SExpresion(result, opIzq.tipo)
+            if cod3D:
+                ############################################################# potencia xd 
+                Etiqueta = "t" + str(contadoresT)
+                contadoresT += 1
+                texttraduccion +=identacion+ Etiqueta + "=" + str(opIzq.valor) + "" + str(opDer.valor) 
+                return Etiquetas(Etiqueta,opIzq.tipo,False,False,Etiqueta,0)
+            else:
+                result = opIzq.valor ** opDer.valor
+                return SExpresion(result, opIzq.tipo)
     # f
     elif isinstance(expresion, SFuncMath):
         if expresion.funcion.lower() == "abs":

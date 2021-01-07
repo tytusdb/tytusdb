@@ -690,21 +690,50 @@ def p_ASIGNACION1(t):
                      | id igual  QUERY  ptComa
                              
     '''
-
+    if len(t) == 5:
+        t[0] = SAsignaQuery(t[1],t[3])
+    elif len(t) == 7:
+        t[0] = SAsignaQuery(t[1],t[4])
 
 
 def p_DECLARATIONQUERY(t):
-    ''' DECLARATION :  NAME_CONSTANT TIPO ASIGNAR QUERY ptComa
-                    |  NAME_CONSTANT ASIGNAR QUERY ptComa
+    ''' DECLARATION :  NAME_CONSTANT ASIGNAR QUERY ptComa
+                    |  NAME_CONSTANT TIPO ASIGNAR QUERY ptComa
+                    |  NAME_CONSTANT not null ASIGNAR QUERY ptComa
                     |  NAME_CONSTANT TIPO not null ASIGNAR QUERY ptComa 
-                    |  NAME_CONSTANT talias tfor QUERY ptComa 
-                    |  NAME_CONSTANT not null ASIGNAR QUERY ptComa 
-                    |  NAME_CONSTANT TIPO ASIGNAR parAbre QUERY parCierra ptComa
-                    |  NAME_CONSTANT ASIGNAR parAbre QUERY parCierra ptComa
-                    |  NAME_CONSTANT TIPO not null ASIGNAR parAbre QUERY parCierra ptComa 
-                    |  NAME_CONSTANT talias tfor parAbre QUERY parCierra ptComa 
-                    |  NAME_CONSTANT not null ASIGNAR parAbre QUERY parCierra ptComa 
+                    |  NAME_CONSTANT not null ASIGNAR parAbre QUERY parCierra ptComa
+                    |  NAME_CONSTANT TIPO not null ASIGNAR parAbre QUERY parCierra ptComa                     
     '''
+    if len(t) == 5:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], None, False, t[2], t[3])
+    elif len(t) == 6:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], t[2], False, t[3], t[4])
+    elif len(t) == 7:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], None, True, t[4], t[5])
+    elif len(t) == 8:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], t[2], True, t[5], t[6])
+    elif len(t) == 9:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], None, True, t[4], t[6])
+    elif len(t) == 10:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], t[2], True, t[5], t[7])
+
+def p_DECLARATIONQUERY2(t):
+    ''' DECLARATION :   NAME_CONSTANT ASIGNAR parAbre QUERY parCierra ptComa
+                    |   NAME_CONSTANT TIPO ASIGNAR parAbre QUERY parCierra ptComa'''
+    if len(t) == 7:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], None, False, t[2], t[4])
+    elif len(t) == 8:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], t[2], False, t[3], t[5])
+
+
+def p_DECLARATIONQUERY3(t):
+    ''' DECLARATION :  NAME_CONSTANT talias tfor QUERY ptComa  
+                    |  NAME_CONSTANT talias tfor parAbre QUERY parCierra ptComa 
+    '''
+    if len(t) == 6:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], t[2], False, False, t[4])
+    elif len(t) == 8:
+        t[0] = SDeclaracionQuery(t[1]["id"],t[1]["constt"], t[2], False, False, t[5])
 #*********************************************************************************************************************
 
 
@@ -769,13 +798,23 @@ def p_BLOCK(t):
 
 def p_CALL(t):
     ''' CALL :  execute id parAbre LISTA_EXP parCierra 
-              | execute id parAbre  parCierra   
+              | execute id parAbre  parCierra     
     '''
     if len(t) == 6:
         t[0] = SCall(t[2],t[4])
     elif len(t) == 5:
         t[0] = SCall(t[2],False)
 
+        
+              
+def p_CALL2(t):
+    ''' CALL : id parAbre LISTA_EXP parCierra 
+             | id parAbre parCierra     
+    '''
+    if len(t) == 5:
+        t[0] = SCall(t[1],t[3])
+    elif len(t) == 4:
+        t[0] = SCall(t[1],False)
 
 
 def p_ASIGNACION(t):
@@ -1823,6 +1862,7 @@ def p_val(p):
 
 def p_LLAMADAFUNCION(p):
     '''E : CALL '''
+    p[0] = SExpresion(p[1],Expresion.LLAMADA)
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -2070,7 +2110,7 @@ def p_EXPR_COLUMNAS1(p):
     elif len(p) == 3:
         p[0] = SColumnasAsSelect(p[2], p[1])
     else:
-        p[0] = SColumnasAsSelect(False, p[1])
+        p[0] = SSelectLlamadaQuery(p[1])
 
 def p_EXPR_COLUMNAS2(p):
     '''EXPR_COLUMNAS1 : parAbre QUERY parCierra

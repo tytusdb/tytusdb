@@ -38,6 +38,7 @@ class Expresion(Enum):
     FECHA_HORA=10
     INTERVALO=11
     NULL=12
+    LLAMADA =13
 
 
 class TipoDato(Enum):
@@ -112,6 +113,19 @@ class SCall (Sentencia):
         self.id = id
         self.params = params
 
+class SAsignaQuery(Sentencia):
+    def __init__(self, id, query):
+        self.id = id
+        self.query = query
+
+class SDeclaracionQuery (Sentencia):
+    def __init__(self, id, constant, tipo, notNull, default, query):
+        self.id = id
+        self.constant = constant
+        self.tipo = tipo
+        self.notNull = notNull
+        self.default = default
+        self.query = query
 
 class SAsignacion (Sentencia):
     def __init__(self, id, expre):
@@ -425,6 +439,10 @@ class SSelectCols(Sentencia):
 
 
 class SSelectFunc(Sentencia):
+    def __init__(self, id):
+        self.id = id
+
+class SSelectLlamadaQuery(Sentencia):
     def __init__(self, id):
         self.id = id
 
