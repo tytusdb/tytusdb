@@ -5,6 +5,7 @@ import tablaDGA as TAS
 import InstruccionesDGA as dga
 #from Interfaz import lista
 funciones = []
+objopt = []
 
 class pl():
     'Clase abstacta'
@@ -286,7 +287,7 @@ class llamadaF(pl):
     
 
 class createfunc(pl):
-    def __init__(self,id,lparams,returntype,block) -> None:
+    def __init__(self,id,lparams,returntype,block):
         self.id = id
         self.lparams = lparams
         self.returntype = returntype
@@ -601,6 +602,7 @@ class exp_boolp(expresion):
         valor = tmp
         res = self.val
         obj = oo.Asignacion(tmp,self.val,None,None)
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -616,6 +618,7 @@ class exp_textp(expresion):
         valor = tmp
         res = self.val
         obj = oo.Asignacion(tmp,self.val,None,None)
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -631,6 +634,7 @@ class exp_nump(expresion):
         valor = tmp
         res = float(self.val)
         obj = oo.Asignacion(tmp,self.val,None,None)
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -661,6 +665,7 @@ class exp_sumap(expresionC):
         valor = tmp
         res =  res1 + res2
         obj = oo.Asignacion(tmp,tmp1,tmp2,'+')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -687,6 +692,7 @@ class exp_restap(expresion):
         valor = tmp
         res = res1 - res2
         obj = oo.Asignacion(tmp,tmp1,tmp2,'-')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res    
 
@@ -713,6 +719,7 @@ class exp_multiplicacionp(expresion):
         valor = tmp
         res = res1 * res2
         obj = oo.Asignacion(tmp,tmp1,tmp2,'*')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
         
@@ -740,6 +747,7 @@ class exp_divisionp(expresion):
         valor = tmp
         res = res1 / res2
         obj = oo.Asignacion(tmp,tmp1,tmp2,'/')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -753,6 +761,7 @@ class exp_idp(expresion):
         valor = tmp
         res = ts.getVariable(self.val)
         obj = oo.Asignacion(tmp,self.val,None,None)
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -779,6 +788,7 @@ class exp_mayorp(expresion):
         #res = res1 > res2
         res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'>')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -805,6 +815,7 @@ class exp_menorp(expresion):
         #res = res1 < res2
         res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'<')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -831,6 +842,7 @@ class exp_igualp(expresion):
         #res = res1 == res2
         res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'==')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -857,6 +869,7 @@ class exp_mayor_igualp(expresion):
         #res = res1 >= res2
         res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'>=')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -883,6 +896,7 @@ class exp_menor_igualp(expresion):
         #res = res1 <= res2
         #True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'<=')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
@@ -909,12 +923,42 @@ class exp_diferentep(expresion):
         #res = res1 != res2
         res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'!=')
+        objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
 
 class inst_procedural(expresion):
     def __init__(self,val):
         self.val = val
+        self.lista = []
+    
+    def c3d(self):
+        for i in range(1,len(self.val)):
+            v = self.val[i].value
+            if isinstance(v,list):
+                for val in v:
+                    self.lista.append(val)
+            else:
+                self.lista.append(v)
+        res = ''
+        print(self.lista)
+        for txt in self.lista:
+            if isinstance(txt,list):
+                res +=' ('
+                for l in txt:
+                    res+=' '+l+','
+                res = res[:-1]
+                res += ')'
+                continue
+            res+= ' '+ txt   
+        return res
+
+        
+
+    def traducir(self):
+        return ''
+
+    
 
 class pl_mathtrig(pl):
     'Abstract Class'

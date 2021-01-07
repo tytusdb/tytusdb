@@ -96,7 +96,7 @@ class OptMirilla:
                         #Si la condición de arriba no se cumple, seguimos analizando
                         if type(elemento.Valor) == C3D.Identificador:
                             #Si esto se valida, quiere decir que encontramos una asiganción de variable a otra
-                            if elemento.Valor.Id == operacion.Tx.Id:
+                            if elemento.Valor.Id == operacion.Tx.Id and elemento.Tx.Id == operacion.Valor.Id:
                                 #Si entramos aquí quiere decir que cumple las condiciones para ser optimizado
                                 #Indicamos que esta línea de código es inutil, y seguimos nuestro análisis en busca de otros puntos similares
                                 termino = elemento.Tx.Id + ' = ' + str(elemento.Valor.Id)
@@ -114,6 +114,7 @@ class OptMirilla:
         posiblesIgnorados = []
         indiceAux = 0
         reportado = []
+        posiblesIgnorados.append(indice)
         for elementos in pila:
             if indiceAux > indice:
                 #Aquí ya estamos más adelante que nuestra orden anterior.

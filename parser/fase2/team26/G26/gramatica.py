@@ -2066,6 +2066,16 @@ def p_alterpi(t):
     reporte = "<alter> ::= INDEX ID ALTER ID ID PTCOMA\n"
     t[0] = {'ast' : alter.AlterIndex(t[3], t[5], t[6]), 'graph' : grafo.index, 'reporte': reporte}
 
+def p_alterpiN(t):
+    '''alter    : INDEX iexi ID ALTER coluem ENTERO PTCOMA'''
+    grafo.newnode('ALTER')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenE(t[5])
+    grafo.newchildrenE(t[6])
+    reporte = "<alter> ::= INDEX ID ALTER ID ENTERO PTCOMA\n"
+    t[0] = {'ast' : alter.AlterIndexN(t[3], t[5], t[6]), 'graph' : grafo.index, 'reporte': reporte}
+
 def p_alterpiiexi(t):
     '''iexi    : IF EXISTS
                 | '''

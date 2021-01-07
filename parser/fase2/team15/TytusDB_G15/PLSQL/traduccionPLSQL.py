@@ -4,6 +4,8 @@ from PLSQL.instruccionesPLSQL import *
 from PLSQL.expresionesPLSQL import *
 import PLSQL.gramaticaPLSQL as g
 from PLSQL.report_astPLSQL import *
+from PLSQL.report_optimizacionPLSQL import *
+
 
 temporalT = 0
 temporalA = 0
@@ -167,12 +169,24 @@ def generarC3D(instrucciones, ts_global):
         elif isinstance(instruccion, FuncionIndex):
             cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
             cadenaFuncionIntermedia += createIndexFuncion(instruccion, ts)
-            
+        elif isinstance(instruccion, UpdateTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createUpdateTableFuncion(instruccion, ts)   
+        elif isinstance(instruccion, DropIndex):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createDropIndexFuncion(instruccion, ts) 
+        elif isinstance(instruccion, AlterIndex):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createAlterIndexFuncion(instruccion, ts)
+        elif isinstance(instruccion, AlterIndexColumn):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createAlterIndexColumnFuncion(instruccion, ts)
             
         indice = indice + 1
     tablaSimbolos = ts
     
-    cadenaTraduccion += "\n\tprint(inter.Reportes())"
+    if numFuncionSQL > 0:
+        cadenaTraduccion += "\n\tprint(inter.Reportes())"
 
     cadenaTraduccion += '\t\n'
     cadenaTraduccion += '\tgoto. end'
@@ -194,6 +208,7 @@ def generarC3D(instrucciones, ts_global):
 
 def generarPrincipal(instruccion, ts):
     global cadenaTraduccion
+    global cadenaFuncionIntermedia,numFuncionSQL
     indice = 0
     instrucciones = instruccion.instrucciones
     while indice < len(instrucciones):
@@ -214,6 +229,12 @@ def generarPrincipal(instruccion, ts):
             generarEtiqueta(instruccion, ts)
         elif isinstance(instruccion, Salto):
             generarSalto(instruccion,ts)
+        elif isinstance(instruccion, InsertTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createInsertTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, UpdateTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createUpdateTableFuncion(instruccion, ts)
         indice = indice + 1
 
 def generarEtiqueta(instruccion, ts):
@@ -346,43 +367,35 @@ def generarExpresion(expresion, ts):
         exp2 = generarExpresion(expresion.exp2, ts)
         operador = getOperador(expresion.operador)
         if operador == '+' and exp2 == 0:
-            # Regla 8 | 12
-            print("Regla 8 | 12")
-            cadenaTraduccion += '\n\t# REGLA 8 - OPTIMIZACION POR MIRILLA'
-            tablaOptimizacion.append(Optimizacion('Regla 8|12', str(exp1) + " " + str(operador) + " " + str(exp2)))
+            reglaOptimizacion = OptimizacionR('Regla 8 & Regla 12',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '-' and exp2 == 0:
-            # Regla 9 | 13
-            print("Regla 9 | 13")
-            tablaOptimizacion.append(Optimizacion('Regla 9|13', str(exp1) + " " + str(operador) + " " + str(exp2)))
+            reglaOptimizacion = OptimizacionR('Regla 9 & Regla 13',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '*' and exp2 == 1:
-            # Regla 10 | 14
-            print("Regla 10 | 14")
-            tablaOptimizacion.append(Optimizacion('Regla 10|14', str(exp1) + " " + str(operador) + " " + str(exp2)))
+            reglaOptimizacion = OptimizacionR('Regla 10 & Regla 14',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '/' and exp2 == 1:
-            # Regla 11 | 15
-            print("Regla 11 | 15")
-            tablaOptimizacion.append(Optimizacion('Regla 11|15', str(exp1) + " " + str(operador) + " " + str(exp2)))
+            reglaOptimizacion = OptimizacionR('Regla 11 & Regla 15',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '*' and exp2 == 2:
-            # Regla 16
-            print("Regla 16")
-            tablaOptimizacion.append(Optimizacion('Regla 16', str(exp1) + " " + str(operador) + " " + str(exp2)))
             cadena = str(exp1) + " + " + str(exp1) + ''
+            reglaOptimizacion = OptimizacionR('Regla 16',str(exp1) + " " + str(operador) + " " + str(exp2),str(cadena) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return cadena
         elif operador == '*' and exp2 == 0:
-            # Regla 17
-            print("Regla 17")
-            tablaOptimizacion.append(Optimizacion('Regla 17', str(exp1) + " " + str(operador) + " " + str(exp2)))
             cadena = str(0)
+            reglaOptimizacion = OptimizacionR('Regla 17',str(exp1) + " " + str(operador) + " " + str(exp2),str(cadena) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return cadena
         elif operador == '/' and exp1 == 0:
-            # Regla 18
-            print("Regla 18")
-            tablaOptimizacion.append(Optimizacion('Regla 18', str(exp1) + " " + str(operador) + " " + str(exp2)))
             cadena = str(0)
+            reglaOptimizacion = OptimizacionR('Regla 18',str(exp1) + " " + str(operador) + " " + str(exp2),str(cadena) )
+            tablaOptimizacion.append(reglaOptimizacion)
             return cadena
         else:
             temporal = generarTemporalT()
@@ -555,6 +568,8 @@ def getEmpty(tipo):
         return "\'\'"
     elif tipo == TIPO_DATO.BOOLEAN:
         return False
+    else:
+        return 0
 
 def getOperador(operador):
     if operador == OPERADOR.MAS:
@@ -679,6 +694,31 @@ def createIndexFuncion(instruccion, ts):
     cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
     return cadenaSQL
 
+def createUpdateTableFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createDropIndexFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createAlterIndexFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createAlterIndexColumnFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+
 def generarFuncionesSQL(instruccionSQL,numero):
     global numFuncionSQL
     cadenaFuncionSQL = ""
@@ -706,12 +746,13 @@ def generarFuncionesSQLREPORTES():
     cadenaFuncionSQL = ""
     cadenaFuncionSQL += "\n\tdef Reportes(self):"
     cadenaFuncionSQL += "\n\t\tglobal instrucciones_Global,tc_global1,ts_global1,listaErrores,ts_globalIndex1"
-    cadenaFuncionSQL += "\n\t\t#astGraph = AST()"
-    cadenaFuncionSQL += "\n\t\t#astGraph.generarAST(instrucciones_Global)"
+    cadenaFuncionSQL += "\n\t\tastGraph = AST()"
+    cadenaFuncionSQL += "\n\t\tastGraph.generarAST(instrucciones_Global)"
     cadenaFuncionSQL += "\n\t\ttypeC = TipeChecker()"
     cadenaFuncionSQL += "\n\t\ttypeC.crearReporte(tc_global1)"
     cadenaFuncionSQL += "\n\t\tRTablaS = RTablaDeSimbolos()"
     cadenaFuncionSQL += "\n\t\tRTablaS.crearReporte(ts_global1,ts_globalIndex1)"
+    cadenaFuncionSQL += "\n\t\tRTablaS.crearReporte1(ts_global1,ts_globalIndex1)"
     cadenaFuncionSQL += "\n\t\treturn \'\'\n\n"
     return cadenaFuncionSQL
 

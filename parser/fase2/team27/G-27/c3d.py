@@ -13,6 +13,7 @@ import sys
 #imports instrucciones
 from Instrucciones.instruction import *
 from Instrucciones.ins_if import *
+from Instrucciones.ins_case import *
 from prettytable import PrettyTable
 from copy import copy
 from environment import arregloFunciones,arregloF
@@ -30,6 +31,8 @@ consid.append('false')
 consid.append('false')
 executing = False
 auxiliarTable = []
+bandexp = list()
+bandexp.append('prim')
 # ======================================================================
 #                        PALABRAS RESERVADAS DEL LENGUAJE
 # ======================================================================
@@ -1877,40 +1880,51 @@ def p_then(t):
     else: 
         t[0] = ''
 
-def p_else(t):
-    '''else : ELSE sentencia  '''
-
-def p_else_null(t):
-    '''else : '''
-
 def p_sentencia(t):
-    '''sentencia : statements'''
+    '''sentencia : statements
+                 | '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else: 
+        t[0] = ''
 
 def p_instruccion_case(t):
-    '''instruccion_case : CASE exp_plsql cases else END CASE PUNTO_COMA'''
+    '''instruccion_case : CASE exp_plsql cases END CASE PUNTO_COMA'''
+    codi = ''
+    condi = traduct(t[2])
+    if isinstance(t[3],Ins_Case):
+        t[3].case = condi['temp']
+        codi = t[3].Traduct()
+
+    t[0] = condi['c3d']+'\n'+t[1]+' '+condi['temp']+'\n'+codi+' '+t[4]+' '+t[5]+' '+t[6]+'\n'
 
 def p_cases(t):
-    '''cases : cases instruccion_case_only '''
-
-def p_cases_ins(t):
-    '''cases : instruccion_case_only'''
-
-def p_cases_ins_null(t):
-    '''cases : '''
-
-def p_instruccion_case_only(t):
-    '''instruccion_case_only : WHEN multiple then'''
+    '''cases : WHEN multiple then cases
+             | WHEN multiple then ELSE sentencia
+             | WHEN multiple then '''
+    
+    if len(t) == 6:
+        print('when else')
+        insif = Ins_Case(t[2],t[3],t[5],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    elif len(t) == 5:
+        print('when when')
+        insif = Ins_Case(t[2],t[3],t[4],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    else:
+        print('when solo ')
+        insif = Ins_Case(t[2],t[3],None,t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
 
 def p_multiple(t):
     '''multiple : multiple COMA exp_plsql
-                    | exp_plsql'''
-
-def p_lista_exp(t):
-    ''' lista_exp : lista_exp COMA exp_plsql'''
-
-def p_lista_exp_only(t):
-    ''' lista_exp : exp_plsql'''
-
+                | exp_plsql'''
+    
+    if len(t) == 4:
+        t[1].append({'valor':t[3],'tipo':copy(bandexp[0])})
+        t[0] = t[1]
+    else:       
+        t[0] = [{'valor':t[1],'tipo':copy(bandexp[0])}]
 def p_statements(t):
     ''' statements : statements statement
                    | statement'''

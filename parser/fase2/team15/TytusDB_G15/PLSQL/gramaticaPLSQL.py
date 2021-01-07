@@ -1,6 +1,8 @@
+from PLSQL.report_erroresPLSQL import *
 # Global Variables
 listaErroresLexicos = []
 listaErroresSintacticos = []
+entradaa = ""
 
 # Declaracion palabras reservadas
 reservadas = {
@@ -472,8 +474,10 @@ def t_newline(t):
 
 # Error Lexico
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    listaErroresLexicos.append(ErrorLexico(t.value[0], t.lexer.lineno, t.lexpos))
+    errorLexico = Error(str(t.value[0]),int(t.lineno),int(t.lexpos), "Error Lexico")
+    listaErrores.append(errorLexico)
+    #print("Illegal character '%s'" % t.value[0])
+    #listaErroresLexicos.append(ErrorLexico(t.value[0], t.lexer.lineno, t.lexpos))
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
@@ -533,7 +537,10 @@ def p_instrucciones_global_sent(t):
                                     | alterDB_insrt
                                     | alterTable_insrt
                                     | insert_insrt
-                                    | createIndex'''
+                                    | update_insrt
+                                    | createIndex
+                                    | drop_insrt_index
+                                    | alterindex_insrt'''
     t[0] = t[1]
 
 def p_instrucciones_global_sent1(t):
@@ -567,6 +574,8 @@ def p_instrucciones_funct_sent(t):
                                     | sentencia_switch
                                     | PTCOMA
                                     | llamada_funcion
+                                    | insert_insrt
+                                    | update_insrt
                                     | empty'''
     t[0] = t[1]
 
@@ -996,6 +1005,31 @@ def p_extract_time4(t):
 def p_extract_time5(t):
     ' extract_time : SECOND '
     t[0] = ' ' + t[1] + ' '
+
+#?######################################################
+# TODO        GRAMATICA UPDATE TABLE
+#?######################################################
+
+def p_update_insrt(t):
+    ' update_insrt : UPDATE ID SET lista_update cond_where PTCOMA'
+    cadena = ""
+    for i in t[4]:
+        cadena+= str(i)
+    t[0] = UpdateTable(' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ cadena + ' '+ str(t[5]) + ';')
+
+def p_lista_update(t):
+    ' lista_update :  lista_update COMA parametro_update'
+    t[1].append(t[2])
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_update_lista(t):
+    ' lista_update : parametro_update'
+    t[0] = [t[1]]
+
+def p_parametro_update(t):
+    ' parametro_update : ID IGUAL exclusiva_insert'
+    t[0] = ' ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' '
 
 # DROP
 #?######################################################
@@ -2249,11 +2283,11 @@ def p_funcion(t):
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_funcion2(t):
-    'funciones    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
-    for instru1 in t[13]:
+    for instru1 in t[12]:
         instrucs.append(instru1)
-    for instru2 in t[15]:
+    for instru2 in t[14]:
         instrucs.append(instru2)
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
@@ -2262,39 +2296,39 @@ def p_funcion_r(t):
     t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_funcion2_r(t):
-    'funciones    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     instrucs = []
-    for instru1 in t[15]:
+    for instru1 in t[14]:
         instrucs.append(instru1)
-    for instru2 in t[17]:
+    for instru2 in t[16]:
         instrucs.append(instru2)
     t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
 
 #PROCEDURE
 def p_procedure(t):
-    'funciones    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo LANGUAGE PLPGSQL DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR'
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_procedure2(t):
-    'funciones    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE PROCEDURE ID PARA parametros PARC LANGUAGE PLPGSQL AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR '
     instrucs = []
-    for instru1 in t[13]:
+    for instru1 in t[12]:
         instrucs.append(instru1)
-    for instru2 in t[15]:
+    for instru2 in t[14]:
         instrucs.append(instru2)
     t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
 def p_procedure_r(t):
-    'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC LANGUAGE PLPGSQL AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR '
     t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_procedure2_r(t):
-    'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR DECLARE instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
+    'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC LANGUAGE PLPGSQL AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR'
     instrucs = []
-    for instru1 in t[15]:
+    for instru1 in t[14]: 
         instrucs.append(instru1)
-    for instru2 in t[17]:
-        instrucs.append(instru2)
+    for instru2 in t[16]:
+        instrucs.append(instru2)  
     t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
     
 
@@ -2391,6 +2425,18 @@ def p_imprimir_sent(t):
 def p_asignacion(t):
     'asignacion    : ID DOSPUNTOS IGUAL expresionPLSQL PTCOMA'
     t[0] = Asignacion(t[1], t[4])
+
+def p_definicion_Declare(t):
+    'declaracion    :  DECLARE ID tipo DOSPUNTOS IGUAL expresionPLSQL PTCOMA'
+    t[0] = ListaDeclaraciones(t[3], [Declaracion(t[2], t[6])])
+
+def p_definicion_2_Declare(t):
+    'declaracion    :  DECLARE ID tipo PTCOMA'
+    t[0] = ListaDeclaraciones(t[3], [Declaracion(t[2], None)])
+
+def p_definicion_3_Declare(t):
+    'declaracion    :  DECLARE ID tipo DEFAULT expresionPLSQL PTCOMA'
+    t[0] = ListaDeclaraciones(t[3], [Declaracion(t[2], t[5])])
 
 def p_definicion(t):
     'declaracion    :  ID tipo DOSPUNTOS IGUAL expresionPLSQL PTCOMA'
@@ -2844,16 +2890,71 @@ def p_opclass(t):
                | BPCHAR_PATTERN_OPS '''
     t[0] = ' '+ str(t[1]) + ' '
 
+# DROP
+#?######################################################
+# TODO        GRAMATICA DROP INDEX
+#?######################################################
+
+
+def p_dropIndex(t):
+    ' drop_insrt_index : DROP INDEX lista_drop_id_index PTCOMA'
+    cadena = ""
+    for i in t[3]:
+        cadena+= ' ' + str(i)
+    t[0] = DropIndex(' ' + t[1] + ' '+ t[2] + ' '+ cadena + ';')
+
+def p_lista_tabla_lista_index(t):
+    ' lista_drop_id_index :   lista_drop_id_index COMA ID '
+    t[1].append(t[2])
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_tabla_lista_index2(t):
+    ' lista_drop_id_index : ID '
+    t[0] = [t[1]]
+
+#?######################################################
+# TODO        GRAMATICA ALTER INDEX
+#?######################################################
+
+
+def p_AlterIndex(t):
+    ' alterindex_insrt : ALTER INDEX ID RENAME TO ID PTCOMA'
+    t[0] = AlterIndex(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+';')
+
+def p_Alter_Index_Column(t):
+    'alterindex_insrt : ALTER INDEX ID ALTER ID opcionIndex PTCOMA'
+    t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+';')
+
+def p_Alter_Index_Column2(t):
+    'alterindex_insrt : ALTER INDEX IF EXISTS ID ALTER ID opcionIndex PTCOMA'
+    t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+' ' + t[7]+' ' + t[8]+';')
+
+def p_Alter_Index_Column_Opciones(t):
+    '''opcionIndex : ENTERO'''
+    t[0] = ' ' + str(t[1]) + ' '
+
+def p_Alter_Index_Column_Opciones2(t):
+    '''opcionIndex : ID'''
+    t[0] = ' ' + str(t[1]) + ' '
 
 
 # Errores Sintacticos
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value)
-    listaErroresSintacticos.append(ErrorLexico(t.value, t.lineno, t.lexpos))
+    #print("Error sintáctico en '%s'" % t.value)
+    #listaErroresSintacticos.append(ErrorLexico(t.value, t.lineno, t.lexpos))
+    errorSintactico = Error(str(t.value),int(t.lineno),int(find_column(str(entradaa),t)), "Error Sintactico")
+    listaErrores.append(errorSintactico)
 
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    print((token.lexpos - line_start) + 1)
+    return (token.lexpos - line_start) + 1
 
 # Función para realizar analisis
 def parse(input):
+    global entradaa
+    entradaa = input
     import ply.yacc as yacc
     parser = yacc.yacc()
     import ply.lex as lex
