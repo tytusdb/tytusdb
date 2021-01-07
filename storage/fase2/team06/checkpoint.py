@@ -579,6 +579,85 @@ def alterTableDropIndex(database, table, indexName):
     else:
         return 2
     
+def graphDSD(database):
+    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        for tabla in lista:
+            grafica += tabla + "[\nlabel="+tabla+"\nshape=record\n];\n"
+        fk = nodo[6]
+        c = 0
+        bandera = False
+        for tabla in lista:
+            for t in nodo[6]:
+                if bandera == False:
+                    if tabla == t[3]:
+                        grafica += t[1]+":f1 -> "+tabla+":f2 [\nid = "+str(c)+"\n];\n"
+                        bandera = True
+                bandera = False
+            c = c + 1
+
+    grafica +="}"
+    if grafica != "":
+        tabGen = open("tab.dot","w")
+        tabGen.write(grafica)
+        tabGen.close()
+        tab = open("tab.cmd","w")
+        tab.write("dot -Tpng tab.dot -o tab.png")
+        tab.close()
+        try:
+            os.system('tab.cmd')
+            os.system('tab.png')
+        except:
+            return None
+    return 'tab.png'
+
+def graphDF(database, table):
+    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        for tabla in lista:
+            if tabla == table:
+                grafica += tabla + "[\nlabel=" + tabla + "\nshape=record\n];\n"
+        fk = nodo[6]
+        c = 0
+        bandera = False
+        for tabla in lista:
+            if tabla ==table:
+                for t in nodo[6]:
+                    if bandera == False:
+                        if tabla == t[3]:
+                            grafica += t[1] + ":f1 -> " + tabla + ":f2 [\nid = " + str(c) + "\n];\n"
+                            bandera = True
+                    bandera = False
+                c = c + 1
+
+        for tabla in lista:
+            if tabla ==table:
+                for t in nodo[6]:
+                    if bandera == False:
+                        if tabla == t[1]:
+                            grafica += t[1] + ":f1 -> " + t[3] + ":f2 [\nid = " + str(c) + "\n];\n"
+                            bandera = True
+                    bandera = False
+                c = c + 1
+
+    grafica += "}"
+    if grafica != "":
+        tabGen = open("tab.dot","w")
+        tabGen.write(grafica)
+        tabGen.close()
+        tab = open("tab.cmd","w")
+        tab.write("dot -Tpng tab.dot -o tab.png")
+        tab.close()
+        try:
+            os.system('tab.cmd')
+            os.system('tab.png')
+        except:
+            return None
+    return 'tab.png'
 
 def decrypt(cipherbackup,clave):
     encrypt=""
@@ -610,7 +689,6 @@ def encrypt(backup,clave):
         f = Fernet(key)
         encrypted = f.encrypt(encoded)
         encriptado = encrypted.decode()
-        #creando el archivo
         archivo = open(clave+".txt","w")
         archivo.write(encrypted.decode())
         archivo.close()
@@ -618,18 +696,6 @@ def encrypt(backup,clave):
     except:
         devuelve = "1"
     return devuelve
-
-    #f = Fernet(clave)
-    #textoencriptado = f.encrypt(backup.encode("utf-8"))
-    #return textoencriptado
-
-    
-
-    #print(clave.encode())
-    #pss = base64.encodebytes(clave.encode())
-    #f = Fernet(pss)
-    #textodesencriptado = f.decrypt(cipherbackup)
-    #return textodesencriptado.decode()
 
 
 os.system('cls')
