@@ -6,7 +6,7 @@ from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 from InterpreteF2.Reporteria.ErroresSemanticos import ErroresSemanticos
 
-class RESTA(NodoArbol):
+class MODULO(NodoArbol):
 
     def __init__(self, izq: NodoArbol, der: NodoArbol, line, coliumn):
         super().__init__(line, coliumn)
@@ -26,23 +26,21 @@ class RESTA(NodoArbol):
     def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
 
         try:
-            if self.esNecesarioOptimizar(entorno, arbol):
-                return self.traducir_optimizado(entorno, arbol)
-
             izquierdo = self.izq.traducir(entorno, arbol)  # <-- tiene un temporal
             derecho = self.der.traducir(entorno, arbol)  # <-- tiene un temporal
+
             if self.analizar_semanticamente(entorno, arbol) == 0:
                 tmp = arbol.getTemp()
-                arbol.addC3D(tmp + " = int(" + izquierdo + ") - int(" + derecho + ")")
+                arbol.addC3D(tmp + " = int(" + izquierdo + ") % int(" + derecho + ")")
                 return tmp
             elif self.analizar_semanticamente(entorno, arbol) == 1:
                 tmp = arbol.getTemp()
-                arbol.addC3D(tmp + " = float(" + izquierdo + ") - float(" + derecho + ")")
+                arbol.addC3D(tmp + " = int(" + izquierdo + ") % int(" + derecho + ")")
                 return tmp
             else:
                 # Error de tipos
-                desc = 'Parametros no validos en RESTA'
-                reportero = ErroresSemanticos(desc, str(self.linea), str(self.columna), 'RESTA')
+                desc = 'Parametros no validos en EXPONENTE'
+                reportero = ErroresSemanticos(desc, str(self.linea), str(self.columna), 'EXPONENTE')
                 arbol.ErroresSemanticos.append(reportero)
                 # -------------------------------------------------------------
                 tmp = arbol.getTemp()
@@ -55,7 +53,7 @@ class RESTA(NodoArbol):
 
 
     def getString(self, entorno: Tabla_de_simbolos, arbol: Arbol) -> str:
-        cadena: str = self.izq.getString(entorno, arbol) + str(" - ") + self.der.getString(entorno, arbol)
+        cadena: str = self.izq.getString(entorno, arbol) + str(" / ") + self.der.getString(entorno, arbol)
         return cadena
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):
@@ -65,36 +63,15 @@ class RESTA(NodoArbol):
         izquierdo: Valor = self.izq.getValueAbstract(entorno, arbol)  # <-- tiene un temporal
         derecho: Valor = self.der.getValueAbstract(entorno, arbol)  # <-- tiene un temporal
         if self.analizar_semanticamente(entorno, arbol) == 0:
-            newVal: Valor = Valor(TIPO.ENTERO, int(str(izquierdo.data)) - int(str(derecho.data)))
+            newVal: Valor = Valor(TIPO.ENTERO, int(str(izquierdo.data)) / int(str(derecho.data)))
             return newVal
         elif self.analizar_semanticamente(entorno, arbol) == 1:
-            newVal: Valor = Valor(TIPO.DECIMAL, float(str(izquierdo.data)) - float(str(derecho.data)))
+            newVal: Valor = Valor(TIPO.DECIMAL, float(str(izquierdo.data)) / float(str(derecho.data)))
             return newVal
         elif self.analizar_semanticamente(entorno, arbol) == 2:
-            #newVal: Valor = Valor(TIPO.CADENA, str(str(izquierdo.data)) - str(derecho.data))
-            # ERROR SEMANTICO DE TIPOS NO SE PUEDEN RESTAR TIPOS CADENA
+            #newVal: Valor = Valor(TIPO.CADENA, str(str(izquierdo.data)) / str(derecho.data))
+            # ERROR SEMANTICO DE TIPOS NO SE PUEDEN OPERAR TIPOS CADENA
             return None
 
     def esNecesarioOptimizar(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        if str(self.izq.getString(entorno, arbol)) == '0':
-            return True
-        elif str(self.der.getString(entorno, arbol)) == '0':
-            return True
         return False
-
-    def traducir_optimizado(self, entorno: Tabla_de_simbolos, arbol: Arbol):
-        try:
-            if str(self.izq.getString(entorno, arbol)) == '0':
-                derecho = []
-                derecho.append(self.der.traducir(entorno, arbol))
-                derecho.append('9-13')
-                return derecho
-            elif str(self.der.getString(entorno, arbol)) == '0':
-                izquierdo = []
-                izquierdo.append(self.izq.traducir(entorno, arbol))
-                izquierdo.append('9-13')
-                return izquierdo
-        except:
-            tmp = arbol.getTemp()
-            arbol.addC3D(tmp + " = 0")
-            return tmp

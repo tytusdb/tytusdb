@@ -47,6 +47,9 @@ from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
 from InterpreteF2.OperacionesPrimitivas.RESTA import RESTA
 from InterpreteF2.OperacionesPrimitivas.MULTIPLICACION import MULTIPLICACION
 from InterpreteF2.OperacionesPrimitivas.DIVISION import DIVISION
+from InterpreteF2.OperacionesPrimitivas.EXPONENTE import EXPONENTE
+from InterpreteF2.OperacionesPrimitivas.MODULO import MODULO
+from InterpreteF2.OperacionesPrimitivas.UNITARIO import UNITARIO
 from InterpreteF2.OperacionesPrimitivas.OperaRelacional import OperaRelacional
 from InterpreteF2.IF.SI import SI
 from InterpreteF2.IF.SIELSE import SIELSE
@@ -2077,6 +2080,9 @@ def p_exp(t):
               | exp NOTNULL     exp
               | exp AND         exp
               | exp OR          exp
+              | exp DISTINTO exp
+              | NOT exp
+              | MENOS exp
               | expSimple
               | dateFunction
               | callfunction
@@ -2104,6 +2110,7 @@ def p_exp(t):
             pass
         elif t[2]=='^':
             # exp TKEXP exp
+            t[0] = EXPONENTE(t[1], t[3], 1, 1)
             pass
         elif t[2]=='*':
             # exp MULTI exp
@@ -2115,6 +2122,7 @@ def p_exp(t):
             pass
         elif t[2]=='%':
             # exp MODULO exp
+            t[0] = MODULO(t[1], t[3], 1, 1)
             pass
         elif t[2]=='+':
             # exp MAS exp
@@ -2158,6 +2166,9 @@ def p_exp(t):
         elif t[2]=='<=':
             # exp MENO
             t[0] = OperaRelacional(t[1], t[3], "<=", 1, 1)
+        elif t[2]=='!=':
+            # exp MENO
+            t[0] = OperaRelacional(t[1], t[3], "!=", 1, 1)
         elif t[2].lower()=='is':
             # exp IS exp
             pass
@@ -2181,6 +2192,11 @@ def p_exp(t):
     elif len(t) == 2:
         # expSimple
         t[0] = t[1]
+    elif len(t) == 3:
+        if t[1].lower()=='!':
+            t[0] = UNITARIO(t[2], t[1], 1, 1)
+        elif t[1].lower()=='-':
+            t[0] = UNITARIO(t[2], t[1], 1, 1)
 
     set('<TR> \n <TD> exp → exp ANDBB exp| exp ORBB exp | exp NUMERAL exp | exp SHIFTIZQ exp | exp SHIFTDER exp | exp TKEXP exp | exp MULTI exp | exp DIVISION exp | expSimple| dateFunction | exp NOT IN exp: </TD> \n <TD> exp = exp(t[1], t[5]) </TD> \n </TR> \n')
 
