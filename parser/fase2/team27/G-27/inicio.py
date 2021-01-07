@@ -3,8 +3,10 @@
 from tkinter import *
 import tkinter
 from c3d import analizarLex, analizarSin,tab_string, tab_func, get_errores, tab_simbolos
+from reporte import analizarASTLex, analizarASTSin
 from bnf import analizarBNFLex, analizarBNFSin
 from environment import reset
+from tkinter import messagebox
 
 # creamos una nueva ventana
 ventana = Tk()
@@ -38,6 +40,7 @@ def analizar_texto():
     txt_salida.insert('end', '\n>>>\n')
     txt_salida.insert('end', '\n=====SALIDA C3D======\n')
     txt_salida.insert('end',texto+ '\n\n\n')
+    generarArchivoPy(texto)
     txt_salida.insert('end',tab_simbolos())
     txt_salida.insert('end','\n=====REPORTE DE INDEX======')
     txt_salida.insert('end',tab_string())
@@ -70,6 +73,13 @@ def reporteBNF():
     salida_Lexico = analizarBNFLex(result)  # se envia el texto a el analizador lexico
     analizarBNFSin(result)  # se envia el texto a el analizador sintactico
     print(salida_Lexico)
+    messagebox.showinfo('Reporte BNF','Reporte BNF generado exitosamente.')
+
+def generarArchivoPy(strCodigo):
+    file=open("salida.py","w") 
+    file.write(str(strCodigo)) 
+    file.close()
+    messagebox.showinfo('Archivo C3D','Archivo salida.py generado exitosamente.')
     
 # ======================================================================
 #                               BOTONES

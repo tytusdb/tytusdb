@@ -1,4 +1,4 @@
-from analizer.abstract.expression import Expression
+from analizer.abstract.expression import Expression, TYPE
 from analizer.abstract import expression
 from analizer.symbol.environment import Environment
 from analizer.reports import Nodo
@@ -54,12 +54,14 @@ class Identifiers(Expression):
             self.type = type_
             return self
         else:
-            print('LLega a buscar el simbolo')
             if not SymbolTable.search_symbol(self.name)==0:
                 nombre,tipo,valor=SymbolTable.search_symbol(self.name)
-                self.value=valor
-                self.name=nombre
+                while not SymbolTable.search_symbol(valor)==0:
+                    nombre,tipo,valor=SymbolTable.search_symbol(valor)
+                self.name = nombre
                 self.type=tipo
+                self.value=valor
+                print(self.type, self.value)
                 return self
             else:
                 expression.list_errors.append(

@@ -10,9 +10,11 @@ from instruccion import *
 class Drop(Instruccion):
     #False: Drop table
     #True: Drop database
-    def __init__(self, id, dropopt = False):
+    def __init__(self,arg0,arg1, id, dropopt = False):
         self.dropopt = dropopt
         self.id = id
+        self.arg0 = arg0
+        self.arg1 = arg1
 
     def execute(self, data):
         #print(data)
@@ -54,6 +56,8 @@ class Drop(Instruccion):
             for id in pks :
                 for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas'] : 
                     for col in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][table]['columns'] :
+                        if col.fk == None :
+                            continue
                         for fk in col.fk:
                             if fk == None : 
                                 continue

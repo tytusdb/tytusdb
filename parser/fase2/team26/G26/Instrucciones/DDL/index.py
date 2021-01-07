@@ -135,6 +135,7 @@ class PredIndexU(Instruccion):
             for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
                 if colu.name == colid.column.upper() :
                     found = True
+                    colid.column = colid.column.upper()
                     break
             
             if not found :
@@ -168,6 +169,7 @@ class PredIndex(Instruccion):
                 for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
                     if colu.name == colid.column.upper() :
                         found = True
+                        colid.column = colid.column.upper()
                         break
                 
                 if not found :
@@ -201,6 +203,7 @@ class PredIndexLH(Instruccion):
         for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
             if colu.name == self.id.upper() :
                 found = True
+                self.id = self.id.upper()
                 break
         
         if not found :
@@ -224,6 +227,7 @@ class IndexArgs(Instruccion):
         for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
             if colu.name == self.id.upper() :
                 found = True
+                self.id = self.id.upper()
                 break
         
         if not found :

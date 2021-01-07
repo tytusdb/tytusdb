@@ -1,17 +1,19 @@
 class FunctionSymbol:
-    def __init__(self, id, returnType, params) -> None:
+    def __init__(self, type_, id, returnType, params) -> None:
         self.id = id
         self.returnType = returnType
         self.params = params
+        self.type = type_
 
 
 class GlobalEnvironment:
     def __init__(self) -> None:
         self.functions = {}
+        self.isBlock = False
 
-    def addFunction(self, id, returnType, params):
+    def addFunction(self, type_, id, returnType, params):
         if id not in self.functions:
-            self.functions[id] = FunctionSymbol(id, returnType, params)
+            self.functions[id] = FunctionSymbol(type_, id, returnType, params)
 
     def getFunction(self, id):
         """
@@ -19,3 +21,12 @@ class GlobalEnvironment:
         """
         if id in self.functions:
             return self.functions[id]
+
+    def dropFunction(self, id):
+        """
+        Esta funcion elimina un simbolo de la tabla.
+        """
+        if id in self.functions:
+            del self.functions[id]
+            return True
+        return None

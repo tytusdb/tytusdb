@@ -2,6 +2,7 @@ entrada.txt
 __pycache__/
 .idea/
 data/
+c3d.py
 parser.out
 parsetab.py 
 pruebas.py
@@ -17,4 +18,3 @@ entrada2.txt
 reporteErrores.gv
 reporteErrores.gv.pdf
 reporteTabla.gv
-c3d.py

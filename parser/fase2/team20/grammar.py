@@ -366,7 +366,7 @@ def p_instructions_list_single(t):
 def p_instructions_sql(t):
     '''sentence : ddl SEMICOLON
                 | dml SEMICOLON
-                | pl SEMICOLON'''
+                | pl'''
     global grammarreport
     if(isinstance(t[1],DropDatabase)
     or isinstance(t[1],AlterDatabaseOwner)
@@ -781,7 +781,8 @@ def p_instruction_type_bin(t):
             | VARCHAR BRACKET_OPEN INT BRACKET_CLOSE
             | CHARACTER BRACKET_OPEN INT BRACKET_CLOSE
             | CHAR BRACKET_OPEN INT BRACKET_CLOSE
-            | NUMERIC BRACKET_OPEN INT BRACKET_CLOSE'''
+            | NUMERIC BRACKET_OPEN INT BRACKET_CLOSE
+            | DECIMAL BRACKET_OPEN INT COMMA INT BRACKET_CLOSE'''
     t[0] = [t[1],t[3]]
     global grammarreport
     grammarreport = "<type> ::= "+t[1]+" '(' "+str(t[3])+" ')' { type.val=['"+t[1]+"',"+str(t[3])+"] }\n" + grammarreport
@@ -795,17 +796,21 @@ def p_instruction_create_type(t):
 #createIndex
 def p_instruction_create_index(t):
     '''createIndex : CREATE INDEX ID ON ID createIndexOption''' 
-    t[0] = CreateIndex(t[3])
+    t[0] = CreateIndex(t[3],t[5],t[6])
 
 def p_instruction_create_index_unique(t):
     '''createIndex : CREATE UNIQUE INDEX ID ON ID createIndexOption''' 
-    t[0] = CreateIndex(t[4])
+    t[0] = CreateIndex(t[4],t[6],t[7])
 
 def p_instruction_createindexoption(t):
     '''createIndexOption : USING HASH BRACKET_OPEN createIndexColumn BRACKET_CLOSE
                          | BRACKET_OPEN createIndexColumn BRACKET_CLOSE
                          | USING HASH BRACKET_OPEN createIndexColumn BRACKET_CLOSE WHERE expression
                          | BRACKET_OPEN createIndexColumn BRACKET_CLOSE WHERE expression'''
+    if(t[3]=='(' ):
+        t[0]=t[4]
+    else:
+        t[0]=t[2]
 
 def p_instruction_createindex_column(t):
     '''createIndexColumn : idList
@@ -813,10 +818,24 @@ def p_instruction_createindex_column(t):
                          | ID ascDesc
                          | ID ascDesc NULLS firstLast
                          | ID NULLS firstLast'''
+    try:
+        #grammarreport = "<selectInstruction> ::= SELECT DISTINCT <expressionList> FROM <expressionList> <selectOptions> { selectInstruction.val=Select(expressionList.val,True,expressionList.val,selectOptions.val) }\n" + grammarreport
+        if(t[2]=='ASC' or t[2]=='DESC' ):
+            t[0]=[t[1],t[2]]
+        elif(t[2]=='NULLS'):
+            t[0]==[]
+        elif(t[1]=='LOWER'):
+            t[0]=[]
+    except Exception as e:
+        print(e)
+        t[0]= t[1]
+        #grammarreport = "<selectInstruction> ::= SELECT DISTINCT <expressionList> FROM <expressionList> { selectInstruction.val=Select(expressionList.val,True,expressionList.val,None) }\n" + grammarreport
+    
 
 def p_instruction_createindex_ascdesc(t):
     '''ascDesc : ASC
                 | DESC'''
+    t[0]=t[1]
 
 def p_instruction_createindex_firstlast(t):
     '''firstLast : FIRST
@@ -834,6 +853,11 @@ def p_instruction_droptb(t):
     global grammarreport
     grammarreport = "<drop> ::= <dropTable> { drop.val=dropTable.val }\n" + grammarreport
 
+def p_instruction_dropidx(t):
+    '''drop : dropIndex'''
+    t[0]=t[1]
+
+
 def p_instruction_dropdatabase(t):
     '''dropDatabase : DROP DATABASE ID'''
     t[0] = DropDatabase(t[3],False)
@@ -845,6 +869,14 @@ def p_instruction_dropdatabase_ifexists(t):
     t[0] = DropDatabase(t[5],True)
     global grammarreport
     grammarreport = "<dropDatabase> ::= DROP DATABASE IF EXISTS ID { ID.val='"+t[5]+"'; dropDatabase.val=DropDatabase(ID.val,True) }\n" + grammarreport
+
+def p_instruction_dropindex(t):
+    '''dropIndex : DROP INDEX ID'''
+    t[0] = DropIndex(t[3],False)
+
+def p_instruction_dropindex_ifexists(t):
+    '''dropIndex : DROP INDEX IF EXISTS ID'''
+    t[0] = DropIndex(t[5],True)
 
 def p_instruction_droptable(t):
     '''dropTable : DROP TABLE ID'''
@@ -871,6 +903,10 @@ def p_instruction_altertb(t):
     global grammarreport
     grammarreport = "<alter> ::= <alterTable> { alter.val=alterTable.val }\n" + grammarreport
 
+def p_instruction_alteridx(t):
+    '''alter : alterIndex'''
+    t[0]=t[1]
+
 def p_instruction_alterdatabase_rename(t):
     '''alterDatabase : ALTER DATABASE ID RENAME TO ID'''
     t[0] = AlterDatabaseRename(t[3],t[6])
@@ -882,6 +918,38 @@ def p_instruction_alterdatabase_owner(t):
     t[0] = AlterDatabaseOwner(t[3],t[6])
     global grammarreport
     grammarreport = "<alterDatabase> ::= ALTER DATABASE ID OWNER TO ID { ID1.val='"+t[3]+"'; ID2.val='"+t[6]+"'; alterDatabase.val=AlterDatabaseOwner(ID1.val,ID2.val) }\n" + grammarreport
+
+def p_instruction_alterindexnum(t):
+    '''alterIndex : ALTER INDEX ID ALTER ID INT
+                  | ALTER INDEX ID ALTER INT '''
+    try:
+        t[0]=AlterIndex(t[3],t[6],False,True)
+    except Exception as e:
+        t[0]=AlterIndex(t[3],t[5],False,True)
+
+def p_instruction_alterindexnum_ifexists(t):
+    '''alterIndex : ALTER INDEX IF EXISTS ID ALTER ID INT
+                  | ALTER INDEX IF EXISTS ID ALTER INT '''
+    try:
+        t[0]=AlterIndex(t[5],t[6],True,True)
+    except Exception as e:
+        t[0]=AlterIndex(t[5],t[6],True,True)
+
+def p_instruction_alterindexid(t):
+    '''alterIndex : ALTER INDEX ID ALTER ID ID
+                  | ALTER INDEX ID ALTER ID '''
+    try:
+        t[0]=AlterIndex(t[3],t[6],False,False)
+    except Exception as e:
+        t[0]=AlterIndex(t[3],t[5],False,False)
+
+def p_instruction_alterindexid_ifexists(t):
+    '''alterIndex : ALTER INDEX IF EXISTS ID ALTER ID ID
+                  | ALTER INDEX IF EXISTS ID ALTER ID '''
+    try:
+        t[0]=AlterIndex(t[5],t[8],True,False)
+    except Exception as e:
+        t[0]=AlterIndex(t[5],t[7],True,False)
 
 def p_instruction_altertable_drop(t):
     '''alterTable : ALTER TABLE ID DROP COLUMN ID'''
@@ -1285,6 +1353,25 @@ def p_expression_extractfunctions(t):
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = ExtractFunction('"+t[3]+"',expression.val) }\n" + grammarreport
 
+#CREATED FUNCTIONS
+def p_expression_createdfunctions(t):
+    '''expression : ID BRACKET_OPEN expressionList BRACKET_CLOSE'''
+    t[0] = CreatedFunction(t[1],t[3])
+    global grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expressionList> ')' { expression.val = CreatedFunction('"+t[1]+"',expressionList.val) }\n" + grammarreport
+
+#SELECT
+def p_expression_selectfunctions(t):
+    '''expression : BRACKET_OPEN select BRACKET_CLOSE'''
+    t[0] = SelectFunction(t[2])
+    global grammarreport
+    grammarreport = "<expression> ::= SELECT '(' <expressionList> ')' { expression.val = SelectFunction('SELECT',expression.val) }\n" + grammarreport
+def p_expression_selectfunctions_(t):
+    '''expression : select'''
+    t[0] = SelectFunction(t[1])
+    global grammarreport
+    grammarreport = "<expression> ::= SELECT '(' <expressionList> ')' { expression.val = SelectFunction('SELECT',expression.val) }\n" + grammarreport
+
 #VALUES
 def p_expression_int(t):
     '''expression : INT'''
@@ -1325,10 +1412,37 @@ def p_expression_all(t):
 
 #-------------------------------------------PROCEDURAL LANGUAGE---------------------------------------------------------
 def p_instructions_pl(t):
-    '''pl : function'''
+    '''pl : function SEMICOLON
+          | call SEMICOLON
+          | excute SEMICOLON
+          | procedure
+          | dropproc SEMICOLON'''
     t[0]  = t[1]
 
+def p_pl_DROPPROC_1(t):
+    '''dropproc : DROP PROCEDURE ID
+                 | DROP FUNCTION ID'''
+    t[0] = DropFunction(t[3],False)
+
+def p_pl_DROPfunc_1(t):
+    '''dropproc : DROP FUNCTION IF EXISTS ID
+                 | DROP PROCEDURE IF EXISTS ID'''
+    t[0] = DropFunction(t[5],True)
+
 #FUNCTION
+def p_pl_PROC_1(t):
+    '''procedure : CREATE PROCEDURE ID BRACKET_OPEN BRACKET_CLOSE LANGUAGE PLPGSQL AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR'''
+    t[0] = CreateFunction(t[3],False,None,None,t[11])
+def p_pl_PROC_2(t):
+    '''procedure : CREATE OR REPLACE PROCEDURE ID BRACKET_OPEN BRACKET_CLOSE LANGUAGE PLPGSQL AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR'''
+    t[0] = CreateFunction(t[5],True,None,None,t[13])
+def p_pl_PROC_3(t):
+    '''procedure : CREATE PROCEDURE ID BRACKET_OPEN paramList BRACKET_CLOSE LANGUAGE PLPGSQL AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR'''
+    t[0] = CreateFunction(t[3],False,t[5],None,t[12])
+def p_pl_PROC_4(t):
+    '''procedure : CREATE OR REPLACE PROCEDURE ID BRACKET_OPEN paramList BRACKET_CLOSE LANGUAGE PLPGSQL AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR'''
+    t[0] = CreateFunction(t[5],True,t[7],None,t[14])
+#PROCEDURE    
 def p_pl_function_1(t):
     '''function : CREATE FUNCTION ID BRACKET_OPEN BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
     t[0] = CreateFunction(t[3],False,None,t[7],t[11])
@@ -1527,13 +1641,25 @@ def p_pl_declarationtype_3(t):
     '''declarationType : ID RECORD'''
 
 #ASSIGNMENT
-def p_pl_assignment(t):
-    '''assignment : ID EQUAL expression
-                  | ID TWOPOINTS EQUAL expression'''
+def p_pl_assignmentselect(t):
+    '''assignment : ID EQUAL select'''
+    t[0] = Asignment(t[1],None,t[3])
 
+def p_pl_assignmenttpselect(t):
+    '''assignment : ID TWOPOINTS EQUAL select'''
+    t[0] = Asignment(t[1],None,t[4])
+
+def p_pl_assignmentexp(t):
+    '''assignment : ID EQUAL expression'''
+    t[0] = Asignment(t[1],t[3],None)
+
+def p_pl_assignmenttpexp(t):
+    '''assignment : ID TWOPOINTS EQUAL expression'''
+    t[0] = Asignment(t[1],t[4],None)
+    
 #STATEMENTS BLOCK
 def p_pl_statementsBlock(t):
-    '''statementsBlock : BEGIN statementList  END SEMICOLON'''
+    '''statementsBlock : BEGIN statementList END SEMICOLON'''
     t[0]  = t[2]
 
 def p_pl_statementlist_list(t):
@@ -1549,16 +1675,16 @@ def p_pl_statementlist_single(t):
 def p_pl_statement(t):
     '''statement : assignment SEMICOLON
                  | optDeclaration SEMICOLON
-                 | controlStructure
+                 | controlStructure SEMICOLON
                  | ddl SEMICOLON
                  | dml SEMICOLON'''
     t[0]  = t[1]
 
 #CONTROL ESTRUCTURES
 def p_pl_controlstructure(t):
-    '''controlStructure : return SEMICOLON
-                        | call SEMICOLON
-                        | excute SEMICOLON
+    '''controlStructure : return
+                        | call
+                        | excute
                         | conditionals'''
     t[0]  = t[1]
 

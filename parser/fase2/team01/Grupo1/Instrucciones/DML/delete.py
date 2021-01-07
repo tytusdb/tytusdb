@@ -11,9 +11,11 @@ from TablaSimbolos import *
 
 class Delete(Instruccion):
 
-    def __init__(self, tableid, condiciones):
+    def __init__(self, arg0,arg1,tableid, condiciones):
         self.tableid = tableid
         self.condiciones = condiciones
+        self.arg0 = arg0
+        self.arg1 = arg1
 
     def execute(self, data):
 

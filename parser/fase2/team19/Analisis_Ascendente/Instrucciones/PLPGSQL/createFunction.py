@@ -54,6 +54,3 @@ class CreateFunction(Instruccion):
             consola.append("XX000 : internal_error")
 
 
-    #def limpiarFuncion(createFunction):
-
-
