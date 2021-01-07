@@ -67,6 +67,43 @@ class Tabla():
         else:
             print("El indice no fue encontrado")
         return None
+    
+    def alterIndice(self, indice, arbol):
+        tabla = self
+        toAlter = None
+        for i in tabla.indices:
+            if i.nombre == indice.nombre:
+                print("El indice " + i.nombre + " fue encontrado")
+                toAlter = i                
+                break
+        if toAlter != None:
+            for db in arbol.listaBd:
+                for t in db.tablas:
+                    if t.nombreDeTabla == toAlter.tabla:
+                        act = False
+                        nw = False
+                        for c in t.lista_de_campos:
+                            if indice.actual == c.nombre:
+                                act = True
+                                break
+                        for c in t.lista_de_campos:
+                            if indice.reemplazo == c.nombre:
+                                nw = True
+                                break
+                        if act and nw:
+                            temp = toAlter.columnas.replace(indice.actual, indice.reemplazo)
+                            toAlter.columnas = temp
+                        else:
+                            print("No existe el indice")
+        for j in tabla.indices:
+            if j.nombre == indice.nombre:
+                print("El indice " + j.nombre + " fue encontrado")
+                j.columnas = toAlter.columnas
+                print("Las columnas fueron reemplazadas")
+                break
+        return None
+                        
+
 '''
 from Simbolo import Simbolo
 

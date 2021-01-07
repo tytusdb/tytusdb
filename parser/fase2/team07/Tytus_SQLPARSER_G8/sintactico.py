@@ -14,7 +14,7 @@ from Instrucciones.FunctionBinaryString import Convert, Decode, Encode, GetByte,
 from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional, Between
 from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
 
-from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck
+from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck, AlterIndex
 from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set, CreateIndex
 from Instrucciones.Sql_declare import Declare
 from Instrucciones.Sql_delete import DeleteTable
@@ -2447,6 +2447,26 @@ def p_instruccion_del_index(t):
     '''
     strSent = "DROP " + "INDEX " + t[3] + t[4] + ";"
     t[0] = DropIndex.DropIndex(t[4],None, "", t.lexer.lineno, t.lexer.lexpos, strSent)
+
+def p_instruccion_alter_index(t):
+    '''
+    instruccion : ALTER INDEX if_op ID ALTER column_op ID ID PUNTO_COMA
+    '''
+    strSent = "ALTER INDEX " + t[3] + t[4] + " ALTER " + t[6] + t[7] + " " + t[8] + ";"
+    t[0] = AlterIndex.AlterIndex(t[4], None, t[7], t[8], "", t.lexer.lineno, t.lexer.lexpos, strSent)
+
+
+def p_index_column(t):
+    '''
+    column_op : COLUMN
+    '''
+    t[0] = "COLUMN "
+
+def p_index_column_e(t):
+    '''
+    column_op : 
+    '''
+    t[0] = ""
 
 def p_index_if_exists(t):
     '''

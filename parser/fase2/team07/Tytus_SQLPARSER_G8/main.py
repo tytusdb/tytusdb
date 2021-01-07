@@ -225,7 +225,8 @@ class interfaz():
         global arbol
         global tablaSym
         
-        rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)  
+        #rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)
+        rs.crear_tabla(arbol, tablaSym)  
         arbol = None         
 
     def ast_click(self):
