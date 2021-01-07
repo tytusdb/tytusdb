@@ -13,7 +13,7 @@ from storage.json import jsonMode as json
 
 import os, traceback
 from storage.misc import serealizar as sr, ForeignKeyStr as fk_str, UniqueIndexStr as ui_str, IndexStr as i_str, \
-    checksum as ch, compresion as comp, BlockChain as BC
+    checksum as ch, compresion as comp, BlockChain as BC, Grafos as graph
 
 _main_path = os.getcwd() + "\\data"
 
@@ -2052,22 +2052,27 @@ def _Graficar(database, table):
         if mode == "avl":
 
             avl._Cargar(database, table)
+            return "avl"
 
         elif mode == "b":
 
             b._Cargar(database, table)
+            return "b"
 
         elif mode == "bplus":
 
             bplus._Cargar(database, table)
+            return "bplus"
 
         if mode == "hash":
 
             hash._Cargar(database, table)
+            return "hash"
 
         elif mode == "isam":
 
             isam._Cargar(database, table)
+            return "isam"
 
         return 0
 
@@ -2102,7 +2107,7 @@ def graphDSD(database: str) -> int:
     db = _database(database)
 
     if db:
-        pass
+        return graph.graphDSD(database)
 
     else:
         return None
@@ -2123,7 +2128,7 @@ def graphDF(database: str, table: str) -> int:
     db = _database(database)
 
     if db:
-        pass
+        return graph.graphDF(database,table)
 
     else:
         return None
