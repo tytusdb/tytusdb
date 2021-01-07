@@ -180,6 +180,11 @@ class Unary(Expression):
         dot += str(hash(self)) + '[label=\"' + str(self.type) + '\"]\n'
         dot += self.value.graphAST('',hash(self))
         return dot
+    def translate(self,opts,indent):
+        t1 = self.value.translate(opts,indent)
+        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':self.type}
+        opts.pila.append(diccionario)
+        return t1+(indent*"\t")+diccionario['resultado']+"="+self.type+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"\n"
 
 class MathFunction(Expression):
     def __init__(self, function, expression):
@@ -192,6 +197,42 @@ class MathFunction(Expression):
         dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
         if(self.expression!=0): dot += self.expression.graphAST('',hash(self))
         return dot
+    def translate(self,opts,indent):
+        t1 = self.expression.translate(opts,indent)
+        result = ""
+        if self.function == "ABS":
+            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':"0",'operacion':">"}
+            opts.pila.append(diccionario1)
+            result+=t1+(indent*"\t")+diccionario1['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+">0\n"
+            diccionario2 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':"0",'operacion':"<"}
+            opts.pila.append(diccionario2)
+            result+=(indent*"\t")+diccionario2['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"<0\n"
+            diccionario3 = {'resultado':opts.generateTemp(),'argumento1':diccionario1['resultado'],'argumento2':diccionario2['resultado'],'operacion':"-"}
+            opts.pila.append(diccionario3)
+            result+=(indent*"\t")+diccionario3['resultado']+"="+diccionario1['resultado']+"-"+diccionario2['resultado']+"\n"
+            diccionario4 = {'resultado':opts.generateTemp(),'argumento1':diccionario1['resultado'],'argumento2':diccionario2['resultado'],'operacion':"-"}
+            opts.pila.append(diccionario4)
+            result+=(indent*"\t")+diccionario4['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"*"+diccionario3['resultado']+"\n"
+        elif self.function == "CEIL" or self.function == "CEILING":
+            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.ceil"}
+            opts.pila.append(diccionario1)
+            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.ceil("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+")\n"
+        elif self.function == "CBRT":
+            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':'1','argumento2':"3",'operacion':"/"}
+            opts.pila.append(diccionario1)
+            result+=t1+(indent*"\t")+diccionario1['resultado']+"="+"1/3\n"
+            diccionario2 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':diccionario1['resultado'],'operacion':"**"}
+            opts.pila.append(diccionario2)
+            result+=(indent*"\t")+diccionario2['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"**"+diccionario1['resultado']+"\n"
+        elif self.function == "SQRT":
+            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':'1','argumento2':"2",'operacion':"/"}
+            opts.pila.append(diccionario1)
+            result+=t1+(indent*"\t")+diccionario1['resultado']+"="+"1/2\n"
+            diccionario2 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':diccionario1['resultado'],'operacion':"**"}
+            opts.pila.append(diccionario2)
+            result+=(indent*"\t")+diccionario2['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"**"+diccionario1['resultado']+"\n"
+        return result
+    
 
 class TrigonometricFunction(Expression):
     def __init__(self, function, expression):
@@ -205,6 +246,22 @@ class TrigonometricFunction(Expression):
         dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
         dot += self.expression.graphAST('',hash(self))
         return dot
+    def translate(self,opts,indent):
+        t1 = self.expression.translate(opts,indent)
+        result = "" #sin sinh acosd
+        if self.function == "SIN":
+            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.sin"}
+            opts.pila.append(diccionario1)
+            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.sin("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+")\n"
+        elif self.function == "SINH":
+            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.sinh"}
+            opts.pila.append(diccionario1)
+            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.sinh("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+")\n"
+        elif self.function == "ACOSD":
+            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.acosd"}
+            opts.pila.append(diccionario1)
+            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.degrees(math.acos("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"))\n"
+        return result
 
 class ArgumentListFunction(Expression):
     def __init__(self, function, expressions):
@@ -226,6 +283,14 @@ class ArgumentListFunction(Expression):
         for expression in self.expressions:
             dot+= expression.graphAST('',str(hash("expressions") + hash(self)))
         return dot
+    def translate(self,opts,indent):
+        t1 = self.expressions[0].translate(opts,indent)
+        result = "" #sin sinh acosd
+        if self.function == "TRUNC":
+            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.trunc"}
+            opts.pila.append(diccionario1)
+            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.trunc("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+")\n"
+        return result
         
 class AggFunction(Expression):
     def __init__(self, function, expression):
@@ -257,6 +322,10 @@ class ExtractFunction(Expression):
         dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
         dot += self.expression.graphAST('',hash(self))
         return dot
+    def translate(self,opts,indent):
+        t1 = self.expression.translate(opts,indent)
+        result = ""
+        return result
 
 class CreatedFunction(Expression):
     def __init__(self, function, expressions):

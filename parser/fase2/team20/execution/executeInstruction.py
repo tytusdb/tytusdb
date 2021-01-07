@@ -97,18 +97,11 @@ def executeInstruction(self, instruction,indent, main):
                     functioncode+=expression.translate(self,indent)
                     params+=self.getLastTemp()+", "
                 functioncode+=(indent*"\t")+statement.name+params[:-2]+")\n"
-        if(len(instruction.block.statements)==0): functioncode+="\tprint(1)"
+        if(len(instruction.block.statements)==0): functioncode+="\tprint(1)\n"
         # save functioncode in TypeChecker
-        res = TCcreateFunction(functionname,functioncode,replace)
-        if res==1:
-            print("Function "+functionname+" stored")
-            print_success("MESSAGE","Function "+functionname+" stored")
-        elif res==2:
-            print("Function "+functionname+" replaced")
-            print_success("MESSAGE","Function "+functionname+" replaced")
-        else:
-            print("Function "+functionname+" already exists")
-            print_error("SEMANTIC","Function "+functionname+" already exists")
+        archivo = open("C3D.py", 'a')
+        archivo.write("\n"+(indent*"\t")+"createFunction('"+functionname+"','''"+functioncode+"''',"+str(replace)+")\n") 
+        archivo.close()
         self.plcode += functioncode
     elif(isinstance(instruction,StatementReturn)):
         code = ""
@@ -167,14 +160,30 @@ def executeInstruction(self, instruction,indent, main):
         code+=ifcode+elsecode+iflabel+elselabel
         return code
     elif isinstance(instruction,DropFunction):
-        ans = TCdeleteFunction(instruction.name)
-        if(ans == 1):
-            print("Function "+instruction.name+" droped")
-            print_success("MESSAGE","Function "+instruction.name+" droped")
-        else: 
-            print("Function "+instruction.name+" does not exist")
-            print_error("SEMANTIC","Function "+instruction.name+" does not exist")
-    
+        archivo = open("C3D.py", 'a')
+        archivo.write("\n"+(indent*"\t")+"deleteFunction("+instruction.name+")\n") 
+        archivo.close()
+
+def createFunction(functionname:str,functioncode:str,replace:bool):
+    res = TCcreateFunction(functionname,functioncode,replace)
+    if res==1:
+        print("Function "+functionname+" stored")
+        print_success("MESSAGE","Function "+functionname+" stored")
+    elif res==2:
+        print("Function "+functionname+" replaced")
+        print_success("MESSAGE","Function "+functionname+" replaced")
+    else:
+        print("Function "+functionname+" already exists")
+        print_error("SEMANTIC","Function "+functionname+" already exists")
+
+def deleteFunction(function:str):
+    ans = TCdeleteFunction(function)
+    if(ans == 1):
+        print("Function "+function+" droped")
+        print_success("MESSAGE","Function "+function+" droped")
+    else: 
+        print("Function "+function+" does not exist")
+        print_error("SEMANTIC","Function "+function+" does not exist")
 
 def getType(sqltype):
     if(sqltype=="TEXT" 

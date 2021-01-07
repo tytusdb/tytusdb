@@ -6,3 +6,6 @@ AST_Report_*
 AST_Report_*.pdf
 bnf.md
 bnf.md.html
+C3D.py
+data
+data/json

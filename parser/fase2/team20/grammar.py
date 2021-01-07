@@ -1360,6 +1360,11 @@ def p_expression_createdfunctions(t):
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expressionList> ')' { expression.val = CreatedFunction('"+t[1]+"',expressionList.val) }\n" + grammarreport
 
+# BRACKETS
+def p_expression_brackets(t):
+    '''expression : BRACKET_OPEN expression BRACKET_CLOSE'''
+    t[0] = t[2]
+    
 #SELECT
 def p_expression_selectfunctions(t):
     '''expression : BRACKET_OPEN select BRACKET_CLOSE'''
