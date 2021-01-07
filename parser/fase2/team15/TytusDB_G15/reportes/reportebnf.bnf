@@ -60,6 +60,58 @@
  
 <instrucciones> ::= <instruccion>
  
+<instruccion> ::= <delete_insrt>
+ 
+<delete_insrt> ::= DELETE FROM ID WHERE <expresion_logica> PTCOMA
+ 
+<cond_where> ::= WHERE <expresion_where>
+ 
+<expresion_where> ::= <expresion_logica_w>
+ 
+<expresion_logica_w> ::= <expresion_whereb>
+ 
+<expresion_whereb> ::= <expresion_wherea> IGUAL <expresion_wherea>
+ 
+<expresion_wherea> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<expresion_wherea> ::= <expresion>
+ 
+<expresion> ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= ID
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
+<instruccion> ::= <select_insrt> PTCOMA
+ 
+<select_insrt> ::= SELECT <opcion_select_tm>
+ 
+<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
+ 
+<opciones_sobrenombres> ::= <opcion_sobrenombre>
+ 
+<opcion_sobrenombre> ::= ID
+ 
+<opcion_select_lista> ::= <opciones_select_lista>
+ 
+<opciones_select_lista> ::= <opcion_select>
+ 
+<opcion_select> ::= ASTERISCO
+ 
+<init> ::= <instrucciones>
+ 
+<instrucciones> ::= <instruccion>
+ 
 <instruccion> ::= <update_insrt>
  
 <update_insrt> ::= UPDATE ID SET <lista_update> <cond_where> PTCOMA

@@ -28,7 +28,7 @@ def rollback(nombre):
 def __init__():
     global lista_db
     lista_db = []
-    lista_db = rollback("prueba")
+    #lista_db = rollback("prueba")
 __init__()
 
 
@@ -441,14 +441,59 @@ def insert(db,tabla,lista):
             return res
     else:
         return 2
-def encrypt(backup,clave):
-    f = Fernet(clave)
-    textoencriptado = f.encrypt(backup.encode("utf-8"))
-    return textoencriptado
 
 def decrypt(cipherbackup,clave):
-    print(clave.encode())
-    pss = base64.encodebytes(clave.encode())
-    f = Fernet(pss)
-    textodesencriptado = f.decrypt(cipherbackup)
-    return textodesencriptado.decode()
+    encrypt=""
+    devuelve = ""
+    try:
+        if cipherbackup == None or cipherbackup == "":
+            archivo=open(clave+".txt","r")
+            encrypt=archivo.read()
+
+        else:
+            encrypt=cipherbackup
+
+        llave = open(clave+".key","r").read()
+        f = Fernet(llave)
+        decrypted = f.decrypt(encrypt.encode())
+        textoOriginal = decrypted.decode()
+        devuelve = "0\n"+textoOriginal
+    except:
+        devuelve = "1"
+    return devuelve
+
+def encrypt(backup,clave):
+    devuelve = ""
+    encoded = backup.encode()
+    key = Fernet.generate_key()
+    llaveBin = open(clave+".key","wb")
+    llaveBin.write(key)
+    try:
+        f = Fernet(key)
+        encrypted = f.encrypt(encoded)
+        encriptado = encrypted.decode()
+        #creando el archivo
+        archivo = open(clave+".txt","w")
+        archivo.write(encrypted.decode())
+        archivo.close()
+        devuelve = "0\n"+encriptado
+    except:
+        devuelve = "1"
+    return devuelve
+
+    #f = Fernet(clave)
+    #textoencriptado = f.encrypt(backup.encode("utf-8"))
+    #return textoencriptado
+
+    
+
+    #print(clave.encode())
+    #pss = base64.encodebytes(clave.encode())
+    #f = Fernet(pss)
+    #textodesencriptado = f.decrypt(cipherbackup)
+    #return textodesencriptado.decode()
+
+
+os.system('cls')
+print(encrypt("este es el mensaje","llave"))
+print(decrypt("","llave"))

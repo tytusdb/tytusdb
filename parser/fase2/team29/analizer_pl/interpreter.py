@@ -47,7 +47,7 @@ def traducir(input):
         "symbols": symbols,
         "functions": functions,
     }
-    #grammar.InitTree()
+    grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -94,19 +94,17 @@ def functionsReport(env):
 s = """ 
 CREATE function foo(i integer) RETURNS integer AS $$
 declare 
-	j integer := -i + md5(3+3-md5(4),4);
-	k integer;
+	j integer := -i + 5;
+	k integer:= date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
+    texto text := "3+3"||md5("Francisco");
 BEGIN
 	case 
         when i > -10 then
-            k = i;
-            RETURN j * k + 1;
+            RETURN k;
         when i < 10 then
-            k = 1;
-            RETURN j * k + 2;
+            RETURN texto;
         else 
-            k = 2;
-            RETURN j * k + 3;
+            RETURN k;
     end case;
 END;
 $$ LANGUAGE plpgsql;
@@ -115,14 +113,15 @@ CREATE procedure p1() AS $$
 declare 
 	k integer;
 BEGIN
-    drop function foo;
 	k = foo(5);
     k = foo(10);
     k = foo(15);
 END;
 $$ LANGUAGE plpgsql;
 
-drop procedure p1;
+--drop procedure p1;
+execute foo(5);
+execute foo(20);
 """
 
 sql = """
@@ -147,4 +146,20 @@ CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
 execute myFuncion("Francisco");
 """
 
-traducir(s)
+s2 = """
+USE db1;
+CREATE TABLE Usuario(
+    id bigint,
+    nombre varchar(20),
+    apellido varchar(20),
+    fecha date
+);
+CREATE INDEX index_usuario ON Usuario(id,nombre);
+ALTER INDEX index_usuario ALTER nombre 3;
+ALTER INDEX index_usuario ALTER id fecha;
+Drop index xd;
+ALTER INDEX index_usuario RENAME TO alv;
+
+"""
+
+traducir(sql)

@@ -51,6 +51,27 @@ class AlterDatabase(Instruccion):
 
         return code
 
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        code.append(t0 + ' = "' + self.nombreAntiguo + '"')
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        t1 = c3d.getTemporal()
+        code.append(t1 + ' = "' + self.opcion + '"')
+        code.append('heap[h] = ' + t1)
+        code.append('h = h + 1')
+        t2 = c3d.getTemporal()
+        code.append(t2 + ' = "' + self.nombreNuevo + '"')
+        code.append('heap[h] = ' + t2)
+        code.append('p = h')
+        code.append('call_alter_database()')
+        
+        return code
+
 '''
 instruccion = AlterDatabase("hola mundo",None, 1,2)
 

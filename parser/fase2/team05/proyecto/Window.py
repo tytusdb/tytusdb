@@ -562,6 +562,7 @@ class Main(tk.Tk):
             # Start parser
             ins = g.parse(tytus)
             #g.gramaticaBNF(tytus)
+            #Contador de temporales utilizados
             temp = g.contador
             gen = Generador(temp, 0, ins.getInstruccion())
             gen.ejecutar()
