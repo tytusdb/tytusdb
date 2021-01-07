@@ -557,6 +557,7 @@ def p_instrucciones_global_sent(t):
                                     | alterTable_insrt
                                     | insert_insrt
                                     | update_insrt
+                                    | delete_insrt
                                     | createIndex
                                     | drop_insrt_index
                                     | alterindex_insrt'''
@@ -605,10 +606,27 @@ def p_instrucciones_funct_sent(t):
                                     | llamada_funcion
                                     | insert_insrt
                                     | update_insrt
+                                    | delete_insrt
                                     | empty'''
     reporte_bnf.append("<instrucciones_funct_sent> ::= <asignacion> | <declaracion> | <imprimir> | <sentencia_if> ")
     rep_sintaxis.append("<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>")
     t[0] = t[1]
+
+def p_instrucciones_funct_sent1(t):
+    '''instrucciones_funct_sent    : select_insrt PTCOMA'''
+    reporte_bnf.append("<instrucciones_funct_sent> ::= <select_insrt> PTCOMA")
+    rep_sintaxis.append("<TR><TD> instrucciones_funct_sent -> select_insrt PTCOMA </TD><TD> instrucciones_funct_sent = SelectTable(' ' + str(t[1]) + ';') </TD></TR>")
+    t[0] = SelectTable(' ' + str(t[1]) + ';')
+
+def p_instrucciones_funct_sent2(t):
+    '''instrucciones_funct_sent    : select_uniones PTCOMA'''
+    reporte_bnf.append("<instrucciones_funct_sent> ::= <select_uniones> PTCOMA")
+    rep_sintaxis.append("<TR><TD> instrucciones_funct_sent -> select_uniones PTCOMA </TD><TD> cadena = "" <br> for i in t[1]: <br> cadena += ' ' + str(i) + ' ' <br> instrucciones_funct_sent = SelectUniones(' ' + str(cadena) + ';') </TD></TR>")
+    cadena = ""
+    for i in t[1]:
+        cadena += ' ' + str(i) + ' '
+    t[0] = SelectUniones(' ' + str(cadena) + ';')
+
 
 def p_instrucciones_funct_sent_error(t):
     'instrucciones_funct_sent    : error'
@@ -1233,6 +1251,22 @@ def p_parametro_update(t):
     reporte_bnf.append("<lista_update> ::= ID IGUAL <exclusiva_insert>")
     rep_sintaxis.append("<TR><TD> lista_update -> ID IGUAL  <exclusiva_insert></TD><TD> cadena = "" <br>  for i in t[3]: <br>     cadena += str(i) <br>  drop_insrt = UpdateTable(t[1] + ' ' +t[2] + ' ' + cadena + ';') </TD></TR>")
     t[0] = ' ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' '
+
+#?######################################################
+# TODO        GRAMATICA INSTRUCCION DELETE
+#?######################################################
+
+def p_delete_insrt_delete(t):
+    ' delete_insrt : DELETE FROM ID PTCOMA'
+    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID PTCOMA")
+    rep_sintaxis.append("<TR><TD> delete_insrt -> DELETE FROM ID PTCOMA </TD><TD> cadena = "" <br>   t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+';') </TD></TR>")
+    t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+';')
+
+def p_delete_insrt5(t):
+    ' delete_insrt : DELETE FROM ID cond_where PTCOMA ' 
+    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID <cond_where> PTCOMA")
+    rep_sintaxis.append("<TR><TD> delete_insrt -> DELETE FROM ID <cond_where> PTCOMA</TD><TD> cadena = "" <br>  t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+ ' ' +str(t[4])+';') </TD></TR>")
+    t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+ ' ' +str(t[4])+';')
 
 # DROP
 #?######################################################
