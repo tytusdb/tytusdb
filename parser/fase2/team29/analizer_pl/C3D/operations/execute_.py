@@ -19,6 +19,5 @@ class Execute(Instruction):
 
     def dot(self):
         new = Nodo("EXECUTE")
-        proc = Nodo(self.procedure)
-        new.addNode(proc)
+        new.addNode(self.procedures.dot())
         return new

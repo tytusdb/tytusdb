@@ -55,22 +55,17 @@ class Funcion(Instruction):
 
             fun = ThreeAddressCode().searchFunction(self.id)
             if fun:
-                self.setVariables(fun['variables'], environment)
-                temp = ThreeAddressCode().newTemp()
-                ThreeAddressCode().addCode(f"{temp} = {self.id}()")
+                if len(self.params) > 0:
+                    self.setVariables(fun['variables'], environment)
+                #temp = ThreeAddressCode().newTemp()
+                ThreeAddressCode().addCode(f"{self.id}()")
 
     def print(self, environment):
         if ThreeAddressCode().searchFunction(self.id):
             return None
 
-        ThreeAddressCode().newFunction()
-
-        newAmbito = None
-        if self.isNew:
-            newAmbito = environment
-        else:
-            newAmbito = Ambito(environment)
-
+        ThreeAddressCode().newFunction(self.id)
+        newAmbito = Ambito(environment)
         pos = 0
         var_array = []
         for var in self.params:

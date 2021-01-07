@@ -87,9 +87,9 @@ class MainWindow(object):
         windows_menu.add_separator()
         windows_menu.add_command(label='Tabla de errores',
                                  command=self.report_errors_windows)
+        windows_menu.add_separator()
         windows_menu.add_command(label='Tabla de simbolos',
                                  command=self.report_symbols_windows)
-        windows_menu.add_separator()
         windows_menu.add_separator()
         windows_menu.add_command(label='Reporte de Optimizacion',
                                  command=self.report_optimization_windows)
@@ -106,12 +106,12 @@ class MainWindow(object):
         ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Tabla de errores',
                                 command=self.report_errors_ubuntu)
+        ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Tabla de simbolos',
                                 command=self.report_symbols_ubuntu)
         ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Reporte de Optimizacion',
                                  command=self.report_optimization_ubuntu)
-        ubuntu_menu.add_separator()
         ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Type Checker',
                                 command=self.report_typeChecker_ubuntu)
@@ -200,7 +200,7 @@ class MainWindow(object):
         texto = self.entrada.get('1.0', END)
         result = parse(texto)
         # jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
-        print(result)  # Imprime el AST
+        # print(result)  # Imprime el AST
 
         report_error = ReportError()
         if len(ErrorController().getList()) > 0:
