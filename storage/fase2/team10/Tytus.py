@@ -256,32 +256,35 @@ def codificationValidation(codification,stringlist): ##Cristian
         try:
             for i in stringlist:
                 if isinstance(i, str) : ##verifica si la validacion es para una cadena
-                    ''.join(str(ord(c)) for c in i)
-                    
+                    i.encode('ascii')       
                 else:
                     pass
-            return 0    
+            return True    
         except:
-            return 1
+            return False    
 
     elif codification=="ISO-8859-1":
-        pass
+        try:
+            for i in stringlist:
+                if isinstance(i, str) : ##verifica si la validacion es para una cadena
+                    i.encode('latin-1')       
+                else:
+                    pass
+            return True    
+        except:
+            return False
     elif codification=="UTF8":
-        pass
+        try:
+            for i in stringlist:
+                if isinstance(i, str) : ##verifica si la validacion es para una cadena
+                    i.encode('utf-8')       
+                else:
+                    pass
+            return True    
+        except:
+            return False
     else:
         return 3 ##Nombre de codificacion no existente
-
-def getCodificationMode(database):
-    for i in databases:
-        if database == i["name"]:
-            if i["code"] == "ASCII":
-                return "ASCII"
-            elif i["code"] == "ISO-8859-1":
-                return "ISO-8859-1"       
-            elif i["code"] == "UTF8":
-                return "UTF8"       
-        else:
-            return 2
         
 # 6. COMPRESION DE DATOS
 def alterDatabaseCompress(database, level):
@@ -339,3 +342,15 @@ def decrypt(cipherBackup, password):
 #             databases.append(i)
 #         archivo.close()
 #         print("bases de datos cargadas")
+© 2021 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
