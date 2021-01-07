@@ -10,6 +10,16 @@ class Logica(Binaria):
     def __init__(self, exp1, exp2, operador):
         'Se usan los valores de las clases padres'
         Binaria.__init__(self, exp1, exp2, operador)
+        self.operador =operador
+        self.exp2=exp2
+        self.exp1=exp1
+
+        self.stringsql +=exp1.stringsql+ ' '
+        self.stringsql+= operador +' ' 
+        self.stringsql += exp2.stringsql
+
+        
+
 
 
     def getval(self, entorno):

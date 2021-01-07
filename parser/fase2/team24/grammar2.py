@@ -212,6 +212,7 @@ reservadas = {
     'procedure' :'PROCEDURE',
     'language' : 'LANGUAGE',
     'plpgsql' : 'PLPGSQL',
+    'execute' : 'EXECUTE',
 }
 
 tokens = [
@@ -400,10 +401,37 @@ def p_inst(p):
             |   createproc
             |   dropind
             |   alterind
+            |   dropfunc
+            |   dropproc
+            |   callproc
+            
+            
             
     """
     p[0] = p[1]
     insertProduction(p.slice, len(p.slice))
+
+def p_dropfunc(t):
+    'dropfunc : DROP FUNCTION lidf PUNTOCOMA'
+    t[0] = dropfunc(t[2])
+
+def p_dropproc(t):
+    'dropproc : DROP PROCEDURE  lidf PUNTOCOMA'
+    t[0] = dropfunc(t[2])
+
+
+def p_lidf(t):
+    ' lidf : lidf COMA ID'
+    p[1].append(p[2])
+    p[0] = p[1]
+
+def p_lidf(t):
+    ' lidf :  ID'
+    t[0] = [t[1]]
+
+
+
+
 
 def p_instprocedural(t):
     """
@@ -429,15 +457,15 @@ def p_alterindp(p):
     """
     alterindp    :   ALTER INDEX ifexistsind alterind2 ownedbyind alterind2 nowait PUNTOCOMA
     """
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+    p[0] = inst_procedural(p.slice)
 
 def p_dropindp(p):
     "dropindp    :   DROP INDEX concind ifexistsind listaidind cascrestind PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+    p[0] = inst_procedural(p.slice)
 
 def p_createindp(p):
     "createindp  :   CREATE uniqueind INDEX id ON id createind2"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7])
+    p[0] = inst_procedural(p.slice)
 
 def p_querypp(t):
     'querypp : queryp com PUNTOCOMA'
@@ -447,52 +475,52 @@ def p_querypp(t):
 
 def p_deletep(p):
     "deletep :   DELETE FROM id WHERE wherecond PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_updatep(p):
     "updatep :   UPDATE id SET cond WHERE wherecond PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_insertp(p):
     "insertp :   INSERT INTO id colkey VALUES PARA valores PARC PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8]+p[9])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_altertbp(p):
     "altertbp   :   ALTER TABLE id altertb2 PUNTOCOMA"
-    p[0] = inst.altertb(p[1]+p[2]+p[3]+p[4]+p[5])
+    p[0] = inst.altertb(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_droptbp(p):
     "droptbp :   DROP TABLE id PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_createtbp(p):
     "createtbp   :   CREATE TABLE id PARA coltb PARC inherits PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_dropdbp(p):
     "dropdbp :   DROP DATABASE ifexists id PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_alterdbp(p):
     "alterdbp    :   ALTER DATABASE alterdb2 PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_showdbp(p):
     "showdbp :   SHOW DATABASES PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_createdbp(t):
     "createdbp   :   CREATE replacedb DATABASE ifnotexists id owner mode PUNTOCOMA"
-    t[0] = inst_procedural(t[1]+t[2]+t[3]+t[4]+t[5]+t[6]+t[7]+t[8])
+    t[0] = inst_procedural(t.slice)
     insertProduction(t.slice, len(t.slice))
 
 def p_id(p):
@@ -1346,6 +1374,10 @@ def p_parametrosind1(p):
     "parametrosind  :   parind"
     p[0] = p[1]
 
+def p_parametrosind11(p):
+    "parametrosind  :   id id"
+    p[0] = inst.alterind(p[1],p[2])
+
 def p_parind(p):
     "parind :   parind COMA idind"
     p[1].append(p[3])
@@ -1998,7 +2030,7 @@ def p_declare(t):
     if len(t) > 2 :
         t[0] = t[2]
     else:
-        t[0] = t[1]
+        t[0] = []
 
 
 def p_declareList(t):
@@ -2088,11 +2120,21 @@ def p_instruccion(t):
                     | instSimplecase
                     | instScase
                     | instp
+                    | callproc
                     
     
      '''
     t[0] = t[1]
 
+def p_callpro(t):
+    ''' callproc : EXECUTE ID PARA lnexp PARC PUNTOCOMA'''
+    t[0] = llamadaP(t[2],t[4])
+
+
+
+def p_callfunc(t):
+    ''' callfunc : ID PARA lnexp PARC '''
+    t[0] = llamadaF(t[1],t[3])
 
 def p_instSimplecase(t):
     '''instSimplecase : CASE newexp WHEN lnexp THEN body lwhenv pelse END CASE PUNTOCOMA'''
@@ -2102,7 +2144,7 @@ def p_instSimplecase(t):
 #searched case
 def p_instScase(t):
     '''instScase : CASE WHEN newexp THEN body lwhen pelse END CASE PUNTOCOMA'''
-    t[0] = searched_case(t[3],t[6],t[7],t[8])
+    t[0] = iff(t[3],t[6],t[7],t[8])
 
 
 def p_lwhen(t):
@@ -2159,14 +2201,24 @@ def p_elsif(t):
     t[0] = elsif(t[2],t[4])
 
 
+def p_lnexpini(t):
+    ''' lnexp : lnexpll'''
+    t[0] = t[1]
+
+def p_lnexpinia(t):
+    ''' lnexp : '''
+    t[0] = []
+    
+
 def p_lnexp(t):
-    ''' lnexp : lnexp newexp'''
-    t[1].append(t[2])
+    ''' lnexpll : lnexpll COMA newexp'''
+    t[1].append(t[3])
     t[0] = t[1]
 
 def p_lnexpu(t):
-    ''' lnexp :  newexp'''
+    ''' lnexpll :  newexp'''
     t[0] = [t[1]]
+
 
 def p_pelse(t):
     '''pelse :  ELSE body'''
@@ -2185,6 +2237,7 @@ def p_bodyu(t):
              | instSimplecase
              | instScase
              | instp
+             | callproc
              '''
     t[0] = t[1]
 
@@ -2225,6 +2278,10 @@ def p_igualacion(t):
 def p_return(t):
     'rtrn : RETURN newexp PUNTOCOMA'
     t[0] = rtrn(t[2])
+
+def p_newexp_callfunc(t):
+    'newexp : callfunc'
+    t[0] = t[1]
 
 
 def p_newexp_id(t):
@@ -2392,11 +2449,16 @@ def p_funcn(t):
     elif t[1].lower() == 'convert' : t[0] = fun_convertp(t[3],t[5],None)
     elif t[1].lower() == 'now' : t[0] = fun_nowp(None)
 
+
+
 def p_nlexps(t):
     'nlexps : nlexps newexp'
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_nlexpsS(t):
     'nlexps : newexp'
+    t[0] = [t[1]]
 
 def p_newexp_una(t):
     '''newexp : MENOS newexp %prec UMENOS

@@ -18,3 +18,11 @@ class Date_Expresion(Expresion):
     
     def execute(self, eviroment):
         print("")
+    
+    def compile(self, eviroment):
+        print("text")
+
+    def getText(self):
+        cadenaTexto = self.hijos[0]
+        cadenaTexto2 = self.hijos[1]
+        return "date_part("+ '\''+ cadenaTexto.valor + '\', INTERVAL ' + '\'' + cadenaTexto2.valor + '\''  +")"

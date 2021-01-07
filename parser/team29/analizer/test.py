@@ -13,11 +13,6 @@ if dropAll:
 
 
 s = """ 
-USE db1;
-DROP INDEX patito;
 """
 result = grammar.parse(s)
 print(result)
-print(result[0].execute(None))
-print(result[1].execute(None))
-# print(grammar.returnPostgreSQLErrors())

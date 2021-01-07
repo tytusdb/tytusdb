@@ -23,3 +23,20 @@ class AlterDBOwner(Instruccion):
         code.append(c3d.aumentarP())
 
         return code
+    
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        code.append(t0 + ' = "' + self.id + '"')
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        t1 = c3d.getTemporal()
+        code.append(t1 + ' = "' + self.owner + '"')
+        code.append('heap[h] = ' + t1)
+        code.append('p = h')
+        code.append('call_alterowner_database()')
+        
+        return code

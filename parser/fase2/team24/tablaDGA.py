@@ -51,7 +51,9 @@ class Simbolo() :
     #tipoind = tipo de indice
     #ordenind = orden del indice
     #columnaind = columna del indice
-    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False, uniqueind="", tablaind = "", tipoind="", ordenind="", columnaind = "", indicesind = ""):
+    #indicesind = indices que afectan al indice
+    #listacolind = mismos elementos que columnaind pero en una lista
+    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False, uniqueind="", tablaind = "", tipoind="", ordenind="", columnaind = "", indicesind = "", listacolind = ""):
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -75,6 +77,7 @@ class Simbolo() :
         self.ordenind = ordenind
         self.columnaind = columnaind
         self.indicesind = indicesind
+        self.listacolind = listacolind
 
 
 class Tabla() :
@@ -95,7 +98,7 @@ class Tabla() :
     def getVariable(self,name):
         for s in self.simbolos.values():
             if s.nombre == name:
-                if s.tipo > 20 or s.tipo < 4:
+                if s.tipo == TIPO.FUNCTION or s.tipo == TIPO.DATABASE or s.tipo == TIPO.TABLE or s.tipo == TIPO.COLUMN or s.tipo == TIPO.INDICE or s.tipo == TIPO.TUPLA:
                     continue
                 return s.valor
         return None
@@ -188,7 +191,7 @@ class Tabla() :
                 columns.append(simbolo.nombre)
         return columns 
 
-    def buscarIDTB(nombre): 
+    def buscarIDTB(self,nombre): 
         #Buscamos el ambito de la DB
         iddb = -1
         for simbolo in self.simbolos.values():  
@@ -196,30 +199,46 @@ class Tabla() :
             if simbolo.nombre == nombre and simbolo.tipo == TIPO.DATABASE : 
                 iddb = simbolo.id
                 return iddb
+        
+        return iddb
 
-    def buscarIDF(contador):
+    def buscarIDF(self,contador):
 
         idf = -1
-        for i in range(contador,-1,-1):
-            self.simbolos.values()[i].tipo == TIPO.FUNCTION 
-            return self.simbolos.values()[i].id
+
+        for simbolo in self.simbolos.values():
+            if simbolo.tipo == TIPO.FUNCTION: 
+                return simbolo.id
 
         return idf
 
-    def modificar_valor(self,id, nuevo_valor):
-        for simbolo in self.simbolos.values(): 
-            if simbolo.nombre == id and ambito_funcion(simbolo.ambito) : 
-                self.valor = nuevo_valor
-        
-
-    def ambito_funcion(self,ambito):
+    def zapato(self,idn):
         
         for simbolo in self.simbolos.values():  
             
-            if simbolo.id == ambito and simbolo.tipo == TIPO.FUNCTION : 
+            if simbolo.id == idn and simbolo.tipo == TIPO.FUNCTION : 
                 return True
 
         return False
+
+    def isFunc(self,ide):
+        for simbolo in self.simbolos.values() :
+            if simbolo.id == ide and simbolo.tipo == TIPO.FUNCTION:
+                return  True
+        
+        return False
+
+    def modificar_valor(self,name, nuevo_valor):
+        
+        for simbolo in self.simbolos.values() :
+            
+            if simbolo.nombre.upper() == name.upper(): 
+                
+                simbolo.valor = nuevo_valor
+                
+        
+
+    
     
     def existe_id(self,name):
         for simbolo in self.simbolos.values():
@@ -234,3 +253,21 @@ class Tabla() :
                 return simbolo.id
         
         return -1
+    
+    def deleteFP(self,name):
+        idF = -1
+        
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == name and simbolo.tipo == TIPO.FUNCTION:
+                idF =  simbolo.id
+        contf = 0
+        for simbolo in self.simbolos.values():
+            if simbolo.id == idF:
+                self.simbolos.pop(contf)
+            contf += 1
+        
+    
+
+    
+    def deleteAM(self,ideAmbito,cantidad):
+        pass

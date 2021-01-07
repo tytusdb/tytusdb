@@ -3,6 +3,8 @@ from Instrucciones.Excepcion import Excepcion
 import collections
 from storageManager.jsonMode import *
 
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
+
 class AlterTableDropColumn(Instruccion):
     def __init__(self, tabla, lista_col, strGram, linea, columna):
         Instruccion.__init__(self,None,linea,columna,strGram)
@@ -93,6 +95,36 @@ class AlterTableDropColumn(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        bd = arbol.getBaseDatos()
+        if bd != None and bd != "":
+            code.append(t0 + ' = "' + bd + '"')
+        else:
+            code.append(t0 + ' = ' + str(None))
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        t1 = c3d.getTemporal()
+        code.append(t1 + ' = "' + str(self.tabla) + '"')
+        code.append('heap[h] = ' + t1)
+        code.append('h = h + 1')
+        if self.lista_col != None:
+            code.append('heap[h] = []')
+            for columna in self.lista_col:
+                t2 = c3d.getTemporal()
+                code.append(t2 + ' = ["' + str(columna) + '"]')
+                code.append('heap[h] = heap[h] + ' + t2)
+        else:
+            code.append('heap[h] = None')
+        code.append('p = h')
+        code.append('call_alterTable_dropColumn()')
+        
+        return code
 
         '''
         for c in self.lista_col:

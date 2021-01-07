@@ -14,7 +14,7 @@ import re
 import codecs
 import os
 import sys
-
+from os import remove
 # ======================================================================
 #                        PALABRAS RESERVADAS DEL LENGUAJE
 # ======================================================================
@@ -195,7 +195,9 @@ def t_error(t):
 # ======================================================================
 #                         ANALIZADOR LEXICO
 # ======================================================================
-def analizarASTLex(texto):    
+def analizarASTLex(texto):  
+    remove("Graph.gv")
+    i = 0
     analizador = lex.lex()
     analizador.input(texto)# el parametro cadena, es la cadena de texto que va a analizar.
 
@@ -269,7 +271,10 @@ def p_instrucciones_evaluar(t):
                    | exp
                    | execute
                    | ins_create_pl
-                   | create_index'''
+                   | drop_pf
+                   | create_index
+                   | alter_index
+                   | drop_index'''
     id = inc()
     t[0] = id
     dot.node(str(id), "instruccion")
@@ -5120,6 +5125,166 @@ def p_arg_where_param(t):
         dot.node(str(id), 'ARG_WHERE_PARAM')
         dot.node(str(id), str(t[1]))
 
+def p_drop_index(t):
+    '''drop_index : DROP INDEX ID arg_punto_coma'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), 'ARG_COL')
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+    dot.edge(str(id4), str(t[4]))
+
+def p_alter_index(t):
+    '''alter_index : ALTER INDEX if_exists ID ID argcol arg_punto_coma'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), 'ARG_COL')
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    if t[3] != None:
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+    id5 = inc()
+    dot.edge(str(id), str(id5)) 
+    dot.node(str(id5), str(t[5]))
+    if t[6] != None:
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[6]))
+        dot.edge(str(id6), str(t[6]))
+    if t[7] != None:
+        id7 = inc()
+        dot.edge(str(id), str(id7)) 
+        dot.node(str(id7), str(t[7]))
+        dot.edge(str(id7), str(t[7]))
+
+def p_argcol(t):
+    '''argcol : ID
+              | NUMERO'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), 'ARG_COL')
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+
+# ======================================================================
+#                         ELIMINACION PLSQL
+# ======================================================================
+def p_drop_pf(t):
+    ''' drop_pf : DROP drop_case opt_exist ID PARABRE arg_list_opt PARCIERRE PUNTO_COMA'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), 'DROP_PF')
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    if t[2] != None:
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id2), str(t[2]))
+    if t[3] != None:
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+    id5 = inc()
+    dot.edge(str(id), str(id5)) 
+    dot.node(str(id5), str(t[5]))
+    if t[6] != None:
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[6]))
+        dot.edge(str(id6), str(t[6]))
+    id7 = inc()
+    dot.edge(str(id), str(id7)) 
+    dot.node(str(id7), str(t[7]))
+    id8 = inc()
+    dot.edge(str(id), str(id8)) 
+    dot.node(str(id8), str(t[8]))
+
+def p_drop_case(t):
+    ''' drop_case : FUNCTION
+                  | PROCEDURE'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), 'DROP_CASE')
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+
+def p_opt_exist(t):
+    ''' opt_exist : IF EXIST
+                  |'''
+    if len(t)== 3:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), 'DROP_CASE')
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+    else:
+        t[0] = None
+
+def p_arg_list_opt(t):
+    ''' arg_list_opt : arg_list 
+                     |'''
+    if len(t)== 2:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), 'ARG_LIST_OPT')
+        dot.edge(str(id), str(t[1]))
+    else:
+        t[0] = None
+
+def p_arg_list(t):
+    ''' arg_list : arg_list COMA ID
+             	| ID'''
+    if len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), 'ARG_LIST')
+        if t[1] != None:
+            dot.edge(str(id), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3))
+        dot.node(str(id3), str(t[3]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), 'ARG_LIST')
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
@@ -5136,3 +5301,4 @@ def analizarASTSin(texto):
         dot.view()
         break
     texto = ''
+

@@ -1,0 +1,7 @@
+gitgoto-statement==1.2
+graphviz==0.16
+Pillow==8.0.1
+ply==3.11
+prettytable==2.0.0
+reportlab==3.5.57
+wcwidth==0.2.5

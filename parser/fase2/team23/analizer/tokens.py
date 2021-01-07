@@ -141,7 +141,8 @@ reservadas = {
     "CONSTANT" : "R_CONSTANT",
     "ELSIF": "R_ELSIF",
     "PROCEDURE" : "R_PROCEDURE",
-    "EXECUTE" : "R_EXECUTE"
+    "EXECUTE" : "R_EXECUTE",
+    "CONCURRENTLY": "R_CONCURRENTLY"
 }
 
 reservadas.update(r_types)

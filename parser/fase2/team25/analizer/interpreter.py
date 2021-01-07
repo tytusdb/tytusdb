@@ -50,7 +50,14 @@ def execution(input):
         "symbols": symbols,
     }
     astReport()
-    BnfGrammar.grammarReport()
+    #BnfGrammar.grammarReport()
+    try:
+        if len(querys) == 1:
+            if len(querys[0][1]) == 1:
+                if len(querys[0][1][0]) == 1:
+                    return querys[0][1][0][0]
+    except:
+        return obj
     return obj
 
 
@@ -97,23 +104,46 @@ def symbolReport():
         for (key, func) in env.functions.items():
             r = [key, "-", "Function " + str(func.type[0]), "-", "-"]
             filas.append(r)
-        for key in env.procedures:
+            #Parametros
+            for (llave,param) in func.params:
+                s = [llave, "-", "Param " + str(param[0]) , "-", "-"]
+                filas.append(s)
+        for (key, proc) in env.procedures.items():
             r = [key, "-", "Procedure", "-", "-"]
             filas.append(r)
+            #Parametros
+            for (llave,param) in proc.params:
+                s = [llave, "-", "Param " + str(param[0]) , "-", "-"]
+                filas.append(s)
         enc.append(filas)
         report.append(enc)
     instruction.envVariables = list()
     return report
 
+from analizer.statement.pl.index import indexEnv
+from analizer.statement.pl.procedure import envProcedure
+from analizer.statement.pl.function import envFunction
+from analizer.c3d.codigo3d import instancia_codigo3d
 def generar_codigo_3d(entrada):
     parserTo3D(entrada)
+    #Ejectamos el c3d de cada funcion, procedimiento
+    for func in envFunction.functions.values():
+        func.generate3d(None,instancia_codigo3d)
+    for proc in envProcedure.procedures.values():
+        proc.generate3d(None,instancia_codigo3d)
+
     lErrors = gramaticaFase2.returnLexicalErrors()
     sErrors = gramaticaFase2.returnSyntacticErrors()
+    semanticErrors = gramaticaFase2.returnSemanticErrors()
+    #Agrega los especiales
+    instruction.envVariables.append(indexEnv)
+    instruction.envVariables.append(envFunction)
+    instruction.envVariables.append(envProcedure)
     symbols = symbolReport()
     obj = {
         "err_lexicos": lErrors,
         "err_sintacticos": sErrors,
-        #"semantic": semanticErrors,
+        "semantic": semanticErrors,
         "symbols": symbols,
     }
     astReport()
