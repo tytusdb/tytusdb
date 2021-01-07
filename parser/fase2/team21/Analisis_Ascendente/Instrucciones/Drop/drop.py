@@ -86,11 +86,9 @@ class Drop(Instruccion):
         for data in instr.concatena:
             info += " " + data
 
-        #consola.append(info)
         contador = tv.Temp()
         consola.append(f"\n\t{contador} = \"{info}\"")
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({contador})")
-        consola.append(f"\n\tstack.append({contador2})\n")
-        #instr.concatena.clear()
-        #info = ""
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")

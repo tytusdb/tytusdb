@@ -3445,18 +3445,43 @@ def procesar_instrucciones(instrucciones, ts):
             elif (instr.caso == 3):
                 variable = selectInst.Select_inst()
                 #selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
-                data = selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
-                data = str(data[0]).replace("\'","")
-                data = str(data).replace("[", "")
-                data = str(data).replace("]", "")
-                print("data3 ", data)
-                return int(data)
+                try:
+                    data = selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
+                    data = str(data[0]).replace("\'","")
+                    data = str(data).replace("[", "")
+                    data = str(data).replace("]", "")
+
+                    print("data3 ", data)
+                    ret = None
+                    try:
+                        ret = int(data)
+                    except:
+                        ret =data
+
+                    return ret
+                except:
+                    print("")
             elif (instr.caso == 4):
                 data = Selectp3.ejecutar(instr, ts, consola, exceptions,True)
-                print("data4 ", data)
-                #return data[1]
+
             elif (instr.caso == 5):
-                Selectp4.ejecutar(instr, ts, consola, exceptions,True)
+                print("data5")
+                data =Selectp4.ejecutar(instr, ts, consola, exceptions,True)
+                print("data5",data)
+                try:
+
+
+                    print("->data5 ", data)
+                    ret = None
+                    try:
+                        ret = int(data)
+                    except:
+                        ret =data
+
+                    return ret
+                except:
+                    print("")
+
             elif (instr.caso == 6):
                 consola.append('caso 6')
 
@@ -3502,82 +3527,6 @@ def procesar_instrucciones(instrucciones, ts):
             print('Error: instrucción no válida')
 
 
-def procesar_aux(instrucciones, ts):
-    ## lista de instrucciones recolectadas
-    global consola
-    global exceptions
-
-    if (instrucciones == None):
-        MessageBox.showinfo("Errores Sintacticos", "Revisa el reporte de errores sintacticos")
-        return
-
-    for instr in instrucciones:
-
-        print(isinstance(instr, CreateReplace), " - ", instr )
-        if isinstance(instr, CreateReplace):
-            CreateReplace.ejecutar(instr, ts, consola, exceptions)
-            print("ejecute create")
-        elif isinstance(instr, Select):
-            print('*****' + str(instr.caso))
-            if (instr.caso == 1):
-
-                selectTime.ejecutar(instr, ts, consola,exceptions,True)
-            elif (instr.caso == 2):
-                variable = SelectDist.Select_Dist()
-                SelectDist.Select_Dist.ejecutar(variable, instr, ts, consola, exceptions)
-                #print("Estas en el caso 2")
-            elif (instr.caso == 3):
-                variable = selectInst.Select_inst()
-                selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
-            elif (instr.caso == 4):
-                Selectp3.ejecutar(instr, ts, consola, exceptions,True)
-                print("ejecute select 4")
-            elif (instr.caso == 5):
-                Selectp4.ejecutar(instr, ts, consola, exceptions,True)
-            elif (instr.caso == 6):
-                consola.append('caso 6')
-
-        elif isinstance(instr, CreateTable):
-            CreateTable.ejecutar(instr, ts, consola, exceptions)
-            print("ejecute create table")
-        elif isinstance(instr, Use):
-            Use.ejecutar(instr,ts , consola, exceptions)
-            print("ejecute use")
-        elif isinstance(instr, InsertInto):
-            InsertInto.ejecutar(instr,ts,consola,exceptions)
-            print("Ejecute un insert")
-        elif isinstance(instr, Drop):
-            Drop.ejecutar(instr, ts, consola, exceptions)
-            print("Ejecute drop")
-        elif isinstance(instr, AlterDatabase):
-            AlterDatabase.ejecutar(instr, ts, consola, exceptions)
-            print("Ejecute alter database")
-        elif isinstance(instr, AlterTable):
-            AlterTable.ejecutar(instr, ts, consola, exceptions)
-            print("Ejecute alter table")
-        elif isinstance(instr, Delete):
-            Delete.ejecutar(instr, ts, consola, exceptions)
-            print("Ejecute delete")
-        elif isinstance(instr, Update):
-            Update.ejecutar(instr, ts, consola, exceptions)
-        elif isinstance(instr,CreateType):
-            CreateType.ejecutar(instr,ts,consola,exceptions)
-        elif isinstance(instr,Show):
-            Show.ejecutar(instr,ts,consola,exceptions)
-        elif isinstance(instr, Index):
-            Index.ejecutar(instr,ts,consola,exceptions)
-        elif isinstance(instr,Function):
-            print("aqui estoy bien")
-        elif isinstance(instr,Procedure):
-            #Procedure.ejecutar(instr,ts,consola,exceptions)
-            print("")
-
-
-
-
-        else:
-            print('Error: instrucción no válida')
-
 #------prueba
 #no borrar
 import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.TablaValores as tv
@@ -3592,7 +3541,7 @@ def procesar_traduccion(instrucciones, ts):
     global concatenaTime
     global consolaaux
     global metodos_funciones
-
+    consolaaux =[]
     concatenaAux = []
     consola2 = []
     concatenaAux = []
@@ -3809,7 +3758,9 @@ def ejecutarTraduccion(entrada):
     print("analizando........")
     print(instrucciones)
 
+
     #procesar_instrucciones(instrucciones,ts_global)
+
     procesar_traduccion(instrucciones, ts_global)
 
     print("Lista Lexico\n", L_errores_lexicos)
