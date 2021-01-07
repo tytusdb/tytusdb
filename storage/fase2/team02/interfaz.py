@@ -24,5 +24,18 @@ botonBase = Button(labelimagen , text = " Base D ")
 botonBase.place(x=110, y = 110)
 botonBase.config(background = "#70af85",  relief = "raised", borderwidth=6,  fg="white", font=("Helvetica", 12 , "bold") )
 
+botonConjunto = Button(labelimagen , text = "  Conjunto Tablas ")
+botonConjunto.place(x=180, y = 300)
+botonConjunto.config(background = "#70af85",  relief = "raised", borderwidth=6,  fg="white", font=("Helvetica", 12 , "bold") )
+
+botonTabla = Button(labelimagen , text = "  Tabla  ")
+botonTabla.place(x=113, y = 200)
+botonTabla.config(background = "#aa8976",  relief = "raised", borderwidth=6,  fg="white", font=("Helvetica", 12 , "bold") )
+
+botonTupla = Button(labelimagen , text = "  Tupla  ")
+botonTupla.place(x=220, y = 110)
+botonTupla.config(background = "#aa8976",  relief = "raised", borderwidth=6,  fg="white", font=("Helvetica", 12 , "bold") )
+
+
 labelimagen.pack()
 ventana.mainloop()
