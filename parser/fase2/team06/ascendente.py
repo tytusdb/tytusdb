@@ -344,7 +344,7 @@ def procesar_select(query,ts):
                             c=ts.obtenerSelect1A(b[-1],h.bd_enuso)
                             print("resultado+++++++++++++++++++++: ")
                             print(str(c))
-                            if c==0:
+                            if str(c)=="0":
                                 h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(c)+"\n"
                             else:
                                 h.textosalida+="TYTUS>>El resultado de su consulta es \n"
@@ -425,7 +425,7 @@ def procesar_select_Tipo2(query,ts):
                 d=ts.obtenerSelect2B(c[-1],h.bd_enuso,b)
                 print("resultado+++++++++++++++++++++: ")
                 print(d)
-                if d==0:
+                if d=="0":
                     h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
                 else:
                     h.textosalida+="TYTUS>>El resultado de su consulta es \n"
@@ -443,7 +443,7 @@ def procesar_select_Tipo2(query,ts):
         d=ts.obtenerSelect4(a,h.bd_enuso,b)
         print("resultado+++++++++++++++++++++2C: ")
         print(d)
-        if d==0:
+        if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
         else:
             h.textosalida+="TYTUS>>El resultado de su consulta es \n"
@@ -569,7 +569,7 @@ def procesar_select_Tipo3(query,ts):
         d=ts.obtenerSelect1A(c[-1],h.bd_enuso)
         print("resultado+++++++++++++++++++++3A: ")
         print(d)
-        if d==0:
+        if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
         else:
             b=procesar_where(query.operacion2,ts,d,procesar_operacion_basica(query.operacion1[0],ts))
@@ -616,7 +616,7 @@ def procesar_select_Tipo4(query,ts):
     d=ts.obtenerSelect4(a,h.bd_enuso,b)
     print("resultado+++++++++++++++++++++4: ")
     print(d)
-    if d==0:
+    if d=="0":
         h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
     else:
         c=procesar_where(query.operacion3,ts,d,a)
@@ -636,7 +636,7 @@ def procesar_select_Tipo5(query,ts):
         d=ts.obtenerSelect5Todo(a,h.bd_enuso)
         print("resultado+++++++++++++++++++++4: ")
         print(d)
-        if d==0:
+        if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
         else:
             c=procesar_where(query.operacion3,ts,d,a)
@@ -656,7 +656,7 @@ def procesar_select_Tipo5(query,ts):
         d=ts.obtenerSelect4(a,h.bd_enuso,b)
         print("resultado+++++++++++++++++++++4: ")
         print(d)
-        if d==0:
+        if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
         else:
             c=procesar_where(query.operacion3,ts,d,a)
