@@ -304,6 +304,132 @@ def alterDropPK(database: str, table: str) -> int:
     except:
         return 1
 
+# vincula una FK entre dos tablas
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database] or tableRef not in databasesinfo[1][database]:
+            result = 3
+        else:
+            if len(columns) >= 1 and len(columnsRef)>= 1:
+                if len(columns) == len(columnsRef):
+                    tableColumns = databasesinfo[1][database][table]['numberColumns']
+                    tableColumnsRef = databasesinfo[1][database][tableRef]['numberColumns']
+                    col1 = True
+                    col2 = True
+                    for values in columns:
+                        if values >= tableColumns:
+                            col1 = False
+                            break
+                    for values in columnsRef:
+                        if values >= tableColumnsRef:
+                            col2 = False
+                            break
+                    if col1 and col2:
+                        register1 = extractTable(database, table)
+                        register2 = extractTable(database, tableRef)
+                        if len(register1) == 0 and len(register2) == 0:
+                            print(databasesinfo)
+                            res = createTable(database, table + 'FK', 2)
+                            if res == 0:
+                                res1 = insert(database, table + 'FK', [tableRef, columnsRef])
+                                if res1 == 0:
+                                    dictFK = {indexName: {'columns': columns}}
+                                    FKey = {'FK': dictFK}
+                                    databasesinfo[1][database][table].update(FKey)
+                                    print(databasesinfo)
+                                    commit(databasesinfo, 'databasesInfo')
+                                else:
+                                    result = 1
+                            else:
+                                result = 1
+                        else:
+                            if len(register1) > 0 and len(register2) == 0:
+                                result = 1
+                            else:
+                                Values1 = []
+                                Rep = True
+                                for value in register2:
+                                    Fk1 = ''
+                                    for i in columns:
+                                        if i == len(value) - 1:
+                                            Fk1 = Fk1 + value[i]
+                                        else:
+                                            Fk1 = Fk1 + value[i] + '_'
+                                    if Fk1 in Values1:
+                                        Rep = False
+                                        break
+                                    else:
+                                        Values1.append(Fk1)
+                                if Rep:
+                                    Val1 = True
+                                    for value in register1:
+                                        Fk2 = ''
+                                        for i in columnsRef:
+                                            if i == len(value) - 1:
+                                                Fk2 = Fk2 + value[i]
+                                            else:
+                                                Fk2 = Fk2 + value[i] + '_'
+                                        if Fk2 not in Values1:
+                                            Val1 = False
+                                            break
+                                    if Val1:
+                                        print(databasesinfo)
+                                        res = createTable(database,table + 'FK',3)
+                                        if res == 0:
+                                            res1 = insert(database,table+'FK',[indexName,tableRef,columnsRef])
+                                            if res1 == 0:
+                                                dictFK = {indexName: {'columns':columns}}
+                                                FKey = {'FK': dictFK}
+                                                databasesinfo[1][database][table].update(FKey)
+                                                print(databasesinfo)
+                                                commit(databasesinfo,'databasesInfo')
+                                            else: result = 1
+                                        else:
+                                            result = 1
+                                    else:
+                                        result = 5
+                                else:
+                                    result = 1
+                    else:
+                        result = 1
+                else:
+                    result = 4
+            else:
+                result = 1
+        return result
+    except:
+        return 1
+
+# elimina el vinculo FK entre las tablas
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database]:
+            result = 3
+        else:
+            print(databasesinfo)
+            if 'FK' in databasesinfo[1][database][table]:
+                if indexName in databasesinfo[1][database][table]['FK']:
+                    res = dropTable(database, table+'FK')
+                    if res == 0:
+                        del databasesinfo[1][database][table]['FK'][indexName]
+                        print(databasesinfo)
+                        commit(databasesinfo,'databasesinfo')
+                        result = 0
+                    else:
+                        result = 1
+                else:
+                    result = 4
+            else:
+                result = 1
+        return result
+    except:
+        return 1
 
 # cambia el nombre de una tabla      
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
