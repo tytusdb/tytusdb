@@ -43,7 +43,8 @@ class Block(Instruction):
         else:
             for b in self.blocks:
                 bl += b.execute(newEnv).value
-        grammar.optimizer_.addLabel(str("endLabel"), self.row)
+        grammar.optimizer_.addIgnoreString(str("stack.append(None)"), self.row,True)        
+        grammar.optimizer_.addLabel(str("endLabel"), self.row,True)
         return code.C3D(
             defFunc + decl + bl + "\tstack.append(None)\n" + "\tlabel .endLabel\n\n",
             "block",
