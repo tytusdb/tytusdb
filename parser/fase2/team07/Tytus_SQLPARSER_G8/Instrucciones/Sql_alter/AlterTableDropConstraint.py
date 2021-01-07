@@ -69,3 +69,9 @@ class AlterTableDropConstraint(Instruccion):
             return error
         arbol.consola.append("Consulta devuelta correctamente.")
         '''
+        
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\t\tself.mensaje += FuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo

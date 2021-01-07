@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case, Procedimiento, DeclaracionRetorno, AsignacionVariable
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -2074,7 +2074,7 @@ def p_procedimiento(t):
     '''
     instruccion     :   CREATE PROCEDURE ID PARIZQ parametros_funcion PARDER LANGUAGE PLPGSQL AS DOLLAR DOLLAR declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR
     '''
-
+    t[0] = Procedimiento.Procedimiento(t[3], t[5], t[12], t[14], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 
 #DECLARACION DE UNA FUNCION
@@ -2138,7 +2138,7 @@ def p_retorno_funcion(t):
 				    |   AS DOLLAR DOLLAR
     '''
     if len(t) == 4:
-        t[0] = "NINGUNO"
+        t[0] = "NO ESPECIFICADO"
     elif len(t) == 5:
         t[0] = t[1].strSent
     else:
@@ -2206,6 +2206,7 @@ def p_dec_var_funcion3(t):
     '''
 
 
+
 def p_tabla_typerow(t):
     '''
     tabla_typerow   :   ID PUNTO ID
@@ -2253,6 +2254,7 @@ def p_aisgnacion_valor(t):
     t[0] = t[2]
 
 
+
 def p_aisgnacion_valor_e(t):
     '''
     aisgnacion_valor    :
@@ -2275,8 +2277,28 @@ def p_cont_funcion(t):
     '''
     cont_funcion    :   sentencia_if
                     |   instruccion
+                    |   sentencia_retorno
+                    |   asignacion_var
     '''
     t[0] = t[1]
+
+def p_sentencia_retorno(t):
+    '''
+    sentencia_retorno   :  RETURN PUNTO_COMA
+                        | RETURN expre PUNTO_COMA
+    '''
+    if len(t) == 3:
+        t[0] = DeclaracionRetorno.DeclaracionRetorno(None, "", t.lexer.lineno, t.lexer.lexpos, "")
+    else:
+        t[0] = DeclaracionRetorno.DeclaracionRetorno(t[2], "", t.lexer.lineno, t.lexer.lexpos, "")
+
+def p_asignacion_var(t):
+    '''
+    asignacion_var  :   ID IGUAL expre PUNTO_COMA
+                    |   ID DOSP_IGUAL expre PUNTO_COMA
+    '''
+    t[0] = AsignacionVariable.AsignacionVariable(t[1], t[3], "", t.lexer.lineno, t.lexer.lexpos, "")
+
 
 def p_sentencia_if(t):    
     '''
@@ -2294,14 +2316,22 @@ def p_sentencia_if(t):
     if t[1] == "IF" and len(t) == 11:
         print("Llega")
         t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
-    elif t[1] == "IF" and len(t) == 9:
-        t[0] = condicional_if.IfElseIf(t[2],t[4],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     elif t[1] == "IF" and  len(t) == 8:
         print("Llega")
         t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
     elif t[1] == "IF" and len(t) == 10:
         print("Llega")
         t[0] = condicional_if.Ifelse(t[2],t[4],t[6],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "IF" and len(t) == 9:
+        t[0] = condicional_if.IfElseIf(t[2],t[4],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "CASE" and len(t) == 6:
+        t[0] = condicional_case.Case(t[2],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "CASE" and len(t) == 8:
+        t[0] = condicional_case.CaseElse(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "CASE" and len(t) == 7:
+        t[0] = condicional_case.CaseID(t[2],t[3],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    elif t[1] == "CASE" and len(t) == 9:
+        t[0] = condicional_case.CaseIDElse(t[2],t[3],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
 
 def p_instrucciones_if(t):
     ''' 
@@ -2318,8 +2348,6 @@ def p_instruccion_if(t):
     '''
     instruccion_if : cont_funcion
                    | expre PUNTO_COMA
-                   | RETURN PUNTO_COMA
-                   | RETURN expre PUNTO_COMA
                    | RAISE NOTICE CADENA PUNTO_COMA
                    | RAISE NOTICE CADENA COMA ID PUNTO_COMA
                    | RAISE NOTICE CARACTER PUNTO_COMA
@@ -2361,6 +2389,7 @@ def p_condicion_cuando(t):
     condicion_cuando : WHEN l_expresiones THEN instrucciones_if
 
     '''
+    t[0] = condicional_case.condicion_caseID(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
 
 def p_condiciones_cuando_B(t):
     '''
