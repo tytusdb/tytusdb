@@ -13,12 +13,19 @@ for i in range(100):
 
 def ejecutar(): 
 	n_db = tabla.id_db(NombreDB)
-	NuevoSimbolo = Simbolo(cont,sp_validainsert,TIPO.FUNCTION,n_db)
+	NuevoSimbolo = Simbolo(cont,myFuncion,TIPO.FUNCTION,n_db)
 	cont+=1
- insert into tbbodega  values ( 1 BODEGA CENTRAL 1 ) ; insert into tbbodega idbodega bodega values ( 2 BODEGA ZONA 12 ) ; insert into tbbodega ( idbodega, bodega) estado values ( 3 BODEGA ZONA 11 1 ) ; insert into tbbodega ( idbodega, bodega) estado values ( 4 BODEGA ZONA 1 1 ) ; insert into tbbodega ( idbodega, bodega) estado values ( 5 BODEGA ZONA 10 1 ) ;def sp_validainsert():
+	pila[0] = 'INICIO CALIFICACION FASE 2'
+	myFuncion()
+	print(pila[10])
+
+def myFuncion():
+	texto = pila[0]
+	t0 = texto
 	
-	
-	
-	
+	pila[10] = t0
+
+
+
 	
 ejecutar() 

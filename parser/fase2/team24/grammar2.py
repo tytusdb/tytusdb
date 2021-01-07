@@ -396,6 +396,7 @@ def p_inst(p):
             |   delete
             |   usedb
             |   query
+            |   queryf
             |   createfunc
             |   createind
             |   createproc
@@ -2466,6 +2467,9 @@ def p_newexp_bi(t):
 def p_createproc(t):
     'createproc : CREATE PROCEDURE ID PARA lparamsp PARC LANGUAGE PLPGSQL AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
     t[0] = createfunc(t[3],t[5],None,t[12])
+
+
+
 
 def p_error(t):
     if t:

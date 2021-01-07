@@ -1755,3 +1755,26 @@ class fun_nowp(pl_function):
 
         return codigo,valor,resultado
 
+class queryf(instruccion):
+    def __init__(self,id,lparams):
+        self.id = id
+        self.lparams = lparams
+
+    def traducir(self):
+        params = []
+        for p in self.lparams:
+            t = p.traducir()
+            try:
+                f = float(t[2])
+                params.append(f)
+            except:
+                pass
+            if t[2].lower() == 'true' or t[2].lower() == 'false':
+                params.append( t[2])
+            params.append( '\'' + t[2] + '\'')
+
+        res = ''
+        for i in range(0,len(params)):
+            res+=f'pila[{i}] = {params[i]}\n'
+            
+        return f'{res}{self.id}()\nprint(pila[10])\n'
