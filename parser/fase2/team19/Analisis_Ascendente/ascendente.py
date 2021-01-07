@@ -314,7 +314,7 @@ def t_NUMDECIMAL(t):
         global columna
         columna = contador_columas(len(str(t.value)))
     except ValueError:
-        print("Valor no es parseable a decimal %d", t.value)
+        ##print("Valor no es parseable a decimal %d", t.value)
         t.value = 0
     return t
 
@@ -326,7 +326,7 @@ def t_ENTERO(t):
         global columna
         columna = contador_columas(len(str(t.value)))
     except ValueError:
-        print("Valor no es parseable a integer %d", t.value)
+        ##print("Valor no es parseable a integer %d", t.value)
         t.value = 0
     return t
 
@@ -386,7 +386,7 @@ def t_error(t):
     colum = contador_columas(columna)
     data = Error(str("Error Lexico"), str(t.value[0]), str(t.lexer.lineno), str(colum))
     L_errores_lexicos.append(data)
-    print("Caracter irreconocible! '%s'" % t.value[0])
+    ##print("Caracter irreconocible! '%s'" % t.value[0])
     t.lexer.skip(1)
 
 
@@ -453,7 +453,8 @@ from Analisis_Ascendente.Instrucciones.PLPGSQL.CreateProcedure import CreateProc
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Ifpl import Ifpl
 from Analisis_Ascendente.Instrucciones.PLPGSQL.CasePL import CasePL
 from Analisis_Ascendente.Instrucciones.PLPGSQL.plCall import plCall
-
+from Analisis_Ascendente.Instrucciones.PLPGSQL.dropFunction import DropFunction
+from Analisis_Ascendente.Instrucciones.PLPGSQL.plasignacion import Plasignacion
 
 precedence = (
     ('left', 'OR'),
@@ -2436,6 +2437,9 @@ def p_plreturns(t):
 #PLASIGNACION ******************************************
 def p_plasignacion(t):
     '''plasignacion : ID pasigvalor PTCOMA '''
+    t[0] = Plasignacion(t[1],t[2])
+    varGramatical.append('plasignacion ::= ID pasigvalor PTCOMA')
+    varSemantico.append('plasignacion = Plasignacion(ID,pasigvalor)')
 
 def p_pasigvalor(t):
     '''pasigvalor : DOSPT IGUAL E
@@ -2473,6 +2477,19 @@ def p_plfunction3(t):
     t[0] = CreateFunction(t[3],None, t[7], None, t[11])
     varGramatical.append('instruccion ::= CREATE FUNCTION ID PARIZQ PARDR RETURNS plreturns AS DOLAR DOLAR blobegin DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA')
     varSemantico.append('instruccion = CreateFunction(ID,None,plreturns,None,blobegin')
+
+#DROP FUNCTION *********************************************
+def p_dropfunction(t):
+    'instruccion : DROP FUNCTION ID PTCOMA'
+    t[0] = DropFunction(t[3])
+    varGramatical.append('instruccion ::= DROP FUNCTION ID PTCOMA')
+    varSemantico.append('instruccion = DropFunction(ID)')
+
+def p_dropfunction1(t):
+    'instruccion : DROP FUNCTION IF EXISTS ID PTCOMA'
+    t[0] = DropFunction(t[5])
+    varGramatical.append('instruccion ::= DROP FUNCTION IF EXISTS ID PTCOMA')
+    varSemantico.append('instruccion = DropFunction(ID)')
 
 #BLODECLA *************************************
 def p_blodecla(t):
@@ -2923,7 +2940,7 @@ def p_IfIndice1(t):
 # MODO PANICO ***************************************
 def p_error(t):
     if not t:
-        print("Fin del Archivo!")
+        #print("Fin del Archivo!")
         return
 
     global L_errores_sintacticos
@@ -3052,7 +3069,8 @@ def procesar_instrucciones(instrucciones, ts):
             #print("Ejecute Index")
         elif isinstance(instr,CreateFunction):
             CreateFunction.ejecutar(instr,ts,consola,exceptions)
-            #print("Ejecute CreateFunction")
+        elif isinstance(instr,DropFunction):
+            DropFunction.ejecutar(instr,ts,consola,exceptions)
         elif isinstance(instr,DropIndex):
             DropIndex.ejecutar(instr,ts,consola,exceptions)
         elif isinstance(instr,AlterIndex):
@@ -3136,8 +3154,8 @@ def ejecutarAnalisis(entrada):
     reportes.generar_reporte_tablaSimbolos(ts_global.simbolos)
     reportes.generar_reporte_semanticos(exceptions)
 
-    print("Fin de analisis")
-    print("Realizando reporte gramatical")
+    #print("Fin de analisis")
+    #print("Realizando reporte gramatical")
     graphstack(varGramatical, varSemantico)
     return consola
 
