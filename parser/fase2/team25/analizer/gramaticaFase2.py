@@ -359,13 +359,20 @@ def p_typeParam(t):
 def p_codeBlock(t):
     """
     codeBlock : R_DECLARE declarationList R_BEGIN plInstructions R_END
+    | R_DECLARE declarationList list_declaraciones_declere R_BEGIN plInstructions R_END
     | R_BEGIN plInstructions R_END
     """
     if len(t) == 6:
         t[0] = CodeBlock(lista_instrucciones=t[4] , lista_declaraciones=t[2] , row=t.slice[1].lineno , column=t.slice[1].lexpos)
+    elif len(t) == 7:
+        for item in t[3]:
+            t[2].append(item)
+        # t[2].append(t[3])
+        t[0] = CodeBlock(lista_instrucciones=t[5],lista_declaraciones=t[2], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     else:
         t[0] = CodeBlock(lista_instrucciones=t[2] , row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
+
 
 def p_declarationList(t):
     """
@@ -377,6 +384,19 @@ def p_declarationList(t):
         t[0] = t[1]
     else:
         t[0] = [t[1]]
+    repGrammar.append(t.slice)
+
+def p_declarationList_2(t):
+    """
+    list_declaraciones_declere : list_declaraciones_declere  R_DECLARE declarationList
+        | R_DECLARE declarationList
+    """
+    if len(t) == 4:
+        for item in t[3]:
+            t[1].append(item)
+        t[0] = t[1]
+    else:
+        t[0] = t[2]
     repGrammar.append(t.slice)
 
 def p_declaration(t):
