@@ -531,6 +531,8 @@ class Main(tk.Tk):
             C3D_opt.append(porOptimizar)
             optimizarDesde += 1
         optimizar(C3D_opt)
+        print('*************************************')
+        print(retornoOpt())
         reporteOptimizacion(reglasOpt)
 
 

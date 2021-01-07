@@ -3,7 +3,10 @@ from analizer.abstract.expression import TYPE
 from analizer.symbol.environment import Environment
 import analizer.symbol.c3dSymbols as SymbolTable
 from analizer.statement.functions.call import FunctionCall
+from analizer.statement.expressions.identifiers import Identifiers
 from datetime import datetime
+from analizer.reports.Nodo import Nodo
+from analizer.reports.AST import AST
 
 class Declaration(instruction.Instruction):
     def __init__(self,nombre,tipo,valor,row,column):
@@ -14,81 +17,95 @@ class Declaration(instruction.Instruction):
         self.row=row
         self.column=column
         self.classType=str(self.valor.__class__.__name__).casefold()
+        self.exp = self.valor
     def execute(self,environment):
         pass
     def generate3d(self,environment,instanciaAux):
-        self.tipo=self.tipo[0].casefold()
+        tipo=self.tipo[0].casefold()
         try:
-            TypeV=self.valor.execute(environment).type
-            print('El tipo es: '+TypeV.name)
+            TypeV = None
+            if type(self.valor) in (str, bool, float, int):
+                self.valor = None
+            if self.valor != None:
+                TypeV=self.valor.execute(environment).type
+                print('El tipo es: '+TypeV.name)
         except:
             instruction.semanticErrors.append(
                     ( "ERROR: 42P18: tipo de dato indeterminado en '%s'" %self.nombre,self.row)
             )
             return None
         try:
-            self.valor=self.valor.value
+            if not isinstance(self.valor, Identifiers):
+                self.valor=self.valor.value
         except:
+            print("Error nuevo valor")
             pass
-        
+            print(self.valor,tipo)
         try:
-            if 'primitive'==self.classType:
+            if 'primitive'==self.classType or self.valor == None:
                 if self.valor == None:
-                    if 'integer' in self.tipo or 'bigint' in self.tipo:
+                    if 'integer' in tipo or 'bigint' in tipo:
                         self.valor=0
-                    elif 'numeric' in self.tipo or 'double precision' in self.tipo or 'money' in self.tipo or 'decimal' in self.tipo:
+                        TypeV = TYPE.NUMBER
+                    elif 'numeric' in tipo or 'double precision' in tipo or 'money' in tipo or 'decimal' in tipo:
                         self.valor=0.0
-                    elif 'text' in self.tipo or 'varchar' in self.tipo or 'char' in self.tipo or 'varying' in self.tipo:
+                        TypeV = TYPE.NUMBER
+                    elif 'text' in tipo or 'varchar' in tipo or 'char' in tipo or 'varying' in tipo:
                         self.valor='\'\''
-                    elif 'boolean' in self.tipo:
+                        TypeV = TYPE.STRING
+                    elif 'boolean' in tipo:
                         self.valor=False
-                    elif 'timestamp' in self.tipo:
+                        TypeV = TYPE.BOOLEAN
+                    elif 'timestamp' in tipo:
                         self.valor=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    elif 'date' in self.tipo:
+                        TypeV = TYPE.TIMESTAMP
+                    elif 'date' in tipo:
                         self.valor=datetime.now().strftime("%Y-%m-%d")
-                    elif 'time' in self.tipo:
+                        TypeV = TYPE.DATE
+                    elif 'time' in tipo:
                         self.valor=datetime.now().strftime("%H:%M:%S")
+                        TypeV = TYPE.TIME
                     else:
                         pass
                 else:
-                    if 'text' in self.tipo or 'varchar' in self.tipo or 'char' in self.tipo or 'varying' in self.tipo:
+                    if 'text' in tipo or 'varchar' in tipo or 'char' in tipo or 'varying' in tipo:
                         if TypeV==TYPE.STRING:
                             self.valor='\''+self.valor+'\''
                         else:
                             instruction.semanticErrors.append(
                                 ( "ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre,self.row)
                             )
-                            print("ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre)
+                            print(1)
                             return None
                             #return error de tipo
-                    elif 'timestamp' in self.tipo:
+                    elif 'timestamp' in tipo:
                         if TypeV==TYPE.TIMESTAMP:
                             self.valor='\''+datetime.now().strftime("%Y-%m-%d %H:%M:%S")+'\''
                         else:
                             instruction.semanticErrors.append(
                                 ( "ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre,self.row)
                             )
-                            print("ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre)
+                            print(2)
                             return None
-                    elif 'date' in self.tipo:
+                    elif 'date' in tipo:
                         if TypeV==TYPE.DATE:
                             self.valor='\''+datetime.now().strftime("%Y-%m-%d")+'\''
                         else:
                             instruction.semanticErrors.append(
                                 ( "ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre,self.row)
                             )
-                            print("ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre)
+                            print(3)
                             return None
-                    elif 'time' in self.tipo:
+                    elif 'time' in tipo:
                         if TypeV==TYPE.TIME:
                             self.valor='\''+datetime.now().strftime("%H:%M:%S")+'\''
                         else:
                             instruction.semanticErrors.append(
                                 ( "ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre,self.row)
                             )
-                            print("ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre)
+                            print(4)
                             return None
-                    elif 'integer' in self.tipo or 'bigint' in self.tipo:
+                    elif 'integer' in tipo or 'bigint' in tipo:
                         if TypeV==TYPE.NUMBER:
                             if not type(self.valor)==float:
                                 self.valor=self.valor
@@ -96,31 +113,31 @@ class Declaration(instruction.Instruction):
                                 instruction.semanticErrors.append(
                                 ( "ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre,self.row)
                                 )
-                                print("ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre)
+                                print(5)
                                 return None
                         else:
                             instruction.semanticErrors.append(
                                 ( "ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre,self.row)
                             )
-                            print("ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre)
+                            print(6)
                             return None
-                    elif 'numeric' in self.tipo or 'double precision' in self.tipo or 'money' in self.tipo or 'decimal' in self.tipo:
+                    elif 'numeric' in tipo or 'double precision' in tipo or 'money' in tipo or 'decimal' in tipo:
                         if type(self.valor)==float:
                             self.valor=self.valor
                         else:
                             instruction.semanticErrors.append(
                                 ( "ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre,self.row)
                             )
-                            print("ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre)
+                            print(7)
                             return None
-                    elif 'boolean' in self.tipo:
+                    elif 'boolean' in tipo:
                         if TypeV==TYPE.BOOLEAN:
                             self.valor=self.valor
                         else:
                             instruction.semanticErrors.append(
                                 ( "ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre,self.row)
                             )
-                            print("ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre)
+                            print(8)
                             return None
 
                     else:
@@ -132,6 +149,7 @@ class Declaration(instruction.Instruction):
                 instanciaAux.addToCode(f'\t{self.nombre} =  {self.valor}')
     
             elif not self.classType == None:
+                print("Nuevo valor:",self.valor)
                 if isinstance(self.valor,FunctionCall):
                     callValue=self.valor.execute(environment).value
                     SymbolTable.add_symbol(self.nombre,TypeV,callValue,self.row,self.column,None)
@@ -139,11 +157,37 @@ class Declaration(instruction.Instruction):
                 else:    
                     newTemp=self.valor.generate3d(environment,instanciaAux)
                     callValue=self.valor.execute(environment).value
+                    if isinstance(self.valor, Identifiers):
+                        callValue=self.valor.name
                     SymbolTable.add_symbol(self.nombre,TypeV,callValue,self.row,self.column,None)
                     instanciaAux.addToCode(f'\t{self.nombre} =  {newTemp}')
-        except:
+        except Exception() as e:
             instruction.semanticErrors.append(
                 ( "ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre,self.row)
             )
-            print("ERROR: 42804: discorcondancia entre los tipos de datos en '%s'" %self.nombre)
+            print(9, e)
             return None
+    def dot(self):
+        nuevo_nodo = Nodo("DECLARACION")
+        id_nodo = Nodo("IDENTIFICADOR")
+        tipo_nodo = Nodo("TIPO")
+        ident_nodo = Nodo(self.nombre)
+        type_nodo = Nodo(self.tipo[0])
+        if isinstance (self.tipo[1], list):
+            if self.tipo[1][0]!=None:
+                dim = Nodo("DIMENSION")
+                dim.addNode(str(self.tipo[1][0]))
+                tipo_nodo.addNode(dim)
+        elif self.tipo[1]!=None:
+            dim = Nodo("DIMENSION")
+            dim.addNode(str(self.tipo[1]))
+            tipo_nodo.addNode(dim) 
+        id_nodo.addNode(ident_nodo)
+        tipo_nodo.addNode(type_nodo)
+        nuevo_nodo.addNode(id_nodo)
+        nuevo_nodo.addNode(tipo_nodo)
+        if self.exp != None:
+            exp_nodo = Nodo("EXPRESION")
+            exp_nodo.addNode(self.exp.dot())
+            nuevo_nodo.addNode(exp_nodo)
+        return nuevo_nodo

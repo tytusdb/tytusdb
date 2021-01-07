@@ -45,7 +45,7 @@ class Block(Instruction):
                 bl += b.execute(newEnv).value
         grammar.optimizer_.addLabel(str("endLabel"), self.row)
         return code.C3D(
-            defFunc + decl + bl + "\tstack.append(None)\n" + "\tlabel .endLabel\n",
+            defFunc + decl + bl + "\tstack.append(None)\n" + "\tlabel .endLabel\n\n",
             "block",
             self.row,
             self.column,
