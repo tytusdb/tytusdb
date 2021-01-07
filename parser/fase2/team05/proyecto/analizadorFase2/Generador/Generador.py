@@ -76,7 +76,6 @@ class Generador:
                 self.compilarFuncion(instruccion)
             elif isinstance(instruccion, FuncionNativa): 
                 self.compilarFuncionesNativas(instruccion)
-
         for linea in self.codigo3d:
             print(linea)
 
@@ -505,7 +504,7 @@ class Generador:
         elif isinstance(instruccion, Llamada):
             return self.compilarLlamada(instruccion)
 
-    def compilarFUncionesNativas(self, instruccion):
+    def compilarFuncionesNativas(self, instruccion):
         '''Aqui se genera el C3D de las funciones nativas '''
         #PRIMERO DETECTAR QUE TIPO DE FUNCION ES 
         if instruccion.TipoFunNativa == 4: 
@@ -513,30 +512,25 @@ class Generador:
             #Verificar que trae como parametro (valor, variable, expresion)
             if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
                 retorno = self.compilarOperacionAritmetica(instruccion.parametro)
+                #Linea del if 
+                etiquetaverdadero=self.generarEtiqueta()
+                self.agregarIf(retorno.valor + '>' + str(0), etiquetaverdadero)
+                #self.codigo3d.append(inst)
+                lineaAbs=retorno.valor + '=' + retorno.valor + '*-1'
+                self.codigo3d.append(lineaAbs)
+                self.agregarEtiqueta(etiquetaverdadero)
+                return retorno
                 #mandar a imprimir un if para validar si el valor del temporal que sale de operacion aritmetica es menor a 0
                 #si entra al if hacer la conversion, sino entra seguir con l
-            elif isinstance(instruccion.parametro, Primitivo): 
-                """
-                COMENTADO POR ERROR
-                """
-                    
-                #
-
-            #self.compilar
-        #self.agregarFuncion(instruccion.id)
-        if instruccion.numparametros != 0:
-            temporal = self.generarTemporal()
-            self.generarAsignacion(temporal, "0")
-            for param in instruccion.parametros :
-                self.generarAsignacion(param.id, "simulador_pila[" + temporal + "]")
-                self.generarAsignacion(temporal, temporal + " + 1")
-        for instruccion1 in instruccion.cuerpo:
-            if isinstance(instruccion1, Asignacion):
-                self.compilarAsignacion(instruccion1)
-            elif isinstance(instruccion1, If_inst):
-                self.compilarIf(instruccion1)
-            elif isinstance(instruccion1, Return_inst):
-                self.compilarReturn(instruccion1)
-            elif isinstance(instruccion1, Llamada):
-                self.compilarLlamada(instruccion1)
-        self.numerotab -= 1
+            elif isinstance(instruccion.parametro, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametro)
+                etiquetaverdadero=self.generarEtiqueta()
+                self.agregarIf(retorno.valor + '>' + str(0), etiquetaverdadero)
+                #AGREGAR UNA EXCEPCION PARA UN NUMERO NEGATIVO 
+                lineaAbs=retorno.valor + '=' + retorno.valor + '*-1'
+                self.codigo3d.append(lineaAbs)
+                self.agregarEtiqueta(etiquetaverdadero)
+                return retorno
+        elif instruccion.TipoFunNativa==1: 
+            #CORRESPONDE A LA FUNCION AVG
+            pass

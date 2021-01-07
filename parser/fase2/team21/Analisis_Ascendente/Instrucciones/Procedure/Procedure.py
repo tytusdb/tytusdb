@@ -1,6 +1,9 @@
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 import tytus.parser.fase2.team21.Analisis_Ascendente.ascendente as tr
 
+#from tytus.parser.team21.Analisis_Ascendente.ascendente import procesar_instrucciones
+
+
 class Procedure(Instruccion):
     '''en replace sube True o False
     parametros puede ser None'''
@@ -17,6 +20,18 @@ class Procedure(Instruccion):
         self.beginInst = beginInst
         self.linea = linea
         self.columna = columna
+
+    def ejecutar(procedure, ts, consola, exceptions):
+
+        #tr.procesar_instrucciones(procedure.beginInst,ts)
+
+        print("mm->")
+
+
+
+        print("mm->")
+
+
 
     def traducir(proc, ts, consola, exceptions, tv, concatena):
         consola.append("\n@with_goto  # Decorador necesario.\n")

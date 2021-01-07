@@ -2,6 +2,7 @@ import flask
 from flask import request, jsonify
 import json
 
+
 mensaje = { "resultado" : "Okey" }
 mensaje2 = {"resultado": "Cambios realizados"}
 mensaje3 = {"aviso":"Cambios revertidos"}

@@ -45,4 +45,4 @@ for fa in g.funciones:
 
 a.write('''ejecutar()''')
 a.close()
-graphTable(ts)
+#graphTable(ts)

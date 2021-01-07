@@ -273,7 +273,7 @@ class Tabla() :
 
         for a in range(cantidad):
             
-            print(a)
+            
 
             for simbolo in self.simbolos.values():
 
@@ -282,5 +282,9 @@ class Tabla() :
                     break
                 
 
-    
+    def existeF(self,name):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == name:
+                return True
+        return False
     

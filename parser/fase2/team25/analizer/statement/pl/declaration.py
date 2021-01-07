@@ -171,7 +171,6 @@ class Declaration(instruction.Instruction):
         nuevo_nodo = Nodo("DECLARACION")
         id_nodo = Nodo("IDENTIFICADOR")
         tipo_nodo = Nodo("TIPO")
-        exp_nodo = Nodo("EXPRESION")
         ident_nodo = Nodo(self.nombre)
         type_nodo = Nodo(self.tipo[0])
         if isinstance (self.tipo[1], list):
@@ -185,8 +184,10 @@ class Declaration(instruction.Instruction):
             tipo_nodo.addNode(dim) 
         id_nodo.addNode(ident_nodo)
         tipo_nodo.addNode(type_nodo)
-        exp_nodo.addNode(self.exp.dot())
         nuevo_nodo.addNode(id_nodo)
         nuevo_nodo.addNode(tipo_nodo)
-        nuevo_nodo.addNode(exp_nodo)
+        if self.exp != None:
+            exp_nodo = Nodo("EXPRESION")
+            exp_nodo.addNode(self.exp.dot())
+            nuevo_nodo.addNode(exp_nodo)
         return nuevo_nodo

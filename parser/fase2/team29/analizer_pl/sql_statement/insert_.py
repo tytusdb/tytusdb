@@ -12,16 +12,28 @@ class InsertInto(instruction.Instruction):
         self.columns = columns
 
     def execute(self, environment):
-        out = "fase1.execution(dbtemp + "
-        out += '" '
-        out += "INSERT "
-        out += self.exists + " "
-        out += self.name + " ("
-        out += self.columns + " )"
-        out += self.inherits + ";"
-        out += '")\n'
+        tab = ""
         if isinstance(environment, Environment):
-            out = "\t" + out
+            tab += "\t"
+        out = tab+"fase1.execution(dbtemp + "
+        out += '" '
+        out += "INSERT INTO "
+        out += self.tabla + " "
+        out += self.columns
+        out += "VALUES ("
+        parVal = ""
+        j = 0
+        for i in range(len(self.parametros)-1):
+            j = i + 1
+            pval = self.parametros[i].execute(environment)
+            parVal += pval.value
+            out += pval.temp + ", "
+        pval = self.parametros[j].execute(environment)
+        parVal += pval.value
+        out += pval.temp
+        out += ");"
+        out += '")\n'
+        out = parVal + out
         return code.C3D(out, "insert", self.row, self.column)
 
     def dot(self):

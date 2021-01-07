@@ -23,9 +23,11 @@ class pl_perform(Instruccion):
 
     global columnasAceptadas
 
-    def __init__(self, parametros, fromopcional):
+    def __init__(self, arg0,arg1,parametros, fromopcional):
         self.parametros = parametros
         self.fromopcional = fromopcional
+        self.arg0 = arg0
+        self.arg1 = arg1
 
     def __repr__(self):
         return str(self.__dict__)

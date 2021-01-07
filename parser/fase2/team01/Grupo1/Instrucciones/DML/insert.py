@@ -4,6 +4,7 @@ sys.path.append('../Grupo1/Utils')
 sys.path.append('../Grupo1/Librerias/storageManager')
 
 from jsonMode import *
+from c3dGen import *
 from instruccion import *
 from Lista import *
 from TablaSimbolos import *
@@ -12,9 +13,11 @@ from Error import *
 
 class Insert(Instruccion):
 
-    def __init__(self, tableid, values = []):
+    def __init__(self, arg0,arg1,tableid, values = []):
         self.tableid = tableid
         self.values = values
+        self.arg1 = arg1
+        self.arg0 = arg0
 
     def execute(self, data):
         valoresTabla = []
@@ -302,7 +305,12 @@ class Insert(Instruccion):
                 for chk in checkk :
                     if chk == None:
                         continue
-                    if chk.val.executeInsert(data, diccionarioTabla) :
+                    try:
+                        pruebabool = chk.val.executeInsert(data, diccionarioTabla)
+                    except :
+                        pruebabool = chk.val.execute(data, diccionarioTabla)
+
+                    if pruebabool :
                         ''
                     else:
                         error = Error('Semántico', 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.', 0, 0)
@@ -348,6 +356,7 @@ class Insert(Instruccion):
                 error = Error('Semántico', 'Error(54023): too_many_arguments.', 0, 0)
                 return error
 
+        valRetorno = insertC3D(data.databaseSeleccionada, self.tableid.upper(), valoresTabla)
         valRetorno = insert(data.databaseSeleccionada, self.tableid.upper(), valoresTabla)
 
         if valRetorno == 0:
