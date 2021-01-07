@@ -1,6 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Sql_create.Tipo_Constraint import Tipo_Constraint, Tipo_Dato_Constraint
 from Instrucciones.Excepcion import Excepcion
+
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 #from storageManager.jsonMode import *
 # Asocia la integridad referencial entre llaves foráneas y llaves primarias, 
 # para efectos de la fase 1 se ignora esta petición. 
@@ -97,3 +99,46 @@ class AlterTableAddFK(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        bd = arbol.getBaseDatos()
+        if bd != None and bd != "":
+            code.append(t0 + ' = "' + bd + '"')
+        else:
+            code.append(t0 + ' = ' + str(None))
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        t1 = c3d.getTemporal()
+        code.append(t1 + ' = "' + str(self.tabla) + '"')
+        code.append('heap[h] = ' + t1)
+        code.append('h = h + 1')
+        if self.lista_col != None:
+            code.append('heap[h] = []')
+            for columna in self.lista_col:
+                t2 = c3d.getTemporal()
+                code.append(t2 + ' = ["' + str(columna) + '"]')
+                code.append('heap[h] = heap[h] + ' + t2)
+        else:
+            code.append('heap[h] = None')
+        code.append('h = h + 1')
+        t3 = c3d.getTemporal()
+        code.append(t3 + ' = "' + str(self.tabla_ref) + '"')
+        code.append('heap[h] = ' + t3)
+        code.append('h = h + 1')
+        if self.lista_fk != None:
+            code.append('heap[h] = []')
+            for columna in self.lista_fk:
+                t4 = c3d.getTemporal()
+                code.append(t4 + ' = ["' + str(columna) + '"]')
+                code.append('heap[h] = heap[h] + ' + t4)
+        else:
+            code.append('heap[h] = None')
+        code.append('p = h')
+        code.append('call_alterTable_addFK()')
+        
+        return code

@@ -414,17 +414,17 @@ def p_inst(p):
 
 def p_dropfunc(t):
     'dropfunc : DROP FUNCTION lidf PUNTOCOMA'
-    t[0] = dropfunc(t[2])
+    t[0] = dropfunc(t[3])
 
 def p_dropproc(t):
     'dropproc : DROP PROCEDURE  lidf PUNTOCOMA'
-    t[0] = dropfunc(t[2])
+    t[0] = dropfunc(t[3])
 
 
-def p_lidf(t):
+def p_lidfz(t):
     ' lidf : lidf COMA ID'
-    p[1].append(p[2])
-    p[0] = p[1]
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lidf(t):
     ' lidf :  ID'

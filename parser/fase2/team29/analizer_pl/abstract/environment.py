@@ -10,6 +10,7 @@ class Environment:
         self.variables = {}
         self.types = {}
         self.globalEnv = globalEnv
+        self.isBlock = False
 
     def updateVar(self, id, value, type_):
         """

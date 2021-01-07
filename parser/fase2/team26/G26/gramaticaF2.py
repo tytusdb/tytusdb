@@ -1,5 +1,5 @@
 from error import error
-
+import optimizar as opt 
 errores = list()
 
 reservadas = {
@@ -369,6 +369,8 @@ tempos = temp.Code3D()
 
 datos = l.Lista({}, '')
 
+grafo = graph.Grafo(0)
+
 precedence = (
     ('left','MAS','GUION'),
     ('left','ASTERISCO','BARRA', 'PORCENTAJE'),
@@ -378,7 +380,10 @@ precedence = (
 
 def p_init(t) :
     'init            : instrucciones'
+    reporte = '<init> ::= <instrucciones>\n' +  t[1]['reporte']
     t[0] = t[1]
+    t[0]['opt'] = opt.getreporte()
+    t[0]['reporte']= reporte
 
 def p_instrucciones_lista(t) :
     'instrucciones : instrucciones instruccion'
@@ -391,7 +396,13 @@ def p_instrucciones_lista(t) :
         printList = t[1]['printList'] + t[2]['printList']
     except:
         printList = t[1]['printList']
-    t[0] =  {'text': text, 'c3d' : '', 'printList': printList}
+    grafo.newnode('INSTRUCCIONES')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = '<instrucciones> ::= <instrucciones> <instruccion>\n' + t[1]['reporte'] + t[2]['reporte']    
+    
+    t[0] =  {'text': text, 'c3d' : '', 'printList': printList,'graph' : grafo.index, 'reporte': reporte}
+
 
 
 def p_instruciones(t):
@@ -405,8 +416,11 @@ def p_instruciones(t):
         printList = t[1]['printList']
     except:
         printList = ''
-
-    t[0] =  {'text': text, 'c3d' : '', 'printList': printList}
+    grafo.newnode('INSTRUCCIONES')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<instrucciones> ::= <instruccion>\n' + t[1]['reporte']
+    
+    t[0] =  {'text': text, 'c3d' : '', 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
 
 
 
@@ -426,7 +440,28 @@ def p_instruccion(t) :
         text += '    ' + tempos.newTemp() + ' = \'' + t[1] +" " + t[2]['text'] + '\' \n'
         text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
         text += '    ' + 'mediador(0)\n'
-    t[0] = {'text' : text, 'c3d': '', 'printList': ''}
+    grafo.newnode('INSTRUCCION')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = '<instruccion> ::= '
+    if t[1].lower() == 'create':
+        reporte += 'CREATE <createops>\n' + t[2]['reporte']
+    elif t[1].lower() == 'use':
+        reporte += 'USE <use>\n' + t[2]['reporte']
+    elif t[1].lower() == 'show':
+        reporte += 'SHOW <show>\n' + t[2]['reporte']
+    elif t[1].lower() == 'drop':
+        reporte += 'DROP <drop>\n' + t[2]['reporte']
+    elif t[1].lower() == 'delete':
+        reporte += 'DELETE <delete>\n' + t[2]['reporte']
+    elif t[1].lower() == 'insert':
+        reporte += 'INSERT <insert>\n'  + t[2]['reporte']
+    elif t[1].lower() == 'update':
+        reporte += 'UPDATE <update>\n' + t[2]['reporte']
+    elif t[1].lower() == 'alter':
+        reporte += 'ALTER <alter>\n' + t[2]['reporte']
+    
+
+    t[0] = {'text' : text, 'c3d': '', 'printList': '','graph' : grafo.index, 'reporte': reporte}
 
 #----------------testing condiciones--------------------
 #def p_instrcond(t):
@@ -436,21 +471,33 @@ def p_instruccion(t) :
 
 def p_instruccion_ccreate(t):
     'createops    : create'
-    t[0] = {'text' : t[1]['text'], 'c3d': ''}
+    grafo.newnode('CREATEOPS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<createops> ::= <createindex>\n' + t[1]['reporte']
+    t[0] = {'text' : t[1]['text'], 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccion_ccreateind(t):
     'createops    : createindex'
-    t[0] = {'text' : t[1]['text'], 'c3d': ''}
+    grafo.newnode('CREATEOPS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<createops> ::= <createindex>\n' + t[1]['reporte']
+    t[0] = {'text' : t[1]['text'], 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccion_ccreateindf(t):
     'instruccion    : CREATE createfunction'
     #print(t[2]['ftext'])
-    t[0] = {'text' : '', 'c3d': '', 'printList': t[2]['printList']}
+    grafo.newnode('INSTRUCCION')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = '<instruccion> ::= CREATE <createfunction>\n' + t[2]['reporte']
+    t[0] = {'text' : '', 'c3d': '', 'printList': t[2]['printList'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccion_ccreateindpr(t):
     'instruccion    : CREATE createprocedure'
     #print(t[2]['ftext'])
-    t[0] = {'text' : '', 'c3d': '', 'printList': t[2]['printList']}
+    grafo.newnode('INSTRUCCION')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = '<instruccion> ::= CREATE <createprocedure>\n' + t[2]['reporte']
+    t[0] = {'text' : '', 'c3d': '', 'printList': t[2]['printList'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
@@ -458,38 +505,51 @@ def p_instruccionSelect(t):
     text += '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
     text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
     text += '    ' + tempos.getcurrent()+ ' = mediador(' + 'valSelectPrint' + ')\n'
-
-    t[0] =  {'text': text, 'c3d' : '', 'printList':'', 'valSelectPrint': 0}
+    grafo.newnode('INSTRUCCION')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<instruccion> ::=  <select>\n' + t[1]['reporte']+ 'PTCOMA\n'
+    t[0] =  {'text': text, 'c3d' : '', 'printList':'', 'valSelectPrint': 0, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionQuerys(t):
     'instruccion  : querys PTCOMA'
     text = '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
     text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
     text += '    ' + tempos.getcurrent()+ ' = mediador(0)\n'
-    t[0] =  {'text': text, 'c3d' : '', 'printList': ''}
+    grafo.newnode('INSTRUCCION')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<instruccion> ::=  <querys>\n' + t[1]['reporte']+ 'PTCOMA\n'
+    t[0] =  {'text': text, 'c3d' : '', 'printList': '','graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionraise(t):
     'instruccion  : rise'
     #text = '    '+'rraise = True\n'
     text = t[1]['text']
     #text += '    '+'rraise = False\n'
-    t[0] =  {'text': text, 'c3d' : '', 'printList': ''}
+    grafo.newnode('INSTRUCCION')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<instruccion> ::=  <rise>\n' + t[1]['reporte']
+    t[0] =  {'text': text, 'c3d' : '', 'printList': '','graph' : grafo.index, 'reporte': reporte}
 
 #-------------------------------------------EXECUTE
 def p_stament_a(t):
     '''instruccion : execute PTCOMA'''
     text = t[1]['text']
     #print(text)
-    t[0] =  {'text': text, 'c3d' : '', 'printList': ''}
+    grafo.newnode('INSTRUCCION')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<instruccion> ::=  <execute>\n' + t[1]['reporte']+ 'PTCOMA\n'
+    t[0] =  {'text': text, 'c3d' : '', 'printList': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionError(t):
     'instruccion  : problem'
     text = "\n"
-    t[0] =  {'text': text, 'c3d' : '', 'printList': '' }
+    reporte ="<instruccion> ::= <problem>\n" + t[1]['reporte']
+    t[0] =  {'text': text, 'c3d' : '', 'printList': '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_problem(t):
     '''problem  :  error PTCOMA'''
-    t[0] =  {'text': '', 'c3d' : '', 'printList': str(t[1]) + '\n' }
+    reporte = "<problem> ::= <error> PTCOMA\n"
+    t[0] =  {'text': '', 'c3d' : '', 'printList': str(t[1]) + '\n' ,'graph' : grafo.index, 'reporte': reporte}
 
 
 
@@ -498,23 +558,35 @@ def p_riseaA(t):
     '''rise : RAISE argument PTCOMA'''
     text = t[2]['c3d']
     text += '    print ('+t[2]['tflag']+')\n'
-    t[0] = {'text': text, 'c3d': ''}
+    grafo.newnode('RISE')
+    grafo.newchildrenE('RAISE')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = '<rise> ::= RAISE <argument> PTCOMA\n' + t[2]['reporte']
+    t[0] = {'text': text, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_riseB(t):
     '''rise : RAISE condiciones PTCOMA'''
     text = t[2]['c3d']
     text += '    print ('+t[2]['tflag']+')\n'
-    t[0] = {'text': text, 'c3d': ''}
+    grafo.newnode('RISE')
+    grafo.newchildrenE('RAISE')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = '<rise> ::= RAISE <condiciones> PTCOMA\n' + t[2]['reporte']
+    t[0] = {'text': text, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_riseC(t):
     '''rise : RAISE instruccion'''
     text = ''
     if 'valSelectPrint' in t[1]:
         text += '    valSelectPrint = 1\n'
-    text += t[1]['text']
 
+    text += t[1]['text']
     text += '    print ('+tempos.getcurrent()+')\n'
-    t[0] = {'text': text, 'c3d': ''}
+    grafo.newnode('RISE')
+    grafo.newchildrenE('RAISE')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = '<rise> ::= RAISE <instruccion>\n' + t[2]['reporte']
+    t[0] = {'text': text, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 #---------------------------------------------------------------INDEX-----------------------------------
 def p_createindex(t):
@@ -522,65 +594,116 @@ def p_createindex(t):
                     | INDEX ID ON ID predicadoindex PTCOMA'''
     if t[1].lower() == 'unique':
         txt = ' UNIQUE INDEX ' + t[3] + ' ON ' + t[5] + t[6]['text'] + ';'
+        grafo.newchildrenE('UNIQUE INDEX')
+        grafo.newchildrenE(t[3])
+        grafo.newchildrenE(t[5])
+        grafo.newchildrenF(grafo.index, t[6]['graph'])
+        reporte = "<createindex> ::=  UNIQUE INDEX ID ON ID PARENIZQ <listaids> PARENDER PTCOMA \n" + t[6]['reporte']
     elif t[1].lower() == 'index':
         txt = ' INDEX ' + t[2] + ' ON ' + t[4] + t[5]['text'] + ';'
-    t[0] = {'text' : txt, 'c3d': ''}
+        grafo.newchildrenE('INDEX')
+        grafo.newchildrenE(t[2])
+        grafo.newchildrenE(t[4])
+        grafo.newchildrenF(grafo.index, t[5]['graph'])
+        reporte = "<createindex> ::= INDEX ID ON ID <predicadoindex> PTCOMA\n" + t[5]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
+
 
 def p_indexPredicateU(t):
     'predicadoindexU   : PARENIZQ listaids PARENDER WHERE condiciones'
     txt = ' (' + t[2]['text'] + ') WHERE ' + t[5]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('PREDICADOINDEXU')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    reporte = "<predicadoindexU> ::= PARENIZQ <listaids> PARENDER <condiciones>\n" + t[2]['reporte']+ t[5]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
+
 
 def p_indexPredicateUP(t):
     'predicadoindexU   : PARENIZQ listaids PARENDER'
     txt = ' (' + t[2]['text'] + ') '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('PREDICADOINDEXU')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<predicadoindexU> ::= PARENIZQ <listaids> PARENDER\n" + t[2]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_indexPredicate(t):
     'predicadoindex   : USING HASH PARENIZQ ID PARENDER'
     txt = ' USING HASH (' + t[4] + ') '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('PREDICADOINDEX')
+    grafo.newchildrenE('USING HASH')
+    grafo.newchildrenE(t[4])
+    reporte = "<predicadoindex> ::= USING HASH PARENIZQ ID PARENDER\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_indexPredicateP(t):
     'predicadoindex   : PARENIZQ indexargs PARENDER WHERE condiciones'
     txt = ' (' + t[2]['text'] + ') WHERE ' + t[5]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('PREDICADOINDEX')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    reporte = "<predicadoindex> ::= PARENIZQ <indexargs> PARENDER <condiciones>\n" + t[2]['reporte']+ t[5]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
+
 
 def p_indexPredicateS(t):
     'predicadoindex   : PARENIZQ indexargs PARENDER'
     txt = ' (' + t[2]['text'] + ') '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('PREDICADOINDEX')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<predicadoindex> ::= PARENIZQ <indexargs> PARENDER\n" + t[2]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_indexargs(t):
     'indexargs   : listaids'
     txt = t[1]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('INDEXARG')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<indexargs> ::=  <listaids> \n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_indexargsP(t):
     'indexargs   : LOWER PARENIZQ ID PARENDER'
     txt = ' LOWER (' + t[3] + ') '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('INDEXARGS')
+    grafo.newchildrenE('LOWER')
+    grafo.newchildrenE(t[3])
+    reporte = "<indexargs> ::= LOWER PARENIZQ ID PARENDER\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_indexargsS(t):
     'indexargs   : ID asdcordesc NULLS firstorlast'
     txt = t[1] + ' ' + t[2]['text'] + ' NULLS ' + t[4]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('INDEXARGS')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[2])
+    grafo.newchildrenE('NULLS')
+    grafo.newchildrenF(grafo.index, t[4])
+    reporte = "<indexargs> ::= ID <asdcordesc> NULLS <firstorlast>\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_asdcordesc(t):
     '''asdcordesc   : ASC
                     | DESC'''
     txt = t[1] + ' '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('ASCORDESC')
+    grafo.newchildrenE(t[1])
+    reporte = "<asdcordesc> ::= >"+str(t[1].upper())+"\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_asdcordescE(t):
     'asdcordesc   : '
-    t[0] = {'text' : '', 'c3d': ''}
+    grafo.newnode('ASCORDESC')
+    t[0] = {'text' : '', 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_firstorlast(t):
     '''firstorlast   : FIRST
                     | LAST'''
     txt = ' '+t[1]+' '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('ASCORDESC')
+    grafo.newchildrenE(t[1])
+    reporte = "<asdcordesc> ::= >"+str(t[1].upper())+"\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 #----------------------------------------------------------------UNION---------------------------------
 def p_querys(t):
@@ -588,140 +711,253 @@ def p_querys(t):
               | select INTERSECT  allopcional select
               | select EXCEPT  allopcional select'''
     text = ""
+    grafo.newnode('QUERYS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenE(t[2].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenF(grafo.index, t[4]['graph'])
     if t[2].lower() == 'union' :
+        reporte = "<querys> ::= <select> UNION <allopcional> <select>"
         text = t[1]['text'] + " UNION " + t[3]['text'] + t[4]['text']
     elif t[2].lower() == 'intersect' :
+        reporte = "<querys> ::= <select> INTERSECT <allopcional> <select>"
         text = t[1]['text'] + " INTERSECT " + t[3]['text'] + t[4]['text']
     elif t[2].lower() == 'except' :
+        reporte = "<querys> ::= <select> EXCEPT <allopcional> <select>"
         text = t[1]['text'] + " EXCEPT" + t[3]['text'] + t[4]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_all_opcional(t):
     'allopcional  : ALL'
     text = "ALL "
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ALL')
+    reporte = "<allopcional> ::=  ALL \n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_all_opcional_null(t):
     'allopcional : '
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ALL')
+    grafo.newchildrenE(t[1].upper())
+    reporte =  "<allopcional> ::= EPSILON \n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 #---------------------------------------SELECT
 def p_select(t):
     'select : SELECT parametrosselect fromopcional'
     text = "SELECT " + t[2]['text'] + t[3]['text']
     c3d = t[2]['c3d'] + t[3]['c3d']
-    t[0] =  {'text': text, 'c3d' : c3d }
+    grafo.newnode('SELECT')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<select> ::= SELECT <parametrosselect> <fromopcional>\n" + t[2]['reporte'] +  t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_select_err(t):
     'select : problem'
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    reporte = "<select> ::= <problem>"
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_from_opcional(t):
     'fromopcional     :  FROM parametrosfrom whereopcional '
     text = " FROM "+ t[2]['text'] + t[3]['text']
     c3d = t[3]['c3d']
-    t[0] =  {'text': text, 'c3d' : c3d }
+    grafo.newnode('FROM')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<fromopcional> ::= FROM <parametrosfrom> <whereopcional>\n" + t[2]['reporte'] + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
+
+def p_from_opcional_1(t):
+    'fromopcional     :  FROM parametrosfrom whereopcional'
+    text = " FROM "+ t[2]['text'] + t[3]['text']
+    grafo.newnode('FROM')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<fromopcional> ::= FROM <parametrosfrom> <whereopcional>\n" + t[2]['reporte'] + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_from_opcional_2(t):
-    'fromopcional     :  FROM parametrosfrom groupbyopcional '
+    'fromopcional     :  FROM parametrosfrom groupbyopcional orderby'
+    text = " FROM "+ t[2]['text'] + t[3]['text']+t[4]['text']
+    grafo.newnode('FROM')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<fromopcional> ::= FROM <parametrosfrom> <groupbyopcional> <orderby>\n" + t[2]['reporte'] + t[3]['reporte']+t[4]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
+
+def p_from_opcional_3(t):
+    'fromopcional     :  FROM parametrosfrom groupbyopcional'
     text = " FROM "+ t[2]['text'] + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('FROM')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<fromopcional> ::= FROM <parametrosfrom> <groupbyopcional>\n" + t[2]['reporte'] + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
+
 
 def p_from_opcional_null(t):
     'fromopcional : '
     text = " "
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('FROM')
+    reporte = "<fromopcional> ::= EPSILON\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_where_opcional(t):
     'whereopcional :  WHERE condiciones groupbyopcional'
     text = " WHERE "+ t[2]['text'] + t[3]['text']
     c3d = t[2]['select']
-    t[0] =  {'text': text, 'c3d' : c3d }
+    grafo.newnode('WHERE')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<whereopcional> ::= WHERE <condiciones> <groupbyopcional>\n" + t[2]['reporte'] + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_where_opcional_null(t):
     'whereopcional :   '
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('WHERE')
+    reporte = "<whereopcional> ::= EPSILON\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_group_by_opcional(t):
     'groupbyopcional  : GROUP BY listaids havings'
+    grafo.newnode('GROUPBY')
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    grafo.newchildrenF(grafo.index,t[4]['graph'])
+    reporte = "<groupbyopcional> ::= GROUP BY <listaids> <havings>\n" + t[3]['reporte'] + t[4]['reporte']
     text = " GROUP BY " + t[3]['text'] +  t[4]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_group_by_opcional_numeros(t):
     'groupbyopcional  : GROUP BY listanumeros havings'
     text = " GROUP BY "+ t[3]['text'] + t[4]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('GROUPBY')
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    grafo.newchildrenF(grafo.index,t[4]['graph'])
+    reporte = "<groupbyopcional> ::= GROUP BY <listanumeros> <havings>\n" +  t[3]['reporte'] + t[4]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_having(t):
     'havings   : HAVING condiciones'
     text = " HAVING "+ t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('HAVING')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    reporte = "<havings> ::= HAVING <condiciones>\n" + t[2]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_having_null(t):
     'havings : '
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('HAVING')
+    reporte = "<havings> ::= EPSILON\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
+
+def p_orderby(t):
+    'orderby : ORDER BY listaidcts'
+    grafo.newnode('ORDERBY')
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<orderby> ::= ORDER BY <listaids>\n" + t[3]['reporte']
+    text = 'ORDER BY '+ t[3]['txt']
+    t[0]= {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listanumeros_r(t):
     'listanumeros : listanumeros COMA ENTERO'
     text = t[1]['text'] + ", " + t[3]
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('LISTANUM')
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<listanumeros> ::= <listanumeros> COMA ENTERO\n" + t[1]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listanumeros(t):
     'listanumeros : ENTERO'
     text = t[1]
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('LISTANUM')
+    grafo.newchildrenE(t[1])
+    reporte = "<listanumeros> ::= ENTERO\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_group_by_opcional_null(t):
     'groupbyopcional  : '
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_parametros_from(t):
     'parametrosfrom : parametrosfrom COMA parametrosfromr asopcional'
     text = t[1]['text'] + ", " + t[3]['text'] + ' ' + t[4]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('PARAM_FROMR')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenF(grafo.index, t[4]['graph'])
+    reporte = "<parametrosfrom> ::= <parametrosfrom> COMA <parametrosfromr> <asopcional>\n" + t[1]['reporte'] + t[3]['reporte'] + t[4]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_parametros_from_r(t):
     'parametrosfrom : parametrosfromr asopcional'
     text = t[1]['text'] + ' ' + t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('PARAM_FROMR')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte ="<parametrosfrom> ::= <parametrosfromr> <asopcional>\n" + t[1]['reporte'] + t[2]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_parametros_fromr(t):
     '''parametrosfromr   : ID
                         | PARENIZQ select PARENDER'''
     text = ""
+    grafo.newnode('PARAM_FROM')
     if t[1] == '(' :
         text = "(" + t[2]['text'] + ")"
+        grafo.newchildrenF(grafo.index,t[2]['graph'])
+        reporte = "<parametrosfromr> ::= PARENIZQ <select> PARENDER\n" + t[2]['reporte']
     else :
+        grafo.newchildrenE(t[1].upper())
+        reporte = "<parametrosfromr> ::= " + t[1].upper() + "\n"
         text = t[1]
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_parametros_select(t):
     'parametrosselect : DISTINCT listadeseleccion'
     text = " DISTINCT " + t[2]['text']
     c3d = t[2]['c3d']
-    t[0] =  {'text': text, 'c3d' : c3d }
+    grafo.newnode('PARAMETROS_SELECT')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    reporte = "<parametrosselect> ::= DISTINCT <listadeseleccion>\n" + t[2]['reporte']
+    t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_parametros_select_r(t):
     'parametrosselect : listadeseleccion'
+    grafo.newnode('PARAMETROS_SELECT')
+    grafo.newchildrenF(grafo.index,t[1]['graph'])
+    reporte = "<parametrosselect> ::= <listadeseleccion>\n" + t[1]['reporte']
     t[0] = t[1]
+    t[0]['reporte']=reporte
+    t[0]['graph']= grafo.index
 
 def p_lista_de_seleccion(t):
     'listadeseleccion : listadeseleccion COMA listadeseleccionados  asopcional'
     text = t[1]['text'] + ", " + t[3]['text'] + t[4]['text']
     c3d = t[1]['c3d'] + t[3]['c3d']
-    t[0] =  {'text': text, 'c3d' : c3d }
+    grafo.newnode('L_SELECT')
+    grafo.newchildrenF(grafo.index,t[1]['graph'])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    grafo.newchildrenF(grafo.index,t[4]['graph'])
+    reporte = "<listadeseleccion> ::= <listadeseleccion> COMA <listadeseleccionados> <asopcional>\n" +t[1]['reporte'] + t[3]['reporte'] + t[4]['reporte']
+    t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_seleccion_r(t):
     'listadeseleccion : listadeseleccionados asopcional'
     text = t[1]['text'] + t[2]['text']
     c3d = t[1]['c3d']
-    t[0] =  {'text': text, 'c3d' : c3d }
+    grafo.newnode('L_SELECT')
+    grafo.newchildrenF(grafo.index,t[1]['graph'])
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    reporte = "<listadeseleccion> ::= <listadeseleccionados> <asopcional>\n" + t[1]['reporte'] + t[2]['reporte']
+    t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_seleccionados(t):
     '''listadeseleccionados : PARENIZQ select PARENDER
@@ -730,17 +966,32 @@ def p_lista_de_seleccionados(t):
                             | LEAST PARENIZQ listadeargumentos  PARENDER
                             | CASE cases  END ID '''
     text = ""
+    grafo.newnode('L_SELECTS')
     if t[1].lower() == 'greatest' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<listadeseleccionados> ::= GREATEST PARENIZQ <listadeargumentos> PARENDER\n" + t[3]['reporte']
         text = "GREATEST (" + t[3]['text'] + ")"
     elif t[1].lower() == 'least' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte ="<listadeseleccionados> ::= LEAST PARENIZQ <listadeargumentos> PARENDER\n" + t[3]['reporte']
         text = "LEAST (" + t[3]['text'] + ")"
     elif t[1].lower() == 'case' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        grafo.newchildrenE(t[4])
+        reporte = "<listadeseleccionados> ::= CASE <cases> END " + t[4].upper() + "\n" + t[2]['reporte']
         text = "CASE " + t[2]['text'] + " END " + t[4]
     elif t[1] == '*' :
         text = " * "
+        grafo.newchildrenE(t[1])
+        reporte ="<listadeseleccionados> ::= ASTERISCTO\n"
     elif t[1] == '(' :
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<listadeseleccionados> ::= PARENIZQ <select> PARENDER\n" + t[2]['reporte']
         text = "(" + t[2]['text'] + ")"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_seleccionados_noterminal(t):
     '''listadeseleccionados : funcionesmatematicassimples
@@ -749,22 +1000,40 @@ def p_lista_de_seleccionados_noterminal(t):
                             | funcionesdefechas
                             | funcionesbinarias
                             | operadoresselect'''
-    t[0] = t[1]
-
+    grafo.newnode('L_SELECTS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '''<listadeseleccionados := <funcionesmatematicassimples>
+                         |<funcionestrigonometricas>
+                         |<funcionesmatematicas
+                         |<funcionesdefechas>
+                         |<funcionesbinarias>
+                         |<operadoresselect>\n''' + t[1]['reporte'] 
+    t[0]=t[1]
+    t[0]['reporte']=reporte
+    t[0]['graph']= grafo.index
 #--------------------------AGREGAR
 def p_lista_de_seleccionados_cadena(t):
     'listadeseleccionados : argument'
-    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'] }
+    grafo.newnode('L_SELECTS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '<listadeseleccionados> := <argument>' + t[1]['reporte'] #mm
+    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'] , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_seleccionados_func(t):
     'listadeseleccionados : funcionesLlamada'
-    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'] }
+    grafo.newnode('LIST_ARG')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<listadeargumentos> ::= <funcionesLlamada>\n" + t[1]['reporte']
+    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'] , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_seleccionados_funcion_params(t):
     'funcionesLlamada : ID PARENIZQ params PARENDER'
     cant = len(t[3]['c3d']) - 1
     arr = []
     c3d = ''
+    grafo.newnode('F_LLAMADA')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<listadeargumentos> ::= ID PARENIZQ <params> PARENDER\n" + t[3]['reporte']
     for val in t[3]['extra']:
         if val != '':
             c3d += val
@@ -778,6 +1047,7 @@ def p_lista_de_seleccionados_funcion_params(t):
         c3d += '    heap.append(' + val + ')\n'
 
     c3d += '    ' + t[1] + '()\n'
+
     text = ''
 
     l.readData(datos)
@@ -794,14 +1064,17 @@ def p_lista_de_seleccionados_funcion_params(t):
                         text = '\\\'\' + str(' + temporal + ') + \'\\\''
                     else:
                         text = '\' + str(' + temporal + ') + \''
-    
-    t[0] =  {'text': text, 'c3d' : c3d}
+
+    t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_seleccionados_funcion(t):
     'funcionesLlamada : ID PARENIZQ PARENDER'
     c3d = '    ' + t[1] + '()\n'
     val = tempos.newTemp()
     text = ''
+    grafo.newnode('F_LLAMADA')
+    grafo.newchildrenE(t[1].upper())
+    reporte = "<listadeargumentos> ::= ID PARENIZQ <params> PARENDER\n" + t[3]['reporte']
     l.readData(datos)
     if 'funciones_' in datos.tablaSimbolos:
         for nombres in datos.tablaSimbolos['funciones_']:
@@ -815,80 +1088,125 @@ def p_lista_de_seleccionados_funcion(t):
                         text = '\' + str(' + val + ') + \''
                     c3d += '    ' + val + ' = heap.pop()\n'
 
-    t[0] =  {'text': text, 'c3d' : c3d }
+    t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_params_FR(t):
     'params : params COMA param'
     text = t[1]['text'] + ', ' + t[3]['text']
-
     t[1]['c3d'].append(t[3]['text'])
     t[1]['extra'].append(t[3]['c3d'])
     t[1]['tflag'].append(t[3]['tflag'])
-
-    t[0] =  {'text': text, 'c3d' : t[1]['c3d'], 'extra': t[1]['extra'], 'tflag':t[1]['tflag']}
+    grafo.newnode('PARAMS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<params> ::= <params> COMA <param>\n" + t[1]['reporte'] + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : t[1]['c3d'], 'extra': t[1]['extra'], 'tflag':t[1]['tflag'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_params_F(t):
     'params : param'
+    grafo.newnode('PARAMS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<params> ::= <param>\n" + t[1]['reporte'] 
     if t[1]['c3d'] == '':
-        t[0] = {'text' : t[1]['text'], 'c3d' : [t[1]['text']], 'extra': [''], 'tflag': [t[1]['tflag']]}
+        t[0] = {'text' : t[1]['text'], 'c3d' : [t[1]['text']], 'extra': [''], 'tflag': [t[1]['tflag']], 'graph' : grafo.index, 'reporte': reporte}
     else:
-        t[0] = {'text' : t[1]['text'], 'c3d' : [t[1]['text']], 'extra': [t[1]['c3d']], 'tflag': [t[1]['tflag']]}
+        t[0] = {'text' : t[1]['text'], 'c3d' : [t[1]['text']], 'extra': [t[1]['c3d']], 'tflag': [t[1]['tflag']], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_param_F(t):
     '''param : condiciones
              | argument'''
+    reporte =   "<params> ::= <condiciones>\n"
+    reporte +=  "            |<argument>\n" + t[1]['reporte'] 
+    grafo.newnode('PARAM')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
     t[0] =  t[1]
+    t[0]['reporte']=reporte
+    t[0]['graph']= grafo.index
 #---------------------------------
 
 def p_lista_de_argumentos(t):
     'listadeargumentos : listadeargumentos COMA argument'
     text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('LIST_ARG')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<listadeargumentos> ::= <listadeargumentos> COMA <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_argumentos_r(t):
     'listadeargumentos : argument '
     text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('LIST_ARG')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<listadeargumentos> ::= <argument>\n" + t[1]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_casos(t):
     'cases    : cases case elsecase'
     text = t[1]['text'] + t[2]['text'] + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('CASOS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<cases> := <cases> <case> <elsecase>\n" + t[1]['reporte'] + t[2]['reporte'] + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_casos_r(t):
     'cases : case elsecase'
     text = t[1]['text'] + t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('CASOS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<cases> ::= <case> <elsecase>\n" + t[1]['reporte'] + t[2]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_case(t):
     'case : WHEN condiciones  THEN  argument'
     text = " WHEN " + t[2]['text'] + " THEN " +t[4]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('CASO')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    grafo.newchildrenF(grafo.index,t[4]['graph'])
+    reporte = "<case> ::= WHEN <condiciones> THEN <argument>\n" + t[2]['reporte'] + t[4]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_else_case(t):
     'elsecase  : ELSE argument '
     text = " ELSE " + t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ELSE')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    reporte = "<elsecase> ::= ELSE <argument>\n" + t[2]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_else_case_null(t):
     'elsecase  : '
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ELSE')
+    reporte = "<elsecase> ::= EPSILON\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_operadores_select_t(t):
     '''operadoresselect : PLECA argumentodeoperadores
                         | VIRGULILLA argumentodeoperadores'''
     text = ""
+    grafo.newnode('OP_SELECT')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
     if t[1] == '|':
+        reporte = "<operadoresselect> ::= PLECA <argumentosdeoperadores>\n" + t[2]['reporte']
         text = "PLECA " + t[2]['text']
     else :
+        reporte = "<operadoresselect> ::= VIRGULILLA <argumentodeoperadores>\n" + t[2]['reporte']
         text = "VIRGULILLA "+ t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_operadores_s_pleca(t):
     ' operadoresselect : PLECA PLECA argumentodeoperadores'
     text = " || " + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('OP_SELECT')
+    grafo.newchildrenE(t[1]+t[2])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<operadoresselect> ::= PLECA PLECA <argumentodeoperadores>\n" + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_operadores_select_nt(t):
     '''operadoresselect : argumentodeoperadores AMPERSON argumentodeoperadores
@@ -897,17 +1215,28 @@ def p_operadores_select_nt(t):
                         | argumentodeoperadores MENORQUE MENORQUE argumentodeoperadores
                         | argumentodeoperadores MAYORQUE MAYORQUE argumentodeoperadores'''
     text = ""
+    grafo.newnode('OP_SELECT')
+    grafo.newchildrenF(grafo.index,t[1]['graph'])
     if t[2] == '&' :
+        grafo.newchildrenF(grafo.index,t[3]['graph'])
+        reporte = "<operadoresselect> ::= <argumentodeoperadores> AMPERSON <argumentodeoperadores>\n" + t[1]['reporte'] + t[3]['reporte']
         text = t[1]['text'] + " & " + t[3]['reporte']
     elif t[2] == '|' :
+        grafo.newchildrenF(grafo.index,t[3]['graph'])
+        reporte = "<operadoresselect> ::= <argumentodeoperadores> PLECA <argumentodeoperadores>\n" + t[1]['reporte'] + t[3]['reporte']
         text = t[1]['text'] + " | " + t[3]['reporte']
     elif t[2] == '#' :
+        reporte = "<operadoresselect> ::= <argumentodeoperadores> NUMERAL <argumentodeoperadores>\n" + t[1]['reporte'] + t[3]['reporte']
         text = t[1]['text'] + " # " + t[3]['reporte']
     elif t[2] == '<' :
+        grafo.newchildrenF(grafo.index,t[4]['graph'])
+        reporte = "<operadoresselect> ::= <argumentodeoperadores> MENORQUE MENORQUE <argumentodeoperadores>\n" + t[1]['reporte'] + t[4]['reporte']
         text = t[1]['text'] + " <> " + t[3]['reporte']
     elif t[2] == '>' :
+        grafo.newchildrenF(grafo.index,t[4]['graph'])
+        reporte = "<operadoresselect> ::= <argumentodeoperadores> MAYORQUE MAYORQUE <argumentodeoperadores>\n" + t[1]['reporte'] + t[4]['reporte']
         text = t[1]['text'] + " >> " + t[3]['reporte']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argumento_de_operadores(t):
     '''argumentodeoperadores    : argumentodeoperadores MAS argumentodeoperadores
@@ -917,35 +1246,54 @@ def p_argumento_de_operadores(t):
                                 | argumentodeoperadores PORCENTAJE argumentodeoperadores
                                 | argumentodeoperadores POTENCIA argumentodeoperadores'''
     text = ""
+    grafo.newnode('ARG_OP')
+    grafo.newchildrenF(grafo.index,t[1]['graph'])
+    grafo.newchildrenE(t[2])
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
     if t[2] == '+'   :
+        reporte = "<argumentodeoperadores> ::= <argumentodeoperadores> MAS <argumentodeoperadores> \n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text']) + " + " + str(t[3]['text'])
     elif t[2] == '-' :
+        reporte = "<argumentodeoperadores> ::= <argumentodeoperadores> GUION <argumentodeoperadores> \n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text']) + " - " + str(t[3]['text'])
     elif t[2] == '/' :
+        reporte = "<argumentodeoperadores> ::= <argumentodeoperadores> BARRA <argumentodeoperadores> \n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text']) + " / " + str(t[3]['text'])
     elif t[2] == '*' :
+        reporte = "<argumentodeoperadores> ::= <argumentodeoperadores> ASTERISCO <argumentodeoperadores> \n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text']) + " * " + str(t[3]['text'])
     elif t[2] == '%' :
+        reporte = "<argumentodeoperadores> ::= <argumentodeoperadores> PORCENTAJE <argumentodeoperadores> \n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text']) + " % " + str(t[3]['text'])
     elif t[2] == '^' :
+        reporte = "<argumentodeoperadores> ::= <argumentodeoperadores> POTENCIA <argumentodeoperadores> \n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text']) + " ^ " + str(t[3]['text'])
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_argumento_de_operadores_decimal(t):
     'argumentodeoperadores : DECIMAL'
     text = t[1]
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ARGUMENTO DE OPERADORES')
+    grafo.newchildrenE(t[1])
+    reporte = "<argumentodeoperadores> ::= DECIMAL\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argumento_de_operadores_entero(t):
     'argumentodeoperadores : ENTERO'
     text = t[1]
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ARGUMENTO DE OPERADORES')
+    grafo.newchildrenE(t[1])
+    reporte = "<argumentodeoperadores> ::= ENTERO\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argumento_de_operadores_ID(t):
     '''argumentodeoperadores : ID'''
     text = t[1]
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ARGUMENTO DE OPERADORES')
+    grafo.newchildrenE(t[1])
+    reporte = "<argument> ::= " +  t[1].upper() +"\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_matematicas_simples(t):
     '''funcionesmatematicassimples  : COUNT PARENIZQ argument  PARENDER
@@ -954,22 +1302,36 @@ def p_funciones_matematicas_simples(t):
                                     | AVG PARENIZQ argument  PARENDER
                                     | MIN PARENIZQ argument  PARENDER'''
     text = ""
+    grafo.newnode('F_MATH_SIM')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<funcionesmatematicassimples> ::= "
     if t[1].lower() == "count":
+        reporte += "COUNT PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
         text = "COUNT (" + t[3]['text'] + ")"
     elif t[1].lower() == "max":
+        reporte += "MAX PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
         text = "MAX (" + t[3]['text'] + ")"
     elif t[1].lower() == "sum":
+        reporte += "SUM PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
         text = "SUM (" + t[3]['text'] + ")"
     elif t[1].lower() == "avg":
+        reporte += "AVG PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
         text = "AVG (" + t[3]['text'] + ")"
     elif t[1].lower() == "min":
+        reporte += "MIN PARENIZQ <argument> PARENDER\n" + t[3]['reporte']        
         text = "MIN (" + t[3]['text'] + ")"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_matematicas_simplesa(t):
     'funcionesmatematicassimples  : COUNT PARENIZQ ASTERISCO  PARENDER '
     text = " COUNT(*) "
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('F_MATH_SIM')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenE(t[3])
+    reporte = "<funcionesmatematicassimples> ::= "
+    reporte += "COUNT PARENIZQ ASTERISCO PARENDER\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_binarias(t):
     '''funcionesbinarias    : LENGTH PARENIZQ  argument   PARENDER
@@ -984,39 +1346,69 @@ def p_funciones_binarias(t):
                             | ENCODE PARENIZQ argument DOSPUNTOS DOSPUNTOS BYTEA COMA CADENA PARENDER
                             | DECODE PARENIZQ argument COMA CADENA PARENDER '''
     text = ""
+    grafo.newnode('F_BIN')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
     if t[1].lower() == 'length' :
+        reporte = "<funcionesbinarias> ::= LENGTH PARENIZQ <argument> PARENDER\n"+ t[3]['reporte']
         text = "LENGTH(" + t[3]['text'] + ")"
     elif t[1].lower() == 'substring' :
+        grafo.newchildrenE(t[5])
+        grafo.newchildrenE(t[7])
+        reporte = "<funcionesbinarias> ::= SUBSTRING PARENIZQ <argument> COMA ENTERO COMA ENTERO PARENDER\n" + t[3]['reporte']
         text = "SUBSTRING(" + str(t[3]['text']) + ", " + str(t[5]) + ", " + str(t[7]) + ")"
     elif t[1].lower() == 'trim' :
+        reporte = "<funcionesbinarias> ::= TRIM PAREINZQ <argument> PARENDER\n" + t[3]['reporte']
         text = "TRIM(" + t[3]['text'] + ")"
     elif t[1].lower() == 'md5' :
+        reporte = "<funcionesbinarias> ::= MD5 PAREINZQ <argument> PARENDER\n" +t[3]['reporte']
         text = "MD5(" + t[3]['text'] + ")"
     elif t[1].lower() == 'sha256' :
+        reporte = "<funcionesbinarias> ::= SHA256 PAREINZQ <argument> PARENDER\n" +t[3]['reporte']
         text = "SHA256(" + t[3]['text'] + ")"
     elif t[1].lower() == 'substr' :
+        grafo.newchildrenE(t[5])
+        grafo.newchildrenE(t[7])
+        reporte = "<funcionesbinarias> ::= SUBSTR PARENIZQ  <argument>  COMA  ENTERO  COMA  ENTERO  PARENDER\n" + t[3]['reporte']
         text = "SUBSTR(" + t[3]['text'] + ", " + str(t[5]) + ", " + str(t[7]) + ")"
     elif t[1].lower() == 'get_byte' :
+        grafo.newchildrenF(grafo.index,t[8]['graph'])
+        reporte = "<funcionesbinarias> ::= GETBYTE PARENIZQ <argument> DOSPUNTOS DOSPUNTOS BYTEA COMA <argument> PARENDER\n" + t[3]['reporte'] + t[8]['reporte']
         text = "GET_BYTE(" + t[3]['text'] + ":: BYTEA" + ", " + t[8]['text'] + ", " + t[10]['text'] + ")"
     elif t[1].lower() == 'set_byte' :
+        grafo.newchildrenF(grafo.index,t[8]['graph'])
+        grafo.newchildrenF(grafo.index,t[10]['graph'])
+        reporte = "<funcionesbinarias> ::= SETBYTE PARENIZQ <argument> DOSPUNTOS DOSPUNTOS BYTEA COMA <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[8]['reporte'] +t[10]['reporte']
         text = "SET_BYTE(" + t[3]['text'] + ":: BYTEA" + ", " + t[8]['text'] + ", " + t[10]['text'] + ")"
     elif t[1].lower() == 'convert' :
+        grafo.newchildrenF(grafo.index,t[3]['graph'])
+        grafo.newchildrenF(grafo.index,t[5]['graph'])
+        reporte = "<funcionesbinarias> ::= CONVERT PARENIZQ <argument> AS tipo\n" + t[3]['reporte']
         text = "CONVERT(" + t[3]['text'] + ") AS " + t[5]['text']
     elif t[1].lower() == 'decode' :
+        grafo.newchildrenE(t[8].upper())
+        reporte = "<funcionesbinarias> ::= ENCODE PARENIZQ <argument> DOSPUNTOS DOSPUNTOS BYTEA COMA CADENA PARENDER\n" + t[3]['reporte']
         text = "DECODE(" + t[3]['text'] + ", \\\'" + t[5] + "\\\')"
     elif t[1].lower() == 'encode' :
+        grafo.newchildrenF(grafo.index,t[5]['graph'])
+        reporte = "<funcionesbinarias> ::= DECODE PARENIZQ <argument> COMA CADENA PARENDER\n" + t[3]['reporte']
         text = "ENCODE(" + t[3]['text'] + ":: BYTEA , " + ' \\\'' + t[8] + '\\\'' + ")"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_matematicas_S (t):
     '''funcionesmatematicas : PI PARENIZQ PARENDER
                             | RANDOM PARENIZQ PARENDER'''
     text = ""
+    grafo.newnode('F_MATH')
+    grafo.newchildrenE(t[1].upper())
+    reporte = "<funcionesmatematicas> ::= "
     if t[1].lower() == "random":
         text = "RANDOM()"
+        reporte += "RANDOM PARENIZQ PARENDER\n"
     else:
+        reporte += "PI PARENIZQ PARENDER\n"
         text = "PI()"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_matematicas_1 (t):
     '''funcionesmatematicas : ABS PARENIZQ  argument  PARENDER
@@ -1034,35 +1426,53 @@ def p_funciones_matematicas_1 (t):
                             | SQRT PARENIZQ  argument   PARENDER
                             | TRUNC PARENIZQ  argument   PARENDER'''
     text = ""
+    grafo.newnode('F_MATH')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<funcionesmatematicas> ::= "
     if t[1].lower() == "abs":
+        reporte += "ABS PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
         text = " ABS(" + t[3]['text'] + ")"
     elif t[1].lower() == "cbrt":
+        reporte += "CBRT PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " CBRT(" + t[3]['text'] + ")"
     elif t[1].lower() == "ceil":
+        reporte += "CEIL PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " CEIL(" + t[3]['text'] + ")"
     elif t[1].lower() == "ceiling":
+        reporte += "CEILING PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " CEILING(" + t[3]['text'] + ")"
     elif t[1].lower() == "degrees":
+        reporte += "DEGREES PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " DEGREES(" + t[3]['text'] + ")"
     elif t[1].lower() == "exp":
+        reporte += "EXP PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " EXP(" + t[3]['text'] + ")"
     elif t[1].lower() == "floor":
+        reporte += "FLOOR PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " FLOOR(" + t[3]['text'] + ")"
     elif t[1].lower() == "ln":
+        reporte += "LN PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " LN(" + t[3]['text'] + ")"
     elif t[1].lower() == "log":
+        reporte += "LOG PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " LOG(" + t[3]['text'] + ")"
     elif t[1].lower() == "radians":
+        reporte += "RADIANS PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " RADIANS(" + t[3]['text'] + ")"
     elif t[1].lower() == "scale":
+        reporte += "SCALE PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " SCALE(" + t[3]['text'] + ")"
     elif t[1].lower() == "sign":
+        reporte += "SIGN PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " SIGN(" + t[3]['text'] + ")"
     elif t[1].lower() == "sqrt":
+        reporte += "SQRT PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " SQRT(" + t[3]['text'] + ")"
     elif t[1].lower() == "trunc":
+        reporte += "TRUNC PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " TRUNC(" + t[3]['text'] + ")"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_matematicas_2 (t):
     '''funcionesmatematicas : DIV PARENIZQ  argument  COMA  argument  PARENDER
@@ -1070,36 +1480,62 @@ def p_funciones_matematicas_2 (t):
                             | MOD PARENIZQ  argument  COMA  argument   PARENDER
                             | POWER PARENIZQ  argument  COMA  argument   PARENDER'''
     text =""
+    grafo.newnode('F_MATH')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    reporte ="<funcionesmatematicas> ::= "
     if t[1].lower() == "div":
+        reporte += "DIV PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']
         text  = " DIV( " + t[3]['text'] + ", " + t[5]['text'] + ")"
     elif t[1].lower() == "gcd":
+        reporte += "GCD PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']
         text  = " GCD( " + t[3]['text'] + ", " + t[5]['text'] + ")"
     elif t[1].lower() == "mod":
+        reporte += "MOD PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']
         text  = " MOD( " + t[3]['text'] + ", " + t[5]['text'] + ")"
     elif t[1].lower() == "power":
+        reporte += "POWER PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']    
         text  = " POWER( " + t[3]['text'] + ", " + t[5]['text'] + ")"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_matematicas_2R (t):
     'funcionesmatematicas : ROUND PARENIZQ  argument   tipoderound  PARENDER'
     text = " ROUND(" + t[3]['text'] + t[4]['text'] + ") "
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('F_MATH')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenF(grafo.index, t[4]['graph'])
+    reporte = "<funcionesmatematicas> ::= ROUND PARENIZQ <argument> <tipoderound> PARENDER\n" + t[3]['reporte'] + t[4]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tipo_de_round(t):
     'tipoderound  : COMA  argument'
     text = ", " + t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('T_ROUND')
+    grafo.newchildrenF(grafo.index,t[2]['graph'])
+    reporte = "<tipoderound> ::= COMA <argument>\n" +t[2]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tipo_de_round_null(t):
     'tipoderound  :'
     text = " "
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('T_ROUND')
+    reporte ="<tipoderound> ::= EPSILON\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_funciones_matematicas_4 (t):
     'funcionesmatematicas : BUCKET PARENIZQ  argument COMA argument COMA argument COMA argument PARENDER'
     text = " width_bucket (" + t[3]['text'] + ", " + t[5]['text'] + ", " + t[7]['text'] + ", " + t[9]['text'] + ")"
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('F_MATH')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    grafo.newchildrenF(grafo.index, t[7]['graph'])
+    grafo.newchildrenF(grafo.index, t[9]['graph'])
+    reporte ="<funcionesmatematicas> ::= BUCKET PARENIZQ <argument> COMA <argument> COMA <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte'] + t[7]['reporte'] + t[9]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_trigonometricas(t):
     '''funcionestrigonometricas :  ACOS PARENIZQ argument  PARENDER
@@ -1125,52 +1561,79 @@ def p_funciones_trigonometricas(t):
                                 | ACOSH PARENIZQ argument  PARENDER
                                 | ATANH PARENIZQ argument  PARENDER '''
     text = ""
+    grafo.newnode('F_MATH_SIM')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
     if t[1].lower() == 'atan2':
+        grafo.newchildrenF(grafo.index,t[5]['graph'])
+        reporte = "<funcionestrigonometricas> ::= ATANDOS PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] +t[5]['reporte']
         text = "ATAN2( " + t[3]['text'] + ", " + t[5]['text'] + ")"
     else :
+        reporte = "<funcionestrigonometricas> ::= "
         if t[1].lower() == "acos":
+            reporte += "ACOS PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "ACOS(" + t[3]['text'] + ")"
         elif t[1].lower() == "asin":
+            reporte += "ASIN PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "ASIN(" + t[3]['text'] + ")"
         elif t[1].lower() == "acosd":
+            reporte += "ACOSD PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "ACOSD(" + t[3]['text'] + ")"
         elif t[1].lower() == "asind":
+            reporte += "ASIND PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "ASIND(" + t[3]['text'] + ")"
         elif t[1].lower() == "atan":
+            reporte += "ATAN PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "ATAN(" + t[3]['text'] + ")"
         elif t[1].lower() == "atand":
+            reporte += "ATAND PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "ATAND(" + t[3]['text'] + ")"
         elif t[1].lower() == "cos":
+            reporte += "COS PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "COS(" + t[3]['text'] + ")"
         elif t[1].lower() == "cosd":
+            reporte += "COSD PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "COSD(" + t[3]['text'] + ")"
         elif t[1].lower() == "cot":
+            reporte += "COT PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "COT(" + t[3]['text'] + ")"
         elif t[1].lower() == "cotd":
+            reporte += "COTD PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "COTD(" + t[3]['text'] + ")"
         elif t[1].lower() == "sin":
+            reporte += "SIN PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "SIN(" + t[3]['text'] + ")"
         elif t[1].lower() == "sind":
+            reporte += "SIND PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "SIND(" + t[3]['text'] + ")"
         elif t[1].lower() == "tan":
+            reporte += "TAN PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "TAN(" + t[3]['text'] + ")"
         elif t[1].lower() == "tand":
+            reporte += "TAND PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "TAND(" + t[3]['text'] + ")"
         elif t[1].lower() == "sinh":
+            reporte += "SINH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "SINH(" + t[3]['text'] + ")"
         elif t[1].lower() == "cosh":
+            reporte += "COSH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "COSH(" + t[3]['text'] + ")"
         elif t[1].lower() == "tanh":
+            reporte += "TANH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "TANH(" + t[3]['text'] + ")"
         elif t[1].lower() == "asinh":
+            reporte += "ASINH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "ASINH(" + t[3]['text'] + ")"
         elif t[1].lower() == "acosh":
+            reporte += "ACOSH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "ACOSH(" + t[3]['text'] + ")"
         elif t[1].lower() == "atanh":
+            reporte += "ATANH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
             text = "ATANH(" + t[3]['text'] + ")"
         elif t[1].lower() == "atan2d":
             text = "ATAN2D(" + t[3]['text'] + ")"
-        t[0] =  {'text': text, 'c3d' : '' }
+            reporte += "ATANDOSD PARENIZQ <argument> COMA <argument> PARENDER\n" +t[3]['reporte'] + t[5]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_funciones_de_fechas(t):
@@ -1181,19 +1644,32 @@ def p_funciones_de_fechas(t):
                             | CURRENTTIME
                             | TIMESTAMP argument  '''
     text = ""
+    grafo.newnode('F_FECHAS')
+    grafo.newchildrenE(t[1].upper())
     if t[1].lower() == 'extract' :
+        grafo.newchildrenF(grafo.index,t[3]['graph'])
+        grafo.newchildrenF(grafo.index,t[6]['graph'])
+        reporte = "<funcionesdefechas> ::= EXTRACT PARENIZQ <partedelafecha> FROM TIMESTAMP <argument> PARENDER\n" + t[3]['reporte'] + t[6]['reporte']
         text = "EXTRACT(" + t[3]['text'] + " FROM TIMESTAMP " + t[6]['text'] + ")"
     elif t[1].lower() == 'date_part' :
+        grafo.newchildrenF(grafo.index,t[3]['graph'])
+        grafo.newchildrenF(grafo.index,t[6]['graph'])
+        reporte = "<funcionesdefechas> ::= DATEPART PARENIZQ <argument> COMA INTERVAL <argument> PARENDER\n" + t[3]['reporte'] + t[6]['reporte']
         text = "DATE_PART (" + t[3]['text'] + ", INTERVAL " + t[6]['text'] + ")"
     elif t[1].lower() == 'now' :
+        reporte = "<funcionesdefechas> ::= NOW PARENIZQ PARENDER\n"
         text = "NOW()"
     elif t[1].lower() == 'current_date' :
+        reporte = "<funcionesdefechas> ::= CURRENTDATE\n"
         text = "CURRENT_DATE"
     elif t[1].lower() == 'current_time' :
+        reporte = "<funcionesdefechas> ::= CURRENTTIME\n"
         text = "CURRENT_TIME"
     elif t[1].lower() == 'timestamp' :
+        grafo.newchildrenF(grafo.index,t[2]['graph'])
+        reporte = "<funcionesdefechas> ::= TIMESTAMP <argument>\n" + t[2]['reporte']
         text = "TIMESTAMP " + t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_parte_de_la_decha(t):
     '''partedelafecha   : YEAR
@@ -1203,6 +1679,9 @@ def p_parte_de_la_decha(t):
                         | MINUTE
                         | SECOND'''
     text = ""
+    grafo.newnode('FECHAS')
+    grafo.newchildrenE(t[1].upper())
+    reporte ="<partedelafecha> ::= "+t[1].upper()+" \n"
     if t[1].lower() == "year":
         text = " YEAR"
     elif t[1].lower() == "month":
@@ -1215,48 +1694,73 @@ def p_parte_de_la_decha(t):
         text = " MINUTE"
     elif t[1].lower() == "second":
         text = " SECOND"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_lista_de_seleccionados_id(t):
     'listadeseleccionados : ID'
     text = t[1]
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('L_SELECTS')
+    grafo.newchildrenE(t[1])
+    reporte = "<listadeseleccionados> ::= " + t[1].upper() + "\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_seleccionados_id_punto_id(t):
     'listadeseleccionados : ID PUNTO ID'
     text = t[1] + "." + t[3]
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('L_SELECTS')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[3])
+    reporte = "<listadeseleccionados> ::= "+ t[1].upper() + " PUNTO " + t[3].upper() + "\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_lista_de_seleccionados_id_punto_asterisco(t):
     'listadeseleccionados : ID PUNTO ASTERISCO'
     text = t[1] + ".*"
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('L_SELECTS')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[3])
+    reporte = "<listadeseleccionados> ::= " + t[1].upper() + " PUNTO ASTERISCO\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_asopcional(t):
     'asopcional  : AS ID '
     text = " AS " + t[2]
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ASOPCIONAL')
+    grafo.newchildrenE(t[2])
+    reporte = "<asopcional> ::= AS " + t[2].upper() + "\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_asopcional_argument(t):
     'asopcional  : ID'
     text = t[1]
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ASOPCIONAL')
+    grafo.newchildrenE(t[1])
+    reporte = "<asopcional> ::= " + t[1].upper() + "\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_asopcionalS(t):
     'asopcional  : AS CADENA '
     text = " AS "+' \\\''+ t[2] +'\\\' '
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ASOPCIONAL')
+    grafo.newchildrenE(t[2])
+    reporte = "<asopcional> ::= AS CADENA\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_asopcional_argumentS(t):
     'asopcional  : CADENA'
     text = ' \\\'' + t[1] + '\\\''
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ASOPCIONAL')
+    grafo.newchildrenE(t[1])
+    reporte = "<asopcional> ::= CADENA\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_asopcional_null(t):
     'asopcional  : '
     text = "  "
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('ASOPCIONAL')
+    reporte = "<asopcional> ::= EPSILON\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_noterminal(t):
     '''argument : funcionesmatematicassimples
@@ -1270,7 +1774,15 @@ def p_argument_noterminal(t):
     c3d += "    "+"heap.append("+tempo+")\n"
     c3d += "    "+tempo + " = mediador(0)\n"
     #print(text)
-    t[0] =  {'text': text, 'c3d' : c3d, 'tflag': tempo}
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = '''<argument> ::= <funcionesmatematicassimples>
+                                |<funcionestrigonometricas>
+                                |<funcionesmatematicas>
+                                |<funcionesdefechas>
+                                |<funcionesbinarias>\n''' + t[1]['reporte'] #mm
+    
+    t[0] =  {'text': text, 'c3d' : c3d, 'tflag': tempo, 'graph' : grafo.index, 'reporte': reporte}
 
 
 #------------------------------------------------------CONDICIONES-----------------------------------------
@@ -1283,16 +1795,30 @@ def p_condiciones_recursivo(t):
     c3 += '    ' + tempos.newTemp() + ' = ' + t[1]['tflag'] + ' ' + t[2] + ' ' + t[3]['tflag'] + '\n'
 
     c3d = t[1]['select'] + t[3]['select']
-    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': c3d}
+    grafo.newnode('CONDICIONES')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<condiciones> ::= <condiciones> <comparacionlogica> <condicion>\n" + t[1]['reporte'] + t[2]['reporte'] + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': c3d, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_codiciones(t):
     'condiciones    :  condicion'
+    grafo.newnode('CONDICIONES')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<condiciones> ::= <condicion>\n" + t[1]['reporte']
     t[0] = t[1]
+    t[0]['graph']= grafo.index
+    t[0]['reporte']=reporte
 
 def p_comparacionlogica(t):
     '''comparacionlogica    : AND
                             | OR'''
+    grafo.newnode(t[1].lower())
+    reporte = "<comparacionlogica> ::= " + t[1] + "\n"
     t[0] = t[1].lower()
+    t[0]['graph']= grafo.index
+    t[0]['reporte']=reporte
 
 def p_condicion(t):
     '''condicion    : NOT condicion'''
@@ -1301,11 +1827,20 @@ def p_condicion(t):
     c3 = t[2]['c3d']
     c3 += '    ' + tempos.newTemp() + ' = ' + t[1].lower() + ' ' + t[2]['tflag']  + '\n'
     c3d = t[2]['select']
-    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': select}
+    grafo.newnode('CONDICION')
+    grafo.newchildrenE('NOT')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<condicion> ::= NOT <condicion>\n" + t[2]['reporte']
+    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': select, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_condicionPs(t):
     '''condicion    : condicions'''
+    grafo.newnode('CONDICION')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<condicion> ::= <condicions>\n" + t[1]['reporte']
     t[0] = t[1]
+    t[0]['graph']= grafo.index
+    t[0]['reporte']=reporte
 
 def p_condicions(t):
     '''condicions : argument MENORQUE argument
@@ -1327,7 +1862,12 @@ def p_condicions(t):
     text = ''
     c3 = ''
     select = ''
+    grafo.newnode('CONDICION')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
     if t[2] == '<'    :
+        grafo.newchildrenE('"'+t[2]+'"')
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<condicions> ::= <argument> MENORQUE <argument>\n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text'])  + " < " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1345,6 +1885,9 @@ def p_condicions(t):
             ''
 
     elif t[2] == '>'  :
+        grafo.newchildrenE('"'+t[2]+'"')
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<condicions> ::= <argument> MAYORQUE <argument>\n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text'])  + " > " +str( t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1362,6 +1905,9 @@ def p_condicions(t):
             ''
 
     elif t[2] == '='  :
+        grafo.newchildrenE('"'+t[2]+'"')
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<condicions> ::= <argument> IGUAL <argument>\n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text'])  + " = " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1379,6 +1925,9 @@ def p_condicions(t):
             ''
 
     elif t[2] == '<=' :
+        grafo.newchildrenE('"'+t[2]+'"')
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<condicions> ::= <argument> MENORIGUALQUE <argument>\n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text'])  + " <= " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1396,6 +1945,9 @@ def p_condicions(t):
             ''
 
     elif t[2] == '>=' :
+        grafo.newchildrenE('"'+t[2]+'"')
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<condicions> ::= <argument> MAYORIGUALQUE <argument>\n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text'])  + " >= " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1413,6 +1965,9 @@ def p_condicions(t):
             ''
 
     elif t[2] == '<>' or t[2] == '!=' :
+        grafo.newchildrenE('"'+t[2]+'"')
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<condicions> ::= <argument> DIFERENTEELL <argument>\n" + t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text'])  + " <> " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1430,6 +1985,9 @@ def p_condicions(t):
             ''
 
     elif t[2].lower() == 'between' :
+        grafo.newchildrenE('BETWEEN')
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<condicions> ::=  <argument> BETWEEN <betweenopcion>\n"+ t[1]['reporte'] + t[3]['reporte']
         text = str(t[1]['text'])  + " BETWEEN " + str(t[3]['text'])
         tp = tempos.newTemp()
         try:
@@ -1444,6 +2002,9 @@ def p_condicions(t):
         select = t[3]['select']
     elif t[2].lower() == 'not' :
         if t[3].lower() == 'between':
+            grafo.newchildrenE('NOT BETWEEN')
+            grafo.newchildrenF(grafo.index, t[4]['graph'])
+            reporte = "<condicions> ::= <argument> NOT BETWEEN <betweenopcion>" + t[1]['reporte']  + t[4]['reporte']
             text = str(t[1]['text'])  + " NOT BETWEEN" + str(t[4]['text'])
 
             tp = tempos.newTemp()
@@ -1457,9 +2018,13 @@ def p_condicions(t):
             c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' and ' + ts + '\n'
             select = t[4]['select']
         else :
+            grafo.newchildrenE('NOT IN')
+            reporte = "<condicions> ::= <argument> NOT IN  PARENIZQ <select> PARENDER\n" + t[1]['reporte'] + t[5]['reporte']
             text = str(t[1]['text'])  + " NOT IN(" + str(t[5]['text']) + ")"
             t[0] =  {'text': text, 'c3d' : '' }
     elif t[2].lower() == 'isnull' :
+        grafo.newchildrenE('ISNULL')
+        reporte = "<condicions> ::= <argument> ISNULL\n" + t[1]['reporte']
         text = str(t[1]['text'])  + " ISNULL "
 
         tp = tempos.newTemp()
@@ -1469,6 +2034,8 @@ def p_condicions(t):
         c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
 
     elif t[2].lower() == 'notnull' :
+        grafo.newchildrenE('NOTNULL')
+        reporte = "<condicions> ::= <argument> NOTNULL\n" + t[1]['reporte']
         text = str(t[1]['text'])  + " NOTNULL "
 
         tp = tempos.newTemp()
@@ -1478,29 +2045,46 @@ def p_condicions(t):
         c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
 
     elif t[2].lower() == 'is' :
+        grafo.newchildrenE('IS')
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<condicions> ::= <argument> IS <isopcion> \n" + t[1]['reporte'] +  t[3]['reporte']
         text = str(t[1]['text'])  + " IS " + str(t[3]['text'])
 
         c3 = t[3]['c3d']
 
     elif t[2].lower() == 'any' :
+        reporte = "<condicions> ::= <argument> ANY PARENIZQ <select> PARENDER\n" + t[1]['reporte']+t[4]['reporte']
         text = str(t[1]['text'])  + " ANY(" + str(t[4]['text']) + ")"
     elif t[2].lower() == 'all' :
+        reporte = "<condicions> ::= <argument> ALL PARENIZQ <select> PARENDER"+ t[1]['reporte'] +t[4]['reporte']
         text = str(t[1]['text'])  + " ALL(" + str(t[4]['text']) + ")"
     elif t[2].lower() == 'some' :
+        reporte = "<condicions> ::= <argument> SOMEN PARENIZQ <select> PARENDER"+ t[1]['reporte'] +t[4]['reporte']
         text = str(t[1]['text'])  + " SOME(" + str(t[4]['text']) + ")"
     else :
+        reporte = "<condicions> ::= <argument> IN  PARENIZQ <select> PARENDER\n" + t[1]['reporte'] +t[4]['reporte']
         text = str(t[1]['text'])  + " IN(" + str(t[4]['text']) + ")"
 
-    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': select}
+    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': select, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_condicionsP(t):
     'condicions : EXISTS PARENIZQ select PARENDER'
     text = " EXISTS(" + t[3]['text'] + ")"
-    t[0] =  {'text': text, 'c3d' : '' }
+    grafo.newnode('CONDICION')
+    grafo.newchildrenE('EXISTS')
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<condicions> ::= EXISTS PARENIZQ <select> PARENDER\n" + t[3]['reporte']
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_betweenopcion(t):
     '''betweenopcion    : argument AND argument'''
     select = ''
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenE('SYMMETRIC')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    grafo.newchildrenF(grafo.index, t[4]['graph'])
+    reporte = "<betweenopcion> ::= <symm> <argument> AND <argument>\n" + t[1]['reporte'] + t[2]['reporte'] + t[4]['reporte']
+        
     try:
         select += t[1]['select']
     except:
@@ -1510,13 +2094,18 @@ def p_betweenopcion(t):
     except:
         ''
     text = t[1]['text']  + " AND " + t[3]['text']
-    
-    t[0] = {'text' : text, 'c3d' : t[1]['tflag'], 'tflag' : t[3]['tflag'], 'select':select}
+
+    t[0] = {'text' : text, 'c3d' : t[1]['tflag'], 'tflag' : t[3]['tflag'], 'select':select, 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_betweenopcionP(t):
     '''betweenopcion    : symm argument AND argument'''
     select = ''
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<betweenopcion> ::= <argument> AND <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+        
     try:
         select += t[2]['select']
     except:
@@ -1527,11 +2116,16 @@ def p_betweenopcionP(t):
         ''
 
     text = t[1] + ' '  + t[2]['text'] + " AND " + t[4]['text']
-    t[0] = {'text' : text, 'c3d' : t[2]['tflag'], 'tflag' : t[4]['tflag'], 'select': select}
+    t[0] = {'text' : text, 'c3d' : t[2]['tflag'], 'tflag' : t[4]['tflag'], 'select': select, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_symmetric(t):
     'symm   : SYMMETRIC'
+    reporte ="<symm> := SYMMETRIC\n"
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenE('SYMMETRIC')
     t[0] = t[1].upper()
+    t[0]['reporte']=reporte
+    t[0]['graph']= grafo.index
 
 def p_isopcion(t):
     '''isopcion : DISTINCT FROM argument
@@ -1542,10 +2136,15 @@ def p_isopcion(t):
                 | NOT isnotoptions'''
     c3 = ''
     text = ''
+    grafo.newnode('ISOPCION')
+    grafo.newchildrenE(t[1].upper())
     if t[1].lower() == 'distinct' :
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<isopcion> ::= DISTINCT FROM <argument>\n" + t[3]['reporte']
         text = " DISTINCT FROM " + t[3]['text']
         c3 = '    ' + tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' != ' + t[3]['tflag'] + '\n'
     elif t[1].lower() == 'null' :
+        reporte = "<isopcion> ::= NULL\n"
         text = " NULL "
         tp = tempos.newTemp()
         c3 = '    ' + tp + ' = ' + t[-2]['tflag'] + ' == \'null\' \n'
@@ -1553,12 +2152,15 @@ def p_isopcion(t):
         c3 += '    ' + ts + ' = ' + t[-2]['tflag'] + ' == \'\' \n'
         c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
     elif t[1].lower() == 'true' :
+        reporte = "<isopcion> ::= TRUE\n"
         text = " TRUE "
         c3 = tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' == True' + '\n'
     elif t[1].lower() == 'false' :
+        reporte = "<isopcion> ::= FALSE\n"
         text = " FALSE "
         c3 = tempos.newTemp() + ' = ' + t[-2]['tflag'] + ' == False' + '\n'
     elif t[1].lower() == 'unknown' :
+        reporte = "<isopcion> ::= UNKNOWN\n"
         text = " UNKNOWN "
         tp = tempos.newTemp()
         c3 = '    ' + tp + ' = ' + t[-2]['tflag'] + ' == \'null\' \n'
@@ -1566,10 +2168,12 @@ def p_isopcion(t):
         c3 += '    ' + ts + ' = ' + t[-2]['tflag'] + ' == \'\' \n'
         c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
     elif t[1].lower() == 'not' :
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<isopcion> ::= NOT <isnotoptions>\n"  + t[2]['reporte']
         text = " NOT " + t[2]['text']
         c3 = t[2]['c3d']
 
-    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
+    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_isnotoptions(t):
     '''isnotoptions : FALSE
@@ -1579,7 +2183,10 @@ def p_isnotoptions(t):
                     | DISTINCT FROM argument'''
     c3 = ''
     text = ''
+    grafo.newnode('ISNOTOPCION')
+    grafo.newchildrenE(t[1].upper())
     if t[1].lower() == 'null' :
+        reporte = "<isnotoptions> ::= FALSE\n"
         text = " NULL "
         tp = tempos.newTemp()
         c3 = '    ' + tp + ' = ' + t[-3]['tflag'] + ' != \'null\' \n'
@@ -1587,12 +2194,15 @@ def p_isnotoptions(t):
         c3 += '    ' + ts + ' = ' + t[-3]['tflag'] + ' != \'\' \n'
         c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
     elif t[1].lower() == 'true' :
+        reporte = "<isnotoptions> ::= UNKNOWN\n"
         text = " TRUE "
         c3 = '    ' + tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' == False' + '\n'
     elif t[1].lower() == 'false' :
+        reporte = "<isnotoptions> ::= TRUE\n"
         text = " FALSE "
         c3 = '    ' + tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' == True' + '\n'
     elif t[1].lower() == 'unknown' :
+        reporte = "<isnotoptions> ::= NULL\n"
         text = " UNKNOWN "
         tp = tempos.newTemp()
         c3 = '    ' + tp + ' = ' + t[-3]['tflag'] + ' != \'null\' \n'
@@ -1600,10 +2210,12 @@ def p_isnotoptions(t):
         c3 += '    ' + ts + ' = ' + t[-3]['tflag'] + ' != \'\' \n'
         c3 += '    ' + tempos.newTemp() + ' = ' + tp + ' or ' + ts + '\n'
     elif t[1].lower() == 'distinct' :
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<isnotoptions> ::= DISCTINCT FROM <argument>\n" + t[3]['reporte']
         text = " DISTINCT FROM " + t[3]['text']
         c3 = '    ' + tempos.newTemp() + ' = ' + t[-3]['tflag'] + ' == ' + t[3]['tflag'] + '\n'
 
-    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
+    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_binary(t):
     '''argument : argument MAS argument
@@ -1612,6 +2224,12 @@ def p_argument_binary(t):
                 | argument ASTERISCO argument
                 | argument PORCENTAJE argument
                 | argument POTENCIA argument'''
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenE(t[2])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<argument> ::= <argument> "+str(t[2])+"<argument>\n" + t[1]['reporte'] + t[3]['reporte']
+        
     text = t[1]['text']  + ' ' + t[2] + ' '+ t[3]['text']
 
     c3 = t[1]['c3d']
@@ -1628,61 +2246,96 @@ def p_argument_binary(t):
     except:
         ''
 
-    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select':select}
+    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select':select, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_bolano(t):
     'argument : boleano'
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenF(grafo.index, t[1]['graph']) 
+    reporte = "<argument> ::= <boleano>\n" + t[1]['reporte']
     t[0] = t[1]
+    t[0]['reporte']=reporte
+    t[0]['graph']= grafo.index
 
 def p_argument_unary(t): #aquiiiiiiiiiiii
     '''argument : MAS argument %prec UMAS
                 | GUION argument %prec UMENOS'''
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<argument> ::=" + str(t[1]) +"<argument>\n" + t[2]['reporte']
     text = t[1] + ' ' + t[2]['text']
     c3 = t[2]['c3d']
     c3 += '    ' + tempos.newTemp() + ' = ' + t[1] + ' ' + t[2]['tflag'] + '\n'
-    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index)}
+    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_agrupacion(t):
     '''argument : PARENIZQ argument PARENDER'''
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenF(grafo.index, t[2]['graph']) 
+    reporte = "<argument> ::=  PARENIZQ <argument> PARENDER\n" + t[2]['reporte']
     text = " (" + t[2]['text'] + ") "
-    t[0] =  {'text': text, 'c3d' : t[2]['c3d'], 'tflag' : t[2]['tflag']}
+    t[0] =  {'text': text, 'c3d' : t[2]['c3d'], 'tflag' : t[2]['tflag'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_entero(t):
     '''argument : ENTERO'''
-    t[0] = {'text' : str(t[1]), 'c3d' : '', 'tflag' : str(t[1])}
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenE(t[1])
+    reporte = "<argument> ::=  ENTERO\n"
+    t[0] = {'text' : str(t[1]), 'c3d' : '', 'tflag' : str(t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_decimal(t):
     'argument : DECIMAL'
-    t[0] = {'text' : str(t[1]), 'c3d' : '', 'tflag' : str(t[1])}
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenE(t[1])
+    reporte = "<argument> ::=  DECIMAL\n"
+    t[0] = {'text' : str(t[1]), 'c3d' : '', 'tflag' : str(t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_cadena(t):
     '''argument : CADENA'''
-    t[0] = {'text' : '\\\'' + t[1] + '\\\'', 'c3d' : '', 'tflag' : '\'' + str(t[1]) + '\''}
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenE(' '+t[1]+' ')
+    reporte = "<argument> ::=  CADENA\n"
+    t[0] = {'text' : '\\\'' + t[1] + '\\\'', 'c3d' : '', 'tflag' : '\'' + str(t[1]) + '\'', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_id(t):
     '''argument : ID'''
-    t[0] = {'text' : t[1], 'c3d' : '', 'tflag' : str(t[1])}
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenE(t[1])
+    reporte = "<argument> ::= " +  t[1].upper() +"\n"
+    t[0] = {'text' : t[1], 'c3d' : '', 'tflag' : str(t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_idpid(t):
     '''argument : ID PUNTO ID'''
     text = t[1] + "." + t[3]
-    t[0] =  {'text': text, 'c3d' : '', 'tflag' : ''}
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[3])
+    reporte = "<argument> ::= " + t[1].upper() + "." + t[3].upper() + "\n"
+    t[0] =  {'text': text, 'c3d' : '', 'tflag' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_boleano(t):
     '''boleano  : TRUE
                 | FALSE'''
     text = ''
+    grafo.newnode('BOOLEANO')
+    grafo.newchildrenE(t[1])
     if t[1].lower() == 'true' :
+        reporte = "<boleano> ::= TRUE\n"
         text = " TRUE"
         c = ' True '
     else :
+        reporte = "<boleano> ::= FALSE\n"
         text = " FALSE"
         c = ' False '
-    t[0] = {'text' : text, 'c3d' : '', 'tflag' : str(c)}
-    
+    t[0] = {'text' : text, 'c3d' : '', 'tflag' : str(c), 'graph' : grafo.index, 'reporte': reporte}
+
 def p_argument_funcion(t):
     'argument : funcionesLlamada'
-    t[0] = {'text' : t[1]['text'], 'c3d' : t[1]['c3d'], 'tflag':str(tempos.getcurrent()), 'select': t[1]['c3d']}
+    grafo.newnode('ARGUMENT')
+    grafo.newchildrenF(grafo.index, t[1]['graph']) 
+    reporte = "<argument> ::=   <funcionesLlamada> \n" + t[1]['reporte']
+    t[0] = {'text' : t[1]['text'], 'c3d' : t[1]['c3d'], 'tflag':str(tempos.getcurrent()), 'select': t[1]['c3d'], 'graph' : grafo.index, 'reporte': reporte}
 
 #-------------------------------------------CREATEEE----------------------------------------------------
 def p_create_instruccion(t) :
@@ -1690,106 +2343,173 @@ def p_create_instruccion(t) :
               | TABLE createtable
               | OR REPLACE DATABASE createdatabase
               | DATABASE createdatabase'''
+    grafo.newnode('CREATE')
     if t[1].lower() == 'or' :
+        grafo.newchildrenE('OR REPLACE DB')
+        grafo.newchildrenF(grafo.index, t[4]['graph'])
+        reporte = "<create> ::= OR REPLACE DATABASE <createdatabase>\n" + t[4]['reporte']
         txt = ' OR REPLACE DATABASE '  + t[4]['text']
         t[0] = {'text' : txt, 'c3d': ''}
     else :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<create> ::="+ str(t[2].upper())+"<createenum>\n"  + t[2]['reporte']
         txt = ' ' + t[1] + ' ' + t[2]['text']
-        t[0] = {'text' : txt, 'c3d': ''}
+        t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_create_instruccion_err(t):
     "create : problem"
-    t[0] = {'text' : '', 'c3d': ''}
+    reporte = "<create> ::= <problem>\n" + t[1]['reporte']
+    t[0] = {'text' : '', 'c3d': '', 'graph' : 'error', 'reporte': reporte}
 
 def p_createenum(t):
     'createenum : ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA'
     txt = ' ' + t[1] + ' AS ENUM (' + t[5]['text'] + '); '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('CREATEENUM')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    reporte = "<createenum> ::= " + t[1].upper() +" AS ENUM PARENIZQ <listacadenas> PARENDER PTCOMA\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listacadenas_recursiva(t):
     'listacadenas : listacadenas COMA CADENA'
     txt = t[1]['text'] + ', \\\' ' + t[3] + '\\\' '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('LISTACADENAS')
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<listacadenas> ::= <listacadenas> COMA CADENA\n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listacadenas(t):
     'listacadenas : CADENA'
     txt = ' \\\'' + t[1] + '\\\' '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('LISTACADENAS')
+    grafo.newchildrenE(t[1])
+    reporte = "<listacadenas> ::= CADENA\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_createdatabase(t):
     '''createdatabase : IF NOT EXISTS ID databaseowner
                       | ID databaseowner'''
+    grafo.newnode('CREATEDB')
     if t[1].lower() == 'if' :
+        grafo.newchildrenE('IF NOT EXISTS')
+        grafo.newchildrenE(t[4])
+        grafo.newchildrenF(grafo.index, t[5]['graph'])
+        reporte = "<createdatabase> ::= IF NOT EXISTS "+ t[4].upper() +" <databaseowner>\n" + t[5]['reporte']
         txt = ' IF NOT EXISTS ' + t[4] + ' ' + t[5]['text']
-        t[0] = {'text' : txt, 'c3d': ''}
+        t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
     else :
+        grafo.newchildrenE(t[1])
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<createdatabase> ::= "+ t[1].upper() +" <databaseowner>\n" + t[2]['reporte']
         txt = ' ' + t[1] + ' ' + t[2]['text']
-        t[0] = {'text' : txt, 'c3d': ''}
+        t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_databaseowner(t):
     '''databaseowner : OWNER IGUAL tipoowner databasemode'''
+    grafo.newnode('OWNER')
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenF(grafo.index, t[4]['graph'])
+    reporte = "<databaseowner> ::= OWNER IGUAL <tipoowner> <databasemode>\n" + t[3]['reporte'] + t[4]['reporte']
     txt = ' OWNER ' + t[3]['text'] + t[4]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_databaseownerS(t):
     '''databaseowner : OWNER tipoowner databasemode'''
+    grafo.newnode('OWNER')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<databaseowner> ::= OWNER <tipoowner> <databasemode>\n" + t[3]['reporte']
     txt = ' OWNER ' + t[2]['text'] + t[3]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tipoowner_id(t) :
     'tipoowner : ID'
     txt = ' ' + t[1] + ' '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('IDOWNER')
+    grafo.newchildrenE(t[1])
+    reporte = "<tipoowner> ::=" + t[1].upper() +  "\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tipoowner_cadena(t) :
     'tipoowner : CADENA'
     txt = ' \\\'' + t[1] + '\\\' '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('CADENAOWNER')
+    grafo.newchildrenE(t[1])
+    reporte = "<tipoowner> ::= CADENA\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_databaseownerP(t):
     'databaseowner  : databasemode'
     txt = t[1]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('OWNER')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<databaseowner> ::= <databasemode>\n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_databasemode(t):
     '''databasemode : MODE IGUAL ENTERO PTCOMA
                     | MODE ENTERO PTCOMA
                     | PTCOMA'''
+    grafo.newnode('MODE')
     if t[1] == ';' :
+        grafo.newchildrenE('1')
+        reporte = "<databasemode> ::= PTCOMA\n"
         txt = ';'
-        t[0] = {'text' : txt, 'c3d': ''}
+        t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
     else :
         if t[2] == '=' :
+            grafo.newchildrenE(t[3])
+            reporte = "<databasemode> ::= MODE IGUAL ENTERO PTCOMA\n"
             txt = ' MODE = ' + str(t[3]) + ';'
-            t[0] = {'text' : txt, 'c3d': ''}
+            t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
         else :
+            grafo.newchildrenE(t[2])
+            reporte = "<databasemode> ::= MODE ENTERO PTCOMA\n"
             txt = ' MODE ' + str(t[2]) + ';'
-            t[0] = {'text' : txt, 'c3d': ''}
+            t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_createtable(t):
     'createtable : ID PARENIZQ tabledescriptions PARENDER tableherencia'
     txt = ' ' + t[1] + ' (' + t[3]['text'] + ' ) ' + t[5]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('CREATETB')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    reporte = "<createtable> ::= " + t[1].upper() + " PARENIZQ <tabledescriptions> PARENDER <tableherencia>\n" + t[3]['reporte'] + t[5]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tableherencia(t):
     '''tableherencia : INHERITS PARENIZQ ID PARENDER PTCOMA
                      | PTCOMA'''
+    grafo.newnode('TBHERENCIA')
     if t[1].lower() == 'inherits' :
+        grafo.newchildrenE(t[3])
+        reporte = "<tableherencia> ::= INHERITS PARENIZQ " + t[3].upper() + " PARENDER PTCOMA\n"
         txt = ' INHERITS ( ' + t[3] + ' );'
-        t[0] = {'text' : txt, 'c3d': ''}
+        t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
     else :
+        reporte = "<tableherencia> ::= PTCOMA\n"
         txt = ' ;'
-        t[0] = {'text' : txt, 'c3d': ''}
+        t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledescriptions_recursivo(t):
     'tabledescriptions : tabledescriptions COMA tabledescription'
     txt = t[1]['text'] + ', ' + t[3]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('DESCRIPTIONS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<tabledescriptions> ::= <tabledescriptions> COMA <tabledescription>\n" + t[1]['reporte'] +  t[3]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledescriptions(t):
     'tabledescriptions :  tabledescription'
     txt = t[1]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('DESCRIPTIONS')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<tabledescriptions> ::= <tabledescription>\n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledescription(t):
     '''tabledescription : ID tipo tablekey
@@ -1798,144 +2518,256 @@ def p_tabledescription(t):
                         | CONSTRAINT ID CHECK finalconstraintcheck
                         | CHECK finalconstraintcheck
                         | UNIQUE finalunique'''
+    grafo.newnode('DESCRIPTION')
     if t[1].lower() == 'primary' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenF(grafo.index, t[4]['graph'])
+        reporte = "<tabledescription> ::= PRIMARY KEY PARENIZQ <listaids> PARENDER\n" + t[4]['reporte']
         txt = ' PRIMARY KEY (' + t[4]['text'] + ')'
     elif t[1].lower() == 'foreign' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenF(grafo.index, t[4]['graph'])
+        grafo.newchildrenE(t[7])
+        grafo.newchildrenF(grafo.index, t[9]['graph'])
+        reporte = "<tabledescription> ::= FOREIGN KEY PARENIZQ <listaids> PARENDER REFERENCES "+ t[7].upper() + "PARENIZQ <listaids> PARENDER\n" + t[4]['reporte'] + t[9]['reporte']
         txt = ' FOREIGN KEY (' + t[4]['text'] + ') REFERENCES ' + t[7] + ' (' + t[9]['text'] + ')'
     elif t[1].lower() == 'constraint' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenE(t[2])
+        grafo.newchildrenF(grafo.index, t[4]['graph'])
+        reporte = "<tabledescription> ::= CONSTRAINT " + t[2].upper() +" CHECK <finalconstraintcheck>\n"+ t[4]['reporte']
         txt = ' CONSTRAINT ' + t[2] + ' CHECK ' + t[4]['text']
     elif t[1].lower() == 'check' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<tabledescription> ::= CHECK <finalconstraintcheck>\n"+ t[2]['reporte']
         txt = ' CHECK ' + t[2]['text']
     elif t[1].lower() == 'unique' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<tabledescription> ::= UNIQUE <finalunique>\n" +  t[2]['reporte']
         txt = ' UNIQUE ' + t[2]['text']
     else :
+        grafo.newchildrenE(t[1])
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<tabledescription> ::= " + t[1].upper() + " <tipo> <tablekey>\n" + t[2]['reporte'] + t[3]['reporte']
         txt = ' ' + t[1] + ' ' + t[2]['text'] + t[3]['text']
 
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_tablekey(t):
     '''tablekey : PRIMARY KEY tabledefault
                 | REFERENCES ID PARENIZQ ID PARENDER tabledefault'''
+    grafo.newnode('TBKEY')
+    grafo.newchildrenE(t[1].upper())
     if t[1].lower() == 'primary' :
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<tablekey> ::= PRIMARY KEY <tabledefault>\n" + t[3]['reporte']
         txt = ' PRIMARY KEY ' + t[3]['text']
     elif t[1].lower() == 'references' :
+        grafo.newchildrenE(t[2])
+        grafo.newchildrenE(t[4])
+        grafo.newchildrenF(grafo.index, t[6]['graph'])
+        reporte = "<tablekey> ::= REFERENCES ID PARENIZQ ID PARENDER <tabledefault>\n" + t[6]['reporte']
         txt = ' REFERENCES ' + t[2] + ' (' + t[4] + ') ' + t[6]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tablekeyP(t):
     'tablekey   : REFERENCES ID tabledefault'
     txt = ' REFERENCES ' + t[2] + ' ' + t[3]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('TBKEY')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<tablekey> ::= REFERENCES " + t[2] + " <tabledefault>\n" + t[3]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tablekeyP2(t):
     'tablekey   : tabledefault'
     txt = t[1]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('TBKEY')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<tablekey> ::= <tabledefault>\n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_columnreferences_r(t):
     'columnreferences : columnreferences COMA ID'
+    grafo.newnode('COLREF')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenE(t[3].upper())
+    reporte = "<columnreferences> ::=<columnreferences> COMA ID "+ t[1]['reporte']
     txt = t[1]['text'] + ', ' + t[3]
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_columnreferences_r2(t):
     'columnreferences : ID'
+    grafo.newnode('COLREF')
+    grafo.newchildrenE(t[1].upper())
+    reporte = "<columnreferences> ::=  ID "
     txt = t[1]
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledefault(t):
     '''tabledefault : DEFAULT value tablenull'''
     txt = ' DEFAULT ' + t[2]['text'] + t[3]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('TABLEDEFAULT')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<tabledefault> ::= DEFAULT <value> <tablenull>\n" + t[2]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tabledefaultP(t):
     'tabledefault   : tablenull'
     txt = t[1]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('TABLEDEFAULT')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte ="<tabledefault> ::= <tablenull>\n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tablenull(t):
     '''tablenull : NOT NULL tableconstraintunique
                  | NULL tableconstraintunique'''
+    grafo.newnode('TABLENULL')
     if t[1].lower() == 'not' :
+        grafo.newchildrenE('NOT NULL')
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<tablenull> ::= NOT NULL <tableconstraintunique>\n" + t[3]['reporte']
         txt = ' NOT NULL ' + t[3]['text']
     else :
+        grafo.newchildrenE('NULL')
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<tablenull> ::= NULL <tableconstraintunique>\n" + t[2]['reporte']
         txt = ' NULL ' + t[2]['text']
-
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tablenullP(t):
     'tablenull  : tableconstraintunique'
     txt = t[1]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('TABLENULL')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<tablenull> ::= <tableconstraintunique>\n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tableconstraintunique(t):
     '''tableconstraintunique : CONSTRAINT ID UNIQUE tableconstraintcheck
                              | UNIQUE tableconstraintcheck'''
+    grafo.newnode('TABLECONSUNIQ')
     if t[1].lower() == 'constraint' :
+        grafo.newchildrenE('CONSTRAIN')
+        grafo.newchildrenE(t[1])
+        grafo.newchildrenE('UNIQUE')
+        grafo.newchildrenF(grafo.index, t[4]['graph'])
+        reporte = "<tableconstraintunique> ::= CONSTRAINT " + t[2] + " UNIQUE <tableconstraintcheck>\n" + t[4]['reporte']
         txt = ' CONSTRAINT ' + t[2] + ' UNIQUE ' + t[4]['text']
     else :
+        grafo.newchildrenE('UNIQUE')
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<tableconstraintunique> ::= UNIQUE <tableconstraintcheck>\n" + t[2]['reporte']
         txt = ' UNIQUE ' + t[2]['text']
-
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tableconstraintuniqueP(t):
     'tableconstraintunique  : tableconstraintcheck'
     txt = t[1]['text']
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('TABLECONSUNIQ')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<tableconstraintunique> ::= <tableconstraintcheck>\n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tableconstraintcheck(t):
     '''tableconstraintcheck : CONSTRAINT ID CHECK PARENIZQ condiciones PARENDER
                             | CHECK PARENIZQ condiciones PARENDER'''
+    grafo.newnode('TABLECONSCHECK')
+    grafo.newchildrenE(t[1].upper())
     if t[1].lower() == 'constraint' :
+        grafo.newchildrenE(t[2])
+        grafo.newchildrenE(t[3].upper())
+        grafo.newchildrenF(grafo.index, t[5]['graph'])
+        reporte = "<tableconstraintcheck> ::= CONSTRAINT ID CHECK PARENIZQ <condiciones> PARENDER\n" + t[5]['reporte']
         txt = ' CONSTRAINT ' + t[2] + ' CHECK (' + t[5]['text'] + ')'
     else :
+        grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<tableconstraintcheck> ::= CHECK PARENIZQ <condiciones> PARENDER\n" + t[3]['reporte']
         txt = ' CHECK (' + t[3]['text'] + ')'
 
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tableconstraintcheckE(t):
     'tableconstraintcheck : '
-    t[0] = {'text' : '', 'c3d': ''}
+    grafo.newnode('TABLECONSCHECK')
+    reporte = "<tableconstraintcheck> ::= EPSILON\n"
+    t[0] = {'text' : '', 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_finalconstraintcheck(t):
     'finalconstraintcheck : PARENIZQ condiciones PARENDER'
     txt = ' (' + t[2]['text'] + ') '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('CONSCHECK')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<finalconstraintcheck> ::= PARENIZQ <condiciones> PARENDER\n"+ t[2]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_finalunique(t):
     'finalunique : PARENIZQ listaids PARENDER'
     txt = ' (' + t[2]['text'] + ') '
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('FUNIQUE')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<finalunique> ::= PARENIZQ <listaids> PARENDER"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaids_r(t):
     'listaids : listaids COMA ID'
     txt = t[1]['text'] + ', ' + t[3]
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('LISTAIDS')
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<listaids> ::= <listaids> COMA " + t[3].upper() +"\n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaids(t):
     'listaids : ID'
     txt = t[1]
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('LISTAIDS')
+    grafo.newchildrenE(t[1])
+    reporte = "<listaids> ::= " + t[1].upper() + "\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaidcts_r(t):
     'listaidcts : listaidcts COMA ID PUNTO ID'
     txt = t[1]['text'] + ', ' + t[3] + '.' + t[5]
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('LISTAIDTS')
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenE(t[5])
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<listaidcts> ::= <listaidcts> COMA " + t[3].upper() + " PUNTO " + t[5].upper() + "\n" + t[1]['reporte']
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaidcts_re(t):
     'listaidcts : listaidcts COMA ID'
     txt = t[1]['text'] + ', ' + t[3]
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('LISTAIDTS')
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<listaidcts> ::= <listaidcts> COMA " + t[3].upper() + "\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaidcts(t):
     'listaidcts : ID PUNTO ID'
     txt =  t[1] + '.' + t[3]
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('LISTAIDTS')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[3])
+    reporte = "<listaidcts> ::= " + t[1].upper() + " PUNTO " + t[3].upper() + "\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_listaidctse(t):
     'listaidcts : ID'
     txt = t[1]
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('LISTAIDTS')
+    grafo.newchildrenE(t[1])
+    reporte = "<listaidcts> ::= "+ t[1].upper() + "\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_tipo(t):
     '''tipo : SMALLINT
@@ -1958,41 +2790,77 @@ def p_tipo(t):
             | ID'''
     txt = t[1]
     c3 = ' \'\''
+    grafo.newnode('TIPO')
     if t[1].lower() == 'character' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<tipo> ::= CHARACTER <tipochar>\n" + t[2]['reporte']
         txt += t[2]['text']
     elif t[1].lower() == 'varchar' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenE(t[3])
+        reporte = "<tipo> ::= VARCHAR PARENIZQ ENTERO PARENDER\n"
         txt += '(' + str(t[3]) + ')'
     elif t[1].lower() == 'char' :
+        grafo.newchildrenE(t[1].upper())
+        grafo.newchildrenE(t[3])
+        reporte = "<tipo> ::= CHAR PARENIZQ ENTERO PARENDER\n"
         txt += '(' + str(t[3]) + ')'
     elif t[1].lower() == 'timestamp' :
+        grafo.newchildrenE(t[1].upper())
+        if t[2]['ast'] != None :
+            grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<tipo> ::= TIMESTAMP <precision>\n" + t[2]['reporte']
         txt += t[2]['text']
     elif t[1].lower() == 'time' :
+        grafo.newchildrenE(t[1].upper())
+        if t[2]['ast'] != None :
+            grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte = "<tipo> ::= TIME <precision>\n" + t[2]['reporte']
         txt += t[2]['text']
     elif t[1].lower() == 'interval' :
+        grafo.newchildrenE(t[1].upper())
+        if t[2]['ast'] != None :
+            grafo.newchildrenF(grafo.index, t[2]['graph'])
+        if t[3]['ast'] != None :
+            grafo.newchildrenF(grafo.index, t[3]['graph'])
+        reporte = "<tipo> ::= INTERVAL <fields> <precision>\n" + t[2]['reporte'] + t[3]['reporte']
         txt += t[2]['text'] + t[3]['text']
     elif t[1].lower() == 'integer' or t[1].lower() == 'smallint' or t[1].lower() == 'bigint' or t[1].lower() == 'decimal' or t[1].lower() == 'double' or t[1].lower() == 'real' or t[1].lower() == 'money' :
+        grafo.newchildrenE(t[1].upper())
+        reporte = "<tipo> ::="+ str(t[1].upper())+"\n"
         c3 = ' 0'
-    t[0] = {'text' : txt, 'c3d': c3}
+    t[0] = {'text' : txt, 'c3d': c3, 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_tipochar(t):
     '''tipochar : VARYING PARENIZQ ENTERO PARENDER
                 | PARENIZQ ENTERO PARENDER'''
+    grafo.newnode('TIPOCHAR')
     if t[1].lower() == 'varying' :
+        grafo.newchildrenE(t[1].upper)
+        grafo.newchildrenE(t[3])
+        reporte = "<tipochar> ::= VARYING PARENIZQ ENTERO PARENDER\n"
         txt = ' VARYING ('+str(t[3])+')'
     else :
+        grafo.newchildrenE(t[2])
+        reporte = "<tipochar> ::= PARENIZQ ENTERO PARENDER\n"
         txt = ' ('+str(t[2])+')'
 
-    t[0] = {'text' : txt, 'c3d': ''}
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_precision(t):
     '''precision : PARENIZQ ENTERO PARENDER'''
     txt = ' ('+str(t[2])+')'
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('PRECISION')
+    grafo.newchildrenE(t[2])
+    reporte = "<precision> ::= PARENIZQ ENTERO PARENDER\n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_precisionE(t):
     'precision  :'
-    t[0] = {'text' : '', 'c3d': ''}
+    reporte = "<precision> := EPSILON\n"
+    t[0] = {'text' : '', 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_fields(t):
     '''fields : MONTH
@@ -2001,11 +2869,15 @@ def p_fields(t):
               | SECOND
               | YEAR'''
     txt = t[1]
-    t[0] = {'text' : txt, 'c3d': ''}
+    grafo.newnode('FIELDS')
+    grafo.newchildrenE(t[1].upper())
+    reporte = "<fields> ::= "+str(t[1].upper())+" \n"
+    t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_fieldsE(t):
     'fields :'
-    t[0] = {'text' : '', 'c3d': ''}
+    reporte = "<fields> ::= EPSILON\n"
+    t[0] = {'text' : '', 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 #----------------------------------------------USE--------------------------------------------------------
 
@@ -2013,69 +2885,101 @@ def p_use(t):
     '''use  : DATABASE ID PTCOMA
             | ID PTCOMA'''
     text =""
+    grafo.newnode('USE')
+    grafo.newchildrenE(t[2])
+    reporte = "<use> ::= "
     if t[1].lower() == "database":
+        reporte += "DATABASE ID PTCOMA\n"
+        grafo.newchildrenE(t[2])
         text = "DATABASE " + t[2]+";"
     else:
+        reporte += "ID PTCOMA\n"
+        grafo.newchildrenE(t[1])
         text = t[1] + ";"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_useE(t):
     'use    : problem'
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    reporte = "<use> ::= "
+    reporte += "<problem>\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 #----------------------------------------------SHOW--------------------------------------------------------
 def p_show(t):
     '''show   :    DATABASES likeopcional'''
     text = ""
+    grafo.newnode('SHOW')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<show> ::= "
     if t[1].lower() == "databases":
+        reporte += "DATABASES <likeopcional>\n"
         text = "DATABASES " + t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_showw(t):
     '''show   :  problem'''
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    reporte = "<show> ::= <problem>\n"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_likeopcional(t):
     '''likeopcional   :   LIKE CADENA PTCOMA
                     | PTCOMA '''
     text =""
+    grafo.newnode('LIKE')
     if t[1].lower() == 'like' :
+        grafo.newchildrenE(t[2])
+        reporte = "<likeopcional> ::= LIKE CADENA PTCOMA\n"
         text = "LIKE " + ' \\\'' + t[2] + '\\\'' + ";"
     else :
+        reporte = "<likeopcional> ::= PTCOMA\n"
         text = "; "
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 #----------------------------------------------DROP--------------------------------------------------------
 
 
 def p_drop(t):
-    '''drop : DATABASE dropdb PTCOMA
-            | TABLE ID PTCOMA
-            | FUNCTION ID PTCOMA
-            | PROCEDURE ID PTCOMA
-            | INDEX ID PTCOMA'''
+    '''drop :   DATABASE dropdb PTCOMA
+            |   TABLE ID PTCOMA
+            |   FUNCTION ID PTCOMA
+            |   PROCEDURE ID PTCOMA
+            |   INDEX ID PTCOMA'''
+    text =""
+    grafo.newnode('DROP')
+    grafo.newchildrenE(t[1])
+    reporte = "<drop> ::= "
     if t[1].lower() == 'database' :
+        grafo.newchildrenF(grafo.index, t[2]['graph'])
+        reporte +=  "DATABASE <dropdb> PTCOMA\n" + t[2]['reporte']
         text = "DATABASE " + t[2]['text']+" ;"
     else:
+        grafo.newchildrenE(t[2])
+        reporte += str(t[1])+" " + str(t[2].upper()) + " PTCOMA\n"
         text = t[1] + ' ' + t[2]+ ";"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_drop_e(t):
     '''drop : problem'''
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_dropdb(t):
     '''dropdb   : IF EXISTS ID
                 |   ID'''
     text =""
+    grafo.newnode('DROP') #pal graphviz
+    grafo.newchildrenE('DATABASE') #pal graphviz
     if t[1].lower() == 'if' :
+        grafo.newchildrenE(t[3]) #pal graphviz
+        reporte = "<dropdb> ::= IF EXISTS " + t[3].upper() + "\n"
         text = "IF EXISTS "+ t[3]
     else :
+        grafo.newchildrenE(t[1]) #pal graphviz
+        reporte = "<dropdb> ::=  " + t[3].upper() + "\n"
         text = t[1]
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 #----------------------------------------------ALTER--------------------------------------------------------
 
@@ -2425,23 +3329,23 @@ def p_orreplaceopcionalE(t):
 def p_body_strcpr(t):
     '''bodystrcpr : cuerpodeclare BEGIN statementspr END  PTCOMA'''
     text = t[1]['text'] + '\n' + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }  
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_body_strcBpr(t):
     '''bodystrcpr : BEGIN statementspr END  PTCOMA'''
     text = t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }  
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_statements_cpr(t):
     'statementspr : statementspr statementpr'
     text = t[1]['text']
     text += t[2]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_statements_cpr_a(t):
     'statementspr : statementpr'
     text = t[1]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_stament_cpro(t):
     '''statementpr : CASE case PTCOMA'''
@@ -2481,7 +3385,9 @@ def p_createfunction(t):
     'createfunction :  FUNCTION ID PARENIZQ argumentosp PARENDER RETURNS tipo AS body LANGUAGE ID PTCOMA'
     ftext = '@with_goto\n' + 'def ' + t[2] + '():\n'
     ftext += t[4]['text']
-    ftext += t[9]['text']
+    texxto = t[9]['text']
+    texxto = opt.optimizar(texxto)
+    ftext += texxto
     #----Validando función--------
     l.readData(datos)
     printList = ''
@@ -2541,12 +3447,12 @@ def p_body_cf(t):
 def p_body_strc(t):
     '''bodystrc : cuerpodeclare BEGIN statements END  PTCOMA'''
     text = t[1]['text'] + '\n' + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }  
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_body_strcB(t):
     '''bodystrc : BEGIN statements END  PTCOMA'''
     text = t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }  
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_cuerpodeclare(t):
     'cuerpodeclare : DECLARE declarations'
@@ -2557,12 +3463,12 @@ def p_decla(t):
     'declarations : declarations declaration '
     text = t[1]['text']
     text += t[2]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declar(t):
     'declarations : declaration '
     text = t[1]['text'] + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declartion_cf(t):
     '''declaration : ID tipo declarationc '''
@@ -2572,41 +3478,41 @@ def p_declartion_cf(t):
         text = t[3]['c3d']
         text += '    ' + t[1] + ' = ' + t[3]['text']
     text += ''
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_declarationc_a(t):
     '''declarationc :   defaultop PTCOMA'''
     text = t[1]['text']
     t[0] =  {'text': text, 'c3d' : t[1]['c3d'] }
-	
+
 def p_declarationc_aB(t):
     '''declarationc :   PTCOMA'''
     text = ''
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_default_cf(t):
     '''defaultop : DEFAULT  argocond
                 | IGUAL argocond
                 | IGUALESP argocond'''
     text = t[2]['text']
-    t[0] =  {'text': text, 'c3d' : t[2]['c3d'] } 
+    t[0] =  {'text': text, 'c3d' : t[2]['c3d'] }
 
 def p_default_argocond(t):
     '''argocond : argument
                 | condiciones'''
     text = t[1]['tflag']
-    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] } 
+    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] }
 
 def p_statements_cf(t):
     'statements : statements statement'
     text = t[1]['text']
     text += t[2]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_statements_cf_a(t):
     'statements : statement'
     text = t[1]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' } 
+    t[0] =  {'text': text, 'c3d' : '' }
 
 def p_stament_cf(t):
     '''statement : RETURN argument PTCOMA
@@ -2647,26 +3553,44 @@ def p_statement_b(t):
 
 def p_asigment(t):
     '''asigment : ID igualdad fasign'''
+    text = ""
     text = t[3]['c3d']
     text += '    '  + t[1] + ' = ' + t[3]['text'] + '\n'
+    if 'flag' in t[3]:
+        prueba = t[1] + " = "+ t[3]['flag']
+        if "+" in prueba:
+            if not opt.regla8(prueba):
+                    text = ""
+        elif "-" in prueba:
+            if not opt.regla9(prueba):
+                    text = ""
+        elif "*" in prueba:
+            if not opt.regla10(prueba):
+                    text = ""
+        elif "/" in prueba:
+            if not opt.regla11(prueba):
+                    text = ""
+        else:
+            text = t[3]['c3d']
+            text += '    '  + t[1] + ' = ' + t[3]['text'] + '\n'
     t[0] = {'text': text, 'c3d': ''}
 
 def p_finasigment_conds(t):
     '''fasign   : condiciones PTCOMA'''
     text = t[1]['tflag']
-    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] } 
+    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] }
 
 def p_finasigment_args(t):
     '''fasign   : argument PTCOMA'''
     text = t[1]['tflag']
-    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] }
+    t[0] =  {'text': text, 'c3d' : t[1]['c3d'],'flag': t[1]['text'] }
     
 def p_finasigment_inst(t):
     '''fasign   : instruccion'''
     text = ''
     if 'valSelectPrint' in t[1]:
         text += '    ' +'valSelectPrint = 0\n'
-    
+
     text += t[1]['text']
     t[0] = {'text': tempos.getcurrent(), 'c3d': text}
 
@@ -2686,8 +3610,8 @@ def p_executecf(t):
 def p_if_(t):
     '''if : IF condiciones THEN statements ifend PTCOMA '''
     text = ""
-    temp1 = tempos.newTemp() 
-    temp2 = tempos.newTemp() 
+    temp1 = tempos.newTemp()
+    temp2 = tempos.newTemp()
     c3d = t[2]['c3d']
     c3d +=  "    "+"if (" + t[2]['tflag'] + "):   goto ."+ temp1 +"  \n"
     c3d += "    "+"goto ."+temp2+"\n"
@@ -2706,7 +3630,7 @@ def p_if_end(t):
             | ELSE statements END IF  '''
     text = ""
     c3d = ""
-    tflagif = "" 
+    tflagif = ""
     if t[1].lower() == 'end':
         tflagif = tempos.newTempif()
         c3d = ""
@@ -2714,8 +3638,8 @@ def p_if_end(t):
         c3d = t[2]['text']
         tflagif = tempos.newTempif()
     elif t[1].lower() == 'elseif':
-        temp1 = tempos.newTemp() 
-        temp2 = tempos.newTemp() 
+        temp1 = tempos.newTemp()
+        temp2 = tempos.newTemp()
         tflagif = t[5]['tflagif']
         c3d = t[2]['c3d']
         c3d +=  "    "+"if (" + t[2]['tflag'] + "):   goto ."+ temp1 +"  \n"
@@ -2736,7 +3660,7 @@ def p_casecf(t):
     text = ""
     code = ""
     try:
-        arreglo = []    
+        arreglo = []
         for a in t[3]['c3d']:
             temporal = tempos.newTemp()
             arreglo.append(temporal)
@@ -2748,7 +3672,7 @@ def p_casecf(t):
             if i > 0:
                 ultimo = tempos.newTemp()
                 code += '    ' + ultimo + ' = ' + arreglo[i-1] + " or " + arreglo[i] + "\n"
-        code +=  '    ' + "if("+ ultimo +"): goto ." + tempos.newLabel() +"\n" 
+        code +=  '    ' + "if("+ ultimo +"): goto ." + tempos.newLabel() +"\n"
         code += '    ' + "goto ." + tempos.newLabel() + "\n"
         code += '    ' + "label .L_case_" + str(tempos.getindex2() - 1) + "\n"
         code += t[5]['text'] + "\n"
@@ -2760,7 +3684,7 @@ def p_casecf(t):
     t[0] = {'text': text, 'c3d': code}
 
 def p_elsecase(t):
-    '''elsecase : ELSE statements END CASE 
+    '''elsecase : ELSE statements END CASE
                 | END CASE'''
     text = ""
     code = ""
@@ -2768,7 +3692,7 @@ def p_elsecase(t):
         code  += t[2]['text']
     else:
         code = ""
-    t[0] = {'text': text, 'c3d': code}   
+    t[0] = {'text': text, 'c3d': code}
 
 def p_expresionlist(t):
     '''expresionlist : expresionlist COMA argument'''
@@ -2785,7 +3709,7 @@ def p_expresionlidefst(t):
     t[0] = {'text': text, 'c3d': lista_explist}
 
 def p_casewhens(t):
-    '''casewhens :  WHEN condiciones THEN statements casewhens 
+    '''casewhens :  WHEN condiciones THEN statements casewhens
                 | ELSE statements
                 | END CASE'''
     text = ""
@@ -2793,15 +3717,15 @@ def p_casewhens(t):
     if t[1].lower() == "end":
         code = ""
     elif t[1].lower() == "else":
-        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n" 
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n"
         code += t[2]['text']
     else:
         code += t[2]['c3d']
         code += "    if(" + t[2]['tflag'] + "): goto ." + tempos.newLabel() + "\n"
         code += '    ' + "goto ." + tempos.newLabel() + "\n"
-        code += '    ' + "label .L_case_" + str(tempos.getindex2()-1) + "\n" 
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()-1) + "\n"
         code += t[4]['text']
-        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n" 
+        code += '    ' + "label .L_case_" + str(tempos.getindex2()) + "\n"
         code += t[5]['c3d']
     t[0] = {'text': text, 'c3d': code}
 
@@ -2824,3 +3748,7 @@ parser = yacc.yacc()
 
 def parse(input) :
     return parser.parse(input)
+
+def getReporteopti():
+    f = opt.getreporte()
+    return f

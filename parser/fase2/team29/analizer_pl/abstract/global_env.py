@@ -9,6 +9,7 @@ class FunctionSymbol:
 class GlobalEnvironment:
     def __init__(self) -> None:
         self.functions = {}
+        self.isBlock = False
 
     def addFunction(self, type_, id, returnType, params):
         if id not in self.functions:
@@ -20,7 +21,7 @@ class GlobalEnvironment:
         """
         if id in self.functions:
             return self.functions[id]
-        
+
     def dropFunction(self, id):
         """
         Esta funcion elimina un simbolo de la tabla.

@@ -14,6 +14,8 @@ from Utils.fila import fila
 from Error import *
 import Instrucciones.DML.select as select
 import json
+
+import optimizar as opt
 #from select import *
 
 ##########################################################################
@@ -122,17 +124,18 @@ def mediador(value):
 
 '''
     l.readData(datos)
-
+    optt = ""
     for val in datos.tablaSimbolos.keys():
         if val == 'funciones_':
             for func in datos.tablaSimbolos[val]:
                 try:
                     f = open("./Funciones/" + func['name'] + ".py", "r")
-                    exepy += f.read()
+                    pruebaaa = f.read()
+                    optt = opt.optimizar(pruebaaa)
+                    exepy += optt
                     f.close()
                 except:
                     exepy += '#Se cambio el nombre del archivo que guarda la funcion. Funcion no encontrada'
-
     exepy += '''
 #main
 @with_goto
@@ -203,7 +206,11 @@ if __name__ == "__main__":
 
     escribirEnSalidaFinal('Se ha generado el codigo en 3 direcciones.')
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
-
+    reptOpti = prueba['opt']
+    fro = open("./Reportes/ReporteOptimizacion.txt", "w")
+    fro.write(reptOpti)
+    fro.close()
+    
 def Rerrores(errores, semanticos):
     f = open("./Reportes/Reporte_Errores.html", "w")
     f.write("<!DOCTYPE html>\n")

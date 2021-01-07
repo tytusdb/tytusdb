@@ -7,10 +7,10 @@ class F1(instruction.Instruction):
         self.cadena = cadena
 
     def execute(self, environment):
-        return objeto.execute()
+        return self.objeto.execute()
 
     def dot(self):
-        return objeto.dot()
+        return self.objeto.dot()
 
     def generate3d(self, environment, instanciaAux):
         tn = instanciaAux.getNewTemporal()
