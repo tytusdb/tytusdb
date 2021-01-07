@@ -1203,31 +1203,14 @@ class inst_procedural(expresion):
         self.lista = []
     
     def c3d(self):
-        for i in range(1,len(self.val)):
-            v = self.val[i].value
-            if isinstance(v,list):
-                for val in v:
-                    self.lista.append(val)
-            else:
-                self.lista.append(v)
-        res = ''
-        print(self.lista)
-        for txt in self.lista:
-            if isinstance(txt,list):
-                res +=' ('
-                for l in txt:
-                    res+=' '+l+','
-                res = res[:-1]
-                res += ')'
-                continue
-            res+= ' '+ txt   
-        return res
+        return ''
 
         
 
     def traducir(self):
-        return ''
-
+        return f'\tsql.execute(\'\'\'{self.val}\'\'\')\n'
+    def ejecutar(self):
+        pass
     
 
 class pl_mathtrig(pl):
