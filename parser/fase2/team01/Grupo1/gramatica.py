@@ -1190,49 +1190,60 @@ def p_funciones_binarias(t):
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index,t[3]['graph'])
     if t[1].lower() == 'length' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])        
         reporte = "<funcionesbinarias> ::= LENGTH PARENIZQ <argument> PARENDER\n"+ t[3]['reporte']
-        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],None,None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],None,None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'substring' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5])+ ' ' +str(t[6])+ ' ' +str(t[7])+ ' ' +str(t[8])
         grafo.newchildrenE(t[5])
         grafo.newchildrenE(t[7])
         reporte = "<funcionesbinarias> ::= SUBSTRING PARENIZQ <argument> COMA ENTERO COMA ENTERO PARENDER\n" + t[3]['reporte']
-        t[0] =  {'ast' :select.FuncionBinaria( t[1].lower() , t[3]['ast'] , primi.Primitive('integer',t[5]) , primi.Primitive('integer',t[7]) ), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =  {'ast' :select.FuncionBinaria( t[1].lower() , t[3]['ast'] , primi.Primitive('integer',t[5]) , primi.Primitive('integer',t[7]) ), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'trim' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])
         reporte = "<funcionesbinarias> ::= TRIM PAREINZQ <argument> PARENDER\n" + t[3]['reporte']
-        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],None,None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],None,None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'md5' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])
         reporte = "<funcionesbinarias> ::= MD5 PAREINZQ <argument> PARENDER\n" +t[3]['reporte']
-        t[0] =   {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],None,None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =   {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],None,None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'sha256' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])
         reporte = "<funcionesbinarias> ::= SHA256 PAREINZQ <argument> PARENDER\n" +t[3]['reporte']
-        t[0] =   {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],None,None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =   {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],None,None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'substr' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5])+ ' ' +str(t[6])+ ' ' +str(t[7])+ ' ' +str(t[8])
         grafo.newchildrenE(t[5])
         grafo.newchildrenE(t[7])
         reporte = "<funcionesbinarias> ::= SUBSTR PARENIZQ  <argument>  COMA  ENTERO  COMA  ENTERO  PARENDER\n" + t[3]['reporte']
-        t[0] =  {'ast' :select.FuncionBinaria( t[1].lower() , t[3]['ast'] , primi.Primitive('integer',t[5]) , primi.Primitive('integer',t[7]) ), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =  {'ast' :select.FuncionBinaria( t[1].lower() , t[3]['ast'] , primi.Primitive('integer',t[5]) , primi.Primitive('integer',t[7]) ), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'get_byte' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5])+ ' ' +str(t[6])+ ' ' +str(t[7])+ ' ' +str(t[8]['visita'])+ ' ' +str(t[9])
         grafo.newchildrenF(grafo.index,t[8]['graph'])
         reporte = "<funcionesbinarias> ::= GETBYTE PARENIZQ <argument> DOSPUNTOS DOSPUNTOS BYTEA COMA <argument> PARENDER\n" + t[3]['reporte'] + t[8]['reporte']
-        t[0] =   {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],t[8]['ast'],None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =   {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],t[8]['ast'],None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'set_byte' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5])+ ' ' +str(t[6])+ ' ' +str(t[7])+ ' ' +str(t[8]['visita'])+ ' ' +str(t[9])+ ' ' +str(t[10]['visita'])+ ' ' +str(t[11])
         grafo.newchildrenF(grafo.index,t[8]['graph'])
         grafo.newchildrenF(grafo.index,t[10]['graph'])
         reporte = "<funcionesbinarias> ::= SETBYTE PARENIZQ <argument> DOSPUNTOS DOSPUNTOS BYTEA COMA <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[8]['reporte'] +t[10]['reporte']
-        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],t[8]['ast'],t[10]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],t[8]['ast'],t[10]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'convert' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])
         grafo.newchildrenF(grafo.index,t[3]['graph'])
         grafo.newchildrenF(grafo.index,t[5]['graph'])
         reporte = "<funcionesbinarias> ::= CONVERT PARENIZQ <argument> AS tipo\n" + t[3]['reporte']
-        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],t[5]['ast'],None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],t[5]['ast'],None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'encode' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5])+ ' ' +str(t[6])+ ' ' +str(t[7])+ ' ' +str(t[8])+ ' ' +str(t[9])
         grafo.newchildrenE(t[8].upper())
         reporte = "<funcionesbinarias> ::= ENCODE PARENIZQ <argument> DOSPUNTOS DOSPUNTOS BYTEA COMA CADENA PARENDER\n" + t[3]['reporte']
-        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],  primi.Primitive('string',t[8]), None ), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],  primi.Primitive('string',t[8]), None ), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'decode' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5])+ ' ' +str(t[6])
         grafo.newchildrenF(grafo.index,t[5]['graph'])
         reporte = "<funcionesbinarias> ::= DECODE PARENIZQ <argument> COMA CADENA PARENDER\n" + t[3]['reporte']
-        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],t[5]['ast'],None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =  {'ast' :select.FuncionBinaria(t[1].lower(),t[3]['ast'],t[5]['ast'],None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_funciones_matematicas_S (t):
     '''funcionesmatematicas : PI PARENIZQ PARENDER
@@ -1241,10 +1252,12 @@ def p_funciones_matematicas_S (t):
     grafo.newchildrenE(t[1].upper())
     reporte = "<funcionesmatematicas> ::= "
     if t[1].lower() == "random":
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])     
         reporte += "RANDOM PARENIZQ PARENDER\n"
     else:
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])    
         reporte += "PI PARENIZQ PARENDER\n"
-    t[0] =  {'ast' : select.FuncionMatematica(t[1].lower(), None, None, None, None), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] =  {'ast' : select.FuncionMatematica(t[1].lower(), None, None, None, None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_funciones_matematicas_1 (t):
     '''funcionesmatematicas : ABS PARENIZQ  argument  PARENDER
@@ -1261,6 +1274,7 @@ def p_funciones_matematicas_1 (t):
                             | SIGN PARENIZQ  argument   PARENDER
                             | SQRT PARENIZQ  argument   PARENDER
                             | TRUNC PARENIZQ  argument   PARENDER'''
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])
     grafo.newnode('F_MATH')
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index, t[3]['graph'])
@@ -1293,7 +1307,7 @@ def p_funciones_matematicas_1 (t):
         reporte += "SQRT PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
     elif t[1].lower() == "trunc":
         reporte += "TRUNC PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
-    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(),t[3]['ast'], None, None, None), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(),t[3]['ast'], None, None, None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_funciones_matematicas_2 (t):
     '''funcionesmatematicas : DIV PARENIZQ  argument  COMA  argument  PARENDER
@@ -1306,40 +1320,48 @@ def p_funciones_matematicas_2 (t):
     grafo.newchildrenF(grafo.index, t[5]['graph'])
     reporte ="<funcionesmatematicas> ::= "
     if t[1].lower() == "div":
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])
         reporte += "DIV PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']
     elif t[1].lower() == "gcd":
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])
         reporte += "GCD PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']
     elif t[1].lower() == "mod":
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])
         reporte += "MOD PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']
     elif t[1].lower() == "power":
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])
         reporte += "POWER PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']
-    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(),t[3]['ast'],t[5]['ast'], None, None), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(),t[3]['ast'],t[5]['ast'], None, None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_funciones_matematicas_2R (t):
     'funcionesmatematicas : ROUND PARENIZQ  argument   tipoderound  PARENDER'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4]['visita'])+ ' ' +str(t[5])
     grafo.newnode('F_MATH')
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[4]['graph'])
     reporte = "<funcionesmatematicas> ::= ROUND PARENIZQ <argument> <tipoderound> PARENDER\n" + t[3]['reporte'] + t[4]['reporte']
-    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(), t[3]['ast'], t[4]['ast'], None, None), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(), t[3]['ast'], t[4]['ast'], None, None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tipo_de_round(t):
     'tipoderound  : COMA  argument'
+    visita = str(t[1]) + ' ' +str(t[2]['visita']) 
     grafo.newnode('T_ROUND')
     grafo.newchildrenF(grafo.index,t[2]['graph'])
     reporte = "<tipoderound> ::= COMA <argument>\n" +t[2]['reporte']
-    t[0] = {'ast' : select.TipoRound(t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : select.TipoRound(t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tipo_de_round_null(t):
     'tipoderound  :'
+    visita = ''
     grafo.newnode('T_ROUND')
     reporte ="<tipoderound> ::= EPSILON\n"
-    t[0]= {'ast' : None, 'graph' : grafo.index, 'reporte': reporte}
+    t[0]= {'ast' : None, 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 
 def p_funciones_matematicas_4 (t):
     'funcionesmatematicas : BUCKET PARENIZQ  argument COMA argument COMA argument COMA argument PARENDER'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])+ ' ' +str(t[7]['visita'])+ ' ' +str(t[8])+ ' ' +str(t[9]['visita'])+ ' ' +str(t[10])
     grafo.newnode('F_MATH')
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index, t[3]['graph'])
@@ -1347,7 +1369,7 @@ def p_funciones_matematicas_4 (t):
     grafo.newchildrenF(grafo.index, t[7]['graph'])
     grafo.newchildrenF(grafo.index, t[9]['graph'])
     reporte ="<funcionesmatematicas> ::= BUCKET PARENIZQ <argument> COMA <argument> COMA <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte'] + t[7]['reporte'] + t[9]['reporte']
-    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(),t[3]['ast'],t[5]['ast'],t[7]['ast'],t[9]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(),t[3]['ast'],t[5]['ast'],t[7]['ast'],t[9]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_funciones_trigonometricas(t):
     '''funcionestrigonometricas :  ACOS PARENIZQ argument  PARENDER
@@ -1376,54 +1398,75 @@ def p_funciones_trigonometricas(t):
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index,t[3]['graph'])
     if t[1].lower() == 'atan2' or t[1] == 'atan2d' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])
         grafo.newchildrenF(grafo.index,t[5]['graph'])
         reporte = "<funcionestrigonometricas> ::= ATANDOS PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] +t[5]['reporte']
-        t[0] = {'ast' :select.FucionTrigonometrica(t[1].lower(),t[3]['ast'],t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' :select.FucionTrigonometrica(t[1].lower(),t[3]['ast'],t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     else :
         reporte = "<funcionestrigonometricas> ::= "
         if t[1].lower() == "acos":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])
             reporte += "ACOS PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "asin":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "ASIN PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "acosd":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "ACOSD PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "asind":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "ASIND PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "atan":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "ATAN PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "atand":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "ATAND PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "cos":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "COS PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "cosd":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "COSD PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "cot":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "COT PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "cotd":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "COTD PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "sin":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "SIN PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "sind":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "SIND PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "tan":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "TAN PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "tand":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "TAND PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "sinh":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "SINH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "cosh":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "COSH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "tanh":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "TANH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "asinh":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "ASINH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "acosh":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])            
             reporte += "ACOSH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "atanh":
             reporte += "ATANH PARENIZQ <argument> PARENDER\n" +t[3]['reporte']
         elif t[1].lower() == "atan2d":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])
             reporte += "ATANDOSD PARENIZQ <argument> COMA <argument> PARENDER\n" +t[3]['reporte'] + t[5]['reporte']
-        t[0] = {'ast' :select.FucionTrigonometrica(t[1].lower(),t[3]['ast'],None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' :select.FucionTrigonometrica(t[1].lower(),t[3]['ast'],None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 
 def p_funciones_de_fechas(t):
@@ -1436,28 +1479,34 @@ def p_funciones_de_fechas(t):
     grafo.newnode('F_FECHAS')
     grafo.newchildrenE(t[1].upper())
     if t[1].lower() == 'extract' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5])+ ' ' +str(t[6]['visita'])+ ' ' +str(t[7])
         grafo.newchildrenF(grafo.index,t[3]['graph'])
         grafo.newchildrenF(grafo.index,t[6]['graph'])
         reporte = "<funcionesdefechas> ::= EXTRACT PARENIZQ <partedelafecha> FROM TIMESTAMP <argument> PARENDER\n" + t[3]['reporte'] + t[6]['reporte']
-        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),t[3]['ast'],t[6]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),t[3]['ast'],t[6]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'date_part' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5])+ ' ' +str(t[6]['visita'])+ ' ' +str(t[7])
         grafo.newchildrenF(grafo.index,t[3]['graph'])
         grafo.newchildrenF(grafo.index,t[6]['graph'])
         reporte = "<funcionesdefechas> ::= DATEPART PARENIZQ <argument> COMA INTERVAL <argument> PARENDER\n" + t[3]['reporte'] + t[6]['reporte']
-        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),t[3]['ast'],t[6]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),t[3]['ast'],t[6]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'now' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) 
         reporte = "<funcionesdefechas> ::= NOW PARENIZQ PARENDER\n"
-        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),None,None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),None,None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'current_date' :
+        visita = str(t[1]) 
         reporte = "<funcionesdefechas> ::= CURRENTDATE\n"
-        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),None,None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),None,None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'current_time' :
+        visita = str(t[1]) 
         reporte = "<funcionesdefechas> ::= CURRENTTIME\n"
-        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),None,None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),None,None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'timestamp' :
+        visita = str(t[1]) + ' ' +str(t[2]['visita'])
         grafo.newchildrenF(grafo.index,t[2]['graph'])
         reporte = "<funcionesdefechas> ::= TIMESTAMP <argument>\n" + t[2]['reporte']
-        t[0] = {'ast' :select.FuncionFecha(t[1].lower(), t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' :select.FuncionFecha(t[1].lower(), t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_parte_de_la_decha(t):
     '''partedelafecha   : YEAR
@@ -1466,6 +1515,7 @@ def p_parte_de_la_decha(t):
                         | HOUR
                         | MINUTE
                         | SECOND'''
+    visita = str(t[1]) 
     grafo.newnode('FECHAS')
     grafo.newchildrenE(t[1].upper())
     reporte ="<partedelafecha> ::= "
@@ -1481,65 +1531,73 @@ def p_parte_de_la_decha(t):
         reporte += "MINUTE\n"
     elif t[1].lower() == "second":
         reporte += "SECOND\n"
-    t[0] = {'ast' : t[1].upper() , 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : t[1].upper() , 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 
 def p_lista_de_seleccionados_id(t):
     'listadeseleccionados : ID'
+    visita = str(t[1]) 
     grafo.newnode('L_SELECTS')
     grafo.newchildrenE(t[1])
     reporte = "<listadeseleccionados> ::= " + t[1].upper() + "\n"
-    t[0] = { 'ast' : ident.Identificador(None, t[1]), 'graph' :  grafo.index, 'reporte': reporte}
+    t[0] = { 'ast' : ident.Identificador(None, t[1]), 'graph' :  grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_lista_de_seleccionados_id_punto_id(t):
     'listadeseleccionados : ID PUNTO ID'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) 
     grafo.newnode('L_SELECTS')
     grafo.newchildrenE(t[1])
     grafo.newchildrenE(t[3])
     reporte = "<listadeseleccionados> ::= "+ t[1].upper() + " PUNTO " + t[3].upper() + "\n"
-    t[0] = { 'ast' : ident.Identificador(t[1], t[3]) , 'graph' :  grafo.index, 'reporte': reporte}
+    t[0] = { 'ast' : ident.Identificador(t[1], t[3]) , 'graph' :  grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_lista_de_seleccionados_id_punto_asterisco(t):
     'listadeseleccionados : ID PUNTO ASTERISCO'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) 
     grafo.newnode('L_SELECTS')
     grafo.newchildrenE(t[1])
     grafo.newchildrenE(t[3])
     reporte = "<listadeseleccionados> ::= " + t[1].upper() + " PUNTO ASTERISCO\n"
-    t[0] = { 'ast' : ident.Identificador(t[1], t[3]) , 'graph' :  grafo.index, 'reporte': reporte}
+    t[0] = { 'ast' : ident.Identificador(t[1], t[3]) , 'graph' :  grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_asopcional(t):
     'asopcional  : AS ID '
+    visita = str(t[1]) + ' ' +str(t[2])
     grafo.newnode('ASOPCIONAL')
     grafo.newchildrenE(t[2])
     reporte = "<asopcional> ::= AS " + t[2].upper() + "\n"
-    t[0] = { 'ast' : t[2],'graph' : grafo.index, 'reporte': reporte}
+    t[0] = { 'ast' : t[2],'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_asopcional_argument(t):
     'asopcional  : ID'
+    visita = str(t[1]) 
     grafo.newnode('ASOPCIONAL')
     grafo.newchildrenE(t[1])
     reporte = "<asopcional> ::= " + t[1].upper() + "\n"
-    t[0] = { 'ast' : t[1],'graph' : grafo.index, 'reporte': reporte}
+    t[0] = { 'ast' : t[1],'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_asopcionalS(t):
     'asopcional  : AS CADENA '
+    visita = str(t[1]) + ' ' +str(t[2])
     grafo.newnode('ASOPCIONAL')
     grafo.newchildrenE(t[2])
     reporte = "<asopcional> ::= AS CADENA\n"
-    t[0] = { 'ast' : t[2],'graph' : grafo.index, 'reporte': reporte}
+    t[0] = { 'ast' : t[2],'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_asopcional_argumentS(t):
     'asopcional  : CADENA'
+    visita = str(t[1]) 
     grafo.newnode('ASOPCIONAL')
     grafo.newchildrenE(t[1])
     reporte = "<asopcional> ::= CADENA\n"
-    t[0] = { 'ast' : t[1],'graph' : grafo.index, 'reporte': reporte}
+    t[0] = { 'ast' : t[1],'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_asopcional_null(t):
     'asopcional  : '
+    visita = ''
     grafo.newnode('ASOPCIONAL')
     reporte = "<asopcional> ::= EPSILON\n"
-    t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 
 def p_argument_noterminal(t):
@@ -1548,6 +1606,7 @@ def p_argument_noterminal(t):
                 | funcionesmatematicas
                 | funcionesdefechas
                 | funcionesbinarias'''
+    visita = str(t[1]['visita'])
     grafo.newnode('ARGUMENT')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = '''<argument> ::= <funcionesmatematicassimples>
@@ -1555,7 +1614,7 @@ def p_argument_noterminal(t):
                                 |<funcionesmatematicas>
                                 |<funcionesdefechas>
                                 |<funcionesbinarias>\n''' + t[1]['reporte'] #mm
-    t[0] = {'ast': t[1]['ast'],'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1]['ast'],'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 
 #-------------------------------------------CREATEEE----------------------------------------------------
@@ -1566,27 +1625,31 @@ def p_create_instruccion(t) :
               | OR REPLACE DATABASE createdatabase
               | DATABASE createdatabase'''
     grafo.newnode('CREATE')
-    print(t[1])
+    #print(t[1])
     if t[1].lower() == 'type' :
+        visita = str(t[1]) + ' ' +str(t[2]['visita'])
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<create> ::= TYPE <createenum>\n"  + t[2]['reporte']
-        t[0] = {'ast' : create.Create('type', t[2]['ast']['id'], t[2]['ast']['list']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : create.Create('CREATE_TYPE',visita,'type', t[2]['ast']['id'], t[2]['ast']['list']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'table' :
+        visita = str(t[1]) + ' ' +str(t[2]['visita'])
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<create> ::= TABLE <createtable>\n" + t[2]['reporte']
-        t[0] = {'ast' : create.Create('table', t[2]['ast']['id'], t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : create.Create('CREATE_TABLE',visita,'table', t[2]['ast']['id'], t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'or' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4]['visita'])
         grafo.newchildrenE('OR REPLACE DB')
         grafo.newchildrenF(grafo.index, t[4]['graph'])
         reporte = "<create> ::= OR REPLACE DATABASE <createdatabase>\n" + t[4]['reporte']
-        t[0] = {'ast' : create.Create('replace', None, t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : create.Create('CREATE_OR_REPLACE_DB',visita,'replace', None, t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'database' :
+        visita = str(t[1]) + ' ' +str(t[2]['visita']) 
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<create> ::= DATABASE <createdatabase>\n" + t[2]['reporte']
-        t[0] = {'ast' : create.Create('database', None, t[2]['ast']), 'graph' : grafo.index, 'reporte' : reporte}
+        t[0] = {'ast' : create.Create('CREATE_DATABASE',visita,'database', None, t[2]['ast']), 'graph' : grafo.index, 'reporte' : reporte, 'visita' : visita}
 
 def p_create_instruccion_err(t):
     "create : problem"
@@ -1595,79 +1658,89 @@ def p_create_instruccion_err(t):
 
 def p_createenum(t):
     'createenum : ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])+ ' ' +str(t[7])
     grafo.newnode('CREATEENUM')
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[5]['graph'])
     reporte = "<createenum> ::= " + t[1].upper() +" AS ENUM PARENIZQ <listacadenas> PARENDER PTCOMA\n"
-    t[0] = {'ast': { "id": t[1], "list": t[5]['ast'] }, 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': { "id": t[1], "list": t[5]['ast'] }, 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_listacadenas_recursiva(t):
     'listacadenas : listacadenas COMA CADENA'
+    visita = str(t[1]['visita']) + ' ' +str(t[2]) + ' ' +str(t[3])
     grafo.newnode('LISTACADENAS')
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     t[1]['ast'].append(primi.Primitive(None, t[3]))
     reporte = "<listacadenas> ::= <listacadenas> COMA CADENA\n" + t[1]['reporte']
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_listacadenas(t):
     'listacadenas : CADENA'
+    visita = str(t[1]) 
     grafo.newnode('LISTACADENAS')
     grafo.newchildrenE(t[1])
     reporte = "<listacadenas> ::= CADENA\n"
-    t[0] = {'ast': [primi.Primitive(None, t[1])], 'graph' : grafo.index, 'reporte': reporte }
+    t[0] = {'ast': [primi.Primitive(None, t[1])], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_createdatabase(t):
     '''createdatabase : IF NOT EXISTS ID databaseowner
                       | ID databaseowner'''
     grafo.newnode('CREATEDB')
     if t[1].lower() == 'if' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])
         grafo.newchildrenE('IF NOT EXISTS')
         grafo.newchildrenE(t[4])
         grafo.newchildrenF(grafo.index, t[5]['graph'])
         reporte = "<createdatabase> ::= IF NOT EXISTS "+ t[4].upper() +" <databaseowner>\n" + t[5]['reporte']
-        t[0] = {'ast': create.Exists(False, t[4], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.Exists(False, t[4], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     else :
+        visita = str(t[1]) + ' ' +str(t[2]['visita'])
         grafo.newchildrenE(t[1])
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<createdatabase> ::= "+ t[1].upper() +" <databaseowner>\n" + t[2]['reporte']
-        t[0] = {'ast': create.Exists(False, t[1], t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.Exists(False, t[1], t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_databaseowner(t):
     '''databaseowner : OWNER IGUAL tipoowner databasemode
                      | OWNER tipoowner databasemode'''
     grafo.newnode('OWNER')
     if t[2] == '=' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4]['visita'])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         grafo.newchildrenF(grafo.index, t[4]['graph'])
         reporte = "<databaseowner> ::= OWNER IGUAL <tipoowner> <databasemode>\n" + t[3]['reporte'] + t[4]['reporte']
-        t[0] = {'ast': create.Owner(t[3]['ast'], t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.Owner(t[3]['ast'], t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     else :
+        visita = str(t[1]) + ' ' +str(t[2]['visita']) + ' ' +str(t[3]['visita'])
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<databaseowner> ::= OWNER <tipoowner> <databasemode>\n" + t[3]['reporte']
-        t[0] = {'ast': create.Owner(t[2]['ast'], t[3]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.Owner(t[2]['ast'], t[3]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tipoowner_id(t) :
     'tipoowner : ID'
+    visita = str(t[1])
     grafo.newnode('IDOWNER')
     grafo.newchildrenE(t[1])
     reporte = "<tipoowner> ::=" + t[1].upper() +  "\n"
-    t[0] = {'ast': t[1], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tipoowner_cadena(t) :
     'tipoowner : CADENA'
+    visita = str(t[1])
     grafo.newnode('CADENAOWNER')
     grafo.newchildrenE(t[1])
     reporte = "<tipoowner> ::= CADENA\n"
-    t[0] = {'ast': t[1], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_databaseownerP(t):
     'databaseowner  : databasemode'
+    visita = str(t[1]['visita']) 
     grafo.newnode('OWNER')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<databaseowner> ::= <databasemode>\n" + t[1]['reporte']
-    t[0] = {'ast': create.Owner(None, t[1]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': create.Owner(None, t[1]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_databasemode(t):
     '''databasemode : MODE IGUAL ENTERO PTCOMA
@@ -1675,55 +1748,63 @@ def p_databasemode(t):
                     | PTCOMA'''
     grafo.newnode('MODE')
     if t[1] == ';' :
+        visita = str(t[1]) 
         grafo.newchildrenE('1')
         reporte = "<databasemode> ::= PTCOMA\n"
-        t[0] = {'ast': primi.Primitive(None, '1'), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': primi.Primitive(None, '1'), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     else :
         if t[2] == '=' :
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])
             grafo.newchildrenE(t[3])
             reporte = "<databasemode> ::= MODE IGUAL ENTERO PTCOMA\n"
-            t[0] = {'ast': primi.Primitive(None, t[3]), 'graph' : grafo.index, 'reporte': reporte}
+            t[0] = {'ast': primi.Primitive(None, t[3]), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
         else :
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])
             grafo.newchildrenE(t[2])
             reporte = "<databasemode> ::= MODE ENTERO PTCOMA\n"
-            t[0] = {'ast': primi.Primitive(None, t[2]), 'graph' : grafo.index, 'reporte': reporte}
+            t[0] = {'ast': primi.Primitive(None, t[2]), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_createtable(t):
     'createtable : ID PARENIZQ tabledescriptions PARENDER tableherencia'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])
     grafo.newnode('CREATETB')
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[5]['graph'])
     reporte = "<createtable> ::= " + t[1].upper() + " PARENIZQ <tabledescriptions> PARENDER <tableherencia>\n" + t[3]['reporte'] + t[5]['reporte']
-    t[0] = {'ast': { "id" : t[1], "table" : create.Table(t[3]['ast'], t[5]['ast'])}, 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': { "id" : t[1], "table" : create.Table(t[3]['ast'], t[5]['ast'])}, 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tableherencia(t):
     '''tableherencia : INHERITS PARENIZQ ID PARENDER PTCOMA
                      | PTCOMA'''
     grafo.newnode('TBHERENCIA')
     if t[1].lower() == 'inherits' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])
         grafo.newchildrenE(t[3])
         reporte = "<tableherencia> ::= INHERITS PARENIZQ " + t[3].upper() + " PARENDER PTCOMA\n"
-        t[0] = {'ast': ident.Identificador(None, t[3]), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': ident.Identificador(None, t[3]), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     else :
+        visita = str(t[1]) 
         reporte = "<tableherencia> ::= PTCOMA\n"
-        t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tabledescriptions_recursivo(t):
     'tabledescriptions : tabledescriptions COMA tabledescription'
+    visita = str(t[1]['visita']) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) 
     grafo.newnode('DESCRIPTIONS')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     t[1]['ast'].append(t[3]['ast'])
     reporte = "<tabledescriptions> ::= <tabledescriptions> COMA <tabledescription>\n" + t[1]['reporte'] +  t[3]['reporte']
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tabledescriptions(t):
     'tabledescriptions :  tabledescription'
+    visita = str(t[1]['visita']) 
     grafo.newnode('DESCRIPTIONS')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<tabledescriptions> ::= <tabledescription>\n" + t[1]['reporte']
-    t[0] = {'ast': [t[1]['ast']], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': [t[1]['ast']], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tabledescription(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''tabledescription : ID tipo tablekey
@@ -1734,39 +1815,45 @@ def p_tabledescription(t):#--------------------------------------------------CUI
                         | UNIQUE finalunique'''
     grafo.newnode('DESCRIPTION')
     if t[1].lower() == 'primary' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4]['visita'])+ ' ' +str(t[5])
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[4]['graph'])
         reporte = "<tabledescription> ::= PRIMARY KEY PARENIZQ <listaids> PARENDER\n" + t[4]['reporte']
-        t[0] = {'ast': create.TableDescription('primary', t[4]['ast'], [], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('primary', t[4]['ast'], [], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'foreign' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4]['visita'])+ ' ' +str(t[5])+ ' ' +str(t[6])+ ' ' +str(t[7])+ ' ' +str(t[8])+ ' ' +str(t[9]['visita'])+ ' ' +str(t[10])
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[4]['graph'])
         grafo.newchildrenE(t[7])
         grafo.newchildrenF(grafo.index, t[9]['graph'])
         reporte = "<tabledescription> ::= FOREIGN KEY PARENIZQ <listaids> PARENDER REFERENCES "+ t[7].upper() + " PARENIZQ <listaids> PARENDER\n" + t[4]['reporte'] + t[9]['reporte']
-        t[0] = {'ast': create.TableDescription('foreign', t[7], t[4]['ast'], t[9]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('foreign', t[7], t[4]['ast'], t[9]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'constraint' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4]['visita'])
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenE(t[2])
         grafo.newchildrenF(grafo.index, t[4]['graph'])
         reporte = "<tabledescription> ::= CONSTRAINT " + t[2].upper() +" CHECK <finalconstraintcheck>\n"+ t[4]['reporte']
-        t[0] = {'ast': create.TableDescription('constraint', t[2], t[4]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('constraint', t[2], t[4]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'check' :
+        visita = str(t[1]) + ' ' +str(t[2]['visita']) 
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<tabledescription> ::= CHECK <finalconstraintcheck>\n"+ t[2]['reporte']
-        t[0] = {'ast': create.TableDescription('check', None, t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('check', None, t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'unique' :
+        visita = str(t[1]) + ' ' +str(t[2]['visita'])
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<tabledescription> ::= UNIQUE <finalunique>\n" +  t[2]['reporte']
-        t[0] = {'ast': create.TableDescription('unique', None, t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('unique', None, t[2]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     else :
+        visita = str(t[1]) + ' ' +str(t[2]['visita']) + ' ' +str(t[3]['visita'])
         grafo.newchildrenE(t[1])
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<tabledescription> ::= " + t[1].upper() + " <tipo> <tablekey>\n" + t[2]['reporte'] + t[3]['reporte']
-        t[0] = {'ast': create.TableDescription(t[1], t[2]['ast'], t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription(t[1], t[2]['ast'], t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tablekey(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''tablekey : PRIMARY KEY tabledefault
@@ -1774,108 +1861,122 @@ def p_tablekey(t):#--------------------------------------------------CUIDAAAAAAA
     grafo.newnode('TBKEY')
     grafo.newchildrenE(t[1].upper())
     if t[1].lower() == 'primary' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita'])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<tablekey> ::= PRIMARY KEY <tabledefault>\n" + t[3]['reporte']
-        t[0] = {'ast': create.TableDescription('primary', None, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('primary', None, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     elif t[1].lower() == 'references' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])+ ' ' +str(t[6]['visita'])
         grafo.newchildrenE(t[2])
         grafo.newchildrenE(t[4])
         grafo.newchildrenF(grafo.index, t[6]['graph'])
         reporte = "<tablekey> ::= REFERENCES ID PARENIZQ ID PARENDER <tabledefault>\n" + t[6]['reporte']
-        t[0] = {'ast': create.TableDescription('references', t[2], t[4], t[6]['ast']), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('references', t[2], t[4], t[6]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tablekeyP(t):
     'tablekey   : REFERENCES ID tabledefault'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita'])
     grafo.newnode('TBKEY')
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     reporte = "<tablekey> ::= REFERENCES " + t[2] + " <tabledefault>\n" + t[3]['reporte']
-    t[0] = {'ast': create.TableDescription('references', t[2], t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': create.TableDescription('references', t[2], t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tablekeyP2(t):
     'tablekey   : tabledefault'
+    visita = str(t[1]['visita']) 
     grafo.newnode('TBKEY')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<tablekey> ::= <tabledefault>\n" + t[1]['reporte']
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_columnreferences_r(t):
     'columnreferences : columnreferences COMA ID'
+    visita = str(t[1]['visita']) + ' ' +str(t[2]) + ' ' +str(t[3])
     grafo.newnode('COLREFS')
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     t[1]['ast'].append(ident.Identificador(None, t[3]))
     reporte = "<columnreferences> ::= <columnreferences> COMA"+ t[3] + "\n" + t[1]['reporte']
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_columnreferences_r2(t):
     'columnreferences : ID'
+    visita = str(t[1])
     grafo.newnode('COLREFS')
     grafo.newchildrenE(t[1])
     reporte = "<columnreferences> ::= " + t[1] + "\n"
-    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tabledefault(t):
     '''tabledefault : DEFAULT value tablenull'''
+    visita = str(t[1]) + ' ' +str(t[2]['visita']) + ' ' +str(t[3]['visita'])
     grafo.newnode('TABLEDEFAULT')
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     reporte = "<tabledefault> ::= DEFAULT <value> <tablenull>\n" + t[2]['reporte']
-    t[0] = {'ast': create.TableDescription('default', t[2]['ast'], t[3]['ast'], True), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': create.TableDescription('default', t[2]['ast'], t[3]['ast'], True), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tabledefaultP(t):
     'tabledefault   : tablenull'
+    visita = str(t[1]['visita'])
     grafo.newnode('TABLEDEFAULT')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte ="<tabledefault> ::= <tablenull>\n" + t[1]['reporte']
-    t[0] = {'ast': create.TableDescription('default', None, t[1]['ast'], False), 'graph' : grafo.index, 'reporte':reporte}
+    t[0] = {'ast': create.TableDescription('default', None, t[1]['ast'], False), 'graph' : grafo.index, 'reporte':reporte, 'visita' : visita}
 
 def p_tablenull(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''tablenull : NOT NULL tableconstraintunique
                  | NULL tableconstraintunique'''
     grafo.newnode('TABLENULL')
     if t[1].lower() == 'not' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita'])
         grafo.newchildrenE('NOT NULL')
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<tablenull> ::= NOT NULL <tableconstraintunique>\n" + t[3]['reporte']
-        t[0] = {'ast': create.TableDescription('null', True, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('null', True, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     else :
+        visita = str(t[1]) + ' ' +str(t[2]['visita']) 
         grafo.newchildrenE('NULL')
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<tablenull> ::= NULL <tableconstraintunique>\n" + t[2]['reporte']
-        t[0] = {'ast': create.TableDescription('null', False, t[2]['ast'], True), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('null', False, t[2]['ast'], True), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tablenullP(t):
     'tablenull  : tableconstraintunique'
+    visita = str(t[1]['visita']) 
     grafo.newnode('TABLENULL')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<tablenull> ::= <tableconstraintunique>\n" + t[1]['reporte']
-    t[0] = {'ast': create.TableDescription('null', False, t[1]['ast'], False), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': create.TableDescription('null', False, t[1]['ast'], False), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tableconstraintunique(t):#--------------------------------------------------CUIDAAAAAAAADO!!!!!!!!!!!!!!!!!!!!!
     '''tableconstraintunique : CONSTRAINT ID UNIQUE tableconstraintcheck
                              | UNIQUE tableconstraintcheck'''
     grafo.newnode('TABLECONSUNIQ')
     if t[1].lower() == 'constraint' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4]['visita'])
         grafo.newchildrenE('CONSTRAIN')
         grafo.newchildrenE(t[1])
         grafo.newchildrenE('UNIQUE')
         grafo.newchildrenF(grafo.index, t[4]['graph'])
         reporte = "<tableconstraintunique> ::= CONSTRAINT " + t[2] + " UNIQUE <tableconstraintcheck>\n" + t[4]['reporte']
-        t[0] = {'ast': create.TableDescription('unique', t[2], t[4]['ast'], True), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('unique', t[2], t[4]['ast'], True), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     else :
+        visita = str(t[1]) + ' ' +str(t[2]['visita'])
         grafo.newchildrenE('UNIQUE')
         grafo.newchildrenF(grafo.index, t[2]['graph'])
         reporte = "<tableconstraintunique> ::= UNIQUE <tableconstraintcheck>\n" + t[2]['reporte']
-        t[0] = {'ast': create.TableDescription('unique', None, t[2]['ast'], True), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('unique', None, t[2]['ast'], True), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tableconstraintuniqueP(t):
     'tableconstraintunique  : tableconstraintcheck'
+    visita = str(t[1]['visita'])
     grafo.newnode('TABLECONSUNIQ')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<tableconstraintunique> ::= <tableconstraintcheck>\n" + t[1]['reporte']
-    t[0] = {'ast': create.TableDescription('unique', None, t[1]['ast'], False), 'graph' : grafo.index, 'reporte' : reporte}
+    t[0] = {'ast': create.TableDescription('unique', None, t[1]['ast'], False), 'graph' : grafo.index, 'reporte' : reporte, 'visita' : visita}
 
 def p_tableconstraintcheck(t):
     '''tableconstraintcheck : CONSTRAINT ID CHECK PARENIZQ condiciones PARENDER
@@ -1883,85 +1984,96 @@ def p_tableconstraintcheck(t):
     grafo.newnode('TABLECONSCHECK')
     grafo.newchildrenE(t[1].upper())
     if t[1].lower() == 'constraint' :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])
         grafo.newchildrenE(t[2])
         grafo.newchildrenE(t[3].upper())
         grafo.newchildrenF(grafo.index, t[5]['graph'])
         reporte = "<tableconstraintcheck> ::= CONSTRAINT ID CHECK PARENIZQ <condiciones> PARENDER\n" + t[5]['reporte']
-        t[0] = {'ast': create.TableDescription('check', t[2], t[5]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('check', t[2], t[5]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
     else :
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]['visita']) + ' ' +str(t[4])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<tableconstraintcheck> ::= CHECK PARENIZQ <condiciones> PARENDER\n" + t[3]['reporte']
-        t[0] = {'ast': create.TableDescription('check', None, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast': create.TableDescription('check', None, t[3]['ast'], None), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tableconstraintcheckE(t):
     'tableconstraintcheck : '
+    visita = ''
     grafo.newnode('TABLECONSCHECK')
     reporte = "<tableconstraintcheck> ::= EPSILON\n"
-    t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_finalconstraintcheck(t):
     'finalconstraintcheck : PARENIZQ condiciones PARENDER'
+    visita = str(t[1]) + ' ' +str(t[2]['visita']) + ' ' +str(t[3])
     grafo.newnode('CONSCHECK')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<finalconstraintcheck> ::= PARENIZQ <condiciones> PARENDER\n"+ t[2]['reporte']
-    t[0] = {'ast': t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_finalunique(t):
     'finalunique : PARENIZQ listaids PARENDER'
+    visita = str(t[1]) + ' ' +str(t[2]['visita']) + ' ' +str(t[3])
     grafo.newnode('FUNIQUE')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<finalunique> ::= PARENIZQ <listaids> PARENDER"
-    t[0] = {'ast': t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_listaids_r(t):
     'listaids : listaids COMA ID'
+    visita = str(t[1]['visita']) + ' ' +str(t[2]) + ' ' +str(t[3]) 
     grafo.newnode('LISTAIDS')
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<listaids> ::= <listaids> COMA " + t[3].upper() +"\n" + t[1]['reporte']
     t[1]['ast'].append(ident.Identificador(None, t[3]))
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_listaids(t):
     'listaids : ID'
+    visita = str(t[1])
     grafo.newnode('LISTAIDS')
     grafo.newchildrenE(t[1])
     reporte = "<listaids> ::= " + t[1].upper() + "\n"
-    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_listaidcts_r(t):
     'listaidcts : listaidcts COMA ID PUNTO ID'
+    visita = str(t[1]['visita']) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])
     grafo.newnode('LISTAIDTS')
     grafo.newchildrenE(t[3])
     grafo.newchildrenE(t[5])
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     t[1]['ast'].append(ident.Identificador(t[3], t[5]))
     reporte = "<listaidcts> ::= <listaidcts> COMA " + t[3].upper() + " PUNTO " + t[5].upper() + "\n" + t[1]['reporte']
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_listaidcts_re(t):
     'listaidcts : listaidcts COMA ID'
+    visita = str(t[1]['visita']) + ' ' +str(t[2]) + ' ' +str(t[3]) 
     grafo.newnode('LISTAIDTS')
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     t[1]['ast'].append(ident.Identificador(None, t[3]))
     reporte = "<listaidcts> ::= <listaidcts> COMA " + t[3].upper() + "\n"
-    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_listaidcts(t):
     'listaidcts : ID PUNTO ID'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])
     grafo.newnode('LISTAIDTS')
     grafo.newchildrenE(t[1])
     grafo.newchildrenE(t[3])
     reporte = "<listaidcts> ::= " + t[1].upper() + " PUNTO " + t[3].upper() + "\n"
-    t[0] = {'ast': [ident.Identificador(t[1], t[3])], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': [ident.Identificador(t[1], t[3])], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_listaidctse(t):
     'listaidcts : ID'
+    visita = str(t[1]) 
     grafo.newnode('LISTAIDTS')
     grafo.newchildrenE(t[1])
     reporte = "<listaidcts> ::= "+ t[1].upper() + "\n"
-    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast': [ident.Identificador(None, t[1])], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_tipo(t):
     '''tipo : SMALLINT
