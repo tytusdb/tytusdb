@@ -1,3 +1,4 @@
+from analizer.statement.pl.execute import Execute
 from sys import path
 from os.path import dirname as dir
 import re
@@ -59,8 +60,8 @@ from analizer.statement.pl.instruccionesF1 import F1
 from analizer.statement.pl.case import Case, CaseWhen
 from analizer.statement.pl.asignacion import Asignacion
 from analizer.statement.pl.declaration import Declaration
-from analizer.statement.pl.procedure import Procedure
-from analizer.statement.pl.function import Function
+from analizer.statement.pl.procedure import Procedure, dropProc
+from analizer.statement.pl.function import Function, dropFunc
 from analizer.statement.pl.index import Index, dropIndex, alterIndex
 from analizer.statement.pl.raise_print import Raise
 import analizer.symbol.c3dSymbols as SymbolTable
@@ -170,9 +171,9 @@ def p_alter_index(t):
         | R_ALTER R_INDEX ID R_ALTER INTEGER
     """
     if len(t) == 9:
-        alterIndex(t[5],t[8])
+        alterIndex(t[5],t[8], True)
     elif len(t) == 8:
-        alterIndex(t[5],t[7])
+        alterIndex(t[5],t[7], True)
     elif len(t) == 7:
         alterIndex(t[3],t[6])
     else:
@@ -194,14 +195,16 @@ def p_fase2_stmt(t):
 # region FASE 2
 # Indices
 def p_llamadaProcedimiento_o_funcion(t):# esta aparte porque va directo al MAIN
-    '''llamadaProcedimiento_o_funcion : STRING
-                                    | ID S_PARIZQ paramsList S_PARDER '''
+    '''llamadaProcedimiento_o_funcion : R_EXECUTE ID S_PARIZQ paramsList S_PARDER
+        | R_EXECUTE ID S_PARIZQ S_PARDER
+        | R_EXECUTE ID
+        | R_EXECUTE STRING'''
     repGrammar.append(t.slice)
-    if len(t) == 2:
-        t[0] = t[1]
+    if len(t) == 6:
+        t[0] = Execute(t[2], t[4], t.slice[2].lineno, t.slice[2].lexpos)
     else:
-        t[0] = expression.FunctionCall(t[2], t[4], t.slice[1].lineno, t.slice[1].lexpos) # NO USAR EL GENERATE3D ACA porque ese se usara para manejar los excute internos en funciones y procedimientos
-        #addToMain
+        t[0] = Execute(t[2], [], t.slice[2].lineno, t.slice[2].lexpos) # NO USAR EL GENERATE3D ACA porque ese se usara para manejar los excute internos en funciones y procedimientos
+    t[0].generate3d(None, instancia_codigo3d,True)
 
 
 #_----------------------------------------------- FUNCION
@@ -212,9 +215,9 @@ def p_drop_procedure_and_functions2(t):
     '''
     repGrammar.append(t.slice)
     if len(t) == 7:
-        pass
+        dropFunc(t[5], True)
     else:
-        pass
+        dropFunc(t[3])
 
 def p_drop_procedure_and_functions(t):
     '''
@@ -223,9 +226,9 @@ def p_drop_procedure_and_functions(t):
     '''
     repGrammar.append(t.slice)
     if len(t) == 7:
-        pass
+        dropProc(t[5], True)
     else:
-        pass
+        dropProc(t[3])
 
 def p_detalle_drop(t):
     '''
@@ -237,7 +240,7 @@ def p_detalle_drop(t):
         t[1].append(t[3])
         t[0] = t[1]
     else:
-        t[0] = [[t[1]]]
+        t[0] = [t[1]]
 
 def p_drop_argumentos(t):
     '''
@@ -247,11 +250,11 @@ def p_drop_argumentos(t):
     '''
     repGrammar.append(t.slice)
     if len(t) == 5:
-        pass
+        t[0] = (t[1],t[3])
     elif len(t) == 4:
-        pass
+        t[0] = (t[1],[])
     else:
-        pass
+        t[0] = t[1]
 
 
 def p_raise_main(t):
@@ -292,7 +295,6 @@ def p_createopts_procedure(t):
     createOpts : R_PROCEDURE ID S_PARIZQ S_PARDER R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
     t[0] = Procedure(t[2],[],t[7], t.slice[2].lineno, t.slice[2].lexpos)
-    t[0].generate3d(None,instancia_codigo3d)
     t[0].execute(None)
     global count_ins # por el token S_PUNTOCOMA necesitaba agregar esto :v
     count_ins += 1
@@ -303,7 +305,6 @@ def p_createopts_procedure_params(t):
     createOpts : R_PROCEDURE ID S_PARIZQ typeParamsList S_PARDER R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
     t[0] = Procedure(t[2],t[4],t[8], t.slice[2].lineno, t.slice[2].lexpos)
-    t[0].generate3d(None,instancia_codigo3d)
     t[0].execute(None)
     global count_ins
     count_ins += 1
@@ -314,7 +315,6 @@ def p_createopts_function(t):
     createOpts : R_FUNCTION ID S_PARIZQ S_PARDER R_RETURNS types R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
     t[0] = Function(t[2],t[6],[],t[9], t.slice[2].lineno, t.slice[2].lexpos)
-    t[0].generate3d(None,instancia_codigo3d)
     t[0].execute(None)
     global count_ins
     count_ins += 1
@@ -325,7 +325,6 @@ def p_createopts_function_params(t):
     createOpts : R_FUNCTION ID S_PARIZQ typeParamsList S_PARDER R_RETURNS types R_AS S_DOBLEDOLAR codeBlock S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
     """
     t[0] = Function(t[2],t[7],t[4],t[10], t.slice[2].lineno, t.slice[2].lexpos)
-    t[0].generate3d(None,instancia_codigo3d)
     t[0].execute(None)
     global count_ins
     count_ins += 1
@@ -486,21 +485,22 @@ def p_assignment(t):
     t[0] = Asignacion(t[1],t[3], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
-def p_call_procedure(t):
-    '''call_procedure : STRING
-                    |   ID S_PARIZQ paramsList S_PARDER'''
-    if len(t) == 2:
-        t[0] = t[1]
-    else:
-        t[0] = expression.FunctionCall(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
-
     #puede subir un function call :v
     
 def p_executeStmt(t):
     """
-    executeStmt : R_EXECUTE call_procedure
+    executeStmt : R_EXECUTE ID S_PARIZQ paramsList S_PARDER
+        | R_EXECUTE ID S_PARIZQ S_PARDER
+        | R_EXECUTE ID
+        | R_EXECUTE STRING
     """
     repGrammar.append(t.slice)
+    if len(t) == 6:
+        t[0] = Execute(t[2], t[4],t.slice[2].lineno, t.slice[2].lexpos)
+    else:
+        t[0] = Execute(t[2], [],t.slice[2].lineno, t.slice[2].lexpos)
+
+    t[0].generate3d(None, instancia_codigo3d)
 
 def p_ifStmt(t):
     """
