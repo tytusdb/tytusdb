@@ -95,13 +95,14 @@ class Identifiers(Expression):
         else:
             self.temp = table + "." + name
         self.type = None
+        self.value = name
 
     def execute(self, environment):
         #sacar variable
         var_ = environment.getVar(self.name)
 
         if var_ != None:
-            return var_
+            return var_.value
 
         if not self.table:
             table = environment.ambiguityBetweenColumns(self.name)
@@ -142,6 +143,8 @@ class Identifiers(Expression):
         nod = Nodo.Nodo(self.name)
         return nod
 
+    def c3d(self, environment):
+        return self
 
 class TableAll(Expression):
     """
@@ -277,9 +280,12 @@ class BinaryArithmeticOperation(Expression):
             exp1 = self.exp1.execute(environment)
             exp2 = self.exp2.execute(environment)
             operator = self.operator
-            
+
             if operator == "+":
-                if (exp1.type != TYPE.NUMBER and exp2.type != TYPE.STRING) or (exp2.type != TYPE.NUMBER and exp2.type != TYPE.STRING):
+
+               try:
+                    value = exp1.value + exp2.value
+               except:
                     list_errors.append(
                         "Error: 42883: la operacion no existe entre: "
                         + str(exp1.type)
@@ -293,8 +299,7 @@ class BinaryArithmeticOperation(Expression):
 
                     return ErrorBinaryOperation(
                         exp1.value, exp2.value, self.row, self.column
-                    )
-                value = exp1.value + exp2.value
+                    )                
 
             elif operator == "-":
                 if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
@@ -353,8 +358,12 @@ class BinaryArithmeticOperation(Expression):
                     list_errors.append("Error: 22012: No se puede dividir  por cero")
                     value = 0
                 else:
-                    
-                    value = exp1.value / exp2.value
+                    try:
+                        list_errors.append("Error: XX00L0L: Syntax Error")
+                        value = exp1.value / exp2.value
+                    except:
+                        value = 0
+
             elif operator == "^":
                 if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
                     list_errors.append(
@@ -618,6 +627,7 @@ class BinaryRelationalOperation(Expression):
         exp1 = self.exp1.execute(environment)
         exp2 = self.exp2.execute(environment)
         operator = self.operator
+
         try:
             if operator == "<":
                 value = exp1.value < exp2.value
@@ -683,7 +693,7 @@ class BinaryRelationalOperation(Expression):
         exp2 = self.exp2.c3d(environment)
 
         if (str(self.exp1.type)=='TYPE.STRING'):
-            print('Pedro Hueco')
+            #print('Pedro Hueco')
             exp1.value='\"'+str(exp1.value)+'\"'
         if (str(self.exp2.type)=='TYPE.STRING'):
             exp2.value='\"'+str(exp2.value)+'\"' 
@@ -1790,6 +1800,13 @@ class FunctionCall(Expression):
             p.addNode(par.dot())
         return new
 
+    def c3d(self, environment):
+
+        cont = environment.conta_exec
+        environment.codigo += "".join(environment.count_tabs) + "C3D.pila = " + str(cont) + "\n"
+        environment.codigo += "".join(environment.count_tabs) + "C3D.ejecutar() #Ejecucion del procedimiento\n\n"
+        #environment.conta_exec += 1
+
 
 # TODO: Agregar a la gramatica DATE, TIME y Columnas (datatype)
 class ExtractDate(Expression):
@@ -2285,7 +2302,7 @@ class AggregateFunction(Expression):
         new.addNode(f)
         new.addNode(p)
 
-        p.addNode(self.colData.dot())
+        #p.addNode(self.colData.dot()) #ERROR
         return new
 
 
