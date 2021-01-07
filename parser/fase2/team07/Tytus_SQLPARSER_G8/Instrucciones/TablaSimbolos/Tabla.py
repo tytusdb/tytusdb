@@ -52,6 +52,21 @@ class Tabla():
         print("se agrego el indice")
         self.indices.append(indice)
         return None
+    
+    def removeIndice(self, indice):
+        tabla = self
+        toDelete = None
+        for i in tabla.indices:
+            if i.nombre == indice.nombre:
+                print("El indice " + i.nombre + " fue encontrado")
+                toDelete = i
+                break
+        if toDelete != None:
+            tabla.indices.remove(toDelete)
+            print("El indice fue eliminado")
+        else:
+            print("El indice no fue encontrado")
+        return None
 '''
 from Simbolo import Simbolo
 

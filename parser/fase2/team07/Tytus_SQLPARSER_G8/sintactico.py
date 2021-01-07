@@ -18,7 +18,7 @@ from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, Alt
 from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set, CreateIndex
 from Instrucciones.Sql_declare import Declare
 from Instrucciones.Sql_delete import DeleteTable
-from Instrucciones.Sql_drop import DropDatabase, DropTable
+from Instrucciones.Sql_drop import DropDatabase, DropTable, DropIndex
 from Instrucciones.Sql_insert import insertTable
 from Instrucciones.Sql_Joins import Join, JoinFull, JoinInner, JoinLeft, JoinRight
 from Instrucciones.Sql_select import GroupBy, Having, Limit, OrderBy, Select, Where, SelectLista
@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case, Procedimiento, DeclaracionRetorno, AsignacionVariable
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -2074,7 +2074,7 @@ def p_procedimiento(t):
     '''
     instruccion     :   CREATE PROCEDURE ID PARIZQ parametros_funcion PARDER LANGUAGE PLPGSQL AS DOLLAR DOLLAR declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR
     '''
-
+    t[0] = Procedimiento.Procedimiento(t[3], t[5], t[12], t[14], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 
 #DECLARACION DE UNA FUNCION
@@ -2277,8 +2277,28 @@ def p_cont_funcion(t):
     '''
     cont_funcion    :   sentencia_if
                     |   instruccion
+                    |   sentencia_retorno
+                    |   asignacion_var
     '''
     t[0] = t[1]
+
+def p_sentencia_retorno(t):
+    '''
+    sentencia_retorno   :  RETURN PUNTO_COMA
+                        | RETURN expre PUNTO_COMA
+    '''
+    if len(t) == 3:
+        t[0] = DeclaracionRetorno.DeclaracionRetorno(None, "", t.lexer.lineno, t.lexer.lexpos, "")
+    else:
+        t[0] = DeclaracionRetorno.DeclaracionRetorno(t[2], "", t.lexer.lineno, t.lexer.lexpos, "")
+
+def p_asignacion_var(t):
+    '''
+    asignacion_var  :   ID IGUAL expre PUNTO_COMA
+                    |   ID DOSP_IGUAL expre PUNTO_COMA
+    '''
+    t[0] = AsignacionVariable.AsignacionVariable(t[1], t[3], "", t.lexer.lineno, t.lexer.lexpos, "")
+
 
 def p_sentencia_if(t):    
     '''
@@ -2328,8 +2348,6 @@ def p_instruccion_if(t):
     '''
     instruccion_if : cont_funcion
                    | expre PUNTO_COMA
-                   | RETURN PUNTO_COMA
-                   | RETURN expre PUNTO_COMA
                    | RAISE NOTICE CADENA PUNTO_COMA
                    | RAISE NOTICE CADENA COMA ID PUNTO_COMA
                    | RAISE NOTICE CARACTER PUNTO_COMA
@@ -2422,6 +2440,25 @@ def p_instruccion_index(t):
     strTipo = t[2] + " INDEX " + t[7]
     strSent = "CREATE " + t[2] + " INDEX " + t[4] + " ON " + t[6] + " " + t[7] + " (" + strId +") " + t[11] + ";"
     t[0] = CreateIndex.CreateIndex(t[4], strTipo, t[6], strId, "", t.lexer.lineno, t.lexer.lexpos, strSent)
+
+def p_instruccion_del_index(t):
+    '''
+    instruccion : DROP INDEX if_op ID PUNTO_COMA
+    '''
+    strSent = "DROP " + "INDEX " + t[3] + t[4] + ";"
+    t[0] = DropIndex.DropIndex(t[4],None, "", t.lexer.lineno, t.lexer.lexpos, strSent)
+
+def p_index_if_exists(t):
+    '''
+    if_op : IF EXISTS
+    '''
+    t[0] = "IF EXISTS "
+
+def p_index_if_e(t):
+    '''
+    if_op : 
+    '''
+    t[0] = ""
 
 def p_index_nombre(t):
     '''

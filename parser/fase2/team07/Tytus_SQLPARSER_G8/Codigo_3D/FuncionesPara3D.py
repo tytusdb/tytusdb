@@ -72,7 +72,7 @@ class FuncionesPara3D():
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
         # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
         mensaje = ''
-        for m in arbol.consola:
-            mensaje += m + '\n'
+        
+        mensaje += arbol.consola[-1] + '\n'
         print(mensaje)
         return mensaje
