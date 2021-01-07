@@ -449,8 +449,8 @@ def Optimizacion():
     texto += "</table> </div> </body> </html>"
 
     try:
-        with open('ErroresLexicos.html', 'w') as lexicos:
-            lexicos.write(texto)
+        with open('ReporteOptimizacion.html', 'w') as optimizacion:
+            optimizacion.write(texto)
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
