@@ -399,6 +399,32 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
         return result
     except:
         return 1
+    
+# elimina el vinculo de una FK entre las tablas
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database]:
+            result = 3
+        else:
+            if 'FK' in databasesinfo[1][database][table]:
+                if indexName in databasesinfo[1][database][table]['FK']:
+                    res = dropTable(database, table+'FK')
+                    if res == 0:
+                        del databasesinfo[1][database][table]['FK'][indexName]
+                        commit(databasesinfo,'databasesinfo')
+                        result = 0
+                    else:
+                        result = 1
+                else:
+                    result = 4
+            else:
+                result = 1
+        return result
+    except:
+        return 1
 
 # cambia el nombre de una tabla      
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
