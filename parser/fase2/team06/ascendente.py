@@ -78,6 +78,7 @@ def procesar_showdb(query,ts):
     showbd = verificacion
     if showbd == []:
         h.textosalida+="TYTUS>> " + " No hay BD que mostrar "+"\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No hay BD que mostrar</td></tr>\n"
 
         return h.textosalida
     else:
@@ -109,9 +110,11 @@ def procesar_createindex(query,ts):
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
         else:
             h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
         h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 
@@ -139,9 +142,11 @@ def procesar_createindexlow(query,ts):
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
         else:
             h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
         h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 def procesar_createindexParams(query,ts):
@@ -172,9 +177,11 @@ def procesar_createindexParams(query,ts):
                 h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
         else:
             h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
         h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 
@@ -205,9 +212,11 @@ def procesar_createindexWhere(query,ts):
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
         else:
             h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
         h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 
@@ -242,9 +251,11 @@ def procesar_createindexParamsWhere(query,ts):
                 h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
         else:
             h.textosalida+="TYTUS>> La tabla o la columna no existe"+ "\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
         h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 def procesar_alterindex(query,ts):
@@ -263,26 +274,39 @@ def procesar_alterindex(query,ts):
             h.textosalida+="TYTUS>> " + "La BD "+str(old)+" ya existe en memoria dinamica, elija otro nombre por favor" + "\n"
     elif verificacion==0:
         h.textosalida+="TYTUS>> " +str(old) + " No se encontro ningun index con ese nombre" + "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontro ningun index con ese nombre</td></tr>\n"
+
         return "No se encontro ninguna base de datos con ese nombre"
 
 
 def procesar_altercolumnindex(query,ts):
     index = query.id1
     print("INDEX: ",index)
-    column = query.id2
-    print("COLUMN: ",column)
-    if isinstance(column,ExpresionNumero):        
-        verificacion_Tabla = ts.verificacionAlterColumnIndex(index,h.bd_enuso,column.id)
-        verificacion = ts.obtenerTablasIndex(verificacion_Tabla,h.bd_enuso,column.id)
-    elif isinstance(column,ExpresionIdentificador):
-        verificacion_Tabla = ts.verificacionAlterStringColumIndex(index,h.bd_enuso,column.id)
-        verificacion = ts.obtenerTablasStringIndex(verificacion_Tabla,h.bd_enuso,column.id)
-    if verificacion!=0:        
-        ts.actualizarAlterColumnIndex(index,verificacion,h.bd_enuso)
-        h.textosalida+="TYTUS>> "+"se actualizo la bd: "+str(index) + " por " +str(verificacion) + "\n"
-        return "se actualizo la bd: "+str(index) + "por" +str(verificacion)
+    old_column = query.id2
+    print("OLD COLUMN: ",old_column)
+    new_column = query.id3
+    print("NEW COLUMN: ",new_column)
+    if isinstance(new_column,ExpresionNumero):        
+        verificacion_Tabla = ts.verificacionAlterColumnIndex(index,h.bd_enuso,new_column.id)
+        verificacion = ts.obtenerTablasIndex(verificacion_Tabla,h.bd_enuso,new_column.id)
+        #verificacion_Columna = ts.verificacionColumnaIndex(index,h.bd_enuso,verificacion_Tabla,old_column,verificacion)
+    elif isinstance(new_column,ExpresionIdentificador):
+        print("ENTRO A STRING")
+        verificacion_Tabla = ts.verificacionAlterStringColumIndex(index,h.bd_enuso,old_column)
+        verificacion = ts.obtenerTablasStringIndex(verificacion_Tabla,h.bd_enuso,old_column)        
+    if verificacion!=0:               
+        verificacion_Columna = ts.verificacionColumnaIndex(index,h.bd_enuso,verificacion_Tabla,old_column,verificacion)
+        if verificacion_Columna == 1:
+            h.textosalida+="TYTUS>> "+"Una de las columnas no existe" + "\n"
+            return "Una de las columnas no existe"
+        else:
+            h.textosalida+="TYTUS>> "+"se actualizo la bd: "+str(index) + " por " +str(verificacion) + "\n"
+            return "se actualizo la bd: "+str(index) + "por" +str(verificacion)
+
     elif verificacion==0:
         h.textosalida+="TYTUS>> " +str(index) + " No se encontro ningun index con ese nombre" + "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontro ningun index con ese nombre</td></tr>\n"
+
         return "No se encontro ninguna base de datos con ese nombre"
 
 
@@ -297,6 +321,8 @@ def procesar_dropindex(query,ts):
         return "se elimino el index: "+str(index)
     elif verificacion==0:
         h.textosalida+="TYTUS>> " +str(index) + " No se encontro ningun index con ese nombre" + "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontro ningun index con ese nombre</td></tr>\n"
+
         return "No se encontro ninguna base de datos con ese nombre"
 
 def procesar_execFunction(query,ts):
@@ -314,6 +340,8 @@ def procesar_useBD(query,ts):
         return "se usa la bd: "+str(h.bd_enuso)
     elif verificacion==0:
         h.textosalida+="TYTUS>> " + "BD "+ str(query.bd_id) + " no existente, no se puede usar "+"\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontro ninguna BD con ese nombre</td></tr>\n"
+
         return "Esta BD no existe "+str(query.bd_id)+"\n"
         
 # ---------------------------------------------------------------------------------------------------------------- 
@@ -1081,6 +1109,7 @@ def procesar_createdb(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
@@ -1092,6 +1121,7 @@ def procesar_createdb(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
@@ -1108,6 +1138,7 @@ def procesar_create_if_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
@@ -1119,6 +1150,7 @@ def procesar_create_if_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n" 
@@ -1136,6 +1168,7 @@ def procesar_create_replace_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
@@ -1147,6 +1180,7 @@ def procesar_create_replace_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
@@ -1163,6 +1197,7 @@ def procesar_create_replace_if_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
@@ -1174,6 +1209,7 @@ def procesar_create_replace_if_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
@@ -1201,6 +1237,7 @@ def procesar_createwithparametersdb(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
@@ -1212,6 +1249,7 @@ def procesar_createwithparametersdb(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
@@ -1240,6 +1278,7 @@ def procesar_createwithparameters_if_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
@@ -1251,6 +1290,7 @@ def procesar_createwithparameters_if_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
@@ -1279,6 +1319,7 @@ def procesar_createwithparameters_replace_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
@@ -1290,6 +1331,7 @@ def procesar_createwithparameters_replace_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
@@ -1318,6 +1360,7 @@ def procesar_createwithparameters_replace_if_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         return "se creo una nueva bd: "+str(query.variable)
@@ -1329,6 +1372,8 @@ def procesar_createwithparameters_replace_if_db(query,ts):
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.variable) + " ya existe en memoria estatica"+"\n"
         elif store.createDatabase(query.variable) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
+
         else:
             print("ERROR\n")
         return str(query.variable)+ "es el nombre de una BD puede ser que quiera crear una tabla o columna"+"\n"
@@ -1344,18 +1389,23 @@ def procesar_alterdb(query,ts):
                 h.textosalida+="TYTUS>> "+"se actualizo la bd: "+str(query.id_original) + " por " +str(query.id_alter) + "en memoria estatica"+"\n"
             elif store.alterDatabase(query.id_original,query.id_alter) == 3:
                 h.textosalida+="TYTUS>> "+"La BD "+ str(query.id_alter) + " ya existe en memoria estatica, elija otro nombre para reemplazar "+ str(query.id_original) +"\n"
+                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El nombre de BD no se puede usar</td></tr>\n"
             elif store.alterDatabase(query.id_original,query.id_alter) == 2:
                 h.textosalida+="TYTUS>> "+"La BD "+ str(query.id_original) + " no existe en memoria estatica"+"\n"
             elif store.alterDatabase(query.id_original,query.id_alter) == 1:
                 h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
             else:
                 print("ERROR\n")
             h.textosalida+="TYTUS>> "+"se actualizo la bd: "+str(query.id_original) + " por " +str(query.id_alter) + "\n"
             return "se actualizo la bd: "+str(query.id_original) + "por" +str(query.id_alter)
         elif verificacion2 == 1:
             h.textosalida+="TYTUS>> " + "La BD "+str(query.id_alter)+" ya existe en memoria dinamica, elija otro nombre por favor" + "\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Nombre de BD no valido</td></tr>\n"
+
     elif verificacion==0:
         h.textosalida+="TYTUS>> " +str(query.id_original) + " No se encontro ninguna base de datos con ese nombre" + "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontro ninguna base de datos con ese nombre</td></tr>\n"
         return "No se encontro ninguna base de datos con ese nombre"
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_alterwithparametersdb(query,ts):
@@ -1369,14 +1419,17 @@ def procesar_dropdb(query,ts):
             h.textosalida+="TYTUS>> "+"Se elimino la BD " +str(query.id) +" en memoria estatica"+"\n"
         elif store.dropDatabase(query.id) == 2:
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.id) + " no existe"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La BD no existe</td></tr>\n"
         elif store.dropDatabase(query.id) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         else:
             print("ERROR\n")
         h.textosalida+="TYTUS>> "+ "ELIMINADA BD:"+str(query.id) + "\n"
         return "ELIMINADA BD:"+str(query.id)
     elif ts.destruirBD(query.id)==0:
         h.textosalida+="TYTUS>> "+str(query.id)+" No se encontro ninguna base de datos con ese nombre"+"\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontro ninguna base de datos con ese nombre</td></tr>\n"
         return "No se encontro ninguna base de datos con ese nombre"
 
 def procesar_dropifdb(query,ts):
@@ -1385,14 +1438,18 @@ def procesar_dropifdb(query,ts):
             h.textosalida+="TYTUS>> "+"Se elimino la BD " +str(query.id) +" en memoria estatica"+"\n"
         elif store.dropDatabase(query.id) == 2:
             h.textosalida+="TYTUS>> "+"La BD "+ str(query.id) + " no existe"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La BD no existe</td></tr>\n"
         elif store.dropDatabase(query.id) == 1:
             h.textosalida+="TYTUS>> "+"Error 22000 data_exception"+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
+
         else:
             print("ERROR\n")
         h.textosalida+="TYTUS>> "+ "ELIMINADA BD:"+str(query.id) + "\n"
         return "ELIMINADA BD:"+str(query.id)
     elif ts.destruirBD(query.id)==0:
         h.textosalida+="TYTUS>> "+str(query.id)+" No se encontro ninguna base de datos con ese nombre"+"\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontro ninguna base de datos con ese nombre</td></tr>\n"
         return "No se encontro ninguna base de datos con ese nombre"
 # ---------------------------------------------------------------------------------------------------------------- 
 #                                             QUERIES

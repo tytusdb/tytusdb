@@ -1234,7 +1234,7 @@ def p_alterIndex_1(t):
     t[0] = nodeFather
 # ------------------------------------------------------ALTER INDEX COLUMN ----------------------------------------------------
 def p_alterIndex_2(t):
-    'alterIndex    : ALTER INDEX ID ALTER final PUNTOYCOMA'
+    'alterIndex    : ALTER INDEX ID ALTER ID final PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'ALTER_INDEX'
 
@@ -1258,13 +1258,18 @@ def p_alterIndex_2(t):
     nodeSon4.lexeme = t[4]
     nodeFather.son.append(nodeSon4)
 
-    nodeSon5 = t[5]
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'ID'
+    nodeSon5.lexeme = t[5]
     nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = t[6]
+    nodeFather.son.append(nodeSon6)
 
     t[0] = nodeFather
 
 def p_alterIndex_3(t):
-    'alterIndex    : ALTER INDEX ID ALTER COLUMN final PUNTOYCOMA'
+    'alterIndex    : ALTER INDEX ID ALTER COLUMN ID final PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'ALTER_INDEX'
 
@@ -1293,13 +1298,18 @@ def p_alterIndex_3(t):
     nodeSon5.lexeme = t[5]
     nodeFather.son.append(nodeSon5)
 
-    nodeSon6 = t[6]
+    nodeSon6 = nodeAst()
+    nodeSon6.token = 'ID'
+    nodeSon6.lexeme = t[6]
     nodeFather.son.append(nodeSon6)
+
+    nodeSon7 = t[7]
+    nodeFather.son.append(nodeSon7)
 
     t[0] = nodeFather
 
 def p_alterIndex_4(t):
-    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER final PUNTOYCOMA'
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER ID final PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'ALTER_INDEX'
 
@@ -1333,13 +1343,18 @@ def p_alterIndex_4(t):
     nodeSon6.lexeme = t[6]
     nodeFather.son.append(nodeSon6)
 
-    nodeSon7 = t[7]
+    nodeSon7 = nodeAst()
+    nodeSon7.token = 'ID'
+    nodeSon7.lexeme = t[7]
     nodeFather.son.append(nodeSon7)
+
+    nodeSon8 = t[8]
+    nodeFather.son.append(nodeSon8)
 
     t[0] = nodeFather
 
 def p_alterIndex_5(t):
-    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER COLUMN final PUNTOYCOMA'
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER COLUMN ID final PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'ALTER_INDEX'
 
@@ -1378,8 +1393,14 @@ def p_alterIndex_5(t):
     nodeSon7.lexeme = t[7]
     nodeFather.son.append(nodeSon7)
 
-    nodeSon8 = t[8]
+    nodeSon8 = nodeAst()
+    nodeSon8.token = 'ID'
+    nodeSon8.lexeme = t[8]
     nodeFather.son.append(nodeSon8)
+
+
+    nodeSon9 = t[9]
+    nodeFather.son.append(nodeSon9)
 
     t[0] = nodeFather
 # --------------------------------------------------------------------------------------------------------------------------------
