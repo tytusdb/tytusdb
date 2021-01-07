@@ -25,10 +25,7 @@ def executeSentence2(self, sentence):
     elif isinstance(sentence, Insert):
         h=0
     elif isinstance(sentence, Delete):
-        archivo = open("C3D.py", 'a')
-        archivo.write("\n")
-        archivo.write("ICreateDatabase("+sentence.name+","+sentence.ifNotExistsFlag+","+sentence.OrReplace+","+sentence.OwnerMode+")") 
-        archivo.close()
+        h=0
     elif isinstance(sentence,Select):
         print(sentence.columns)
         #print(sentence.columns[0].function)
