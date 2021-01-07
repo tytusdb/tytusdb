@@ -50,7 +50,6 @@ class plCall(Instruccion):
     top_stack = top_stack + 1
     %s = "%s"
     stack[top_stack] = %s
-    funcion_intermedia()
 
     ''' % (etiqueta, instruccion_quemada, etiqueta)
 
