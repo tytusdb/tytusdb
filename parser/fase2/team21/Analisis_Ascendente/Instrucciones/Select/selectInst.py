@@ -24,9 +24,9 @@ class Select_inst(Instruccion):
         #x = PrettyTable()
 
         ejemplo = opcion(Select,ts,consola,exceptions)
-        #print('Antes del final')
-        #print(ejemplo)
-        #print('LLEGUE AL FINAL ')
+        print('Antes del final')
+        print(ejemplo)
+        print('LLEGUE AL FINAL ')
         return ejemplo
 
 

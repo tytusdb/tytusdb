@@ -13,14 +13,6 @@ Nodo8[label="1"]
 Nodo4 -> Nodo8;
 Nodo16[label="Create Table and Insert"]
 Nodo4 -> Nodo16;
-Nodo32[label="Instruccion: LLAMADA A FUNCION"]
+Nodo32[label="1"]
 Nodo4 -> Nodo32;
-Nodo64[label="ValidaRegistros"]
-Nodo32 -> Nodo64;
-Nodo128[label="PARAMETROS"]
-Nodo32 -> Nodo128;
-Nodo256[label="tbProducto"]
-Nodo128 -> Nodo256;
-Nodo512[label="8"]
-Nodo128 -> Nodo512;
 }

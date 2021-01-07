@@ -4,5 +4,29 @@ stack [label =  <<TABLE><TR>
 <TD>REGLA</TD>
 <TD align="left" balign="left">SIN OPTIMIZAR</TD>
 <TD align="left" balign="left">OPTIMIZADO</TD>
+</TR><TR>
+<TD>3</TD>
+<TD align="left" balign="left">if t75:<br/> &nbsp; goto .L12<br/>else:<br/> &nbsp; goto .L13<br/>label .L12<br/>#instrucciones<br/>label .L13</TD>
+<TD align="left" balign="left">if not t75:<br/> &nbsp; goto .L12<br/>#instrucciones<br/>label .L12</TD>
+</TR><TR>
+<TD>3</TD>
+<TD align="left" balign="left">if t72:<br/> &nbsp; goto .L10<br/>else:<br/> &nbsp; goto .L11<br/>label .L10<br/>#instrucciones<br/>label .L11</TD>
+<TD align="left" balign="left">if not t72:<br/> &nbsp; goto .L10<br/>#instrucciones<br/>label .L10</TD>
+</TR><TR>
+<TD>3</TD>
+<TD align="left" balign="left">if t71:<br/> &nbsp; goto .L7<br/>else:<br/> &nbsp; goto .L8<br/>label .L7<br/>#instrucciones<br/>label .L8</TD>
+<TD align="left" balign="left">if not t71:<br/> &nbsp; goto .L7<br/>#instrucciones<br/>label .L7</TD>
+</TR><TR>
+<TD>3</TD>
+<TD align="left" balign="left">if t68:<br/> &nbsp; goto .L5<br/>else:<br/> &nbsp; goto .L6<br/>label .L5<br/>#instrucciones<br/>label .L6</TD>
+<TD align="left" balign="left">if not t68:<br/> &nbsp; goto .L5<br/>#instrucciones<br/>label .L5</TD>
+</TR><TR>
+<TD>3</TD>
+<TD align="left" balign="left">if t67:<br/> &nbsp; goto .L2<br/>else:<br/> &nbsp; goto .L3<br/>label .L2<br/>#instrucciones<br/>label .L3</TD>
+<TD align="left" balign="left">if not t67:<br/> &nbsp; goto .L2<br/>#instrucciones<br/>label .L2</TD>
+</TR><TR>
+<TD>3</TD>
+<TD align="left" balign="left">if t64:<br/> &nbsp; goto .L0<br/>else:<br/> &nbsp; goto .L1<br/>label .L0<br/>#instrucciones<br/>label .L1</TD>
+<TD align="left" balign="left">if not t64:<br/> &nbsp; goto .L0<br/>#instrucciones<br/>label .L0</TD>
 </TR></TABLE>>, ];
 }

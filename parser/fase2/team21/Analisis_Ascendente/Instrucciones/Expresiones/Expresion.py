@@ -387,12 +387,16 @@ class Expresion(Exp):
                 print("-------------------------------------------------------")
                 print("\n")
 
+
                 print("valor", a)
 
                 print("----------------------------------------------------------")
                 for val in a:
-                    print('valor' + str(val[0]))
-                    return str(val[0])
+                    try:
+                        print('valor' + str(val[0]))
+                        return str(val[0])
+                    except:
+                        return 0
 
             elif (expre.caso == 4):
                 a = Selectp3.Selectp3.ejecutar(expre, ts, consola, exception, False)

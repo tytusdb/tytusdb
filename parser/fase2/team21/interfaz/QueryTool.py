@@ -610,7 +610,7 @@ class Application(ttk.Frame):
 
        concatena = ""
        self.T.delete(1.0,tk.END)
-       encabezado = "# -*- coding: latin1 -*-\nimport  math\nimport random\nimport hashlib\nimport base64\nimport time\nfrom goto import with_goto\nfrom  tytus.parser.fase2.team21.Analisis_Ascendente.ascendente import T,T3,procesar_instrucciones\nstack =[]\n@with_goto  # Decorador necesario.\ndef main():\n"
+       encabezado = "# -*- coding: latin1 -*-\nimport  math\nimport random\nimport hashlib\nimport base64\nimport time\nfrom goto import with_goto\nfrom  tytus.parser.fase2.team21.Analisis_Ascendente.ascendente import T,T3,procesar_instrucciones\nfrom tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *\nstack =[]\n@with_goto  # Decorador necesario.\ndef main():\n\tdropAll()\n"
        #self.T.insert(tk.END, encabezado)
        concatena += encabezado
        salida = parser.ejecutarTraduccion(texto)
@@ -625,7 +625,7 @@ class Application(ttk.Frame):
 
        print("salidad codigo tres direcciones ejecutado con exito")
 
-       concatena += f"\n\tT1 = T3(stack)\n\tintermedio(T1)"
+       concatena += f"\n\tintermedio(T1[0])"
 
 
 
