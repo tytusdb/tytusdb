@@ -67,7 +67,7 @@ def traducir(input):
             print('')
         else:
             results.append(res)
-
+    return results
 root = Tk()
 cont = 1
 
@@ -135,20 +135,21 @@ def Analizar():
         consola.insert(str(float(cont)), '\n')
 
 def Analizar2(texto: str):
-    results = analiz(texto)
+    results = traducir(texto)
     global cont
     for res in results:
         #consola.insert(str(float(cont)), res)
-        print(str(float(cont)), res)
+        #print(str(float(cont)), res)
         if isinstance(res,pt.PrettyTable):
             cont += (res.get_string().count('\n')+2)
         else:
             cont += (res.count('\n')+2)
         #consola.insert(str(float(cont)), '\n')
+        consola.insert(str(float(cont)), res)
         print(str(float(cont)), res)
 
 def Traducir():
-    traducir(texto.get("1.0", "end-1c"))
+    Analizar2(texto.get("1.0", "end-1c"))
 def AbrirAST():
     wb.open_new(r'tree.gv.pdf')
 def AbrirBNF():
