@@ -541,6 +541,73 @@ def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
     except:
         return 1
     
+# vincula un indice entre tablas
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database]:
+            result = 3
+        else:
+            if len(columns) >= 1:
+                tableColumns = databasesinfo[1][database][table]['numberColumns']
+                col1 = True
+                for values in columns:
+                    if values >= tableColumns:
+                        col1 = False
+                        break
+                if col1:
+                    print(databasesinfo)
+                    res = createTable(database, table + 'Index', 2)
+                    if res == 0:
+                        res1 = insert(database, table + 'Index', [indexName, columns])
+                        if res1 == 0:
+                            dictI = {indexName: {'columns': columns}}
+                            Index = {'Index': dictI}
+                            databasesinfo[1][database][table].update(Index)
+                            print(databasesinfo)
+                            commit(databasesinfo, 'databasesInfo')
+                        else:
+                            result = 1
+                    else:
+                        result = 1
+                else:
+                    result = 1
+            else:
+                result = 1
+        return result
+    except:
+        return 1
+
+# elimina el indice en la tabla
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database]:
+            result = 3
+        else:
+            print(databasesinfo)
+            if 'Index' in databasesinfo[1][database][table]:
+                if indexName in databasesinfo[1][database][table]['Index']:
+                    res = dropTable(database, table + 'Index')
+                    if res == 0:
+                        del databasesinfo[1][database][table]['Index'][indexName]
+                        print(databasesinfo)
+                        commit(databasesinfo, 'databasesinfo')
+                        result = 0
+                    else:
+                        result = 1
+                else:
+                    result = 4
+            else:
+                result = 1
+        return result
+    except:
+        return 1
+    
 # cambia el nombre de una tabla      
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
     try:
