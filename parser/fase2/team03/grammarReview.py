@@ -1061,21 +1061,39 @@ def p_stm_get(t):
 
 
 def p_stm_case(t):
-    '''stm_case   : CASE id_case    when_inst  case_else   END CASE  '''
-    
+    '''stm_case   : CASE id_case   WHEN condition THEN case_inst   when_inst    case_else   END CASE  '''
     token = t.slice[1]
-    if len(t) == 7:
-        childsProduction  = addNotNoneChild(t,[3,4])
+    if len(t) == 10:
+        childsProduction  = addNotNoneChild(t,[4,7,8])
         lista = None
         if t[2] != None:
             lista = t[2][0]
-            childsProduction.append(lista.graph_ref)
-
-        graph_ref = graph_node(str("stm_case"), [t[1], lista,t[3],t[4],t[5],t[6]],childsProduction )
+            childsProduction.append(lista.graph_ref)  
+        lista2 = None
+        if t[6] != None:
+            lista2 = t[6][0]
+            childsProduction.append(lista2.graph_ref)  
+        graph_ref = graph_node(str("stm_case"), [t[1], lista,t[3],t[4],t[5],lista2,t[7],t[8],t[9],t[10]],childsProduction )
         addCad("**\<STM_CASE>** ::=   tCase  tIdentifier     [\<WHEN_INST>]   [\<CASE_ELSE>]   tEnd  tCase      ")
-        #t[0] = IfNode(None, None, t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
-        #t[3].else_block = t[4]
-        t[0] = t[3]
+        t[0] = IfNode(t[4], t[6], t[7], t[8], t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
+
+
+#    token = t.slice[1]
+#    if len(t) == 7:
+#        childsProduction  = addNotNoneChild(t,[3,4])
+#        lista = None
+#        if t[2] != None:
+#            lista = t[2][0]
+#            childsProduction.append(lista.graph_ref)
+
+
+
+#        graph_ref = graph_node(str("stm_case"), [t[1], lista,t[3],t[4],t[5],t[6]],childsProduction )
+#        addCad("**\<STM_CASE>** ::=   tCase  tIdentifier     [\<WHEN_INST>]   [\<CASE_ELSE>]   tEnd  tCase      ")
+#        t[0] = IfNode(None, None, t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos,graph_ref)
+#        t[3].else_block = t[4]
+#        t[3].graph_ref = graph_ref
+#        t[0] = t[3]
         #t[0]= upNodo("token", 0, 0, graph_ref)
 
 def p_id_case(t):
@@ -1106,7 +1124,7 @@ def p_when_inst(t):
         addCad("**\<WHEN_INST>** ::=  \<WHEN_INST >         tWhen  \<CONDITION> tThen   \<CASE_INST>   ")
         t[0] = IfNode(t[3], t[5], None, None, t.slice[2].lineno, t.slice[2].lexpos,graph_ref)
         #t[0]= [upNodo("token", 0, 0, graph_ref)]
-    else:        
+    if len(t) == 5:     
         childsProduction  = addNotNoneChild(t,[2])
        
         lista = None
@@ -1122,7 +1140,7 @@ def p_when_inst(t):
 
 def p_case_else(t):
     '''case_else   : ELSE case_inst
-                   | empty   '''
+                  '''
     
     token = t.slice[1]
     if len(t) == 3:
@@ -1135,9 +1153,7 @@ def p_case_else(t):
         addCad("**\<CASE_ELSE>** ::= tElse    \<CASE_INST>   ")
         t[0] = ElseNode(t[2], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         #print(t)
-    elif len(t) == 2:
-        t[0] = None
-        #print(t)
+
 
 def p_case_inst(t):
     '''case_inst   : case_inst  statements_sql PUNTOCOMA
