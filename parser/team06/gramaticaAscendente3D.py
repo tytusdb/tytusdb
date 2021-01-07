@@ -2171,12 +2171,12 @@ def p_final_cadena(t):
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
     'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
-    parametro = ""
-    for param in t[6]:
-        parametro+=param+","
-    param = parametro[:-1]
+    #parametro = ""
+    #for param in t[6]:
+    #    parametro+=param+","
+    #param = parametro[:-1]
     
-    a="t"+str(h.conteoTemporales)+"= \"INSERT INTO "+str(t[3])+" VALUES ( "+str(param)+" );\"\n"
+    a="t"+str(h.conteoTemporales)+"= \"INSERT INTO "+str(t[3])+" VALUES ( "+str(t[6])+" );\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
@@ -2192,13 +2192,13 @@ def p_insertBD_2(t):
 def p_listaParam(t):
     '''listaParam         : listaParam COMA listaP
     '''
-    t[1].append(t[3])
-    t[0] = t[1]
+    #t[1].append(t[3])
+    t[0] = t[1] + ", " + t[3]
 
 def p_listaParam_2(t):
     '''listaParam           : listaP
     '''
-    t[0] = [t[1]]
+    t[0] = t[1]
 
 def p_listaP_1(t):
     'listaP                 : operacion'
@@ -2207,7 +2207,31 @@ def p_listaP_1(t):
 
 def p_listaP_2(t):
     'listaP             : ID operacion'
-    t[0] = t[1] +" "+ t[2]
+    remp1 = t[2].replace('(','')
+    remp2 = remp1.replace(')','')
+    remp3 = remp2.replace('[','')
+    remp4 = remp3.replace(']','')
+    remp5 = remp4.split(',')
+    conttt = 0
+    a = ''
+    for oper in remp5:
+        print(oper)
+        conttt+=1
+        if '\"' in oper:
+            remp6 = oper.replace('\"','')
+            remp7 = remp6.replace('\\','')
+            remp8 = remp7.replace('\'','')
+            remp9 = remp8.replace(' ','')
+            remp10 = "\\'"+remp9+"\\'"
+            a+=remp10
+        else:
+            remp6 = oper.replace('\\','')
+            remp7 = remp6.replace('\'','')
+            remp8 = remp7.replace(' ','')
+            a +=remp7
+        if conttt < len(remp5):
+            a+=', '
+    t[0] = t[1] +"("+a+")"
     print(t[0])
 
 def p_listaP_3(t):
@@ -2816,7 +2840,7 @@ def p_otroTipoJoin(t):
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                                     LABEL
 def p_Function_1(t):
-    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR'
     a = 'salida=analizador.agregarFuncionaTS("'+t[3]+'",h.bd_enuso)\n'
     a+= 'salida=analizador.agregarVariableaTS("'+t[7]+'",None,h.bd_enuso,"'+t[3]+'")\n'
 
@@ -2826,7 +2850,7 @@ def p_Function_1(t):
     t[0] = a
 
 def p_Function_2(t):
-    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR'
     a = 'salida=analizador.agregarFuncionaTS("'+t[3]+'",h.bd_enuso)\n'
 
     vartip = t[5].split(',')
@@ -2858,7 +2882,7 @@ def p_Function_2(t):
 
 
 def p_Function_3(t):
-    'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR'
     a = 'salida=analizador.agregarFuncionaTS("'+t[5]+'",h.bd_enuso)\n'
     a+= 'salida=analizador.agregarVariableaTS("'+t[9]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
 
@@ -2868,7 +2892,7 @@ def p_Function_3(t):
 
 
 def p_Function_4(t):
-    'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR'
     vartip = t[7].split(',')
     
     a = 'salida=analizador.agregarFuncionaTS("'+t[5]+'",h.bd_enuso)\n'

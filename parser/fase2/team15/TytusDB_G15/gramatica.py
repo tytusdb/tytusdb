@@ -587,63 +587,12 @@ def p_instruccion_f_select_union(t):
 def p_delete_insrt_delete(t):
     ' delete_insrt : DELETE FROM ID PTCOMA'
     reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID PTCOMA")
-    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_NORMAL, None, None, None)
-def p_delete_insrt(t):
-    ' delete_insrt : DELETE FROM ONLY ID PTCOMA'
-    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ONLY ID PTCOMA")
-    t[0] = Definicion_delete(t[4], TIPO_DELETE.DELETE_NORMAL, None, None, None)
-def p_delete_insert2(t):
-    ' delete_insrt : DELETE FROM ONLY ID RETURNING returning_exp PTCOMA'
-    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ONLY ID RETURNING <returning_exp> PTCOMA")
-    t[0] = Definicion_delete(t[4], TIPO_DELETE.DELETE_RETURNING , None, None,t[6])
-def p_delete_insrt3(t):
-    ' delete_insrt : DELETE FROM ID WHERE EXISTS expresion_logica PTCOMA '
-    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID WHERE EXISTS <expresion_logica> PTCOMA")
-    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_EXIST ,t[6],None,None)
-def p_delete_insrt4(t):
-    ' delete_insrt : DELETE FROM ID WHERE EXISTS expresion_logica RETURNING returning_exp PTCOMA '
-    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID WHERE EXISTS <expresion_logica> RETURNING <returning_exp> PTCOMA")
-    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_EXIST_RETURNING, t[6], None, t[8])
+    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_NORMAL, None)
 
 def p_delete_insrt5(t):
-    ' delete_insrt : DELETE FROM ID WHERE expresion_logica PTCOMA ' 
+    ' delete_insrt : DELETE FROM ID cond_where PTCOMA ' 
     reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID WHERE <expresion_logica> PTCOMA")
-    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_EXIST,t[5],None,None)
-def p_delete_insrt6(t):
-    ' delete_insrt : DELETE FROM ID WHERE expresion_logica RETURNING returning_exp PTCOMA'
-    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID WHERE <expresion_logica> RETURNING <returning_exp> PTCOMA")
-    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_EXIST_RETURNING, t[5], None, t[7])
-
-def p_delete_insrt7(t):
-    ' delete_insrt : DELETE FROM ID RETURNING returning_exp PTCOMA '
-    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID RETURNING <returning_exp> PTCOMA")
-    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_RETURNING, None, None, t[5])
-
-def p_delete_insrt8(t):
-    ' delete_insrt : DELETE FROM ID USING ID WHERE EXISTS expresion_logica PTCOMA '
-    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID USING ID WHERE EXISTS <expresion_logica> PTCOMA")
-    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_USING, t[8],t[5],None)
-
-def p_delete_insrt9(t):
-    ' delete_insrt : DELETE FROM ID USING ID WHERE EXISTS expresion_logica RETURNING returning_exp PTCOMA '
-    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID USING ID WHERE EXISTS <expresion_logica> RETURNING <returning_exp> PTCOMA")
-    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_USING_returnin,t[8],t[5],t[10])
-
-def p_delete_insrt10(t):
-    ' delete_insrt : DELETE FROM ID USING ID WHERE expresion_logica PTCOMA '
-    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID USING ID WHERE <expresion_logica> PTCOMA")
-    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_USING, t[7],t[5],None )
-
-
-def p_returning_exp(t):
-    ' returning_exp : ASTERISCO'
-    reporte_bnf.append("<returning_exp> ::= ASTERISCO")
-    t[0] = t[1]
-
-def p_returning_exp1(t):
-    ' returning_exp : campos_c'
-    reporte_bnf.append("<returning_exp> ::= <campos_c>")
-    t[0] = t[1]
+    t[0] = Definicion_delete(t[3], TIPO_DELETE.DELETE_NORMAL,t[4])
 
 
 

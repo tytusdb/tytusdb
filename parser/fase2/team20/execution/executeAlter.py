@@ -1,5 +1,5 @@
 from .storageManager import jsonMode
-from .storageManager.TypeChecker import TCalterDatabase,TCSearchDatabase,TCalterDropPk,TCgetDatabase,TCaltertype
+from .storageManager.TypeChecker import TCalterDatabase,TCSearchDatabase,TCalterDropPk,TCgetDatabase,TCaltertype,TCAlterIndex,TCcreateFunction,TCgetFunctions,TCdeleteFunction
 from storageManager.TypeChecker_Manager import *
 from .AST.error import * 
 from .executeExpression import executeExpression,Relational
@@ -175,6 +175,8 @@ def executeAlterTableAddColumn(self, AlterTableAddColumn_):
 
 def executeAlterTableDropColumn(self, AlterTableDropColumn_):
 
+
+
     # AlterTableDropColumn : {
     #     table: "table_name",
     #     column: "column_name"
@@ -249,3 +251,26 @@ def executeAlterTableDropColumn(self, AlterTableDropColumn_):
         
     else:
         print_error("UNKNOWN ERROR", "instruction not executed")
+
+def executeAlterIndex(self,AlterIndex):
+    #database=TCgetDatabase()
+
+    #print(TCcreateFunction('funcion3','fun3codigo3d',False))
+    print(TCgetFunctions())
+    print(TCdeleteFunction('funcion2'))
+    print(TCgetFunctions())
+    print(TCdeleteFunction('funcion1'))
+    print(TCgetFunctions())
+    '''res=TCSearchDatabase(database)
+    if res==1:
+        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+    elif res==2:
+        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+    elif res==3:
+        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+    elif res==4:
+        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+    elif res==8:
+        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+    else:
+        print_error("SEMANTIC ERROR","Mode between 1-5")'''

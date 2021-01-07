@@ -594,5 +594,167 @@ Crea la tabla de símbolos
             if self.simbolos[i].ambito == ambito and self.simbolos[i].val == tabla:
                 return self.simbolos[i]
             i += 1
+```
 
+### FuncionesInter.py
+
+
+```
+class Intermedio():
+	instrucciones_Global = []
+	tc_global1 = []
+	ts_global1 = []
+
+	def __init__(self):
+		''' Funcion Intermedia '''
+
+
+	def procesar_funcion0(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss
+		instrucciones = g.parse('CREATE DATABASE prueba1;')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
+			return salida
+		else:
+			return 'Parser Error'
+
+
+	def procesar_funcion1(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss
+		instrucciones = g.parse('USE prueba1;')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
+			return salida
+		else:
+			return 'Parser Error'
+```
+
+# Codigo tres direcciones
+El ćodigo de tres direccioneses una secuencia de proposicionesde la forma general "x = y op z" donde op representa cualquier operador; x,y,z representan variables definidas por el programador o variables temporales generadas por el compilador. "y,z" tambi ́en pueden representar constantes o literales. "op" representa cualquier operador: un operador aritḿetico de punto fijo o flotante, o un operador logico sobredatos booleanos.
+## Reglas de optimizacion
+#### Optimizacion por mirilla
+El  método  de  mirilla  consiste  en  utilizar  una  ventana  que  se  mueve  a  través  del  código  de  3 direcciones, la cual se le conoce como mirilla, en donde se toman las instrucciones dentro de la mirilla y se sustituyen en una secuencia equivalente que sea de menor longitud y lo más rápido posible que el bloque original. El proceso de mirilla permite que por cada optimización realizada con este método se puedan obtener mejoresbeneficios.
+
+
+### traduccionPLSQL.py
+
+Traducción de funciones a codigo tres direcciones.
+
+```
+def generarC3D(instrucciones, ts_global):
+    global contadorLlamadas, tablaSimbolos, ts
+    global cadenaTraduccion, tf, cadenaManejador
+    global cadenaFuncionIntermedia,numFuncionSQL
+    cadenaTraduccion = ""
+    cadenaFuncionIntermedia = ""
+    contadorLlamadas = 0
+    numFuncionSQL = 0
+    cadenaManejador = ""
+    resetTemporalA()
+    resetTemporalT()
+    resetTemporalEtiqueta()
+    tf = TF.TablaDeFunciones()
+
+    cadenaFuncionIntermedia += "\nfrom gramatica import parse"
+    cadenaFuncionIntermedia += "\nfrom principal import * "
+    cadenaFuncionIntermedia += "\nimport ts as TS"
+    cadenaFuncionIntermedia += "\nfrom expresiones import *"
+    cadenaFuncionIntermedia += "\nfrom instrucciones import *"
+    cadenaFuncionIntermedia += "\nfrom report_ast import *"
+    cadenaFuncionIntermedia += "\nfrom report_tc import *"
+    cadenaFuncionIntermedia += "\nfrom report_ts import *"
+    cadenaFuncionIntermedia += "\nfrom report_errores import *\n\n"
+    cadenaFuncionIntermedia += "\nclass Intermedio():"
+    cadenaFuncionIntermedia += "\n\tinstrucciones_Global = []"
+    cadenaFuncionIntermedia += "\n\ttc_global1 = []"
+    cadenaFuncionIntermedia += "\n\tts_global1 = []\n"
+    cadenaFuncionIntermedia += "\n\tdef __init__(self):"
+    cadenaFuncionIntermedia += "\n\t\t''' Funcion Intermedia '''\n\n"
+
+    cadenaTraduccion += "from FuncionInter import * " + "\n"
+    cadenaTraduccion += "from goto import with_goto" + "\n\n"
+    cadenaTraduccion += "inter = Intermedio()" + "\n\n"
+    cadenaTraduccion += "@with_goto  # Decorador necesario." + "\n"
+    cadenaTraduccion += "def main():" + "\n"
+    cadenaTraduccion += "\tSra = -1" + "\n"
+    cadenaTraduccion += "\tSs0 = [0] * 10000" + "\n"
+    indice = 0
+    ts = ts_global
+    while indice < len(instrucciones):
+        instruccion = instrucciones[indice]
+        if isinstance(instruccion, ListaDeclaraciones):
+            generarListaDeclaraciones(instruccion, ts)
+        elif isinstance(instruccion, LlamadaFuncion):
+            generarLlamadaFuncion(instruccion, ts)
+        elif isinstance(instruccion, Principal):
+            generarPrincipal(instruccion, ts)
+            cadenaTraduccion += '\t\n'
+            cadenaTraduccion += '\tgoto. end'
+        elif isinstance(instruccion, Funcion):
+            guardarFuncion(instruccion, ts)
+        elif isinstance(instruccion, CreateDatabase):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createDatabaseFuncion(instruccion, ts)
+        elif isinstance(instruccion, ShowDatabases):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createShowDatabasesFuncion(instruccion, ts)
+        elif isinstance(instruccion, UseDatabase):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createUseDatabaseFuncion(instruccion, ts)
+        elif isinstance(instruccion, ShowTables):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createShowTablesFuncion(instruccion, ts)
+        elif isinstance(instruccion, DropDatabase):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createDropDatabaseFuncion(instruccion, ts)
+        elif isinstance(instruccion, CreateTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createCreateTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, DropTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createDropTablesFuncion(instruccion, ts)
+        elif isinstance(instruccion, AlterDatabase):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createAlterDatabaseFuncion(instruccion, ts)
+        elif isinstance(instruccion, AlterTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createAlterTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, InsertTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createInsertTableFuncion(instruccion, ts)
+            
+        indice = indice + 1
+    tablaSimbolos = ts
+    
+    cadenaTraduccion += "\n\tprint(inter.Reportes())"
+
+    cadenaTraduccion += '\t\n'
+    cadenaTraduccion += '\tgoto. end'
+    agregarFunciones()
+    agregarRetorno()
+    cadenaTraduccion += "\n\n\tlabel .end" + "\n"
+    cadenaTraduccion += "\treturn" + "\n"
+    cadenaTraduccion += "\nmain()" + "\n"
+
+    #REPORTES FASE 1
+    
+    cadenaFuncionIntermedia += generarFuncionesSQLREPORTES()
+
+    salidaFuncionIntermedia = open("./FuncionInter.py", "w")
+    salidaFuncionIntermedia.write(cadenaFuncionIntermedia)
+    salidaFuncionIntermedia.close()
+
+    return cadenaTraduccion
 ```

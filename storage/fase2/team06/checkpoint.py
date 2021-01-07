@@ -28,7 +28,7 @@ def rollback(nombre):
 def __init__():
     global lista_db
     lista_db = []
-    lista_db = rollback("prueba")
+    #lista_db = rollback("prueba")
 __init__()
 
 
@@ -441,14 +441,337 @@ def insert(db,tabla,lista):
             return res
     else:
         return 2
-def encrypt(backup,clave):
-    f = Fernet(clave)
-    textoencriptado = f.encrypt(backup.encode("utf-8"))
-    return textoencriptado
+
+def alterTableAddUnique(database, table, indexName, columns):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if lista != None:
+            if table in lista:
+                if nodo[5] != None:
+                    dict = nodo[3]
+                    if table in dict:
+                        tab = verificarmodo(dict[table]).extractTable(database, table)
+                    else:
+                        tab = verificarmodo(nodo[1]).extractTable(database, table)
+                    try:
+                        for columna in columns:
+                            if columna > len(tab[0]):
+                                return 4
+                        nodo[5].append([table,indexName,columns])
+                        return 0
+                    except:
+                        return 1
+    else:
+        return 2
+
+def alterTableDropUnique(database, table, indexName):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if table in lista:
+            try:
+                if nodo[5] != None:
+                    indice = nodo[5]
+                    c=0
+                    for i in indice:
+                        if i[0] == table:
+                            indice.pop(c)
+                        c = c + 1
+                        return 0
+            except:
+                return 1
+        else:
+            return 3
+    else:
+        return 2
+
+def alterTableAddIndex(database, table, indexName, columns):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if table in lista:
+            if nodo[3]!=None:
+                dict = nodo[3]
+                if table in dict:
+                    tab = verificarmodo(dict[table]).extractTable(database, table)
+                else:
+                    tab = verificarmodo(nodo[1]).extractTable(database, table)
+                try:
+                    if len(tab)!=0:
+                        for columna in columns:
+                            if columna > len(tab[0]):
+                                return 4
+                    nodo[5].append([table, indexName, columns])
+                    return 0
+                except:
+                    return 1
+        else:
+            return 3
+    else:
+        return 2
+
+
+def alterTableAddFK(database, table, indexName, columns,  tableRef, columnsRef):
+    nodo = buscar(database)
+    if nodo != None:
+        try:
+            lista = showTables(database)
+            if table in lista and tableRef in lista:
+                if nodo[5]!=None:
+                    indices = nodo[5]
+                    for i in indices:
+                        if i[0] == table and i[1]==indexName:
+                            if len(columns) != len(columnsRef):
+                                return 4
+                            else:
+                                fk = nodo[6]
+                                fk.append([indexName,table,columns,tableRef,columnsRef])
+            else:
+                return 3
+            return 0
+        except:
+            return 1
+    else:
+        return 2
+
+def alterTableDropFK(database, table, indexName):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if table in lista:
+            try:
+                if nodo[6]!=None:
+                    indice = nodo[6]
+                    c = 0
+                    for i in indice:
+                        if i[0] == indexName and i[1]==table:
+                            indice.pop(c)
+                        c = c + 1
+                        return 0
+            except:
+                return 1
+        else:
+            return 3
+    else:
+        return 2
+
+
+def alterTableDropIndex(database, table, indexName):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if table in lista:
+            try:
+                if nodo[5] != None:
+                    indice = nodo[5]
+                    c=0
+                    for i in indice:
+                        if i[0] == indexName and i[1] == table:
+                            indice.pop(c)
+                        c = c + 1
+                        return 0
+
+            except:
+                return 1
+        else:
+            return 3
+    else:
+        return 2
+    
+def graphDSD(database):
+    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        for tabla in lista:
+            grafica += tabla + "[\nlabel="+tabla+"\nshape=record\n];\n"
+        fk = nodo[6]
+        c = 0
+        bandera = False
+        for tabla in lista:
+            for t in nodo[6]:
+                if bandera == False:
+                    if tabla == t[3]:
+                        grafica += t[1]+":f1 -> "+tabla+":f2 [\nid = "+str(c)+"\n];\n"
+                        bandera = True
+                bandera = False
+            c = c + 1
+
+    grafica +="}"
+    if grafica != "":
+        tabGen = open("tab.dot","w")
+        tabGen.write(grafica)
+        tabGen.close()
+        tab = open("tab.cmd","w")
+        tab.write("dot -Tpng tab.dot -o tab.png")
+        tab.close()
+        try:
+            os.system('tab.cmd')
+            os.system('tab.png')
+        except:
+            return None
+    return 'tab.png'
+
+def graphDF(database, table):
+    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        for tabla in lista:
+            if tabla == table:
+                grafica += tabla + "[\nlabel=" + tabla + "\nshape=record\n];\n"
+        fk = nodo[6]
+        c = 0
+        bandera = False
+        for tabla in lista:
+            if tabla ==table:
+                for t in nodo[6]:
+                    if bandera == False:
+                        if tabla == t[3]:
+                            grafica += t[1] + ":f1 -> " + tabla + ":f2 [\nid = " + str(c) + "\n];\n"
+                            bandera = True
+                    bandera = False
+                c = c + 1
+
+        for tabla in lista:
+            if tabla ==table:
+                for t in nodo[6]:
+                    if bandera == False:
+                        if tabla == t[1]:
+                            grafica += t[1] + ":f1 -> " + t[3] + ":f2 [\nid = " + str(c) + "\n];\n"
+                            bandera = True
+                    bandera = False
+                c = c + 1
+
+    grafica += "}"
+    if grafica != "":
+        tabGen = open("tab.dot","w")
+        tabGen.write(grafica)
+        tabGen.close()
+        tab = open("tab.cmd","w")
+        tab.write("dot -Tpng tab.dot -o tab.png")
+        tab.close()
+        try:
+            os.system('tab.cmd')
+            os.system('tab.png')
+        except:
+            return None
+    return 'tab.png'
 
 def decrypt(cipherbackup,clave):
-    print(clave.encode())
-    pss = base64.encodebytes(clave.encode())
-    f = Fernet(pss)
-    textodesencriptado = f.decrypt(cipherbackup)
-    return textodesencriptado.decode()
+    encrypt=""
+    devuelve = ""
+    try:
+        if cipherbackup == None or cipherbackup == "":
+            archivo=open(clave+".txt","r")
+            encrypt=archivo.read()
+
+        else:
+            encrypt=cipherbackup
+
+        llave = open(clave+".key","r").read()
+        f = Fernet(llave)
+        decrypted = f.decrypt(encrypt.encode())
+        textoOriginal = decrypted.decode()
+        devuelve = "0\n"+textoOriginal
+    except:
+        devuelve = "1"
+    return devuelve
+
+def encrypt(backup,clave):
+    devuelve = ""
+    encoded = backup.encode()
+    key = Fernet.generate_key()
+    llaveBin = open(clave+".key","wb")
+    llaveBin.write(key)
+    try:
+        f = Fernet(key)
+        encrypted = f.encrypt(encoded)
+        encriptado = encrypted.decode()
+        archivo = open(clave+".txt","w")
+        archivo.write(encrypted.decode())
+        archivo.close()
+        devuelve = "0\n"+encriptado
+    except:
+        devuelve = "1"
+    return devuelve
+
+def checksumDatabase(database , mode):
+    texto = ""
+    if buscar(database) is not None:
+        if mode == "MD5" or mode == "SHA256":
+            lista = showTables(database)
+            texto = texto + database
+            for i in lista:
+                texto = texto + i
+                for j in extractTable(database, i):
+                    texto = texto + "".join(j)
+            #print(texto)
+            if mode == "MD5":
+                return md5str(texto)
+            else:
+                return sha256str(texto)
+        else:
+            return None
+    else:
+        return None
+
+def checksumTable(database, table, mode):
+    texto = ""
+    if buscar(database) is not None:
+        if mode == "MD5" or mode == "SHA256":
+            lista = showTables(database)
+            for i in lista:
+                if (i == table):
+                    texto = texto + i
+                for j in extractTable(database, i):
+                    if (i == table):
+                        texto = texto + "".join(j)
+
+            #print(texto)
+            if mode == "MD5":
+                return md5str(texto)
+            else:
+                return sha256str(texto)
+        else:
+            return None
+    else:
+        return None
+
+def md5str(cadena):
+    md5_hash = hashlib.md5()
+    md5_hash.update(cadena.encode('utf8'))
+    digest = md5_hash.hexdigest()
+    return digest
+
+def sha256str(cadena):
+    md5_hash = hashlib.sha256()
+    md5_hash.update(cadena.encode('utf8'))
+    digest = md5_hash.hexdigest()
+    return digest
+
+def alterDatabaseEncoding(database , en):
+    if not en in encoding:
+        return 3
+    else:
+        db = buscar(database)
+        if db is None:
+            return 2
+        else:
+            db[2] = en
+            return 0
+
+def Codtexto(database , texto):
+    for db in lista_db:
+        if database == db[0]:
+            try:
+                texto.encode(db[2])
+                return True
+            except:
+                return False
+
+
+os.system('cls')
+print(encrypt("este es el mensaje","llave"))
+print(decrypt("","llave"))
