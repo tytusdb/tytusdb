@@ -1,4 +1,4 @@
-import sql
+import sql as sql
 
 sql.execute("SELECT * FROM Y;")
 sql.execute("create DATABASE EJEMPLO;")
