@@ -1,4 +1,5 @@
 from utils.decorators import singleton
+import copy
 #from utils.analyzers.syntactic import parse
 
 
@@ -151,11 +152,12 @@ class ThreeAddressCode(object):
         self.__function += self.__instructionList
 
         self.__functions.append({'name': name, 'function': self.__function,
-                                 'variables': variables})
+                                 'variables': copy.deepcopy(variables) })
         self.__isCode = True
 
     def newFunction(self):
         self.__isCode = False
+        self.__instructionList = ''
 
     def searchFunction(self, name):
         for fun in self.__functions:
