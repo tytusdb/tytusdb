@@ -2017,5 +2017,6 @@ class queryf(instruccion):
 
     def traducir(self):
         t = self.callfunc.traducir()
-        return f'{t[0]}print({t[1]})\n'
+        t0 = t[0].replace('\n','\n\t')
+        return f'\t{t0}print({t[1]})\n'
         
