@@ -2508,7 +2508,9 @@ def p_createproc(t):
     'createproc : CREATE PROCEDURE ID PARA lparamsp PARC LANGUAGE PLPGSQL AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
     t[0] = createfunc(t[3],t[5],None,t[12])
 
-
+def p_queryf(t):
+    'queryf : SELECT newexp PUNTOCOMA'
+    t[0] = queryf(t[2])
 
 
 def p_error(t):
@@ -2519,7 +2521,7 @@ def p_error(t):
         nuevo_error = CError(linea,columna,descript,'Sintactico')
         insert_error(nuevo_error)
         parser.errok()
-        print(t)
+        #print(t)
     else:
         print("No se pudo recuperar")
     return
