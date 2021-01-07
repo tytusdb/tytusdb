@@ -82,7 +82,8 @@ class Function(instruction.Instruction):
                 parametro.addNode(tipo)
                 if param[1][1][0] != None:
                     dim = Nodo("DIMENSION")
-                    dim.addNode(Nodo(str(param[1][1][0])))
+                    for dimen in param[1][1]:
+                        dim.addNode(Nodo(str(dimen)))
                     tipo.addNode(dim)
                 params.addNode(parametro)
             new.addNode(params)

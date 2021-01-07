@@ -8,7 +8,7 @@ def crearArchivo(input, instfuncion):
     archivo += 'def funcionIntermedia(): \n'
     archivo += '\tglobal lista\n'
     archivo += '\tentrada = lista.pop()\n'
-    archivo += '\tanalize(entrada)\n'
+    archivo += '\treturn analize(entrada)\n'
 
     archivo += '\n\n'
     archivo += "@with_goto\n"

@@ -81,6 +81,7 @@ class Generador:
             print(linea)
 
     def compilarFuncion(self, instruccion):
+        self.codigo3d.append("@with_goto")
         self.agregarFuncion("C3D_" + instruccion.id)
         self.agregarvariableglobal("lista")
         if instruccion.numparametros != 0:
@@ -118,6 +119,21 @@ class Generador:
         temp1 = self.generarTemporal()
         self.generarAsignacion(temp1, "simulador_pila[" + temp + "]")
         return RetornoOp(temp1, None)
+
+    def compilarLlamada1(self, instruccion):
+        if instruccion.numparametros != 0:
+            temporal = self.generarTemporal()
+            self.generarAsignacion(temporal, "0")
+            for param in instruccion.parametros:
+                valor_param = self.compilarOperacionLogicaRelacional(param.valor)
+                self.generarAsignacion("simulador_pila[" + temporal + "]", valor_param.valor)
+                self.generarAsignacion(temporal, temporal + " + 1")
+            self.generarLlamada("C3D_" + instruccion.id)
+            temp = self.generarTemporal()
+            self.generarAsignacion(temp, "0")
+            temp1 = self.generarTemporal()
+            self.generarAsignacion(temp1, "simulador_pila[" + temp + "]")
+            return RetornoOp(temp1, None)
 
     def compilarReturn(self, instruccion):
         if not instruccion.valor is None:
@@ -481,6 +497,8 @@ class Generador:
                 self.generarAsignacion("lista", "[" + temporal + "]")
                 temp = self.generarTemporal()
                 self.generarAsignacion(temp, "funcionIntermedia()")
+                ret = RetornoOp(temp, None)
+                return ret
             else:
                 ret = RetornoOp(instruccion.valor, instruccion.tipo)
                 return ret
@@ -498,11 +516,13 @@ class Generador:
                 #mandar a imprimir un if para validar si el valor del temporal que sale de operacion aritmetica es menor a 0
                 #si entra al if hacer la conversion, sino entra seguir con l
             elif isinstance(instruccion.parametro, Primitivo): 
-
+                """
+                COMENTADO POR ERROR
+                """
                     
                 #
 
-            self.compilar
+            #self.compilar
         #self.agregarFuncion(instruccion.id)
         if instruccion.numparametros != 0:
             temporal = self.generarTemporal()

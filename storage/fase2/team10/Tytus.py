@@ -2,6 +2,7 @@ import os
 import pickle
 import zlib
 import binascii
+import sys
 from cryptography.fernet import Fernet
 
 # 1. UNIFICACION DE INDICES
@@ -89,7 +90,7 @@ def alterDatabase(databaseOld, databaseNew):
             for i in databases:
                 if databaseOld == i["name"]:
                     i["name"] = databaseNew
-                    persistence()
+                    # persistence()
                     return value
     return 2
 
@@ -100,7 +101,7 @@ def dropDatabase(nameDB):
             for i in databases:
                 if nameDB == i["name"]:
                     databases.remove(i)
-                    persistence()
+                    # persistence()
                     return value
     return 2
 
@@ -110,7 +111,8 @@ def createTable(database, table, nCols):
         if value != 2:
             for i in databases:
                 if database == i["name"]:
-                    t = {"name": table, "nCols": nCols, "tuples": []}
+                    t = {"name": table, "nCols": nCols, "tuples": [], 
+                        "fk": None, "iu": None, "io": None}
                     i["tables"].append(t)
                     # persistence()
                     return value
@@ -126,6 +128,7 @@ def showTables(database):
     return tables
 
 def extractTable(database, table):
+    alterDatabaseDecompress(database)
     for item in structs:
         value = item.extractTable(database, table)
         if value is not None:
@@ -144,21 +147,36 @@ def alterAddPK(database, table, columns):
     for item in structs:
         value = item.alterAddPK(database, table, columns)
         if value != 2:
-            return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            t["pk"] = columns
+                            return value
     return 2
 
 def alterDropPK(database, table):
     for item in structs:
         value = item.alterDropPK(database, table)
         if value != 2:
-            return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            t["pk"] = []
+                            return value
     return 2
 
 def alterTable(database, old, new):
     for item in structs:
         value = item.alterTable(database, old, new)
         if value != 2:
-            return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if old == t["name"]:
+                            t["name"] = new
+                        return value
     return 2
 
 def alterDropColumn(database, table, columnNumber):
@@ -173,6 +191,19 @@ def alterAddColumn(database, table, default):
         value = item.alterAddColumn(database, table, default)
         if value != 2:
             return value
+    return 2
+
+def dropTable(database, table):
+    for item in structs:
+        value = item.dropTable(database, table)
+        if value != 2:
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            i["tables"].remove(t)
+                    # persistence()
+                    return value
     return 2
 
 def insert(database, table, register):
@@ -207,6 +238,51 @@ def loadCSV(fileCSV, db, table):
             return value
     return value
 
+def update(database, table,  register, columns):
+    for item in structs:
+        value = item.update(database, table, register, columns)
+        if value != 2:
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            for tup in t["tuples"]:
+                                index = 0
+                                for key in register:
+                                    index = key
+                                tup["register"][index] = register[1]
+                        return value
+    return 2
+
+def delete(database, table, columns):
+    for item in structs:
+        value = item.delete(database, table, columns)
+        if value != 2:
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            for tup in t["tuples"]:
+                                index = 0
+                                for key in columns:
+                                    index = key
+                                tup["register"][index] = register[1]
+                        return value
+    return 2
+
+def truncate(database, table):
+    for item in structs:
+        value = item.truncate(database, table)
+        if value != 2:
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            t["tuples"] = []
+                    # persistence()
+                    return value
+    return 2
+
 # 2. ADMINISTRADOR DE MODO DE ALMACENAMIENTO
 def alterDatabaseMode(database, mode):
     try:
@@ -223,25 +299,6 @@ def alterDatabaseMode(database, mode):
                 return 0
     except:
         return 1
-
-# def alterTableMode(database, table, mode):
-#     try:
-#         for db in databases:
-#             if db["name"] == database:
-#                 for t in db["tables"]:
-#                     if table == t["name"]:
-#                         tableCopy = t.copy()
-#                         # db["tables"].remove(t)
-#                         db["mod"].truncate(db["name"], t["name"])
-#                         break
-#                 break
-#         createDatabase(f"{table}_{database}", mode, 'ASCII')
-#         createTable(f"{table}_{database}", table, tableCopy["nCols"])
-#         for reg in tableCopy["tuples"]:
-#             insert(f"{table}_{database}", table, reg["register"])
-#         return 0
-#     except:
-#         return 1
 
 # 3. ADMINISTRACION DE INDICES
 def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
@@ -285,18 +342,124 @@ def codificationValidation(codification,stringlist): ##Cristian
             return False
     else:
         return 3 ##Nombre de codificacion no existente
-        
+
+def getCodificationMode(database):
+    for i in databases:
+        if database == i["name"]:
+            if i["code"] == "ASCII":
+                return "ASCII"
+            elif i["code"] == "ISO-8859-1":
+                return "ISO-8859-1"       
+            elif i["code"] == "UTF8":
+                return "UTF8"       
+    return 2
+
 # 6. COMPRESION DE DATOS
 def alterDatabaseCompress(database, level):
-    for db in databases:
-        if db["name"] == database:
-            for table in db["tables"]:
-                for tupla in table["tuples"]:
-                    for register in tupla["register"]:
-                        if type(register) == str:
-                            text = bytes(register, 'utf-8')
-                            zlib.compress(text, level)
-    return 0
+    if level not in range(-1, 6):
+        return 4
+    try:
+        for db in databases:
+            if db["name"] == database:
+                for table in db["tables"]:
+                    tableCopy = table.copy()
+                    table["tuples"] = []
+                    db["mod"].truncate(db["name"], table["name"])
+                    for tupla in tableCopy["tuples"]:
+                        newRegister = []
+                        for register in tupla["register"]:
+                            if type(register) == str:
+                                text = bytes(register, db["code"])
+                                register = zlib.compress(text, level)
+                            newRegister.append(register)
+                        insert(db['name'], table["name"], newRegister)
+            else:
+                return 2
+        return 0
+    except:
+        return 1
+
+def alterDatabaseDecompress(database):
+    try:
+        isCompressed = False
+        for db in databases:
+            if db["name"] == database:
+                for table in db["tables"]:
+                    tableCopy = table.copy()
+                    table["tuples"] = []
+                    db["mod"].truncate(db["name"], table["name"])
+                    for tupla in tableCopy["tuples"]:
+                        newRegister = []
+                        for register in tupla["register"]:
+                            if type(register) == bytes:
+                                text = zlib.decompress(register)
+                                register = text.decode(db["code"])
+                                isCompressed = True
+                            newRegister.append(register)
+                        insert(db['name'], table["name"], newRegister)
+            else:
+                return 2
+        if not isCompressed:
+            return 3
+        return 0
+    except:
+        return 1
+
+def alterTableCompress(database, table, level):
+    if level not in range(-1, 6):
+        return 4
+    try:
+        for db in databases:
+            if db["name"] == database:
+                for t in db["tables"]:
+                    if t["name"] == table:
+                        tableCopy = t.copy()
+                        t["tuples"] = []
+                        db["mod"].truncate(db["name"], t["name"])
+                        for tupla in tableCopy["tuples"]:
+                            newRegister = []
+                            for register in tupla["register"]:
+                                if type(register) == str:
+                                    text = bytes(register, db["code"])
+                                    register = zlib.compress(text, level)
+                                newRegister.append(register)
+                            insert(db['name'], t["name"], newRegister)
+                        return 0
+                else:
+                    return 3
+            else:
+                return 2
+    except:
+        return 1
+
+def alterTableDecompress(database, table, level):
+    try:
+        isCompressed = False
+        for db in databases:
+            if db["name"] == database:
+                for table in db["tables"]:
+                    if table["name"] ==  table:
+                        tableCopy = table.copy()
+                        table["tuples"] = []
+                        db["mod"].truncate(db["name"], table["name"])
+                        for tupla in tableCopy["tuples"]:
+                            newRegister = []
+                            for register in tupla["register"]:
+                                if type(register) == bytes:
+                                    text = zlib.decompress(register)
+                                    register = text.decode(db["code"])
+                                    isCompressed = True
+                                newRegister.append(register)
+                            insert(db['name'], table["name"], newRegister)
+                    else:
+                        return 3
+            else:
+                return 2
+        if not isCompressed:
+            return 3
+        return 0
+    except:
+        return 1
 
 # 7. SEGURIDAD
 """
@@ -342,15 +505,3 @@ def decrypt(cipherBackup, password):
 #             databases.append(i)
 #         archivo.close()
 #         print("bases de datos cargadas")
-© 2021 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
