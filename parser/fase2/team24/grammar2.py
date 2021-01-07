@@ -396,6 +396,7 @@ def p_inst(p):
             |   delete
             |   usedb
             |   query
+            |   queryf
             |   createfunc
             |   createind
             |   createproc
@@ -413,17 +414,17 @@ def p_inst(p):
 
 def p_dropfunc(t):
     'dropfunc : DROP FUNCTION lidf PUNTOCOMA'
-    t[0] = dropfunc(t[2])
+    t[0] = dropfunc(t[3])
 
 def p_dropproc(t):
     'dropproc : DROP PROCEDURE  lidf PUNTOCOMA'
-    t[0] = dropfunc(t[2])
+    t[0] = dropfunc(t[3])
 
 
-def p_lidf(t):
+def p_lidfz(t):
     ' lidf : lidf COMA ID'
-    p[1].append(p[2])
-    p[0] = p[1]
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lidf(t):
     ' lidf :  ID'
@@ -2507,6 +2508,11 @@ def p_createproc(t):
     'createproc : CREATE PROCEDURE ID PARA lparamsp PARC LANGUAGE PLPGSQL AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
     t[0] = createfunc(t[3],t[5],None,t[12])
 
+def p_queryf(t):
+    'queryf : SELECT newexp PUNTOCOMA'
+    t[0] = queryf(t[2])
+
+
 def p_error(t):
     if t:
         descript = 'error sintactico en el token ' + str(t.type)
@@ -2515,7 +2521,7 @@ def p_error(t):
         nuevo_error = CError(linea,columna,descript,'Sintactico')
         insert_error(nuevo_error)
         parser.errok()
-        print(t)
+        #print(t)
     else:
         print("No se pudo recuperar")
     return

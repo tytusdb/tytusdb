@@ -502,38 +502,57 @@ class AgreggateFunctions(Instruction):
         self.line = line
         self.column = column
         self._tac = ""
+        self.is_group = False
     def __repr__(self):
         return str(vars(self))
     
     def process(self, instrucction):
         data = None
         try:
-            result = self.cont_agg.process(instrucction)
-            if isinstance(result, list):
-                if self.type_agg.lower() == "avg":
-                    data = {str(self.alias): 'mean'}
-                elif self.type_agg.lower() == 'sum':
-                    data = {str(self.alias): 'sum'}
-                elif self.type_agg.lower() == 'count':
-                    data = {str(self.alias): 'size'}
-                elif self.type_agg.lower() == 'max':
-                    data = {str(self.alias): 'max'}
-                elif self.type_agg.lower() == 'min':
-                    data = {str(self.alias): 'min'}
-                    #dict  # column  # encambezado
-                return [result[0], result[1], data]
+            if not self.is_group:
+                result = self.cont_agg.process(instrucction)
+                if isinstance(result, list):
+                    if self.type_agg.lower() == "avg":
+                        data = {str(self.alias): 'mean'}
+                    elif self.type_agg.lower() == 'sum':
+                        data = {str(self.alias): 'sum'}
+                    elif self.type_agg.lower() == 'count':
+                        data = {str(self.alias): 'size'}
+                    elif self.type_agg.lower() == 'max':
+                        data = {str(self.alias): 'max'}
+                    elif self.type_agg.lower() == 'min':
+                        data = {str(self.alias): 'min'}
+                        #dict  # column  # encambezado
+                    return [result[0], result[1], data]
+                else:
+                    if self.type_agg.lower() == "avg":
+                        data = {str(self.alias.lower()): 'mean'}
+                    elif self.type_agg.lower() == 'sum':
+                        data = {str(self.alias.lower()): 'sum'}
+                    elif self.type_agg.lower() == 'count':
+                        data = {str(result.value): 'size'}
+                    elif self.type_agg.lower() == 'max':
+                        data = {str(self.alias.lower()): 'max'}
+                    elif self.type_agg.lower() == 'min':
+                        data = {str(self.alias.lower()): 'min'}
+                    return [data, result.value, self.type_agg]
             else:
-                if self.type_agg.lower() == "avg":
-                    data = {str(self.alias.lower()): 'mean'}
-                elif self.type_agg.lower() == 'sum':
-                    data = {str(self.alias.lower()): 'sum'}
-                elif self.type_agg.lower() == 'count':
-                    data = {str(result.value): 'size'}
-                elif self.type_agg.lower() == 'max':
-                    data = {str(self.alias.lower()): 'max'}
-                elif self.type_agg.lower() == 'min':
-                    data = {str(self.alias.lower()): 'min'}
-                return [data, result.value, self.type_agg]
+                result = self.cont_agg.process(instrucction)
+                if isinstance(result, list):
+                    if self.type_agg.lower() == "avg":
+                        data = sum(result[0]) / len(result[0])
+                    elif self.type_agg.lower() == 'sum':
+                        data = sum(result[0])
+                    elif self.type_agg.lower() == 'count':
+                        data = len(result[0])
+                    elif self.type_agg.lower() == 'max':
+                        data = max(result[0])
+                    elif self.type_agg.lower() == 'min':
+                        data = min(result[0])
+                            #valores  # column  # encambezado
+                    return [[data], result[1]]
+                else:
+                    return result.value
         except:
             desc = "FATAL ERROR, murio en AgreggateFunctions, F"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)

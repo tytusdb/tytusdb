@@ -81,7 +81,7 @@ class ShowDatabase(Instruction):
 
     def __init__(self, patherMatch, tac):
         self._patherMatch = patherMatch
-        self._tac = tac
+        self._tac = ''
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()

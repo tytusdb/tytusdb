@@ -18,6 +18,7 @@ class Raise(instruction.Instruction):
         if self.notice:
             notice_ = Nodo.Nodo("NOTICE")
             new.addNode(notice_)
+        string1.addNode(Nodo.Nodo(self.string1))
         new.addNode(string1)
         new.addNode(string2)
         return new

@@ -6,12 +6,15 @@ sys.path.append('../Grupo1/Utils')
 from instruccion import *
 from Error import *
 from jsonMode import *
+from c3dGen import *
 
 from TablaSimbolos import *
 
 class Update(Instruccion):
 
-    def __init__(self, tableid, asignaciones, condiciones):
+    def __init__(self, arg0,arg1,tableid, asignaciones, condiciones):
+        self.arg0 = arg0
+        self.arg1 = arg1
         self.tableid = tableid
         self.asignaciones = asignaciones
         self.condiciones = condiciones
@@ -89,7 +92,7 @@ class Update(Instruccion):
                     rowlist.append(index)
                     index += 1
 
-                print(rowlist)
+                #print(rowlist)
 
             index = 0
             for fila in filas :
@@ -123,7 +126,7 @@ class Update(Instruccion):
             #diccionario para mandar a condiciones:
             #dicciPrueba = {'NombreTabla1': {'fila': [1, 3, "f"], 'alias': 'nombre'}, 'NombreTabla2': {'fila': [], 'alias': None}}
 
-            print(register)
+            #print(register)
             index = 0
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
@@ -141,7 +144,7 @@ class Update(Instruccion):
                     else :
                         rowlist.append(index)
 
-                    print(rowlist)
+                    #print(rowlist)
 
                 index += 1
 
@@ -163,6 +166,7 @@ class Update(Instruccion):
                     else :
                         rowlist.append(index)
 
+                    reto = updateC3D(data.databaseSeleccionada, self.tableid.table.upper(), register, rowlist)
                     reto = update(data.databaseSeleccionada, self.tableid.table.upper(), register, rowlist)
 
                     if reto == 0:
