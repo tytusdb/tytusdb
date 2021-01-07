@@ -3,8 +3,21 @@
 # Copyright (c) 2020 TytusDb Team
 # Developers: SG#16
 
+
+from .Complements import checksum
 from .handler import Handler
 from ..path import *
+
+MODES = ['AVL',
+        'B',
+        'BPLUS',
+        'DICT',
+        'ISAM',
+        'JSON',
+        'HASH']
+CODES = ['ASCII',
+        'ISO-8859-1',
+        'UTF8']
 
 
 class Database:
@@ -16,26 +29,24 @@ class Database:
 
     def __repr__(self) -> str:
         return str(self.name)
-
+    
 
 class DatabaseModule:
     def __init__(self):
         self.handler = Handler()
         self.databases = self.handler.rootinstance()
-        self.mode = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
-        self.encoding = ['ascii', 'iso-8859-1', 'utf8']
 
     def createDatabase(self, database: str, mode: str, encoding: str) -> int:
         try:
             if not isinstance(database, str) or self.handler.invalid(database):
-                raise
+                raise Exception()
             self.databases = self.handler.rootinstance()
             for i in self.databases:
                 if database.upper() == i.name.upper():
                     return 2
-            if not mode.lower() in self.mode:
+            if not mode.upper() in MODES:
                 return 3
-            if not encoding.lower() in self.encoding:
+            if not encoding.upper() in CODES:
                 return 4
             self.databases.append(Database(database, mode, encoding))
             self.handler.rootupdate(self.databases)
@@ -54,7 +65,7 @@ class DatabaseModule:
         try:
             if not isinstance(databaseOld, str) or not isinstance(databaseNew, str) or self.handler.invalid(
                     databaseNew):
-                raise
+                raise Exception()
             index = -1
             self.databases = self.handler.rootinstance()
             for i in self.databases:
@@ -79,7 +90,7 @@ class DatabaseModule:
     def dropDatabase(self, database: str) -> int:
         try:
             if not isinstance(database, str):
-                raise
+                raise Exception()
             index = -1
             self.databases = self.handler.rootinstance()
             for i in range(len(self.databases)):
@@ -100,8 +111,8 @@ class DatabaseModule:
     def alterDatabaseMode(self, database: str, mode: str) -> int:
         try:
             if not isinstance(database, str):
-                raise
-            if not mode.lower() in self.mode:
+                raise Exception()
+            if not mode.upper() in MODES:
                 return 4
             self.databases = self.handler.rootinstance()
             db, index = self._exist(database)
@@ -114,11 +125,11 @@ class DatabaseModule:
                 tuples = result = eval(actionCreator(table.mode, 'extractTable', ['database', 'table.name']))
                 if result or result == []:
                     if eval(actionCreator(mode, 'createTable', ['database', 'table.name', 'table.numberColumns'])) != 0:
-                        raise
+                        raise Exception()
                     if len(table.pk) != 0:
                         if eval(actionCreator(mode, 'alterAddPK',
                                               ['database', 'table.name', 'table.pk'])) != 0:
-                            raise
+                            raise Exception()
                     if len(result) == 0:
                         continue
                     file = 'tmp.csv'
@@ -126,9 +137,9 @@ class DatabaseModule:
                     read = eval(actionCreator(mode, 'loadCSV', ['file', 'database', 'table.name']))
                     self.handler.delete(file)
                     if len(read) == 0:
-                        raise
+                        raise Exception()
                 else:
-                    raise
+                    raise Exception()
             for table in tables:
                 self.handler.delete('./data/' + table.mode + "/" + database + "_" + table.name + ".tbl")
             self.handler.clean(self.databases[index].mode)
@@ -145,8 +156,8 @@ class DatabaseModule:
     def alterTableMode(self, database: str, table: str, mode: str) -> int:
         try:
             if not isinstance(database, str):
-                raise
-            if not mode.lower() in self.mode:
+                raise Exception()
+            if not mode.upper() in MODES:
                 return 4
             self.databases = self.handler.rootinstance()
             db, index = self._exist(database)
@@ -161,20 +172,20 @@ class DatabaseModule:
             tuples = result = eval(actionCreator(tmp.mode, 'extractTable', ['database', 'table']))
             if result or result == []:
                 if eval(actionCreator(mode, 'createTable', ['database', 'table', 'tmp.numberColumns'])) != 0:
-                    raise
+                    raise Exception()
                 if len(tmp.pk) != 0:
                     if eval(actionCreator(mode, 'alterAddPK',
                                           ['database', 'table', 'tmp.pk'])) != 0:
-                        raise
+                        raise Exception()
                 if len(result) != 0:
                     file = 'tmp.csv'
                     self.handler.writer('tmp', tuples)
                     read = eval(actionCreator(mode, 'loadCSV', ['file', 'database', 'table']))
                     self.handler.delete(file)
                     if len(read) == 0:
-                        raise
+                        raise Exception()
             else:
-                raise
+                raise Exception()
             self.handler.delete('./data/' + tmp.mode + "/" + database + "_" + tmp.name + ".tbl")
             self.handler.clean(self.databases[index].mode)
             self.databases[index].tables[self.databases[index].tables.index(tmp)].mode = mode
@@ -187,6 +198,20 @@ class DatabaseModule:
     def alterDatabaseEncoding(self, database: str, encoding: str) -> int:
         pass
 
+    def checksumDatabase(self, database: str, mode: str) -> str:
+        try:
+            if not mode.upper() in checksum.ALGORITMOS:
+                raise Exception('Algoritmo no válido: {}'.format(mode))
+            if not isinstance(database, str) or self.handler.invalid(database):
+                raise Exception('Base de datos no válida')
+            self.databases = self.handler.rootinstance()
+            for db in self.databases:
+                if db.name.upper() == database.upper():
+                    return checksum.checksum_DB(database, db.mode, mode)
+            raise Exception('Base de datos no encontrada')
+        except:
+            return None
+        
     def alterDatabaseCompress(self, database: str, level: int) -> int:
         pass
 

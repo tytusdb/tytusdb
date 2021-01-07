@@ -9,7 +9,6 @@ from .Modules.table_module import TableModule
 from .Modules.tuple_module import TupleModule
 
 from .Modules.Complements import security as SEC
-from .Modules.Complements import checksum as CHECK
 
 DB = DatabaseModule()
 TBL = TableModule()
@@ -167,11 +166,11 @@ def truncate(database: str, table: str) -> int:
 
 # region Checksum
 def checksumDatabase(database: str, mode: str) -> str:
-    return CHECK.checksumDatabase(database, mode)
+    return DB.checksumDatabase(database, mode)
 
 
 def checksumTable(database: str, table: str, mode: str) -> str:
-    return CHECK.checksumTable(database, table, mode)
+    return TBL.checksumTable(database, table, mode)
 
 
 # endregion

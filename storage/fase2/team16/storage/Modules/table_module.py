@@ -6,7 +6,7 @@
 
 from ..path import *
 from .handler import Handler
-
+from .Complements import checksum
 from .Complements.security import Blockchain
 
 
@@ -28,7 +28,7 @@ class TableModule:
         try:
             if not isinstance(database, str) or not isinstance(table, str) or (
                     not isinstance(numberColumns, int) or numberColumns < 0):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -48,7 +48,7 @@ class TableModule:
     def showTables(self, database: str) -> list:
         try:
             if not isinstance(database, str):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             for i in self.dbs:
                 if database.upper() == i.name.upper():
@@ -61,7 +61,7 @@ class TableModule:
     def extractTable(self, database: str, table: str) -> list:
         try:
             if not isinstance(database, str) or not isinstance(table, str):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -76,7 +76,7 @@ class TableModule:
     def extractRangeTable(self, database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
         try:
             if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columnNumber, int):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -93,7 +93,7 @@ class TableModule:
         try:
             if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columns, list) or \
                     len(columns) == 0:
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -114,7 +114,7 @@ class TableModule:
     def alterDropPK(self, database: str, table: str) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -136,7 +136,7 @@ class TableModule:
         try:
             if not isinstance(database, str) or not isinstance(tableOld, str) or not isinstance(tableNew, str) or \
                     self.handler.invalid(tableNew):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -164,7 +164,7 @@ class TableModule:
     def alterAddColumn(self, database: str, table: str, default: any) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -185,7 +185,7 @@ class TableModule:
     def alterDropColumn(self, database: str, table: str, columnNumber: int) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columnNumber, int):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -206,7 +206,7 @@ class TableModule:
     def dropTable(self, database: str, table: str) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -253,7 +253,7 @@ class TableModule:
     def safeModeOn(self, database: str, table: str) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -272,7 +272,7 @@ class TableModule:
     def safeModeOff(self, database: str, table: str) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -287,6 +287,23 @@ class TableModule:
             return 2
         except:
             return 1
+    
+    def checksumTable(self, database: str, table: str, mode: str) -> str:
+        try:
+            if not isinstance(database, str) or not isinstance(table, str):
+                raise Exception('Se esperaba una cadena str')
+            if not mode.upper() in checksum.ALGORITMOS:
+                raise Exception('Algoritmo no válido: {}'.format(mode))
+            self.databases = self.handler.rootinstance()
+            for db in self.databases:
+                if db.name.upper() == database.upper():
+                    _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+                    if _table:
+                        return checksum.checksum_TBL(database, table, db.mode, mode)
+                    raise Exception('Tabla no encontrada')
+            raise Exception('Base de datos no encontrada')
+        except:
+            return None
 
     def _exist(self, database: str):
         tmp = None
