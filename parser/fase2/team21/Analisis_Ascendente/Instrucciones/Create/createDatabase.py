@@ -111,8 +111,16 @@ class CreateReplace(Instruccion):
         consola.append(f"\n\t{contador} = \"{info}\"")
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({contador})")
-        consola.append(f"\n\tstack.append({contador2})\n")
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")
 
+'''
+        t0 = " CREATE DATABASE DBFase2 ;"
+        t1 = T(t0)
+
+        T1 = T3(t1)
+        stack.append(T1);
+'''
 
 
 
