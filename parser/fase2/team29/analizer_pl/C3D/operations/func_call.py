@@ -57,12 +57,12 @@ class FunctionCall(Expression):
             else:
                 parVal = ""
                 self.temp = "t" + self.temp
-                c3d += tab + self.temp+ " = fase1.invokeFunction("
-                c3d += "\""+self.id+"\""
+                c3d += tab + self.temp + " = fase1.invokeFunction("
+                c3d += '"' + self.id + '"'
                 if self.params:
                     c3d += ", "
                     j = 0
-                    for i in range(len(self.params)-1):
+                    for i in range(len(self.params) - 1):
                         j = i + 1
                         pval = self.params[i].execute(environment)
                         parVal += pval.value
@@ -107,3 +107,14 @@ class FunctionCall(Expression):
             else:
                 pass
         return code.C3D(c3d, self.temp, self.row, self.column)
+
+    def dot(self):
+        new = Nodo("FUNCTION_CALL")
+        if self.isBlock:
+            new.addNode(Nodo(str(self.id)))
+            if self.params:
+                par = Nodo("PARAMS")
+                new.addNode(par)
+                for p in self.params:
+                    par.addNode(p.dot())
+        return new

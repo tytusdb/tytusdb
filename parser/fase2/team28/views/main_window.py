@@ -200,7 +200,7 @@ class MainWindow(object):
         texto = self.entrada.get('1.0', END)
         result = parse(texto)
         # jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
-        print(result)  # Imprime el AST
+        # print(result)  # Imprime el AST
 
         report_error = ReportError()
         if len(ErrorController().getList()) > 0:

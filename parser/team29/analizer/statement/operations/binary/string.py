@@ -61,7 +61,7 @@ class String(Expression):
                 TYPE.STRING, value, self.temp, self.row, self.column
             )
         except:
-            raise expression.list_errors.append(
+            expression.list_errors.append(
                 "Error: XX000: Error interno (Binary String Operation)"
                 + "\n En la linea: "
                 + str(self.row)

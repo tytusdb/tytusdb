@@ -1655,7 +1655,58 @@ class update(instruccion):
         self.wherecond = wherecond
 
     def traducir(self):
-        return '#updadate'
+        traduccion = '\t'
+        traduccion += 'sql.execute("UPDATE'
+        traduccion += ' ' + self.iden
+        NombreColumna = self.cond.iden
+        traduccion += ' SET ' + NombreColumna
+        traduccion += ' = '
+        if isinstance(self.cond.tipo , (int, float, complex)):
+            traduccion += str(self.cond.tipo)
+        elif isinstance(self.cond.tipo , str):
+            traduccion += "'" + self.cond.tipo + "'"
+        elif isinstance(self.cond.tipo, bool):
+            traduccion += str(self.cond.tipo )
+        else:
+            try:
+                temp = self.cond.tipo.ejecutar()
+                if isinstance(temp, (int, float, complex)):
+                    traduccion += str(temp)
+                elif isinstance(temp, str):
+                    traduccion += temp
+                elif isinstance(temp, bool):
+                    traduccion += str(temp)
+            except:
+                '''error'''
+
+        traduccion += ' WHERE '
+        tempwherw = self.wherecond
+
+        if isinstance(tempwherw,wherecond1):
+            traduccion += ' ' + tempwherw.iden
+            traduccion += ' ' + tempwherw.signo
+            if isinstance(tempwherw.tipo, str):
+                traduccion += " '" + tempwherw.tipo + "'"
+            elif isinstance(tempwherw.tipo, (int, float, complex)):
+                traduccion += ' ' + str(tempwherw.tipo)
+            if "ejecutar" in dir(self.wherecond.tipo):
+                traduccion += ' ' + str(self.wherecond.tipo.ejecutar())
+        if isinstance(tempwherw, wherecond):
+            traduccion += ' ' + tempwherw.iden + ' BETWEEN'
+            try:
+                traduccion += ' ' + str(tempwherw.tipo.ejecutar())
+            except:
+                traduccion += ' ' + tempwherw.tipo
+            traduccion += ' AND '
+            try:
+                traduccion += ' ' + str(tempwherw.tipo2.ejecutar()) + ' '
+            except:
+                traduccion += ' ' + str(tempwherw.tipo2) + ' '
+
+        traduccion += ';")'
+        traduccion += '\n'
+        print(traduccion)
+        return traduccion
 
     def ejecutar(self):
         global resultadotxt
@@ -1777,12 +1828,12 @@ class delete(instruccion):
             if "ejecutar" in dir(self.wherecond.tipo):
                 traduccion += ' ' + str(self.wherecond.tipo.ejecutar())
         if isinstance(tempwherw, wherecond):
-            traduccion += ' ' + tempwherw.iden
+            traduccion += ' ' + tempwherw.iden + ' BETWEEN'
             try:
                 traduccion += ' ' + str(tempwherw.tipo.ejecutar())
             except:
                 traduccion += ' ' + tempwherw.tipo
-            traduccion += ' ' + 'BETWEEN'
+            traduccion += ' AND '
             try:
                 traduccion += ' ' + str(tempwherw.tipo2.ejecutar()) + ' '
             except:
@@ -2084,3 +2135,5 @@ class alterind(instruccion):
     def __init__(self,buscarid,nuevoid):
         self.buscarid = buscarid
         self.nuevoid = nuevoid
+
+
