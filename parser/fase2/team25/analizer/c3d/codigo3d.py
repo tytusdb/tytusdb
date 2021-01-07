@@ -69,7 +69,7 @@ class Codigo3d:
         instruccion += "\n"
         instruccion = instruccion.lower()
         instruccion = re.sub('\-\-(.*)\n|/\*(.|\n)*?\*/' ,"",instruccion)
-        instruccion = re.sub('create\s+(function|procedure)' ,"",instruccion)# quito unos create que podrian dar problemas 
+        instruccion = re.sub('create\s+(function|procedure)' ,"",instruccion)# quito unos create que podrian dar problemas
         instruccion = instruccion[0:len(instruccion)-1]
         instruccion = instruccion.replace("\n", " ")
         lexema = ""
@@ -108,11 +108,11 @@ class Codigo3d:
         lexema = ""
         if tipoFuncion  =="(select":
                     instruccionOK = quitarParentesisSubquery(instruccionOK)
-
+                    quitarParentesisFinal = False
                     tipoFuncion ="select"
         if tipoFuncion == "select":
             if quitarParentesisFinal:
-                 instruccionOK = quitarParentesisSubquery(instruccionOK)
+                instruccionOK = quitarParentesisSubquery(instruccionOK)
 
             aux = re.sub('select' ,"",instruccionOK)
             aux =  aux.strip()
@@ -363,11 +363,13 @@ def quitarParentesisSubquery(cadena)->str:
         while( i >= 0):
             if cadena[i] == ")":
                 k = i
+                print(cadena[i+1])
                 break
             i-=1
+        if k == 0 : return cadena
         indiceInicial = 0
         salida = ''
-        while(indiceInicial != k+1):
+        while(indiceInicial < k):
             salida +=cadena[indiceInicial]
             indiceInicial +=1
         salida += ";"
