@@ -47,7 +47,7 @@ def analiz(input):
     ListaAsignaciones.append(optobj.Asignacion("x","y","0","*"))
     ListaAsignaciones.append(optobj.Asignacion("x","0","y","/"))
 
-    #optm.Optimizador(ListaAsignaciones).ejecutar()
+    print(optm.Optimizador(ListaAsignaciones).ejecutar())
     
     for simbolo in ts.simbolos:
         print("ID: " + str(ts.simbolos[simbolo].id) + " Nombre: " + ts.simbolos[simbolo].nombre + " Ambito: " + str(ts.simbolos[simbolo].ambito) + " Tipo indice: " + str(ts.simbolos[simbolo].tipoind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind))
