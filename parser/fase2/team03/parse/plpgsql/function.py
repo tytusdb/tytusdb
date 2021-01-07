@@ -186,9 +186,12 @@ class FuncCall(ASTNode):
             raise Error(self.line, self.column, ErrorType.SEMANTIC,f'La cantidad de parametros propocionada no coincide con la cantidad de parametros definidos en la función ({funcObj.number_params})')
 
         if isinstance(self.param_list, list):
+            #revert the order             
+            self.param_list.reverse()
             for p in self.param_list:
                 paramval = p.execute(table, tree)
                 tac_modue.push(paramval)
+            self.param_list.reverse()
         tac_modue.all_code()
         #my_module = importlib.import_module('os.path')
         retval = None

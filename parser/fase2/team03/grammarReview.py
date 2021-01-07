@@ -647,7 +647,7 @@ def p_if_inst(t):
                  | if_inst   return_opt  PUNTOCOMA
                  | if_inst stm_if PUNTOCOMA
                     '''
-
+    graph_ref = ''
     token = t.slice[2]
     if token.type == "statements_sql":
         childsProduction  = addNotNoneChild(t,[2])
@@ -700,18 +700,18 @@ def p_if_inst0(t):
 
 # TODO @ESTEBAN tener en cuenta  que el return esta como None
 def p_stm_begin(t):
-    '''stm_begin   : declares_opt BEGIN statements_begin exception_opt  END  if_opt '''
+    '''stm_begin   : declares_opt BEGIN statements_begin exception_opt return_opt END  if_opt '''
     lista = None
-    childsProduction = addNotNoneChild(t,[4,6])
+    childsProduction = addNotNoneChild(t,[4,7])
     if t[1] != None:
         lista = t[1][0]
         childsProduction.append(lista.graph_ref)
-    ret = None
+    ret = t[5]
     lista2 = None
     if t[3] != None:
         lista2 = t[3][0]
         childsProduction.append(lista2.graph_ref)
-    graph_ref = graph_node(str("stm_begin"), [lista, t[2], lista2, t[4], t[5], t[6]],childsProduction )
+    graph_ref = graph_node(str("stm_begin"), [lista, t[2], lista2, t[4], t[5], t[7]],childsProduction )
     addCad("**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tBegin \<STATEMENTS_BEGIN>  [\<EXCEPTION_OPT>]  tEnd  [\<IF_OPT>]   ")
     t[0] = FunctionBody(t[1], t[3], t[4], ret, t.slice[2].lineno, t.slice[2].lexpos, graph_ref)
 
@@ -1596,17 +1596,19 @@ def p_stm_index(t):
         childsProduction.append(lista.graph_ref)
     graph_ref = graph_node(str("stm_index"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],lista,t[10],t[11]],  childsProduction )
     addCad("**\<STM_INDEX>** ::= tCreate [\<UNIQUE_OPT>] tIndex")
-    t[0] = IndexPG((t[2].val if t[2] else None) ,t[4], t[6], t[9], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)   
+    t[0] = CreateIndex(True if t[2] is not None else False, True if t[7] is not None else False, t[4], t[6], t[9], t[11], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 def p_params_index(t):
     '''params_index : params_index COMA param_index
                     | param_index'''
     token = t.slice[1]
     if token.type == "params_index":
-        childsProduction  = addNotNoneChild(t,[1,3])
-        graph_ref = graph_node(str("params_index"), [t[1],t[2], t[3]],  childsProduction )
+        # TODO @SergioUnix echarle el ojo a childsProduction
+        # childsProduction  = addNotNoneChild(t,[1,3])
+        childsProduction = None
+        graph_ref = graph_node(str("params_index"), [t[1],t[2], t[3]],  childsProduction)
         addCad("**\<PARAMS_INDEX>** ::= [\<PARAMS_INDEX>] <PARAM_INDEX> ")
-        t[1].graph_ref = graph_ref
+        t[1][0].graph_ref = graph_ref
         t[1].append(t[3])
         t[0] = t[1]
         #####
@@ -1649,7 +1651,7 @@ def p_param_index_2(t):
     childsProduction  = addNotNoneChild(t,[1])
     graph_ref = graph_node(str("param_index"), [t[1]],  childsProduction)
     addCad("**\<PARAM_INDEX>** ::= \<EXPRESSION>")
-    t[0] = IndexAtributo(t[1],None, None,None,None,0, 0, graph_ref)
+    t[0] = IndexAtributo(t[1],t[1], None,None,None,0, 0, graph_ref)
     #####
 
 
@@ -1669,7 +1671,7 @@ def p_order_opt(t):
         t[0] = Identifier(token.value, token.lineno, token.lexpos, graph_ref)
         #####
     else:
-        t[0]=None
+        t[0] = None
 
 
 def p_unique_opt(t):
@@ -1682,7 +1684,7 @@ def p_unique_opt(t):
         t[0] = Identifier(token.value, token.lineno, token.lexpos, graph_ref)
         #####
     else:
-        t[0]=None
+        t[0] = None
 
 def p_using_hash_opt(t):
     '''using_hash_opt   : USING HASH
@@ -1694,7 +1696,7 @@ def p_using_hash_opt(t):
         t[0] = Identifier(str("USING HASH"), token.lineno, token.lexpos, graph_ref)
         #####
     else:
-        t[0]=None
+        t[0] = None
 
 ##########   >>>>>>>>>>>>>>>>  DROP INDEX  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_drop_index(t):
@@ -2120,18 +2122,37 @@ def p_names(t):
 def p_names1(t):
     '''names    :  GREATEST PARA exp_list PARC
                 |  LEAST PARA exp_list PARC
+                |  COUNT PARA expression PARC
+                |  AVG PARA expression PARC
+                |  MAX PARA expression PARC
+                |  MIN PARA expression PARC
+                |  SUM PARA expression PARC
                        '''
     token = t.slice[1]
-    cadena = str(token.type)
-    lista = None
-    childsProduction = []
-    if t[3] != None:
-        lista = t[3][0]
-        childsProduction.append(lista.graph_ref)
-    graph_ref = graph_node(str("names"), [t[1], t[2], lista, t[4]], childsProduction)
-    addCad("**\<NAMES>** ::= " + cadena + " '(' \<EXP_LIST> ')'  ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    #####                
+    token_str = str(token.type).upper()
+    if token_str == 'GREATEST' or token_str == 'LEAST':
+        lista = None
+        childsProduction = []
+        if t[3] != None:
+            lista = t[3][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("names"), [t[1], t[2], lista, t[4]], childsProduction)
+        addCad("**\<NAMES>** ::= " + token_str + " '(' \<EXP_LIST> ')'  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+    else:
+        childsProduction = []
+        graph_ref = graph_node(str("names"), [t[1], t[2], t[4]], childsProduction)
+        addCad("**\<NAMES>** ::= " + token_str + " '(' \<EXP> ')'  ")
+        if token_str == 'COUNT':
+            t[0] = upNodo("token", 0, 0, graph_ref)
+        elif token_str == 'AVG':
+            t[0] = upNodo("token", 0, 0, graph_ref)
+        elif token_str == 'MAX':
+            t[0] = upNodo("token", 0, 0, graph_ref)
+        elif token_str == 'MIN':
+            t[0] = upNodo("token", 0, 0, graph_ref)
+        elif token_str == 'SUM':
+            t[0] = upNodo("token", 0, 0, graph_ref)
 
 
 def p_group_clause(t):
@@ -2782,6 +2803,10 @@ def p_type(t):
             graph_ref = graph_node(str(str(t[1]) + "(" + str(t[3])+ "," + str(t[5])+ ")" ))
             addCad("**\<TYPE>** ::= tDouble '(' tEntero ',' tEntero ')'")
             t[0] = TypeDef(token.type, t[3], t[5], token.lineno, token.lexpos, graph_ref)
+        elif token.type == "VARCHAR" or token.type == "CHAR":
+            graph_ref = graph_node(str(str(t[1]) + "(" + str(t[3])+ ")" ))
+            addCad("**\<TYPE>** ::= tDouble '(' tEntero ',' tEntero ')'")
+            t[0] = TypeDef(token.type, 0, t[3], token.lineno, token.lexpos, graph_ref)
 
     else:
         graph_ref = graph_node(str(t[1]))
@@ -3672,9 +3697,9 @@ class GrammarGenerate():
                         val = val[0]
                         if len(val) == 1:
                             return val[0]
-                   
+
                 return val
-                
+
             except our_error as named_error:
                 errorsList.append(named_error)
 

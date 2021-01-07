@@ -43,14 +43,14 @@ class InsertInto(ASTNode):
                         except:
                             pass
                         if StmENUM and self.insert_list[value_related_to_match].val not in StmENUM.value_list:
-                            raise Error(0, 0, ErrorType.SEMANTIC,
+                            raise Error(self.line, self.column, ErrorType.SEMANTIC,
                                         f'Field {field_symbol.name} must be a take any of the follow: {str(StmENUM.value_list)}')
                         # TODO ADD HERE TYPE VALIDATIONS PER FIELD, JUST ONE ADDED BY NOW TO GIVE EXAMPLE
                         if field_symbol.field_type.upper() == 'INTEGER' and type(
                                 self.insert_list[value_related_to_match].execute(table, tree)) != int:
-                            raise Error(0, 0, ErrorType.SEMANTIC, f'Field {field_symbol.name} must be an integer type')
+                            raise Error(self.line, self.column, ErrorType.SEMANTIC, f'Field {field_symbol.name} must be an integer type')
                     else:
-                        raise Error(0, 0, ErrorType.SEMANTIC, f'Field does not exists in table declaration')
+                        raise Error(self.line, self.column, ErrorType.SEMANTIC, f'Field does not exists in table declaration')
                     to_insert.append(self.insert_list[value_related_to_match].execute(table, tree))
                 # TODO ADD HERE CHECK VALIDATION
             else:
@@ -62,24 +62,24 @@ class InsertInto(ASTNode):
                     to_insert.append(value)
             result = insert(table.get_current_db().name, self.table_name, to_insert)
             if result == 1:
-                raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
             elif result == 2:
-                raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
             elif result == 3:
-                raise Error(0, 0, ErrorType.RUNTIME, '42P07: table_does_not_exists')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '42P07: table_does_not_exists')
             elif result == 4:
-                raise Error(0, 0, ErrorType.RUNTIME, '42P10: duplicated_primary_key')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '42P10: duplicated_primary_key')
         else:
             for insert_reg in self.insert_list:
                 result = insert(table.get_current_db().name, self.table_name, insert_reg)
                 if result == 1:
-                    raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+                    raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
                 elif result == 2:
-                    raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+                    raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
                 elif result == 3:
-                    raise Error(0, 0, ErrorType.RUNTIME, '42P07: table_does_not_exists')
+                    raise Error(self.line, self.column, ErrorType.RUNTIME, '42P07: table_does_not_exists')
                 elif result == 4:
-                    raise Error(0, 0, ErrorType.RUNTIME, '42P10: duplicated_primary_key')
+                    raise Error(self.line, self.column, ErrorType.RUNTIME, '42P10: duplicated_primary_key')
         return f'Insert in {self.table_name}'
 
     def generate(self, table, tree):

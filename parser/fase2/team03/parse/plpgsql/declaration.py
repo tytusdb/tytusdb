@@ -11,12 +11,23 @@ from parse.symbol_table import *
                     | ID ALIAS FOR DOLLAR ENTERO PUNTOCOMA'''
 class Declaration(ASTNode):
     # Var declaration for plpgsql
-    def __init__(self, name, is_constant, type, allow_null, exp, aliasfor, line, column, graph_ref):
+    def __init__(self, name, is_constant, type_, allow_null, exp, aliasfor, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.name = name
         self.exp = exp        
         self.alias = aliasfor #index of parameter alias
+        self.type_ = type_
         self.graph_ref = graph_ref
+        self.default = None
+        #set the dafult values by type:
+        if self.type_ in ['SMALLINT','INTEGER', 'BIGINT']:
+            self.default = 0
+        if self.type_ in ['DECIMAL', 'NUMERIC', 'REAL', 'DOUBLE', 'MONEY']:
+            self.default = 0.0
+        if self.type_ in ['CARACTER', 'VARCHAR', 'CHARACTER', 'CHAR', 'TEXT']:
+            self.default = ''
+        if self.type_ in ['BOOLEAN']:
+            self.default = False                       
 
     def execute(self, table, tree):# this execute must return tac list
         super().execute(table, tree)
@@ -29,7 +40,7 @@ class Declaration(ASTNode):
         if self.alias is None:
             #TODO:validate tacs len
             if self.exp is None:
-                this_tac = Quadruple(None, 'None', None, self.name, OpTAC.ASSIGNMENT) #I put the word 'None' for TA python syntax to print the word None
+                this_tac = Quadruple(None, str(self.default), None, self.name, OpTAC.ASSIGNMENT) #I put the word 'None' for TA python syntax to print the word None
             else:
                 exp_tacs = self.exp.generate(table, tree)#should return the last quadruple generated                                
                 this_tac = Quadruple(None,exp_tacs.res if isinstance(exp_tacs, Quadruple) else exp_tacs,None, self.name, OpTAC.ASSIGNMENT)
