@@ -83,7 +83,7 @@ class select(query):
         if having is not None and condition is not None:
             self.condition.append(having)
         
-        
+
     def ejecutar(self):
 
         gro = self.group
