@@ -5,7 +5,10 @@ from analizer.statement.functions.call import FunctionCall
 from analizer.statement.expressions.identifiers import Identifiers
 from analizer.abstract.expression import TYPE
 from analizer.statement.pl.instruccionesF1 import F1
-
+from analizer.reports.Nodo import Nodo
+from analizer.reports.AST import AST
+import analizer.symbol.c3dSymbols as SymbolTable
+from analizer.abstract import expression
 
 class Asignacion(instruction.Instruction):
     def __init__(self, identificador, expresion, row , column):
@@ -66,3 +69,13 @@ class Asignacion(instruction.Instruction):
             instruction.semanticErrors.append(
                 ( "ERROR: la variable '%s' no se ha declarado" %self.identificador,self.row)
             )
+    def dot(self):
+        nuevo_nodo = Nodo("ASIGNACION")
+        identificador = Nodo("ID")
+        expresion = Nodo("EXPRESION")
+        id = Nodo(self.identificador)
+        identificador.addNode(id)
+        expresion.addNode(self.expresion.dot())
+        nuevo_nodo.addNode(identificador)
+        nuevo_nodo.addNode(expresion)
+        return nuevo_nodo   

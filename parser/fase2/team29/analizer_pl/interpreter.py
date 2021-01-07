@@ -147,33 +147,19 @@ execute myFuncion("Francisco");
 """
 
 s2 = """
---Manipulacion de datos
-CREATE DATABASE IF NOT EXISTS test OWNER = 'root' MODE = 1;
-CREATE DATABASE IF NOT EXISTS califica OWNER = 'root' MODE = 2;
-SHOW DATABASES;
-USE test;
-create table tbcalifica (
-  iditem integer not null primary key,
-  item varchar(150) not null,
-  puntos decimal(8, 2) not null
+USE db1;
+CREATE TABLE Usuario(
+    id bigint,
+    nombre varchar(20),
+    apellido varchar(20),
+    fecha date
 );
-CREATE TABLE tbusuario (
-  idusuario integer NOT NULL primary key,
-  nombre varchar(50),
-  apellido varchar(50),
-  usuario varchar(15) UNIQUE NOT NULL,
-  password varchar(15) NOT NULL,
-  fechacreacion date
-);
-CREATE TABLE tbroles (
-  idrol integer NOT NULL primary key,
-  rol varchar(15)
-);
-DROP TABLE tbroles;
-CREATE TABLE tbrol (
-  idrol integer NOT NULL primary key,
-  rol varchar(15)
-);
+CREATE INDEX index_usuario ON Usuario(id,nombre);
+ALTER INDEX index_usuario ALTER nombre 3;
+ALTER INDEX index_usuario ALTER id fecha;
+Drop index xd;
+ALTER INDEX index_usuario RENAME TO alv;
+
 """
 
 traducir(sql)

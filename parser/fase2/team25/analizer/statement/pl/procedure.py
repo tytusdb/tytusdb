@@ -64,15 +64,28 @@ class Procedure(instruction.Instruction):
             
 
     def dot(self):
-        new = Nodo.Nodo('CREATE PROCEDURE')
-        params = Nodo.Nodo('PARAMS')
-        for param in self.params:
-            nParam = Nodo.Nodo(param[0])
-            nParam.addNode(Nodo.Nodo(param[1]))
-            params.addNode(nParam)
-
-        new.addNode(params)
-
+        new = Nodo('CREATE FUNCTION')
+        nombre_func = Nodo("IDENTIFICADOR DE FUNCION")
+        nombre_func.addNode(Nodo(self.name))
+        new.addNode(nombre_func)
+        if len(self.params) > 0:
+            params = Nodo('PARAMETROS')
+            for param in self.params:
+                parametro = Nodo("PARAMETRO")
+                id = Nodo("IDENTIFICADOR")
+                identi = Nodo(param[0])
+                id.addNode(identi)
+                parametro.addNode(id)
+                tipo = Nodo("TIPO")
+                type_node = Nodo(param[1][0])
+                tipo.addNode(type_node)
+                parametro.addNode(tipo)
+                if param[1][1][0] != None:
+                    dim = Nodo("DIMENSION")
+                    dim.addNode(Nodo(str(param[1][1][0])))
+                    tipo.addNode(dim)
+                params.addNode(parametro)
+            new.addNode(params)
         block = self.block.dot()
         new.addNode(block)
 

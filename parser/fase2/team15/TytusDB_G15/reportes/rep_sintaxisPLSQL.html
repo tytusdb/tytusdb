@@ -42,12 +42,36 @@
 <TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
+<TR><TD> delete_insrt -> DELETE FROM ID <cond_where> PTCOMA</TD><TD> cadena =  <br>  t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+ ' ' +str(t[4])+';') </TD></TR>
+<TR><TD> cond_where -> WHERE expresion_where </TD><TD> t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' ' </TD></TR>
+<TR><TD> expresion_where -> expresion_logica_w </TD><TD> t[0] = ' ' + str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_logica_w -> expresion_whereb </TD><TD> t[0] = ' ' + str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_whereb ->  </TD><TD>  </TD></TR>
+<TR><TD> expresion_wherea -> expresion </TD><TD> t[0] = ' ' + str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion -> expresion_dato </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_dato -> expresion_numero </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_numero -> ENTERO </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_wherea -> expresion </TD><TD> t[0] = ' ' + str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion -> expresion_dato </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_dato -> string_type </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> string_type -> ID </TD><TD> t[0] = t[1] </TD></TR>
+<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
+<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
 <TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
 <TR><TD> empty ->  </TD><TD> pass </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> funciones ->  </TD><TD>  </TD></TR>
+<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
+<TR><TD> instrucciones_funct_sent -> select_insrt PTCOMA </TD><TD> instrucciones_funct_sent = SelectTable(' ' + str(t[1]) + ';') </TD></TR>
+<TR><TD> select_insrt -> SELECT opcion_select_tm </TD><TD> select_insrt = ' ' + str(t[1]) + ' '+ str(t[2]) + ' ' </TD></TR>
+<TR><TD> opcion_select_tm -> opcion_select_lista  FROM opciones_sobrenombres </TD><TD> cadena =  <br> for i in t[3]: <br>       cadena += str(i) <br> opcion_select_tm = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(cadena) + ' ' </TD></TR>
+<TR><TD> opcion_select_tm -> opcion_sobrenombre </TD><TD> opciones_sobrenombres = [t[1]]  </TD></TR>
+<TR><TD> opcion_sobrenombre -> ID </TD><TD> opcion_sobrenombre = ' ' + str(t[1]) + ' ' </TD></TR>
+<TR><TD> opcion_select_lista -> opciones_select_lista </TD><TD>  cadena =  <br> for i in t[1]: <br>       cadena += str(i) <br> opcion_select_lista =  ' '+ str(cadena) + ' ' </TD></TR>
+<TR><TD> opciones_select_lista -> opcion_select </TD><TD>  opciones_select_lista =[t[1]] </TD></TR>
+<TR><TD> opcion_select -> POR </TD><TD> t[0] = ' ' + str(t[1]) + ' ' </TD></TR>
 <TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
 <TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
 <TR><TD> update_insrt -> UPDATE ID SET lista_update cond_where PTCOMA </TD><TD> cadena =  <br>  for i in t[3]: <br>     cadena += str(i) <br>  drop_insrt = UpdateTable(t[1] + ' ' +t[2] + ' ' + cadena + ';') </TD></TR>

@@ -257,7 +257,7 @@ def p_declaration_list(t):
     repGrammar.append(t.slice)
 
 
-def p_declaration_list(t):
+def p_declaration_list_u(t):
     """
     declaration_list : R_DECLARE global_variable_declaration
     """
@@ -2112,8 +2112,13 @@ def p_alterStmt(t):
         t[0] = code.AlterDataBase(
             t[4][0], t[3], t[4][1], t.slice[1].lineno, t.slice[1].lexpos
         )
-    else:
+    elif t[2] == "TABLE":
         t[0] = code.AlterTable(t[3], t.slice[1].lineno, t.slice[1].lexpos, t[4])
+    else:
+        if t[5] == "RENAME":
+            t[0] = code.AlterIndex(t[3], t[4], t[7], t.slice[1].lineno, t.slice[1].lexpos)
+        else:
+            t[0] = code.AlterIndex(t[3], t[4], t[7], t.slice[1].lineno, t.slice[1].lexpos, t[8])
     repGrammar.append(t.slice)
 
 
@@ -2261,6 +2266,7 @@ def p_dropStmt_index(t):
     """
     dropStmt : R_DROP R_INDEX ifExists idList
     """
+    t[0] = code.DropIndex(t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
