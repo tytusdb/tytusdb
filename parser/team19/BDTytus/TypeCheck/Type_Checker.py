@@ -82,7 +82,7 @@ def showTables(database:str):
     respuesta = JM.showTables(database)
     return respuesta
 
-def createColumn(database:str,table:str,nombre:str,tipo:str):
+def createColumn(database:str,table:str,nombre:str,tipo):
     # 0:operación exitosa, 1: error en la operación, 2: base de datos inexistente, 3: tabla inexistente, 4: columna ya existente
     actualBase = obtenerBase(database)
     if(actualBase!=None):
@@ -114,6 +114,40 @@ def createAtributo(database:str,table:str,nuevo:Atributo):
     else:
         return 2
 
+def showColumns(database:str,table:str):
+    # retorna un diccionario clave,valor = columna,tipo. o vacio
+    diccionario = {}
+    actualBase = obtenerBase(database)
+    if actualBase is not None:
+        if not actualBase.listaTablas.existeTabla(table):
+            return diccionario
+        else:
+            actualTabla = actualBase.listaTablas.obtenerTabla(table)
+            actualAtributo = actualTabla.listaAtributos.primero
+            while actualAtributo is not None:
+                diccionario[actualAtributo.nombre] = actualAtributo.tipo
+                actualAtributo = actualAtributo.siguiente
+            return diccionario
+    else:
+        return diccionario
+
+def showPrimaryKeys(database:str,table:str) -> list:
+    #retorna un list con los nombres de las columnas que son llaves primarias o la lista vacia
+    lista = []
+    actualBase = obtenerBase(database)
+    if actualBase is not None:
+        if not actualBase.listaTablas.existeTabla(table):
+            return lista
+        else:
+            actualTabla = actualBase.listaTablas.obtenerTabla(table)
+            if actualTabla.primary is not None:
+                lista = actualTabla.primary.columnas
+                return lista
+            else:
+                return lista
+    else:
+        return lista
+
 def obtenerTipoColumna(database:str,table:str,nombreColumna:str):
     # Retorna el tipo de la columna, sino retorna None
     actualBase = obtenerBase(database)
@@ -142,23 +176,9 @@ def obtenerTiposEnum(nombre:str):
         return lista_enums.obtenerTipos(nombre)
     return None
 
-def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
-    #0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente
-    respuesta = JM.alterDropColumn(database,table,columnNumber)
-    if respuesta == 0:
-        baseActual = obtenerBase(database)
-        if baseActual is not None:
-            actualTabla = baseActual.listaTablas.obtenerTabla(table)
-            if actualTabla is not None:
-                actualTabla.listaAtributos.eliminiarNAtributo(columnNumber)
-                return 0
-            return 3
-        return 2
-    else:
-        return respuesta
 
 def dropColumn(database:str, table:str, columnName:str) -> int:
-    # 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4:Columna inexistente, 5 no se puede eliminar ya que es llave Primary
+    # 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4:Columna inexistente, 5 no se puede eliminar una llave Primary
     baseActual = obtenerBase(database)
     if baseActual is not None:
         actualTabla = baseActual.listaTablas.obtenerTabla(table)
@@ -166,13 +186,25 @@ def dropColumn(database:str, table:str, columnName:str) -> int:
             if actualTabla.listaAtributos.existeAtributo(columnName):
                 if actualTabla.primary is not None:
                     if not actualTabla.primary.esPrimary(columnName):
-                        actualTabla.listaAtributos.eliminarAtributo((columnName))
-                        return 0
+                        numero = actualTabla.listaAtributos.getNumeroColumna(columnName)
+                        respuesta = JM.alterDropColumn(database,table,numero)
+                        if respuesta == 0:
+                            actualTabla.eliminarReferenciasForaneas(baseActual,table,columnName)
+                            actualTabla.listaAtributos.eliminarAtributo(columnName)
+                            return 0
+                        else:
+                            return 1
                     else:
                         return 5
                 else:
-                    actualTabla.listaAtributos.eliminarAtributo(columnName)
-                    return 0
+                    numero = actualTabla.listaAtributos.getNumeroColumna(columnName)
+                    respuesta = JM.alterDropColumn(database, table, numero)
+                    if respuesta == 0:
+                        actualTabla.eliminarReferenciasForaneas(baseActual,table,columnName)
+                        actualTabla.listaAtributos.eliminarAtributo(columnName)
+                        return 0
+                    else:
+                        return 1
             else:
                 return 4
         return 3
@@ -185,14 +217,14 @@ def dropTable(database: str, table:str) -> int:
     if respuesta == 0:
         baseActual = obtenerBase(database)
         if baseActual is not None:
-            return baseActual.ListaTablas.eliminarTabla(table)
+            return baseActual.listaTablas.eliminarTabla(table)
         return 2
     return respuesta
 
 def addConstraint(database:str,table:str,nombreColumna:str,nuevo:Constraint):
     # 0:operación exitosa, 1:error en la operación, 2: base inexistente, 3: tabla inexistente, 4: columna inexistente, 5: propiedad ya existente
     actualBase = obtenerBase(database)
-    if(actualBase!=None):
+    if actualBase is not None:
         # Verificamos si la tabla existe
         if actualBase.listaTablas.existeTabla(table):
             actualTabla = actualBase.listaTablas.obtenerTabla(table)
@@ -230,23 +262,23 @@ def dropConstraint(database:str,table:str,nombreColumna:str, nameConstraint:str)
 
 def alterAddPK(database:str,table:str,nombreConstraint:str,columns:list):
     #0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:llave primaria existente, 5:columnas fuera de límites
-    respuesta = JM.alterAddPK(database,table,columns)
-    if respuesta == 0:
-        baseActual = obtenerBase(database)
-        if(baseActual!=None):
-            actualTabla = baseActual.listaTablas.obtenerTabla(table)
-            if(actualTabla!=None):
-                if actualTabla.primary is None:
-                    actualTabla.primary = ConstraintPrimary.Primary(nombreConstraint,columns)
-                    return 0
-                else:
-                    return 4
+    baseActual = obtenerBase(database)
+    if(baseActual!=None):
+        actualTabla = baseActual.listaTablas.obtenerTabla(table)
+        if(actualTabla!=None):
+            if actualTabla.primary is None:
+                lista_numeros_columnas = actualTabla.obtener_lista_numeros_columnas(columns)
+                respuesta = JM.alterAddPK(database, table, lista_numeros_columnas)
+                if respuesta != 0:
+                    return respuesta
+                actualTabla.primary = ConstraintPrimary.Primary(nombreConstraint,columns)
+                return 0
             else:
-                return 3
+                return 4
         else:
-            return 2
+            return 3
     else:
-        return respuesta
+        return 2
 
 def alterDropPk(database:str,table:str):
     # 0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:pk no existente
@@ -289,13 +321,15 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
 def alterRenameColumn(database:str, table: str, columnOld:str, columnNew:str) -> int:
     # 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columnOld no existente, 5:ColumnNew existente.
     actualBase = obtenerBase(database)
-    if (actualBase != None):
+    if (actualBase is not None):
         if actualBase.listaTablas.existeTabla(table):
             actualTabla = actualBase.listaTablas.obtenerTabla(table)
             if actualTabla.listaAtributos.existeAtributo(columnOld):
                 if not actualTabla.listaAtributos.existeAtributo(columnNew):
                     actualAtributo = actualTabla.listaAtributos.obtenerAtributo(columnOld)
                     actualAtributo.nombre = columnNew
+                    actualTabla.renombrarLlavesForaneas(actualBase,table,columnOld,columnNew)
+                    actualTabla.renombrarLlavePrimaria(columnOld, columnNew)
                     return 0
                 else:
                     return 5
@@ -303,7 +337,8 @@ def alterRenameColumn(database:str, table: str, columnOld:str, columnNew:str) ->
                 return 4
         else:
             return 3
-    return 2
+    else:
+        return 2
 
 def alterTypeColumn(database:str, table:str, column:str, tipo:str) -> int:
     # 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columnOld no existente
@@ -321,14 +356,14 @@ def alterTypeColumn(database:str, table:str, column:str, tipo:str) -> int:
             return 3
     return 2
 
-def alterAddFK(database:str,table:str,nombreConstraint:str,columns:list,referenceTable,referencesColumns:list):
+def alterAddFK(database:str,table:str,nombreConstraint:str,columns:list,referenceTable:str,referencesColumns:list):
     # 0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:llave foranea existente
     baseActual = obtenerBase(database)
     if (baseActual is not None):
         actualTabla = baseActual.listaTablas.obtenerTabla(table)
         if (actualTabla is not None):
-            if actualTabla.foreigns.has_keys(nombreConstraint):
-                actualTabla.foreigns[nombreConstraint] = ConstraintForeign.Foreign(nombreConstraint,columns,referenceTable,referencesColumns)
+            if not actualTabla.existeForanea(nombreConstraint):
+                actualTabla.foreigns.append(ConstraintForeign.Foreign(nombreConstraint, columns, referenceTable, referencesColumns))
                 return 0
             else:
                 return 4
@@ -338,13 +373,13 @@ def alterAddFK(database:str,table:str,nombreConstraint:str,columns:list,referenc
         return 2
 
 def alterDropFK(database:str,table:str,nombreConstraint:str):
-    # 0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:llave foranea no existente
+    # 0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:llave foranea no existente o None
     baseActual = obtenerBase(database)
     if (baseActual is not None):
         actualTabla = baseActual.listaTablas.obtenerTabla(table)
         if (actualTabla is not None):
-            if actualTabla.foreigns.has_keys(nombreConstraint):
-                del(actualTabla.foreigns[nombreConstraint])
+            if actualTabla.existeForanea(nombreConstraint):
+                actualTabla.eliminarForanea(nombreConstraint)
                 return 0
             else:
                 return 4
@@ -354,10 +389,69 @@ def alterDropFK(database:str,table:str,nombreConstraint:str):
         return 2
 
 
+def addInheritsToTable(database:str, table:str, inherits:str):
+    #0 operacion existosa, 1:error interno, 2:database no existente, 3:table no existente, 4:table inherits no existente
+    baseActual = obtenerBase(database)
+    if baseActual is not None:
+        actualTabla = baseActual.listaTablas.obtenerTabla(table)
+        if actualTabla is not None:
+            inheritsTabla = baseActual.listaTablas.obtenerTabla(table)
+            if inheritsTabla is not None:
+                if actualTabla.inherits is not None:
+                    return 1
+                actualTabla.inherits = inherits
+                return 0
+            return 4
+        return 3
+    return 2
 
+def getIfTipoColumnaIsReserverd(tipo:str):
+    tipo = tipo.lower()
+    tiposReservados = {
+        'smallint': 0,
+        'integer': 1,
+        'bigint': 2,
+        'decimal': 3,
+        'numeric': 4,
+        'real': 5,
+        'double': 6,
+        'money': 7,
+        'character': 8,
+        'varchar': 9,
+        'character varying': 10,
+        'char': 11,
+        'text': 12,
+        'boolean': 13,
+        'date': 15
+    }
+    return tiposReservados.get(tipo, 14)
 
+def create_new_constraint(nombre_constraint, numero_propiedad, extra):
+    if numero_propiedad == 1:#DEFAULT
+        return Constraint.Constraint(nombre_constraint, extra, True, False, None, numero_propiedad)
+    elif numero_propiedad == 2:#ISNULL
+        return Constraint.Constraint(nombre_constraint, None, extra, False, None, numero_propiedad)
+    elif numero_propiedad == 3:#ISUNIQUE
+        return Constraint.Constraint(nombre_constraint, None, True, True, None, numero_propiedad)
+    else:#CHECK
+        return Constraint.Constraint(nombre_constraint, None, True, False, extra, numero_propiedad)
+    
 
-
+def add_constraint_general_check(database:str,table:str,nuevo:Constraint):
+    # 0:operación exitosa, 1:error en la operación, 2: base inexistente, 3: tabla inexistente, 5: nombre constraint ya existente
+    actualBase = obtenerBase(database)
+    if actualBase is not None:
+        # Verificamos si la tabla existe
+        if actualBase.listaTablas.existeTabla(table):
+            actualTabla = actualBase.listaTablas.obtenerTabla(table)
+            for check_general in actualTabla.check_general:
+                if check_general.nombreConstraint == nuevo.nombreConstraint:
+                    return 5
+            actualTabla.check_general.append(nuevo)
+            return 0
+        else:
+            return 3
+    return 2
 
 
 

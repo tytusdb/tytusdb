@@ -26,7 +26,11 @@ class SimboloBase:
         return None
 
     def getTabla(self, id):
-        return self.tablas[id]
+
+        if id in self.tablas:
+            return self.tablas[id]
+
+        return None
 
     def deleteTable(self, id):
         if id in self.tablas:
@@ -52,10 +56,75 @@ class SimboloTabla:
         self.columnas = {}
         self.padre = padre
 
+
+    def __str__(self):
+        return "{ 'SimboloTabla' | 'nombre': %s, 'padre': %s, 'columnas': %s }" % (
+            str(self.nombre), str(self.padre), str(self.columnas)
+        )
+
+
+    def comprobarNulas(self, listaColumnas):
+        #VERIFICAMOS SI EXISTE EN LA TABLA
+        nombres = []
+        for col in listaColumnas:
+            nombres.append(col.valor)
+            if col.valor not in self.columnas:
+                return {"cod": 1, "col": col.valor}
+        
+        
+
+        #VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
+        for col in self.columnas:
+            if self.columnas[col].nombre not in nombres:
+                if self.columnas[col].null != True and self.columnas[col].default == None and self.columnas[col].primary_key==True:
+                    return {"cod": 2, "col": self.columnas[col].nombre}
+        return {"cod": 0}
+
+    # MÉTODO PARA OBTENER LOS ÍNDICES DE LAS LLAVES PRIMARIAS
+    def get_pk_index(self):
+
+        i = 0
+        lista = []
+        for k in self.columnas:
+            if self.columnas[k].primary_key:
+                lista.append(i)
+            i += 1
+        return lista
+
+    def comprobarNulas2(self, listaColumnas):
+        #VERIFICAMOS SI EXISTE EN LA TABLA
+        nombres = []
+        for col in listaColumnas:
+            nombres.append(col)
+            if col not in self.columnas:
+                return {"cod": 1, "col": col}
+        # VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
+        for col in self.columnas:
+            if self.columnas[col].nombre not in nombres:
+                if self.columnas[col].null != True and self.columnas[col].default == None and self.columnas[col].primary_key == True:
+                    return {"cod": 2, "col": self.columnas[col].nombre}
+        return {"cod": 0}
+
+    def deleteColumn(self, id):
+        val = 0
+        if id in self.columnas:
+            val = self.columnas[id].index
+            del self.columnas[id]
+            return True
+        for id2 in self.columnas:
+            if self.columnas[id2].index > val:
+                self.columnas[id2].index = self.columnas[id2].index - 1
+        return None
+
     def crearColumna(self, id, columna):
         if id not in self.columnas:
             self.columnas[id] = columna
             return True
+        return None
+
+    def getIndex(self, idcol):
+        if idcol in self.columnas:
+            return self.columnas[idcol].index
         return None
 
     def renameColumna(self, idactual, idnuevo):
@@ -73,9 +142,21 @@ class SimboloTabla:
             return True
         return None
 
+    def deleteUnique(self, idcol):
+        if idcol in self.columnas:
+            self.columnas[idcol].unique = False
+            return True
+        return None
+
     def modificarCheck(self, idcolumna, condicion, idconstraint):
         if idcolumna in self.columnas:
             self.columnas[idcolumna].check = {"id": idconstraint, "condicion": condicion}
+            return True
+        return None
+
+    def deleteCheck(self, idcol):
+        if idcol in self.columnas:
+            self.columnas[idcol].check = None
             return True
         return None
 
@@ -85,20 +166,79 @@ class SimboloTabla:
             return True
         return None
 
+    def deleteFk(self, idcol):
+        if idcol in self.columnas:
+            self.columnas[idcol].foreign_key = None
+            return True
+        return None
+
     def modificarPk(self, id):
         if id in self.columnas:
             self.columnas[id].primary_key = True
             return True
         return None
 
+    def modificarNull(self, idcol):
+        if idcol in self.columnas:
+            self.columnas[idcol].null = False
+            return True
+        return None
+
+    def modificarTipo(self, idcol, tipo, ntama):
+        if idcol in self.columnas:
+            if self.columnas[idcol].tipo.tipo == tipo:
+                if self.columnas[idcol].tipo.cantidad < ntama:
+                    self.columnas[idcol].tipo.cantidad = ntama
+                    return 0
+                return 1
+            return 2
+        return 3
+
     def getColumna(self, idcolumna):
-        return self.columnas[idcolumna]
+        if idcolumna in self.columnas:
+            return self.columnas[idcolumna]
+        else:
+            return None
+
+    def get_name_list(self):
+        names = []
+
+        for name in self.columnas:
+            names.append(name)
+
+        return names
+
+
+class colsConsulta:
+    def __init__(self, nombre, alias, tipo, param, tabla, cindice,vtipo,nodo):
+        self.nombre = nombre
+        self.alias = alias
+        self.tipo = tipo
+        self.param = param
+        self.tabla = tabla
+        self.cindice = cindice
+        self.vtipo=vtipo
+        self.nodo=nodo
+
+
+class Grupo:
+    def __init__(self, indice, indiceCol, tabla, valor):
+        self.indice = indice
+        self.indiceCol = indiceCol
+        self.tabla = tabla
+        self.valor = valor
+
+
+class colsTabla:
+    def __init__(self, nombre, alias):
+        self.nombre = nombre
+        self.alias = alias
 
 
 class SimboloColumna:
     ''' Clase Para Almacenar Información Sobre Las Columnas de Una Tabla '''
 
-    def __init__(self, nombre, tipo, primary_key, foreign_key, unique, default, null, check):
+    def __init__(self, nombre, tipo, primary_key, foreign_key, unique, default, null, check, index):
         self.nombre = nombre
         self.tipo = tipo
         self.primary_key = primary_key
@@ -107,6 +247,11 @@ class SimboloColumna:
         self.default = default
         self.null = null
         self.check = check
+        self.index = index
+
+    def __str__(self):
+        return "{ 'SimboloColumna' | 'nombre': %s, 'tipo': %s, 'primary_key': %s,'foreign_key': %s, 'unique': %s, 'default': %s,'null': %s, 'check': %s, 'index': %s }" % (
+            str(self.nombre), str(self.tipo), str(self.primary_key), str(self.foreign_key), str(self.unique), str(self.default), str(self.null), str(self.check), str(self.index))
 
 
 class llaveForanea:
@@ -207,3 +352,45 @@ class Entorno:
             tabla = base.getTabla(idtabla)
             return tabla.getColumna(idcol)
         return None
+
+    def mostrar_tabla(self):
+
+        salida = ""
+
+        for k in self.tabla:
+            salida += "\n"
+            salida += "===========================================================" + "\n"
+            salida += "BASE DE DATOS    : " + str(self.tabla[k].nombre) + "\n"
+            salida += "OWNER            : " + str(self.tabla[k].owner) + "\n"
+            salida += "DUEÑO            : " + str(self.tabla[k].mode) + "\n"
+            salida += "-----------------------------------------------------------" + "\n"
+
+            for j in self.tabla[k].tablas:
+
+                my_tabla = self.tabla[k].tablas[j]
+                salida += "\tNOMBRE TABLA   : " + str(my_tabla.nombre) + "\n"
+                salida += "\tPADRE          : " + str(my_tabla.padre) + "\n"
+                salida += "-----------------------------------------------------------" + "\n"
+
+                for l in my_tabla.columnas:
+
+                    my_column = my_tabla.columnas[l]
+
+                    salida += "\t\tNOMBRE COLUMNA   : " + str(my_column.nombre) + "\n"
+                    salida += "\t\tTIPO COLUMNA     : " + str(my_column.tipo) + "\n"
+                    salida += "\t\tLLAVES PRIMARIAS : " + str(my_column.primary_key) + "\n"
+                    salida += "\t\tLLAVES FORÁNEAS  : " + str(my_column.foreign_key) + "\n"
+                    salida += "\t\tCLÁUSULA UNIQUE  : " + str(my_column.unique) + "\n"
+                    salida += "\t\tCLÁUSULA DEFAULT : " + str(my_column.default) + "\n"
+                    salida += "\t\tCLÁUSULA NULL    : " + str(my_column.null) + "\n"
+                    salida += "\t\tCLÁUSULA CHECK   : " + str(my_column.check) + "\n"
+                    salida += "\t\tCLÁUSULA INDEX   : " + str(my_column.index) + "\n"
+                    salida += "\n"
+
+        return salida
+
+
+
+        
+
+        

@@ -1,15 +1,15 @@
 import flask
-from flask import request, jsonify, json
+from flask import request, jsonify
+import json
 
-mensaje = [{
-    'resultado' : 'Okey'
-}]
 
+mensaje = { "resultado" : "Okey" }
 mensaje2 = {"resultado": "Cambios realizados"}
+mensaje3 = {"aviso":"Cambios revertidos"}
 
 app = flask.Flask(__name__)
+app.config["DEBUG"] = True
 
-#POST: Recibe el script sql 
 @app.route('/ejecutar' ,methods=['POST'])
 def ejecutar():
     req_data = request.get_json()
@@ -17,7 +17,6 @@ def ejecutar():
     y = json.dumps(mensaje)
     return y
 
-#Commit solicitado
 @app.route('/commit', methods=['POST'])
 def commit():
 	req_data = request.get_json()
@@ -25,7 +24,6 @@ def commit():
 	z = json.dumps(mensaje2)
 	return z
 
-#Rollback solicitado
 @app.route('/Rollback', methods=['POST'])
 def rollback():
 	req_data = request.get_json()

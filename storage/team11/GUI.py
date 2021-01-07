@@ -1,5 +1,5 @@
 import ast
-from Manager import Manager
+import AVLMode as Manager
 import tkinter as Tkinter
 import webbrowser
 from tkinter import *
@@ -14,7 +14,7 @@ from PIL import Image,ImageTk
 contenidoCSV = ""
 class GUI: 
     def __init__(self):
-        self.control = Manager()
+        self.control = Manager
         self.window = tk.Tk()
         self.window.title("Proyecto EDD Grupo 11")
         self.window.geometry('1250x650') 
@@ -408,7 +408,13 @@ class GUI:
         nameFile = filedialog.askopenfilename(title="Seleccionar archivo", filetypes=[(
             ("Archivo CSV", ".csv"))])
         if nameFile != '':
-            self.control.loadCSV(nameFile,str(self.datobd2d.get()),str(self.datotablad.get()))
+            try:
+                self.control.loadCSV(nameFile,str(self.datobd2d.get()),str(self.datotablad.get()))
+                self.Labelcsv=tk.Label(self.pestaña4, text="Se cargo Correctamente el CSV!!")#,command=self.tabla_tablas
+                self.Labelcsv.grid(column=1, row=5, padx=4, pady=4)
+            except:
+                self.Labelcsv=tk.Label(self.pestaña4, text="Se genero un error al cargar CSV!!")#,command=self.tabla_tablas
+                self.Labelcsv.grid(column=1, row=5, padx=4, pady=4) 
 
             ############################### COMANDOS #############################################
 
@@ -432,9 +438,14 @@ class GUI:
         self.dialogo.grab_set()
 
     def createDatabase(self):
-        s=self.control.createDatabase(str(self.datos.get()))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            s=self.control.createDatabase(str(self.datos.get()))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+
 
     def dialogo_showDatabase(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -475,10 +486,14 @@ class GUI:
         self.dialogo.grab_set()
 
     def alterDatabase(self):
-        nombres = self.datos.get().split(",")
-        s=self.control.alterDatabase(str(nombres[0]),str(nombres[1]))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            nombres = self.datos.get().split(",")
+            s=self.control.alterDatabase(str(nombres[0]),str(nombres[1]))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)    
 
     def dialogo_dropDatabase(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -500,9 +515,13 @@ class GUI:
         self.dialogo.grab_set()
 
     def dropDatabase(self):
-        s=self.control.dropDatabase(str(self.datos.get()))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            s=self.control.dropDatabase(str(self.datos.get()))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
 
 
 
@@ -526,10 +545,14 @@ class GUI:
         self.dialogo.grab_set()
 
     def crearTable(self):
-        cadena = self.datos.get().split(",")
-        s= self.control.createTable(str(cadena[0]),str(cadena[1]),int(cadena[2]))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorno: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",")
+            s= self.control.createTable(str(cadena[0]),str(cadena[1]),int(cadena[2]))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorno: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
 
     
     def dialogo_showTables(self):
@@ -552,9 +575,13 @@ class GUI:
         self.dialogo.grab_set()
 
     def showTables(self):
-        self.lis = ttk.Combobox(self.labelframeInt,width=35)
-        self.lis.grid(column=1, row=0, padx=10, pady=4)
-        self.lis['values'] = self.control.showTables(str(self.datos.get()))
+        try:
+            self.lis = ttk.Combobox(self.labelframeInt,width=35)
+            self.lis.grid(column=1, row=0, padx=10, pady=4)
+            self.lis['values'] = self.control.showTables(str(self.datos.get()))
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
 
 
     def dialogo_extracTable(self):
@@ -577,10 +604,14 @@ class GUI:
         self.dialogo.grab_set()
 
     def extracTable(self):
-        cadena = self.datos.get().split(",")
-        self.lis = ttk.Combobox(self.labelframeInt,width=35)
-        self.lis.grid(column=1, row=0, padx=10, pady=4)
-        self.lis['values'] = self.control.extractTable(str(cadena[0]),str(cadena[1]))
+        try:
+            cadena = self.datos.get().split(",")
+            self.lis = ttk.Combobox(self.labelframeInt,width=35)
+            self.lis.grid(column=1, row=0, padx=10, pady=4)
+            self.lis['values'] = self.control.extractTable(str(cadena[0]),str(cadena[1]))
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
             
     
     def dialogo_extractRange(self):
@@ -603,13 +634,16 @@ class GUI:
         self.dialogo.grab_set()
 
     def extractRange(self):
-        cadena = self.datos.get().split(",")
-        self.lis = ttk.Combobox(self.labelframeInt,width=35)
-        self.lis.grid(column=1, row=0, padx=10, pady=4)
-        extract = cadena[3]
-        range = cadena[4]
-        self.lis['values'] = self.control.extractRangeTable(str(cadena[0]),str(cadena[1]),int(cadena[2]),ast.literal_eval(f'{extract}'),ast.literal_eval(f'{range}'))
-        
+        try:
+            cadena = self.datos.get().split(",")
+            self.lis = ttk.Combobox(self.labelframeInt,width=35)
+            self.lis.grid(column=1, row=0, padx=10, pady=4)
+            extract = cadena[3]
+            range = cadena[4]
+            self.lis['values'] = self.control.extractRangeTable(str(cadena[0]),str(cadena[1]),int(cadena[2]),ast.literal_eval(f'{extract}'),ast.literal_eval(f'{range}'))
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)          
 
     def dialogo_alterAddPk(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -631,11 +665,15 @@ class GUI:
         self.dialogo.grab_set()
 
     def alterAddPk(self):
-        cadena = self.datos.get().split(",",2)
-        alter = cadena[2]
-        s= self.control.alterAddPK(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{alter}'))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",",2)
+            alter = cadena[2]
+            s= self.control.alterAddPK(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{alter}'))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
     
     def dialogo_alterDropPk(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -657,10 +695,14 @@ class GUI:
         self.dialogo.grab_set()
 
     def alterDropPk(self):
-        cadena= self.datos.get().split(",")
-        s=self.control.alterDropPK(str(cadena[0]),str(cadena[1]))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena= self.datos.get().split(",")
+            s=self.control.alterDropPK(str(cadena[0]),str(cadena[1]))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
     def dialogo_alterAddFk(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -682,11 +724,15 @@ class GUI:
         self.dialogo.grab_set()
 
     def alterAddFk(self): # pendiente
-        cadena = self.datos.get().split(",",2)
-        alterA = cadena[2]
-        s=self.control.alterAddPK(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{alterA}'))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",",2)
+            alterA = cadena[2]
+            s=self.control.alterAddPK(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{alterA}'))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
 
     def dialogo_alterAddIndex(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -716,7 +762,7 @@ class GUI:
     
     def dialogo_alterTable(self):
         self.dialogo=tk.Toplevel(self.window)
-        self.label1=ttk.Label(self.dialogo, text="def añterTable (", font=("Arial Black", 12))
+        self.label1=ttk.Label(self.dialogo, text="def alterTable (", font=("Arial Black", 12))
         self.label1.grid(column=0, row=0, padx=5, pady=5)
         self.label2=ttk.Label(self.dialogo, text=")", font=("Arial Black", 12))
         self.label2.grid(column=2, row=0, padx=5, pady=5)
@@ -734,10 +780,14 @@ class GUI:
         self.dialogo.grab_set()
 
     def alterTable(self):
-        cadena = self.datos.get().split(",")
-        s=self.control.alterTable(str(cadena[0]),str(cadena[1]),str(cadena[2]))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",")
+            s=self.control.alterTable(str(cadena[0]),str(cadena[1]),str(cadena[2]))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
     def dialogo_alterAddColumn(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -759,11 +809,15 @@ class GUI:
         self.dialogo.grab_set()
 
     def alterAddColumn(self):
-        cadena = self.datos.get().split(",",2)
-        parametro = cadena[2]
-        s = self.control.alterAddColumn(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{parametro}'))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",",2)
+            parametro = cadena[2]
+            s = self.control.alterAddColumn(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{parametro}'))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
     def dialogo_alterDropColumn(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -785,10 +839,14 @@ class GUI:
         self.dialogo.grab_set()
 
     def alterDropColumn(self):
-        cadena = self.datos.get().split(",")
-        s=self.control.alterDropColumn(str(cadena[0]),str(cadena[1]),int(cadena[2]))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",")
+            s=self.control.alterDropColumn(str(cadena[0]),str(cadena[1]),int(cadena[2]))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
         
 
     def dialogo_dropTable(self):
@@ -811,10 +869,14 @@ class GUI:
         self.dialogo.grab_set()
 
     def dropTable(self):
-        cadena=self.datos.get().split(",")
-        s=self.control.dropTable(str(cadena[0]),str(cadena[1]))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena=self.datos.get().split(",")
+            s=self.control.dropTable(str(cadena[0]),str(cadena[1]))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
 
     def dialogo_insert(self):
@@ -837,11 +899,15 @@ class GUI:
         self.dialogo.grab_set()
 
     def insert(self):
-        cadena = self.datos.get().split(",",2)
-        insert = cadena[2]
-        s= self.control.insert(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{insert}'))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",",2)
+            insert = cadena[2]
+            s= self.control.insert(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{insert}'))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
 
     def dialogo_loadCSV(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -863,10 +929,15 @@ class GUI:
         self.dialogo.grab_set()
 
     def loadCSV(self):
-        cadena = self.datos.get().split(",")
-        self.lis = ttk.Combobox(self.labelframeInt,width=35)
-        self.lis.grid(column=1, row=0, padx=10, pady=4)
-        self.lis['values'] = self.control.loadCSV(str(cadena[0]),str(cadena[1]),str(cadena[2]))
+        try:
+            cadena = self.datos.get().split(",")
+            self.lis = ttk.Combobox(self.labelframeInt,width=35)
+            self.lis.grid(column=1, row=0, padx=10, pady=4)
+            self.lis['values'] = self.control.loadCSV(str(cadena[0]),str(cadena[1]),str(cadena[2]))
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
+        
 
     def dialogo_extractRow(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -888,11 +959,15 @@ class GUI:
         self.dialogo.grab_set()
 
     def extractRow(self):
-        cadena = self.datos.get().split(",",2)
-        self.lis = ttk.Combobox(self.labelframeInt,width=35)
-        self.lis.grid(column=1, row=0, padx=10, pady=4)
-        extract = cadena[2]
-        self.lis['values'] = self.control.extractRow(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{extract}'))
+        try:
+            cadena = self.datos.get().split(",",2)
+            self.lis = ttk.Combobox(self.labelframeInt,width=35)
+            self.lis.grid(column=1, row=0, padx=10, pady=4)
+            extract = cadena[2]
+            self.lis['values'] = self.control.extractRow(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{extract}'))
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
     def dialogo_update(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -914,13 +989,17 @@ class GUI:
         self.dialogo.grab_set()
 
     def update(self):
-        cadena = self.datos.get().split(",",2)
-        cadena2 = cadena[2].split("},")
-        update = cadena2[0]+"}"
-        update2 = cadena2[1]
-        s= self.control.update(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{update}'),ast.literal_eval(f'{update2}'))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",",2)
+            cadena2 = cadena[2].split("},")
+            update = cadena2[0]+"}"
+            update2 = cadena2[1]
+            s= self.control.update(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{update}'),ast.literal_eval(f'{update2}'))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
     def dialogo_delete(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -942,11 +1021,15 @@ class GUI:
         self.dialogo.grab_set()
 
     def delete(self):
-        cadena = self.datos.get().split(",",2)
-        delete = cadena[2]
-        s= self.control.delete(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{delete}'))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",",2)
+            delete = cadena[2]
+            s= self.control.delete(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{delete}'))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
         
 
     def dialogo_truncate(self):
@@ -969,10 +1052,14 @@ class GUI:
         self.dialogo.grab_set()
 
     def truncate(self):
-        cadena = self.datos.get().split(",")
-        s=self.control.truncate(str(cadena[0]),str(cadena[1]))
-        self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
-        self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        try:
+            cadena = self.datos.get().split(",")
+            s=self.control.truncate(str(cadena[0]),str(cadena[1]))
+            self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)
+        except:
+            self.labelInt=ttk.Label(self.labelframeInt,text=" Error en Función ",width=35)
+            self.labelInt.grid(column=1, row=0, padx=8, pady=8)  
 
     def cerrar(self):
         self.dialogo.destroy()
@@ -980,7 +1067,7 @@ class GUI:
 # CREA LA VENTANA  CON LAS TABLAS  
 class vdialogo:    
     def __init__(self, ventanaprincipal,modo,nombredb,nombretabla):
-        self.mostrar = Manager()
+        self.mostrar = Manager
         columnas=None
         c=None
         if modo == "modo1":

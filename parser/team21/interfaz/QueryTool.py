@@ -3,10 +3,11 @@ import os
 import sys
 import tkinter as tk
 from tkinter import ttk, font, messagebox, Image, filedialog
-import Compi2RepoAux.team21.Analisis_Ascendente.ascendente as parser
+import tytus.parser.team21.Analisis_Ascendente.ascendente as parser
+import tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode as jm
 import webbrowser as wb
 # from PIL import Image,ImageTk
-# vscode://vscode.github-authentication/did-authenticate?windowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c
+# vscode://vscode.github-authentication/did-authenticate?wi0ndowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c
 
 
 class Ctxt(tk.Text):  # Custom Text Widget with Highlight Pattern   - - - - -
@@ -301,7 +302,7 @@ class Application(ttk.Frame):
         button8_ttp = CreateToolTip(bot8, 'REPORTE LEXICO')
 
         bot9 = tk.Button(BarraH, image=imgBoton7,
-                         height=50, width=50, command=self.f_abrirtablaSimbolos)
+                         height=50, width=50, command=self.f_abrirtablaSemanticos)
         bot9.pack(side=tk.LEFT, padx=3, pady=3)
         button9_ttp = CreateToolTip(bot9, 'REPORTE SEMANTICO')
 
@@ -322,27 +323,33 @@ class Application(ttk.Frame):
         bot12.pack(side=tk.LEFT, padx=3, pady=3)
         button12_ttp = CreateToolTip(bot12, 'REPORTE BNF DESCENDENTE')
 
+        imgBoton10 = tk.PhotoImage(file=iconos[9])
+        bot13 = tk.Button(BarraH, image=imgBoton10,
+                          height=50, width=50, command=self.f_abrirtablaSimbolos)
+        bot13.pack(side=tk.LEFT, padx=3, pady=3)
+        button13_ttp = CreateToolTip(bot13, 'REPORTE TABLA DE SIMBOLOS')
+
 
 
         # PESTAniAS ----------------------------------------------------------------------------
         PanelPestania = tk.Frame()
         PanelPestania.config(
-            bg="SteelBlue1", relief=tk.RAISED, width="700", bd=2)
+            bg="SteelBlue1", relief=tk.RAISED, height="400", bd=2)
 
         self.tab_control = ttk.Notebook(PanelPestania)
-        self.tab_control.config(width="600")
+        self.tab_control.config(height="300")
 
         self.f_nuevaPestania()
 
         # CONSOLA-------------------------------------------------------------------------------
         Consola = tk.Frame()
-        Consola.config(bg="SteelBlue1", relief=tk.RAISED, width="700", bd=2)
+        Consola.config(bg="SteelBlue1", relief=tk.RAISED, height="700", bd=2)
 
         S = tk.Scrollbar(Consola)
-        self.T = tk.Text(Consola, height=4, width=70,
+        self.T = tk.Text(Consola, height=70, width=4,
                          bg="black", fg="chartreuse2")
         S.pack(side=tk.RIGHT, fill=tk.Y)
-        self.T.pack(side=tk.LEFT, fill=tk.Y)
+        self.T.pack(side=tk.TOP, fill=tk.X)
         S.config(command=self.T.yview)
         self.T.config(yscrollcommand=S.set)
         quote = """>>>\n"""
@@ -367,8 +374,8 @@ class Application(ttk.Frame):
         # metodos extras-------------------------------------------------------
 
         BarraH.pack(side=tk.TOP, fill=tk.X)
-        PanelPestania.pack(side=tk.LEFT, fill=tk.Y, pady=10, padx=10)
-        Consola.pack(side=tk.LEFT, fill=tk.Y, pady=10, padx=10)
+        PanelPestania.pack(side=tk.TOP, fill=tk.X, pady=10, padx=10)
+        Consola.pack(side=tk.TOP, fill=tk.X, pady=10, padx=10)
         ventana.config(menu=menu)
         ventana.mainloop()
 
@@ -401,7 +408,7 @@ class Application(ttk.Frame):
         numberLines.attach(T1)
         S1.pack(side=tk.RIGHT, fill=tk.Y)
         numberLines.pack(side=tk.LEFT, fill=tk.Y, padx=(5, 0))
-        T1.pack(side=tk.LEFT, fill='both')
+        T1.pack(side=tk.TOP, fill='both')
 
         S1.config(command=T1.yview)
         T1.config(yscrollcommand=S1.set)
@@ -566,29 +573,35 @@ class Application(ttk.Frame):
 
     def f_abrirBNFdescendente(self):
         try:
-            wb.open_new(r'../Analisis_Descendente/reporteGramatical.html')
+            wb.open_new(r'')
 
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
     def f_abrirAST(self):
         try:
-            wb.open_new(r'AST.png')
+            wb.open_new(r'AST.svg')
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
     def f_abrirtablaSimbolos(self):
         try:
-            wb.open_new(r'')
+            wb.open_new(r'Simbolos.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirtablaSemanticos(self):
+        try:
+            wb.open_new(r'ErroresSemanticos.html')
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
     def f_parsear(self, texto):
-       self.T.insert(tk.END,'')
+       self.T.delete(1.0,tk.END)
        salida= parser.ejecutarAnalisis(texto)
 
        for output in salida:
-        self.T.insert(tk.END, output)
+        self.T.insert(tk.END,"\n>>>"+ output)
 
     def f_correr(self):
         lista = []
@@ -606,7 +619,7 @@ class Application(ttk.Frame):
 
 
 def main():
-
+    #jm.dropAll()
     ventana = tk.Tk()
 
     # INICIALIZAR VARIABLES CON RUTAS
@@ -624,7 +637,8 @@ def main():
               img_carpeta + "play.png",
               img_carpeta + "reporte.png",
               img_carpeta + "arbol.png",
-              img_carpeta + "bnf.png"
+              img_carpeta + "bnf.png",
+              img_carpeta + "tabla.png"
               )
     app = Application(ventana, iconos)
 

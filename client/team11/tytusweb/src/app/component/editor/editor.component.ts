@@ -1,6 +1,9 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { PruebaService } from 'src/app/service/prueba.service'
 import Swal from 'sweetalert2';
+import 'brace';
+import 'brace/mode/sql';
+import 'brace/theme/github';
 
 @Component({
   selector: 'app-editor',
@@ -26,7 +29,6 @@ export class EditorComponent implements OnInit {
       confirmButtonText: `Si`,
       denyButtonText: `No`,
     }).then((result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         Swal.fire('Guardado!', '', 'success')
       } else if (result.isDenied) {

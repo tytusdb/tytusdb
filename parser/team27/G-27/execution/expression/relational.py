@@ -1,10 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from expression import *
-from typ import *
-from literal import *
+from execution.abstract.expression import *
+from execution.symbol.typ import *
+from execution.expression.literal import *
 
 class Relational(Expression):
     """
@@ -21,6 +17,20 @@ class Relational(Expression):
         self.operator = operator
     
     def execute(self, environment):
+        if self.left != None and self.right == None:
+            op1 = self.left.execute(environment)
+            if isinstance(op1,dict):
+                if len(op1['data']) != 0:
+                    if self.operator == 1:
+                        {'value': True, 'typ': Type.BOOLEAN}
+                    else:
+                        {'value': False, 'typ': Type.BOOLEAN}
+                if self.operator == 1:
+                    {'value': False, 'typ': Type.BOOLEAN}
+                else:
+                    {'value': True, 'typ': Type.BOOLEAN}
+            return {'value': True, 'typ': Type.BOOLEAN}
+
         op1 = self.left.execute(environment)
         op2 = self.right.execute(environment)
         if op1['typ'] == Type.STRING and op2['typ'] == Type.STRING:
@@ -40,7 +50,14 @@ class Relational(Expression):
             }
             return switcher.get(self.operator, "No coincide el operador relacional")
         elif op1['typ'] == Type.DATE and op2['typ'] == Type.DATE:
-            print('NOT IMPLEMENTED YET')
+            switcher = {
+                '>': {'value': op1['value'] > op2['value'], 'typ': Type.BOOLEAN},
+                '<': {'value': op1['value'] < op2['value'], 'typ': Type.BOOLEAN},
+                '>=': {'value': op1['value'] >= op2['value'], 'typ': Type.BOOLEAN},
+                '<=': {'value': op1['value'] <= op2['value'], 'typ': Type.BOOLEAN},
+                '=': {'value': op1['value'] == op2['value'], 'typ': Type.BOOLEAN},
+            }
+            return switcher.get(self.operator, "No coincide el operador relacional")
         elif op1['typ'] == Type.TIME and op2['typ'] == Type.TIME:
             print('NOT IMPLEMENTED YET')
         elif op1['typ'] == Type.BOOLEAN and op2['typ'] == Type.BOOLEAN:

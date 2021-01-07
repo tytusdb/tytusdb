@@ -51,4 +51,12 @@ export class EditorComponent implements OnInit {
       }, 0);
     }
   }
+
+  runScript(){
+    alert('Ejecuta el script que se encuentre en el editor');
+  }
+
+  stopScript() {
+    alert('Detiene la ejecución de un script');
+  }
 }

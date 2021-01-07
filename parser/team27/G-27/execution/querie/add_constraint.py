@@ -1,13 +1,8 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/execution/querie')
-sys.path.append('../tytus/storage')
-from querie import * 
-from environment import *
-from table import *
-from column import *
-from typ import *
+from execution.abstract.querie import * 
+from execution.symbol.environment import *
+from execution.symbol.table import *
+from execution.symbol.column import *
+from execution.symbol.typ import *
 from storageManager import jsonMode as admin
 
 class Add_Constraint(Querie):
@@ -26,7 +21,7 @@ class Add_Constraint(Querie):
                     {'type': 'primary', 'name':'pk_tabla1' , 'value': 'columna_tabla1'}
                     
     '''
-    def __init__(self, columnName,constraintVal, row, column):
+    def __init__(self,columnName,constraintVal, row, column):
         Querie.__init__(self, row, column)
         self.columnName = columnName
         self.constraintVal = constraintVal
@@ -53,7 +48,7 @@ class Add_Constraint(Querie):
         #columna a la que hace referencia menos el check
         if self.constraintVal['type'] != 'check':
             reference = False
-            for item in table.column:
+            for item in table.columns:
                 if item.name == self.constraintVal['value']:
                     reference = True
                     break
@@ -62,7 +57,7 @@ class Add_Constraint(Querie):
         
         if self.constraintVal['type'] == 'primary':
             for item in table.constraint:
-                if item['value'] == self.constraintVal['value']
+                if item['value'] == self.constraintVal['value']:
                     if item['type'] == 'primary':
                         return 'la columna: '+self.columnName +' ya tiene la restriccionde llave primaria'
             result = admin.extractTable(db_name, tableName)

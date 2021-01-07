@@ -15,6 +15,7 @@ import { AceEditorModule } from 'ng2-ace-editor';
 import { ConsoleComponent } from './component/console/console.component';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { HttpClientModule } from '@angular/common/http';
+import * as ace from 'ace-builds';
 
 @NgModule({
   declarations: [

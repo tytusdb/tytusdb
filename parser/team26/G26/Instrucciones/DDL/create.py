@@ -1,9 +1,7 @@
 import sys
 sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
-sys.path.append('../G26/Librerias/storageManager')
-
-
+sys.path.append('../tytus/storage/storageManager')
 
 from jsonMode import *
 from instruccion import *
@@ -57,6 +55,27 @@ class Create(Instruccion):
                     ''
                 else:
                     contColumnas = contColumnas + 1
+            #--------------validaciones de inherits
+            tbinhe = description.inherit
+            if not tbinhe == None :
+                'validaciones inherits'
+                if not tbinhe.column.upper() in data.tablaSimbolos[data.databaseSeleccionada]['tablas'] :
+                    error = Error('Semántico', 'Error(???): no existe la tabla ' + tbinhe.column.upper(), 0, 0)
+                    return error
+                
+                for column in description.description:
+                    if column.type == 'primary' or column.type == 'foreign' or column.type == 'constraint' or column.type == 'check' or column.type == 'unique' :
+                        continue
+                    else :
+                        for col in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbinhe.column.upper()]['columns'] :
+                            if col.name == column.type.upper() :
+                                error = Error('Semántico', 'Error(???): ya existe la columna ' + column.type.upper()+' en la tabla padre.', 0, 0)
+                                return error
+
+                contColumnas += len(data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbinhe.column.upper()]['columns'])
+                #print(contColumnas)
+                #print(description.description)
+            #--------------
             valRetorno = createTable(data.databaseSeleccionada, self.name.upper(), contColumnas)
             if valRetorno == 1:
                 return 'Error(42P16): invalid_table_definition.'
@@ -94,15 +113,14 @@ class Create(Instruccion):
                         banderaDef = True
                         if column.list.type == 'primary':
                             banderaDef = False
-                            primary = column.list.execute()
-                            default = primary.list.execute()
+                            primary = column.list.execute(data)
+                            default = primary.list.execute(data)
                             references = None
                         elif column.list.type == 'references':
                             banderaDef = False
                             primary = None
-                            references = column.list.execute()
-                            if column.extra == None : default = references.list.execute()
-                            else : default = references.extra.execute()
+                            references = column.list.execute(data)
+                            default = references.extra.execute(data)
                         if banderaDef :
                             default = column.list.execute(data)
                             primary = None
@@ -119,7 +137,7 @@ class Create(Instruccion):
                         null = default.list.execute(data)
                         unique = null.list.execute(data)
                         if unique.list == None : check = None
-                        else : check = unique.list.execute()
+                        else : check = unique.list.execute(data)
 
                         '''print('----------Columnas inicio----------')
                         print(primary)
@@ -166,13 +184,61 @@ class Create(Instruccion):
 
                         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns'].append(TableData(column.type.upper(), type.type, type.length, primaryData, [foreignData], defaultData, nullData, uniqueData, [checkData]))
                         contadorColumnas = contadorColumnas + 1
+
+                #-----------hacer inherits
+                if not tbinhe == None :
+                    for col in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbinhe.column.upper()]['columns'] :
+                        colmn = TableData(col.name, col.type, col.size, col.pk, col.fk, col.default, col.null, col.unique, col.check)
+                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns'].append(colmn)
+                    
+                    for const in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbinhe.column.upper()]['constraint'] :
+                        con = ConstraintData(const.name, const.val, const.tipo)
+                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['constraint'].append(con)
+                #-----------------------
+
                 return 'Se ha creado la tabla ' + self.name.upper() + ' correctamente.'
         elif self.type == 'replace' :
-            comp = data.obtenerDatabase(self.name)
-            if comp == None:
-                'Se crea la base de datos'
+            dbase = self.list.id.upper()
+            if dbase in data.tablaSimbolos :
+                'Replace'
+                retorno = dropDatabase(dbase)
+                if retorno == 0 :
+                    'Éxito'
+                    #Buscar en la tabla de simbolos si existe
+                    if dbase in data.tablaSimbolos :
+                        del data.tablaSimbolos[dbase]
+                        
+                    'DB Eliminada éxitosamente'
+
+                elif retorno == 1:
+                    'Error'
+                    error = Error('Semántico', 'Error(???): unknown_error', 0, 0)
+                    return error
+
+                elif retorno == 2:
+                    'No existe'
+                    error = Error('Semántico', 'Error(???): no existe la base de datos', 0, 0)
+                    return error
+
+
+            'Create'
+            description = self.list.execute()
+            valRetorno = createDatabase(description.id.upper())
+            if valRetorno == 0:
+                owner = description.owner.execute()
+                mode = owner.mode.execute()
+                if owner.id == None : owner.id = 'CURRENT_USER'
+                data.tablaSimbolos[description.id.upper()] = {'tablas' : {}, 'enum' : {}, 'owner' : owner.id, 'mode' : mode.val}
+                return 'Se ha creado la base de datos ' + description.id.upper() + ' correctamente.'
+            elif valRetorno == 1:
+                error = Error('Semántico', 'Error(42P12): invalid_database_definition.', 0, 0)
+                return error
+            elif valRetorno == 2:
+                error = Error('Semántico', 'Error(42P04): duplicate_database.', 0, 0)
+                return error
             else:
-                'Se debe de reemplazar la base de datos'
+                error = Error('Semántico', 'Error(???): unknown_error', 0, 0)
+                return error
         return '1'
 
     def __repr__(self):
@@ -223,18 +289,64 @@ class TableDescription(Instruccion):
         self.list = list
         self.extra = extra
 
-    def execute(self, data):
+    def execute(self, data, tbname = 'NADA'):
         if self.type == 'foreign':
             if self.tableExists(data):
-                if self.columnExists(data):
-                    print("FK_EXITOSA...")
-                else:
-                    error = Error('Semántico', 'Error(FK): La columna: ' +  self.extra[0].column +' no existe.', 0, 0)
+                
+                #validando que ambas listas tengan el mismo tamaño
+                if len(self.list) != len(self.extra) :
+                    error = Error('Semántico', 'Error(FK): El númmero de FK especificadas no coincide con el de columnas de referencia.', 0, 0)
                     return error
+
+                #validando si las colunas de la lista extra existen
+                tabla = self.id.upper()
+                for col in self.extra :
+                    found = False
+                    for column in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tabla]['columns'] :
+                        if col.column.lower() == column.name.lower() :
+                            found = True
+                    if not found :
+                        error = Error('Semántico', 'Error(FK): La columna: ' +  col.column.upper() +' no existe.', 0, 0)
+                        return error
+
+                #validando que las columnas de la lista list existan
+                colindex = []
+                for col in self.list :
+                    found = False
+                    i = 0
+                    for column in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname.upper()]['columns'] :
+                        if col.column.lower() == column.name.lower() :
+                            found = True
+                            colindex.append(i)
+                        i += 1
+
+                    if not found :
+                        error = Error('Semántico', 'Error(FK): La columna: ' +  col.column.upper() +' no existe.', 0, 0)
+                        return error
+
+                #agregando a tabla de simbolos
+                referenceslist = []
+                for id in self.extra :
+                    referenceslist.append(Identificador(self.id.upper(), id.column.upper())) 
+                
+                print(referenceslist)
+
+                i = 0
+                for index in colindex :
+                    idconst = 'FK_'+tbname+'_'+data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns'][index].name
+                    checkData = ConstraintData(idconst, referenceslist[i], 'fk')
+                    data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns'][index].fk.append(checkData)
+                    i += 1
+
+                print(self)
                     
             else:
                 error = Error('Semántico', 'Error(FK): La tabla: ' + self.id +' no existe.', 0, 0)
                 return error
+
+        elif self.type == 'references' :
+            print(self)
+                
         return self
 
 
@@ -242,12 +354,8 @@ class TableDescription(Instruccion):
         for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas']:
             if self.id.lower() == table.lower():
                 return True
-
-    def columnExists(self, data):
-        tabla = self.id.upper()
-        for column in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tabla]['columns']:
-            if self.extra[0].column.lower() == column.name.lower():
-                return True
+        
+        return True
 
     def __repr__(self):
         return str(self.__dict__)

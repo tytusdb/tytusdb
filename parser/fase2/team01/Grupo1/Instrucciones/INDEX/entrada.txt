@@ -1,0 +1,32 @@
+﻿CREATE DATABASE IF NOT EXISTS test OWNER = 'root'  MODE = 1;
+
+CREATE DATABASE IF NOT EXISTS tytus OWNER = 'root'  MODE = 1;
+USE TEST;
+
+create table tbcalifica
+( iditem integer primary key,
+  item   varchar(150),
+  puntos integer 
+);
+
+CREATE TABLE tbProducto (idproducto integer primary key,
+  						 producto varchar(150),
+  						 fechacreacion date,
+						 estado integer);
+
+INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
+INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
+INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
+INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
+INSERT INTO tbProducto values(5,'WIFI USB',now(),'hola');
+INSERT INTO tbProducto values(6,'Laptop HP',now(),1);
+INSERT INTO tbProducto values(7,'Teclado Flexible USB',now(),1);
+INSERT INTO tbProducto values(8,'Laptop Samsung','2021-01-02',1);
+
+update tbProducto set estado = 2, producto='Laptop' where idproducto = 1;
+
+
+select * from tbProducto;
+select COUNT(*) from tbProducto;
+
+select idproducto,producto,estado from tbProducto where estado=1;

@@ -80,7 +80,7 @@ ALTERTB ::= t_add ADD_OPC
                 | t_rename t_column id t_to id 
 
 ADD_OPC ::= t_column id TIPO
-               | CONSTRAINT_ALTERTB t_foreign t_key par1 id par2 t_references id
+               | CONSTRAINT_ALTERTB t_foreign t_key par1 id par2 t_references id par1 Lista_ID par2
                | CONSTRAINT_ALTERTB t_unique par1 id par2
                | CONSTRAINT_ALTERTB t_check EXP 
 
@@ -137,13 +137,11 @@ COLUMNA ::= id TIPO COND_CREATETB
 COND_CREATETB ::= CONSTRAINT_CREATETB t_default id COND_CREATETB 
                         | CONSTRAINT_CREATETB t_not t_null COND_CREATETB 
                         | CONSTRAINT_CREATETB t_null COND_CREATETB 
-                        | CONSTRAINT_CREATETB OPC_CONSTRAINT COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_unique COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_check par1 EXP par2 COND_CREATETB 
                         | CONSTRAINT_CREATETB t_primary t_key COND_CREATETB 
                         | CONSTRAINT_CREATETB t_references id COND_CREATETB 
                         | empty
-
-OPC_CONSTRAINT ::= t_unique
-                       | t_check par1 EXP par2 
 
 CONSTRAINT_CREATETB ::= t_constraint id
                      | EMPTY

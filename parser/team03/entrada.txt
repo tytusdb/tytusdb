@@ -1,24 +1,377 @@
-create or replace database comp2 mode 6;
-create or replace database compiladores2 mode 6;
-use database comp2;
-false is false;
-show databases like 'compiladores2';
-use database compiladores2;
-width_bucket(3, 1, 12, 3);
-width_bucket(5, 1, 12, 3);
-width_bucket(9, 1, 12, 3);
 
-CREATE DATABASE /*IF NOT EXISTS*/ test
+/*Manipulacion de datos*/
+CREATE DATABASE IF NOT EXISTS test
     OWNER = 'root'
     MODE = 1;
 
+CREATE DATABASE IF NOT EXISTS califica
+    OWNER = 'root'
+    MODE = 2;
+
+CREATE DATABASE IF NOT EXISTS califica2
+    OWNER = 'root'
+    MODE = 3;
+
 USE test;
+
+SELECT 'VALIDA CREATE DATABASE';
+
+
+create table tbcalifica
+( iditem integer not null primary key,
+  item   varchar(150) not null,
+  puntos decimal not null
+);
+
 
 CREATE TABLE tbusuario (
     idusuario integer NOT NULL primary key,
 	nombre varchar(50),
 	apellido varchar(50),
-	usuario varchar(15)  /*UNIQUE*/ NOT NULL,
+	usuario varchar(15)  NOT NULL,
 	password varchar(15) NOT NULL,
 	fechacreacion date 
 );
+
+
+CREATE TABLE tbroles (
+    idrol integer NOT NULL primary key,
+	rol varchar(15)
+);
+
+SELECT 'VALIDA TIPO DE DATOS';
+
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT now();
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
+
+SELECT 'VALIDA Funciones Date-Extract';
+
+/*Type*/
+CREATE TYPE area AS ENUM ('CONTABILIDAD','ADMINISTRACION','VENTAS','TECNOLOGIA','FABRICA');
+SELECT 'VALIDA TYPE';
+
+SHOW DATABASES; 
+SELECT 'VALIDA SHOW DATBASE';
+
+
+DROP DATABASE  IF EXISTS  califica2;
+SELECT 'VALIDA DROP DATABASE';
+
+
+DROP TABLE tbroles;
+SELECT 'VALIDA DROP TABLES';
+
+CREATE TABLE tbrol (
+    idrol integer NOT NULL primary key,
+	rol varchar(15)
+);
+
+
+
+insert into tbcalifica values (1,'Funcionalidades básicas',2.0);
+insert into tbcalifica values (2,'Funciones Date-Extract',2.0);
+
+select * from tbcalifica;
+
+CREATE TABLE tbrolxusuario (
+    idrol integer NOT NULL ,
+	idusuario integer NOT NULL 
+);
+
+
+SELECT 'VALIDA CREATE TABLES';
+
+
+SELECT 'VALIDA ALTER TABLES';
+
+--insert into tbrolxusaurio values(1,1);
+--Error 23503
+
+
+insert into tbrol values (1,'Administrador');
+insert into tbrol values (2,'Admin');
+insert into tbrol values (3,'Ventas');
+--insert into tbrole values (1,'root');
+--Error 23505
+
+select * from tbrol;
+
+insert into tbcalifica values (3,'Type',2.0);
+insert into tbcalifica values (4,'Create Database-replace',3.0);
+insert into tbcalifica values (5,'Show Database',2.0);
+
+--update tbcalifica set seccion = 2;
+
+
+
+insert into tbcalifica values (6,'Database-Alter,drop',4.0,3);
+insert into tbcalifica values (7,'Create Table- Variantes',4.0,3);
+
+ALTER TABLE tbusuario
+    ALTER COLUMN password TYPE varchar(80);
+
+
+create table tbcalifica2
+( iditem integer not null primary key,
+  item   varchar(150) not null,
+  puntos decimal not null
+);
+
+DROP TABLE tbcalifica2;
+
+insert into tbcalifica values (8,'Drop table',2.0,3);
+insert into tbcalifica values (9,'Alter table',4.0,3);
+
+
+				 
+select * from tbusuario;
+							 
+insert into tbrolxusuario values(1,1);
+insert into tbrolxusuario values(2,2);
+insert into tbrolxusuario values(2,3);
+insert into tbrolxusuario values(3,4);
+insert into tbrolxusuario values(3,5);
+insert into tbrolxusuario values(3,6);
+insert into tbrolxusuario values(2,7);
+insert into tbrolxusuario values(3,8);
+insert into tbrolxusuario values(2,9); 
+
+select * from tbrolxusuario;
+						 
+insert into tbrol values (4,'IT');
+insert into tbrol values (5,'Gerencia');
+
+insert into tbrolxusuario values(1,10);
+
+
+insert into tbrolxusuario values(1,11);
+insert into tbrolxusuario values(1,12);
+insert into tbrolxusuario values(1,13);
+
+SELECT 'VALIDA MANIPULAR DATOS';
+							 
+select * from tbrolxusuario;
+				
+create table tbestado
+( idestado integer not null PRIMARY KEY,
+  estado varchar(30)
+);
+
+
+SELECT 'VALIDA CREATE TABLES - VARIANTES';
+
+  
+CREATE TABLE cities (
+    name            text,
+    population      decimal,
+    elevation       integer     -- in feet
+);
+
+
+CREATE TABLE capitals (
+    state           char(2)
+) INHERITS (cities);
+
+select * from capitals;
+SELECT 'VALIDA HERENCIA';
+
+
+
+SELECT 'VALIDA CASE';
+
+create table tbempleadoidentificacion(
+	idempleado integer not null primary key,
+	identificacion varchar(25) not null,
+	ididentificaciontipo integer
+);
+
+create table tbidentificaciontipo(
+	ididentificaciontipo integer not null primary key,
+	tipoidentificacion varchar(20)
+);
+
+
+
+insert into tbidentificaciontipo values(1,'DPI');
+insert into tbidentificaciontipo values(2,'Nit');
+insert into tbidentificaciontipo values(3,'Pasaporte');
+
+select * from tbidentificaciontipo;
+
+insert into tbestado values(1,'Activo');
+insert into tbestado values(2,'Inactivo');
+
+select * from tbestado;
+
+
+insert into tbempleado (idempleado,primernombre,primerapellido,fechanacimiento,fechacontartacion,idestado) values(1,'Thelma','Esquit','1981-01-25','2014-07-06',1);
+
+
+
+--Error 42703
+
+insert into tbempleado (idempleado,primernombre,primerapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(1,'Thelma','Esquit','1981-01-25','2014-07-06',1);
+insert into tbempleado (idempleado,primernombre,primerapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(2,'Maria','Lopez','1990-12-01','2016-09-21',1);
+insert into tbempleado (idempleado,primernombre,segundonombre,primerapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(3,'Julio','Roberto','Rodriguez','1985-06-05','2012-01-22',1);
+insert into tbempleado (idempleado,primernombre,segundonombre,primerapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(4,'Roberto','Benjamin','Duque','1996-04-09','2018-10-03',1);
+insert into tbempleado (idempleado,primernombre,segundonombre,primerapellido,segundoapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(5,'Francisco','','Juarez','Perez','1997-10-05','2010-03-01',1);
+
+
+
+
+--Error 42601
+
+insert into tbempleado (idempleado,primernombre,segundonombre,primerapellido,segundoapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(5,'Francisco','','Juarez','Perez','1997-10-05','2010-03-01',1);
+
+insert into tbempleado (idempleado,primernombre,segundonombre,primerapellido,segundoapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(6,'Bryan','Jose','Rodriguez','Santos','1900-01-01','2010-03-01',1);
+--Error 23514
+insert into tbempleado (idempleado,primernombre,segundonombre,primerapellido,segundoapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(6,'Bryan','Jose','Rodriguez','Santos','1990-02-28','2012-09-01',1);		
+
+							 
+insert into tbempleado (idempleado,primernombre,segundonombre,primerapellido,segundoapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(7,'Estefania','Alejandra','Soto','Mazariegos','2000-08-03','1999-09-01',1);		
+--Error 23514						 
+insert into tbempleado (idempleado,primernombre,segundonombre,primerapellido,segundoapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(7,'Estefania','Alejandra','Soto','Mazariegos','2000-08-03','2019-09-01',1);
+							 
+insert into tbempleado (idempleado,primernombre,segundonombre,primerapellido,segundoapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(8,'Katherin','','Gonzalez','Lopez','1997-10-09','2018-06-09',1);
+
+
+
+select * from tbempleado;
+							 
+insert into tbempleadoidentificacion values(1,'4578-784525-6562',1);
+insert into tbempleadoidentificacion values(1,'8874585-5',2);
+insert into tbempleadoidentificacion values(2,'1245-488454-7854',1);
+insert into tbempleadoidentificacion values(3,'2610-417055-0101',1);
+insert into tbempleadoidentificacion (idempleado,ididentificaciontipo,identficacion) values(8,2,'454878-7');
+--Error 42703
+	 
+--la linea 2 da error porque no hay llave primaria compuesta
+
+drop table tbempleadoidentificacion;
+
+
+insert into tbempleadoidentificacion values(1,1,'4578-784525-6562');
+insert into tbempleadoidentificacion values(1,2,'8874585-5');
+insert into tbempleadoidentificacion values(2,1,'1245-488454-7854');
+insert into tbempleadoidentificacion values(3,1,'2610-417055-0101');
+insert into tbempleadoidentificacion (idempleado,ididentificaciontipo,identificacion) values(8,2,'454878-7');
+insert into tbempleadoidentificacion (idempleado,identificacion,ididentificaciontipo)  values(8,'12456-1997-0101',1);		
+
+
+select * from tbempleadoidentificacion;
+
+
+insert into tbpuesto values (1,'Recepcionista','4,000');
+
+
+insert into tbpuesto values (2,'Asistente Contable','4,500',false);
+insert into tbpuesto values(3,'Contador General','9000',false);
+insert into tbpuesto values(4,'Asistente de RRHH','4000',false);
+insert into tbpuesto values(5,'Recepcionista Gerencia','5000',false);
+insert into tbpuesto values(6,'Vendedor 1','2500',true);
+insert into tbpuesto values(7,'Vendedor 2','2750',true);
+insert into tbpuesto values(8,'Vendedor 3','3000',true);
+insert into tbpuesto values(9,'Jefe de Ventas','4000',true);
+insert into tbpuesto values(10,'Jefe de Ventas Regional','2500',true);
+
+
+CREATE TABLE tbempleadopuesto
+(
+	idempleado integer not null,
+	idpuesto   integer not null,
+	departamento area
+);
+
+
+
+  
+insert into tbempleadopuesto values(1,1,'ADMINISTRACION');
+insert into tbempleadopuesto values(2,1,'CONTABILIDAD');
+insert into tbempleadopuesto values(3,3,'CONTABILIDAD');
+insert into tbempleadopuesto values(4,6,'VENTAS');
+insert into tbempleadopuesto values(5,6,'VENTAS');
+
+UPDATE tbempleadopuesto SET idpuesto = 2 where idempleado = 2;
+SELECT 'VALIDA UPDATE';
+			
+select * from tbrolxusuario;
+SELECT 'VALIDA QUERY SIMPLE';							 
+delete from tbrolxusuario where idrol = 2 and idusuario = 9;
+SELECT 'VALIDA DELETE';
+insert into tbrolxusuario values(2,9); 
+select * from tbrolxusaurio;
+
+	
+
+
+SELECT 
+  width_bucket(3, 1, 12, 3),
+  width_bucket(5, 1, 12, 3),
+  width_bucket(9, 1, 12, 3);
+
+create table tbfuncionesmath
+(
+	idfuncion integer not null primary key,
+	seno decimal,
+	coseno decimal
+);
+
+
+
+insert into tbfuncionesmath values(1,0,0);
+insert into tbfuncionesmath values(2,0,0);
+insert into tbfuncionesmath values(3,0,0);
+insert into tbfuncionesmath values(4,0,0);
+
+
+
+update tbfuncionesmath set seno = SIN(1),coseno = COS(0) where idfuncion = 1;
+update tbfuncionesmat set seno = SIND(1),coseno = TAN(0) where idfuncion = 1;
+--Error 42P01
+update tbfuncionesmath set seno = SIND(1),coseno = TAN(0) where idfuncion = 1;
+update tbfuncionesmath set seno = TAND(0),coseno = COSD(0) where idfuncion = 2;
+
+
+delete from tbfuncionesmath where idfuncion = 1;
+
+select * from tbfuncionesmath;
+
+
+select * 
+from tbempleado
+where primernombre like  '%Jul%';
+
+select * 
+from tbempleado
+where primernombre NOT like  '%Jul%';
+
+
+insert into tbcalifica values (15,'Funciones Matematicas',3.0,5);
+insert into tbcalifica values (16,'Funciones Trigonometricas',3.0,5);
+insert into tbcalifica values (17,'Funciones String',3.0,5);
+insert into tbcalifica values (18,'Binarios',1.0,5);
+
+
+
+
+

@@ -4,6 +4,7 @@ class tabla_simbolos:
     def __init__(self, simbolos = {}):
         self.simbolos = simbolos
         self.simbolos['inherits'] = {}
+        self.simbolos['alias_statement'] = {}
 
     #ADD SIMBOLOS
     def add_db(self, simbolo_db):
@@ -17,6 +18,9 @@ class tabla_simbolos:
 
     def add_inherits(self, padre, hijo):
         self.simbolos['inherits'][hijo] = padre
+
+    def add_alias(self, alias, id_tb):
+        self.simbolos['alias_statement'][alias] = id_tb
 
     #GET SIMBOLOS
     def get_db(self, id_db):
@@ -48,6 +52,12 @@ class tabla_simbolos:
 
         return list_hijos
 
+    def get_alias(self, alias):
+        try:
+            return self.simbolos['alias_statement'][alias]
+        except:
+            return None
+
     #DELETE SIMBOLOS
     def delete_db(self, id_db):
         del self.simbolos[id_db]        
@@ -60,6 +70,9 @@ class tabla_simbolos:
 
     def delete_restriccion(self, id_db, id_tb, id_col, index_restr):
         del self.simbolos[id_db][id_tb][id_col].condiciones[index_restr]
+
+    def delete_alias(self, alias):
+        del self.simbolos['alias_statement'][alias]
 
     #UPDATE SIMBOLOS
     def update_db(self, id_db, new_db):
@@ -172,6 +185,7 @@ class tabla_simbolos:
 
     def get_index_pk(self, id_db, id_tb):
         count_cols = 0
+        list_pk = []
         for database_ in self.simbolos:
             database_val = self.simbolos[database_]
             
@@ -181,15 +195,16 @@ class tabla_simbolos:
                         
                     if table_ == id_tb:
                         for col in table_val.values():
-                            for restr in col.condiciones:
-                                try:
-                                    if restr.pk == 'pk':
-                                        return count_cols
-                                except:
-                                    pass
-                            count_cols += 1
+                            if col.condiciones != None:
+                                for restr in col.condiciones:
+                                    try:
+                                        if restr.pk == 'pk':
+                                            list_pk.append(count_cols)
+                                    except:
+                                        pass
+                                count_cols += 1
         
-        return -1
+        return list_pk
 
     def reiniciar_ts(self):
         self.simbolos = {}
@@ -200,12 +215,13 @@ class tabla_simbolos:
 
         count_dbs = 1
         for database_ in self.simbolos:
-            str_ts += '<TR><TD>' + str(count_dbs) + '</TD><TD> BASE DATOS </TD><TD> ' + database_ + '</TD><TD> - </TD><TD> - </TD></TR>\n'
-            database_val = self.simbolos[database_]
-            count_dbs += 1
-
-            count_tbs = 1
             if database_ != 'inherits':
+                str_ts += '<TR><TD>' + str(count_dbs) + '</TD><TD> BASE DATOS </TD><TD> ' + database_ + '</TD><TD> - </TD><TD> - </TD></TR>\n'
+                database_val = self.simbolos[database_]
+                count_dbs += 1
+
+                count_tbs = 1
+            
                 for table_ in database_val:            
                     str_ts += '<TR><TD>' + str(count_tbs) + '</TD><TD> TABLA </TD><TD> ' + table_ + '</TD><TD> ' + database_ + ' </TD><TD> - </TD></TR>\n'
                     table_val = database_val[table_]

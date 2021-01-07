@@ -1,77 +1,35 @@
-<head>
-    <style>
-        ul,
-        #myTree {
-            list-style-type: none;
-        }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-        #myTree {
-            margin: 0;
-            padding: 0;
-        }
+<div class="border rounded mt-1 mb-1 vh-100 overflow-auto ">
 
-        .caret {
-            cursor: pointer;
-            -webkit-user-select: none;
-            /* Safari 3.1+ */
-            -moz-user-select: none;
-            /* Firefox 2+ */
-            -ms-user-select: none;
-            /* IE 10+ */
-            user-select: none;
-        }
+    <ul id="myTree" style="font-family: monospace;">
+        <div class="m-1">
+            <h6 class="d-inline mr-2">Browser:</h6>
+            <div class="d-inline" style="float: right;">
+                <button (click)="refresh()" type="button" name="btnRefresh" class="btn btn-sm btn-outline-dark">
+                    <fa-icon [icon]="faSync"></fa-icon>
+                </button>
+            </div>
+        </div>
+        <br>
 
-        .caret::before {
-            content: "\25B6";
-            color: white;
-            display: inline-block;
-            margin-right: 6px;
-        }
+        <li><span class="caret"><i class="fa fa-server"></i> Servers</span>
+            <ul class="animacion">
+                <li><span class="caret"><i class="fa fa-folder-o"></i> Postgres [1]</span>
+                    <ul class="animacion" id="Postgres">
+                        <li><span class="caret"><i class="fa fa-database"></i> Databases [<a id="num_db">0</a>]</span>
+                            <ul class="animacion" id="db">
+                                
+                            </ul>
+                          
+                        
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
 
-        .caret-down::before {
-            -ms-transform: rotate(90deg);
-            /* IE 9 */
-            -webkit-transform: rotate(90deg);
-            /* Safari */
-            transform: rotate(90deg);
-        }
-
-        .animacion {
-            display: none;
-        }
-
-        .activada {
-            display: block;
-        }
-    </style>
-</head>
-
-
-
-<button (click)="refrescar()" >Refresh</button>
-<br><br>
-
-<ul id="myTree" style="color: white;font-family: monospace">
-    <li><span class="caret">Servidores</span>
-        <ul class="animacion activada">
-            <li><span class="caret">PostgresSQL</span>
-                <ul class="animacion activada">
-                    <li><span class="caret">Databases [<a id="num_db">0</a>]</span>
-                        <ul class="animacion activada" id="db">
-
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-</ul>
-
-
-
-<br><br><br><br>
-
-
+</div>
 <script>
     funcion1()
 </script>

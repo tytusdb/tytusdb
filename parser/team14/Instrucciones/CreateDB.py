@@ -5,18 +5,62 @@ from Entorno.Simbolo import Simbolo
 from Entorno.TipoSimbolo import TipoSimbolo
 from Expresion.variablesestaticas import variables
 from tkinter import *
-
+from Expresion.variablesestaticas import variables
+from reportes import *
 
 class CreateDb(Instruccion):
-    def __init__(self, id:str):
+    def __init__(self, id:str, orreplace,ifnotexist):
         self.id =id 
-
+        self.orreplace=orreplace
+        self.ifnotexist=ifnotexist
+        
     def ejecutar(self, ent):
-        resultado = DBMS.createDatabase(self.id)
-        if (resultado==2):
-            return "ERROR >> En la instrucción Create Database "+self.id+", La base de datos a crear ya EXISTE"
-        else:
-            return "La base de datos: ("+self.id+") ha sido creada con exito"
+        if self.orreplace=='or replace' and self.ifnotexist=='if not exists':
+            resultado = DBMS.createDatabase(self.id)
+            print("crear base de datos con if not existe y replace ",resultado)
+        
+            if (resultado==2):
+                print("ya existe base de datos pero no da error ")
+            else:
+                variables.consola.insert(INSERT,'La base de datos: ('+self.id+') ha sido creada con exito\n')
+                return
+
+        elif self.orreplace=='or replace'and self.ifnotexist=='':
+            
+            resultado = DBMS.dropDatabase(self.id)
+            print("crear base de datos o reemplazarlo",resultado)
+            if (resultado==2):
+                print('')
+            else:
+                ent.eliminarDataBase(self.id)
+
+            res = DBMS.createDatabase(self.id)
+            if (res==2):
+                print("ya existe base de datos pero debio reemplazarlo :( ")
+            else:
+                variables.consola.insert(INSERT,'La base de datos: ('+self.id+') ha sido creada con exito\n')
+                return
+
+        elif self.orreplace=='databases' and self.ifnotexist=='if not exists':
+            resultado = DBMS.createDatabase(self.id)
+            print("crear base de datos con if not existe",resultado)
+            if (resultado==2):
+                print("ya existe base de datos pero no da error ")
+            else:
+                variables.consola.insert(INSERT,'La base de datos: ('+self.id+') ha sido creada con exito\n')
+                return
+        else :
+            res = DBMS.createDatabase(self.id)
+            print("Crear base de datos sin replace y sin exist",res)
+            if (res==2):
+
+                variables.consola.insert(INSERT,'ERROR >> En la instrucción Create Databasem'+self.id+' , La base de datos YA EXISTE\n')
+                reporteerrores.append(Lerrores("Error Semantico", 'Instrucción Create Database '+self.id+'  La base de datos YA EXISTE','',''))
+                return
+                
+            else:
+                variables.consola.insert(INSERT,'La base de datos: ('+self.id+' ) ha sido creada con exito\n')
+                return
 
 class DropDb(Instruccion):
     def __init__(self, id:str):
@@ -25,10 +69,13 @@ class DropDb(Instruccion):
     def ejecutar(self, ent):
         resultado = DBMS.dropDatabase(self.id)
         if (resultado==2):
-            return "ERROR >> En la instrucción Drop Database "+self.id+", La base de datos a eliminar NO EXISTE"
+            variables.consola.insert(INSERT,'ERROR >> En la instrucción Drop Database '+self.id+ ', La base de datos a eliminar NO EXISTE\n')
+            reporteerrores.append(Lerrores("Error Semantico", 'Instrucción Drop Database '+self.id+'  La base de datos NO EXISTE','',''))
+            return
         else:
-            return "La base de datos: ("+self.id+") ha sido eliminada con exito"
-        
+            ent.eliminarDataBase(self.id)
+            variables.consola.insert(INSERT,'La base de datos: ('+self.id+' ) ha sido eliminada con exito\n')
+            return
 
 class ShowDb(Instruccion):
     def __init__(self):
@@ -42,7 +89,9 @@ class ShowDb(Instruccion):
         variables.consola.insert(INSERT,variables.x)
         variables.x.clear()
         variables.consola.insert(INSERT,"\n")
-        return "Show Databases Exitoso"
+        variables.consola.insert(INSERT,'Show database Exitoso\n')
+        return
+
 
 class AlterDb(Instruccion):
     def __init__(self, id:str,newdb):
@@ -50,8 +99,23 @@ class AlterDb(Instruccion):
         self.newdb=newdb 
 
     def ejecutar(self, ent):
-        DBMS.alterDatabase(self.id,self.newdb)
-        DBMS.showCollection()
+        result=  DBMS.alterDatabase(self.id,self.newdb)
+
+        if (result==2):
+            variables.consola.insert(INSERT,"ERROR >> En la instrucción Alter Database "+self.id+", La base de datos que desea renombrar NO EXISTE\n")
+            reporteerrores.append(Lerrores("Error Semantico","Instrucción Alter Database "+self.id+", La base de datos que desea renombrar NO EXISTE",'',''))
+            return
+        elif (result==3):
+            variables.consola.insert(INSERT,"ERROR >> En la instrucción Alter Database "+self.id+", ya exite una basde de datos con ese nombre\n")
+            reporteerrores.append(Lerrores("Error Semantico", "Instrucción Alter Database "+self.id+", ya exite una basde de datos con ese nombre",'',''))
+            return
+
+        elif(result==0):
+            ent.renombrarDatabase(self.id,self.newdb)
+            DBMS.showCollection()
+            variables.consola.insert(INSERT,"Base de datos renombrada a : "+self.newdb+" EXITOSAMENTE\n")
+            return
+
         
 class Use(Instruccion):
     def __init__(self, id:str):
@@ -66,7 +130,8 @@ class Use(Instruccion):
                 existe =  True
                 break
         if existe:
-            return "Base de datos: "+ent.database+" en uso actualmente"
+            variables.consola.insert(INSERT,"Base de datos: "+ent.database+" en uso actualmente\n")
+            return
         else:
             return "ERROR >> En la instrucción Use "+self.id+", La base de datos a utilizar NO EXISTE"
                 

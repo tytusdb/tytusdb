@@ -22,11 +22,31 @@ def NOT(exp, expRes, enviroment):
 def AND(exp1, exp2, expRes, enviroment):
     val1 = exp1.execute(enviroment)
     val2 = exp2.execute(enviroment)
-    return "AND"
+
+    if exp1.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean:
+
+        expRes.tipo.data_type = Data_Type.boolean
+        expRes.valorExpresion = val1 and val2
+
+    else:
+        expRes.tipo.data_type == Data_Type.error
+        expRes.valorExpresion = None
+
+    return expRes
 # **************************************************************************************************************
 # **************************************************************************************************************
 def OR(exp1, exp2, expRes, enviroment):
     val1 = exp1.execute(enviroment)
     val2 = exp2.execute(enviroment)
-    return "OR"
+
+    if exp1.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean:
+
+        expRes.tipo.data_type = Data_Type.boolean
+        expRes.valorExpresion = val1 or val2
+
+    else:
+        expRes.tipo.data_type == Data_Type.error
+        expRes.valorExpresion = None
+
+    return expRes
 # **************************************************************************************************************

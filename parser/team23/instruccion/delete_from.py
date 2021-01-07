@@ -38,8 +38,10 @@ class delete_from (instruccion):
                 index_pk = ts.get_index_pk(id_db, self.ID1)
 
                 for item in where_val.valor:
-                    pk_item = [item[index_pk]]                
-                    val_delete = funciones.delete(id_db, self.ID1, pk_item)
+                    pk_new = []
+                    for index in index_pk:
+                        pk_new.append(item[index])
+                    val_delete = funciones.delete(id_db, self.ID1, pk_new)
                     # Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria no existe.
 
                     if val_delete == 1:
