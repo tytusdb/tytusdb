@@ -1,3 +1,4 @@
+  
 import os
 import pickle
 import zlib
@@ -32,11 +33,11 @@ def addDatabase(name, mode, code, mod):
     database["mode"] = mode
     database["code"] = code
     databases.append(database)
-    # persistence()
+    persistence(databases)
 
 def createDatabase(name, mode = 'avl', code = 'ASCII'):
     try:
-        # chargePersistence()
+        chargePersistence()
         if code == 'UTF8' or code == 'ASCII' or code == 'ISO-8859-1':
             if mode == 'avl':
                 addDatabase(name, mode, code, avl)
@@ -67,20 +68,12 @@ def createDatabase(name, mode = 'avl', code = 'ASCII'):
         return 1
 
 def showDatabases():
-    # return databases
-    # chargePersistence()
+    chargePersistence()
     msg = "BASES DE DATOS\n"
-    dbs = []
+    # dbs = []
     for db in databases:
         if '_' not in db['name']:
             msg += f"\t{db['mode']}: {db['name']}\n"
-    # msg += f"\tAVL: {avl.showDatabases()}\n"
-    # msg += f"\tB: {b.showDatabases()}\n"
-    # msg += f"\tB+: {bplus.showDatabases()}\n"
-    # msg += f"\tHash: {_hash.showDatabases()}\n"
-    # msg += f"\tIsam: {isam.showDatabases()}\n"
-    # msg += f"\tDict: {_dict.showDatabases()}\n"
-    # msg += f"\tJSON: {json.showDatabases()}\n"
     return msg
 
 def alterDatabase(databaseOld, databaseNew):
@@ -114,11 +107,12 @@ def createTable(database, table, nCols):
                     t = {"name": table, "nCols": nCols, "tuples": [], 
                         "fk": None, "iu": None, "io": None}
                     i["tables"].append(t)
-                    # persistence()
+                    persistence(databases)
                     return value
     return 2
 
 def showTables(database):
+    chargePersistence()
     tables = []
     for item in structs:
         value = item.showTables(database)
@@ -128,7 +122,8 @@ def showTables(database):
     return tables
 
 def extractTable(database, table):
-    alterDatabaseDecompress(database)
+    chargePersistence()
+    # alterDatabaseDecompress(database)
     for item in structs:
         value = item.extractTable(database, table)
         if value is not None:
@@ -152,6 +147,7 @@ def alterAddPK(database, table, columns):
                     for t in i["tables"]:
                         if table == t["name"]:
                             t["pk"] = columns
+                            persistence(databases)
                             return value
     return 2
 
@@ -218,12 +214,14 @@ def insert(database, table, register):
                             if table == t["name"]:
                                 tupla = {"register": register} 
                                 t["tuples"].append(tupla)
+                                persistence(databases)
                                 return value
         else:
             return 1                        
     return 2
 
 def extractRow(database, table, columns):
+    chargePersistence()
     for item in structs:
         value = item.extractRow(database, table, columns)
         if value:
@@ -251,24 +249,26 @@ def update(database, table,  register, columns):
                                 for key in register:
                                     index = key
                                 tup["register"][index] = register[1]
+                        persistence(databases)
                         return value
     return 2
 
 def delete(database, table, columns):
-    for item in structs:
-        value = item.delete(database, table, columns)
-        if value != 2:
-            for i in databases:
-                if database == i["name"]:
-                    for t in i["tables"]:
-                        if table == t["name"]:
-                            for tup in t["tuples"]:
-                                index = 0
-                                for key in columns:
-                                    index = key
-                                tup["register"][index] = register[1]
-                        return value
-    return 2
+    pass
+    # for item in structs:
+    #     value = item.delete(database, table, columns)
+    #     if value != 2:
+    #         for i in databases:
+    #             if database == i["name"]:
+    #                 for t in i["tables"]:
+    #                     if table == t["name"]:
+    #                         for tup in t["tuples"]:
+    #                             index = 0
+    #                             for key in columns:
+    #                                 index = key
+    #                             tup["register"][index] = register[1]
+    #                     return value
+    # return 2
 
 def truncate(database, table):
     for item in structs:
@@ -286,6 +286,7 @@ def truncate(database, table):
 # 2. ADMINISTRADOR DE MODO DE ALMACENAMIENTO
 def alterDatabaseMode(database, mode):
     try:
+        changueMode(databases)
         for db in databases:
             if db["name"] == database:
                 dbCopy = db.copy()
@@ -296,6 +297,7 @@ def alterDatabaseMode(database, mode):
                     createTable(dbCopy["name"], table["name"], table["nCols"])
                     for reg in table["tuples"]:
                         insert(dbCopy["name"], table["name"], reg["register"])
+                persistence(databases)
                 return 0
     except:
         return 1
@@ -308,6 +310,33 @@ def alterTableDropFK(database, table, indexName):
     pass
 
 # 4. ADMINISTRACION DE LA CODIFICACION
+def alterDatabaseEncoding(database,encoding):
+    if encoding =="ASCII" or encoding =="ISO-8859-1" or encoding =="UTF8":
+        pass
+    else:
+        return 3
+    try:
+        i=0
+        for db in databases:
+            if db["name"] == database:
+                for table in db["tables"]:
+                    for tupla in table["tuples"]:
+                        for register in tupla["register"]:
+                            if isinstance(register, str) : 
+                                codificacion = codificationValidation(encoding,register)    
+                                if codificacion == True:
+                                    pass
+                                else:
+                                    return 1     
+                break                          
+            i+=1   
+        if i==len(databases):
+            return 2
+        else:
+            return 0    
+    except:
+        return 1
+
 def codificationValidation(codification,stringlist): ##Cristian
     if codification=="ASCII":
         try:
@@ -486,22 +515,43 @@ def encrypt(backup, password):
 def decrypt(cipherBackup, password):
     return Fernet(password).decrypt(cipherBackup.encode()).decode()
 
-# def persistence():
-#     try:
-#         if path.exists("DB"):
-#             os.remove("DB")
-#         archivo = open("DB" , "wb")
-#         pickle.dump(databases, archivo)
-#         archivo.close()
-#     except: 
-#         pass
+def persistence(databases):
+    try:
+        if path.exists("DB"):
+            os.remove("DB")
+        archivo = open("DB", "wb")
+        for db in databases:
+            db["mod"] = db["mode"]
+        pickle.dump(databases, archivo)
+        archivo.close()
+        del(archivo)
+    except: 
+        pass
 
-# def chargePersistence():
-#     n = databases
-#     if path.isfile("DB") and len(n) == 0 and path.getsize("DB") > 0:
-#         archivo = open("DB" , "rb")
-#         data = pickle.load(archivo)
-#         for i in data: 
-#             databases.append(i)
-#         archivo.close()
-#         print("bases de datos cargadas")
+def chargePersistence():
+    n = databases
+    if path.isfile("DB") and len(n) == 0 and path.getsize("DB") > 0:
+        archivo = open("DB" , "rb")
+        data = pickle.load(archivo)
+        changueMode(data, True)
+        archivo.close()
+        print("bases de datos cargadas")
+
+def changueMode(database, isPersistence = False):
+    for i in database:
+        if i["mod"] == 'avl':
+            i["mod"] = avl
+        elif i["mod"] == 'b':
+            i["mod"] == b
+        elif i["mod"] == 'bplus':
+            i["mod"] = bplus
+        elif i["mod"] == 'hash':
+            i["mod"] = _hash
+        elif i["mod"] == 'isam':
+            i["mod"] = isam
+        elif i["mod"] == 'dict':
+            i["mod"] = _dict
+        elif i["mod"] == 'json':
+            i["mod"] = json
+        if isPersistence:
+            databases.append(i)
