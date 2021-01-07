@@ -67,11 +67,6 @@ class select_func(query):
                 #print(ptable)
                 return ptable
             
-                
-
-
-
-
 
 class select(query):
 
@@ -89,7 +84,6 @@ class select(query):
             self.condition.append(having)
         
         
-
     def ejecutar(self):
 
         gro = self.group
