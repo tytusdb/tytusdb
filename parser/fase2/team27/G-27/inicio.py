@@ -3,6 +3,7 @@
 from tkinter import *
 import tkinter
 from c3d import analizarLex, analizarSin,tab_string, tab_func, get_errores, tab_simbolos
+from reporte import analizarASTLex, analizarASTSin
 from bnf import analizarBNFLex, analizarBNFSin
 from environment import reset
 

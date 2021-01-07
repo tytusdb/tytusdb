@@ -1506,7 +1506,7 @@ def p_arg_list_opt(t):
 def p_arg_list(t):
     ''' arg_list : arg_list COMA ID
              	| ID'''
-    if len(t) == 3:
+    if len(t) == 4:
         t[1].append(t[3])
         t[0] = t[1]
     else:
