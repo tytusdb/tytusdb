@@ -10,7 +10,6 @@ class Extract(Instruccion):
 
     def ejecutar(self, ts, arbol):
         super().ejecutar(ts,arbol)
-        print("estamos en extract " + self.tiempo)
         date_time_obj = datetime.datetime.strptime(self.caracter, '%Y-%m-%d %H:%M:%S')
         date = date_time_obj.date()
         time = date_time_obj.time()

@@ -13,14 +13,17 @@ import prettytable as pt
 import os
 from reportBNF import *
 import webbrowser as wb
-
+import OptimizarMirilla as optm
+import OptimizarObjetos as optobj
+# Esta es la lista de objetos
+from procedural import objopt
 default_db = 'DB1'
 ts = TabladeSimbolos.Tabla()
 
 def analiz(input):
     raiz = g.parse(input)
     results = []
-    executeGraphTree(raiz)
+    #executeGraphTree(raiz)
     for val in raiz:
         res = val.ejecutar()
         if isinstance(res,CError):
@@ -28,11 +31,42 @@ def analiz(input):
         else:
             results.append( res)
     graphTable(ts)
-    report_errors()
-    report_BNF()
+    #report_errors()
+    #report_BNF()
+    #--------------------------------------------------------
+    ListaAsignaciones = []
 
+    ListaAsignaciones.append(optobj.Asignacion("x","x","0","+"))
+    ListaAsignaciones.append(optobj.Asignacion("x","x","0","-"))
+    ListaAsignaciones.append(optobj.Asignacion("x","x","1","*"))
+    ListaAsignaciones.append(optobj.Asignacion("x","x","1","/"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","0","+"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","0","-"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","1","*"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","1","/"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","2","*"))
+    ListaAsignaciones.append(optobj.Asignacion("x","y","0","*"))
+    ListaAsignaciones.append(optobj.Asignacion("x","0","y","/"))
+
+    print(optm.Optimizador(ListaAsignaciones).ejecutar())
+    
+    for simbolo in ts.simbolos:
+        print("ID: " + str(ts.simbolos[simbolo].id) + " Nombre: " + ts.simbolos[simbolo].nombre + " Ambito: " + str(ts.simbolos[simbolo].ambito) + " Tipo indice: " + str(ts.simbolos[simbolo].tipoind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind))
+    #graphTable(ts)
+    #--------------------------------------------------------
     return results
 
+def traducir(input):
+    global STACK_INSTRUCCIONES
+    STACK_INSTRUCCIONES = str(input).split(';')
+    raiz = g.parse(input)
+    results = []
+    for val in raiz:
+        res = val.traducir()
+        if isinstance(res, CError):
+            print('')
+        else:
+            results.append(res)
 
 root = Tk()
 cont = 1
@@ -50,7 +84,7 @@ def Salir():
 def AcercaDe():
     messagebox.showinfo("Acerca de [OLC2]Fase 1", "Organización de Lenguajes y Compiladores 2")
 def Abrir():
-    global ruta 
+    global ruta
     global nombrearchivo
     ruta = filedialog.askopenfilename(title="Seleccionar Archivo", filetypes=(("Todos los archivos","*.*"),("Archivos txt","*.txt")))
     nombrearchivo=os.path.basename(ruta)
@@ -81,13 +115,14 @@ def GuardarComo():
         archivo.close()
     except:
         print("Error al guardar como archivo")
-    return  
+    return
 def LimpiarTexto():
     texto.delete('1.0',END)
 def LimpiarConsola():
     consola.delete('1.0',END)
     global cont
     cont = 1
+
 def Analizar():
     results = analiz(texto.get("1.0", "end-1c"))
     global cont
@@ -98,6 +133,22 @@ def Analizar():
         else:
             cont += (res.count('\n')+2)
         consola.insert(str(float(cont)), '\n')
+
+def Analizar2(texto: str):
+    results = analiz(texto)
+    global cont
+    for res in results:
+        #consola.insert(str(float(cont)), res)
+        print(str(float(cont)), res)
+        if isinstance(res,pt.PrettyTable):
+            cont += (res.get_string().count('\n')+2)
+        else:
+            cont += (res.count('\n')+2)
+        #consola.insert(str(float(cont)), '\n')
+        print(str(float(cont)), res)
+
+def Traducir():
+    traducir(texto.get("1.0", "end-1c"))
 def AbrirAST():
     wb.open_new(r'tree.gv.pdf')
 def AbrirBNF():
@@ -106,35 +157,36 @@ def AbrirErrores():
     wb.open_new(r'reporteErrores.gv.pdf')
 def AbrirTablaSimbolos():
     wb.open_new(r'reporteTabla.gv.pdf')
-        
+
 
 """CREACION DE COMPONENTES GRAFICOS"""
 BarraMenu=Menu(root)
 
 root.config(menu=BarraMenu)
 MenuArchivo= Menu(BarraMenu, tearoff=0)
-MenuArchivo.add_command(label="Arbrir",command=Abrir)  
-MenuArchivo.add_command(label="Guardar",command=Guardar)  
+MenuArchivo.add_command(label="Arbrir",command=Abrir)
+MenuArchivo.add_command(label="Guardar",command=Guardar)
 MenuArchivo.add_command(label="Guardar Como...",command=GuardarComo)
-MenuArchivo.add_separator() 
-MenuArchivo.add_command(label="Salir", command=Salir) 
+MenuArchivo.add_separator()
+MenuArchivo.add_command(label="Salir", command=Salir)
 BarraMenu.add_cascade(label="Archivo", menu=MenuArchivo)
 
-MenuEditar= Menu(BarraMenu, tearoff=0)  
+MenuEditar= Menu(BarraMenu, tearoff=0)
 MenuEditar.add_command(label="Limpiar Consola",command=LimpiarConsola)
 MenuEditar.add_command(label="Limpiar Texto",command=LimpiarTexto)
 BarraMenu.add_cascade(label="Editar", menu=MenuEditar)
 
-MenuAnalizador= Menu(BarraMenu, tearoff=0)  
+MenuAnalizador= Menu(BarraMenu, tearoff=0)
 MenuAnalizador.add_command(label="Ejecutar Analisis",command=Analizar)
+MenuAnalizador.add_command(label="Traducir a 3D",command=Traducir)
 BarraMenu.add_cascade(label="Analizar", menu=MenuAnalizador)
 
 MenuReportes= Menu(BarraMenu, tearoff=0)
 BarraMenu.add_cascade(label="Reportes", menu=MenuReportes)
-MenuReportes.add_command(label="AST", command=AbrirAST) 
+MenuReportes.add_command(label="AST", command=AbrirAST)
 MenuReportes.add_command(label="BNF", command=AbrirBNF)
-MenuReportes.add_command(label="Errores", command=AbrirErrores) 
-MenuReportes.add_command(label="Tabla Simbolos",command=AbrirTablaSimbolos) 
+MenuReportes.add_command(label="Errores", command=AbrirErrores)
+MenuReportes.add_command(label="Tabla Simbolos",command=AbrirTablaSimbolos)
 
 MenuAyuda= Menu(BarraMenu, tearoff=0)
 MenuAyuda.add_command(label="Acerca de...",command=AcercaDe)

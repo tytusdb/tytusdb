@@ -46,7 +46,7 @@ reservadas = (
     'UPDATE', 'SET',
     'DELETE',
     # SENTENCIAS DDL
-    'CREATE', 'DROP', 'ALTER', 'COLUMN', 'ADD', 'TRUNCATE', 'DATABASE',
+    'CREATE', 'DROP', 'ALTER', 'COLUMN', 'ADD', 'TRUNCATE', 'DATABASE', 'PROCEDURE', 'INOUT',
     # SENTENCIAS DE AGREGACIÓN
     'SUM', 'MAX', 'MIN', 'AVG', 'COUNT', 'TOP',
     # JOIN
@@ -69,14 +69,21 @@ reservadas = (
     # SORTING ROWS
     'ORDER', 'BY', 'FIRST', 'LAST', 'ASC', 'DESC', 'NULLS', 
     #EXPRESSIONS
-    'CASE','WHEN','THEN','ELSE', 'LEAST', 'GREATEST',
+    'CASE','WHEN','THEN','ELSE', 'LEAST', 'GREATEST', 'ELSIF',
     #LIMIT AND OFFSET
     'LIMIT', 'OFFSET',
     #COMBINING QUERIES
     'UNION', 'INTERSECT', 'EXCEPT', 'ALL',
-    # Begin
+    # BEGIN
     'FUNCTION', 'BEGIN', 'END',
-    'DECLARE'
+    'DECLARE', 'TXT_PTN_OPS', 'VRCH_PTN_OPS', 'BPCH_PTN_OPS', 
+    'LANGUAGE', 'PLPGSQL', 'RAISE', 'NOTICE', 'RETURN', 'CONSTANT', 'ALIAS',
+    'RETURNS', 'OUT', 'QUERY', 'PERFORM', 'FOUND', 'EXCEPTION', 'EXECUTE',
+    'GET', 'CURRENT', 'DIAGNOSTICS', 'FOR',
+    # INDEX
+    'INDEX', 'USING', 'HASH', 'INCLUDE', 'COLLATE',
+    # PROCEDIMIENTOS
+    'COMMIT', 'ROLLBACK'
 )
 
 tokens = reservadas + (
@@ -109,11 +116,18 @@ tokens = reservadas + (
     'CARACTER',
     'COMENTARIO_MULTILINEA',
     'COMENTARIO_SIMPLE',
-    'ARROBA'
+    'ARROBA',
+    'PIPE',
+    'PROC',
+    'DOS_PUNTOS',
+    'FIN_DOLAR'
 )
 
 # EXPRESIONES REGULARES BASICAS
 t_ARROBA = r'@'
+t_PROC   = r'\$\$'
+t_DOS_PUNTOS        = r'\:'
+t_PIPE   = r'\|'
 t_PARIZQ = r'\('
 t_PARDER = r'\)'
 t_CORIZQ = r'\['
@@ -135,6 +149,7 @@ t_MAYORQ = r'\>'
 t_MENORQ = r'\<'
 t_MAYOR_IGUALQ = r'\>\='
 t_MENOR_IGUALQ = r'\<\='
+t_FIN_DOLAR = r'\$\$'
 
 
 

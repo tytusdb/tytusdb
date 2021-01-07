@@ -4,6 +4,8 @@ from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select.SelectLista import Alias
 import time
 import numpy as np
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class Relacional(Instruccion):
     def __init__(self, opIzq, opDer, operador, strGram,linea, columna):
@@ -777,3 +779,23 @@ class Relacional(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        op1 = self.opIzq.generar3D(tabla, arbol)
+        op2 = self.opDer.generar3D(tabla, arbol)
+
+        if isinstance(op1, list):
+            code += code
+
+        if isinstance(op2, list):
+            code += code
+
+        tempAnt = c3d.getLastTemporal()
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, str(op1) + " " + self.operador + " " + str(op2)))
+        t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, Identificador(tempAnt), Identificador(t0), OP_ARITMETICO.SUMA))
+
+        return code

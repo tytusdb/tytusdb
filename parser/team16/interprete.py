@@ -1878,10 +1878,10 @@ def procesar_relacional_select(expresion, ts):
             return 1 if (val > val2) else 0
         elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
             return 1 if (val < val2) else 0
-    elif (isinstance(val[0], DatoInsert) and isinstance(val2, int)
-          or isinstance(val[0], DatoInsert) and isinstance(val2, int)
-          or isinstance(val[0], DatoInsert) and isinstance(val2, float)
-          or isinstance(val[0], DatoInsert) and isinstance(val2, int) ):
+    elif (isinstance(val,list) and isinstance(val2, int)
+          or isinstance(val,list) and isinstance(val2, int)
+          or isinstance(val,list) and isinstance(val2, float)
+          or isinstance(val,list) and isinstance(val2, int) ):
 
         if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
             listaV = []
@@ -1926,7 +1926,7 @@ def procesar_relacional_select(expresion, ts):
                     listaV.append(Vd)
             return listaV
 
-    elif isinstance(val[0], DatoInsert) and isinstance(val2[0], DatoInsert):
+    elif isinstance(val,list) and isinstance(val2[0], DatoInsert):
         if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
             listaV = []
             for v in val:

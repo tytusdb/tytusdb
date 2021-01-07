@@ -32,3 +32,10 @@ class Function_Degrees(Expresion):
             self.valorExpresion = None
             return self.valorExpresion
 
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+        exp = self.hijos[0]
+        stringReturn = 'degrees('+ exp.getText() +')'
+        return stringReturn

@@ -1,3 +1,7 @@
+import json
+import datetime
+import re
+
 from models.instructions.shared import Instruction
 from controllers.type_checker import TypeChecker
 from controllers.error_controller import ErrorController
@@ -9,20 +13,19 @@ from models.database import Database
 from models.column import Column
 from models.table import Table
 from models.instructions.DDL.column_inst import *
-import json
-import datetime
-import re
 from controllers.error_controller import ErrorController
+from controllers.three_address_code import ThreeAddressCode
 from views.data_window import DataWindow
 
 
 class CreateTB(Instruction):
 
-    def __init__(self, table_name, column_list, inherits_from):
+    def __init__(self, table_name, column_list, inherits_from, tac):
         self._table_name = table_name
         self._column_list = column_list
         self._inherits_from = inherits_from
         self._can_create_flag = True
+        self._tac = tac
 
     def __repr__(self):
         return str(vars(self))
@@ -59,6 +62,19 @@ class CreateTB(Instruction):
 
         # Agrego llaves primarias a la base de datos si no hubo clavo con la tabla
         self.addPKToDB(nombreTabla)
+
+    def compile(self, instrucction):
+        temp = ThreeAddressCode().newTemp()
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+
+
 
     def numberOfColumns(self, arrayColumns):
         count = 0
@@ -397,7 +413,7 @@ class CreateTB(Instruction):
                 datetime.datetime.strptime(valorDef, '%Y-%m-%d')
             except:
                 try:
-                    datetime.datetime.strptime(valorDef,'%Y/%m/%d  %H:%M:%S')
+                    datetime.datetime.strptime(valorDef, '%Y/%m/%d  %H:%M:%S')
                 except:
                     desc = f": invalid format in date column"
                     ErrorController().add(17, 'Execution', desc, 0, 0)
@@ -607,10 +623,11 @@ class CreateTB(Instruction):
 
 class DropTB(Instruction):
 
-    def __init__(self, table_name, noLine, noColumn):
+    def __init__(self, table_name, tac, noLine, noColumn):
         self._table_name = table_name
         self._noLine = noLine
         self._noColumn = noColumn
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -620,15 +637,28 @@ class DropTB(Instruction):
         typeChecker.deleteTable(self._table_name,
                                 self._noLine, self._noColumn)
 
+    def compile(self, instrucction):
+        temp = ThreeAddressCode().newTemp()
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+
 
 class AlterTable(Instruction):
     '''
         ALTER TABLE cambia una tabla con diversas opciones de alterar
     '''
 
-    def __init__(self, tablaAModificar, listaCambios):
+    def __init__(self, tablaAModificar, listaCambios, tac):
         self._tablaAModificar = tablaAModificar
         self._listaCambios = listaCambios
+        self._tac = ''
+
+    def compile(self, instrucction):
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
 
     def process(self, instruction):
         typeChecker = TypeChecker()
@@ -668,7 +698,7 @@ class AlterTableAdd(AlterTable):
 
     def __init__(self, changeContent):
         self._changeContent = changeContent
-
+        self._tac = ''
     def __repr__(self):
         return str(vars(self))
 
@@ -814,6 +844,7 @@ class AlterTableAlter(AlterTable):
 
     def __init__(self, changeContent):
         self._changeContent = changeContent
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -886,7 +917,7 @@ class AlterTableDrop(AlterTable):
 
     def __init__(self, changeContent):
         self._changeContent = changeContent
-
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
 
@@ -927,6 +958,7 @@ class AlterTableRename(AlterTable):
     def __init__(self, oldName, newName):
         self._oldName = oldName
         self._newName = newName
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))

@@ -84,3 +84,7 @@ class Identificador(Instruccion):
             return error
         self.tipo = variable.tipo
         return variable.valor.ejecutar(tabla, arbol)
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        return self.id

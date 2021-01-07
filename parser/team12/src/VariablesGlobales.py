@@ -1,0 +1,2 @@
+selectAgregate = []
+posicion = 0

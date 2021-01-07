@@ -9,6 +9,31 @@ def crear_tabla(tabla):
     file.close()
     webbrowser.open_new_tab(filename)
 
+def isExist(dato):
+        dato = "<td><center> - </center></td>\n"
+        try:
+            if hasattr(dato,"alias"):
+                if dato.alias != "" or dato.alias != None:
+                    dato = "<td><center>" + str(dato.alias) + "</center></td>\n"
+            elif hasattr(dato,"nombre"):
+                if dato.nombre != "" or dato.nombre != None:
+                    dato = "<td><center>" + str(dato.nombre) + "</center></td>\n"
+            elif hasattr(dato,"tipo"):
+                if dato.tipo != "" or dato.tipo != None:
+                    dato = "<td><center>" + str(dato.tipo) + "</center></td>\n"
+            elif hasattr(dato,"columnas"):
+                if dato.columnas != "" or dato.columnas != None:
+                    dato = "<td><center>" + str(dato.columnas) + "</center></td>\n"
+            elif hasattr(dato,"consideraciones"):
+                if dato.consideraciones != "" or dato.consideraciones != None:
+                    dato = "<td><center>" + str(dato.consideraciones) +"</center></td>\n"
+            elif hasattr(dato,"fila"):
+                if dato.fila != "" or dato.fila != None:
+                    dato = "<td><center>" + str(dato.fila) + "</center></td>\n"
+        except Exception:
+            pass
+        return dato
+
 def reporte_tabla(tabla):
     cadena = ''
     cadena += "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/><title>Reporte</title><style> \n"
@@ -44,6 +69,13 @@ def reporte_tabla(tabla):
     cadena += "<th><center>Type</center></th>\n"
     cadena += "<th><center>Size</center></th>\n"
     cadena += "<th><center>Restriction</center></th>\n"
+    #Para la tabla de simbolos de la fase 2
+    cadena += "<th><center>Alias - Indice</center></th>\n"
+    # cadena += "<th><center>Nombre</center></th>\n"
+    cadena += "<th><center>Columnas en Indices</center></th>\n"
+    cadena += "<th><center>Tipo Indice</center></th>\n"
+    # cadena += "<th><center>Consideraciones</center></th>\n"
+    # cadena += "<th><center>Fila</center></th>\n"
     cadena += "</tr>\n"
 
     # Recorrido
@@ -68,9 +100,44 @@ def reporte_tabla(tabla):
                     cadena += "<td><center>" + ",".join(listaC) + "</center></td>\n"
                 else:
                     cadena += "<td><center> - </center></td>\n"
+                cadena += isExist(c)
+                cadena += isExist(c)
+                cadena += isExist(c)
+                # cadena += isExist(c)
+                # cadena += isExist(c)
+                # cadena += isExist(c)
                 cadena += "</tr>\n"
                 contador += 1
                 #print("-------------------->",db.nombreTabla,t.nombreDeTabla, c.nombre, c.tipo.toString(),c.tipo.dimension,c.constraint)
+
+            for indice in t.lista_de_indices:
+                if str(indice.nombre.id) != '':
+                        a = str(indice.nombre.id)
+                        cadena += "<tr>\n"
+                        cadena += "<td><center>" + str(contador) + "</center></td>\n"
+                        cadena += "<td><center>" + db.nombreTabla + "</center></td>\n"
+                        cadena += "<td><center>" + t.nombreDeTabla + "</center></td>\n"
+                        cadena += "<td><center>" + str(indice.nombre.id) + "</center></td>\n"
+                        cadena += "<td><center> INDEX" + "</center></td>\n"
+                        cadena += "<td><center> - </center></td>\n"
+                        
+                        cadena += isExist(indice)
+                        cadena += "<td><center>" + str(indice.nombre.id) + "</center></td>\n"   # ESTE ES EL ALIAS
+
+                        if len(indice.lRestricciones) > 0:
+                            consideraciones = str(indice.lRestricciones).replace("[", "").replace("'", "").replace("\"", "").replace("]", "").replace(",", "")
+                            column_index = consideraciones.split("#")
+                            cadena += "<td><center>" + column_index[0]+ "</center></td>\n"
+                        else:
+                            cadena += "<td><center> None </center></td>\n"
+
+                        
+                        cadena += "<td><center>" + column_index[1]+ "</center></td>\n"
+                        
+                        # cadena += "<td><center>" + " ASC </center></td>\n"   # TIPO, ASC POR DEFECTO
+
+                        cadena += "</tr>\n"
+                        contador += 1
 
     '''
     while tabla != None:

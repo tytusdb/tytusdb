@@ -10,7 +10,12 @@ class ASTNode(abc.ABC):
     @abc.abstractmethod
     def execute(self, table, tree):
         # Adding print all node values for debug purposes
-        #print(f'{self.__class__.__name__} - {self.additional_args}. Reconocido en linea: {self.line} columna:  {self.column}')
+        # print(f'{self.__class__.__name__} - {self.additional_args}. Linea: {self.line} columna:  {self.column}')
+        pass
+
+    # method to allow generation of C3D in every instruction
+    @abc.abstractmethod
+    def generate(self, table, tree):
         pass
 
     # attributes to carry in every instruction
