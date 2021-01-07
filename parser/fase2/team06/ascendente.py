@@ -3577,7 +3577,7 @@ def alter_table(query,ts):
                         longitudinal = str(contenido.tipo2.longitud)
                         print("AQUI VIENE ID NUEVA ---::>> ",idNueva)
                         print("ESTA ES LA LONGITUD A GUARDAR ---::>> ",contenido.tipo2.longitud)
-                        ahora = TS.Simbolo(idNueva,contenido.id1,contenido.tipo2.id,contenido.tipo2.longitud,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
+                        ahora = TS.Simbolo(idNueva,contenido.id1,contenido.tipo2.id,contenido.tipo2.longitud,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None)
                         print("xd")
                         ts.agregarnuevaColumna(ahora)
                         #ts.printcontsimbolos()
@@ -3585,7 +3585,7 @@ def alter_table(query,ts):
                     else:
                         print("POR ACÁ CREO")
                         idNueva = ts.numerodeColumnas(h.bd_enuso,tablatemp)
-                        ahora = TS.Simbolo(idNueva,contenido.id1,contenido.tipo2.id,None,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None)
+                        ahora = TS.Simbolo(idNueva,contenido.id1,contenido.tipo2.id,None,h.bd_enuso,tablatemp,0,0,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None)
                         ts.agregarnuevaColumna(ahora)
                         #ts.printcontsimbolos()
                         h.textosalida+="TYTUS>> Se agrego la columna: "+contenido.id1+" en la tabla: "+query.id+" de tipo: "+contenido.tipo2.id+"\n"              
