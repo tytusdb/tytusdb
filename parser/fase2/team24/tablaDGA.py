@@ -202,24 +202,17 @@ class Tabla() :
         
         return iddb
 
-    def buscarIDF(self,contador):
+    def buscarIDF(self):
 
         idf = -1
 
-        for simbolo in self.simbolos.values():
-            if simbolo.tipo == TIPO.FUNCTION: 
-                return simbolo.id
+        for simbolo in reversed(self.simbolos.items()):
+            if simbolo[1].tipo == TIPO.FUNCTION:
+                return simbolo[1].id
 
         return idf
 
-    def zapato(self,idn):
-        
-        for simbolo in self.simbolos.values():  
-            
-            if simbolo.id == idn and simbolo.tipo == TIPO.FUNCTION : 
-                return True
 
-        return False
 
     def isFunc(self,ide):
         for simbolo in self.simbolos.values() :
@@ -254,20 +247,40 @@ class Tabla() :
         
         return -1
     
+   
     def deleteFP(self,name):
         idF = -1
         
         for simbolo in self.simbolos.values():
             if simbolo.nombre == name and simbolo.tipo == TIPO.FUNCTION:
                 idF =  simbolo.id
-        contf = 0
+        
+
         for simbolo in self.simbolos.values():
             if simbolo.id == idF:
-                self.simbolos.pop(contf)
-            contf += 1
+                self.simbolos.pop(idF)
+                break
+            
         
-    
+        cantidad = 0
+        
+
+        for simbolo in self.simbolos.values():
+            if simbolo.ambito == idF:
+                cantidad += 1
+
+        
+
+        for a in range(cantidad):
+            
+            print(a)
+
+            for simbolo in self.simbolos.values():
+
+                if simbolo.ambito == idF:
+                    self.simbolos.pop(simbolo.id)
+                    break
+                
 
     
-    def deleteAM(self,ideAmbito,cantidad):
-        pass
+    
