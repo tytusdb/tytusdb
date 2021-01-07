@@ -42,6 +42,21 @@
 <TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
+<TR><TD> delete_insrt -> DELETE FROM ID <cond_where> PTCOMA</TD><TD> cadena =  <br>  t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+ ' ' +str(t[4])+';') </TD></TR>
+<TR><TD> cond_where -> WHERE expresion_where </TD><TD> t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' ' </TD></TR>
+<TR><TD> expresion_where -> expresion_logica_w </TD><TD> t[0] = ' ' + str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_logica_w -> expresion_whereb </TD><TD> t[0] = ' ' + str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_whereb ->  </TD><TD>  </TD></TR>
+<TR><TD> expresion_wherea -> expresion </TD><TD> t[0] = ' ' + str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion -> expresion_dato </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_dato -> expresion_numero </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_numero -> ENTERO </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_wherea -> expresion </TD><TD> t[0] = ' ' + str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion -> expresion_dato </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> expresion_dato -> string_type </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
+<TR><TD> string_type -> ID </TD><TD> t[0] = t[1] </TD></TR>
+<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
+<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
 <TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
 <TR><TD> empty ->  </TD><TD> pass </TD></TR>
@@ -237,8 +252,10 @@
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';') </TD></TR>
-<TR><TD> opc_index -> PARA opc_index_par PARC </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' ' </TD></TR>
-<TR><TD> opc_index_par -> LOWER PARA ID PARC </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' ' </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> create_Table_isnrt ->  CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA  </TD><TD> cadena =  <br> for i in t[5]: <br>     cadena += str(i) <br>  create_Table_isnrt = CreateTable(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + cadena+ ' ' + t[6]+ ';') </TD></TR>
@@ -789,10 +806,10 @@
 <TR><TD> expresion_numero -> ENTERO </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> createIndex -> CREATE UNIQUE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7])+';') </TD></TR>
-<TR><TD> opc_index -> PARA opc_index_par PARC </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' ' </TD></TR>
-<TR><TD> opc_index_par -> campos_c </TD><TD> cadena =  for i in t[1]: cadena += str(i) t[0] = ' '+ cadena + ' ' </TD></TR>
-<TR><TD> campos_c -> ID </TD><TD> campos_c = [t[1]] </TD></TR>
+<TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';') </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> create_Table_isnrt ->  CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA  </TD><TD> cadena =  <br> for i in t[5]: <br>     cadena += str(i) <br>  create_Table_isnrt = CreateTable(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + cadena+ ' ' + t[6]+ ';') </TD></TR>
@@ -819,10 +836,10 @@
 <TR><TD> TIPO_DATO_DEF -> INTEGER </TD><TD> TIPO_DATO_DEF = ' ' + t[1] + ' ' </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> createIndex -> CREATE UNIQUE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7])+';') </TD></TR>
-<TR><TD> opc_index -> PARA opc_index_par PARC </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' ' </TD></TR>
-<TR><TD> opc_index_par -> campos_c </TD><TD> cadena =  for i in t[1]: cadena += str(i) t[0] = ' '+ cadena + ' ' </TD></TR>
-<TR><TD> campos_c -> ID </TD><TD> campos_c = [t[1]] </TD></TR>
+<TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';') </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
+<TR><TD> empty ->  </TD><TD> pass </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> create_Table_isnrt ->  CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA  </TD><TD> cadena =  <br> for i in t[5]: <br>     cadena += str(i) <br>  create_Table_isnrt = CreateTable(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + cadena+ ' ' + t[6]+ ';') </TD></TR>

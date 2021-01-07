@@ -3,10 +3,11 @@ from datetime import datetime
 
 sys.path.append("../../..")
 from analizer.abstract import instruction
-from analizer.reports import Nodo
+from analizer.reports.AST import AST
 from analizer.symbol.environment import Environment
 import analizer.symbol.c3dSymbols as SymbolTable
 from analizer.abstract.expression import TYPE
+from analizer.reports.Nodo import Nodo
 
 envFunction = Environment(for3d=True)
 
@@ -63,18 +64,42 @@ class Function(instruction.Instruction):
         return types
         
     def dot(self):
-        new = Nodo.Nodo('CREATE FUNCTION')
-        returns = Nodo.Nodo('RETURNS')
-        returns.addNode(Nodo.Nodo(f'{self.type}'))
-
-        params = Nodo.Nodo('PARAMS')
-        for param in self.params:
-            nParam = param.dot()
-            params.addNode(nParam)
-        new.addNode(params)
+        new = Nodo('CREATE FUNCTION')
+        nombre_func = Nodo("IDENTIFICADOR DE FUNCION")
+        nombre_func.addNode(Nodo(self.name))
+        new.addNode(nombre_func)
+        if len(self.params) > 0:
+            params = Nodo('PARAMETROS')
+            for param in self.params:
+                parametro = Nodo("PARAMETRO")
+                id = Nodo("IDENTIFICADOR")
+                identi = Nodo(param[0])
+                id.addNode(identi)
+                parametro.addNode(id)
+                tipo = Nodo("TIPO")
+                type_node = Nodo(param[1][0])
+                tipo.addNode(type_node)
+                parametro.addNode(tipo)
+                if param[1][1][0] != None:
+                    dim = Nodo("DIMENSION")
+                    for dimen in param[1][1]:
+                        dim.addNode(Nodo(str(dimen)))
+                    tipo.addNode(dim)
+                params.addNode(parametro)
+            new.addNode(params)
 
         block = self.block.dot()
         new.addNode(block)
+        
+        returns = Nodo('RETURNS')
+        tipe = Nodo("TIPO")
+        tipe.addNode(Nodo(self.type[0]))
+        if self.type[1][0] != None:
+            dimension = Nodo("DIMENSION")
+            dimension.addNode(Nodo(str(self.type[1][0])))
+            tipe.addNode(dimension)
+        returns.addNode(tipe)
+        new.addNode(returns)
 
         return new
 
