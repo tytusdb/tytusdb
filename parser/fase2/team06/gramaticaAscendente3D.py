@@ -587,7 +587,7 @@ def p_crear_replace_param_BaseDatos_1(t):
     parametro = ""
     for param in t[6]:
         parametro+=param+" "
-    a="t"+str(h.conteoTemporales)+"= \"CREATE OR REPLACE DATABASE ID "+str(t[5])+" "+ str(parametro)+";\"\n"
+    a="t"+str(h.conteoTemporales)+"= \"CREATE OR REPLACE DATABASE "+str(t[5])+" "+ str(parametro)+";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
@@ -3507,7 +3507,7 @@ def p_createIndex_5(t):
 
 def p_createIndex_1_1(t):
     'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) + str(t[8]) + " )"+  ";\"\n"
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) +" "+ str(t[8]) + " )"+  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
@@ -3518,7 +3518,7 @@ def p_createIndex_1_2(t):
     for param in t[7]:
         parametro+=param+","
     param = parametro[0:-1]
-    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(param) +" ) "+ "WHERE "+str(t[11]) +  ";\"\n"
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(param) +" ) "+ "WHERE "+str(t[10]) +  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
@@ -3629,29 +3629,29 @@ def p_alterIndex_1(t):
     t[0]= a
 # ------------------------------------------------------ALTER INDEX COLUMN ----------------------------------------------------
 def p_alterIndex_2(t):
-    'alterIndex    : ALTER INDEX ID ALTER final PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER " + str(t[5]) +  ";\"\n"
+    'alterIndex    : ALTER INDEX ID ALTER ID final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER " + str(t[5]) + " " + str(t[6]) +  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 def p_alterIndex_3(t):
-    'alterIndex    : ALTER INDEX ID ALTER COLUMN final PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER COLUMN " + str(t[6]) +  ";\"\n"
+    'alterIndex    : ALTER INDEX ID ALTER COLUMN ID final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER COLUMN " + str(t[6]) + " " + str(t[7]) +  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 def p_alterIndex_4(t):
-    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER final PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ " ALTER " + str(t[7]) +  ";\"\n"
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER ID final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ " ALTER " + str(t[7]) + " " + str(t[8]) +  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 def p_alterIndex_5(t):
-    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER COLUMN final PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ "  ALTER COLUMN " + str(t[8]) +  ";\"\n"
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER COLUMN ID final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ "  ALTER COLUMN " + str(t[8]) + " " + str(t[9]) +";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
