@@ -226,7 +226,8 @@ class CreateTable(Instruccion):
 
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({obtenerTemporal})")
-        consola.append(f"\n\tstack.append({contador2})\n")
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")
 
 class Acompaniamiento(Instruccion):
     def __init__(self, tipo, valorDefault,fila,columna):
