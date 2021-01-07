@@ -147,8 +147,54 @@ def Analizar2(texto: str):
         consola.insert(str(float(cont)), res)
         print(str(float(cont)), res)
 
+
+# def para escribir el archivo de 3d y mostrarlo en la interfaz
+def escribir3D(entrada):
+
+    a = open("c3d.py", "w")
+
+    a.write('''from InstruccionesDGA import tabla 
+    from datetime import date
+    from InstruccionesDGA import cont 
+    from InstruccionesDGA import NombreDB
+    from tablaDGA import *
+    from sql import * 
+    import mathtrig as mt
+    #Funcion sql.execute
+    
+    pila = []
+    for i in range(100):
+        pila.append(i)
+    
+    def ejecutar(): \n''')
+
+    input = entrada
+
+    raiz = g.parse(input)
+
+    results = []
+    res =''
+    #executeGraphTree(raiz)
+    for val in raiz:
+        res += val.traducir()
+        #pass
+    a.write(res)
+
+    for fa in g.funciones:
+
+        a.write(fa)
+
+    a.write('''ejecutar() ''')
+    a.close()
+
+    f = open('c3d.py', 'r')
+    file_contents = f.read()
+
+    consola.insert(str(float(0)), file_contents)
+
+
 def Traducir():
-    Analizar2(texto.get("1.0", "end-1c"))
+    escribir3D(texto.get("1.0", "end-1c"))
 def AbrirAST():
     wb.open_new(r'tree.gv.pdf')
 def AbrirBNF():
