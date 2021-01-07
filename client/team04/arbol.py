@@ -2,7 +2,7 @@ from tkinter import Menu, Tk, Text, DISABLED, RAISED,Frame, FLAT, Button, Scroll
 from tkinter import ttk
 import tkinter as tk
 from tkinter import messagebox as MessageBox
-
+import json
 
 class Arbol(Frame):
     def __init__(self, *args, **kwargs):
@@ -52,3 +52,17 @@ class Arbol(Frame):
         # Colocando el arbol en el frame
         self.treeview.pack(side="top", fill="both", expand=True)
         self.pack(side="top", fill="both", expand=True)
+
+    def entregado(self):
+        p = '{"TEST": {"TBUSUARIO": {"NCOL": 3, "PKEY": [0]}, "TBROL": {"NCOL": 2, "PKEY": [0]}, "TBROLXUSUARIO": {"NCOL": 2}}, "PRUEBA1": {}, "PRUEBA2": {}}'
+        persons = json.loads(p)
+        # print(persons)
+
+        for key, value in persons.items():
+            print (key, value)
+
+        # for person in persons.values():
+        #     print (person)
+
+        for i in self.treeview.get_children():
+            self.treeview.delete(i)
