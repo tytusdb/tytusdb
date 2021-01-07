@@ -10,7 +10,6 @@ k_reserved = {
     'IMPORT': 'IMPORT',
     'FROM': 'FROM',
     'GOTO': 'GOTO',
-    'CONTROLLERS': 'CONTROLLERS',
     'WITH_GOTO': 'WITH_GOTO',
     'IF': 'IF',
     'LABEL': 'LABEL',
@@ -57,6 +56,7 @@ tokens = [
     # Assignment Operators
     'EQUALS_EQUALS',
     'EQUALS',
+    'COMMA',
 
     # Types of Contents
     'INT_NUMBER',
@@ -80,6 +80,7 @@ single_line = r'\#.*\n'
 # Definition of Symbols
 t_DOT = r'\.'
 t_ASTERISK = r'\*'
+t_COMMA = r'\,'
 t_LEFT_PARENTHESIS = r'\('
 t_RIGHT_PARENTHESIS = r'\)'
 t_LESS_THAN = r'\<'
