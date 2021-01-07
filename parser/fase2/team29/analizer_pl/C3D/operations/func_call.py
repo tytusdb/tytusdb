@@ -53,8 +53,11 @@ class FunctionCall(Expression):
                     c3d += tab + self.id + "()\n"
                     c3d += tab + "t" + self.temp + " = stack.pop()\n"
                     self.temp = "t" + self.temp
-            # Si es una funcion matematica
+            # Si es una funcion sql
             else:
+                if not self.id in sql_functions:
+                    print("Error: Funcion no definida")
+                    return code.C3D("", self.temp, self.row, self.column)
                 parVal = ""
                 self.temp = "t" + self.temp
                 c3d += tab + self.temp + " = fase1.invokeFunction("
@@ -105,7 +108,9 @@ class FunctionCall(Expression):
                     self.temp = '"+t' + self.temp + '+"'
             # Si es una funcion matematica
             else:
-                pass
+                if not self.id in sql_functions:
+                    print("Error: Funcion no definida")
+                    return code.C3D("", self.temp, self.row, self.column)
         return code.C3D(c3d, self.temp, self.row, self.column)
 
     def dot(self):
@@ -118,3 +123,68 @@ class FunctionCall(Expression):
                 for p in self.params:
                     par.addNode(p.dot())
         return new
+
+
+sql_functions = [
+    "abs",
+    "cbrt",
+    "ceil",
+    "ceiling",
+    "degrees",
+    "div",
+    "exp",
+    "factorial",
+    "floor",
+    "gcd",
+    "lcm",
+    "ln",
+    "log",
+    "log10",
+    "mod",
+    "pi",
+    "power",
+    "radians",
+    "round",
+    "sign",
+    "sqrt",
+    "trunc",
+    "width_bucket",
+    "random",
+    "acos",
+    "acosd",
+    "asin",
+    "asind",
+    "atan",
+    "atand",
+    "atan2",
+    "atan2d",
+    "cos",
+    "cosd",
+    "cot",
+    "cotd",
+    "sin",
+    "sind",
+    "tan",
+    "tand",
+    "sinh",
+    "cosh",
+    "tanh",
+    "asinh",
+    "acosh",
+    "atanh",
+    "length",
+    "substring",
+    "trim",
+    "get_byte",
+    "md5",
+    "set_byte",
+    "sha256",
+    "substr",
+    "convert_date",
+    "convert_int",
+    "encode",
+    "decode",
+    "now",
+    "extract",
+    "date_part",
+]

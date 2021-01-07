@@ -151,5 +151,5 @@ def DropIndex(exists, idList, row, column):
     return drop_index.DropIndex(exists, idList, row, column)
 
 
-def AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber = ""):
+def AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber=""):
     return alter_index.AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber)

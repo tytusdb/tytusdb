@@ -2116,9 +2116,13 @@ def p_alterStmt(t):
         t[0] = code.AlterTable(t[3], t.slice[1].lineno, t.slice[1].lexpos, t[4])
     else:
         if t[5] == "RENAME":
-            t[0] = code.AlterIndex(t[3], t[4], t[7], t.slice[1].lineno, t.slice[1].lexpos)
+            t[0] = code.AlterIndex(
+                t[3], t[4], t[7], t.slice[1].lineno, t.slice[1].lexpos
+            )
         else:
-            t[0] = code.AlterIndex(t[3], t[4], t[7], t.slice[1].lineno, t.slice[1].lexpos, t[8])
+            t[0] = code.AlterIndex(
+                t[3], t[4], t[7], t.slice[1].lineno, t.slice[1].lexpos, t[8]
+            )
     repGrammar.append(t.slice)
 
 

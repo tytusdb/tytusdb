@@ -1,5 +1,6 @@
 from analizer_pl.abstract import instruction
 from analizer_pl.statement.expressions import code
+from analizer_pl.abstract.environment import Environment
 
 
 class AlterIndex(instruction.Instruction):
@@ -23,4 +24,6 @@ class AlterIndex(instruction.Instruction):
         out += self.columnIndex + " "
         out += str(self.idOrNumber) + " ;"
         out += '")\n'
+        if isinstance(environment, Environment):
+            out = "\t" + out
         return code.C3D(out, "alter_index", self.row, self.column)

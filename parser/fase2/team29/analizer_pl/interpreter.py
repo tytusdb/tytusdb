@@ -97,6 +97,7 @@ declare
 	j integer := -i + 5;
 	k integer:= date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
     texto text := "3+3"||md5("Francisco");
+    temp integer := fake("yosoyfr"); 
 BEGIN
 	case 
         when i > -10 then
@@ -124,42 +125,5 @@ execute foo(5);
 execute foo(20);
 """
 
-sql = """
-CREATE DATABASE DBFase2;
-USE DBFase2;
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$ BEGIN RETURN texto;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TABLE tbProducto (
-  idproducto integer not null primary key,
-  producto varchar(150) not null,
-  fechacreacion date not null,
-  estado integer
-);
-CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
-CREATE TABLE tbCalificacion (
-  idcalifica integer not null primary key,
-  item varchar(100) not null,
-  punteo integer not null
-);
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-execute myFuncion("Francisco");
-"""
 
-s2 = """
-USE db1;
-CREATE TABLE Usuario(
-    id bigint,
-    nombre varchar(20),
-    apellido varchar(20),
-    fecha date
-);
-CREATE INDEX index_usuario ON Usuario(id,nombre);
-ALTER INDEX index_usuario ALTER nombre 3;
-ALTER INDEX index_usuario ALTER id fecha;
-Drop index xd;
-ALTER INDEX index_usuario RENAME TO alv;
-
-"""
-
-traducir(sql)
+traducir(s)

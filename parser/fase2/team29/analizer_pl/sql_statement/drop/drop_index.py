@@ -1,5 +1,6 @@
 from analizer_pl.abstract import instruction
 from analizer_pl.statement.expressions import code
+from analizer_pl.abstract.environment import Environment
 
 
 class DropIndex(instruction.Instruction):
@@ -15,4 +16,6 @@ class DropIndex(instruction.Instruction):
         out += self.exists + " "
         out += self.idList + ";"
         out += '")\n'
+        if isinstance(environment, Environment):
+            out = "\t" + out
         return code.C3D(out, "drop_index", self.row, self.column)
