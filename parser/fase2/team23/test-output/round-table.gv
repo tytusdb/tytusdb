@@ -1,108 +1,96 @@
 // AST
 digraph {
-	151 [label=INSTRUCTION_LIST]
-	152 [label=IF]
-	153 [label="("]
-	154 [label="="]
-	155 [label=cantidad]
-	156 [label=resultado]
-	157 [label=")"]
-	158 [label=THEN]
-	159 [label="="]
-	160 [label=retorna]
-	161 [label=1]
-	162 [label=ELSE]
-	163 [label="="]
-	164 [label=retorna]
-	165 [label=0]
-	166 [label="END IF"]
-	167 [label=INST]
-	168 [label=IF]
-	169 [label="("]
-	170 [label="="]
-	171 [label=cantidad]
-	172 [label=resultado]
-	173 [label=")"]
-	174 [label=THEN]
-	175 [label="="]
-	176 [label=retorna]
-	177 [label=1]
-	178 [label=ELSE]
-	179 [label="="]
-	180 [label=retorna]
-	181 [label=0]
-	182 [label="END IF"]
-	183 [label=INST]
-	184 [label=ASIGNACION]
-	185 [label=estado]
-	186 [label=2]
-	187 [label=INST]
-	188 [label=IF]
-	189 [label="("]
-	190 [label="="]
-	191 [label=cantidad]
-	192 [label=resultado]
-	193 [label=")"]
-	194 [label=THEN]
-	195 [label="="]
-	196 [label=retorna]
-	197 [label=1]
-	198 [label=ELSE]
-	199 [label="="]
-	200 [label=retorna]
-	201 [label=0]
-	202 [label="END IF"]
-	203 [label=INST]
-	151 -> 152
-	152 -> 153
-	152 -> 154
-	154 -> 155
-	154 -> 156
-	152 -> 157
-	152 -> 158
-	152 -> 159
-	159 -> 160
-	159 -> 161
-	152 -> 162
-	152 -> 163
-	163 -> 164
-	163 -> 165
-	152 -> 166
-	151 -> 167
-	167 -> 168
-	168 -> 169
-	168 -> 170
-	170 -> 171
-	170 -> 172
-	168 -> 173
-	168 -> 174
-	168 -> 175
-	175 -> 176
-	175 -> 177
-	168 -> 178
-	168 -> 179
-	179 -> 180
-	179 -> 181
-	168 -> 182
-	167 -> 183
-	183 -> 184
-	184 -> 185
-	184 -> 186
-	183 -> 187
-	187 -> 188
-	188 -> 189
-	188 -> 190
-	190 -> 191
-	190 -> 192
-	188 -> 193
-	188 -> 194
-	188 -> 195
-	195 -> 196
-	195 -> 197
-	188 -> 198
-	188 -> 199
-	199 -> 200
-	199 -> 201
-	188 -> 202
-	187 -> 203
+<<<<<<< HEAD
+	27 [label=INSTRUCTION_LIST]
+	28 [label=SELECT]
+	29 [label=PARAMS]
+	30 [label=CALL]
+	31 [label=saludar]
+	32 [label=PARAMS]
+	33 [label=Luis]
+	34 [label=INST]
+	35 [label=FUNCTION]
+	36 [label=saludar]
+	37 [label=PARAMETRO]
+	38 [label=nombre]
+	39 [label=TEXT]
+	40 [label=RETURNS]
+	41 [label=TEXT]
+	42 [label=DECLARATION]
+	43 [label=saludo]
+	44 [label=TEXT]
+	45 [label=DEFAULT]
+	46 [label="Hola "]
+	47 [label=RETURN]
+	48 [label="+"]
+	49 [label=saludo]
+	50 [label=nombre]
+	51 [label=LANGUAGE]
+	52 [label=plpgsql]
+	53 [label=INST]
+	27 -> 28
+	28 -> 29
+	29 -> 30
+	30 -> 31
+	30 -> 32
+	32 -> 33
+	27 -> 34
+	34 -> 35
+	35 -> 36
+	35 -> 37
+	37 -> 38
+	37 -> 39
+	35 -> 40
+	40 -> 41
+	35 -> 42
+	42 -> 43
+	42 -> 44
+	42 -> 45
+	45 -> 46
+	35 -> 47
+	47 -> 48
+	48 -> 49
+	48 -> 50
+	35 -> 51
+	51 -> 52
+	34 -> 53
+=======
+	19 [label=INSTRUCTION_LIST]
+	20 [label=SELECT]
+	21 [label=PARAMS]
+	22 [label="+"]
+	23 [label=5]
+	24 [label=5]
+	25 [label=INST]
+	26 [label=SELECT]
+	27 [label=PARAMS]
+	28 [label="+"]
+	29 [label=5]
+	30 [label=5]
+	31 [label=INST]
+	32 [label=SELECT]
+	33 [label=PARAMS]
+	34 [label="+"]
+	35 [label=5]
+	36 [label=5]
+	37 [label=INST]
+	19 -> 20
+	20 -> 21
+	21 -> 22
+	22 -> 23
+	22 -> 24
+	19 -> 25
+	25 -> 26
+	26 -> 27
+	27 -> 28
+	28 -> 29
+	28 -> 30
+	25 -> 31
+	31 -> 32
+	32 -> 33
+	33 -> 34
+	34 -> 35
+	34 -> 36
+	31 -> 37
+>>>>>>> main
 }

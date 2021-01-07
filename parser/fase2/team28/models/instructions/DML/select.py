@@ -35,8 +35,18 @@ class Select(Instruction):
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
-        self.instrs.compile(instrucction) #TODO QUITAR AL TERMINAR
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+
+        # self.instrs.compile(instrucction) #TODO QUITAR AL TERMINAR
+
+        return temp1
 
     def process(self, instrucction):
         instr = None

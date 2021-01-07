@@ -196,6 +196,5 @@ def main3d():
 	funcionIntermedia() 
 
 
-
 if __name__ == "__main__": 
 	 main()
