@@ -7,7 +7,7 @@ from analizer.libs import TrigonometricFunctions as trf
 from analizer.libs import MathFunctions as mf
 from analizer.libs import StringFunctions as strf
 from datetime import datetime
-
+from analizer.statement.pl.function import envFunction
 
 class FunctionCall(Expression):
     """
@@ -197,10 +197,264 @@ class FunctionCall(Expression):
 
     def dot(self):
         f = Nodo.Nodo(self.function)
-        p = Nodo.Nodo("PARAMS")
         new = Nodo.Nodo("CALL")
         new.addNode(f)
-        new.addNode(p)
-        for par in self.params:
-            p.addNode(par.dot())
+        if len(self.params) >0:
+            p = Nodo.Nodo("PARAMS")
+            for par in self.params:
+                p.addNode(par.dot())
+            new.addNode(p)
         return new
+
+    def generate3d(self, environment, instanciaAux):
+            if self.function == "abs":
+                return f'{self.execute(0).value}'  #FALTA COSEGUIR LOS PARAMTROS en las funciones No definidas
+            elif self.function == "cbrt":
+                return f'{self.execute(0).value}' 
+            elif self.function == "ceil":
+                return f'{self.execute(0).value}' 
+            elif self.function == "ceiling":
+                return f'{self.execute(0).value}'  
+            elif self.function == "degrees":
+                return f'{self.execute(0).value}'  
+            elif self.function == "div":
+                return f'{self.execute(0).value}'  
+            elif self.function == "exp":
+                return f'{self.execute(0).value}'  
+            elif self.function == "factorial":
+                return f'{self.execute(0).value}'  
+            elif self.function == "floor":
+                return f'{self.execute(0).value}'  
+            elif self.function == "gcd":
+                return f'{self.execute(0).value}'  
+            elif self.function == "lcm":
+                return f'{self.execute(0).value}'  
+            elif self.function == "ln":
+                return f'{self.execute(0).value}'  
+            elif self.function == "log":
+                return f'{self.execute(0).value}'  
+            elif self.function == "log10":
+                return f'{self.execute(0).value}'  
+            elif self.function == "mod":
+                return f'{self.execute(0).value}'  
+            elif self.function == "pi":
+                return f'{self.execute(0).value}'  
+            elif self.function == "power":
+                return f'{self.execute(0).value}'  
+            elif self.function == "radians":
+                return f'{self.execute(0).value}'  
+            elif self.function == "round":
+                return f'{self.execute(0).value}'  
+            elif self.function == "sign":
+                return f'{self.execute(0).value}'  
+            elif self.function == "sqrt":
+                return f'{self.execute(0).value}'  
+            elif self.function == "trunc":
+                return f'{self.execute(0).value}'  
+            elif self.function == "width_bucket":
+                return f'{self.execute(0).value}'  
+            elif self.function == "random":
+                return f'{self.execute(0).value}'  
+            elif self.function == "acos":
+                return f'{self.execute(0).value}'  
+            elif self.function == "acosd":
+                return f'{self.execute(0).value}'  
+            elif self.function == "asin":
+                return f'{self.execute(0).value}'  
+            elif self.function == "asind":
+                return f'{self.execute(0).value}'  
+            elif self.function == "atan":
+                return f'{self.execute(0).value}'  
+            elif self.function == "atand":
+                return f'{self.execute(0).value}'  
+            elif self.function == "atan2":
+                return f'{self.execute(0).value}'  
+            elif self.function == "atan2d":
+                return f'{self.execute(0).value}'  
+            elif self.function == "cos":
+                return f'{self.execute(0).value}'  
+            elif self.function == "cosd":
+                return f'{self.execute(0).value}'  
+            elif self.function == "cot":
+                return f'{self.execute(0).value}'  
+            elif self.function == "cotd":
+                return f'{self.execute(0).value}'  
+            elif self.function == "sin":
+                return f'{self.execute(0).value}'  
+            elif self.function == "sind":
+                return f'{self.execute(0).value}'  
+            elif self.function == "tan":
+                return f'{self.execute(0).value}'  
+            elif self.function == "tand":
+                return f'{self.execute(0).value}'  
+            elif self.function == "sinh":
+                return f'{self.execute(0).value}'  
+            elif self.function == "cosh":
+                return f'{self.execute(0).value}'  
+            elif self.function == "tanh":
+                return f'{self.execute(0).value}'  
+            elif self.function == "asinh":
+                return f'{self.execute(0).value}'  
+            elif self.function == "acosh":
+                return f'{self.execute(0).value}'  
+            elif self.function == "atanh":
+                return f'{self.execute(0).value}'  
+            elif self.function == "length":
+                return f'{self.execute(0).value}'  
+            elif self.function == "substring":
+                return f'{self.execute(0).value}'  
+            elif self.function == "trim":
+                return f'{self.execute(0).value}'  
+            elif self.function == "get_byte":
+                return f'{self.execute(0).value}'  
+            elif self.function == "md5":
+                return f'{self.execute(0).value}'  
+            elif self.function == "set_byte":
+                return f'{self.execute(0).value}'  
+            elif self.function == "sha256":
+                return f'{self.execute(0).value}'  
+            elif self.function == "substr":
+                return f'{self.execute(0).value}'  
+            elif self.function == "convert_date":
+                return f'{self.execute(0).value}'  
+            elif self.function == "convert_int":
+                return f'{self.execute(0).value}'  
+            elif self.function == "encode":
+                return f'{self.execute(0).value}'  
+            elif self.function == "decode":
+                return f'{self.execute(0).value}'  
+            elif self.function == "now":
+                return f'{self.execute(0).value}'  
+            else:
+                tbFun = envFunction.getFunc(self.function)
+                print(tbFun)
+                #falta validacion de existencia
+                tn = instanciaAux.getNewTemporal()
+                salida = f'\t{tn} = {self.function}\n\t{tn} = RETURN[0]'
+                instanciaAux.addToCode(salida)
+            return tn
+
+
+    def validaFuncionesFase2(self):
+            if self.function == "abs":
+                pass
+            elif self.function == "cbrt":
+                pass
+            elif self.function == "ceil":
+                pass
+            elif self.function == "ceiling":
+                pass
+            elif self.function == "degrees":
+                pass
+            elif self.function == "div":
+                pass
+            elif self.function == "exp":
+                pass
+            elif self.function == "factorial":
+                pass
+            elif self.function == "floor":
+                pass
+            elif self.function == "gcd":
+                pass
+            elif self.function == "lcm":
+                pass
+            elif self.function == "ln":
+                pass
+            elif self.function == "log":
+                pass
+            elif self.function == "log10":
+                pass
+            elif self.function == "mod":
+                pass
+            elif self.function == "pi":
+                pass
+            elif self.function == "power":
+                pass
+            elif self.function == "radians":
+                pass
+            elif self.function == "round":
+                pass
+            elif self.function == "sign":
+                pass
+            elif self.function == "sqrt":
+                pass
+            elif self.function == "trunc":
+                pass
+            elif self.function == "width_bucket":
+                pass
+            elif self.function == "random":
+                pass
+            elif self.function == "acos":
+                pass
+            elif self.function == "acosd":
+                pass
+            elif self.function == "asin":
+                pass
+            elif self.function == "asind":
+                pass
+            elif self.function == "atan":
+                pass
+            elif self.function == "atand":
+                pass
+            elif self.function == "atan2":
+                pass
+            elif self.function == "atan2d":
+                pass
+            elif self.function == "cos":
+                pass
+            elif self.function == "cosd":
+                pass
+            elif self.function == "cot":
+                pass
+            elif self.function == "cotd":
+                pass
+            elif self.function == "sin":
+                pass
+            elif self.function == "sind":
+                pass
+            elif self.function == "tan":
+                pass
+            elif self.function == "tand":
+                pass
+            elif self.function == "sinh":
+                pass
+            elif self.function == "cosh":
+                pass
+            elif self.function == "tanh":
+                pass
+            elif self.function == "asinh":
+                pass
+            elif self.function == "acosh":
+                pass
+            elif self.function == "atanh":
+                pass
+            elif self.function == "length":
+                pass
+            elif self.function == "substring":
+                pass
+            elif self.function == "trim":
+                pass
+            elif self.function == "get_byte":
+                pass
+            elif self.function == "md5":
+                pass
+            elif self.function == "set_byte":
+                pass
+            elif self.function == "sha256":
+                pass
+            elif self.function == "substr":
+                pass
+            elif self.function == "convert_date":
+                pass
+            elif self.function == "convert_int":
+                pass
+            elif self.function == "encode":
+                pass
+            elif self.function == "decode":
+                pass
+            elif self.function == "now":
+                pass
+            else:
+                tbFun = envFunction.getFunc(self.function)
+                print(tbFun)
+                pass

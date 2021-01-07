@@ -1,0 +1,58 @@
+digraph AST {
+	edge [arrowhead=none]
+	node [color="#31CEF0" shape=box]
+	Node0 [label="\"AST\""]
+	Node1 [label=FUNCION_PRODUCCION]
+	Node0 -> Node1
+	Node2 [label=CREATE]
+	Node1 -> Node2
+	Node3 [label=FUNTION]
+	Node1 -> Node3
+	Node4 [label=myFuncion]
+	Node1 -> Node4
+	Node5 [label=PARAMETROS]
+	Node1 -> Node5
+	Node6 [label=PARAMETROS]
+	Node5 -> Node6
+	Node7 [label="text texto "]
+	Node6 -> Node7
+	Node8 [label=RETURNS]
+	Node1 -> Node8
+	Node9 [label=EXPRESION_]
+	Node1 -> Node9
+	Node10 [label=CONDICION]
+	Node9 -> Node10
+	Node10 -> 11
+	Node12 [label="AS $$"]
+	Node1 -> Node12
+	Node13 [label=COMANDO_SQL]
+	Node1 -> Node13
+	Node14 [label=DECLARACIONES]
+	Node1 -> Node14
+	Node15 [label=CODIGO_]
+	Node1 -> Node15
+	Node16 [label=CUERPO_CODE]
+	Node15 -> Node16
+	Node17 [label=BEGIN]
+	Node16 -> Node17
+	Node18 [label=_CODIGO_]
+	Node16 -> Node18
+	Node19 [label=CODIGO_GENERADO]
+	Node18 -> Node19
+	Node20 [label=CODIGO_GENERADO]
+	Node18 -> Node20
+	Node21 [label=RETORNO__]
+	Node20 -> Node21
+	Node22 [label=EXPRESION_]
+	Node21 -> Node22
+	Node23 [label=CONDICION]
+	Node22 -> Node23
+	24 [label=Variable]
+	24 -> 25
+	25 [label=texto]
+	Node23 -> 24
+	Node27 [label=END]
+	Node16 -> Node27
+	Node28 [label=";;"]
+	Node16 -> Node28
+}

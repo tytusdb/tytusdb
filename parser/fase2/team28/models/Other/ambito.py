@@ -39,6 +39,11 @@ class Ambito:
             ambito_actual = ambito_actual.padre
         print("VARIABLE NO DECLARADA ------ ERROR") 
         return None
+
+    def getAllVarIds(self):
+        return self.variables.keys()
+
+
         
 
     

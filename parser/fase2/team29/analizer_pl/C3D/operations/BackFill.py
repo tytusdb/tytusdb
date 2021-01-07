@@ -1,8 +1,10 @@
 from analizer_pl import grammar
+
+
 class BackFill:
     true_list = list()
     false_list = list()
-    
+
     def __init__(self):
         self.new_lists()
 
@@ -28,25 +30,24 @@ class BackFill:
         self.true_list = self.false_list
         self.false_list = aux_list
 
-    def insert_true(self,etiq):
-        index = len(self.true_list) -1
+    def insert_true(self, etiq):
+        index = len(self.true_list) - 1
         self.true_list[index].append(etiq)
-        
 
-    def insert_false(self,etiq):
-        index = len(self.false_list) -1
+    def insert_false(self, etiq):
+        index = len(self.false_list) - 1
         self.false_list[index].append(etiq)
 
-    def take_out_true_list(self,row):
+    def take_out_true_list(self, row):
         ret = ""
-        index = len(self.true_list) -1
+        index = len(self.true_list) - 1
         aux = list(self.true_list[index])
-        iterator =  iter(aux)
+        iterator = iter(aux)
         while True:
             try:
                 element = next(iterator)
                 ret += "\tlabel .etiv" + str(element) + "\n"
-                grammar.optimizer_.addLabel(str("etiv"+str(element)),row)
+                grammar.optimizer_.addLabel(str("etiv" + str(element)), row, True)
             except StopIteration:
                 break
         if index == 0:
@@ -54,17 +55,17 @@ class BackFill:
         else:
             del self.true_list[index]
         return ret
-    
-    def take_out_false_list(self,row):
+
+    def take_out_false_list(self, row):
         ret = ""
-        index = len(self.false_list) -1
+        index = len(self.false_list) - 1
         aux = list(self.false_list[index])
-        iterator =  iter(aux)
+        iterator = iter(aux)
         while True:
             try:
                 element = next(iterator)
                 ret += "\tlabel .etif" + str(element) + "\n"
-                grammar.optimizer_.addLabel(str("etif"+str(element)),row)
+                grammar.optimizer_.addLabel(str("etif" + str(element)), row, True)
             except StopIteration:
                 break
         if index == 0:

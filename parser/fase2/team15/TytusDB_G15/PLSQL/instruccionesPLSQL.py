@@ -117,6 +117,29 @@ class SelectUniones(Instruccion):
 class FuncionIndex(Instruccion):
     def __init__(self, cadena):
         self.cadena = cadena
+    
+class UpdateTable(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
 
+class DropIndex(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class AlterIndex(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class AlterIndexColumn(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class DeleteTable(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+class CreateIndexNewNew(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
 
 

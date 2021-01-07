@@ -34,9 +34,11 @@ class pl_excepcion(Instruccion):
 class ListaWhenExcepcion(Instruccion):
     #puede venir asterisco(*) entonces tipo == True
     #puede venir un select completo -> Tipo == False
-    def __init__(self, whentipo,val):
+    def __init__(self, arg0,arg1,whentipo,val):
         self.val = val
         self.whentipo = whentipo
+        self.arg0 = arg0
+        self.arg1 = arg1
 
 
     def execute(self, data):

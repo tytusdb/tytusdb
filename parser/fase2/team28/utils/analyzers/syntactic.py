@@ -95,7 +95,7 @@ def p_sql_instruction(p):
     p[0] = p[1]
     if p.slice[1].type != "error":
         contador_instr += 1
-    print("STRING PARA PASARLO: \n" + p[0]._tac)
+    # print("STRING PARA PASARLO: \n" + p[0]._tac)
 
 
 def p_use_statement(p):
@@ -180,13 +180,17 @@ def p_create_db(p):
                 | ID listpermits
                 | ID 
     '''
+    string = ''
     p[0] = {'if_not_exists': False, 'id': None, 'listpermits': [], '_tac': ''}
 
     if len(p) == 6: #IF NOT EXISTS ID listpermits
         p[0]['if_not_exists'] = True
         p[0]['id'] = p[4]
         p[0]['listpermits'] = p[5]
-        p[0]['_tac'] = f'IF NOT EXISTS {p[4]} {p[5]._tac}'
+        for index, var in enumerate(p[5]):
+            if index > 0: string += f', {var["_tac"]}'
+            else: string += f'{var["_tac"]}'
+        p[0]['_tac'] = f'IF NOT EXISTS {p[4]} {string}'
 
     elif len(p) == 5: #IF NOT EXISTS ID
         p[0]['if_not_exists'] = True
@@ -196,7 +200,10 @@ def p_create_db(p):
     elif len(p) == 3: #ID listpermits
         p[0]['id'] = p[1]
         p[0]['listpermits'] = p[2]
-        p[0]['_tac'] = f'{p[1]} {p[2]._tac}'
+        for index, var in enumerate(p[2]):
+            if index > 0: string += f', {var["_tac"]}'
+            else: string += f'{var["_tac"]}'
+        p[0]['_tac'] = f'{p[1]} {string}'
 
     else: #ID
         p[0]['id'] = p[1]
@@ -222,18 +229,14 @@ def p_permits(p):
     '''
     if p[1].lower() == 'MODE'.lower():
         if len(p) == 4:
-            p[0] = {'MODE': p[3]}
-            p[0] =  f'OWNER = {p[3]}'
+            p[0] = {'MODE': p[3], '_tac': f'MODE = {p[3]}'}
         else:
-            p[0] = {'MODE': p[2]}
-            p[0] =  f'OWNER {p[2]}'
+            p[0] = {'MODE': p[2], '_tac': f'MODE {p[2]}' }
     else:
         if len(p) == 4:
-            p[0] = {'OWNER': p[3]}
-            p[0] =  f'MODE = {p[3]}'
+            p[0] = {'OWNER': p[3], '_tac': f'OWNER = {p[3]._tac}'}
         else:
-            p[0] = {'OWNER': p[2]}
-            p[0] =  f'MODE {p[2]}'
+            p[0] = {'OWNER': p[2], '_tac': f'OWNER {p[2]}'}
 
 
 def p_columns_table(p):
@@ -256,10 +259,13 @@ def p_column(p):
               | CONSTRAINT ID CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
               | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
     '''
-
+    string = ''
     if len(p) == 4:
         p[0] = CreateCol(p[1], p[2], p[3])
-        p[0]._tac = f'{p[1]} {p[2]._tac} {p[3]._tac}'
+        for index, var in enumerate(p[3]):
+                if index > 0: string += f', {var["_tac"]}'
+                else: string += f'{var["_tac"]}'
+        p[0]._tac = f'{p[1]} {p[2]._tac} {string}'
 
     elif len(p) == 3:
         p[0] = CreateCol(p[1], p[2], [{
@@ -276,8 +282,11 @@ def p_column(p):
 
     elif len(p) == 5:
         if p[1].lower() == 'UNIQUE'.lower():
+            for index, var in enumerate(p[3]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
             p[0] = Unique(p[3])
-            p[0]._tac = f'UNIQUE ({p[3]._tac})'
+            p[0]._tac = f'UNIQUE ({string})'
 
         else:  # CHECK
             p[0] = Check(p[3])
@@ -286,13 +295,22 @@ def p_column(p):
     elif len(p) == 6:
         p[0] = PrimaryKey(p[4])
         string = ''
-        for index, var in enumerate(p[9]):
-            if index > 0: string += f', {var._tac}'
-            else: string += f'{var._tac}'
-        p[0]._tac = f'PRIMARY KEY ({p[4]._tac}) REFERENCES {p[7]}({string})'
+        string2 = ''
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var}'
+            else: string += f'{var}'
+        p[0]._tac = f'PRIMARY KEY ({string})'
     elif len(p) == 11:
+        string = ''
+        string2 = ''
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var}'
+            else: string += f'{var}'
+        for index, var in enumerate(p[9]):
+            if index > 0: string2 += f', {var}'
+            else: string2 += f'{var}'
         p[0] = ForeignKey(p[4], p[7], p[9])
-        p[0]._tac = f'FOREIGN KEY ({p[4]._tac})'
+        p[0]._tac = f'FOREIGN KEY ({string}) REFERENCES {p[7]}({string2})'
 
     elif len(p) == 7:
         p[0] = Constraint(p[2], p[5])
@@ -331,101 +349,119 @@ def p_type_col(p):
 
     if p[1].lower() == 'BIGINT'.lower():
         p[0] = ColumnTipo(ColumnsTypes.BIGINT, None, None)
-
+        p[0]._tac = f'{p[1]}'
     elif p[1].lower() == 'BOOLEAN'.lower():
         p[0] = ColumnTipo(ColumnsTypes.BOOLEAN, None, None)
-
+        p[0]._tac = f'{p[1]}'
     elif p[1].lower() == 'CHAR'.lower():
         if len(p) == 2:
             p[0] = ColumnTipo(ColumnsTypes.CHAR, None, None)
+            p[0]._tac = f'{p[1]}'
         else:
             p[0] = ColumnTipo(ColumnsTypes.CHAR, p[3], None)
-
+            p[0]._tac = f"{p[1]}({p[3]})"
     elif p[1].lower() == 'CHARACTER'.lower():
         if len(p) == 6:
             p[0] = ColumnTipo(ColumnsTypes.CHARACTER_VARYING, p[4], None)
+            p[0]._tac = f'{p[1]} {p[2]} {p[3]}{p[4]}{p[5]}'
         elif len(p) == 3:
             p[0] = ColumnTipo(ColumnsTypes.CHARACTER_VARYING, None, None)
+            p[0]._tac = f'{p[1]} {p[2]}'
         elif len(p) == 5:
             p[0] = ColumnTipo(ColumnsTypes.CHARACTER, p[3], None)
+            p[0]._tac = f'{p[1]} {p[2]}{p[3]}{p[4]}'
         else:
             p[0] = ColumnTipo(ColumnsTypes.CHARACTER, None, None)
+            p[0]._tac = f'{p[1]}'
 
     elif p[1].lower() == 'DATE'.lower():
         p[0] = ColumnTipo(ColumnsTypes.DATE, None, None)
-
+        p[0]._tac = f'{p[1]}'
     elif p[1].lower() == 'DECIMAL'.lower():
         if len(p) == 7:
             p[0] = ColumnTipo(ColumnsTypes.DECIMAL, p[3], p[5])
+            p[0]._tac = f'{p[1]} {p[2]}{p[3]}{p[4]}{p[5]}{p[6]}'
         else:
             p[0] = ColumnTipo(ColumnsTypes.DECIMAL, p[3], None)
-
+            p[0]._tac = f'{p[1]} {p[2]}{p[3]}{p[4]}'
     elif p[1].lower() == 'DOUBLE'.lower():
         p[0] = ColumnTipo(ColumnsTypes.DOUBLE_PRECISION, None, None)
+        p[0]._tac = f'{p[1]} {p[2]}'
 
     elif p[1].lower() == 'INTEGER'.lower():
         p[0] = ColumnTipo(ColumnsTypes.INTEGER, None, None)
-
+        p[0]._tac = f'{p[1]}'
     elif p[1].lower() == 'INTERVAL'.lower():
         p[0] = ColumnTipo(ColumnsTypes.INTERVAL, p[2], None)
-
+        p[0]._tac = f'{p[1]} {p[2]._tac}'
     elif p[1].lower() == 'MONEY'.lower():
         p[0] = ColumnTipo(ColumnsTypes.MONEY, None, None)
-
+        p[0]._tac = f'{p[1]}'
     elif p[1].lower() == 'NUMERIC'.lower():
         if len(p) == 7:
             p[0] = ColumnTipo(ColumnsTypes.NUMERIC, p[3], p[5])
+            p[0]._tac = f'{p[1]} {p[2]}{p[3]}{p[4]}{p[5]}{p[6]}'
         else:
             p[0] = ColumnTipo(ColumnsTypes.NUMERIC, p[3], None)
+            p[0]._tac = f'{p[1]} {p[2]}{p[3]}{p[4]}'
 
     elif p[1].lower() == 'REAL'.lower():
         p[0] = ColumnTipo(ColumnsTypes.REAL, None, None)
+        p[0]._tac = f'{p[1]}'
 
     elif p[1].lower() == 'SMALLINT'.lower():
         p[0] = ColumnTipo(ColumnsTypes.SMALLINT, None, None)
+        p[0]._tac = f'{p[1]}'
 
     elif p[1].lower() == 'TEXT'.lower():
         p[0] = ColumnTipo(ColumnsTypes.TEXT, None, None)
+        p[0]._tac = f'{p[1]}'
 
     elif p[1].lower() == 'TIMESTAMP'.lower():
         if len(p) == 5:
             p[0] = ColumnTipo(ColumnsTypes.TIMESTAMP, p[3], None)
+            p[0]._tac = f'{p[1]} {p[2]}{p[3]}{p[4]}'
         else:
             p[0] = ColumnTipo(ColumnsTypes.TIMESTAMP, None, None)
+            p[0]._tac = f'{p[1]}'
 
     elif p[1].lower() == 'TIME'.lower():
         if len(p) == 5:
             p[0] = ColumnTipo(ColumnsTypes.TIME, p[3], None)
+            p[0]._tac = f'{p[1]} {p[2]}{p[3]}{p[4]}'
         else:
             p[0] = ColumnTipo(ColumnsTypes.TIME, None, None)
+            p[0]._tac = f'{p[1]}'
 
     elif p[1].lower() == 'VARCHAR'.lower():
         if len(p) == 5:
             p[0] = ColumnTipo(ColumnsTypes.VARCHAR, p[3], None)
+            p[0]._tac = f'{p[1]} {p[2]}{p[3]}{p[4]}'
         else:
             p[0] = ColumnTipo(ColumnsTypes.VARCHAR, None, None)
+            p[0]._tac = f'{p[1]}'
 
 
-    if len(p) == 2:
-        p[0]._tac = p[1].upper()
+    # if len(p) == 2:
+    #     p[0]._tac = p[1].upper()
     
-    elif p.slice[3].type == "VARYING":
-        if len(p) == 3:
-            p[0]._tac = 'CHARACTER VARYING'
-        else:
-            p[0]._tac = f'CHARACTER VARYING ({p[4]})'
+    # elif p.slice[3].type == "VARYING":
+    #     if len(p) == 3:
+    #         p[0]._tac = 'CHARACTER VARYING'
+    #     else:
+    #         p[0]._tac = f'CHARACTER VARYING ({p[4]})'
 
-    elif p.slice[2].type == "INTERVAL":
-        p[0]._tac = f'INTERVAL {p[3]._tac}'
+    # elif p.slice[2].type == "INTERVAL":
+    #     p[0]._tac = f'INTERVAL {p[3]._tac}'
 
-    elif p.slice[2].type == "DOUBLE":
-        p[0]._tac = 'DOUBLE PRECISION'
+    # elif p.slice[2].type == "DOUBLE":
+    #     p[0]._tac = 'DOUBLE PRECISION'
 
-    elif len(p) == 5:
-        p[0]._tac = f'{p[1].upper()}({p[3]})'
+    # elif len(p) == 5:
+    #     p[0]._tac = f'{p[1].upper()}({p[3]})'
 
-    elif len(p) == 7:
-        p[0]._tac = f'{p[1].upper()}({p[3]}, {p[5]})'
+    # elif len(p) == 7:
+    #     p[0]._tac = f'{p[1].upper()}({p[3]}, {p[5]})'
 
 
 #TODO: TIPOS CON MAS PARAMETROS
@@ -484,12 +520,30 @@ def p_indexes_drop(p):
     
 def p_indexes_alter(p):
     '''ALTER_INDEXES : ALTER INDEX IF EXISTS ID RENAME TO ID
-                     | ALTER INDEX ID RENAME TO ID'''
+                     | ALTER INDEX ID RENAME TO ID
+                     | ALTER INDEX IF EXISTS ID ALTER COLUMN ID body_cont_index
+                     | ALTER INDEX ID ALTER COLUMN ID body_cont_index
+                     | ALTER INDEX ID ALTER ID body_cont_index
+                     | ALTER INDEX IF EXISTS ID ALTER ID body_cont_index'''
     if len(p) == 9:
-        p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]))
+        if p.slice[6].type == "ALTER":
+            p[0] = AlterIndex(p[5], p[7], p.lineno(1), find_column(p.slice[1]), True, p[8])
+        else:
+            p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]), False, None)
+    elif len(p) == 10:
+        p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]), True, p[9])
+    elif len(p) == 7:
+        p[0] = AlterIndex(p[3], p[5], p.lineno(1), find_column(p.slice[1]), True, p[6])
+    elif len(p) == 8:
+        p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]), True, p[7])
     else:
-        p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]))
-                
+        p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]), False, None)
+
+def p_index_alter_body(p):
+    '''body_cont_index : ID
+                       | INT_NUMBER'''
+    p[0] = p[1]
+
 def p_indexes_create(p):
     '''CREATE_INDEXES    : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
@@ -595,15 +649,14 @@ def p_call_functions_or_procedure(p):
     noLine = p.slice[1].lineno
     if p.slice[1].type == 'EXECUTE':
         if len(p) == 5: #Tercera produccion
-            # Call(p[2], None)
             p[0] = Funcion(p[2], [], [], None, False, True, noLine, noColumn)
         else:           #Cuarta produccion
             p[0] = Funcion(p[2], p[4], [], None, False, True, noLine, noColumn)
-    # else:
-    #     if len(p) == 5: #Primera produccion
-    #         Call(p[1], p[3])
-    #     else:           #Segunda produccion
-    #         Call(p[1], None)
+    else:
+        if len(p) == 5: #Primera produccion
+            p[0] = Funcion(p[1], p[3], [], None, False, True, noLine, noColumn)
+        else:           #Segunda produccion
+            p[0] = Funcion(p[1], [], [], None, False, True, noLine, noColumn)
 
 
 def p_option_col(p):  # TODO verificar
@@ -625,26 +678,36 @@ def p_option_col(p):  # TODO verificar
         'constraint_check_condition': None,
         'check_condition': None,
         'pk_option': None,
-        'fk_references_to': None
+        'fk_references_to': None,
+        '_tac': ''
     }
     if p[1].lower() == 'DEFAULT'.lower():
         p[0]['default_value'] = p[2]
+        p[0]['_tac'] = f'{p[1]} {p[2]._tac}'
     elif p[1].lower() == 'NOT'.lower():
         p[0]['is_null'] = False
+        p[0]['_tac'] = f'{p[1]} {p[2]}'
     elif p[1].lower() == 'NULL'.lower():
         p[0]['is_null'] = True
+        p[0]['_tac'] = f'{p[1]}'
     elif p[1].lower() == 'CONSTRAINT'.lower() and len(p) == 4:
         p[0]['constraint_unique'] = p[2]
+        p[0]['_tac'] = f'{p[1]} {p[2]} {p[3]}'
     elif p[1].lower() == 'UNIQUE'.lower():
         p[0]['unique'] = True
+        p[0]['_tac'] = f'{p[1]}'
     elif p[1].lower() == 'CONSTRAINT'.lower() and len(p) == 7:
         p[0]['constraint_check_condition'] = p[5]
+        p[0]['_tac'] = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]._tac} {p[6]}'
     elif p[1].lower() == 'CHECK'.lower():
         p[0]['check_condition'] = p[3]
+        p[0]['_tac'] = f'{p[1]} {p[2]} {p[3]._tac} {p[4]}'
     elif p[1].lower() == 'PRIMARY'.lower():
         p[0]['pk_option'] = True
+        p[0]['_tac'] = f'{p[1]} {p[2]}'
     elif p[1].lower() == 'REFERENCES'.lower():
         p[0]['fk_references_to'] = p[2]
+        p[0]['_tac'] = f'{p[1]} {p[2]}'
 
 
 def p_condition_column(p):
@@ -676,8 +739,11 @@ def p_show_statement(p):
     '''
     if len(p) == 4:
         p[0] = ShowDatabase(None, generateC3D(p))
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]}'
     else:
         p[0] = ShowDatabase(p[4], generateC3D(p))
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]._tac} {p[5]}'
+        
 
 
 def p_alter_statement(p):
@@ -758,6 +824,8 @@ def p_add_alter(p):
                 | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
     '''
     column_list = ''
+    string = ""
+    string2 = ""
     if len(p) == 4:
         p[0] = AlterTableAdd(CreateCol(p[2], p[3], [{
             'default_value': None,
@@ -770,16 +838,22 @@ def p_add_alter(p):
             'fk_references_to': None
         }]))
         p[0]._tac = f'{p[1]} {p[2]} {p[3]._tac}'
-    elif len(p) == 5:
-        p[0] = AlterTableAdd(Check(p[4]))
-        p[0]._tac = f'{p[1]} {p[2]._tac} {p[3]} '
+    elif len(p) == 5:   
+        p[0] = AlterTableAdd(Check(p[3]))
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]._tac} {p[4]} '
     elif len(p) == 7:
         # TODO revisar esta asignacion
         p[0] = AlterTableAdd(Constraint(p[2], Unique(p[5])))
         p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {p[6]} '
     else:
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var}'
+            else: string += f'{var}'
+        for index, var in enumerate(p[9]):
+            if index > 0: string2 += f', {var}'
+            else: string2 += f'{var}'
         p[0] = AlterTableAdd(ForeignKey(p[4], p[7], p[9]))
-        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]._tac} {p[5]} {p[6]} {p[7]} {p[8]} {p[9]._tac} {p[10]} '
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {string} {p[5]} {p[6]} {p[7]} {p[8]} {string2} {p[10]} '
 
 def p_alter_alter(p):
     '''alteralter : COLUMN ID SET NOT NULL
@@ -863,10 +937,14 @@ def p_sql_functions(p):
     '''
     noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
-    if len(p) == 14: 
+    if len(p) == 14:
         p[0] = Funcion(p[3], p[5], p[10], p[8], True, False, noLine, noColumn)
+    elif len(p) == 13:
+        p[0] = Funcion(p[3], [], p[9], p[7], True, False, noLine, noColumn)
+    elif len(p) == 12:
+        p[0] = Funcion(p[3], [5], p[8], None, True, False, noLine, noColumn)
     else:
-        print("NO ENTRO EN ESA PRODUCCION XD  --- CREATE FUNCTION")
+        p[0] = Funcion(p[3], [], p[7], None, True, False, noLine, noColumn)
 
 #--->
 
@@ -1071,9 +1149,9 @@ def p_staments(p):
 
     elif p.slice[1].type == "RETURN":
         if len(p) == 3:     #tercera produccion
-            p[0] = ReturnFuncProce(None)
+            p[0] = [ReturnFuncProce(None)]
         else:               #cuarta produccion
-            p[0] = ReturnFuncProce(p[2])
+            p[0] = [ReturnFuncProce(p[2])]
     
 
 def p_options_statements(p):
@@ -1090,12 +1168,6 @@ def p_options_statements(p):
 def p_statement_type(p):
     '''statementType : PLPSQL_EXPRESSION  SEMICOLON 
                     |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL QUERYSTATEMENT
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS INSERTSTATEMENT RIGHT_PARENTHESIS
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL INSERTSTATEMENT
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS DELETESTATEMENT RIGHT_PARENTHESIS
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL DELETESTATEMENT
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL LEFT_PARENTHESIS UPDATESTATEMENT RIGHT_PARENTHESIS
-                    |  PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL UPDATESTATEMENT
                     |  RAISE_EXCEPTION 
                     |  BODY_DECLARATION
                     |  ifStatement
@@ -1105,7 +1177,10 @@ def p_statement_type(p):
                     | CALL_FUNCTIONS_PROCEDURE SEMICOLON
     '''
     if len(p) == 4:
-        p[0] = [p[1],p[2],p[3]]
+        if isinstance(p[1], ObjectReference): 
+            p[0] = AsignacionID(p[1].reference_column.value, p[3], 0, 0)
+        else:
+            p[0] = AsignacionID(p[1], p[3], 0, 0)
     else:
         p[0] = p[1]
 
@@ -1223,13 +1298,11 @@ def p_if_statement(p):
     if len(p) == 11: #Primera produccion
         if_anidados = anidarIFs(0, p[5], p[7])
         p[0] = If(p[2], p[4], None, if_anidados)
-        print("IF ANIDADOS")
-        print(p[0])
+
     elif len(p) == 9: #Segunda produccion
         if_anidados = anidarIFs(0, p[5], None)
         p[0] = If(p[2], p[4], None, if_anidados)
-        print("IF ANIDADOS")
-        print(p[0])
+
     elif len(p) == 10: #Tercera produccion
         p[0] = If(p[2], p[4], None, p[6])
     else: #Cuarta produccion
@@ -1284,21 +1357,40 @@ def p_dml(p):
            | UPDATESTATEMENT'''
     p[0] = p[1]
 
-#TODO: OBTENER STRING
+#TODO: PROBAR UPDATE
 def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
+    string = ''
     if(len(p) == 8):
         p[0] = Update(p[2], p[5], p[6], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
-        p[0] = f'UPDATE ID {p[3]._tac} SET ;'
+
+        for index, var in enumerate(p[5]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+
+        p[0]._tac = f'UPDATE {p[2]} {p[3]._tac} SET {string} {p[6]._tac};'
+
     elif(len(p) == 7):
         p[0] = Update(p[2], p[4], p[5], generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+
+        p[0]._tac = f'UPDATE {p[2]} SET {string} {p[5]._tac};'
     else:
         p[0] = Update(p[2], p[4], None, generateC3D(p),
                       p.lineno(1), find_column(p.slice[1]))
+
+        for index, var in enumerate(p[4]):
+            if index > 0: string += f', {var._tac}'
+            else: string += f'{var._tac}'
+
+        p[0]._tac = f'UPDATE {p[2]} SET {string};'
 
 
 def p_set_list(p):
@@ -1314,7 +1406,7 @@ def p_set_list(p):
 def p_column_values(p):
     '''COLUMNVALUES : OBJECTREFERENCE EQUALS SQLEXPRESSION2'''
     p[0] = ColumnVal(p[1], p[3])
-
+    p[0]._tac = f"{p[1]._tac} {p[2]} {p[3]._tac} "
 
 def p_sql_expression2(p):
     '''SQLEXPRESSION2 : SQLEXPRESSION2 PLUS SQLEXPRESSION2 
@@ -1379,7 +1471,7 @@ def p_options_list2(p):
     # else:
     #     nodo.add_childrens(p[1])
     # p[0] = nodo
-
+    p[0] = p[1]
 
 def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
@@ -1536,6 +1628,7 @@ def p_query_statement(p):
     #  ELEMENTO 0       ELEMENTO 1     ELEMENTO 2      ELEMENTO 3
     '''QUERYSTATEMENT : SELECTSTATEMENT SEMICOLON'''
     p[0] = p[1]
+    p[0]._tac = f'{p[1]._tac};'
 
 
 def p_select_statement(p):
@@ -1548,20 +1641,20 @@ def p_select_statement(p):
         [3].pop(0)
         p[3] = p[3][0]
         p[0] = Select(p[1], p[2], p[3], generateC3D(p))
-        p[0]._tac = f'{p[1]._tac} {p[2]._tac} {p[3]._tac};'
+        p[0]._tac = f'{p[1]._tac} {p[2]._tac} {p[3]._tac}'
     elif (len(p) == 3):
         if ('ORDER' in p[2]):
             p[2] = p[2][1]
             p[0] = Select(p[1], p[2], None, generateC3D(p))
-            p[0]._tac = f'{p[1]._tac} {p[2]._tac};'
+            p[0]._tac = f'{p[1]._tac} {p[2]._tac}'
         elif ('LIMIT' in p[2]):
             [2].pop(0)
             p[2] = p[2][0]
             p[0] = Select(p[1], None, p[2], generateC3D(p))
-            p[0]._tac = f'{p[1]._tac} {p[2]._tac};'
+            p[0]._tac = f'{p[1]._tac} {p[2]._tac}'
     elif (len(p) == 2):
         p[0] = Select(p[1], None, None, generateC3D(p))
-        p[0]._tac = f'{p[1]._tac};'
+        p[0]._tac = f'{p[1]._tac}'
 
 
 def p_select_without_order(p):
@@ -1637,9 +1730,9 @@ def p_selectq(p):
                 if index > 0: string += f', {var._tac}'
                 else: string += f'{var._tac}'
         if isinstance(p[5], list):
-            p[0]._tac = f'SELECT {p[2]} {string} {p[3]._tac} {p[4][0]._tac} {p[4][1]._tac}'
+            p[0]._tac = f'SELECT {p[2]} {string} {p[4]._tac} {p[5][0]._tac} {p[5][1]._tac}'
         else:
-            p[0]._tac = f'SELECT {p[2]} {string} {p[3]._tac} {p[4]._tac}'
+            p[0]._tac = f'SELECT {p[2]} {string} {p[4]._tac} {p[5]._tac}'
 
     elif len(p) == 3:
         p[0] = SelectQ(None, p[2], None, None, p.lineno(1),
@@ -1678,6 +1771,7 @@ def p_select_item(p):
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     if (len(p) == 3):
         p[1].alias = p[2].alias
+        p[1]._tac = f'{p[1]._tac} {p[2]._tac}'
         p[0] = p[1]
     elif (len(p) == 4):
         p[0] = p[2]
@@ -1755,12 +1849,15 @@ def p_table_reference(p):
     if (len(p) == 2):
         p[0] = TableReference(
             p[1], None, None, p.slice[1].value.line, p.slice[1].value.column)
+        p[0]._tac = f'{p[1]._tac}'
     elif (len(p) == 3):
         p[0] = TableReference(
             p[1], p[2], p[2], p.slice[1].value.line, p.slice[1].value.column)
+        p[0]._tac = f'{p[1]._tac} {p[2]._tac}'
     elif (len(p) == 4):
         p[0] = TableReference(
             p[1], p[3], p[2], p.slice[1].value.line, p.slice[1].value.column)
+        p[0]._tac = f'{p[1]._tac} {p[2]._tac}'
 
 
 def p_order_by_clause(p):
@@ -1815,8 +1912,15 @@ def p_limit_types(p):
 
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
+    string = ""
     p[0] = Where(p[2])
-    p[0]._tac = f'WHERE {p[2]._tac}'
+    if isinstance(p[2], list):
+        for index, var in enumerate(p[2]):
+            if hasattr(var, '_tac'):
+                string += f'{var._tac}'
+        p[0]._tac = f'WHERE {string}'
+    else:
+        p[0]._tac = f'WHERE {p[2]._tac}'
 
 def p_group_by_clause(p):
     '''GROUPBYCLAUSE : GROUP BY SQLEXPRESSIONLIST'''
@@ -1864,6 +1968,7 @@ def p_sql_expression(p):
         p[0] = LogicalOperators(
             p[1], p[2], p[3], p.lineno(2), find_column(p.slice[2]))
     elif len(p) == 3:
+        p[2]._tac = f'{p[1]} {p[2]._tac}'
         p[0] = [True, p[2]]
     else:
         p[0] = p[1]
@@ -1880,7 +1985,7 @@ def p_exists_clause(p):
     '''EXISTSCLAUSE : EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     p[0] = ExistsClause(None,  False,  p[3], p.lineno(1),
                         find_column(p.slice[1]))
-
+    p[0]._tac = f'{p[1]}{p[2]}{p[3]._tac}{p[4]}'
 
 def p_sql_relational_expression(p):
     '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION
@@ -1906,7 +2011,7 @@ def p_sql_relational_expression(p):
         else:
             p[0] = [p[1], p[2]]
     elif (len(p) == 4):
-        print(p[2])
+        # print(p[2])
         if p[2][1] == '=':
             p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3], p[2][1],
                          p[2][0].lineno, find_column(p[2][0]))
@@ -2350,6 +2455,7 @@ def p_sql_alias(p):
                 | SQLNAME'''
     if (len(p) == 3):
         p[0] = p[2]
+        p[0]._tac = f"{p[1]} {p[2]._tac}"
     elif (len(p) == 2):
         p[0] = p[1]
 
@@ -2366,19 +2472,19 @@ def p_expressions_time(p):
         if p.slice[1].type.upper() == 'EXTRACT':
             p[0] = ExpressionsTime(
                 SymbolsTime.EXTRACT, p[3], p[6], p[1], p.lineno(1), find_column(p.slice[1]))
-            p[0]._tac = f'EXTRACT ( {p[3]} FROM TIMESTAMP {p[6].value} )'
+            p[0]._tac = f'EXTRACT ( {p[3]._tac} FROM TIMESTAMP {p[6]._tac} )'
         elif p.slice[1].type.upper() == 'DATE_PART':
             p[0] = ExpressionsTime(
                 SymbolsTime.DATE_PART, p[3], p[6], p[1], p.lineno(1), find_column(p.slice[1]))
-            p[0]._tac = f'DATE_PART ({p[3].value} , INTERVAL {p[6].value})'
+            p[0]._tac = f'DATE_PART ({p[3]._tac} , INTERVAL {p[6]._tac})'
     elif (len(p) == 3):
         p[0] = ExpressionsTime(SymbolsTime.TIMESTAMP, None,
                                p[2], p[1], p.lineno(1), find_column(p.slice[1]))
-        p[0]._tac = f'TIMESTAMP {p[2].value}'
+        p[0]._tac = f'TIMESTAMP {p[2]._tac}'
     elif (len(p) == 7):
         p[0] = ExtractFromIdentifiers(
             SymbolsTime.EXTRACT, p[3], p[5], p[1], p.lineno(1), find_column(p.slice[1]))
-        p[0]._tac = f"EXTRACT ({p[3]} FROM {p[5].value})"
+        p[0]._tac = f"EXTRACT ({p[3]} FROM {p[5]._tac})"
     else:
         if p.slice[1].type.upper() == 'CURRENT_DATE':
             p[0] = ExpressionsTime(SymbolsTime.CURRENT_DATE, None, None, p[1], p.lineno(
@@ -2422,11 +2528,14 @@ def p_sql_object_reference(p):
                        | SQLNAME'''
     if (len(p) == 2):
         p[0] = ObjectReference(p[1], None, None)
+        p[0]._tac = f'{p[1]._tac}'
     elif (len(p) == 4):
         if p[3] == "*":
             p[0] = ObjectReference(p[1], p[3], None)
+            p[0]._tac = f'{p[1]._tac}{p[2]}{p[3]}'
         else:
             p[0] = ObjectReference(p[3], None, p[1])
+            p[0]._tac = f'{p[1]._tac}{p[2]}{p[3]._tac}'
 
 
 def p_list_values_insert(p):
@@ -2492,11 +2601,13 @@ def p_sql_name(p):
                | ID'''
     if p.slice[1].type == "STRINGCONT" or p.slice[1].type == "CHARCONT":
         p[0] = PrimitiveData(DATA_TYPE.STRING, p[1],
-                             p.lineno(1), find_column(p.slice[1]))
+                             p.lineno(1), find_column(p.slice[1]))                     
+        p[0]._tac = f'\'{p[1]}\''
+
     else:
         p[0] = Identifiers(p[1], p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'{p[1]}'
         
-    p[0]._tac = f'{p[1]}'
 
 def p_type_select(p):
     '''TYPESELECT : ALL

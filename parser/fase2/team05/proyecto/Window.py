@@ -531,7 +531,9 @@ class Main(tk.Tk):
             C3D_opt.append(porOptimizar)
             optimizarDesde += 1
         optimizar(C3D_opt)
-        reporteOptimizacion(retornoOpt())
+        print('*************************************')
+        print(retornoOpt())
+        reporteOptimizacion(reglasOpt)
 
 
     # Ejecución de Parser
@@ -560,6 +562,7 @@ class Main(tk.Tk):
             # Start parser
             ins = g.parse(tytus)
             #g.gramaticaBNF(tytus)
+            #Contador de temporales utilizados
             temp = g.contador
             gen = Generador(temp, 0, ins.getInstruccion())
             gen.ejecutar()

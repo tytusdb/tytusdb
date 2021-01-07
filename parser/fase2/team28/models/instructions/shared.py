@@ -89,7 +89,7 @@ class TableReference(Instruction):
         self.option_join = option_join
         self.line = line
         self.column = column
-        self._tac = self.alias
+        self._tac = ''
     def __repr__(self):
         return str(vars(self))
 
@@ -574,7 +574,7 @@ class ObjectReference(Instruction):
         self.opt_asterisk = opt_asterisk
         self.alias = reference_column.alias
         self.opt_table = opt_table
-        self._tac = reference_column.alias
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))

@@ -82,7 +82,10 @@ class RTablaDeSimbolos:
                     f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].id) +"</td>")
                     f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].tipo) +"</td>")
                     f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].columnas) +"</td>")
-                    f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].restriccion) +"</td>")
+                    cadena = ""
+                    for sim in ts_globalIndex.simbolos[i].restriccion:
+                        cadena += str(sim)+"<br>"
+                    f.write("                        <td class=\"text-left\">"+ str(cadena) +"</td>")
                     f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].tabla) +"</td>")
                     f.write("                    </tr>")
                     i += 1
@@ -163,7 +166,10 @@ class RTablaDeSimbolos:
                     f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].id) +"</td>")
                     f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].tipo) +"</td>")
                     f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].columnas) +"</td>")
-                    f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].restriccion) +"</td>")
+                    cadena = ""
+                    for sim in ts_globalIndex.simbolos[i].restriccion:
+                        cadena += str(sim)+"<br>"
+                    f.write("                        <td class=\"text-left\">"+ str(cadena) +"</td>")
                     f.write("                        <td class=\"text-left\">"+ str(ts_globalIndex.simbolos[i].tabla) +"</td>")
                     f.write("                    </tr>")
                     i += 1
