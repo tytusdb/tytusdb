@@ -3728,7 +3728,7 @@ def ejecutarTraduccion(entrada):
     global consola2
     global exceptions
     global lexer
-
+    global concatenaAux
     global concatena_createtable
     global concatena_alter
     global consolaaux
