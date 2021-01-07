@@ -600,6 +600,7 @@ class Ast2:
         dot.node('Node' + str(self.i), Cuerpo)
         dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
 
+
     # Campos Accedidos por  Expresion :Objeto Accedido "ExpresionesCase"  : Reservada, ListaExpresiones=[]
     def GrafoExpresionCase(self, Reservada, ListaExpresiones, padre):
 
@@ -616,8 +617,8 @@ class Ast2:
         self.inc()
         dot.node('Node' + str(self.i), "EXPRESIONES")
         dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
-        # Recorrer la lista de when
-        self.Recorrer_Condiciones(ListaExpresiones, 'Node' + str(self.i))
+        # Recorrer la de Expresiones
+        self.Recorrer_CondicioneSLista(ListaExpresiones, 'Node' + str(self.i))
 
     # Recorriendo tipos de when : Objeto al que Accesa "TiposWhen"  : Campos: Reservada,Reservada2,Reservada3,ListaExpresiones1=[],ListaExpresiones2=[],ListaExpresiones3=[])
     def GrafoTiposWhen(self, Reservada, ListaExpresiones1, Reservada2, ListaExpresiones2, Reservada3, ListaExpresiones3,
@@ -629,8 +630,9 @@ class Ast2:
         dot.edge(padre, 'Node' + str(self.i))
 
         # When ListaExpresiones1 then listaExpresiones3
-        if ((Reservada != "") and (ListaExpresiones1 != False) and (Reservada2 == "") and (
-                ListaExpresiones2 == False) and (Reservada3 != "") and (ListaExpresiones3 != False)):
+        if ((Reservada != "") and (ListaExpresiones1 != False) and (Reservada2 == "") and
+           (ListaExpresiones2 == False) and (Reservada3 != "") and (ListaExpresiones3 != False)):
+
             self.inc()
             dot.node('Node' + str(self.i), Reservada)
             dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
@@ -654,8 +656,9 @@ class Ast2:
             self.Recorrer_Condiciones(ListaExpresiones3, 'Node' + str(self.i))
 
         # When ListaExpresiones1 Else listaExpresiones2 then ListaExpresiones3
-        if ((Reservada != "") and (ListaExpresiones1 != False) and (Reservada2 != "") and (
-                ListaExpresiones2 != False) and (Reservada3 != "") and (ListaExpresiones3 != False)):
+        if ((Reservada != "") and (ListaExpresiones1 != False) and (Reservada2 != "") and
+            (ListaExpresiones2 != False) and (Reservada3 != "") and (ListaExpresiones3 != False)):
+
             self.inc()
             dot.node('Node' + str(self.i), Reservada)
             dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
@@ -690,8 +693,9 @@ class Ast2:
             self.Recorrer_Condiciones(ListaExpresiones3, 'Node' + str(self.i))
 
         # When ListaExpresiones1
-        if ((Reservada != "") and (ListaExpresiones1 != False) and (Reservada2 == "") and (
-                ListaExpresiones2 == False) and (Reservada3 == "") and (ListaExpresiones3 == False)):
+        if ((Reservada != "") and (ListaExpresiones1 != False) and (Reservada2 == "") and
+           (ListaExpresiones2 == False) and (Reservada3 == "") and (ListaExpresiones3 == False)):
+
             self.inc()
             dot.node('Node' + str(self.i), Reservada)
             dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
@@ -704,8 +708,9 @@ class Ast2:
             self.Recorrer_Condiciones(ListaExpresiones1, 'Node' + str(self.i))
 
         # When ListaExpresiones1 Else listaExpresiones2
-        if ((Reservada != "") and (ListaExpresiones1 != False) and (Reservada2 != "") and (
-                ListaExpresiones2 != False) and (Reservada3 == "") and (ListaExpresiones3 == False)):
+        if ((Reservada != "") and (ListaExpresiones1 != False) and (Reservada2 != "") and
+           (ListaExpresiones2 != False) and (Reservada3 == "") and (ListaExpresiones3 == False)):
+
             self.inc()
             dot.node('Node' + str(self.i), Reservada)
             dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
@@ -867,9 +872,28 @@ class Ast2:
         self.inc()
         dot.edge('Node' + str(padrenuevo), str(padrenuevo + 1))
 
+
+    # Recorremos Expresion y mandamos el nodo aumentando el padre
+    def Recorrer_CondicioneSLista(self, Lista, padre):
+
+        for i in Lista:
+            # LLAMAMOS A GRAFICAR EXPRESION
+            if(str(i)!=","):
+                self.inc()
+                dot.node('Node' + str(self.i), "VALORES")
+                dot.edge(padre, 'Node' + str(self.i))
+
+                padrenuevo = self.i
+                self.graficar_expresion(i)
+                self.inc()
+                dot.edge('Node' + str(padrenuevo), str(padrenuevo + 1))
+            else:
+                print("Es una Coma")
+
+
+
     # Recorrido de la lista de Campos
     # ----------------------------------------------------------------------------------------------------------
-
     def RecorrerListadeCampos(self, Campos, padre):
         for j in Campos:
 
@@ -884,6 +908,7 @@ class Ast2:
             elif isinstance(j, CaseCuerpo):
                 print("Es un Acceso a un Campo CasePuro")
                 self.GrafoCampoCasePuro(j.Lista_When, j.Cuerpo, padre)
+
 
             elif isinstance(j, ExpresionesCase):
                 print("Es un Acceso a  una expresion Case")
@@ -1035,7 +1060,6 @@ class Ast2:
                 print("No Ningun Tipo")
 
     # ------------------------------------ FIN DEL ACCESO A LOS CAMPOS DE CADA CUESTION
-
     # Instruccion SELECT
     # ----------------------------------------------------------------------------------------------------------
 

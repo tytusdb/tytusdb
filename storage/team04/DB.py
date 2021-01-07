@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------ #
 
 from Nodo import *
-
+d
 class DB():
 
     def __init__(self):
@@ -83,3 +83,30 @@ class DB():
 
         # Retornar Lista De BD
         return BD_list
+
+    # UPDATE
+    def alterDatabase(self, databaseOld, databaseNew):
+
+        # Buscar BD Para Obtener Nodo
+        self.BD_old = self.searchDB2(databaseOld)
+        if self.BD_old == 0: # No Encontro La BD
+            return 1
+        else: # Encuentra La BD
+            # Buscar De Nuevo En Lista De BD Si El Nuevo Nombre No Está Ya Utilizado
+            self.BD_new = self.searchDB(databaseNew)
+            if self.BD_new == 1:
+                return 3 # Nuevo Nombre Ya Existe
+            else:
+                # Actualizar
+                self.BD_old.node_id = databaseNew
+                return 0
+
+    # DELETE
+    def dropDatabase(self, database):
+        self.DB_delete = self.searchDB2(database)
+        if self.DB_delete == 0: # BD No Existe
+            return 2
+        else: # BD Existe
+            self.DB_delete.anterior.siguiente = self.DB_delete.siguiente
+            self.DB_delete.siguiente.anterior = self.DB_delete.anterior
+            return 0

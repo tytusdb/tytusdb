@@ -43,3 +43,65 @@ def f_query_tool(self):
 ```
 
 + Método que habilita e inhabilita un Frame, el .pack() habilita el Frame, mientras que él .pack_forget() inhabilita un Frame
+
+# Manual Usuario
+
+## Objetivos
+
+```
+Dar a conocer cómo se utiliza la aplicación por medio de una explicación detallada.
+Desarrollar una intergaz amigable al usuario.
+
+```
+
+## Ingreso al Sistema
++ Al iniciar la aplicacion se desplegará la siguiente ventana, en la cual deberá ingresar con usuario y contraseña.
+<p align="center">
+<img src="imagen/ingreso_usuario.png" width = "700" alt="ingreso al sistema">
+</p>
+
+## File
++ Abrir Archivo *.sql
+Abre el archivo seleccionado en la pestaña seleccionada.
+<p align="center">
+<img src="imagen/abrir.png" width = "700" alt="abrir archivo *.sql">
+</p>
+
++ Guardar Archivo *.sql
+Guarda el archivo de la pestaña actual.
+<p align="center">
+<img src="imagen/guardar.png" width = "700" alt="guardar archivo *.sql">
+</p>
+
+## Tree View
+Se desplegará una vista en forma de árbol en la cual se podrá tener acceso a las bases de datos, así como sus tablas, etc.
+<p align="center">
+<img src="imagen/tree.png" width = "700" alt="tree">
+</p>
+
+## Tools
++ Query Tool
+Abrir un nuevo editor sql.
+<p align="center">
+<img src="imagen/query1.png" width = "700" alt="query1">
+</p>
+Se mostrará de la siguiente manera.
+<p align="center">
+<img src="imagen/query2.png" width = "700" alt="query2">
+</p>
+
+
+## Consola
+Se desplegará la salida de las consultas realizadas en el editor.
+<p align="center">
+<img src="imagen/consola.png" width = "700" alt="console">
+</p>
+
+## About
++ Grupo 10
+Se mostrarán los integrantes del grupo.
+<p align="center">
+<img src="imagen/integrantes.png" width = "700" alt="console">
+</p>
++ TytusDB
+Se abrirá el repositorio del proyecto.

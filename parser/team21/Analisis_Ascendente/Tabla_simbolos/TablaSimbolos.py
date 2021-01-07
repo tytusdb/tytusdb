@@ -23,6 +23,8 @@ class TIPO_DATO(Enum):
     CAMPO = 19
     FUNCIONDEAGREGACION = 20
     BASEDEDATOS = 21
+    USE = 22
+    CLASEENUMERADA = 23
 
 
 
@@ -33,7 +35,6 @@ class TIPO_DATO(Enum):
 class Simbolo():
 
 
-
     def __init__(self, categoria,id, tipo, valor,Entorno):
         self.categoria = categoria
         self.id = id
@@ -42,14 +43,18 @@ class Simbolo():
         self.Entorno = Entorno
 
 
+
 #Aqui se define la tabla de simbolos , cada tabla define un nuevo entorno
 # es decir tablasimbolos = entorno de cada definiacion
 class TablaDeSimbolos():
 
-    def __init__(self, simbolos={}):
+    def __init__(self, simbolos):
         self.simbolos = simbolos
 
     def agregar_sim(self, simbolo):
+        if id in self.simbolos:
+            print('Error: el identificador ', simbolo.id, ' ya esta definido.')
+            return
         self.simbolos[simbolo.id] = simbolo
 
     def buscar_sim(self, id):
@@ -71,7 +76,7 @@ class TablaDeSimbolos():
 
     def eliminar_sim(self, id):
         if not id in self.simbolos:
-            print('Limpiando base datos, replace..')
+            print("No se encontro el objeto a eliminar")
         else:
             del self.simbolos[id]
 

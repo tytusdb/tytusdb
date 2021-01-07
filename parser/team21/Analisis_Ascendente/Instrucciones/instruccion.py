@@ -1,143 +1,68 @@
+import tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 class Instruccion:
     'clase abstracta'
 
-class Campo(Instruccion):
-    '''#1 ID tipo
-       #2 CONSTRAINT
-       #3 FOREIGN
-       #4 PRIMARY'''
-    def __init__(self, caso, id, tipo, acompaniamiento, idFk, tablaR, idR):
-        self.caso = caso
-        self.id = id
-        self.tipo = tipo
-        self.acompaniamiento = acompaniamiento
-        self.idFk = idFk
-        self.tablaR = tablaR
-        self.idR = idR
-
-class Acompaniamiento(Instruccion):
-    def __init__(self, tipo, valorDefault):
-        self.tipo = tipo
-        self.valorDefault = valorDefault
 
 
 #TIPOS DE DATO
 class Tipo(Instruccion):
-    def __init__(self, tipo, longitud):
+    def __init__(self, tipo, longitud,fila,columna):
         self.tipo = tipo
         self.longitud = longitud
+        self.fila = fila
+        self.columna = columna
 
 class IdId(Instruccion):
-
     '''ID.ID'''
-    def __init__(self, id1, id2):
+    def __init__(self, id1, id2,fila,columna):
         self.id1 = id1
         self.id2 = id2
+        self.fila = fila
+        self.columna = columna
 
-class IdAsId(Instruccion):
-    '''ID ID
-       o
-       ID AS ID'''
-    def __init__(self, id1, id2):
-        self.id1 = id1 #puede venir time, math, trig, binario
-        self.id2 = id2 #puede venir una cadena
 
-#INSERT INTO
-class InsertInto(Instruccion):
-    def __init__(self, id, listaId, values):
-        self.id = id
-        self.listaId = listaId
-        self.values = values
+
+        
 
 #WHERE
-class Where(Instruccion):
-    '''#1 not boolean
-       #2 in
-       #3 between'''
-    def __init__(self, caso, boolean, listaValores, valor1, valor2):
-        self.caso = caso
-        self.boolean = boolean
-        self.listaValores = listaValores
-        self.valor1 = valor1
-        self.valor2 = valor2        
+
 
 #asignacion x = e
 #puede venir id o id.id
 class Asignacion(Instruccion):
-    def __init__(self, id, expresion):
+    def __init__(self, id, expresion, fila,columna):
         self.id = id
         self.expresion = expresion
+        self.fila = fila
+        self.columna = columna
 
-#DELETE
-class Delete(Instruccion):
-    def __init__(self, id, where):
-        self.id = id
-        self.where = where
 
-#DROP
-class Drop(Instruccion):
-    '''#1 database
-       #2 table'''
-    def __init__(self, caso, exists, id):
-        self.caso = caso
-        self.exists = exists
-        self.id = id
+
 
 #SHOW DATABASE
 class Show(Instruccion):
-    def __init__(self, fv):
+    def __init__(self, fv,fila,columna):
         self.fv = fv
+        self.fila = fila
+        self.columna = columna
 
-#ALTER
-class AlterDatabase(Instruccion):
-    '''#1 rename
-       #2 owner'''
-    def __init__(self, caso, name, newName):
-        self.caso = caso
-        self.name = name
-        self.newName = newName
+    def ejecutar(shown, ts,consola,exceptions):
 
-class AlterTable(Instruccion):
-    def __init__(self, id, alter):
-        self.id = id
-        self.alter = alter
-
-class Alter(Instruccion):
-
-    def __init__(self, accion, ccc, id, tipo, check, id2, typeSet, id3):
-
-        self.accion = accion
-        self.ccc = ccc
-        self.id = id 
-        self.tipo = tipo
-        self.check = check
-        self.id2 = id2
-        self.typeSet = typeSet
-        self.id3 = id3
+        consola.append("----------------SHOW DATABASE----------------")
+        i = 1
+        for data in ts.simbolos:
+            if ts.simbolos.get(data).categoria == TS.TIPO_DATO.BASEDEDATOS:
+                consola.append(f"{i}. {data}")
+                i = i +1
+        consola.append("--------------END SHOW DATABASE--------------")
 
 
 #UPDATE
-class Update(Instruccion):
-    def __init__(self, id, asignaciones, where):
-        self.id = id
-        self.asignaciones = asignaciones
-        self.where = where 
+
 
 #SELECT
 #-----------------------
 #TIME
-class Time(Instruccion):
-    '''#1 EXTRACT
-       #2 NOW
-       #3 date_part
-       #4 current_date
-       #5 current_time
-       #6 TIMESTAMP'''
-    def __init__(self, caso, momento, cadena, cadena2):
-        self.caso = caso
-        self.momento = momento
-        self.cadena = cadena
-        self.cadena2 = cadena2
 
 
 
@@ -147,21 +72,34 @@ class Combinacion(Instruccion):
     '''#1 union
        #2 intersect
        #3 except'''
-    def __init__(self, caso, all, querie1, querie2):
+    def __init__(self, caso, all, querie1, querie2,fila,columna):
         self.caso = caso
         self.all = all
         self.querie1 = querie1
         self.querie2 = querie2
+        self.fila = fila
+        self.columna = columna
 
 
  #MATH
-class Math_(Instruccion):
-    def __init__(self, nombre, E1, E2):
-        self.nombre = nombre
-        self.E1 = E1
-        self.E2 = E2
 
-class Trigonometrica(Instruccion):
-    def __init__(self, trig, E):
-        self.trig = trig
-        self.E = E
+#Trigonometrica
+
+
+#Binaria
+
+#CASE
+class Case(Instruccion):
+    def __init__(self, asignacion, valor,fila,columna):
+        self.asignacion = asignacion
+        self.valor = valor
+        self.fila = fila
+        self.columna = columna
+
+class ColCase(Instruccion):
+    def __init__(self, cases, id,fila,columna):
+        self.cases = cases
+        self.id = id
+        self.fila = fila
+        self.columna = columna
+

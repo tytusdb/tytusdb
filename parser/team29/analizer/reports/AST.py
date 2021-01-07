@@ -3,9 +3,6 @@ from analizer.reports.Nodo import Nodo
 
 dot = Digraph(comment="AST")
 
-# dot.render('test-output/round-table.gv', view=True)  # doctest: +SKIP
-#'test-output/round-table.gv.jpg'
-
 
 class AST:
     def __init__(self):
@@ -29,5 +26,10 @@ class AST:
             self.joinTreeNodes(node)
 
     def drawGraph(self):
-        dot.render("test-output/round-table.gv", view=True)  # doctest: +SKIP
+        global dot
+        dot.render("test-output/round-table.gv", view=False)
         "test-output/round-table.gv.jpg"
+        dot.format = "png"
+        dot.render("test-output/round-table.gv", view=False)
+        "test-output/round-table.gv.jpg"
+        dot = Digraph(comment="AST")

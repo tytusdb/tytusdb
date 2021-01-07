@@ -1,4 +1,4 @@
-import re, pickle,os
+import re, pickle,os,subprocess
 
 class NombreEstructuras:
     def __init__(self):
@@ -9,13 +9,13 @@ class NombreEstructuras:
 
         #serializacion
         try:
-            
             self.database=self.deserialize("data/database")
         except:
             print("Base de datos vacia")
             self.database={}
         else:
             pass
+
         try:
             os.mkdir(data_dir)
         except:
@@ -37,7 +37,6 @@ class NombreEstructuras:
             return True
         else:
             return False
-    
     #Busca una base de datos y si la encuentra devuelve un
     #valor booleando True = encontrado, False = No encontrado
     def searchDatabase(self, name: str):
@@ -45,8 +44,6 @@ class NombreEstructuras:
             return False
         else:
             return True
-
-    
     #Agregar al diccionario la base de datos
     def createDatabase(self, database: str):
         try:
@@ -63,7 +60,6 @@ class NombreEstructuras:
                 return 1
         except:
             return 1
-
     #Devuelve una lista con los nombres de la base de datos
     def showDatabases(self):
         arreglotmp = []
@@ -71,7 +67,6 @@ class NombreEstructuras:
             arreglotmp.append(str(x))
         
         return arreglotmp
-   
     #Cambia el nombre de la base de datos
     def alterDatabase(self, databaseOld, databaseNew):
         try:
@@ -81,7 +76,10 @@ class NombreEstructuras:
                     if self.searchDatabase(databaseNew) == False: #No tiene que existir el nombre para cambiarlo
                         self.database[databaseNew] = self.database[databaseOld]
                         del self.database[databaseOld]
-                 
+
+                        auxTablas = self.database[databaseNew]
+                        for key in auxTablas:
+                            ht.cambiarNombreArchivo(databaseOld, key, databaseNew, key)
                         #recorrer archivos que correspondan con base anterior y colocar el nuevo nombre
                         directorio='data/tables/'
                         with os.scandir(directorio) as ficheros:
@@ -104,12 +102,14 @@ class NombreEstructuras:
                 return 1
         except:
             return 1
-
     #Elimina la base de datos
     def dropDatabase(self, database: str):
         try:
             if self.ComprobarNombre(database) == True: #Comprobamos el nombre
                 if self.searchDatabase(database) == True: #Buscamos la db
+                    auxTablas = self.database[database]
+                    for key in auxTablas:
+                        ht.eliminarTablaHash(database, key)
                     del self.database[database]
                     ne.serialize("data/database",self.database)
                     directorio='data/tables/'
@@ -124,15 +124,13 @@ class NombreEstructuras:
                 return 1
         except:
             return 1
-        
     #Método para buscar una tabla en el diccionario
     def buscarTabla(self, nombre, tablas):
         if tablas.get(nombre) == None:
             return False
         else:
             return True
-        
-     #Método para buscar una tabla en una base de datos, devuelve True si la encuentra, sino, Falso
+    #Método para buscar una tabla en una base de datos, devuelve True si la encuentra, sino, Falso
     def buscarTablaDatabase(self, database: str, tabla: str):
         encontrar = False
         if self.searchDatabase(database) == True:
@@ -161,7 +159,6 @@ class NombreEstructuras:
                 return 1
         except:
             return 1
-        
     #Mustra las tablas en una base de datos
     def showTables(self, database: str):
         try:
@@ -188,6 +185,8 @@ class NombreEstructuras:
                     if self.buscarTabla(tableOld, aux) == True: # busca tabla vieja
                         if self.buscarTabla(tableNew, aux) == False: #busca la tabla neuva
                             aux[tableNew] = aux[tableOld] #se inserrta
+                            #Actualiza el nombre del archivo
+                            ht.cambiarNombreArchivo(database, tableOld, database, tableNew)
                             ne.serialize("data/tables/"+str(database)+"-"+str(tableNew),aux[tableNew])
                             del aux[tableOld]
                             os.remove("data/tables/"+str(database)+"-"+str(tableOld))
@@ -203,9 +202,8 @@ class NombreEstructuras:
             else:
                 return 1
         except:
-            return 1   
-        
-        #Elimina una tabla
+            return 1
+    #Elimina una tabla
     def dropTable(self, database, tableName):
         try:
             if self.ComprobarNombre(database) == True and self.ComprobarNombre(tableName) == True: #Comprobamos nombre
@@ -215,6 +213,8 @@ class NombreEstructuras:
                     if self.buscarTabla(tableName, aux) == True:
                         del aux[tableName]
                         self.database[database] = aux
+                        #Elimina la tabla
+                        ht.eliminarTablaHash(database, tableName)
                         os.remove("data/tables/"+str(database)+"-"+str(tableName))
                         ne.serialize("data/database",self.database)
                         return 0
@@ -226,9 +226,7 @@ class NombreEstructuras:
                 return 1
         except:
             return 1
-
     #Funciones a editar despues que se tenga la tabla hash
-    
     #Agregar primary key
     def alterAddPK(self, database: str, table: str, columns: list):
         try:
@@ -238,7 +236,7 @@ class NombreEstructuras:
                 if self.buscarTabla(table, dicTemp) == True:
                     lenColumns = len(columns) #tamaño del atributo columns
                     lenPrimaryKey = len(dicTemp[table][1]) #tamaño de la tabla creada
-                    columnasTabla = int(dicTep[table][0]) - 1
+                    columnasTabla = int(dicTemp[table][0]) - 1
 
                     if  (columnasTabla + 1) >= lenColumns: #Comparamos tamaño de columnas
                         if lenPrimaryKey == 0:
@@ -270,7 +268,6 @@ class NombreEstructuras:
                 return 2
         except:
             return 1
-    
     #Función que devuelve una lista de primary key, es nulo si no hay creadas 
     def listaPrimaryKeyTabla(self, baseDatos: str, tabla: str):
         try:
@@ -288,7 +285,6 @@ class NombreEstructuras:
                     return None
         except:
             return None
-        
     #Busca una primary key devuelve true o false
     def BuscarPrimaryKey(self, baseDatos: str, tabla: str, pk):
         listaTemporal = self.listaPrimaryKeyTabla(baseDatos, tabla)
@@ -297,9 +293,7 @@ class NombreEstructuras:
             for e in listaTemporal:
                 if pk == e:
                     encontrado = True
-
         return encontrado
-    
     #Eliminar primary key    
     def alterDropPK(self, database: str, table: str):
         try:
@@ -324,7 +318,6 @@ class NombreEstructuras:
                 return 2
         except:
             return 1
-        
     #Función para agregar columna
     def alterAddColumn(self, database: str, table: str, default: any):
         try:
@@ -332,7 +325,7 @@ class NombreEstructuras:
                 dicTemp = self.database[database]
                 
                 if self.buscarTabla(table, dicTemp) == True:
-                    dicTemp[table][0] = dicTemp[table][0] + 1 #Columna agregada
+                    dicTemp[table][0] = int(dicTemp[table][0]) + 1 #Columna agregada
                     self.database[database] = dicTemp #Actualizamos el diccionario de base de datos
                     ht.addColumn(default, database, table) ##agrega una columna en hash table
                     ne.serialize("data/tables/"+str(database)+"-"+str(table),self.database[database])
@@ -345,10 +338,10 @@ class NombreEstructuras:
                 return 2
         except:
             return 1
-
     
     def alterDropColumn(self, database: str, table: str, columnNumber: int):
         try:
+            columnNumber=int(columnNumber)
             if self.searchDatabase(database) == True:
                 dicTemp = self.database[database]
                 
@@ -358,7 +351,7 @@ class NombreEstructuras:
                     if totalColumnaFinal >= columnNumber:
                         
                         if totalColumnaFinal != 0 or self.BuscarPrimaryKey(database, table, columnNumber) == False: #para saber si todavía nos quedamos con columnas y si no es una llave primaria
-                            dicTemp[table][0] = dicTemp[table][0] - 1 #Columna Eliminada
+                            dicTemp[table][0] = int(dicTemp[table][0]) - 1 #Columna Eliminada
                             self.database[database] = dicTemp #Actualizamos el diccionario de base de datos
                             ht.dropColumn(columnNumber,database, table) #Elimina un indice (columna) en la tabla hash
                             ne.serialize("data/tables/"+str(database)+"-"+str(table),self.database[database])
@@ -374,8 +367,7 @@ class NombreEstructuras:
                 return 2
         except:
             return 1
-
-        #Devuelve el número de columnas de una tabla especifica, sino la encuentra devuelve None
+    #Devuelve el número de columnas de una tabla especifica, sino la encuentra devuelve None
     def numeroDeColumnas(self, database: str, table: str):
         try:
             dicTemporal = self.database[database]
@@ -383,7 +375,6 @@ class NombreEstructuras:
             return numeroColumna
         except:
             return None
-    
     ##serializacion
     def serialize(self, filename, data):
         objetos=data
@@ -404,7 +395,124 @@ class NombreEstructuras:
         #print("recover data:",recover_data)
         return recover_data
     ##fin serializacion
+
+    #Grapvhiz para la estructura de la base de datos
+    def graficarBaseDato(self):
+        if len(self.database) == 0:
+            print("No hay datos")
+        else:
+            s = open('graphDataBase.dot', 'w')
+            cadena = """digraph g{
+                rankdir = \"LR\"
+                label = \" Diccionario de Base de datos 
+                Grupo #5\"; fontsize=18;
+                node[shape=record]
+                Nodo[label =\""""
+            
+            
+
+            contador = 0
+            longitudKey = len(self.database)
+            for key in self.database:
+                contador = contador +1
+                
+                if longitudKey > contador:
+                    cadena = cadena + "key: "+str(key)+"|"
+                else:
+                    cadena = cadena + "key: "+str(key)+"\"];\n"
+
+            cadena = cadena +"}"
+            s.write(cadena)
+            s.close()
+            
+            path=os.getcwd()
+            print('path'+path)
+            
+            os.system('dot -Tpdf graphDataBase.dot -o graphDataBase.pdf')
+            os.system('graphDataBase.pdf')
+
+#Grapvhiz para la estructura de la base de datos
+    def graficarTablaBaseDato(self):
+        if len(self.database) == 0:
+            print("no hay datos")
+        else:
+            s = open('graphDataBaseTable.dot', 'w')
+            cadena = """digraph g{
+                rankdir = \"LR\"
+                label = \" Base de datos con sus tablas 
+                Grupo #5\"; fontsize=18;
+                node[shape=record]
+                Nodo[label =\""""
+            
+            
+            cadenaNodos = ""
+            contador = 0
+            longitudKey = len(self.database)
+            uniones = ""
+            for key in self.database:
+                contador = contador +1
+                dictmp = self.database[key]
+                
+                nombretmp = "nodo" + str(key)
+                
+                longitudTabla = len(dictmp)
+
+                #Uniones de nodos
+                if longitudTabla > 0:
+                    print("longi >", longitudTabla)
+                    uniones = uniones + "Nodo:<"+str(key)+"> " + "->" + nombretmp + ";\n"
+
+                if longitudKey > contador:
+                    contadorTabla = 0
+                    cadena = cadena +"<" +str(key)+">"+str(key)+"|"
+                    for key2 in dictmp:
+                        contadorTabla = contadorTabla + 1
+                        if longitudTabla > contadorTabla:
+                            if contadorTabla == 1:
+                                cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"|"
+                            else:
+                                cadenaNodos = cadenaNodos + str(key2) + "|"
+
+                            
+                        else:
+                            if contadorTabla == 1:
+                                cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"\"];\n"
+                            else:
+                                cadenaNodos = cadenaNodos + str(key2) + "\"];\n"
+                    
+                else:
+                    contadorTabla = 0
+                    cadena = cadena +"<" +str(key)+">"+str(key)+"\"];\n"
+                    for key2 in dictmp:
+                        contadorTabla = contadorTabla + 1
+                        if longitudTabla > contadorTabla:
+                            if contadorTabla == 1:
+                                cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"|"
+                            else:
+                                cadenaNodos = cadenaNodos + str(key2) + "|"
+                            
+
+                        else:
+                            if contadorTabla == 1:
+                                cadenaNodos = cadenaNodos + nombretmp + "[label = \""+ str(key2) +"\"];\n"
+                            else:
+                                cadenaNodos = cadenaNodos + str(key2) + "\"];\n"
+                            
+                    
+
+            uniones = uniones +"\n}"
+            s.write(cadena)
+            s.write(cadenaNodos)
+            s.write(uniones)
+            s.close()
+            
+        path=os.getcwd()
+        print('path'+path)
+        os.system('dot -Tpdf graphDataBaseTable.dot -o graphDataBaseTable.pdf')
+        os.system('graphDataBaseTable.pdf')
     
+
+        
 class HashTable:
 
     #Define el tamanio del vector al ser creada la tabla
@@ -557,7 +665,7 @@ class HashTable:
             else:
                 return 4
         return 1
-
+                
     #Elimina un registro de una tabla y base de datos especificados por la PK
     def delete(self, database: str, table: str, columns: list):
         self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
@@ -615,8 +723,9 @@ class HashTable:
         self.__vector = [None] * 20
         self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
         return 0
-    
-        def addColumn(self, data_default, database, table):
+        
+    #Agrega una nueva columna al final de cada tupla, esta será de tipo None
+    def addColumn(self, data_default, database, table):
         self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
         for r in self.__vector:
             if r is not None:
@@ -662,3 +771,131 @@ class HashTable:
         
         self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
 
+    #Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla
+    def extractTable(self, database: str, table: str):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        if ne.searchDatabase(database) is False:
+            return None
+
+        if ne.buscarTablaDatabase(database, table) is False:
+            return None
+
+        tuplas = []
+        #Obtiene todos los registros que están en la tabla
+        for r in self.__vector:
+            if r is not None:
+                aux_keys = r.keys()
+                for k in aux_keys:
+                    tuplas.append(r.get(k))
+        return tuplas
+    
+    #Devuelve una lista con los elementos que corresponden a un rango de registros
+    def extractRangeTable(self, database: str, table: str, columnNumber: int, lower, upper):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        if ne.searchDatabase(database) is False:
+            return None
+
+        if ne.buscarTablaDatabase(database, table) is False:
+            return None
+
+        if columnNumber > ne.numeroDeColumnas(database, table):
+            return None
+
+        if lower < 0 or upper > len(self.__order_keys):
+            return None
+
+        lista_datos = []
+
+        for t in range(lower, upper):
+            llave = self.__order_keys[t][:-1].split("_")
+            lista_datos.append(self.extractRow(database, table, llave)[columnNumber])
+
+        return lista_datos
+    
+    #Imprime el vector de la tabla
+    def imprimir(self):
+        for k in self.__vector:
+            print(k)
+
+    #Cambia el nombre de llave en el diccionario
+    def cambiarNombreArchivo(self, databaseOld: str, tableOld: str, database: str, table: str):
+        nombre = str(database)+"_"+str(table)
+        llaveOld = str(databaseOld)+"_"+str(tableOld)
+        if self.DiccionarioTabla.get(llaveOld) != None:
+            self.DiccionarioTabla[nombre] = self.DiccionarioTabla[llaveOld]
+            del self.DiccionarioTabla[llaveOld]
+
+    def eliminarTablaHash(self, database: str, table: str):
+        nombre = str(database)+"_"+str(table)
+        if self.DiccionarioTabla.get(nombre) != None:
+            del self.DiccionarioTabla[nombre]
+
+    def graficar(self, database: str, table: str):
+        self.IniciarHashTable(database, table)
+        s = open('graph.dot', 'w')
+        s.write('digraph G{\n')
+        s.write('rankdir = \"LR\" \n')
+        s.write('node[shape=record]\n')
+        llave = 0
+        #diccionario = str(llave)
+        s.write('Nodo[label =\"<f' + str(llave) + '>')
+        if self.__vector[llave] is None:
+            s.write('|<f' + str(llave) + '>')
+        else:
+            posicion = 0
+            auxiliar = self.__vector[llave]
+            for key in auxiliar:
+                if(posicion != 0):
+                    posicion = posicion + 1
+                else:
+                    s.write('|<f' + str(llave) + str(auxiliar[key]) + '>')
+                    posicion = posicion + 1
+        llave = llave + 1
+        while llave < 20 :
+            if self.__vector[llave] is None:
+                s.write('|<f' + str(llave) + '>')
+            else:
+                posicion = 0
+                auxiliar = self.__vector[llave]
+                for key in auxiliar:
+                    if(posicion != 0):
+                        posicion = posicion + 1
+                    else:
+                        s.write('|<f' + str(llave) + '> ' + str(auxiliar[key]))
+                        posicion = posicion + 1
+            llave = llave + 1
+        s.write('\"];')
+        llave = 0
+        
+        while llave < 20 :
+            if self.__vector[llave] is not None:
+                posicion = 0
+                auxiliar = self.__vector[llave]
+                dato = "Nodo:<f"
+                for key in auxiliar:
+                    if(posicion == 0):
+                        posicion = posicion + 1
+                    else:
+                        s.write('nodo'+ str(llave) + str(posicion) + '[label= \"' + str(auxiliar[key]) + '\"];')  
+                        if(posicion == 1):
+                            s.write(dato + str(llave) + "> -> nodo" + str(llave) + str(posicion) + "; ")
+                            dato = "nodo" + str(llave) + str(posicion)
+                            posicion = posicion + 1
+                        else:
+                            s.write(dato + " -> nodo" + str(llave) + str(posicion) + ";")
+                            dato = "nodo" + str(llave) + str(posicion)
+                            posicion = posicion  + 1
+            llave = llave + 1
+        s.write('}')
+        s.close()
+        
+        path=os.getcwd()
+        print('path'+path)
+        
+        os.system('dot -Tpdf graph.dot -o graph.pdf')
+        os.system('graph.pdf')
+        
+        
+#Instancia de la clase DataBase
+ne = NombreEstructuras()
+ht = HashTable()

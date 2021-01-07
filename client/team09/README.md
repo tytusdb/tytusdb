@@ -5,4 +5,4 @@ Este servicio se ejecuta mediante el comando
 
 Integrantes involucrados en el cliente
 - 201700965 José Carlos I Alonzo Colocho
-- 201700995 Luis Pedro Pineda Gonzalez 
+- 201700995 Luis Pedro Pineda Gonzalez

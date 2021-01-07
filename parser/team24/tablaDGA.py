@@ -88,13 +88,16 @@ class Tabla() :
     ##
     ##Metodos para implementacion de queries 
     ##
-    def getTabla(self,nombre):
-        
+    def getTabla(self,nombre,skip=0):
+        sk = skip
         for simbolo in self.simbolos.values():
             if simbolo.nombre ==nombre:
                 #Verificar si es tabla
                 #results = []
                 if simbolo.tipo == TIPO.COLUMN:
+                    if sk >0:
+                        sk = sk-1
+                        continue
                     ambito = simbolo.ambito
                     tablaaa = self.simbolos[ambito]
                     # El nombre de la tabla es

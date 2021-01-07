@@ -1,7 +1,7 @@
 from enum import Enum
 from reporteErrores.errorReport import ErrorReport # EN EL AMBITO MAS EXTERIOR SE INGRESAN A LA LISTA , EN ESTAS SUB CLASES SOLO SE SUBE EL ERROR
 # Enumeraciones para identificar expresiones que comparten clase
-
+import sqlErrors
 class TIPO_DE_DATO(Enum):
     ENTERO = 1
     DECIMAL = 2
@@ -74,7 +74,7 @@ class ExpresionAritmetica(Expresion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo = "\n" + identificador + "[ label =\"" + str(self.operador) + "\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
 
@@ -175,6 +175,10 @@ class ExpresionAritmetica(Expresion):
     def getExpresionToString(self) -> str:
         izq  = self.exp1.getExpresionToString()
         der  = self.exp2.getExpresionToString()
+        if isinstance(izq , ErrorReport):
+            return izq
+        if isinstance(der , ErrorReport):
+            return der
         op = ''
         if self.operador == OPERACION_ARITMETICA.MAS:
             op = '+' # si fuera != le pone <>
@@ -226,7 +230,10 @@ class ExpresionNegativa(Expresion):
         return value
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
-        return str('-' + sint)
+        if isinstance(sint , ErrorReport):
+            return sint
+        else:
+            return str('-' + sint)
 
 class ExpresionPositiva(Expresion):
     def __init__(self, exp, linea):
@@ -261,6 +268,8 @@ class ExpresionPositiva(Expresion):
         return value
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
+        if isinstance(sint , ErrorReport):
+            return sint
         return str('+' + sint)
 # Clase de expresión numero
 
@@ -300,9 +309,49 @@ class ExpresionID(Expresion):
 
         return nodo
     def ejecutar(self ,ts):
-        return self
-    
-    
+        if isinstance(ts , TuplaCompleta):# PARA VALIDACIONES DE WHERE Y SELECT 
+            valorYtipo = ts.getValue(self.val)
+            if valorYtipo == None:
+                return ErrorReport('Semantico','no se encontro esa columna', self.linea)
+            else:
+                if valorYtipo['tipo'] == 'SMALLINT' \
+                or valorYtipo['tipo'] == 'BIGINT' \
+                or valorYtipo['tipo'] == 'INTEGER':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.ENTERO, self.linea)
+                elif valorYtipo['tipo'] == 'DECIMAL' \
+                or valorYtipo['tipo'] == 'NUMERIC' \
+                or valorYtipo['tipo'] == 'REAL' \
+                or valorYtipo['tipo']== 'DOUBLE_PRECISION' \
+                or valorYtipo['tipo'] == 'MONEY':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea)
+                elif valorYtipo['tipo'] == 'CHAR' \
+                or valorYtipo['tipo'] == 'VARCHAR' \
+                or valorYtipo['tipo'] == 'TEXT' \
+                or valorYtipo['tipo'] == 'ENUM':
+                    return ExpresionCadena(valorYtipo['val'], TIPO_DE_DATO.CADENA, self.linea)
+                elif valorYtipo['tipo'] == 'BOOLEAN':
+                    return ExpresionBooleano(valorYtipo['val'], self.linea)
+                elif valorYtipo['tipo'] == 'DATE':
+                    return ExpresionCadena(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea, isFecha=True)
+                return ErrorReport('Semantico','TIPO DESCONOCIDO', self.linea)
+            
+        else:# supongo que es para lo del check :v 
+            try:
+                symbol = ts.buscarSimbolo(self.val)
+                if symbol.tipo == 'INTEGER':
+                    return ExpresionNumero(symbol.valor, TIPO_DE_DATO.ENTERO, self.linea)
+                elif symbol.tipo == 'DECIMAL':
+                    return ExpresionNumero(symbol.valor, TIPO_DE_DATO.DECIMAL, self.linea)
+                elif symbol.tipo == 'STRING' or \
+                symbol.tipo == 'ENUM':
+                    return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea)
+                elif symbol.tipo == 'BOOLEAN':
+                    return ExpresionBooleano(symbol.valor, self.linea)
+                elif symbol.tipo == 'DATE':
+                    return ExpresionCadena(symbol.valor, TIPO_DE_DATO.CADENA, self.linea, isFecha=True)
+                return ErrorReport('Semantico', 'Variable ' + self.val + ' not defined', self.linea)
+            except:
+                return ErrorReport('Semantico', 'Variable ' + self.val + ' not defined', self.linea)   
     def evaluacionCheck(self ,ts)-> int:
         try:
             symbol = ts.buscarSimbolo(self.val)
@@ -312,6 +361,7 @@ class ExpresionID(Expresion):
 
     def getExpresionToString(self) -> str:
         return str(self.val)
+
 
     def __comprobarTipo(self,tipo: str) -> int:
         if tipo == 'SMALLINT' \
@@ -325,7 +375,8 @@ class ExpresionID(Expresion):
             return 1
         elif tipo == 'CHAR' \
         or tipo == 'VARCHAR' \
-        or tipo == 'TEXT':
+        or tipo == 'TEXT' \
+        or tipo == 'ENUM':
             return 2
         elif tipo == 'BOOLEAN':
             return 0
@@ -348,7 +399,7 @@ class ExpresionComparacion(Expresion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo = "\n" + identificador + "[ label =\"" + str(self.operador) + "\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
 
@@ -401,6 +452,10 @@ class ExpresionComparacion(Expresion):
     def getExpresionToString(self) -> str:
         izq  = self.exp1.getExpresionToString()
         der  = self.exp2.getExpresionToString()
+        if isinstance(izq , ErrorReport):
+            return izq
+        if isinstance(der , ErrorReport):
+            return der
         op = ''
         if self.operador == OPERACION_RELACIONAL.DESIGUAL:
             op = '<>' # si fuera != le pone <>
@@ -429,7 +484,7 @@ class ExpresionLogica(Expresion):
     def dibujar(self):
         identificador = str(hash(self))
 
-        nodo = "\n" + identificador + "[ label =\"" + self.operador + "\" ];"
+        nodo = "\n" + identificador + "[ label =\"" + str(self.operador) + "\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
         nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
 
@@ -457,14 +512,18 @@ class ExpresionLogica(Expresion):
     
     def evaluacionCheck(self ,ts)-> int: 
         izq  = self.exp1.evaluacionCheck(ts)
-        der  = self.exp1.evaluacionCheck(ts)
+        der  = self.exp2.evaluacionCheck(ts)
         if izq != 0 or der != 0:
             return 5
         return 0
     def getExpresionToString(self) -> str:
         izq  = self.exp1.getExpresionToString()
-        der  = self.exp1.getExpresionToString()
-        return str(izq + f' {self.operador.name} ' + der)
+        der  = self.exp2.getExpresionToString()
+        if isinstance(izq , ErrorReport):
+            return izq
+        if isinstance(der , ErrorReport):
+            return der
+        return str(izq + f' {self.operador.name.lower()} ' + der)
 
 # Expresion negada
 class ExpresionNegada(Expresion):
@@ -495,6 +554,8 @@ class ExpresionNegada(Expresion):
         return 0
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
+        if isinstance(sint , ErrorReport):
+            return sint
         return str('not' + sint)
 # Expresión booleana (Valor puro)
 class ExpresionBooleano(Expresion):
@@ -700,3 +761,30 @@ class ExpresionAgrupacion(Expresion):
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
         return str('(' + sint +')')
+    
+    
+
+
+
+class TuplaCompleta:
+    def __init__(self, tupla):
+        self.tupla = tupla
+        
+    def getValue(self, id , referciaTabla = None): # a veces no viene
+        # VALIDAR QUE NO HAYA AMBIGUEDAD PRIMERO , aun no lo tengo :v 
+        for columna in self.tupla:
+            # 3 POSIBLES CASOS  , TABLA.COLUMNA , ALIAS.COLUMNA , COLUMNA 
+            if columna['id'] == id:
+                return columna
+            # elif self.coincideConAlias(columna['id']):
+            #     pass
+            elif self.quitarRef(columna['id']) == id:
+                return columna
+        return None
+    
+    def quitarRef(self,cadena):# le quito la referencia de su tabla 
+        cadena = cadena.split('.')
+        return cadena[1]
+    def coincideConAlias(self,columna):# le quito la referencia de su tabla 
+        aux = columna['id'].split('.')
+        return columna['alias']+'.'+aux[1]

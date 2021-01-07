@@ -127,7 +127,7 @@ class AlterTableAddCol(Instruccion):
             default = '28-01-2000'
         elif tip == 'time' :
             default = '10:52:23'
-        elif tip == 'boleano' : 
+        elif tip == 'boolean' : 
             default = True
         else :
             tip = self.tipo.length.upper()
@@ -139,7 +139,8 @@ class AlterTableAddCol(Instruccion):
                 return error
             
         #dictionary for new column
-        col = {'name':self.id.upper(), 'type':tip, 'size':siz, 'pk':None, 'fk':None, 'default':None, 'null':None, 'check':None, 'unique':None}       
+        col = TableData(self.id.upper(), tip, siz, None, None, None, None, None, None)
+        #col = {'name':self.id.upper(), 'type':tip, 'size':siz, 'pk':None, 'fk':None, 'default':None, 'null':None, 'check':None, 'unique':None}       
 
         for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
             if colu.name == self.id.upper() :
@@ -203,10 +204,11 @@ class AlterTableAddChe(Instruccion):
         colname = data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns'][existe[1]].name
         checkData = ConstraintData(idconst, [colname], 'check')
         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['constraint'].append(checkData)
-        print(data)
+        #print(data)
         #FUNCIÓN DE ESPINO, NO TIENE
         #ret = alterAddColumn(data.databaseSeleccionada, tbname, default)
         #print('check done.')
+        print('Alter table add check exitoso.')
         return 'Alter table add check exitoso.'
 
     def __repr__(self):
@@ -262,7 +264,8 @@ class AlterTableAddUnique(Instruccion):
         checkData = ConstraintData(self.id1.upper(), colname, 'unique')
         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['constraint'].append(checkData)
 
-        print(data)
+        #print(data)
+        print('Alter table add cons unique exitoso.')
 
         return 'Alter table add cons unique exitoso.'
 
@@ -366,7 +369,8 @@ class AlterTableAddFor(Instruccion):
         checkData = ConstraintData(idconst, colss, 'fk')
         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['constraint'].append(checkData)
 
-        print(data)
+        #print(data)
+        print('Foreign key agregada con éxito.')
 
         #Espino-Función -> Se implementa hasta la segunda fase :0
         #alterAddFK(database: str, table: str, references: dict)
@@ -449,8 +453,8 @@ class AlterTableAddPK(Instruccion):
 
         checkData = ConstraintData(idconst, colss, 'pk')
         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['constraint'].append(checkData)
-        print('\n\n')
-        print(data)
+        #print('\n\n')
+        #print(data)
         #Espino-Función -> Se implementa hasta la segunda fase :0
         retor = alterAddPK(str(data.databaseSeleccionada), str(tbname), colindex)
 
@@ -706,8 +710,8 @@ class AlterTableDropCons(Instruccion):
 
         del data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['constraint'][constindex]
             
-        print(data)
-
+        #print(data)
+        print('Constraint eliminado exitosamente.')
 
         return self.id
 
@@ -811,8 +815,9 @@ class AlterTableDropFK(Instruccion):
         for index in colindex :
             data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns'][index].fk = [None]
 
-        print('\n\n')
-        print(data)
+        #print('\n\n')
+        #print(data)
+        print('Foreign key eliminada con éxito.')
 
         #La Espino-Función
         #retor = alterDropPK(data.databaseSeleccionada, tbname)
