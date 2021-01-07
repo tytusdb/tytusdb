@@ -27,7 +27,10 @@ def execute(script: str):
         Listaselects = cargar()
         for s in Listaselects:
             if isinstance(raiz, list):
-                raiz.insert(correlativos.pop(), s)
+                try:
+                    raiz.insert(correlativos.pop(), s)
+                except:
+                    '''No hay selects'''
         executeGraphTree(raiz)
     elif 'SELECT * FROM temp' in script:
         correlativos.append(contador)
