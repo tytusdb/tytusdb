@@ -13,6 +13,7 @@ contambito = 0
 NombreDB = ""
 contregistro = 0
 
+
 def Textoresultado():
     for simbolo in tabla.simbolos:
         print("ID: " + str(tabla.simbolos[simbolo].id) + " Nombre: " + tabla.simbolos[simbolo].nombre + " Ambito: " + str(tabla.simbolos[simbolo].ambito) + " Tipo indice: " + str(tabla.simbolos[simbolo].tipoind) + " Orden Indice: " + str(tabla.simbolos[simbolo].ordenind) + " Columna ind: " + str(tabla.simbolos[simbolo].columnaind) + " Tabla indice: " + str(tabla.simbolos[simbolo].tablaind))
