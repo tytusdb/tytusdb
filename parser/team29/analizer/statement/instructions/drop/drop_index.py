@@ -1,6 +1,6 @@
 from analizer.abstract import instruction
 from analizer.typechecker.Metadata import File
-from analizer.reports import Nodo
+from analizer.reports.Nodo import Nodo
 
 
 class Drop(instruction.Instruction):
@@ -27,4 +27,13 @@ class Drop(instruction.Instruction):
         return result
 
     def dot(self):
-        pass
+        new = Nodo("DROP_INDEX")
+
+        if self.exists:
+            ifex = Nodo("IF_EXISTS")
+            new.addNode(ifex)
+        
+        for n in self.names:
+            idn = Nodo(str(n))
+            new.addNode(idn)
+        return new

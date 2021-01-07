@@ -175,6 +175,12 @@ def generarC3D(instrucciones, ts_global):
         elif isinstance(instruccion, DropIndex):
             cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
             cadenaFuncionIntermedia += createDropIndexFuncion(instruccion, ts) 
+        elif isinstance(instruccion, AlterIndex):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createAlterIndexFuncion(instruccion, ts)
+        elif isinstance(instruccion, AlterIndexColumn):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createAlterIndexColumnFuncion(instruccion, ts)
             
         indice = indice + 1
     tablaSimbolos = ts
@@ -361,19 +367,19 @@ def generarExpresion(expresion, ts):
         exp2 = generarExpresion(expresion.exp2, ts)
         operador = getOperador(expresion.operador)
         if operador == '+' and exp2 == 0:
-            reglaOptimizacion = OptimizacionR('Regla 12',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            reglaOptimizacion = OptimizacionR('Regla 8 & Regla 12',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
             tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '-' and exp2 == 0:
-            reglaOptimizacion = OptimizacionR('Regla 13',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            reglaOptimizacion = OptimizacionR('Regla 9 & Regla 13',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
             tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '*' and exp2 == 1:
-            reglaOptimizacion = OptimizacionR('Regla 14',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            reglaOptimizacion = OptimizacionR('Regla 10 & Regla 14',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
             tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '/' and exp2 == 1:
-            reglaOptimizacion = OptimizacionR('Regla 15',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
+            reglaOptimizacion = OptimizacionR('Regla 11 & Regla 15',str(exp1) + " " + str(operador) + " " + str(exp2),str(exp1) )
             tablaOptimizacion.append(reglaOptimizacion)
             return exp1
         elif operador == '*' and exp2 == 2:
@@ -700,6 +706,18 @@ def createDropIndexFuncion(instruccion, ts):
     cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
     return cadenaSQL
 
+def createAlterIndexFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createAlterIndexColumnFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
 
 def generarFuncionesSQL(instruccionSQL,numero):
     global numFuncionSQL
@@ -728,8 +746,8 @@ def generarFuncionesSQLREPORTES():
     cadenaFuncionSQL = ""
     cadenaFuncionSQL += "\n\tdef Reportes(self):"
     cadenaFuncionSQL += "\n\t\tglobal instrucciones_Global,tc_global1,ts_global1,listaErrores,ts_globalIndex1"
-    cadenaFuncionSQL += "\n\t\t#astGraph = AST()"
-    cadenaFuncionSQL += "\n\t\t#astGraph.generarAST(instrucciones_Global)"
+    cadenaFuncionSQL += "\n\t\tastGraph = AST()"
+    cadenaFuncionSQL += "\n\t\tastGraph.generarAST(instrucciones_Global)"
     cadenaFuncionSQL += "\n\t\ttypeC = TipeChecker()"
     cadenaFuncionSQL += "\n\t\ttypeC.crearReporte(tc_global1)"
     cadenaFuncionSQL += "\n\t\tRTablaS = RTablaDeSimbolos()"

@@ -1,4 +1,8 @@
 import os
+import pickle
+import shutil
+import zlib
+from Blockchain import *
 
 databases = {}  # LIST WITH DIFFERENT MODES
 dict_encoding = {'ascii': 1, 'iso-8859-1': 2, 'utf8': 3}
@@ -58,7 +62,81 @@ def alterDatabaseMode(database, mode):
         save(dictionary, 'metadata')
         return 0
     except:
-        return 1    
+        return 1  
+    
+
+# Blockchain
+def safeModeOn(database, table):
+    try:
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+
+        # If db doesn't exist
+        if not value_db:
+            return 2
+
+        # If tables doesn't exit
+        dict_tables = dictionary.get(database)[2]
+        if not dict_tables:
+            return 3
+
+        # If table info doesn't exist
+        tabla_info = dict_tables.get(table)
+        if not tabla_info:
+            return 3
+
+        # If modeSecurity is Off
+        if tabla_info[1] is False:
+            tabla_info[1] = True
+            # If object Blockchain is None
+            if tabla_info[2] is None:
+                mode = dictionary.get(database)[0]
+                j = checkMode(mode)
+                list_tuple = j.extractTable(database, table)
+                nameJson = str(database) + '-' + str(table)
+                BChain = make_block_chain(list_tuple, nameJson)
+                tabla_info[2] = BChain
+                save(dictionary, 'metadata')
+                return 0
+        # If modeSecurity es ON
+        return 4
+    except:
+        return 1
+
+
+def safeModeOff(database, table):
+    try:
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+
+        # If db doesn't exist
+        if not value_db:
+            return 2
+
+        # If tables doesn't exit
+        dict_tables = dictionary.get(database)[2]
+        if not dict_tables:
+            return 3
+
+        # If table doesn't exist
+        tabla_info = dict_tables.get(table)
+        if not tabla_info:
+            return 3
+
+        # If modeSecurity is ON
+        if tabla_info[1] is True:
+            tabla_info[1] = False
+            # If object Blockchain is not None
+            if tabla_info[2] is not None:
+                nameJson = str(database) + '-' + str(table)
+                tabla_info[2].removeFilesBlock(nameJson)
+                tabla_info[2] = None
+                save(dictionary, 'metadata')
+                return 0
+        # If modeSecurity es OFF
+        return 4
+    except:
+        return 1
     
     
 # ---------------------------------------------- AUXILIARY FUNCTIONS  --------------------------------------------------
@@ -125,7 +203,21 @@ def insertAgain(database, mode, newMode):
                 for list_register in old_mode.extractTable(database, name_table):
                     new_mode.insert(database, name_table, list_register)
 
-        old_mode.dropDatabase(database)    
+        old_mode.dropDatabase(database)   
+        
+        
+
+# Blockchain mode when the security mode is on
+def make_block_chain(list_tuple, nameJson):
+    BChain = Blockchain()
+    for tuple in list_tuple:
+        BChain.insertBlock(tuple, nameJson)
+        graphBChain(BChain, nameJson)
+    return BChain
+
+
+def graphBChain(blockchainObject, nombreImagen):
+    blockchainObject.graphBlockchain(nombreImagen)
         
         
 def listGraph(list_):
@@ -184,6 +276,57 @@ def tupleGraph(list_):
 # ------------------------------------------------------ FASE 1 --------------------------------------------------------
 # -------------------------------------------------- Table CRUD --------------------------------------------------------
 
+#SHOWDATABASES
+def showDatabases(database):
+    try:
+        dictionary = load('metadata')
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.showDatabases()
+        return value_return
+    except:
+        return []
+    
+    
+# ALTERDATABASE
+def alterDatabase(databaseOld, databaseNew):
+    try:
+        dictionary = load('metadata')
+        value_dbO = dictionary.get(str(databaseOld))
+        value_dbN = dictionary.get(str(databaseNew))
+        if not value_dbO:
+            return 2
+        if value_dbN:
+            return 3
+        mode = dictionary.get(str(databaseOld))[0]
+        j = checkMode(mode)
+        value_return = j.alterDatabase(databaseOld, databaseNew)
+        if value_return == 0:
+            info = dictionary[str(databaseOld)]
+            dictionary.pop(str(databaseOld))
+            dictionary[str(databaseNew)] = info
+            save(dictionary, 'metadata')
+        return value_return
+    except:
+        return 1
+    
+    
+# DROP DATABASE
+def dropDatabase(database):
+    try:
+        nombreBase = str(database)
+        dictionary = load('metadata')
+        value_base = dictionary.get(nombreBase)
+        if value_base:
+            mode = dictionary.get(nombreBase)[0]
+            j = checkMode(mode)
+            j.dropDatabase(nombreBase)
+            dictionary.pop(nombreBase)
+            save(dictionary, 'metadata')
+        return 2
+    except:
+        return 1
+    
 
 def createTable(database, table, numberColumns):
     try:
@@ -219,6 +362,45 @@ def showTables(database):
         return value_return
     except:
         return 1
+    
+# EXTRACT TABLE
+def extractTable(database, table):
+    try:
+        newTable = []
+
+        database = str(database)
+        table = str(table)
+        dictionary = load('metadata')
+        value_base = dictionary.get(database)
+        if not value_base:
+            return None
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.extractTable(database, table)
+        
+        return value_return
+    except:
+        return None
+    
+  
+# EXTRACT RANGE TABLE
+def extractRangeTable(database, table, columnNumber, lower, upper):
+    try:
+        newTable = []
+
+        database = str(database)
+        table = str(table)
+        dictionary = load('metadata')
+        value_base = dictionary.get(database)
+        if not value_base:
+            return None
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.extractRangeTable(database, table, int(columnNumber), lower, upper)
+        
+        return value_return
+    except:
+        return None
 
 
 def alterAddPK(database, table, columns):
@@ -249,7 +431,58 @@ def alterDropPK(database, table):
         value_return = j.alterDropPK(database, table)
         return value_return
     except:
-        return 2    
+        return 2
+    
+    
+# ALTER TABLE
+def alterTable(database, tableOld, tableNew):
+    try:
+        database = str(database)
+        tableOld = str(tableOld)
+        tableNew = str(tableNew)
+        dictionary = load('metadata')
+        value_base = dictionary.get(database)
+        if not value_base:
+            return 2
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.alterTable(database, tableOld, tableNew)
+
+        if value_return == 0:
+            dict_tables = dictionary.get(database)[2]
+            infoTabla = dict_tables[tableOld]
+            dict_tables.pop(tableOld)
+            dict_tables[tableNew] = infoTabla
+            save(dictionary, 'metadata')
+        return value_return
+    except:
+        return 1
+    
+    
+# ALTER ADD COLUMN
+def alterAddColumn(database, table, default):
+    try:
+        database = str(database)
+        table = str(table)
+        dictionary = load('metadata')
+
+        value_base = dictionary.get(database)
+        if not value_base:
+            return 2
+
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.alterDropColumn(database, table, default)
+
+        if value_return == 0:
+            dict_tables = dictionary.get(database)[2]
+            number_columns = dict_tables.get(table)[0]
+            dict_tables.get(table)[0] = number_columns + 1
+            save(dictionary, 'metadata')
+
+        return value_return
+    except:
+        return 1
     
     
 def alterDropColumn(database, table, columnNumber):
@@ -293,6 +526,62 @@ def dropTable(database, table) :
             save(dictionary, 'metadata')
     except:
         return 1    
+    
+    
+# INSERT
+def insert(database, table, register):
+
+        # Method to Blockchain
+        if value_return == 0:
+            dict_tables = dictionary.get(database)[2]
+            tabla_info = dict_tables.get(table)
+
+            # if the security mode is on
+            if tabla_info[1] is True:
+                nameJson = str(database) + '-' + str(table)
+                # The object block chain
+                tabla_info[2].insertBlock(register, nameJson)
+                graphBChain(tabla_info[2], nameJson)
+                save(dictionary, 'metadata')
+        return value_return
+    except:
+        return 1
+    
+    
+# UPDATE
+def update(database, table, register, columns):
+    # database: str name of database
+    # table: str name of table
+    # register: dictionary {column: newValue}
+    # columns: list [primaryKey] [primarykey1, primarykey2...]
+    
+        # Method to Blockchain
+        if value_return == 0:
+            print(j.extractRow(database, table, columns))
+            dict_tables = dictionary.get(database)[2]
+            tabla_info = dict_tables.get(table)
+
+            # if the security mode is on
+            if tabla_info[1] is True:
+                newTuple = []
+
+                # Generate the new Tuple
+                for i in oldTuple:
+                    newTuple.append(i)
+
+                for key in register:
+                    newTuple[key] = register[key]
+
+                nameJson = str(database) + '-' + str(table)
+
+                tabla_info[2].updateBlock(oldTuple, newTuple, nameJson)
+                graphBChain(tabla_info[2], nameJson)
+                save(dictionary, 'metadata')
+
+        return value_return
+    except:
+        return 1
+    
     
     
 # ------------------------------------------------------- FILES --------------------------------------------------------

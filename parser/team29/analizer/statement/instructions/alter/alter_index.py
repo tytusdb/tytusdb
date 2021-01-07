@@ -1,8 +1,7 @@
 from analizer.abstract import instruction
 from analizer.typechecker.Metadata import File
 from analizer.typechecker.Metadata import Struct
-from analizer.reports import Nodo
-
+from analizer.reports.Nodo import Nodo
 
 class AlterIndex(instruction.Instruction):
     def __init__(self, name, exists, newName, row, column, idOrNumber=None):
@@ -87,4 +86,18 @@ class AlterIndex(instruction.Instruction):
         return result
 
     def dot(self):
-        pass
+        new = Nodo("ALTER_INDEX")
+        n = Nodo(str(self.name))
+        new.addNode(n)
+
+        if self.exists:
+            ifex = Nodo("IF_EXISTS")
+            new.addNode(ifex)
+        nn = Nodo(str(self.newName))
+        new.addNode(nn)
+
+        if self.id:
+            idornum = Nodo(str(self.id))
+            new.addNode(idornum)
+
+        return new
