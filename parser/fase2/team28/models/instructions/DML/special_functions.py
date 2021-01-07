@@ -56,6 +56,7 @@ def list_expressions_groupby(array, enviroment):
                     if valores[1] == "*":
                         lista2.append(valores[0])
                         lista4.append(data.alias)
+
                     else:
                         lista1.append(valores[0])
                         lista2.append(valores[2])
@@ -69,7 +70,7 @@ def list_expressions_groupby(array, enviroment):
         if len(lista1) == len(lista3):
             dictionary = convert_dictionary(lista3, lista1)
             table = pd.DataFrame(dictionary)
-            # print(table)
+            print(table)
             lista5.append(table)
             lista5.append(lista2)
             lista5.append(lista4)
@@ -111,7 +112,7 @@ def loop_list_of_order_by(array, enviroment):
                 lista1.append(valores[1])
             else:
                 lista1.append(valores.value)
-        # print(lista1)
+        print(lista1)
         return lista1
     except:
         desc = "FATAL ERROR, Funciones Select"
@@ -121,11 +122,30 @@ def loop_list_with_columns(array, name, enviroment):
     lista1 = []
     result = []
     alias = []
+    valores = None
     try:
         name_column = ""
         # hora de simplificar esta mierda xd 
         for _, data in enumerate(array):
-            valores = data.process(enviroment)
+            if hasattr(data, 'is_group'):
+                if len(array) > 1:
+                    desc = "FATAL ERROR,  must appear in the GROUP BY clause or be used in an aggregate function"
+                    ErrorController().add(34, 'Execution', desc, 0, 0)
+                    return
+                else:
+                    data.is_group = True
+                    valores = data.process(enviroment)
+                    if valores == "*":
+                        valor = search_symbol(name).name.length
+                        valor = [valor+1]
+                        lista1.append(valor)
+                        alias.append(data.alias)
+                        dictionary = convert_dictionary(alias, lista1)
+                        table = pd.DataFrame(dictionary)
+                        return table
+                    
+            else:
+                valores = data.process(enviroment)
             if isinstance(valores, list):
                 lista1.append(valores[0])
                 alias.append(data.alias)
@@ -312,4 +332,6 @@ def getDecimals(number):
 
     rest = 1 / (10**contadorFinal) 
     return rest
+
+
 

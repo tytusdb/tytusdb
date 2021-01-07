@@ -197,10 +197,11 @@ class FunctionCall(Expression):
 
     def dot(self):
         f = Nodo.Nodo(self.function)
-        p = Nodo.Nodo("PARAMS")
         new = Nodo.Nodo("CALL")
         new.addNode(f)
-        new.addNode(p)
-        for par in self.params:
-            p.addNode(par.dot())
+        if len(self.params) >0:
+            p = Nodo.Nodo("PARAMS")
+            for par in self.params:
+                p.addNode(par.dot())
+            new.addNode(p)
         return new

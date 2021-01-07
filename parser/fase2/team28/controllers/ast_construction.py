@@ -948,10 +948,10 @@ def p_indexes_statement_alter(p):
 def p_indexes_alter(p):
     '''ALTER_INDEXES : ALTER INDEX IF EXISTS ID RENAME TO ID
                      | ALTER INDEX ID RENAME TO ID
-                     | ALTER INDEX IF EXISTS ID ALTER COLUMN body_cont_index
-                     | ALTER INDEX ID ALTER COLUMN body_cont_index
-                     | ALTER INDEX ID ALTER body_cont_index
-                     | ALTER INDEX IF EXISTS ID ALTER body_cont_index'''
+                     | ALTER INDEX IF EXISTS ID ALTER COLUMN ID body_cont_index
+                     | ALTER INDEX ID ALTER COLUMN ID body_cont_index
+                     | ALTER INDEX ID ALTER ID body_cont_index
+                     | ALTER INDEX IF EXISTS ID ALTER ID body_cont_index'''
     nodo = Node('ALTER_INDEXES')
     if len(p) == 9:
         if p.slice[6].type == "ALTER":
@@ -963,7 +963,7 @@ def p_indexes_alter(p):
             nodo.add_childrens(Node(p[6]))
             nodo.add_childrens(Node(p[7]))
             nodo.add_childrens(p[8])
-            nodo.production = f'<ALTER_INDEXES> := ALTER INDEX IF EXISTS ID ALTER COLUMN <body_cont_index>\n'
+            nodo.production = f'<ALTER_INDEXES> := ALTER INDEX IF EXISTS ID ALTER ID <body_cont_index>\n'
             nodo.production += f'{p[8].production}'
             p[0] = nodo
         else:
@@ -977,7 +977,19 @@ def p_indexes_alter(p):
             nodo.add_childrens(Node(p[8]))
             nodo.production = f'<ALTER_INDEXES> := ALTER INDEX IF EXISTS ID RENAME TO ID\n'
             p[0] = nodo
-    
+    elif len(p) == 10:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(Node(p[6]))
+        nodo.add_childrens(Node(p[7]))
+        nodo.add_childrens(Node(p[8]))
+        nodo.add_childrens(p[9])
+        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX IF EXISTS ID ALTER COLUMN ID <body_cont_index>\n'
+        nodo.production += f'{p[9].production}'
+        p[0] = nodo
     elif len(p) == 8:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[1]))
@@ -986,7 +998,7 @@ def p_indexes_alter(p):
         nodo.add_childrens(Node(p[5]))
         nodo.add_childrens(Node(p[6]))
         nodo.add_childrens(p[7])
-        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX IF EXISTS ID ALTER <body_cont_index>\n'
+        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX ID ALTER COLUMN ID <body_cont_index>\n'
         nodo.production += f'{p[7].production}'
         p[0] = nodo
 
@@ -997,17 +1009,8 @@ def p_indexes_alter(p):
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(Node(p[5]))
         nodo.add_childrens(p[6])
-        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX ID ALTER COLUMN <body_cont_index>\n'
+        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX ID ALTER ID <body_cont_index>\n'
         nodo.production += f'{p[6].production}'
-        p[0] = nodo
-    elif len(p) == 6:
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
-        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX ID ALTER <body_cont_index>\n'
-        nodo.production += f'{p[5].production}'
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -1018,6 +1021,7 @@ def p_indexes_alter(p):
         nodo.add_childrens(Node(p[6]))
         nodo.production = f'<ALTER_INDEXES> := ALTER INDEX ID RENAME TO ID\n'
         p[0] = nodo
+
 
 def p_index_alter_body(p):
     '''body_cont_index : ID
