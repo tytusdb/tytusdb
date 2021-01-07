@@ -34,20 +34,22 @@ class InsertInto(ASTNode):
                     # Run validations only if result is not None
                     if match is not None:
                         value_related_to_match = self.column_list.index(match)
-                        #to ENUM 
+                        # to ENUM
                         StmENUM = None
                         try:
                             StmENUM = table.get(field_symbol.field_type.upper(), SymbolType.TYPE)
                         except:
                             pass
-                        if  StmENUM and self.insert_list[value_related_to_match].val not in StmENUM.value_list :
-                            raise Error(0, 0, ErrorType.SEMANTIC, f'Field {field_symbol.name} must be a take any of the follow: {str(StmENUM.value_list)}')
+                        if StmENUM and self.insert_list[value_related_to_match].val not in StmENUM.value_list:
+                            raise Error(0, 0, ErrorType.SEMANTIC,
+                                        f'Field {field_symbol.name} must be a take any of the follow: {str(StmENUM.value_list)}')
                         # TODO ADD HERE TYPE VALIDATIONS PER FIELD, JUST ONE ADDED BY NOW TO GIVE EXAMPLE
-                        if field_symbol.field_type.upper() == 'INTEGER' and type(self.insert_list[value_related_to_match].val) != int:
+                        if field_symbol.field_type.upper() == 'INTEGER' and type(
+                                self.insert_list[value_related_to_match].execute(table, tree)) != int:
                             raise Error(0, 0, ErrorType.SEMANTIC, f'Field {field_symbol.name} must be an integer type')
                     else:
                         raise Error(0, 0, ErrorType.SEMANTIC, f'Field does not exists in table declaration')
-                    to_insert.append(self.insert_list[value_related_to_match].val)
+                    to_insert.append(self.insert_list[value_related_to_match].execute(table, tree))
                 # TODO ADD HERE CHECK VALIDATION
             else:
                 to_insert = list(map(lambda x: x.val, self.insert_list))
@@ -73,6 +75,22 @@ class InsertInto(ASTNode):
                     raise Error(0, 0, ErrorType.RUNTIME, '42P10: duplicated_primary_key')
         return f'Insert in {self.table_name}'
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        col_str = ''
+        if self.column_list is not None:
+            for col in self.column_list:
+                col_str = f'{col_str}{col.val},'
+
+        values = ''
+        if isinstance(self.insert_list, Select):
+            values = self.insert_list.generate(table, tree)
+        else:
+            for value in self.insert_list:
+                values = f'{values}{value.val},'
+            values = f' VALUES({values[:-1]})'
+        return f'INSERT INTO {self.table_name}{f" ({col_str})" if col_str != "" else ""}{values};'
+
 
 # This class probably is not going to be needed, depends on how the contents are gonna be handled
 class InsertItem(ASTNode):
@@ -85,3 +103,7 @@ class InsertItem(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''

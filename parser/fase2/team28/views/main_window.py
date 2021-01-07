@@ -6,6 +6,11 @@ from tkinter import messagebox
 from tkinter import scrolledtext
 from tkinter.font import Font
 from prettytable import PrettyTable
+from Optimizador.reglas import regla1, regla2, regla3, regla4y5, regla6, regla7
+from Optimizador.clases3d import Goto, LabelIF, ifStatement
+from Optimizador.syntactic import parse_optimizacion
+from Optimizador.optimization import ReportOfOptimization
+from controllers.optimization_controller import OptimizationController
 
 import os
 import json
@@ -17,8 +22,10 @@ from controllers.error_controller import ErrorController
 from utils.reports.report_error import ReportError
 from utils.reports.symbol_report import SymbolTableReport
 from utils.reports.tchecker_report import TypeCheckerReport
+from controllers.three_address_code import ThreeAddressCode
 from views.data_window import DataWindow
-
+from models.Other.ambito import Ambito
+report_optimization = None
 report_error = None
 report_ast = None
 
@@ -60,8 +67,17 @@ class MainWindow(object):
         archivoMenu.add_command(label='Guardar como...',
                                 command=self.guardar_como)
         archivoMenu.add_separator()
-        archivoMenu.add_command(label='Ejecutar',
-                                command=self.analizar_entrada)
+        archivoMenu.add_command(label='Ejecutar SQL',
+                                command=self.ejecutar_sql)
+        archivoMenu.add_separator()
+        archivoMenu.add_command(label='Generar TAC',
+                                command=self.generar_tac)
+        archivoMenu.add_separator()
+        archivoMenu.add_command(label='Generar Optimizacion',
+                                command=self.generar_optimization)
+        archivoMenu.add_separator()
+        archivoMenu.add_command(label='Ejecutar TAC',
+                                command=ThreeAddressCode().executeFile)
         archivoMenu.add_separator()
         archivoMenu.add_command(label='Salir', command=self.terminar)
         #############################################MENU WINDOWS##############################################
@@ -71,8 +87,12 @@ class MainWindow(object):
         windows_menu.add_separator()
         windows_menu.add_command(label='Tabla de errores',
                                  command=self.report_errors_windows)
+        windows_menu.add_separator()
         windows_menu.add_command(label='Tabla de simbolos',
                                  command=self.report_symbols_windows)
+        windows_menu.add_separator()
+        windows_menu.add_command(label='Reporte de Optimizacion',
+                                 command=self.report_optimization_windows)
         windows_menu.add_separator()
         windows_menu.add_command(label='Type Checker',
                                  command=self.report_typeChecker_windows)
@@ -86,8 +106,12 @@ class MainWindow(object):
         ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Tabla de errores',
                                 command=self.report_errors_ubuntu)
+        ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Tabla de simbolos',
                                 command=self.report_symbols_ubuntu)
+        ubuntu_menu.add_separator()
+        ubuntu_menu.add_command(label='Reporte de Optimizacion',
+                                 command=self.report_optimization_ubuntu)
         ubuntu_menu.add_separator()
         ubuntu_menu.add_command(label='Type Checker',
                                 command=self.report_typeChecker_ubuntu)
@@ -112,13 +136,14 @@ class MainWindow(object):
         ver_scroll = Scrollbar(frame, orient='vertical')
         # Crea un scroll por si el texto es muy largo
         self.entrada = Text(frame, borderwidth=0, height=35,
-                            width=70, bg='#2e2e31', foreground='#fff', undo=True, wrap='none', xscrollcommand=hor_scroll.set, yscrollcommand=ver_scroll.set)
+                            width=70, bg='#2e2e31', foreground='#fff', undo=True, wrap='none',
+                            xscrollcommand=hor_scroll.set, yscrollcommand=ver_scroll.set)
         self.entrada.grid(row=4, column=0, padx=30)
 
         ver_scroll.config(command=self.entrada.yview)
-        ver_scroll.grid(column=0, row=4, sticky='NE',ipady=255,padx=12)
+        ver_scroll.grid(column=0, row=4, sticky='NE', ipady=255, padx=12)
         hor_scroll.config(command=self.entrada.xview)
-        hor_scroll.grid(column=0, row=5, sticky='NS',ipadx=255)
+        hor_scroll.grid(column=0, row=5, sticky='NS', ipadx=255)
 
         # Para este editor aun hay que ver si lo usamos como consola para errores, si no lo quitamos
         dataWindow = DataWindow()
@@ -164,17 +189,18 @@ class MainWindow(object):
         self.archivo = guardar_info
 
     # Opcion para ejecutar el texto de entrada del editor
-    def analizar_entrada(self):
+    def ejecutar_sql(self):
         global report_error
         global report_ast
 
         DataWindow().clearConsole()
         SymbolTable().destroy()
+        ThreeAddressCode().destroy()
 
         texto = self.entrada.get('1.0', END)
         result = parse(texto)
         # jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
-        print(result)  # Imprime el AST
+        # print(result)  # Imprime el AST
 
         report_error = ReportError()
         if len(ErrorController().getList()) > 0:
@@ -182,65 +208,135 @@ class MainWindow(object):
         else:
             result2 = parse2(texto)
             report_ast = result2
-            messagebox.showinfo('EXITO', 'SE FINALIZO EL ANALISIS CON EXITO')
 
-            # # ---------- TEST ---------
-            # for inst in result:
-            #     # esto es por los select anidados (subquerys), no encontre otra menera
-            #     # de retornar la tabla dibujada, lo hacia en mi clase
-            #     # pero si lo dejaba ahi me tronaban las subquery,
-            #     # prueben que no les de problema
-            #     if isinstance(inst, Select):
-            #         result = inst.process(0)
-            #         if isinstance(result, DataFrame):
-            #             DataWindow().consoleText(format_df(result))
-            #         elif isinstance(result, list):
-            #             DataWindow().consoleText(format_table_list(result))
-            #     else:
-            #         inst.process(0)
+            # ---------- TEST ---------
+            for inst in result:
+                # esto es por los select anidados (subquerys), no encontre otra menera
+                # de retornar la tabla dibujada, lo hacia en mi clase
+                # pero si lo dejaba ahi me tronaban las subquery,
+                # prueben que no les de problema
+                if isinstance(inst, Select):
+                    result = inst.process(0)
+                    if isinstance(result, DataFrame):
+                        DataWindow().consoleText(format_df(result))
+                    elif isinstance(result, list):
+                        DataWindow().consoleText(format_table_list(result))
+                else:
+                    inst.process(0)
             # ---------- TEST ---------
 
+    def generar_tac(self):
+        global report_error
+        global report_ast
+
+        DataWindow().clearConsole()
+        SymbolTable().destroy()
+        ThreeAddressCode().destroy()
+
+        texto = self.entrada.get('1.0', END)
+        result = parse(texto)
+        print(result)  # Imprime el AST
+        report_error = ReportError()
+
+        if len(ErrorController().getList()) > 0:
+            messagebox.showerror('ERRORES', 'Se encontraron errores')
+        else:
+            
+            ambito = Ambito(None)
+            for inst in result:
+                inst.compile(ambito)
+
+            DataWindow().consoleText(ThreeAddressCode().getCode())
+            ThreeAddressCode().writeFile()
+
+            result2 = parse2(texto) #AST GRAFICO
+            report_ast = result2
+    
+    def generar_optimization(self):
+        global report_error
+        global report_ast
+        global report_optimization
+
+        DataWindow().clearConsole()
+        OptimizationController().destroy()
+
+        texto = self.entrada.get('1.0', END)
+        list_instrucciones = parse_optimizacion(texto)
+        # print(result)  # Imprime el AST
+        report_error = ReportError()
+        report_optimization = ReportOfOptimization()
+        if len(ErrorController().getList()) > 0:
+            messagebox.showerror('ERRORES', 'Se encontraron errores')
+        else:
+            for index, inst in enumerate(list_instrucciones):
+                if inst != None:
+                    result = inst.process(0)
+                    regla1(result, list_instrucciones, index)
+                    regla2(result, list_instrucciones, index)
+                    regla3(result, list_instrucciones, index)
+                    regla4y5(result, list_instrucciones, index)
+                    regla6(result, list_instrucciones, index)
+                    regla7(result, list_instrucciones, index)
+            DataWindow().consoleText('CD3 RETURNED: Optimization Finished')
+
     # Para mostrar el editor
+
     def report_ast_ubuntu(self):
         global report_ast
         graficadora = GraficarAST()
         report = open('./team28/ast.dot', 'w')
         report.write(graficadora.generate_string(report_ast))
         report.close()
-        os.system('dot -Tpng ./team28/ast.dot -o ./team28/ast.png')
+        os.system('dot -Tpdf  ast.dot -o ast.pdf')
         # Si estan en ubuntu dejan esta linea si no la comentan y descomentan la otra para windows
-        os.system('xdg-open ./team28/ast.png')
+        os.system('xdg-open ast.pdf')
         # os.open('ast.png')
         # os.startfile('ast.png')
+
+    def report_optimization_windows(self):
+        global report_optimization
+        report = open('optiimization.dot', 'w')
+        report.write(report_optimization.get_report())
+        report.close()
+        os.system('dot -Tpdf optiimization.dot -o optiimization.pdf')
+        os.startfile('optiimization.pdf')
+    
+    def report_optimization_ubuntu(self):
+        global report_optimization
+        report = open('optiimization.dot', 'w')
+        report.write(report_optimization.get_report())
+        report.close()
+        os.system('dot -Tpdf optiimization.dot -o optiimization.pdf')
+        os.system('xdg-open  optiimization.pdf')
 
     def report_errors_ubuntu(self):
         global report_error
         report = open('./team28/errors.dot', 'w')
         report.write(report_error.get_report())
         report.close()
-        os.system('dot -Tpng ./team28/errors.dot -o ./team28/error.png')
-        os.system('xdg-open ./team28/error.png')
+        os.system('dot -Tpdf errors.dot -o error.pdf')
+        os.system('xdg-open  error.pdf')
 
     def report_symbols_ubuntu(self):
         report = open('symbolTable.dot', 'w')
         report.write(SymbolTableReport().generateReport())
         report.close()
-        os.system('dot -Tpng ./team28/symbolTable.dot -o ./team28/symbolTable.png')
-        os.system('xdg-open ./team28/symbolTable.png')
+        os.system('dot -Tpdf symbolTable.pdf -o symbolTable.pdf')
+        os.system('xdg-open symbolTable.pdf')
 
     def report_typeChecker_ubuntu(self):
         report = open('typeChecker.dot', 'w')
         report.write(TypeCheckerReport().generateReport())
         report.close()
-        os.system('dot -Tpng ./team28/typeChecker.dot -o ./team28/typeChecker.png')
-        os.system('xdg-open ./team28/typeChecker.png')
+        os.system('dot -Tpdf typeChecker.dot -o typeChecker.pdf')
+        os.system('xdg-open typeChecker.pdf')
 
     def report_bnf_ubuntu(self):
         global report_ast
         report = open('bfn.txt', 'w')
         report.write(report_ast.production)
         report.close()
-        os.system('xdg-open ./team28/bfn.txt')
+        os.system('xdg-open bfn.txt')
 
     def report_ast_windows(self):
         global report_ast
@@ -248,30 +344,30 @@ class MainWindow(object):
         report = open('ast.dot', 'w')
         report.write(graficadora.generate_string(report_ast))
         report.close()
-        os.system('dot -Tpng ast.dot -o ast.png')
-        os.startfile('ast.png')
+        os.system('dot -Tpdf ast.dot -o ast.pdf')
+        os.startfile('ast.pdf')
 
     def report_errors_windows(self):
         global report_error
         report = open('errors.dot', 'w')
         report.write(report_error.get_report())
         report.close()
-        os.system('dot -Tpng errors.dot -o  error.png')
-        os.startfile('error.png')
+        os.system('dot -Tpdf errors.dot -o  error.pdf')
+        os.startfile('error.pdf')
 
     def report_symbols_windows(self):
         report = open('symbolTable.dot', 'w')
         report.write(SymbolTableReport().generateReport())
         report.close()
-        os.system('dot -Tpng symbolTable.dot -o symbolTable.png')
-        os.startfile('symbolTable.png')
+        os.system('dot -Tpdf symbolTable.dot -o symbolTable.pdf')
+        os.startfile('symbolTable.pdf')
 
     def report_typeChecker_windows(self):
         report = open('typeChecker.dot', 'w')
         report.write(TypeCheckerReport().generateReport())
         report.close()
-        os.system('dot -Tpng typeChecker.dot -o typeChecker.png')
-        os.startfile('typeChecker.png')
+        os.system('dot -Tpdf typeChecker.dot -o typeChecker.pdf')
+        os.startfile('typeChecker.pdf')
 
     def report_bnf_windows(self):
         global report_ast

@@ -11,6 +11,10 @@ from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 import numpy as np
 import pandas as pd
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
+from Optimizador.C3D import Valor as ClassValor
+from Optimizador.C3D import OP_ARITMETICO as ClassOP_ARITMETICO
+from Optimizador.C3D import Identificador as ClassIdentificador
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class Select(Instruccion):
                        #dist  tipo  lcol  lcol  linners where lrows
@@ -385,6 +389,21 @@ class Select(Instruccion):
                    tablaRes2.append(nodo)
                 print(nodo)
         return tablaRes2
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getLastTemporal()
+        t1 = c3d.getTemporal()
+        if self.lcol == "*":
+            code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\"*\"", "STRING"), ClassOP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+        
+        if self.lcol2 != None:
+            code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\" FROM " + self.lcol2[0].id + "\"", "STRING"), ClassOP_ARITMETICO.SUMA))
+
+        return code
 
 '''
 columnas y filas

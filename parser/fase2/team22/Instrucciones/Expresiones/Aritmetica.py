@@ -305,3 +305,6 @@ class Aritmetica(Instruccion):
                 arbol.consola.append(error.toString())
                 return error
         return None
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)

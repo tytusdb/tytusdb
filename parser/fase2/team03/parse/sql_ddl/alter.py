@@ -24,7 +24,11 @@ class AlterDatabaseRename(ASTNode):
             old_symbol = table.get(self.name, SymbolType.DATABASE)
             old_symbol.name = self.new_name
             table.update(old_symbol)
-            return "You renamed table " + str(self.name) + " to "+ str(self.new_name)
+            return "You renamed table " + str(self.name) + " to " + str(self.new_name)
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'ALTER DATABASE {self.name} RENAME TO {self.new_name};'
 
 
 class AlterDatabaseOwner(ASTNode):
@@ -41,6 +45,10 @@ class AlterDatabaseOwner(ASTNode):
         old_symbol.owner = self.owner.val
         table.update(old_symbol)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'ALTER DATABASE {self.name} OWNER TO {self.owner.val};'
 
 
 class AlterTableAddColumn(ASTNode):
@@ -83,6 +91,11 @@ class AlterTableAddColumn(ASTNode):
             table.add(column_symbol)
             return True
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        result_field_type = self.field_type.val
+        return f'ALTER TABLE {self.table_name} ADD COLUMN {self.field_name} {result_field_type};'
+
 
 # TODO Pending to add checks
 class AlterTableAddCheck(ASTNode):
@@ -99,6 +112,10 @@ class AlterTableAddCheck(ASTNode):
         old_symbol.check_exp = self.validation  # Change for append if needed to handle multiple ones
         table.update(old_symbol)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class AlterTableDropColumn(ASTNode):
@@ -141,6 +158,10 @@ class AlterTableDropColumn(ASTNode):
             table.delete(column_symbol.id)
             return True
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'ALTER TABLE {self.table_name} DROP COLUMN {self.field_name};'
+
 
 # TODO add constraint
 class AlterTableAddConstraint(ASTNode):
@@ -154,6 +175,10 @@ class AlterTableAddConstraint(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 # TODO add fk
@@ -181,8 +206,11 @@ class AlterTableAddFK(ASTNode):
         column_symbol.fk_table = table_reference.id
         column_symbol.fk_field = column_reference.id
         table.update(column_symbol)
-
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class AlterTableNotNull(ASTNode):
@@ -204,6 +232,12 @@ class AlterTableNotNull(ASTNode):
         table.update(column_symbol)
         return True
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} ' \
+               f'SET {"NOT NULL" if self.allows_null is False else "NULL"};'
+
+
 # TODO drop constraint
 class AlterTableDropConstraint(ASTNode):
     def __init__(self, table_name, cons_name, line, column, graph_ref):
@@ -215,6 +249,10 @@ class AlterTableDropConstraint(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return ''
 
 
 class AlterTableRenameColumn(ASTNode):
@@ -237,6 +275,10 @@ class AlterTableRenameColumn(ASTNode):
         column_symbol.name = result_new_name
         table.update(column_symbol)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'ALTER TABLE {self.table_name} RENAME COLUMN {self.old_name} TO {self.new_name};'
 
 
 class AlterTableChangeColumnType(ASTNode):
@@ -261,3 +303,8 @@ class AlterTableChangeColumnType(ASTNode):
         column_symbol.length = result_field_length
         table.update(column_symbol)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} ' \
+               f'TYPE {self.field_type.generate(table,tree)};'

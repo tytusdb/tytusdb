@@ -3,7 +3,10 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select.Select import Select
 from Instrucciones.Tablas.Tablas import Tablas
-
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
+from Optimizador.C3D import Valor as ClassValor
+from Optimizador.C3D import OP_ARITMETICO as ClassOP_ARITMETICO
+from Optimizador.C3D import Identificador as ClassIdentificador
 
 class SelectLista(Instruccion):
     def __init__(self, lista, strGram, linea, columna):
@@ -57,6 +60,31 @@ class SelectLista(Instruccion):
                 n.lista_de_campos = columnas
                 n.data = valores
                 return n
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "SELECT "))
+
+        sizeCol = len(self.lista)
+        contador = 1
+        for el in self.lista:
+            code += el.generar3D(tabla, arbol)
+            if contador != sizeCol:
+                t0 = c3d.getLastTemporal()
+                t1 = c3d.getTemporal()
+                code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\", \"", "STRING"), ClassOP_ARITMETICO.SUMA))
+            contador += 1
+
+        t0 = c3d.getLastTemporal()
+        t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\";\"", "STRING"), ClassOP_ARITMETICO.SUMA))
+        
+        code.append(c3d.asignacionTemporalStack(t1))
+        code.append(c3d.aumentarP())
+
+        return code
 
 
 class Alias():

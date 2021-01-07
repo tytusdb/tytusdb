@@ -38,10 +38,10 @@ def createDatabase(database):
     if database and validateIdentifier(database):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', 'Databases')
         root = dataBaseTree.getRoot()
-        if dataBaseTree.search(root, database.upper()):
+        if dataBaseTree.search(root, database):
             return 2
         else:
-            dataBaseTree.add(root, database.upper())
+            dataBaseTree.add(root, database)
             serializable.write('./Data/BPlusMode/', database, AVLTree.AVLTree())
             serializable.update('./Data/BPlusMode/', 'Databases', dataBaseTree)
         return 0
@@ -64,14 +64,14 @@ def alterDatabase(dataBaseOld, dataBaseNew) -> int:
     if validateIdentifier(dataBaseOld) and validateIdentifier(dataBaseNew):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         root = dataBaseTree.getRoot()
-        if not dataBaseTree.search(root, dataBaseOld.upper()):
+        if not dataBaseTree.search(root, dataBaseOld):
             return 2
-        if dataBaseTree.search(root, dataBaseNew.upper()):
+        if dataBaseTree.search(root, dataBaseNew):
             return 3
-        dataBaseTree.delete(root, dataBaseOld.upper())
+        dataBaseTree.delete(root, dataBaseOld)
         root = dataBaseTree.getRoot()
         serializable.Rename('./Data/BPlusMode/', dataBaseOld, dataBaseNew)
-        dataBaseTree.add(root, dataBaseNew.upper())
+        dataBaseTree.add(root, dataBaseNew)
         serializable.update('./Data/BPlusMode/', 'Databases', dataBaseTree)
         return 0
     else:
@@ -84,9 +84,9 @@ def dropDatabase(database):
     if validateIdentifier(database):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         root = dataBaseTree.getRoot()
-        if not dataBaseTree.search(root, database.upper()):
+        if not dataBaseTree.search(root, database):
             return 2
-        dataBaseTree.delete(root, database.upper())
+        dataBaseTree.delete(root, database)
         serializable.delete('./Data/BPlusMode/' + database)
         serializable.update('./Data/BPlusMode/', 'Databases', dataBaseTree)
         return 0
@@ -105,15 +105,15 @@ def createTable(database, table, numberColumns):
         # Get the databases tree
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         # Get the dbNode
-        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database.upper())
+        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
         # If DB exist
         if databaseNode:
             tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-            if tablesTree.search(tablesTree.getRoot(), table.upper()):
+            if tablesTree.search(tablesTree.getRoot(), table):
                 return 3
             else:
                 # Creates new table node
-                tablesTree.add(tablesTree.getRoot(), table.upper())
+                tablesTree.add(tablesTree.getRoot(), table)
                 serializable.update(f"./Data/BPlusMode/{database}/", database, tablesTree)
                 # Creates bin file for the new table
                 serializable.write(f"./Data/BPlusMode/{database}/", table, BplusTree.BPlusTree(5, numberColumns))
@@ -130,7 +130,7 @@ def showTables(database):
     checkData()
     if validateIdentifier(database):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
-        if dataBaseTree.search(dataBaseTree.getRoot(), database.upper()):
+        if dataBaseTree.search(dataBaseTree.getRoot(), database):
             db = serializable.Read(f"./Data/BPlusMode/{database}/", database)
             dbKeys = db.postOrder(db.getRoot())
             return [] if len(dbKeys) == 0 else dbKeys[:-1].split("-")
@@ -148,11 +148,11 @@ def extractTable(database, table):
         # Get the databases tree
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         # Get the dbNode
-        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database.upper())
+        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
         # If DB exist
         if databaseNode:
             tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-            if tablesTree.search(tablesTree.getRoot(), table.upper()):
+            if tablesTree.search(tablesTree.getRoot(), table):
                 table = serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
                 return list(table.lista().values())
             else:
@@ -171,11 +171,11 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
         # Get the databases tree
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         # Get the dbNode
-        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database.upper())
+        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
         # If DB exist
         if databaseNode:
             tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-            if tablesTree.search(tablesTree.getRoot(), table.upper()):
+            if tablesTree.search(tablesTree.getRoot(), table):
                 table = serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
                 tableList = list(table.lista().values())
                 validList = []
@@ -219,11 +219,11 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
         if validateIdentifier(database) and validateIdentifier(table):
             dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
             # Get the dbNode
-            databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database.upper())
+            databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
             # If DB exist
             if databaseNode:
                 tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-                if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+                if not tablesTree.search(tablesTree.getRoot(), table):
                     return 3  # table no existente
                 else:
                     tuplaTree = serializable.Read(f"./Data/BPlusMode/{database}/{table}/", table)
@@ -252,11 +252,11 @@ def alterDropPK(database: str, table: str) -> int:
         if validateIdentifier(database) and validateIdentifier(table):
             dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
             root = dataBaseTree.getRoot()
-            if not dataBaseTree.search(root, database.upper()):
+            if not dataBaseTree.search(root, database):
                 return 2  # database no existente
             else:
                 tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-                if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+                if not tablesTree.search(tablesTree.getRoot(), table):
                     return 3  # table no existente
                 PKsTree = serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
                 res = PKsTree.DeletePk()
@@ -279,17 +279,17 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
     checkData()
     if validateIdentifier(tableOld) and validateIdentifier(tableNew):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
-        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database.upper())
+        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
         if databaseNode:
                 tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
                 rootT = tablesTree.getRoot()
-                if not tablesTree.search(rootT, tableOld.upper()):
+                if not tablesTree.search(rootT, tableOld):
                     return 3 #tableOLD no existente
-                elif tablesTree.search(rootT, tableNew.upper()):
+                elif tablesTree.search(rootT, tableNew):
                     return 4 #tableNEW existente
-                tablesTree.delete(rootT, tableOld.upper())
+                tablesTree.delete(rootT, tableOld)
                 serializable.Rename(f'./Data/BPlusMode/{database}/', tableOld, tableNew)
-                tablesTree.add(tablesTree.getRoot(), tableNew.upper())
+                tablesTree.add(tablesTree.getRoot(), tableNew)
                 serializable.update(f"./Data/BPlusMode/{database}/", database, tablesTree)
                 return 0
         else:
@@ -306,11 +306,11 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
             # Get the databases tree
             dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
             # Get the dbNode
-            databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database.upper())
+            databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
             # If DB exist
             if databaseNode:
                 tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-                if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+                if not tablesTree.search(tablesTree.getRoot(), table):
                     return 3  # table no existente
                 else:
                     tuplaTree = serializable.Read(f"./Data/BPlusMode/{database}/{table}/", table)
@@ -336,11 +336,11 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
             # Get the databases tree
             dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
             # Get the dbNode
-            databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database.upper())
+            databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
             # If DB exist
             if databaseNode:
                 tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-                if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+                if not tablesTree.search(tablesTree.getRoot(), table):
                     return 3  # table no existente
                 else:
                     tuplaTree = serializable.Read(f"./Data/BPlusMode/{database}/{table}/", table)
@@ -367,15 +367,15 @@ def dropTable(database: str, table: str) -> int:
         checkData()
         # Get the databases tree
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
-        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database.upper())
+        databaseNode = dataBaseTree.search(dataBaseTree.getRoot(), database)
         # If DB exist
         if databaseNode:
             tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
             root = tablesTree.getRoot()
-            if not tablesTree.search(root, table.upper()):
+            if not tablesTree.search(root, table):
                 return 3 #table no existente
             else:
-                tablesTree.delete(root, table.upper())
+                tablesTree.delete(root, table)
                 serializable.delete(f"./Data/BPlusMode/{database}/{table}")
                 
                 serializable.update(f"./Data/BPlusMode/{database}/", database, tablesTree)
@@ -398,11 +398,11 @@ def insert(database, table, register):
     if validateIdentifier(database) and validateIdentifier(table):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         root = dataBaseTree.getRoot()
-        if not dataBaseTree.search(root, database.upper()):
+        if not dataBaseTree.search(root, database):
             return 2  # database no existente
         else:
             tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-            if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            if not tablesTree.search(tablesTree.getRoot(), table):
                 return 3  # table no existente
             PKsTree = serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
             res = PKsTree.register(register)
@@ -420,10 +420,10 @@ def loadCSV(filepath, database, table):
     if validateIdentifier(database) and validateIdentifier(table):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         root = dataBaseTree.getRoot()
-        if not dataBaseTree.search(root, database.upper()):
+        if not dataBaseTree.search(root, database):
             return []
         tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-        if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+        if not tablesTree.search(tablesTree.getRoot(), table):
             return []
         try:
             res = []
@@ -447,11 +447,11 @@ def extractRow(database, table, columns):
     if validateIdentifier(database) and validateIdentifier(table):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         root = dataBaseTree.getRoot()
-        if not dataBaseTree.search(root, database.upper()):
+        if not dataBaseTree.search(root, database):
             return []  # database no existente
         else:
             tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-            if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            if not tablesTree.search(tablesTree.getRoot(), table):
                 return []  # table no existente
             PKsTree = serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
             return PKsTree.search(columns)  # exito
@@ -465,11 +465,11 @@ def update(database, table, register, columns):
     if validateIdentifier(database) and validateIdentifier(table):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         root = dataBaseTree.getRoot()
-        if not dataBaseTree.search(root, database.upper()):
+        if not dataBaseTree.search(root, database):
             return 2  # database no existente
         else:
             tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-            if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            if not tablesTree.search(tablesTree.getRoot(), table):
                 return 3  # table no existente
             PKsTree = serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
             try:
@@ -488,11 +488,11 @@ def delete(database, table, columns):
     if validateIdentifier(database) and validateIdentifier(table):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         root = dataBaseTree.getRoot()
-        if not dataBaseTree.search(root, database.upper()):
+        if not dataBaseTree.search(root, database):
             return 2  # database no existente
         else:
             tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-            if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            if not tablesTree.search(tablesTree.getRoot(), table):
                 return 3  # table no existente
             PKsTree = serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
             if len(PKsTree.search(columns)):
@@ -514,11 +514,11 @@ def truncate(database, table):
     if validateIdentifier(database) and validateIdentifier(table):
         dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
         root = dataBaseTree.getRoot()
-        if not dataBaseTree.search(root, database.upper()):
+        if not dataBaseTree.search(root, database):
             return 2  # database no existente
         else:
             tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
-            if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            if not tablesTree.search(tablesTree.getRoot(), table):
                 return 3  # table no existente
             PKsTree = serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
             try:
