@@ -8141,14 +8141,22 @@ class CrearIndice(Instruccion):
         global ts_global, baseActual
         global ListErr, Ejecucion
 
-        r = ts_global.obtenerIndice(self.id_indice)
+        laTabla:CreateTable = ts_global.obtenerTabla(self.id_tabla)
+        if laTabla is not None:
 
-        if r is None:
-            ts_global.agregarIndice(self)
-            imprir("CREATE INDEX:  Indice " + str(self.id_indice) + " creado con exito!")
+            r = ts_global.obtenerIndice(self.id_indice)
+            if r is None:
+
+                ts_global.agregarIndice(self)
+                imprir("CREATE INDEX:  Indice " + str(self.id_indice) + " creado con exito!")
+
+            else:
+                imprir("CREATE INDEX:  El Indice No se Creo ya que existe!")
+                er = ErrorRep('Semantico', 'El indice ya existe', 0)
+                LisErr.agregar(er)
         else:
-            imprir("CREATE INDEX:  El Indice No se Creo ya que existe!")
-            er = ErrorRep('Semantico', 'El indice ya existe', 0)
+            imprir("CREATE INDEX:  La Tabla no existe!")
+            er = ErrorRep('Semantico', 'La tabla no Existe', 0)
             LisErr.agregar(er)
 
 
@@ -8181,6 +8189,8 @@ class AlterIndiceCol(Instruccion):
         else:
             ts_global.alterColumnIndice(self.id_indice, self.no_col, self.tipo_set)
             imprir("ALTER INDEX: La Columna en el  Indice " + str(self.id_indice) +  " Se actualizo correctamente!")
+
+
 
 
 # ------------------------  Alter index Name

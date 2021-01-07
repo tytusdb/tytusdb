@@ -2826,7 +2826,7 @@ def p_Funciones_General(t):
 
 
 def p_Store_ProcedureGeneral(t):
-    'FUNCIONESS  :  FUNTIONE  PROCEDURE  ID  PARIZQ PARAMETROSG PARDER  ARGU_N_N  ALIASRET CODEEPSILON DECLAEP CODE '
+    'FUNCIONESS  :  FUNTIONE  PROCEDURE  ID  PARIZQ PARAMETROSG PARDER  ARGU_N_N_PROCEDURE  ALIASRET CODEEPSILON DECLAEP CODE '
     t[0]=Procedimientos_(t[1],t[3],t[7],t[8], t[5], t[9], t[10], t[11])
     rep_gramatica('\n <TR><TD> FUNCIONESS →      FUNTIONE  PROCEDURE  ID  PARIZQ PARAMETROSG PARDER CODIGO  </TD><TD> t[0]=Procedimientos_(t[1],t[3],t[7],t[8], t[5], t[9], t[10], t[11]) </TD></TR>')
 
@@ -2984,6 +2984,32 @@ def p_Code_DolarEpsilon(t):
     t[0] = ""
 
 
+#------------------------------------ Tipos de Argumento Procemiento
+def p_ArgumentosProcedimientos(t):
+    'ARGU_N_N_PROCEDURE  :  LANGUAGE SQL '
+    t[0] = str(t[1]) +" "+ str(t[2])
+
+def p_ArgumentosProcedimientosRes(t):
+    'ARGU_N_N_PROCEDURE  :  LANGUAGE PLPGSQL'
+    t[0] = str(t[1]) + " " + str(t[2])
+
+def p_ArgumentosProceduresArgS(t):
+    'ARGU_N_N_PROCEDURE  :  ID '
+    t[0] = str(t[1])
+
+def p_ArgumentosProceduresArgSIDID(t):
+    'ARGU_N_N_PROCEDURE  :  ID ID'
+    t[0] = str(t[1])+str(t[2])
+
+
+
+def p_ArgumentosProcedimientosArgEpsilon(t):
+    'ARGU_N_N_PROCEDURE  :  '
+    t[0] = ""
+
+
+
+
 
 #-------------------------------------  Tipos de Argumento
 def p_ArgumentosFunciones(t):
@@ -2998,6 +3024,10 @@ def p_ArgumentoProcedure(t):
 def p_ArgumentosFuncionesArg(t):
     'ARGU_N_N  :  ID PUNTOCOMA'
     t[0] = str(t[1])
+
+def p_ArgumentosFunctionArgSIDID(t):
+    'ARGU_N_N  :  ID ID PUNTOCOMA'
+    t[0] = str(t[1])+str(t[2])
 
 def p_ArgumentosFuncionesArgEpsilon(t):
     'ARGU_N_N  :  '
@@ -3289,8 +3319,14 @@ def p_where_in_e(t):
 
 
 def p_AlterIndex(t):
-    'EDITINDEX  :   ALTER INDEX  IFEXISTI  ID ALTER COLEMN  ENTERO SET STATISTICS  ENTERO  PUNTOCOMA'
+    'EDITINDEX  :   ALTER INDEX  IFEXISTI  ID ALTER COLEMN  ENTERO SET STATISTICS  TIPOCOLUMNS  PUNTOCOMA'
     t[0] = AlterIndiceCol(t[4],t[7],t[10])
+
+
+
+
+
+
 
 
 def p_AlterNameIndex(t):
@@ -3316,6 +3352,13 @@ def p_ColeIndex1(t):
 def p_ColeIndexEpsilon1(t):
     'COLEMN   :   '
     t[0]= ""
+
+
+
+def p_TipoDato_Alter(t):
+    '''TIPOCOLUMNS   :  ENTERO
+                     |  ID '''
+    t[0] = t[1]
 
 
 

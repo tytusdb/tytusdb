@@ -213,6 +213,7 @@ class Codigo3d:
                     o = Optimizacion(original, co)
                     listaOpt.append(o)
 
+
             original2 = "if " + str(condicion) + ": goto ."+verdadero+" else: goto."+falso
             if instancia.condicion.operador == OPERACION_RELACIONAL.IGUALQUE:
                 if instancia.condicion.exp1.val != instancia.condicion.exp2.val:

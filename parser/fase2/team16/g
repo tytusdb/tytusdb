@@ -12,7 +12,7 @@ graph g {
                                 <TD bgcolor="#BEF781">FILA</TD>
                                 <TD bgcolor="#BEF781"></TD>
                             </TR>
-                            <TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>1</TD><TD>378</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA CENTRAL</TD><TD>378</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>378</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>4</TD><TD>496</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA ZONA 12</TD><TD>496</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>496</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>4</TD><TD>322</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA ZONA 11</TD><TD>322</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>322</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>4</TD><TD>51</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA ZONA 1</TD><TD>51</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>51</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>idbodega</TD><TD>5</TD><TD>34</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>bodega</TD><TD>BODEGA ZONA 10</TD><TD>34</TD><TD> </TD></TR><TR><TD>DBFase2</TD><TD>tbbodega</TD><TD>estado</TD><TD>1</TD><TD>34</TD><TD> </TD></TR> <TR>
+                             <TR>
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
@@ -31,7 +31,7 @@ graph g {
                                 <TD bgcolor="#BEF781"> </TD>
                                 <TD bgcolor="#BEF781"> </TD>
                             </TR>
-                            <TR><TD>tbbodega</TD><TD>idbodega</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbbodega</TD><TD>idbodega</TD><TD>primary</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbbodega</TD><TD>bodega</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR> <TR>
+                            <TR><TD>tbProducto</TD><TD>idproducto</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>idproducto</TD><TD>primary</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>producto</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>fechacreacion</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR> <TR>
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
@@ -49,7 +49,7 @@ graph g {
                                 <TD bgcolor="#BEF781">  </TD>
                                 <TD bgcolor="#BEF781">  </TD>
                                 <TD bgcolor="#BEF781">  </TD>
-                            </TR><TR><TD COLSPAN="6" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbbodega</TD><TD>idbodega</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbbodega</TD><TD>bodega</TD><TD>varchar(100)</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbbodega</TD><TD>estado</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR> <TR>
+                            </TR><TR><TD COLSPAN="6" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbProducto</TD><TD>idproducto</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>producto</TD><TD>varchar(150)</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>fechacreacion</TD><TD>date</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>estado</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR> <TR>
                                 <TD></TD>
                                 <TD></TD>
                                 <TD></TD>
@@ -123,7 +123,7 @@ graph g {
                                 <TD bgcolor="#BEF781">HASH</TD>
                                 <TD bgcolor="#BEF781"></TD>
                                 <TD bgcolor="#BEF781"></TD>
-                            </TR>
+                            </TR><TR><TD>idx_producto</TD><TD>tbProducto</TD><TD>True</TD><TD>False</TD><TD></TD><TD> </TD></TR><TR><TD>nombre</TD><TD>tbProducto</TD><TD>True</TD><TD>False</TD><TD></TD><TD> </TD></TR>
                             <TR>
                                 <TD></TD>
                                 <TD></TD>
@@ -140,7 +140,7 @@ graph g {
                                 <TD bgcolor="#BEF781">ORDEN</TD>
                                 <TD bgcolor="#BEF781">NULLS</TD>
                                 <TD bgcolor="#BEF781">STATISTICS</TD>
-                                <TD bgcolor="#BEF781">ID INDICE</TD>
-                                <TD bgcolor="#BEF781">ID TABLA</TD>
-                            </TR></TABLE>>]
+                                <TD bgcolor="#BEF781">ID TABLA </TD>
+                                <TD bgcolor="#BEF781">ID INDICE </TD>
+                            </TR><TR><TD>producto</TD><TD>None</TD><TD>None</TD><TD>producto</TD><TD>tbProducto</TD><TD>idx_producto</TD></TR><TR><TD>idproducto</TD><TD>None</TD><TD>None</TD><TD>None</TD><TD>tbProducto</TD><TD>nombre</TD></TR><TR><TD>estado</TD><TD>None</TD><TD>None</TD><TD>estado</TD><TD>tbProducto</TD><TD>nombre</TD></TR><TR><TD>fechacreacion</TD><TD>None</TD><TD>None</TD><TD>None</TD><TD>tbProducto</TD><TD>nombre</TD></TR></TABLE>>]
 }

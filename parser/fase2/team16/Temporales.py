@@ -26,6 +26,7 @@ class Temporales:
         self.parametro += 1
         return str(variable)
 
+
     def varRetorno(self):
         variable = "r" + str(self.retorno)
         self.retorno += 1

@@ -1,6 +1,7 @@
 from enum import Enum
 from Instruccion import *
 from random import *
+from six import *
 
 class TIPO_DATO(Enum) :
     ENTERO = 1
@@ -227,15 +228,61 @@ class TablaDeSimbolos():
         Contador = 0
         if not id_indice in self.Indices:
             print("No esta el indice")
+
         else:
             ob: CrearIndice = self.obtenerIndice(id_indice)
 
+
+
             # buscamos la columna con el numero asociado
             for l in ob.columnas:
+
                 if (Contador == no_col):
+
                     print("Este editaremos")
                     self.Indices[id_indice].columnas[Contador].statistics = Tipo
                     print("Se cambia el dato de la columna por el nuevo")
+
+
+                    #buscar la tabla que contiene indice
+                    nombret = self.Indices[id_indice].id_tabla
+                    tabla:CreateTable = self.obtenerTabla(nombret)
+
+                    if nombret is not None:
+                        Contador2=0
+                        #Recorrer la lista columnas  Segun indice
+
+                        if(isinstance(Tipo,int)):
+                            for col in tabla.cuerpo:
+                                if Contador2 == Tipo:
+                                    nuevacol = col.id
+                                    self.Indices[id_indice].columnas[no_col].id_columna = str(nuevacol)
+                                    print("Este cambio hisee  INT <<<<<<<<<<<<")
+                                    print(str(nuevacol))
+                                    print("Este cambio hisee  INT <<<<<<<<<<<< 2")
+                                    print(str(self.Indices[id_indice].columnas[no_col].id_columna))
+
+                                Contador2 += 1
+                            # buscar el indice que nos mandan
+
+                        elif(isinstance(Tipo,string_types )):
+                            for col in tabla.cuerpo:
+                                if Tipo == col.id:
+                                    nuevacol = col.id
+                                    self.Indices[id_indice].columnas[no_col].id_columna = str(nuevacol)
+                                Contador2+=1
+                            # buscar el indice que nos mandan
+                        else:
+                            print("No se que error")
+                    else:
+                        print("Tabla no existe")
+
+
+
+
+
+
+
                 Contador += 1
 
 
