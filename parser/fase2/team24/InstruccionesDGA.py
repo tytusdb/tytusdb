@@ -55,6 +55,21 @@ class createdb(instruccion):
         self.owner = owner
         self.mode = mode
 
+    def traducir(self):
+        #global traduccion
+        traduccion = '\t'
+        traduccion += 'sql.execute("CREATE DATABASE'
+        if self.ifnotexists != "":
+            traduccion += ' IF NOT EXISTS'
+        traduccion += ' '+self.iden
+        if self.owner != "":
+            traduccion += ' OWNER =' + self.owner
+        if self.mode != "":
+            traduccion += ' MODE =' + self.mode
+        traduccion += ';")'
+        print(traduccion)
+        return traduccion + ';\n'
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -98,6 +113,13 @@ class showdb(instruccion):
     def __init__(self,nombre):
         self.nombre = nombre
 
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("SHOW DATABASES '+ self.nombre + ';")'
+        traduccion += '\n'
+        print(traduccion)
+        return traduccion
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -124,6 +146,18 @@ class showdb(instruccion):
 class alterdb(instruccion):
     def __init__(self,alterdb2):
         self.alterdb2 = alterdb2
+
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("ALTER DATABASE'
+        if self.alterdb2 != None:
+            traduccion += ' ' + self.alterdb2.iden
+        if self.alterdb2.alterdb3 != None:
+            traduccion += ' RENAME TO ' + self.alterdb2.alterdb3.iden
+        traduccion += ';")'
+        traduccion += '\n'
+        print(traduccion)
+        return traduccion
 
     def ejecutar(self):
         global resultadotxt
@@ -176,7 +210,18 @@ class dropdb(instruccion):
         self.ifexists = ifexists
         self.iden =iden
 
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("DROP DATABASE'
+        if self.ifexists != "":
+            traduccion += ' IF EXISTS'
+        traduccion += ' ' + self.iden
+        traduccion += ';)"'
+        traduccion += '\n'
+        return traduccion
+
     def ejecutar(self):
+        global NombreDB
         global resultadotxt
         global cont
         global tabla
@@ -212,6 +257,14 @@ class usedb(instruccion):
     def __init__(self, iden):
         self.iden =iden
 
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("USE DATABASE '+ self.iden
+        traduccion += '";)'
+        traduccion += '\n'
+        print(traduccion)
+        return traduccion
+
     def ejecutar(self):
         global resultadotxt
         global NombreDB
@@ -226,6 +279,29 @@ class createtb(instruccion):
         self.iden = iden
         self.coltb = coltb
         self.inherits = inherits
+
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("CREATE TABLE '+ self.iden +'('
+        for column in self.coltb:
+            if isinstance(column, columna):
+                if isinstance(column.tipo, str):
+                    traduccion += column.iden + ' ' + column.tipo
+                elif isinstance(column.tipo, reservadatipo):
+                    traduccion += column.iden + ' ' + str(column.tipo.restipo)
+                    if (column.tipo.cantn is not None):
+                        traduccion += '(' + str(column.tipo.cantn) +')'
+                if column.notnull != "":
+                    traduccion += ' ' + 'NOT NULL'
+                if str('PRIMARY KEY').lower() in str(column.key).lower():
+                    traduccion +=  ' ' + 'PRIMARY KEY'
+                traduccion += ','
+        traduccion += ');")'
+        traduccion = traduccion.replace(',)',')')
+        traduccion += '\n'
+        print(traduccion)
+        return traduccion
+
 
     def ejecutar(self):
         global resultadotxt
@@ -350,6 +426,13 @@ class droptb(instruccion):
     def __init__(self,iden):
         self.iden = iden
 
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("DROP TABLE '+ self.iden + ';")'
+        traduccion += '\n'
+        print(traduccion)
+        return traduccion
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -385,6 +468,39 @@ class altertb(instruccion):
     def __init__(self,iden, altertb2):
         self.iden = iden
         self.altertb2 = altertb2
+
+    def traducir(self):
+        traduccion = ''
+        for alteracion in self.altertb2:
+            subtraduccion = '\t' + 'sql.execute("ALTER TABLE '+ self.iden + ' '
+            #Este es un Add
+            if isinstance(alteracion, alteracion11):
+                subtraduccion += ' ' + alteracion.texto + ' '
+                if isinstance(alteracion.addprop, addprop):
+                    temp = alteracion.addprop
+                    subtraduccion += temp.texto
+                    if isinstance(temp.lista, columna):
+                        temp2 = temp.lista
+                        subtraduccion += ' ' + temp2.iden + ' '
+                        if isinstance(temp2.tipo, str):
+                            subtraduccion += ' ' + temp2.tipo + ' '
+                        elif isinstance(temp2.tipo, reservadatipo):
+                            subtraduccion += temp2.iden + ' ' + str(temp2.tipo.restipo)
+                            if (temp2.tipo.cantn is not None):
+                                subtraduccion += '(' + str(temp2.tipo.cantn) +')'
+                subtraduccion += ';")'
+                subtraduccion += '\n'
+                traduccion += subtraduccion
+            #Este es un drop
+            if isinstance(alteracion, alteracion1):
+                subtraduccion = '\t' + 'sql.execute("ALTER TABLE '+ self.iden + ' '
+                subtraduccion += ' ' + alteracion.texto + ' ' + alteracion.iden + ' '
+                subtraduccion += ';")'
+                subtraduccion += '\n'
+                traduccion += subtraduccion
+        print(traduccion)
+        return traduccion
+
 
     def ejecutar(self):
         global resultadotxt
@@ -492,6 +608,26 @@ class insert(instruccion):
     def __init__(self,iden, valores):
         self.iden = iden
         self.valores = valores
+
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("INSERT INTO '+ self.iden + ' VALUES('
+
+        for v in self.valores:
+            if isinstance(v , (int, float, complex)):
+                traduccion += str(v) + ","
+            elif isinstance(v, str):
+                traduccion += "'"+ v + "'" + ","
+            elif isinstance(v, bool):
+                traduccion += str(v) + ","
+            elif "ejecutar" in dir(v) :
+                traduccion += str(v.ejecutar()) + ","
+
+        traduccion = traduccion.replace(",)",")")
+        traduccion += ');")'
+        traduccion += '\n'
+        print(traduccion.replace(',)',')'))
+        return traduccion.replace(',)',')')
 
     def ejecutar(self):
         global resultadotxt
@@ -1049,7 +1185,6 @@ class trig_atan22(funcionestrig):
     def __init__(self, exp1, exp2 ):
         self.exp1 = exp1
         self.exp2 = exp2
-         
 
     def ejecutar(self):
         
@@ -1233,7 +1368,6 @@ class trig_tand2(funcionestrig):
 class trig_sinh2(funcionestrig):
     def __init__ (self,exp):
         self.exp = exp
-         
 
     def ejecutar(self):
         
@@ -1519,7 +1653,61 @@ class update(instruccion):
         self.iden = iden
         self.cond = cond
         self.wherecond = wherecond
-    
+
+    def traducir(self):
+        traduccion = '\t'
+        traduccion += 'sql.execute("UPDATE'
+        traduccion += ' ' + self.iden
+        NombreColumna = self.cond.iden
+        traduccion += ' SET ' + NombreColumna
+        traduccion += ' = '
+        if isinstance(self.cond.tipo , (int, float, complex)):
+            traduccion += str(self.cond.tipo)
+        elif isinstance(self.cond.tipo , str):
+            traduccion += "'" + self.cond.tipo + "'"
+        elif isinstance(self.cond.tipo, bool):
+            traduccion += str(self.cond.tipo )
+        else:
+            try:
+                temp = self.cond.tipo.ejecutar()
+                if isinstance(temp, (int, float, complex)):
+                    traduccion += str(temp)
+                elif isinstance(temp, str):
+                    traduccion += temp
+                elif isinstance(temp, bool):
+                    traduccion += str(temp)
+            except:
+                '''error'''
+
+        traduccion += ' WHERE '
+        tempwherw = self.wherecond
+
+        if isinstance(tempwherw,wherecond1):
+            traduccion += ' ' + tempwherw.iden
+            traduccion += ' ' + tempwherw.signo
+            if isinstance(tempwherw.tipo, str):
+                traduccion += " '" + tempwherw.tipo + "'"
+            elif isinstance(tempwherw.tipo, (int, float, complex)):
+                traduccion += ' ' + str(tempwherw.tipo)
+            if "ejecutar" in dir(self.wherecond.tipo):
+                traduccion += ' ' + str(self.wherecond.tipo.ejecutar())
+        if isinstance(tempwherw, wherecond):
+            traduccion += ' ' + tempwherw.iden + ' BETWEEN'
+            try:
+                traduccion += ' ' + str(tempwherw.tipo.ejecutar())
+            except:
+                traduccion += ' ' + tempwherw.tipo
+            traduccion += ' AND '
+            try:
+                traduccion += ' ' + str(tempwherw.tipo2.ejecutar()) + ' '
+            except:
+                traduccion += ' ' + str(tempwherw.tipo2) + ' '
+
+        traduccion += ';")'
+        traduccion += '\n'
+        print(traduccion)
+        return traduccion
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -1625,6 +1813,36 @@ class delete(instruccion):
     def __init__(self,iden, wherecond):
         self.iden = iden
         self.wherecond = wherecond
+
+    def traducir(self):
+        tempwherw = self.wherecond
+        traduccion = '\t'
+        traduccion += 'sql.execute("DELETE FROM ' + self.iden + ' WHERE '
+        if isinstance(tempwherw,wherecond1):
+            traduccion += ' ' + tempwherw.iden
+            traduccion += ' ' + tempwherw.signo
+            if isinstance(tempwherw.tipo, str):
+                traduccion += " '" + tempwherw.tipo + "'"
+            elif isinstance(tempwherw.tipo, (int, float, complex)):
+                traduccion += ' ' + str(tempwherw.tipo)
+            if "ejecutar" in dir(self.wherecond.tipo):
+                traduccion += ' ' + str(self.wherecond.tipo.ejecutar())
+        if isinstance(tempwherw, wherecond):
+            traduccion += ' ' + tempwherw.iden + ' BETWEEN'
+            try:
+                traduccion += ' ' + str(tempwherw.tipo.ejecutar())
+            except:
+                traduccion += ' ' + tempwherw.tipo
+            traduccion += ' AND '
+            try:
+                traduccion += ' ' + str(tempwherw.tipo2.ejecutar()) + ' '
+            except:
+                traduccion += ' ' + str(tempwherw.tipo2) + ' '
+
+        traduccion += ';")'
+        traduccion += '\n'
+        print(traduccion)
+        return traduccion
 
     def ejecutar(self):
         global resultadotxt
@@ -1917,3 +2135,5 @@ class alterind(instruccion):
     def __init__(self,buscarid,nuevoid):
         self.buscarid = buscarid
         self.nuevoid = nuevoid
+
+

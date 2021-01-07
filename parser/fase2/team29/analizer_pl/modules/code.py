@@ -9,6 +9,9 @@ from analizer_pl.C3D.operations import if_stmt
 from analizer_pl.C3D.operations import else_stmt
 from analizer_pl.C3D.operations import elseif_stmt
 from analizer_pl.C3D.operations import func_call
+from analizer_pl.C3D.operations import execute_
+from analizer_pl.C3D.operations import drop_func
+from analizer_pl.C3D.operations import datatype
 from analizer_pl.sql_statement.create import create_database
 from analizer_pl.sql_statement.create import create_index
 from analizer_pl.sql_statement.create import create_table
@@ -121,3 +124,20 @@ def Truncate(name, row, column):
 
 def FunctionCall(id, params, isBlock, temp, row, column):
     return func_call.FunctionCall(id, params, isBlock, temp, row, column)
+
+
+def Execute_(procedures, row, column):
+    return execute_.Execute(procedures, row, column)
+
+
+def DropFunction(id,  row, column):
+    return drop_func.DropFunction(id,  row, column)
+
+def Identifier(id, isBlock, row, column):
+    return datatype.Identifier(id, isBlock, row, column)
+
+def BinaryExpression(temp, exp1, exp2, operator, isBlock, row, column):
+    return datatype.BinaryExpression(temp, exp1, exp2, operator, isBlock, row, column)
+
+def UnaryExpression(temp, exp, operator, isBlock, row, column):
+    return datatype.UnaryExpression(temp, exp, operator, isBlock, row, column)

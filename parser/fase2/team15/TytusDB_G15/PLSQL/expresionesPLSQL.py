@@ -52,10 +52,6 @@ class ExpresionNegativo():
     def __init__(self, exp) :
         self.exp = exp
 
-class ExpresionScanf():
-    def __init__(self):
-        ''''''
-
 class  ExpresionNOTBIN() :
     def __init__(self, exp) :
         self.exp = exp

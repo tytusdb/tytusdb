@@ -31,15 +31,21 @@ class DataWindow(object):
         x_scroll.grid(column=1, row=5, sticky='NS',ipadx=255)
 
     def consoleText(self, data):
-        self._console.insert(INSERT, f"{data}\n\n")
+
+        if self._console is None:
+            print(f"{data}\n\n")
+        else:
+            self._console.insert(INSERT,f"{data}\n\n")
 
     def consoleTable(self, headers: list, rows: list):
         table = PrettyTable()
         table.field_names = headers
         for row in rows:
             table.add_row(row)
-
-        self._console.insert(INSERT, f"{table}\n\n")
+        if self._console is None:
+            print(INSERT, f"{table}\n\n")
+        else:
+            self._console.insert(INSERT, f"{table}\n\n")
 
     def clearConsole(self):
         self._console.delete('1.0', END)

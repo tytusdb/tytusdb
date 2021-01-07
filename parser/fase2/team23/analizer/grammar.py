@@ -173,9 +173,11 @@ def p_body(t):
         | truncateStmt S_PUNTOCOMA
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
-        | functionStmt S_PUNTOCOMA
+        | functionStmt
+        | procedureStmt
+        | executePL S_PUNTOCOMA
         | ifStmt R_END R_IF S_PUNTOCOMA
-        | expresion S_PUNTOCOMA
+        | asignacionStmt S_PUNTOCOMA
     """
     try:
         t[0] = t[1]
@@ -1384,6 +1386,8 @@ def p_dropStmt(t):
     """
     dropStmt : R_DROP R_TABLE ifExists idOrString
     | R_DROP R_DATABASE ifExists idOrString
+    | R_DROP R_FUNCTION ifExists idOrString
+    | R_DROP R_FUNCTION ifExists idOrString S_PARIZQ S_PARDER
     | R_DROP R_PROCEDURE ifExists idOrString S_PARIZQ S_PARDER
     | R_DROP R_INDEX concurrenly ifExists idOrString
     """
@@ -2172,7 +2176,7 @@ PostgreSQL = list()
 
 def p_error(t):
     try:
-        print(t)
+        #print(t)
         print("Error sintáctico en '%s'" % t.value)
         syntax_errors.insert(
             len(syntax_errors), ["Error sintáctico en '%s'" % t.value, t.lineno]

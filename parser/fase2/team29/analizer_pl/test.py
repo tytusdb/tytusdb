@@ -8,7 +8,7 @@ import analizer_pl.grammar as grammar2
 s = """ 
 
 --insert into tb values(1,2);
-CREATE procedure myFuncion(texto text, puta integer) RETURNS text AS $$
+CREATE procedure myFuncion(texto text, puta integer) as $$
 declare 
 	texto2 integer := 2;
 BEGIN

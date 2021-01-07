@@ -1,6 +1,6 @@
 from analizer_pl.abstract import instruction
 from analizer_pl.statement.expressions import code
-
+from analizer_pl.reports.Nodo import Nodo
 
 class CreateType(instruction.Instruction):
     def __init__(self, exists, name, row, column, values):
@@ -19,3 +19,5 @@ class CreateType(instruction.Instruction):
         out += self.values + ");"
         out += '")\n'
         return code.C3D(out, "create_type", self.row, self.column)
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_CREATE_TYPE")

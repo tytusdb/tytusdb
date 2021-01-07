@@ -4,7 +4,7 @@ from tkinter import *
 
 
 class Pantalla_TS:
-    def __init__(self, parent, ts,indexes,functions):
+    def __init__(self, parent, ts, indexes, functions):
         self.top = Toplevel(parent)
         self.top.transient(parent)
         self.top.grab_set()
@@ -16,16 +16,16 @@ class Pantalla_TS:
         label.pack(anchor=W)
         self.tabControl = ttk.Notebook(self.top, width=650, height=300)
         self.show_symbolTable(ts)
-        self.show_index(indexes,"Indices")
-        self.show_index(functions,"Funciones")
+        self.show_index(indexes, "Indices")
+        self.show_index(functions, "Funciones")
         self.tabControl.pack()
         btn = Button(self.top, text="Regresar", command=self.close)
         btn.pack(side=TOP, anchor=E, padx=25)
         self.top.mainloop()
 
-    def show_index(self,table,name):
+    def show_index(self, table, name):
         if table != None:
-            self.create_table(table,name)                
+            self.create_table(table, name)
 
     def show_symbolTable(self, consults):
         if consults != None:
@@ -33,10 +33,10 @@ class Pantalla_TS:
             for consult in consults:
                 i += 1
                 if consult != None:
-                    self.create_table(consult,"Tabla de Simbolos "+str(i))
+                    self.create_table(consult, "Tabla de Simbolos " + str(i))
         self.tabControl.pack()
 
-    def create_table(self,table,name):
+    def create_table(self, input, name):
         frame = Frame(self.tabControl, height=300, width=450, bg="#d3d3d3")
         # Creacion del scrollbar
         table_scroll = Scrollbar(frame, orient="vertical")
@@ -49,7 +49,7 @@ class Pantalla_TS:
         )
         table_scroll.config(command=table.yview)
         table_scrollX.config(command=table.xview)
-        self.fill_table(table[0], table[1], table)
+        self.fill_table(input[0], input[1], table)
         table_scroll.pack(side=RIGHT, fill=Y)
         table_scrollX.pack(side=BOTTOM, fill=X)
         table.pack(side=LEFT, fill=BOTH)
