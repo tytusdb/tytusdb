@@ -647,7 +647,7 @@ def p_if_inst(t):
                  | if_inst   return_opt  PUNTOCOMA
                  | if_inst stm_if PUNTOCOMA
                     '''
-
+    graph_ref = ''
     token = t.slice[2]
     if token.type == "statements_sql":
         childsProduction  = addNotNoneChild(t,[2])
@@ -700,18 +700,18 @@ def p_if_inst0(t):
 
 # TODO @ESTEBAN tener en cuenta  que el return esta como None
 def p_stm_begin(t):
-    '''stm_begin   : declares_opt BEGIN statements_begin exception_opt  END  if_opt '''
+    '''stm_begin   : declares_opt BEGIN statements_begin exception_opt return_opt END  if_opt '''
     lista = None
-    childsProduction = addNotNoneChild(t,[4,6])
+    childsProduction = addNotNoneChild(t,[4,7])
     if t[1] != None:
         lista = t[1][0]
         childsProduction.append(lista.graph_ref)
-    ret = None
+    ret = t[5]
     lista2 = None
     if t[3] != None:
         lista2 = t[3][0]
         childsProduction.append(lista2.graph_ref)
-    graph_ref = graph_node(str("stm_begin"), [lista, t[2], lista2, t[4], t[5], t[6]],childsProduction )
+    graph_ref = graph_node(str("stm_begin"), [lista, t[2], lista2, t[4], t[5], t[7]],childsProduction )
     addCad("**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tBegin \<STATEMENTS_BEGIN>  [\<EXCEPTION_OPT>]  tEnd  [\<IF_OPT>]   ")
     t[0] = FunctionBody(t[1], t[3], t[4], ret, t.slice[2].lineno, t.slice[2].lexpos, graph_ref)
 
@@ -2770,6 +2770,10 @@ def p_type(t):
             graph_ref = graph_node(str(str(t[1]) + "(" + str(t[3])+ "," + str(t[5])+ ")" ))
             addCad("**\<TYPE>** ::= tDouble '(' tEntero ',' tEntero ')'")
             t[0] = TypeDef(token.type, t[3], t[5], token.lineno, token.lexpos, graph_ref)
+        elif token.type == "VARCHAR" or token.type == "CHAR":
+            graph_ref = graph_node(str(str(t[1]) + "(" + str(t[3])+ ")" ))
+            addCad("**\<TYPE>** ::= tDouble '(' tEntero ',' tEntero ')'")
+            t[0] = TypeDef(token.type, 0, t[3], token.lineno, token.lexpos, graph_ref)
 
     else:
         graph_ref = graph_node(str(t[1]))
