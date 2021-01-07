@@ -29,6 +29,49 @@ class Use(Instruccion):
         arbol.excepciones.append(error)
         arbol.consola.append(error.toString())
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+        
+    def getCodigo(self, tabla, arbol):
+        _id = self.valor
+        strGram = self.strGram
+        linea = self.linea
+        columna = self.columna
+        
+        num_params = 4
+        
+        temp_param_id = arbol.getTemporal()
+        temp_param_strGram = arbol.getTemporal()
+        temp_param_linea = arbol.getTemporal()
+        temp_param_columna = arbol.getTemporal()
+        temp_tam_func = arbol.getTemporal()
+        temp_index_param_id = arbol.getTemporal()
+        temp_index_param_strGram = arbol.getTemporal()
+        temp_index_param_linea = arbol.getTemporal()
+        temp_index_param_columna = arbol.getTemporal()
+        temp_return = arbol.getTemporal()
+        temp_result = arbol.getTemporal()
+        
+        codigo = f"\t#USE DATABASE 3D\n"
+        codigo += f"\t{temp_param_id} = \"{_id}\"\n"
+        codigo += f"\t{temp_param_strGram} = \"{strGram}\"\n"
+        codigo += f"\t{temp_param_linea} = {linea}\n"
+        codigo += f"\t{temp_param_columna} = {columna}\n"
+        codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
+        codigo += f"\t{temp_index_param_id} = {temp_tam_func} + 1\n"
+        codigo += f"\tstack[{temp_index_param_id}] = {temp_param_id}\n"
+        codigo += f"\t{temp_index_param_strGram} = {temp_tam_func} + 2\n"
+        codigo += f"\tstack[{temp_index_param_strGram}] = {temp_param_strGram}\n"
+        codigo += f"\t{temp_index_param_linea} = {temp_tam_func} + 3\n"
+        codigo += f"\tstack[{temp_index_param_linea}] = {temp_param_linea}\n"
+        codigo += f"\t{temp_index_param_columna} = {temp_tam_func} + 4\n"
+        codigo += f"\tstack[{temp_index_param_columna}] = {temp_param_columna}\n"
+        codigo += f"\tpointer = pointer + {num_params}\n"
+        codigo += f"\tinter_useDataBase()\n"
+        codigo += f"\t{temp_return} = pointer + 0\n"
+        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        codigo += f"\tpointer = pointer - {num_params}\n"
+        codigo += f"\tprint({temp_result})\n"
+        
+        arbol.consola.append(codigo)
 '''
 instruccion = Use("hola mundo",None, 1,2)
 

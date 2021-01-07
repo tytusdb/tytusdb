@@ -2,7 +2,7 @@ from models.instructions.shared import ObjectReference
 from models.instructions.Expression.expression import Expression, PrimitiveData
 from models.Other.ambito import Ambito, Variable
 from controllers.three_address_code import ThreeAddressCode
-
+from models.instructions.DML.select import Select
 class DeclaracionID(Expression):
     
     def __init__(self, id, data_type, value, line, column) :
@@ -18,7 +18,7 @@ class DeclaracionID(Expression):
     def compile(self, environment):
         val = self.value.compile(environment)
         pos = ThreeAddressCode().stackCounter
-        environment.addVar(self.id, self.data_type, val, pos, self.line, self.column)
+        environment.addVar(self.id, self.data_type, val.value, pos, self.line, self.column)
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = {val.value}")
         ThreeAddressCode().addStack(temp)
@@ -38,10 +38,17 @@ class AsignacionID(Expression):
 
     def compile(self, environment: Ambito):
         var_search = environment.getVar(self.id)
-        val = self.value.compile(environment)
+
+        if isinstance(self.value, Select):
+            val = self.value.compile(environment)
+            ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {val}")
+            return
+        else:
+            val = self.value.compile(environment)
 
         if var_search == None:
-            print("VARIABLE NO DECLARADA " + self.id)
+            print("VARIABLE NO DECLARADA ")
+            print(self.id)
             return
 
         if isinstance(self.value, ObjectReference): #Buscar variable

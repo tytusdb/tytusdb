@@ -13,6 +13,7 @@ class Length(Expression):
         self.alias = f'LENGTH({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -52,6 +53,7 @@ class Substring(Expression):
         self.down = down
         self.line = line
         self.column = column
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -93,6 +95,7 @@ class Substr(Expression):
         self.down = down
         self.line = line
         self.column = column
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -132,6 +135,7 @@ class Trim(Expression):
         self.alias = f'TRIM({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -167,6 +171,7 @@ class MD5(Expression):
         self.alias = f'MD5({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -202,6 +207,7 @@ class SHA256(Expression):
         self.alias = f'SHA256({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -314,6 +320,7 @@ class Convert(Expression):
         self.alias = f'CONVERT({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -396,6 +403,7 @@ class Decode(Expression):
         self.alias = f'DECODE({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 

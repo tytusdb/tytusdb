@@ -84,3 +84,18 @@ class Identificador(Instruccion):
             return error
         self.tipo = variable.tipo
         return variable.valor.ejecutar(tabla, arbol)
+
+
+    def getCodigo(self, tabla,arbol):
+        temp_param_id = arbol.getTemporal()
+        temp_value = arbol.getTemporal()
+        
+        symbol = arbol.getSymbol(self.id, arbol.getScope())
+        
+        codigo = f"\t{temp_param_id} = pointer + {symbol['pointer']}\n"
+        codigo += f"\t{temp_value} = stack[{temp_param_id}]\n"
+                
+        return { 'codigo' : codigo, 'dir' : temp_value }
+
+    def toString(self):
+        return self.id

@@ -69,3 +69,41 @@ class AlterTableAddColumn(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
+
+
+    def getCodigo(self, tabla, arbol):
+        tabla = f"{self.tabla}"
+        columna = f"{self.columna}"
+        #tipo = f"{self.tipo}"
+        campos = f""
+        
+        for item in self.lista_col:
+            campos += f" ADD COLUMN {item.getCodigo(columna, arbol)}{', ' if self.lista_col.index(item) < len(self.lista_col) - 1 else ''}"
+            
+        table = f"ALTER TABLE {tabla} {campos};"
+        
+        num_params = 1
+        
+        temp_param1 = arbol.getTemporal()
+        temp_tam_func = arbol.getTemporal()
+        temp_index_param1 = arbol.getTemporal()
+        temp_return = arbol.getTemporal()
+        temp_result = arbol.getTemporal()
+        
+        codigo = f"\t#ALTER TABLE ADD COLUMN 3D\n"
+        codigo += f"\t{temp_param1} = f\"{table}\"\n"
+        codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
+        codigo += f"\t{temp_index_param1} = {temp_tam_func} + 1\n"
+        codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
+        codigo += f"\tpointer = pointer + {num_params}\n"
+        codigo += f"\tinter()\n"
+        codigo += f"\t{temp_return} = pointer + 0\n"
+        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        codigo += f"\tpointer = pointer - {num_params}\n"
+        codigo += f"\tprint({temp_result})\n"
+        
+        arbol.consola.append(codigo)
+
+
+    
+   

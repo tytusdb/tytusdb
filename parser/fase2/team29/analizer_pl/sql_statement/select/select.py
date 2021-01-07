@@ -1,5 +1,6 @@
 from analizer_pl.abstract import instruction
-
+from analizer_pl.statement.expressions import code
+from analizer_pl.reports.Nodo import Nodo
 
 class Select(instruction.Instruction):
     def __init__(
@@ -26,4 +27,14 @@ class Select(instruction.Instruction):
         self.distinct = distinct
 
     def execute(self, environment):
-        pass
+        out = "fase1.execution(dbtemp + "
+        out += '" '
+        out += "SELECT "
+        out += self.exists + " "
+        out += self.name + " ("
+        out += self.columns + " )"
+        out += self.inherits + ";"
+        out += '")\n'
+        return code.C3D(out, "select", self.row, self.column)
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_SELECT")

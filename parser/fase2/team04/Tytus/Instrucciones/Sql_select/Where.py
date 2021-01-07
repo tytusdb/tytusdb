@@ -16,7 +16,10 @@ class Where(Instruccion):
         val = self.valor.ejecutar(tabla,arbol)
         print("hola me ejecuto en el where porque ahora soy un update")
         return val
-        
+
+    def  getCodigo(self,tabla,arbol):
+         temporal = self.valor.toString()   
+         return temporal 
         
 
 '''

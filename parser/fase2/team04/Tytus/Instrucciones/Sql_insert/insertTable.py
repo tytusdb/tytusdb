@@ -366,3 +366,145 @@ class insertTable(Instruccion):
         elif (tipoColumna.tipo == Tipo_Dato.BOOLEAN) and (tipoValor.tipo == Tipo_Dato.BOOLEAN):
             return True
         return False
+
+    def getCodigo(self, tabla, arbol):
+        #valor, tipo, lcol, lexpre, strGram ,linea, columna
+        valor = f"{self.valor}"
+        tipo = f"{self.tipo}"
+        columnas = f""
+        expresiones = f""
+        gramatica = f"{self.strGram}"
+        linea = f"{self.linea}"
+        columna = f"{self.columna}"
+
+        tabla = f"{self.valor}"
+        #tipo = f"{self.tipo}"
+        campos = f""   
+        if (self.lcol is not None):
+            for item in self.lcol:
+                columnas += f"\t{item}{', ' if self.lcol.index(item) < len(self.lcol) - 1 else ''}\n"
+            
+            for item2 in self.lexpre:
+                parametro = item2.toString()
+                try:
+                    if(str.isdigit(parametro) == False):
+                        parametro = f"'{parametro}'"
+
+                    campos += f"\t{parametro}{', ' if self.lexpre.index(item2) < len(self.lexpre) - 1 else ''}\n"
+                except:
+                    print("no se pudo evaluar si el parametro era dígito")
+            
+            table = f"insert into {tabla} \n"
+            table += f"({columnas}) values(\n"  
+            table += f"{campos}"
+            table += f"\t);"
+        else:  
+            # for c in range(0,len(listaColumnas)):
+            #     campos += f"\t{self.lexpre[c]}{', ' if self.lexpre.index(c) < len(self.lexpre) - 1 else ''}\n"  
+
+            for item in self.lexpre:
+                parametro = item.toString()
+                try:
+                    if(str.isdigit(parametro) == False):
+                        parametro = f"'{parametro}'"
+                    
+                    campos += f"{parametro}{', ' if self.lexpre.index(item) < len(self.lexpre) - 1 else ''}"
+                except:
+                    print("no se pudo evaluar si el parametro era dígito")
+
+        
+            table = f"insert into {tabla} values( {campos});"
+        
+        
+        expresiones = campos 
+
+        #----------------------------------------------
+        num_params = 1
+        
+        temp_param1 = arbol.getTemporal()
+        temp_tam_func = arbol.getTemporal()
+        temp_index_param1 = arbol.getTemporal()
+        temp_return = arbol.getTemporal()
+        temp_result = arbol.getTemporal()
+
+        codigo = f"\t#INSERT TABLE 3D\n"
+        codigo += f"\t{temp_param1} = f\"{table}\"\n"
+        codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
+        codigo += f"\t{temp_index_param1} = {temp_tam_func} + 1\n"
+        codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
+        codigo += f"\tpointer = pointer + {num_params}\n"
+        codigo += f"\tinter()\n"
+        codigo += f"\t{temp_return} = pointer + 0\n"
+        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        codigo += f"\tpointer = pointer - {num_params}\n"
+        codigo += f"\tprint({temp_result})\n"
+        
+        arbol.consola.append(codigo)
+
+        #-------------------------------------
+        # num_params = 7
+        
+        # temp_param1 = arbol.getTemporal()
+        # temp_param2 = arbol.getTemporal()
+        # temp_param3 = arbol.getTemporal()
+        # temp_param4 = arbol.getTemporal()
+        # temp_param5 = arbol.getTemporal()
+        # temp_param6 = arbol.getTemporal()
+        # temp_param7 = arbol.getTemporal()
+
+        # temp_tam_func = arbol.getTemporal()
+
+        # temp_index_param1 = arbol.getTemporal()
+        # temp_index_param2 = arbol.getTemporal()
+        # temp_index_param3 = arbol.getTemporal()
+        # temp_index_param4 = arbol.getTemporal()
+        # temp_index_param5 = arbol.getTemporal()
+        # temp_index_param6 = arbol.getTemporal()
+        # temp_index_param7 = arbol.getTemporal()
+
+        # temp_return = arbol.getTemporal()
+        # temp_result = arbol.getTemporal()
+        
+        # #valor, tipo, lcol, lexpre, strGram ,linea, columna
+        # codigo = f"\t#INSERT TABLE 3D\n"
+        # codigo += f"\t{temp_param1} = {valor}\n"
+        # codigo += f"\t{temp_param2} = {tipo}\n"
+        # codigo += f"\t{temp_param3} = list({columnas})\n"
+        # codigo += f"\t{temp_param4} = list({expresiones})\n"
+        # codigo += f"\t{temp_param5} = \"\"\n"
+        # codigo += f"\t{temp_param6} = {-1}\n"
+        # codigo += f"\t{temp_param7} = {-1}\n"
+
+        # codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
+
+        # codigo += f"\t{temp_index_param1} = {temp_tam_func} + 1\n"
+        # codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
+
+        # codigo += f"\t{temp_index_param2} = {temp_tam_func} + 2\n"
+        # codigo += f"\tstack[{temp_index_param2}] = {temp_param2}\n"
+
+        # codigo += f"\t{temp_index_param3} = {temp_tam_func} + 3\n"
+        # codigo += f"\tstack[{temp_index_param3}] = {temp_param3}\n"
+ 
+        # codigo += f"\t{temp_index_param4} = {temp_tam_func} + 4\n"
+        # codigo += f"\tstack[{temp_index_param4}] = {temp_param4}\n"
+        
+        # codigo += f"\t{temp_index_param5} = {temp_tam_func} + 5\n"
+        # codigo += f"\tstack[{temp_index_param5}] = {temp_param5}\n"
+
+        # codigo += f"\t{temp_index_param6} = {temp_tam_func} + 6\n"
+        # codigo += f"\tstack[{temp_index_param6}] = {temp_param6}\n"
+        
+        # codigo += f"\t{temp_index_param7} = {temp_tam_func} + 7\n"
+        # codigo += f"\tstack[{temp_index_param7}] = {temp_param7}\n"
+        
+        # codigo += f"\tpointer = pointer + {num_params}\n"
+        # codigo += f"\tinter_insertTable()\n"
+        # codigo += f"\t{temp_return} = pointer + 0\n"
+        # codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        # codigo += f"\tpointer = pointer - {num_params}\n"
+        # codigo += f"\tprint({temp_result})\n"
+        
+        # arbol.consola.append(codigo)
+
+        

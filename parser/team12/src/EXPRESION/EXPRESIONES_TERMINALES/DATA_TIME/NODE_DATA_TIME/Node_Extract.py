@@ -18,3 +18,11 @@ class Extract_Expresion(Expresion):
     
     def execute(self, eviroment):
         print("")
+    
+    def compile(self, eviroment):
+        print("text")
+
+    def getText(self):
+        time = self.hijos[0]
+        cadenaTexto2 = self.hijos[1]
+        return "EXTRACT("+ time.nombreNodo + ' FROM TIMESTAMP ' + '\'' + cadenaTexto2.valor + '\''  +")"

@@ -4,6 +4,10 @@ from analizer_pl.statement.expressions import code
 from analizer_pl.abstract.environment import Environment
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.C3D.operations import return_
+from analizer_pl import grammar
+
+environments = list()
+
 
 class Block(Instruction):
     def __init__(
@@ -17,7 +21,9 @@ class Block(Instruction):
         self.label = label
 
     def execute(self, environment):
+        global environments
         newEnv = Environment(environment)
+        environments.append([self.function.id, newEnv])
         decl = ""
         bl = ""
         defFunc = self.function.execute(newEnv).value
@@ -37,7 +43,13 @@ class Block(Instruction):
         else:
             for b in self.blocks:
                 bl += b.execute(newEnv).value
-        return code.C3D(defFunc + decl + bl + "\tlabel .endLabel\n", "block", self.row, self.column)
+        grammar.optimizer_.addLabel(str("endLabel"), self.row)
+        return code.C3D(
+            defFunc + decl + bl + "\tstack.append(None)\n" + "\tlabel .endLabel\n\n",
+            "block",
+            self.row,
+            self.column,
+        )
 
     def dot(self):
         new = Nodo("BLOCK")

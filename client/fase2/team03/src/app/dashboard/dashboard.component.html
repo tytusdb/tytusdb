@@ -28,7 +28,7 @@
         </div>
         <div class="second">    
             <form action="cgi-bin/control.cgi" method="post" enctype="text/plain" name= "miform">
-                <textarea  name="textA"  placeholder="Ingrese su consulta SQL" id="textA" cols="129" rows="15" style="position:absolute;top:16px;left:650px;z-index:1;">
+                <textarea  name="textA"  placeholder="Ingrese su consulta SQL" [(ngModel)]="mensaje" id="textA" cols="129" rows="15" style="position:absolute;top:16px;left:650px;z-index:1;">
                 </textarea>
             </form>
             <a class="btn  btn-outline-primary btn-user btn-lg " type="submit" (click)="consulta($event)" style="position:absolute;top:410px;left:1725px;z-index:1;">
@@ -37,7 +37,7 @@
             
             
             <form action="cgi-bin/control.cgi" method="post" enctype="text/plain" name= "miform">
-                <textarea  name="textB"   id="textB" cols="129" rows="15" style="position:absolute;top:485px;left:650px;z-index:1;">
+                <textarea  name="textB" [(ngModel)]="mensaje2" id="textB" cols="129" rows="15" style="position:absolute;top:485px;left:650px;z-index:1;">
                 </textarea>
             </form>
         </div>

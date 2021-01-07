@@ -39,7 +39,11 @@ class Insert(Instruction):
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
 
     def process(self, instruction):
         if self.arr_columns == None:
@@ -165,7 +169,11 @@ class Update(Instruction):
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
 
     def process(self, instruction):
         # Obteniendo tabla de la cual voy a hacer el update
@@ -269,6 +277,7 @@ class ColumnVal(Instruction):
     def __init__(self,  column, value):
         self.column = column
         self.value = value
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -289,6 +298,7 @@ class Opt1(Instruction):
     def __init__(self, isAsterisco, alias):
         self.isAsterisco = isAsterisco
         self.alias = alias
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -320,7 +330,11 @@ class Delete(Instruction):
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
 
     def process(self, instrucction):
         # Obteniendo tabla de la cual voy a borrar

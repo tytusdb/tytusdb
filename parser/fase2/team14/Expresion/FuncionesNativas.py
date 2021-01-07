@@ -20,15 +20,18 @@ class FuncionesNativas(Expresion):
         self.identificador = identificador
         self.expresiones = expresiones
         self.stringsql = self.identificador+'('
-        i=0
-        
-        for i in range(0,len(self.expresiones),1):
-            if(i==0):
-                self.stringsql += self.expresiones[i].stringsql
-            else:
-                self.stringsql += ', ' + self.expresiones[i].stringsql
-            i=i+1
-        self.stringsql += ')'
+        i = 0
+        if self.expresiones!=None:
+            for i in range(0, len(self.expresiones), 1):
+                if str(self.identificador).lower() == 'convert':
+                    self.stringsql += '\'' + self.expresiones[i].stringsql+'\' as '+ self.expresiones[i].tipo.tipo
+                else:
+                    if (i == 0):
+                        self.stringsql += self.expresiones[i].stringsql
+                    else:
+                        self.stringsql += ', ' + self.expresiones[i].stringsql
+                i = i + 1
+            self.stringsql += ')'
        
         # print("en funci==========",self.identificador,self.expresiones[0])
 

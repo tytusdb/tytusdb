@@ -35,3 +35,11 @@ class Function_Cbrt(Expresion):
             self.valorExpresion = None
             # Reportar Error
             return self.valorExpresion
+
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+        exp = self.hijos[0]
+        stringReturn = 'cbrt('+ exp.getText() +')'
+        return stringReturn
