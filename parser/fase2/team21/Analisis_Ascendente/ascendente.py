@@ -652,9 +652,14 @@ def p_createIndex5(t):
 def p_asignacionpl1(t):
     'instruccion : ID DOSPUNTOS IGUAL E PTCOMA'
     global columna
+    concatena_cosas = []
     t[0] = AsignacionF2(1, t[1], t[4], lexer.lineno, columna)
     varGramatical.append('instruccion ::= ID DOSPUNTOS IGUAL E PTCOMA')
     varSemantico.append('instruccion = AsignacionF2(1, ID, E)')
+
+    print("holahola")
+    print(t[4]);
+
 
 def p_asignacionpl2(t):
     'instruccion : ID IGUAL E PTCOMA'
@@ -3439,12 +3444,46 @@ def procesar_instrucciones(instrucciones, ts):
                 #print("Estas en el caso 2")
             elif (instr.caso == 3):
                 variable = selectInst.Select_inst()
-                selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
+                #selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
+                try:
+                    data = selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
+                    data = str(data[0]).replace("\'","")
+                    data = str(data).replace("[", "")
+                    data = str(data).replace("]", "")
+
+                    print("data3 ", data)
+                    ret = None
+                    try:
+                        ret = int(data)
+                    except:
+                        ret =data
+
+                    return ret
+                except:
+                    print("")
             elif (instr.caso == 4):
-                Selectp3.ejecutar(instr, ts, consola, exceptions,True)
-                print("ejecute select 4")
+                data = Selectp3.ejecutar(instr, ts, consola, exceptions,True)
+
             elif (instr.caso == 5):
-                Selectp4.ejecutar(instr, ts, consola, exceptions,True)
+                print("data5")
+                data =Selectp4.ejecutar(instr, ts, consola, exceptions,True)
+                print("data5",data)
+                try:
+
+                    data = str(data[1][0]).replace("['","")
+                    data = str(data).replace("']","")
+                    print("->data5 ", data)
+
+                    ret = None
+                    try:
+                        ret = int(data)
+                    except:
+                        ret =data
+
+                    return ret
+                except:
+                    print("")
+
             elif (instr.caso == 6):
                 consola.append('caso 6')
 
@@ -3479,13 +3518,16 @@ def procesar_instrucciones(instrucciones, ts):
             Index.ejecutar(instr,ts,consola,exceptions)
         elif isinstance(instr,Function):
             print("aqui estoy bien")
-
+        elif isinstance(instr,Procedure):
+            Procedure.ejecutar(instr,ts,consola,exceptions)
+            print("")
 
 
 
 
         else:
             print('Error: instrucción no válida')
+
 
 #------prueba
 #no borrar
@@ -3501,7 +3543,7 @@ def procesar_traduccion(instrucciones, ts):
     global concatenaTime
     global consolaaux
     global metodos_funciones
-
+    consolaaux =[]
     concatenaAux = []
     consola2 = []
     concatenaAux = []
@@ -3617,7 +3659,9 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
 
 
 
+inicial2 = {}
 def T3(entrada):
+    global inicial2
     global L_errores_lexicos
     global L_errores_sintacticos
     global consola
@@ -3627,11 +3671,11 @@ def T3(entrada):
     # limpiar
     lexer.input("")
     lexer.lineno = 0
-    dropAll()
-    consola = []
-    exceptions = []
-    L_errores_lexicos = []
-    L_errores_sintacticos = []
+    #dropAll()
+    #consola = []
+    #exceptions = []
+    #L_errores_lexicos = []
+    #L_errores_sintacticos = []
     # f = open("./entrada2.txt", "r")
     # input = f.read()
     # print(input)
@@ -3643,19 +3687,14 @@ def T3(entrada):
     reporte = AST.AST(entrada)
     reporte.ReportarAST()
     # inicia analisis semantico
-    inicial = {}
-    ts_global = TablaDeSimbolos(inicial)
-    print("analizando........")
-    #print(instrucciones)
-    #print("instrucciones " ,entrada)
-    print("#######################################################")
-    for funciones_metodos in concatena_funciones_procedimientos:
-        print("->",funciones_metodos)
-        #procesar_instrucciones(funciones_metodos,ts_global)
-    print("#######################################################")
-    for arbolito in entrada:
-        procesar_instrucciones(arbolito, ts_global)
 
+    ts_global = TablaDeSimbolos(inicial2)
+    print("analizando........")
+    valor = None
+    try:
+        valor = procesar_instrucciones(entrada, ts_global)
+    except:
+        procesar_instrucciones(entrada, ts_global)
 
 
     print("Lista Lexico\n", L_errores_lexicos)
@@ -3670,7 +3709,17 @@ def T3(entrada):
     print("Fin de analisis")
     print("Realizando reporte gramatical")
     graphstack(varGramatical, varSemantico)
-    return consola
+
+    vectoraux = []
+
+    print("vectoraux")
+    print(consola)
+    print(valor)
+    print("fin")
+    vectoraux.append(consola)
+    vectoraux.append(valor)
+
+    return vectoraux
 
 
 def ejecutarTraduccion(entrada):
@@ -3681,7 +3730,7 @@ def ejecutarTraduccion(entrada):
     global consola2
     global exceptions
     global lexer
-
+    global concatenaAux
     global concatena_createtable
     global concatena_alter
     global consolaaux
@@ -3711,7 +3760,9 @@ def ejecutarTraduccion(entrada):
     print("analizando........")
     print(instrucciones)
 
-    procesar_instrucciones(instrucciones,ts_global)
+
+    #procesar_instrucciones(instrucciones,ts_global)
+
     procesar_traduccion(instrucciones, ts_global)
 
     print("Lista Lexico\n", L_errores_lexicos)

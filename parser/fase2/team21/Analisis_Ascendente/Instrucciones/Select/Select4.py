@@ -7,7 +7,7 @@ from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time import  Ti
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import  *
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import  Trigonometrica
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import  IdAsId,Id,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
 from prettytable import PrettyTable
 from tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
 import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where as Where
