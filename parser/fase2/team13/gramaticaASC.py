@@ -246,7 +246,8 @@ reservadas = {
     'using': 'using',
     'index':'index',
     'hash': 'hash',
-    'include': 'include'
+    'include': 'include',
+    'execute':'execute'
 }
 
 # LISTA DE TOKENS
@@ -519,13 +520,19 @@ def p_sentencia(t):
                  | QUERIES ptComa
                  | USEDB
                  | CREATE_FUNCION
+                 | DROP_FUNCTION
                  | BLOCKDO 
                  | CREATE_INDEX
                  | DROP_INDEX
                  | ALTER_INDEX
+                 | CALL ptComa
     '''
     t[0] = t[1]
 
+
+def p_DropFuncion(t):
+    ''' DROP_FUNCTION : drop function id ptComa '''
+    t[0]=SDropFunction(t[3])
 
 def p_ALTER_INDEX(t):
     ''' ALTER_INDEX : alter index id rename tTo id ptComa
@@ -566,7 +573,7 @@ def p_CrearFunciones(t):
     ''' CREATE_FUNCION :  TIPOFUNCION id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa
                        |  TIPOFUNCION id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar language id ptComa  
                        |  TIPOFUNCION id parAbre L_PARAMETROS parCierra returns TIPO  as dobledolar BLOQUE dobledolar  ptComa
-                       |  TIPOFUNCION id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar ptComa  
+                       |  TIPOFUNCION id parAbre  parCierra returns TIPO  as dobledolar BLOQUE dobledolar ptComa   
                        
     '''
     if len(t) == 15:
@@ -578,7 +585,14 @@ def p_CrearFunciones(t):
     elif len(t) == 12:
         t[0]= SCreateFunction(t[2], False, t[9], t[6], t[1]["rep"], t[1]["tipo"])
 
-     
+def p_CrearFunciones1(t):
+    ''' CREATE_FUNCION : TIPOFUNCION id parAbre  parCierra as dobledolar BLOQUE dobledolar language id ptComa 
+                        | TIPOFUNCION id parAbre L_PARAMETROS parCierra  as dobledolar BLOQUE dobledolar language id ptComa'''    
+    if len(t)==12:
+        t[0]=SCreateFunction(t[2],False,t[7],False,t[1]["rep"],t[1]["tipo"])
+    else:
+        t[0]=SCreateFunction(t[2],t[4],t[7],False,t[1]["rep"],t[1]["tipo"])
+
 def p_TIPOFUNCION(t):
     ''' TIPOFUNCION :   create function
                       | create procedure
@@ -748,20 +762,19 @@ def p_BLOCK(t):
                 | RETORNO
                 | SENTENCIAS_CONTROL
                 | DECLARACION_RAICENOTE
-                | STATEMENT
-                | CALL ptComa          
+                | STATEMENT        
     '''
     t[0] = t[1]
 
 
 def p_CALL(t):
-    ''' CALL :  id parAbre LISTA_EXP parCierra
-              | id parAbre  parCierra            
+    ''' CALL :  execute id parAbre LISTA_EXP parCierra 
+              | execute id parAbre  parCierra   
     '''
-    if len(t) == 5:
-        t[0] = SCall(t[1],t[3])
-    elif len(t) == 4:
-        t[0] = SCall(t[1],False)
+    if len(t) == 6:
+        t[0] = SCall(t[2],t[4])
+    elif len(t) == 5:
+        t[0] = SCall(t[2],False)
 
 
 
@@ -1073,10 +1086,6 @@ def p_desc_asc(t):
 
     t[0] = str(t[1] ).lower()
 
-
-
-
-''' @@@@@@@ AGREGUE USEDB'''
 
 def p_USEDB(t):
     ''' USEDB : tuse id ptComa'''

@@ -47,7 +47,7 @@ class TextLineNumbers(tk.Canvas):
 
 ################################## FIN CLASE TextLineNumbers ##################################
 
-
+ 
 ###################################### CLASE CustomText #######################################
 class CustomText(tk.Text):
     def __init__(self, *args, **kwargs):
@@ -207,6 +207,8 @@ if __name__ == "__main__":
     def __funcion_Hacer_3D2():
         print(principal.stack)
         c3ddddd.main(principal.stack)
+        imprimir_consola(principal.consola)
+        
 
     def __funcion_Hacer_3D():
 
@@ -232,7 +234,6 @@ if __name__ == "__main__":
                 imprimir_consola(principal.texttraduccion)
                 archivo = open("cod3d.py", 'w+') 
                 archivo.write(principal.texttraduccion) 
-                archivo.write("    print(p3.consola)")
                 archivo.close()
                 MessageBox.showinfo("Archivo generado","El archivo se guardo exitosamente")      
                 #append_consola(tablaSimbolos.mostrar_tabla())
