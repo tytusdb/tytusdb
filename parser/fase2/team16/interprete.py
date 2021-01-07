@@ -44,8 +44,23 @@ def limpiarValores():
 def inicializarEjecucionAscendente(contenido):
     global LisErr, instrucciones, ts_global
     ts_global = TS.TablaDeSimbolos()
+
     instrucciones = g.parse(contenido, LisErr)
+    g.Ejecucion()
    # reporte_errores()
+
+
+def inicializarEjecucionAscendenteSel(contenido):
+    global LisErr, instrucciones, ts_global
+    ts_global = TS.TablaDeSimbolos()
+
+    instrucciones = g.parse(contenido, LisErr)
+
+
+
+# reporte_errores()
+
+
 
 
 def inicializarTS():
@@ -566,7 +581,6 @@ def procesar_unitaria_aritmetica(expresion, ts):
             agregarErrorDatosOperacion(val, "", "~", "entero", 0, 0)
             return None
 
-
 def procesar_funcion(expresion, ts):
 
     if expresion.exp1 is None:
@@ -1066,6 +1080,7 @@ def procesar_funcion(expresion, ts):
             else:
                 agregarErrorFuncion(val1, None, None, None, "TANH", "numerico", 0, 0)
                 return None
+
         elif expresion.id_funcion == FUNCION_NATIVA.ASINH:
             # if isinstance(val1, string_types):
             #     if val1.isdecimal():
@@ -1558,7 +1573,6 @@ from expresiones import *
 
 
 class interprete2:
-
     def __init__(self, sentencias):
         self.i = 0
         self.sentencias = sentencias
@@ -1569,6 +1583,7 @@ class interprete2:
 
     def ejecucion(self):
         self.recorrerInstrucciones(self.sentencias)
+
 
     def recorrerInstrucciones(self, sente):
         global ts_global
@@ -1629,6 +1644,19 @@ class interprete2:
                 i.Ejecutar()
             elif isinstance(i, useClase):
                 i.Ejecutar()
+            elif isinstance(i, CrearIndice):
+                i.Ejecutar()
+            elif isinstance(i, AlterIndiceCol):
+                i.Ejecutar()
+            elif isinstance(i, AlterIndiceName):
+                i.Ejecutar()
+            elif isinstance(i, DropIndice):
+                i.Ejecutar()
+            elif isinstance(i, Funciones_):
+                i.Ejecutar()
+            elif isinstance(i, Procedimientos_):
+                i.Ejecutar()
+
             else:
                 print("NO ejecuta")
 
@@ -1744,6 +1772,7 @@ def procesar_expresion_select(expresiones, ts):
 
     elif isinstance(expresiones, AccesoSubConsultas):
         print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ENtre sub where")
+
         return ProcesoSub(expresiones,ts_global)
 
 
@@ -1878,10 +1907,10 @@ def procesar_relacional_select(expresion, ts):
             return 1 if (val > val2) else 0
         elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
             return 1 if (val < val2) else 0
-    elif (isinstance(val,list) and isinstance(val2, int)
-          or isinstance(val,list) and isinstance(val2, int)
-          or isinstance(val,list) and isinstance(val2, float)
-          or isinstance(val,list) and isinstance(val2, int) ):
+    elif (isinstance(val[0], DatoInsert) and isinstance(val2, int)
+          or isinstance(val[0], DatoInsert) and isinstance(val2, int)
+          or isinstance(val[0], DatoInsert) and isinstance(val2, float)
+          or isinstance(val[0], DatoInsert) and isinstance(val2, int) ):
 
         if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
             listaV = []
@@ -1926,7 +1955,7 @@ def procesar_relacional_select(expresion, ts):
                     listaV.append(Vd)
             return listaV
 
-    elif isinstance(val,list) and isinstance(val2[0], DatoInsert):
+    elif isinstance(val[0], DatoInsert) and isinstance(val2[0], DatoInsert):
         if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
             listaV = []
             for v in val:
