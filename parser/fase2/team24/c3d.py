@@ -12,87 +12,120 @@ for i in range(100):
     pila.append(i)
 
 def ejecutar(): 
-	n_db = tabla.buscarIDTB(NombreDB)
+	n_db = ts.buscarIDTB(NombreDB)
 	NuevoSimbolo = Simbolo(cont,'CALCULOS',TIPO.FUNCTION,n_db)
+	ts.agregar(NuevoSimbolo)
 	cont+=1
 
-	ambitoFuncion =  tabla.buscarIDF()
+	ambitoFuncion =  ts.buscarIDF()
 	NuevoSimbolo = TAS.Simbolo(cont,'SENO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
-	tabla.agregar(NuevoSimbolo)
+	ts.agregar(NuevoSimbolo)
 	cont+=1
 
-	ambitoFuncion =  tabla.buscarIDF()
+	ambitoFuncion =  ts.buscarIDF()
 	NuevoSimbolo = TAS.Simbolo(cont,'VALOR',TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
-	tabla.agregar(NuevoSimbolo)
+	ts.agregar(NuevoSimbolo)
 	cont+=1
 
 
-	ambitoFuncion =  tabla.buscarIDF()
+	ambitoFuncion =  ts.buscarIDF()
 	NuevoSimbolo = TAS.Simbolo(cont,'ABSOLUTO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
-	tabla.agregar(NuevoSimbolo)
+	ts.agregar(NuevoSimbolo)
 	cont+=1
 
-	tabla.modificar_valor(hora, 999.0)
-	tabla.modificar_valor(SENO, 999.0)
-	tabla.modificar_valor(texto, 'fase 2')
-	tabla.modificar_valor(VALOR, 999.0)
-	tabla.modificar_valor(VALOR, 6)
-	tabla.modificar_valor(ABSOLUTO, 1.1752011936438014)
-	tabla.modificar_valor(ABSOLUTO, 75.0)
-	tabla.modificar_valor(VALOR, 20.0)
-	tabla.modificar_valor(VALOR, 10.0)
+	ts.modificar_valor(hora, 999.0)
+	ts.modificar_valor(SENO, 999.0)
+	ts.modificar_valor(texto, 'fase 2')
+	ts.modificar_valor(VALOR, 999.0)
+	ts.modificar_valor(VALOR, 6)
+	ts.modificar_valor(ABSOLUTO, 1.1752011936438014)
+	ts.modificar_valor(ABSOLUTO, 75.0)
+	ts.modificar_valor(VALOR, 20.0)
+	ts.modificar_valor(VALOR, 10.0)
 
-def CALCULOS():
+	print( 'Funcion CALCULOSno existe')
+	n_db = ts.buscarIDTB(NombreDB)
+	NuevoSimbolo = Simbolo(cont,'ayuda',TIPO.FUNCTION,n_db)
+	ts.agregar(NuevoSimbolo)
+	cont+=1
+
+	ambitoFuncion =  ts.buscarIDF()
+	NuevoSimbolo = TAS.Simbolo(cont,'SENO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	ts.agregar(NuevoSimbolo)
+	cont+=1
+
+	ambitoFuncion =  ts.buscarIDF()
+	NuevoSimbolo = TAS.Simbolo(cont,'VALOR',TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	ts.agregar(NuevoSimbolo)
+	cont+=1
+
+
+	ambitoFuncion =  ts.buscarIDF()
+	NuevoSimbolo = TAS.Simbolo(cont,'ABSOLUTO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	ts.agregar(NuevoSimbolo)
+	cont+=1
+
+	ts.modificar_valor(hora, 999.0)
+	ts.modificar_valor(SENO, 999.0)
+	ts.modificar_valor(texto, 'fase 2')
+	ts.modificar_valor(VALOR, 999.0)
+	ts.modificar_valor(VALOR, 6)
+	ts.modificar_valor(ABSOLUTO, 1.1752011936438014)
+	ts.modificar_valor(ABSOLUTO, 75.0)
+	ts.modificar_valor(VALOR, 20.0)
+	ts.modificar_valor(VALOR, 10.0)
+
+def ayuda():
 	
 	SENO = 0
 	VALOR = 0
 	
 	ABSOLUTO = 0
 	nombre = pila[0]
-	t1 = 999
-	hora = t1
+	t17 = 999
+	hora = t17
 	
-	t2 = 999
-	SENO = t2
+	t18 = 999
+	SENO = t18
 	
-	t3 = 'fase 2'
-	texto = t3
+	t19 = 'fase 2'
+	texto = t19
 	
-	t4 = 999
-	VALOR = t4
+	t20 = 999
+	VALOR = t20
 	
-	t5 = texto
-	
-	
-	VALOR = len(str(t5))
-	
-	t6 = -1
+	t21 = texto
 	
 	
-	ABSOLUTO = abs(mt.sinh(t6))
+	VALOR = len(str(t21))
 	
-	t7 = 5
-	t8 = 225
+	t22 = -1
 	
-	t9 = t7 * mt.sqrt(float(t8))
-	ABSOLUTO = t9
 	
-	t10 = VALOR
+	ABSOLUTO = abs(mt.sinh(t22))
 	
-	t11 = 1
-	t12 = t10 > t11
+	t23 = 5
+	t24 = 225
 	
-	if t12:
-		t13 = 20
-		VALOR = t13
+	t25 = t23 * mt.sqrt(float(t24))
+	ABSOLUTO = t25
+	
+	t26 = VALOR
+	
+	t27 = 1
+	t28 = t26 > t27
+	
+	if t28:
+		t29 = 20
+		VALOR = t29
 		
 	else:
-		t14 = 10
-		VALOR = t14
+		t30 = 10
+		VALOR = t30
 		
 	
-	t15 = VALOR
+	t31 = VALOR
 	
-	pila[10] = t15
+	pila[10] = t31
 	
 ejecutar()
