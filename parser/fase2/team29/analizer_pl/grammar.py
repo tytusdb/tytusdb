@@ -1591,9 +1591,12 @@ def p_funcCall_2(t):
     funcCall : ID S_PARIZQ S_PARDER
             | R_NOW S_PARIZQ S_PARDER
     """
+    v = t[1]
+    if t[1] == "NOW":
+        v = "now"
     global isBlock
     t[0] = code.FunctionCall(
-        t.slice[1].value, None, isBlock, newTemp(
+        v, None, isBlock, newTemp(
         ), t.slice[1].lineno, t.slice[1].lexpos
     )
     repGrammar.append(t.slice)
@@ -1682,8 +1685,11 @@ def p_dateSource(t):
           | R_INTERVAL STRING
           | R_NOW S_PARIZQ S_PARDER
     """
+    v = t[1]
+    if t[1] == "NOW":
+        v = "now"
     t[0] = [
-        expression.C3D("", "'" + t[1] + "'",
+        expression.C3D("", "'" + v + "'",
                        t.slice[1].lineno, t.slice[1].lexpos),
         expression.C3D("", t[2], t.slice[1].lineno, t.slice[1].lexpos),
     ]

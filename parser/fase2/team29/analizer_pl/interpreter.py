@@ -95,6 +95,7 @@ s = """
 CREATE function foo(i integer) RETURNS integer AS $$
 declare 
 	j integer := -i + 5;
+    texto text := now();
 BEGIN
 	case 
         when i > -10 then
@@ -137,6 +138,14 @@ CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
 
 CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
 
+INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
+INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
+INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
+INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
+INSERT INTO tbProducto values(5,'WIFI USB',now(),1);
+INSERT INTO tbProducto values(6,'Laptop HP',now(),1);
+INSERT INTO tbProducto values(7,'Teclado Flexible USB',now(),1);
+INSERT INTO tbProducto values(8,'Laptop Samsung','2021-01-02',1);
 
 """
 

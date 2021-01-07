@@ -15,8 +15,6 @@ class FunctionCall(Expression):
         self.temp = temp
 
     def execute(self, environment):
-        print(self.id)
-        print(self.isBlock)
         c3d = ""
         tab = ""
         parVal = ""
