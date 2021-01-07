@@ -560,13 +560,9 @@ def p_cierreplpgsql(t):
 
 def p_plpgsql(t):
     '''
-        plpgsql : functions_or_procedures definitions BEGIN definitions plpgsql_ending
-                | functions_or_procedures label definitions BEGIN definitions plpgsql_ending
-                | functions_or_procedures BEGIN definitions plpgsql_ending
-                | label BEGIN definitions plpgsql_ending
-                | definitions BEGIN definitions plpgsql_ending
-                | DECLARE BEGIN definitions plpgsql_ending
-                | BEGIN definitions plpgsql_ending
+        plpgsql : function_or_procedure definitions BEGIN definitions plpgsql_ending
+                | function_or_procedure label definitions BEGIN definitions plpgsql_ending
+                | function_or_procedure BEGIN definitions plpgsql_ending
     '''
     if len(t) == 6:
         # functions_or_procedures definitions BEGIN definitions plpgsql_ending
@@ -575,15 +571,15 @@ def p_plpgsql(t):
         # functions_or_procedures label definitions BEGIN definitions plpgsql_ending
         t[0] = funexecute(t[1], t[3], t[5], 1, 1)
     elif len(t) == 5:
-        if t[1].lower()  == 'label':
-            pass
-        elif t[1].lower()  == 'declare':
-            pass
-        else:
+        #if t[1].lower()  == 'label':
+        #    pass
+        #elif t[1].lower()  == 'declare':
+        #    pass
+        #else:
             # functions_or_procedures BEGIN definitions plpgsql_endingng
-            t[0] = funexecute(t[1], None, t[3], 1, 1)
+        t[0] = funexecute(t[1], None, t[3], 1, 1)
     else:
-        pass
+        t[0] = None
     set('<TR> \n <TD> plpgsql → functions_or_procedures label declare BEGIN stmts plpgsql_ending | functions_or_procedures declare BEGIN stmts plpgsql_ending | functions_or_procedures BEGIN stmts plpgsql_ending | label BEGIN stmts plpgsql_ending | declare BEGIN stmts plpgsql_ending | BEGIN stmts plpgsql_ending : </TD> \n <TD>  plpgsql = plpgsqlTraduccion(t[0], t[1], t[2], t[3], t[4]) </TD> \n </TR> \n')
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
@@ -603,7 +599,7 @@ def p_function_or_procedure(t):
                               | procedure
     '''
     t[0] = t[1]
-    set('<TR> \n <TD> function_or_procedure → functions_or_procedures function_or_procedure | function_or_procedure : </TD> \n <TD>  function_or_procedure = function() </TD> \n </TR> \n')
+    #set('<TR> \n <TD> function_or_procedure → functions_or_procedures function_or_procedure | function_or_procedure : </TD> \n <TD>  function_or_procedure = function() </TD> \n </TR> \n')
 
 def p_procedure(t):
     '''
@@ -686,10 +682,10 @@ def p_function(t):
         # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
         t[0] = funheader(t[5], t[7], 1, 1)
     elif len(t) == 6:
-        # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+        # CREATE FUNCTION ID PARIZQ function_ending
         t[0] = funheader(t[3], None, 1, 1)
     elif len(t) == 8:
-        # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+        # CREATE OR REPLACE FUNCTION ID PARIZQ function_ending
         t[0] = funheader(t[5], None, 1, 1)
 
     set('<TR> \n <TD> function → CREATE FUNCTION ID PARIZQ arguments function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending | CREATE FUNCTION ID PARIZQ function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending : </TD> \n <TD>  function = function(t[2], t[4]) </TD> \n </TR> \n')
@@ -2016,6 +2012,11 @@ def p_exp_opunary(t):
         pass
     elif t[1] == '-':
         # MENOS exp
+        t[0] = UNITARIO(t[2], t[1], 1, 1)
+        pass
+    elif t[1] == '!':
+        # MENOS exp
+        t[0] = UNITARIO(t[2], t[1], 1, 1)
         pass
     elif t[1] == 'not':
         # NOT exp
@@ -2081,8 +2082,6 @@ def p_exp(t):
               | exp AND         exp
               | exp OR          exp
               | exp DISTINTO exp
-              | NOT exp
-              | MENOS exp
               | expSimple
               | dateFunction
               | callfunction
@@ -2231,7 +2230,8 @@ def p_dateFunction(t):
         t[0] = Select_simples_date(t.lineno, 0, 'date_part', t[3], t[6])
     elif t[1].lower() == "now":
         # SELECT NOW PARIZQ PARDER
-        t[0] = Select_simples_date(t.lineno, 0, 'now')
+        #t[0] = Select_simples_date(t.lineno, 0, 'now')
+        t[0] = t[0] = lappel('now', None, 1, 1)
     elif t[1].lower() == "current_date":
         # SELECT CURRENT_DATE
         t[0] = Select_simples_date(t.lineno, 0, 'current_date')
