@@ -213,7 +213,7 @@ def TCcreateIndex (database: str, table: str,column:str,name:str ,op:str) -> int
                         data[database].update(new)
                     #new1 = {'INDEX':{'NAME':name,'TYPE':op}}
                     #data[database][table][column].update(new1)
-                    data[database]['INDEX'].append({'COLUMN':column,'NAME':name,'TYPE':op})
+                    data[database]['INDEX'].append({'COLUMN':str(column).replace("\"", "\\\""),'NAME':str(name).replace("\"", "\\\""),'TYPE':str(op).replace("\"", "\\\"")})
                     dump = True
     if dump:
         with open('data/json/TypeChecker', 'w') as file:
@@ -262,7 +262,7 @@ def TCAlterIndex(database:str, oldindex:str, newindex:str)->int:
                 m=0
                 for j in n:
                     if j['NAME']==oldindex: 
-                        data[database]['INDEX']['NAME']=newindex
+                        data[database]['INDEX']['NAME']=str(newindex).replace("\"", "\\\"")
                         dump = True
                     m+=1
     if dump:
@@ -296,11 +296,11 @@ def TCcreateFunction(function:str,code:str,replace:bool)->int:
             new = {'FUNCTIONS':{}}
             data[database].update(new)
         if not function in data[database]['FUNCTIONS']:
-            data[database]['FUNCTIONS'].update({function:{'CODE':code}})
+            data[database]['FUNCTIONS'].update({function:{'CODE':str(code).replace("\"", "\\\"")}})
             dump = True 
         else:   
             if replace :
-                data[database]['FUNCTIONS'].update({function:{'CODE':code}})
+                data[database]['FUNCTIONS'].update({function:{'CODE':str(code).replace("\"", "\\\"")}})
                 dump = True
                 mandar=False
             else:
@@ -471,10 +471,10 @@ def TCcreateType(database: str, typeEnum: str, Values:None) -> int:
             if typeEnum in data[database]['TYPES']:
                 return 3
             else:
-                print(Values)
+                print(str(Values).replace("\"", "\\\""))
                 new = {typeEnum:{}}
                 data[database]['TYPES'].update(new)
-                data[database]['TYPES'][typeEnum].update(Values)
+                data[database]['TYPES'][typeEnum].update(str(Values).replace("\"", "\\\""))
                 dump = True
     if dump:
         with open('data/json/TypeChecker', 'w') as file:

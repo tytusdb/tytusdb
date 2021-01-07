@@ -242,6 +242,91 @@ def SP_VALIDAUPDATE():
 	executeSentence(Update,Update('TBBODEGA',[['BODEGA', Value(3,'BODEGA ZONA 9')]],Relational(Value(4,'IDBODEGA'),Value(1,4),'=')))
 
 @with_goto
+def VALIDAREGISTROS(TABLA: str, CANTIDAD: int) ->int:
+	RESULTADO:int
+	RETORNA:int
+	t2=TABLA
+	t3="TBPRODUCTO"
+	t4=t2 == t3
+	if t4:
+		goto .lbl0
+	else:
+		goto. lbl4
+	label .lbl0
+	t5=1
+	RESULTADO=t5
+	t6=CANTIDAD
+	t7=RESULTADO
+	t8=t6 == t7
+	if t8:
+		goto .lbl1
+	else:
+		goto. lbl2
+	label .lbl1
+	t9=1
+	RETORNA=t9
+	goto .lbl3
+	label .lbl2
+	t10=0
+	RETORNA=t10
+	label .lbl3
+	label .lbl4
+	t11=TABLA
+	t12="TBPRODUCTOUP"
+	t13=t11 == t12
+	if t13:
+		goto .lbl5
+	else:
+		goto. lbl9
+	label .lbl5
+	t14=2
+	RESULTADO=t14
+	t15=CANTIDAD
+	t16=RESULTADO
+	t17=t15 == t16
+	if t17:
+		goto .lbl6
+	else:
+		goto. lbl7
+	label .lbl6
+	t18=1
+	RETORNA=t18
+	goto .lbl8
+	label .lbl7
+	t19=0
+	RETORNA=t19
+	label .lbl8
+	label .lbl9
+	t20=TABLA
+	t21="TBBODEGA"
+	t22=t20 == t21
+	if t22:
+		goto .lbl10
+	else:
+		goto. lbl14
+	label .lbl10
+	t23=3
+	RESULTADO=t23
+	t24=CANTIDAD
+	t25=RESULTADO
+	t26=t24 == t25
+	if t26:
+		goto .lbl11
+	else:
+		goto. lbl12
+	label .lbl11
+	t27=1
+	RETORNA=t27
+	goto .lbl13
+	label .lbl12
+	t28=0
+	RETORNA=t28
+	label .lbl13
+	label .lbl14
+	t29=RETORNA
+	return t29
+
+@with_goto
 def CALCULOS():
 	HORA:int
 	SENO:float
@@ -286,5 +371,17 @@ def CALCULOS():
 	label .lbl17
 	t64=VALOR
 	return t64
+
+@with_goto
+def SP_VALIDAINSERT():
+	executeSentence(InsertAll,InsertAll("TBBODEGA",[Value(1,1), Value(3,"BODEGA CENTRAL"), Value(1,1)]))
+	executeSentence(Insert,Insert("TBBODEGA",["IDBODEGA", "BODEGA"],[Value(1,2), Value(3,"BODEGA ZONA 12")]))
+	executeSentence(Insert,Insert("TBBODEGA",["IDBODEGA", "BODEGA", "ESTADO"],[Value(1,3), Value(3,"BODEGA ZONA 11"), Value(1,1)]))
+	executeSentence(Insert,Insert("TBBODEGA",["IDBODEGA", "BODEGA", "ESTADO"],[Value(1,4), Value(3,"BODEGA ZONA 1"), Value(1,1)]))
+	executeSentence(Insert,Insert("TBBODEGA",["IDBODEGA", "BODEGA", "ESTADO"],[Value(1,5), Value(3,"BODEGA ZONA 10"), Value(1,1)]))
+
+@with_goto
+def SP_VALIDAUPDATE():
+	executeSentence(Update,Update("TBBODEGA",[["BODEGA", Value(3,"BODEGA ZONA 9")]],Relational(Value(4,"IDBODEGA"),Value(1,4),"=")))
 
 up()

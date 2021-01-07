@@ -2,6 +2,7 @@ import json
 
 TypeChecker_path = "data/json/TypeChecker"
 
+separator: str = "■▲"
 
 class TypeChecker_Manager:
     def __init__(self, use, databases):
@@ -9,10 +10,12 @@ class TypeChecker_Manager:
         self.databases = databases
 
 class database:
-    def __init__(self, name: str, mode: int, types: str, tables):
+    def __init__(self, name: str, mode: int, types: str, index: str, functions: str, tables):
         self.name = name
         self.mode = mode
         self.types = types
+        self.index = index
+        self.index = functions
         self.tables = tables
         if self.tables == None:
             self.tables = []
@@ -54,17 +57,18 @@ def get_TypeChecker_Manager_Aux(json_string: str):
     content_one = str(content_one).replace("'", "\"")
     content_one = str(content_one).replace("True", "true")
     content_one = str(content_one).replace("False", "false")
+    content_one = str(content_one).replace("\\\"", separator)
     jsonObject_one = json.loads(content_one)
-    
+
     #Database Name---------------------------------
     for key_one in jsonObject_one:
         value_one = jsonObject_one[key_one]
-        
+
         if key_one == "USE":
             TypeChecker_Manager_.use = value_one
 
         else:
-            Database = database(key_one, None, None, [])
+            Database = database(key_one, None, None, None, None, [])
             TypeChecker_Manager_.databases.append(Database)
     #----------------------------------------------
             #Table Name------------------------------------
@@ -81,10 +85,14 @@ def get_TypeChecker_Manager_Aux(json_string: str):
                     Database.mode = value_two
 
                 elif key_two == "TYPES":
-                    Database.types = value_two
+                    Database.types = str(value_two).replace(separator, "\\\"")
                 
                 elif key_two == "INDEX": 
-                    sssssss=0
+                    Database.index = str(value_two).replace(separator, "\\\"")
+
+                elif key_two == "FUNCTIONS": 
+                    Database.functions = str(value_two).replace(separator, "\\\"")
+
                 else:
                     Table = table(key_two, [])
                     Database.tables.append(Table)
@@ -171,7 +179,15 @@ def get_string_json_TypeChecker_Manager(TypeChecker_Manager_: TypeChecker_Manage
         #----------------------------------------
 
         #Types-----------------------------------
-        json_ += "          \"TYPES\":" + str(TypeChecker_Manager_.databases[i].types)
+        json_ += "          \"TYPES\":" + str(TypeChecker_Manager_.databases[i].types).replace("\"", "\\\"") + ",\n"
+        #----------------------------------------
+
+        #Index-----------------------------------
+        json_ += "          \"INDEX\":"  + str(TypeChecker_Manager_.databases[i].index).replace("\"", "\\\"") + ",\n"
+        #----------------------------------------
+
+        #Functions-------------------------------
+        json_ += "          \"FUNCTIONS\":"  + str(TypeChecker_Manager_.databases[i].functions).replace("\"", "\\\"") 
         if len(TypeChecker_Manager_.databases[i].tables) > 0:
             json_ += ",\n"
         else:
