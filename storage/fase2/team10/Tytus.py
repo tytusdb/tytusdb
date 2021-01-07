@@ -285,6 +285,18 @@ def codificationValidation(codification,stringlist): ##Cristian
             return False
     else:
         return 3 ##Nombre de codificacion no existente
+def getCodificationMode(database): ##Busca el modo 
+    for i in databases:
+        if database == i["name"]:
+            if i["code"] == "ASCII":
+                return "ASCII"
+            elif i["code"] == "ISO-8859-1":
+                return "ISO-8859-1"       
+            elif i["code"] == "UTF8":
+                return "UTF8"       
+        else:
+            pass
+    return 2    
         
 # 6. COMPRESION DE DATOS
 def alterDatabaseCompress(database, level):
