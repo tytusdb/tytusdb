@@ -37,10 +37,10 @@ class Procedimiento(Instruccion):
 
         #Se agregan las declaraciones
         for dec in self.declaraciones:
-            codigo += dec.traducir(tabla,arbol,cadenaTraducida) + "\n"
+            codigo += dec.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
 
         #Se agrega todo el contenido de las instrucciones traducido a 3D
         for ins in self.instrucciones:
-            codigo += ins.traducir(tabla,arbol,cadenaTraducida) + "\n"
+            codigo += ins.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
 
         return codigo

@@ -824,14 +824,14 @@ class Relacional(Instruccion):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + ">" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + ">" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo                                        
                 else:
@@ -850,14 +850,14 @@ class Relacional(Instruccion):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "<" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo                    
                 elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "<" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 else:
@@ -876,14 +876,14 @@ class Relacional(Instruccion):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + ">=" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + ">=" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 else:
@@ -902,14 +902,14 @@ class Relacional(Instruccion):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "<=" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "<=" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 else:
@@ -933,14 +933,14 @@ class Relacional(Instruccion):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo                    
                 elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 else:
@@ -959,14 +959,14 @@ class Relacional(Instruccion):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 elif (self.opIzq.tipo.tipo == Tipo_Dato.DATE or self.opIzq.tipo.tipo == Tipo_Dato.TIME or self.opIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or self.opIzq.tipo.tipo == Tipo_Dato.CHAR) and (self.opDer.tipo.tipo == Tipo_Dato.DATE or self.opDer.tipo.tipo == Tipo_Dato.TIME or self.opDer.tipo.tipo == Tipo_Dato.TIMESTAMP or self.opDer.tipo.tipo == Tipo_Dato.CHAR):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 else:
@@ -986,7 +986,7 @@ class Relacional(Instruccion):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 else:
@@ -1006,7 +1006,7 @@ class Relacional(Instruccion):
                     etiquetaV = arbol.generaEtiqueta()
                     etiquetaF = arbol.generaEtiqueta()
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
-                    codigo = codigo + "\t\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\t\tgoto ."+etiquetaV+" \n\t\tgoto ."+etiquetaF+" \n"
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
                 else:

@@ -14,8 +14,8 @@ class DeclaracionAlias(Instruccion):
         codigo = ""
         
         if self.var_origen is not None:
-            codigo += "\t\t" + self.id + " = " + self.var_origen + "\n"
+            codigo += "\t" + self.id + " = " + self.var_origen + "\n"
         elif self.num_origen is not None:
-            codigo += "\t\t" + self.id + " = " + "S" + str(self.num_origen) + "\n"
+            codigo += "\t" + self.id + " = " + "S" + str(self.num_origen) + "\n"
 
         return codigo

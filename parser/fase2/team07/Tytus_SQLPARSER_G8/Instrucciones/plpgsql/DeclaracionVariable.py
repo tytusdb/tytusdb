@@ -20,10 +20,10 @@ class DeclaracionVariable(Instruccion):
         if self.asignacion_valor is not None:
             simbolo = self.asignacion_valor.traducir(tabla,arbol,cadenaTraducida)
             codigo += simbolo.codigo
-            codigo += "\t\t" + self.id + " = " + simbolo.temporal + "\n"
+            codigo += "\t" + self.id + " = " + simbolo.temporal + "\n"
         
         #Al no asignarsele nada se inicializa como None
         else:
-            codigo += "\t\t" + self.id + " = None\n"
+            codigo += "\t" + self.id + " = None\n"
 
         return codigo
