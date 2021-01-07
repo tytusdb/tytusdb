@@ -175,25 +175,32 @@ def get_string_json_TypeChecker_Manager(TypeChecker_Manager_: TypeChecker_Manage
         #----------------------------------------
         
         #Mode------------------------------------
-        json_ += "          \"MODE\":" + str(TypeChecker_Manager_.databases[i].mode) + ",\n"
+        json_ += "          \"MODE\":" + str(TypeChecker_Manager_.databases[i].mode)
         #----------------------------------------
 
         #Types-----------------------------------
-        json_ += "          \"TYPES\":" + str(TypeChecker_Manager_.databases[i].types).replace("\"", "\\\"") + ",\n"
+        if TypeChecker_Manager_.databases[i].types != None:
+            json_ += ",\n"
+            json_ += "          \"TYPES\":" + str(TypeChecker_Manager_.databases[i].types)
         #----------------------------------------
 
         #Index-----------------------------------
-        json_ += "          \"INDEX\":"  + str(TypeChecker_Manager_.databases[i].index).replace("\"", "\\\"") + ",\n"
+        if TypeChecker_Manager_.databases[i].index != None:
+            json_ += ",\n"
+            json_ += "          \"INDEX\":"  + str(TypeChecker_Manager_.databases[i].index)
         #----------------------------------------
 
         #Functions-------------------------------
-        json_ += "          \"FUNCTIONS\":"  + str(TypeChecker_Manager_.databases[i].functions).replace("\"", "\\\"") 
+        if TypeChecker_Manager_.databases[i].functions != None:
+            json_ += ",\n"
+            json_ += "          \"FUNCTIONS\":"  + str(TypeChecker_Manager_.databases[i].functions)
+        #----------------------------------------
+        
         if len(TypeChecker_Manager_.databases[i].tables) > 0:
             json_ += ",\n"
         else:
             json_ += "\n"
-        #----------------------------------------
-        
+
         j = 0
         while j < len(TypeChecker_Manager_.databases[i].tables):
             #table start+++++++++++++++++++++++++++++
