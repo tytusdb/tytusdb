@@ -211,7 +211,29 @@ class Application(ttk.Frame):
             "outer",
             "join",
             "asc",
-            "desc"
+            "desc",
+            'procedure',
+            'language',
+            'index',
+            'using',
+            'hash',
+            'constant',
+            'colate',
+            'function',
+            'returns',
+            'begin',
+            'declare',
+            'end',
+            'return',
+            'call',
+            'execute',
+            'do',
+            'loop',
+            'while',
+            'for',
+            'reverse',
+            'else',
+            'elsif'
         ]
         self.contadorN = 1
         self.Copiado = ""
@@ -327,6 +349,12 @@ class Application(ttk.Frame):
                           height=50, width=50, command=self.f_abrirtablaSimbolos)
         bot13.pack(side=tk.LEFT, padx=3, pady=3)
         button13_ttp = CreateToolTip(bot13, 'REPORTE TABLA DE SIMBOLOS')
+
+        imgBoton11 = tk.PhotoImage(file=iconos[10])
+        bot14 = tk.Button(BarraH, image=imgBoton11,
+                          height=50, width=50, command=self.f_abrirReporteOptimización)
+        bot14.pack(side=tk.LEFT, padx=3, pady=3)
+        button14_ttp = CreateToolTip(bot14, 'REPORTE TABLA DE OPTIMIZACIÓN')
 
 
 
@@ -588,6 +616,11 @@ class Application(ttk.Frame):
             wb.open_new(r'Simbolos.html')
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+    def f_abrirReporteOptimización(self):
+        try:
+            wb.open_new(r'reporteOptimizado.gv.pdf')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
     def f_abrirtablaSemanticos(self):
         try:
@@ -688,7 +721,8 @@ def main():
               img_carpeta + "reporte.png",
               img_carpeta + "arbol.png",
               img_carpeta + "bnf.png",
-              img_carpeta + "tabla.png"
+              img_carpeta + "tabla.png",
+              img_carpeta +  "optim.png"
               )
     app = Application(ventana, iconos)
 

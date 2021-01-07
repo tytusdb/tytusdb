@@ -1,0 +1,20 @@
+digraph G{
+edge [color=blue]; rankdir = TB;
+Nodo0[label="S"]
+Nodo1[label="Instrucciones"]
+Nodo0 -> Nodo1;
+Nodo2[label="Instruccion: INSERT INTO"]
+Nodo1 -> Nodo2;
+Nodo3[label="Table: tbCalificacion"]
+Nodo2 -> Nodo3;
+Nodo4[label="Value"]
+Nodo2 -> Nodo4;
+Nodo8[label="3"]
+Nodo4 -> Nodo8;
+Nodo16[label=" Valida Funciones"]
+Nodo4 -> Nodo16;
+Nodo32[label="Instruccion: LLAMADA A FUNCION"]
+Nodo4 -> Nodo32;
+Nodo64[label="CALCULOS()"]
+Nodo32 -> Nodo64;
+}
