@@ -49,27 +49,49 @@ class Generales:
             return tmp
         return self.leMenor(tmp.izquierda)
 
-    def commitBase(self, contenido):
+    def commitBase(self, contenido, index):
         with open('Base.bin', 'wb') as f:
             datos = contenido
-            pickle.dump(datos, f )
-        
+            pickle.dump(datos, f)
+        with open('iBase.bin', 'wb') as g:
+            datos = index
+            pickle.dump(datos, g)
     
     def loadBase(self):
         with open('Base.bin', 'rb') as g:
             datos = pickle.load(g)
-            return datos
+        with open('iBase.bin', 'rb') as ga:
+            gatos = pickle.load(ga)
+        return datos, gatos
         
-    def commitTabla(self, contenido):
+    def commitTabla(self, contenido, index):
         with open('Tabla.bin', 'wb') as f:
             datos = contenido
             pickle.dump(datos, f )
-        
+        with open('iTabla.bin', 'wb') as g:
+            datos = index
+            pickle.dump(datos,g)
     
     def loadTabla(self):
         with open('Tabla.bin', 'rb') as g:
             datos = pickle.load(g)
-            return datos
+        with open('team08/bin/iTabla.bin', 'rb') as ga:
+            gatos = pickle.load(ga)
+        return datos, gatos
     
+    def commitTupla(self, contenido, index):
+        with open('Tupla.bin', 'wb') as f:
+            datos = contenido
+            pickle.dump(datos, f)
+        with open('iTupla.bin', 'wb') as g:
+            datos = index
+            pickle.dump(datos, g)
+        
+    def loadTupla(self):
+        with open('Tupla.bin', 'rb') as g:
+            datos = pickle.load(g)
+        with open('iTupla.bin', 'rb') as ga:
+            gatos = pickle.load(ga)
+        return datos, gatos
 
 g = Generales()

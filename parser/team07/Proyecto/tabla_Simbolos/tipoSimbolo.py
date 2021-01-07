@@ -36,3 +36,5 @@ class TipoSimbolo(Enum):
     SIMILAR = 32
     IS_NULL = 33
     IS_NOT_NULL = 34
+    COLUMNA_DATO = 35
+    NULO = 36

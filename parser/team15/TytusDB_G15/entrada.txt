@@ -2,12 +2,25 @@ CREATE DATABASE compiladores2;
 
 USE compiladores2;
 
-CREATE TABLE tbUSUARIO(
-	id_ususario		INTEGER,
-	usuario		    INTEGER ,
-	password		bigint,
-    telefono        VARCHAR(50),
-    direccion       VARCHAR(50),
-    edad            numeric(10,10),
-    PRIMARY KEY (id_ususario,usuario)
+CREATE TABLE artists (
+  id    INTEGER PRIMARY KEY, 
+  name  TEXT
 );
+
+CREATE TABLE tracks (
+  traid     INTEGER, 
+  title   TEXT, 
+  artist INTEGER,
+  FOREIGN KEY(artist) REFERENCES artists(id)
+);
+
+INSERT INTO artists VALUES (1, 'Tom Chapin');
+INSERT INTO artists VALUES (2, 'Harry Chapin');
+
+INSERT INTO tracks VALUES (1, 'Great Big Words', 1);
+INSERT INTO tracks VALUES (1, 'This Pretty Planet', 1);
+INSERT INTO tracks VALUES (2, 'Cats in the Cradle', 2);
+
+SELECT * FROM 
+artists AS 'A',tracks AS 'T'
+WHERE A.id = T.artist;

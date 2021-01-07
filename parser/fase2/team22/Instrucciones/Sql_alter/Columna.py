@@ -1,0 +1,14 @@
+from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+
+class Columna(Instruccion):
+    def __init__(self, id, tipo, strGram ,linea, columna):
+        Instruccion.__init__(self,None,linea,columna,strGram)
+        self.id = id
+        self.tipo = tipo
+
+    def ejecutar(self, tabla, arbol):
+        super().ejecutar(tabla,arbol)
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        

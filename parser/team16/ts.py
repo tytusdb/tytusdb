@@ -31,11 +31,12 @@ class Funcion():
 
 class TablaDeSimbolos():
     
-    def __init__(self, Datos = {}, Tablas={}, BasesDatos={}, Tipos={}):
+    def __init__(self, Datos = {}, Tablas={}, BasesDatos={}, Tipos={}, Validaciones={}):
         self.Datos = Datos.copy()
         self.Tablas = Tablas.copy()
         self.Tipos = Tipos.copy()
         self.BasesDatos = BasesDatos.copy()
+        self.Validaciones = Validaciones.copy()
 
     def getDatos(self):
         return self.Datos
@@ -156,4 +157,16 @@ class TablaDeSimbolos():
             print(" No se elimino")
         else :
             del self.Tipos[miTipo]
+            print(" Se elimino")
+
+# ---------------------------- Validaciones ----------------------------
+    def agregarValidacion(self, miValidacion):
+        rand = randint(1,50000)
+        self.Validaciones[str(miValidacion.id) + str(rand)] = miValidacion
+
+    def EliminarValidacion(self, miValidacion):
+        if not miValidacion in self.Validaciones:
+            print(" No se elimino")
+        else :
+            del self.Validaciones[miValidacion]
             print(" Se elimino")

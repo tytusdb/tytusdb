@@ -1,10 +1,15 @@
 import ply.yacc as yacc
 import ply.lex as lex
+import webbrowser
 
+# Para AST
 from Ast import *
 from creacionArbol import *
-
+from reporteEnEjecucion import *
 from graphviz import render
+
+
+Errores = []
 
 reservadas = {
     'smallint'  : 'SMALLINT',          'integer'  : 'INTEGER',   
@@ -91,7 +96,11 @@ reservadas = {
     'random': 'RANDOM',             'true': 'TRUE',
     'false': 'FALSE',               'use' : 'USE',
     'decimal': 'RDECIMAL',          'union': 'UNION',
-    'intersect': 'INTERSECT',       'except': 'EXCEPT'
+    'intersect': 'INTERSECT',       'except': 'EXCEPT',
+    'extract': 'EXTRACT',           'date_part': 'DATE_PART',
+    'current_date': 'CURRENT_DATE', 'current_time': 'CURRENT_TIME',
+    'now': 'NOW'
+
 }
 
 tokens  = [
@@ -151,6 +160,7 @@ def t_DECIMAL(t):
         t.value = 0
     return t
 
+
 def t_ENTERO(t):
     r'\d+'
     try:
@@ -160,22 +170,33 @@ def t_ENTERO(t):
         t.value = 0
     return t
 
+
 def t_ID(t):
-     r'[a-zA-Z_][a-zA-Z_0-9]*'
-     t.type = reservadas.get(t.value.lower(),'ID')   
-     return t
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reservadas.get(t.value.lower(), 'ID')
+    return t
+
 
 def t_CADENADOBLE(t):
     r'\".*?\"'
-    t.value = t.value[1:-1] 
-    return t 
+    t.value = t.value[1:-1]
+    return t
+
+
+def t_CADENALIKE(t):
+    r'\'%%.*?%\''
+    t.value = t.value[1:-1]
+    return t
+
 
 def t_CADENASIMPLE(t):
     r'\'.*?\''
-    t.value = t.value[1:-1] 
-    return t 
+    t.value = t.value[1:-1]
+    return t
 
 # Comentario de múltiples líneas /* .. */
+
+
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
@@ -192,14 +213,16 @@ t_ignore = " \t"
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
-    
+
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
+    Errores.append(Error('-----', EType.LEXICO, "   Caracter desconocido '%s'" % t.value[0],t.lexer.lineno))
+    #    ast.errors.append(Error('-----', EType.LEXICO, "Caracter desconocido '%s'" % t.value[0],t.lexer.lineno))
     t.lexer.skip(1)
 
 
+
 # Analizador léxico
-import ply.lex as lex
 lexer = lex.lex()
 
 # Asociación de operadores y precedencia
@@ -220,9 +243,7 @@ precedence = (
     ('right', 'UMENOS')
 )
 
-
 ###################################### ENTRADA GENERAL DE LAS INSTRUCCIONES #################################
-
 def p_init(t) :
     'init             : instrucciones'
     t[0] = Nodo('INSTRUCCIONES','',t[1],t.lexer.lineno)
@@ -514,52 +535,70 @@ def p_field(t) :
 
 def p_create_table(t):
     'create_table : CREATE TABLE ID PARIZQ list_columns_x PARDER end_create_table'
+    t[0] = getCreateTableNode(t)
     
 def p_end_create_table(t):
     '''end_create_table : PTCOMA
                       | INHERITS PARIZQ ID PARDER PTCOMA'''
+    if len(t) > 2:
+        g = '<end_create_table> ::= \"INHERITS\" \"PARIZQ\" ID \"PARDER\" \"PTCOMA\"\n'
+        t[0] = Nodo('INHERITS',t[3],[],t.lexer.lineno,0,g)
     
 def p_list_columns_x(t):
     'list_columns_x : list_columns_x COMA key_column'
+    t[1].append(t[3])
+    t[0] = t[1]
     
 def p_list_columns(t):
     'list_columns_x : key_column'
+    t[0] = [t[1]]
 
 def p_key_column(t):
     '''key_column : PRIMARY KEY PARIZQ listtablas PARDER
                    | ID type_column attributes'''
+    t[0] = getKeyOrColumnNode(t)
 
 def p_attributes(t):
     'attributes   : default_value null_field constraint_field null_field primary_key'
+    t[0] = getAttributesNode(t)
     
 def p_default_value(t):
     '''default_value  : DEFAULT x_value
                       | empty '''
+    if t[1] != None:
+        g = '<default_value> ::= \"DEFAULT\" <x_value>\n'
+        t[0] = Nodo('DEFAULT','',[],t.lexer.lineno,0,g)
 
 def p_x_value(t):
     ''' x_value : cualquiercadena
                 | cualquiernumero'''
+    t[0] = t[1]
 
 def p_primary_key(t):
     '''primary_key : PRIMARY KEY
                    | empty'''
+    if t[1] != None:
+        g = '<primary_key> ::= \"PRIMARY\" \"KEY\"\n'
+        t[0] = Nodo('PRIMARY KEY','',[],t.lexer.lineno,0,g)
     
 def p_null_field(t):
     '''null_field     : NULL
                       | NOT NULL
                       | empty '''
+    t[0] = getNullFieldNode(t)
     
 def p_constraint_field(t):
     '''constraint_field : UNIQUE
                         | CONSTRAINT ID check_unique 
                         | CHECK PARIZQ condiciones PARDER
                         | empty'''
+    t[0] = getConstraintFieldNode(t)
     
 def p_check_unique(t):
     '''check_unique : UNIQUE 
                     | CHECK PARIZQ condiciones PARDER
                     | empty'''
-
+    t[0] = getCheckUnique(t)
 
 # -------- PRODUCCIONES PARA CREATE ENUMS ------------
 
@@ -591,25 +630,40 @@ def p_drop_table(t):
 ## INSERT 
 def p_insert_sinorden(t) :
     'insert_instr     : INSERT INTO ID VALUES PARIZQ parametros PARDER PTCOMA'
+    g = '<insert_instr> ::=  \"INSERT\" \"INTO\" ID \"VALUES\" \"PARIZQ\" <parametros> \"PARDER\" \"PTCOMA\"\n'
+    t[0] = Nodo('INSERT INTO',t[3],t[6],t.lexer.lineno,0,g)
 
 def p_insert_conorden(t) :
     'insert_instr     : INSERT INTO ID PARIZQ columnas PARDER VALUES PARIZQ parametros PARDER PTCOMA'
+    g = '<insert_instr> ::= \"INSERT\" \"INTO\" ID \"PARIZQ\" <columnas> \"PARDER\" \"VALUES\" \"PARIZQ\" <parametros> \"PARDER\" \"PTCOMA\"\n'
+    t[0] = Nodo('INSERT INTO',t[3],t[6],t.lexer.lineno,0,g)
 
 def p_lista_columnas(t) :
     'columnas       : columnas COMA ID'
+    g = '<columnas> ::= <columnas> \"COMA\" ID\n'
+    t[1].append( Nodo('Columna',t[3],[],t.lexer.lineno,0,g) )
+    t[0] = t[1]
 
 def p_lista_columnas_salida(t) :
     'columnas       : ID'
+    g = '<columnas> ::= ID\n'
+    t[0] = [ Nodo('Columna',t[1],[],t.lexer.lineno,0,g) ]
     
 def p_lista_parametros(t) :
     'parametros       : parametros COMA parametroinsert'
+    t[3].gramatica = '<parametros> ::= <parametros> \"COMA\" <parametroinsert>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lista_parametros_salida(t) :
     'parametros       : parametroinsert'
+    t[1].gramatica = '<parametros> ::= <parametroinsert>\n'
+    t[0] = [t[1]]
 
 def p_parametro (t) :
     '''parametroinsert  : DEFAULT
                         | expresion'''
+    t[0] = getParamNode(t)
     
 ## UPDATE
 def p_update_sinwhere(t) : 
@@ -709,9 +763,11 @@ def p_second_query3(t):
 
 def p_select_simple(t):
     'select_instr1    : SELECT termdistinct selectlist selectfrom'
+    t[0] = getSelect(t) 
 
 def p_fromselect(t) :
     'selectfrom       : FROM listatablasselect whereselect groupby orderby'
+    t[0] = [t[2],t[3], t[4], t[5]]
 
 def p_fromselect2(t) :
     'selectfrom       : empty'  
@@ -721,16 +777,21 @@ def p_fromselect2(t) :
 def p_termdistinct(t):
     '''termdistinct   : DISTINCT
                       | empty'''
+    t[0] = getDistinct(t)
 
 def p_selectlist(t):
     '''selectlist     : ASTERISCO
                       | listaselect'''
+    t[0] = getSelectList(t)
 
 def p_listaselect(t):
     'listaselect      : listaselect COMA valselect'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_listaselect_salida(t):
     'listaselect      : valselect'
+    t[0] = [t[1]]
 
 def p_valselect_10_2(t):
     'valselect      : CASE case_state END'
@@ -739,62 +800,95 @@ def p_valselect_10_2(t):
 
 def p_valselect_1(t):
     'valselect      : ID alias'
+    t[0] = getValSelect(t, 'ID')
 
 def p_valselect_11(t):
     'valselect      : ID PUNTO ASTERISCO'
+    t[0] = getValSelect(t, 'ID.*')
 
 def p_valselect_2(t):
     'valselect      : ID PUNTO ID alias'
+    t[0] = getValSelect(t, 'ID.ID')
 
 def p_valselect_3(t):
     'valselect      : funcion_matematica_ws alias'
+    t[0] = getValSelect(t, 'funmat_ws')
 
 def p_valselect_4(t):
     'valselect      : funcion_matematica_s alias'
+    t[0] = getValSelect(t, 'funmat_s')
 
 def p_valselect_5(t):
     'valselect      : funcion_trigonometrica alias'
+    t[0] = getValSelect(t, 'funmat_trig')
 
 def p_valselect_6(t):
     'valselect      : PARIZQ select_instr1 PARDER alias'
+    t[0] = getValSelect(t, 'subquery')
 
 def p_valselect_7(t):
     'valselect      : agregacion PARIZQ cualquieridentificador PARDER alias'
+    t[0] = getValSelect(t, 'agregacion')
 
 def p_valselect_8(t):
     'valselect      : COUNT PARIZQ ASTERISCO PARDER alias'
+    t[0] = getValSelect(t, 'count_ast')
 
 def p_valselect_9(t):
     'valselect      : COUNT PARIZQ cualquieridentificador PARDER alias'
+    t[0] = getValSelect(t, 'count_val')
 
 def p_valselect_10(t) :
     'valselect      : func_bin_strings_1 alias'
+    t[0] = getValSelect(t, 'funcbinstring1')
 
 def p_valselect_12(t) :
     'valselect      : func_bin_strings_2 alias'
+    t[0] = getValSelect(t, 'funcbinstring2')
 
 def p_valselect_13(t):
     'valselect      : func_bin_strings_4 alias'
-    
+    t[0] = getValSelect(t, 'funcbinstring4')
+
+def p_valselect_15(t):
+    'valselect  :  nowinstr'
+    t[0] = t[1]
+
+def p_valselect_14(t):
+    '''valselect      : extract_instr alias
+                      | datepart_instr alias
+                      | current alias
+                      | timestampnow alias'''
+    if t[2] != None :
+        t[1].hijos.append(t[2])
+    t[0] = t[1]
+
 def p_funcionagregacion(t):
     '''agregacion      : SUM
                        | AVG
                        | MAX
                        | MIN'''
+    t[0] = t[1]
 
 ## ---------- tablas que se piden en el from  -----------------
 
 def p_listatablasselect(t):
     'listatablasselect : listatablasselect COMA tablaselect'
+    t[1].hijos.append(t[3])
+    t[0] = t[1]
 
 def p_listatablasselect_salida(t):
     'listatablasselect : tablaselect'
+    gramatica =  '<listatablasselect> ::=  <tablaselect>'
+    t[0] = Nodo("FROM", '', [t[1]], t.lexer.lineno, 0, gramatica)
 
 def p_tablasselect_1(t):
     'tablaselect       : ID alias'
+    t[0] = getTablaSelect(t)
 
 def p_tablasselect_2(t):
     'tablaselect       : PARIZQ select_instr1 PARDER alias'
+    t[0] = getTablaSelect(t)
 
 def p_asignar_alias(t):
     '''alias             : ID
@@ -804,6 +898,7 @@ def p_asignar_alias(t):
                          | AS CADENASIMPLE
                          | AS CADENADOBLE
                          | empty'''
+    t[0] = getAlias(t)
 
 
 
@@ -811,7 +906,8 @@ def p_asignar_alias(t):
 
 def p_whereselect_1(t):
     'whereselect       : WHERE condicioneswhere'
-
+    gramatica = '<whereselect> ::= \"WHERE\" <condicioneswhere>'
+    t[0] = Nodo('WHERE', '', [t[2]], t.lexer.lineno,0, gramatica)
 
 def p_whereselect_5(t):
     'whereselect       : empty'
@@ -820,11 +916,13 @@ def p_whereselect_5(t):
 def p_lista_condicionwhere(t):
     '''condicioneswhere    : condicioneswhere OR  condicionwhere
                            | condicioneswhere AND condicionwhere'''
-
+    gramatica = '<condicioneswhere> ::= <condicioneswhere> \"'+t[2]+'\" <condicionwhere>'
+    t[0] = Nodo('OPLOG', t[2], [t[1], t[3]], t.lexer.lineno, 0, gramatica)
 
 def p_lista_condicionwhere_salida(t):
     'condicioneswhere      : condicionwhere'
-
+    t[1].gramatica = '<condicioneswhere> ::= <condicionwhere>\n' + t[1].gramatica
+    t[0] = t[1]
 
 def p_condicionwhere(t):
     '''condicionwhere      : whereexists
@@ -838,68 +936,97 @@ def p_condicionwhere(t):
                            | not_between_state
                            | predicates_state
                            | is_distinct_state
-                           | condicion'''                     
+                           | condicion''' 
+    t[0] = t[1]                    
 
 def p_existwhere(t):
     'whereexists       : EXISTS PARIZQ select_instr1 PARDER'
+    gramatica = '<condicionwhere> ::= <whereexists>\n'
+    gramatica += '<whereexists> ::= \"EXISTS\" \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('EXISTS', '', [t[3]], t.lexer.lineno, 0, gramatica)
 
 def p_notexistwhere(t):
     'notwhereexists    : NOT EXISTS PARIZQ select_instr1 PARDER'
+    gramatica = '<condicionwhere> ::= <notwhereexists>\n'
+    gramatica += '<notwhereexists> ::= \"NOT\" \"EXISTS\" \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('NOT EXISTS', '', [t[4]], t.lexer.lineno, 0, gramatica)
 
 def p_inwhere(t):
     '''wherein         : cualquiernumero IN PARIZQ select_instr1 PARDER
                        | cadenastodas IN PARIZQ select_instr1 PARDER'''
-
+    gramatica = '<condicionwhere> ::= <wherein>\n'
+    gramatica += '<wherein> ::= <cualquiernumero> \"IN\" \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('IN', '', [t[1], t[4]], t.lexer.lineno, 0, gramatica)
 
 def p_notinwhere(t):
     '''wherenotin      : cualquiernumero NOT IN PARIZQ select_instr1 PARDER
                        | cadenastodas NOT IN PARIZQ select_instr1 PARDER'''
-
+    gramatica = '<condicionwhere> ::= <wherenotin>\n'
+    gramatica += '<wherenotin> ::= <cualquiernumero> \"NOT\" \"IN\" \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('NOT IN', '', [t[1], t[5]], t.lexer.lineno, 0, gramatica)
 
 def p_notlikewhere(t):
     'wherenotlike      : cadenastodas NOT LIKE CADENALIKE'
-
+    gramatica = '<condicionwhere> ::= <wherenotlike>\n'
+    gramatica = '<wherenotlike> ::= <cadenastodas> \"NOT\" \"LIKE\" \"CADENALIKE\"'
+    t[0] = Nodo('NOT LIKE', t[4], [t[1]], t.lexer.lineno, 0, gramatica)
 
 def p_likewhere(t):
     'wherelike         : cadenastodas LIKE CADENALIKE'
+    gramatica = '<condicionwhere> ::= <wherelike>\n'
+    gramatica += '<wherelike> ::= <cadenastodas> \"LIKE\" \"CADENALIKE\"'
+    t[0] = Nodo('LIKE', t[3], [t[1]], t.lexer.lineno, 0, gramatica)
 
 
 def p_substringwhere(t):
     'wheresubstring    : SUBSTRING PARIZQ cadenastodas COMA ENTERO COMA ENTERO PARDER IGUAL CADENASIMPLE'
-
+    t[0] = getSubstring(t)
 
 def p_cadenas(t):
     '''cadenastodas    : cualquiercadena
                        | cualquieridentificador'''
-
+    t[0] = t[1]
 
 # ----- Producciones para el manejo del group by, incluyendo Having --------
 
 def p_gruopby(t):
     'groupby          : GROUP BY listagroupby' 
+    t[0] = getGroupby(t) 
 
 def p_groupby(t):
     'groupby          : GROUP BY listagroupby HAVING condicioneshaving'
+    t[0] = getGroupby(t)
 
 def p_gruopby_2(t):
     'groupby          : empty'
 
 def p_listagroupby(t):
     'listagroupby     : listagroupby COMA valgroupby'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_salidagroupby(t):
     'listagroupby     : valgroupby'
+    t[1].gramatica = '<listagroupby> ::= <valgroupby>\n' + t[1].gramatica
+    t[0] = [t[1]]
 
 def p_valgroupby(t):
     '''valgroupby     : cualquieridentificador
                       | cualquiernumero'''
+    t[1].gramatica = '<valgroupby> ::= <cualquieridentificador>\n' +t[1].gramatica
+    t[0] = t[1]
 
 def p_lista_condicionhaving(t):
     '''condicioneshaving  : condicioneshaving OR  condicionhaving
                           | condicioneshaving AND condicionhaving'''
+    gramatica = '<condicioneshaving> ::= <condicioneshaving> \"'+t[2]+'\" <condicionhaving>\n'
+    t[0] = Nodo('OPLOG', t[2], [t[1], t[3]], t.lexer.lineno, 0, gramatica)
 
 def p_listacondicionhaving_salida(t):
     'condicioneshaving    :  condicionhaving'''
+    aux = t[1].gramatica
+    t[1].gramatica  = '<condicioneshaving> ::=  <condicionhaving>\n' + aux
+    t[0] = t[1]
 
 def p_condicionhaving(t):
     '''condicionhaving  : expresionhaving MENQUE expresionhaving
@@ -908,46 +1035,62 @@ def p_condicionhaving(t):
                         | expresionhaving MAYIGUAL expresionhaving
                         | expresionhaving IGUAL expresionhaving 
                         | expresionhaving DIFERENTE expresionhaving'''
+    t[0] = getOpRelacional(t)
 
 def p_expresionhaving(t):
     '''expresionhaving     : cualquiercadena
                            | expresionaritmetica
                            | condicionhavingagregacion
                            | funcion_matematica_ws'''
+    t[0] = t[1]
 
 def p_condicionhavingagregacion(t):
     'condicionhavingagregacion  : agregacion PARIZQ cualquieridentificador PARDER'
-
+    gramatica = '<expresionhaving> ::= <condicionhavingagregacion>'
+    gramatica += '<condicionhavingagregacion> ::= <agregacion> \"PARIZQ\" <cualquieridentificador> \"PARDER\"'
+    t[0] = Nodo('Agregacion', t[1], [t[3]], t.lexer.lineno, 0, gramatica)
 
 # ----- Producciones para el manejo del Order by, incluyendo ASC y DESC --------
 
 def p_orderby(t):
     'orderby          : ORDER BY listaorderby'
+    t[0] = getOrderBy(t)
 
 def p_orderby_1(t):
     'orderby          : ORDER BY listaorderby instrlimit'
+    t[0] = getOrderBy(t)
 
 def p_orderby_2(t):
     'orderby          : empty'
 
 def p_listaorderby(t):
     'listaorderby     : listaorderby COMA valororderby'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_salidaorderby(t):
     'listaorderby     : valororderby'
+    aux = t[1].gramatica
+    t[1].gramatica = '<listaorderby> ::= <listaorderby> \"COMA\" <valororderby>\n'
+    t[1].gramatica += '<listaorderby> ::= <valororderby>\n' + aux
+    t[0] = [t[1]]
 
 def p_valororderby(t):
     '''valororderby     : cualquieridentificador ascdesc anular
                         | cualquiernumero ascdesc anular'''
+    t[0] = getValOrder(t)
 
 def p_ascdesc(t):
     '''ascdesc        : DESC
                       | ASC
                       | empty'''
+    t[0] = getAscDesc(t)
 
 def p_anular(t):
     '''anular        : NULLS LAST
                      | NULLS FIRST'''
+    gramatica = '<anular> ::= \"NULLS\" \"' +t[2]+ "\""
+    t[0] = Nodo(t[1], t[2], [], t.lexer.lineno, 0, gramatica)
 
 def p_anular_1(t):
     'anular          : empty'
@@ -955,9 +1098,12 @@ def p_anular_1(t):
 def p_instrlimit(t):
     '''instrlimit    : LIMIT ENTERO instroffset
                      | LIMIT ALL instroffset'''
+    t[0] = getLimit(t)
 
 def p_instroffset(t):
     'instroffset     : OFFSET ENTERO'
+    gramatica = '<instroffset> ::= \"OFFSET\" \"'+ str(t[2]) +'\"'
+    t[0] = Nodo('OFFSET', str(t[2]), [], t.lexer.lineno, 0, gramatica)
 
 def p_instroffset_2(t):
     'instroffset     : empty'
@@ -969,9 +1115,13 @@ def p_instroffset_2(t):
 def p_lista_condicion(t): 
     '''condiciones    : condiciones AND condicion
                       | condiciones OR  condicion'''
+    gramatica = '<condiciones> ::= <condiciones> \"'+ t[2]+'\" <condicion>'
+    t[0] = Nodo('OPLOG', t[2], [t[1], t[3]], t.lexer.lineno, 0, gramatica)
 
 def p_lista_condicion_salida(t) :
     'condiciones      : condicion'
+    t[1].gramatica = '<condiciones> ::= <condicion>\n' + t[1].gramatica
+    t[0] = t[1]
     
 ## expresiones relacionales
 def p_condicion (t):
@@ -981,6 +1131,7 @@ def p_condicion (t):
                       | expresion MAYIGUAL expresion
                       | expresion IGUAL expresion 
                       | expresion DIFERENTE expresion'''
+    t[0] = getOpRelacional(t)
     
 def p_expresion(t) : 
     '''expresion      : cualquiercadena
@@ -989,9 +1140,12 @@ def p_expresion(t) :
                       | func_bin_strings_1
                       | func_bin_strings_2
                       | vallogico'''
+    t[0] = t[1]
 
 def p_expresion_2(t):
     'expresion        : PARIZQ select_instr1 PARDER'
+    gramatica = '<expresion> :: \"PARIZQ\" <select_instr1> \"PARDER\"'
+    t[0] = Nodo('Subquery', '', [t[2]], t.lexer.lineno, 0, gramatica) 
 
 ## expresiones aritmeticas
 def p_expresion_aritmetica (t):
@@ -1001,32 +1155,46 @@ def p_expresion_aritmetica (t):
                             | expresionaritmetica DIVIDIDO expresionaritmetica 
                             | expresionaritmetica MODULO expresionaritmetica 
                             | expresionaritmetica EXPONENTE expresionaritmetica'''
+    gramatica = '<expresionaritmetica> ::= <expresionaritmetica> \"'+t[2]+'\" <expresionaritmetica>'
+    t[0] = Nodo('OPARIT', t[2], [t[1], t[3]], t.lexer.lineno, 0, gramatica)
     
 def p_expresion_aritmetica_2(t) : 
     'expresionaritmetica    : MENOS expresionaritmetica %prec UMENOS'
+    gramatica = '<expresionaritmetica> ::= \"MENOS\" <expresionaritmetica> %prec \"UMENOS\"'
+    t[0] = Nodo('NEGATIVO', '-', [t[2]], t.lexer.lineno, 0, gramatica)
 
 def p_expresion_aritmetica_3(t) : 
     '''expresionaritmetica  : cualquiernumero
                             | cualquieridentificador'''
+    t[1].gramatica = '<expresionaritmetica> ::= <cualquiernumero>\n' + t[1].gramatica
+    t[0] = t[1]
 
 def p_expresion_aritmetica_4(t) : 
     'expresionaritmetica    : PARIZQ expresionaritmetica PARDER'
+    t[2].gramatica = '<expresionaritmetica> ::= \"PARIZQ\" <expresionaritmetica> \"PARDER\"\n' + t[2].gramatica
+    t[0] = t[2]
 
 def p_cualquiernumero(t) : 
     '''cualquiernumero      : ENTERO
                             | DECIMAL'''
+    t[0] = getValorNumerico(t)
 
 def p_culquiercadena (t):
     '''cualquiercadena      : CADENASIMPLE
                             | CADENADOBLE'''
+    gramatica = '<cualquiercadena> ::= \"'+str(t[1])+'\"'
+    t[0] = Nodo('CADENA', str(t[1]), [], t.lexer.lineno, 0, gramatica)
 
 def p_culquieridentificador (t):
     '''cualquieridentificador    : ID
                                  | ID PUNTO ID'''
+    t[0] = getIdentificador(t)
 
 def p_valorlogico(t):
     '''vallogico    : FALSE
                     | TRUE'''
+    gramatica = '<vallogico> ::= \"'+t[1]+'\"'
+    t[0] = Nodo('LOGICO', t[1], [], t.lexer.lineno, 0, gramatica)
 
 
 #----------------------------- Case ---------------------------------
@@ -1055,44 +1223,40 @@ def p_estadocase4(t):
 
 
 
-# --------------Between-----------------
-
+# --------------Between------------------------------------------------------------------------
 def p_between_state(t):
-    '''between_state    : valores BETWEEN valores AND valores
-                        | valores NOT BETWEEN valores AND valores'''
+    '''between_state    : cualquiernumero BETWEEN valores AND valores
+                        | cadenastodas BETWEEN valores AND valores'''
+    t[0] = getBetween(t)
+    
+def p_between_state1(t):
+    '''not_between_state   : cualquiernumero NOT BETWEEN valores AND valores
+                          | cadenastodas NOT BETWEEN valores AND valores'''
+    t[0] = getBetween(t)
 
-# ---------PREDICATES NULLS-----------
-
+# --------------PREDICATES NULLS---------------------------------------------------------------
 def p_predicates_state(t):
     '''predicates_state : valores IS NULL
                         | valores IS NOT NULL
                         | valores ISNULL
                         | valores NOTNULL'''
-    #t[0] = Nodo('COMPARISON PREDICATES','', [t[1]], t.lexer.lineno)
+    t[0] = getPredicates(t)
 
-
-#---------------IS DISTINCT -------------
-
+#---------------IS DISTINCT ----------------------------------------------------------------
 def p_is_distinct_state(t):
-    'is_distinct_state : valores IS DISTINCT FROM valores'
-    #t[0] = Nodo('DISTINCT', str(t[1]), [t[5]], t.lexer.lineno)
-
-def p_is_distinct_state2(t):
-    'is_distinct_state : valores IS NOT DISTINCT FROM valores'
-    #t[0] = Nodo('NOT DISTINCT', str(t[1]), [t[6]], t.lexer.lineno)
-
-def p_is_distinct_state3(t):
-    'is_distinct_state : empty'
-    
+    '''is_distinct_state : valores IS DISTINCT FROM valores
+                         | valores IS NOT DISTINCT FROM valores'''
+    t[0] = getDistinctFrom(t)  
 
 def p_valores(t):
     '''valores  : cualquiernumero
                 | cualquiercadena
                 | cualquieridentificador'''
-   # t[0] = t[1]
+    t[1].gramatica = '<valores> ::= <cualquieridentificador>\n' + t[1].gramatica
+    t[0] = t[1]
 
 
-# -------------- FUNCIONES MÁTEMÁTICAS ----------------------
+# -------------- FUNCIONES MATEMÁTICAS ----------------------
 
 # Select | Where
 def p_funciones_matematicas1(t):
@@ -1100,6 +1264,8 @@ def p_funciones_matematicas1(t):
                                 | CBRT PARIZQ expresionaritmetica PARDER
                                 | CEIL PARIZQ expresionaritmetica PARDER
                                 | CEILING PARIZQ expresionaritmetica PARDER'''
+    gramatica = '<funcion_matematica_ws > ::= \"'+str(t[1])+'\" \"PARIZQ\" <expresionaritmetica> \"PARDER\"' 
+    t[0] = Nodo('Matematica', t[1], [t[3]], t.lexer.lineno, 0, gramatica)
 
 # Select
 def p_funciones_matematicas2(t):
@@ -1121,11 +1287,12 @@ def p_funciones_matematicas2(t):
                                 | WBUCKET PARIZQ explist PARDER
                                 | TRUNC PARIZQ expresionaritmetica PARDER
                                 | RANDOM PARIZQ expresionaritmetica PARDER'''
+    t[0] = getFuncionMatematica(t)
     
 # Lista de expresiones para la función Width Bucket
 def p_wbucket_exp(t):
     'explist  : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica'
-    
+    t[0] = Nodo('VALORES','',[t[1],t[3],t[5],t[7]],t.lexer.lineno)
 # ------------------------------- FUNCIONES TRIGONOMETRICAS ----------------------------------
 
 def p_funciones_trigonometricas(t):
@@ -1151,22 +1318,29 @@ def p_funciones_trigonometricas(t):
                                | ASINH PARIZQ expresionaritmetica PARDER
                                | ACOSH PARIZQ expresionaritmetica PARDER
                                | ATANH PARIZQ expresionaritmetica PARDER'''
+    gramatica = '<funcion_trigonometrica> ::= \"'+str(t[1])+'\" \"PARIZQ\" <expresionaritmetica> \"PARDER\"'
+    t[0] = Nodo('Trigonometrica', t[1], [t[3]], t.lexer.lineno, 0, gramatica)
     
 # ----------- FUNCIONES BINARIAS SOBRE CADENAS ---------------
 
 # Select | Where
 def p_fbinarias_cadenas_1(t):
     'func_bin_strings_1    : LENGTH PARIZQ cadena PARDER '
+    g = '<fun_bin_strings_1> ::= \"LENGTH\" \"PARIZQ\" <cadena> \"PARDER\"\n'
+    t[0] = Nodo('FUNCION STR','LENGTH',[],t.lexer.lineno,0,g)
     
 # Select | Insert | Update | Where
 def p_fbinarias_cadenas_2(t):
     '''func_bin_strings_2   : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
                             | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
                             | TRIM PARIZQ cadena PARDER'''
+    t[0] = getStringFunctionNode2(t)
     
 # Insert | Update                            
 def p_fbinarias_cadenas_3(t):
     'func_bin_strings_3   : MD5 PARIZQ cadena PARDER'
+    g = '<func_bin_strings_3> ::= \"MD5\" \"PARIZQ\" <cadena> \"PARDER\"\n'
+    t[0] = Nodo('FUNCION STR','MD5',[t[3]],t.lexer.lineno,0,g)
 
 # Select
 def p_fbinarias_cadenas_4(t):
@@ -1176,11 +1350,56 @@ def p_fbinarias_cadenas_4(t):
                             | DECODE PARIZQ cadena COMA cadena PARDER
                             | SHA256 PARIZQ cadena PARDER
                             | CONVERT PARIZQ alias PARDER'''
+    t[0] = getStringFunctionNode4(t)
+
+def p_opbin_cadenas(t):
+    '''op_bin_strings       : op_bin_strings CONCAT op_bin_strings
+                            | op_bin_strings BITWAND op_bin_strings
+                            | op_bin_strings BITWOR op_bin_strings
+                            | op_bin_strings BITWXOR op_bin_strings
+                            | op_bin_strings BITWNOT op_bin_strings
+                            | op_bin_strings BITWSHIFTL op_bin_strings
+                            | op_bin_strings BITWSHIFTR op_bin_strings 
+                            | cadena'''
 
 def p_cadena(t):
     '''cadena   : cualquiercadena
                 | cualquieridentificador'''
+    t[0] = t[1]
 
+# ----------------------------------- EXTRACT, DATEPART, NOW-------------------------------------------
+def p_extract(t):
+    'extract_instr      :  EXTRACT PARIZQ valdate FROM TIMESTAMP CADENASIMPLE PARDER'
+    a = Nodo('FROM TIMESTAMP', t[6], [], t.lexer.lineno)
+    t[0] = Nodo('EXTRACT', '',[t[3], a], t.lexer.lineno )
+
+def p_valdate1(t):
+    '''valdate   : YEAR
+                 | HOUR
+                 | MINUTE
+                 | SECOND
+                 | MONTH
+                 | DAY'''
+    t[0] = Nodo(str(t[1]), '', [], t.lexer.lineno, 0, '')
+
+def p_datepart(t):
+    'datepart_instr    :  DATE_PART PARIZQ CADENASIMPLE COMA INTERVAL CADENASIMPLE PARDER'
+    a = Nodo('CADENA', t[3], [], t.lexer.lineno)
+    b = Nodo('INTERVAL', t[6], [], t.lexer.lineno)
+    t[0] = Nodo('DATE PART', '',[a, b], t.lexer.lineno)
+
+def p_current(t):
+    '''current     :  CURRENT_DATE
+                   | CURRENT_TIME'''
+    t[0] = Nodo(str(t[1]), '', [], t.lexer.lineno)
+
+def p_timestamp(t):
+    'timestampnow     :  TIMESTAMP CADENASIMPLE'
+    t[0] = Nodo('TIMESTAMP', str(t[2]), [], t.lexer.lineno)
+
+def p_nowinstr(t):
+    'nowinstr     :  NOW PARIZQ PARDER'
+    t[0] = Nodo('NOW', '', [], t.lexer.lineno)
 
 ############################################## PRODUCCIONES ESPECIALES #################################################
 
@@ -1192,9 +1411,56 @@ def p_empty(t) :
 def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
+    Errores.append(Error('42601', EType.SINTACTICO, 'syntax_error',t.lexer.lineno))
+    #ast.errors.append(Error('42601', EType.SINTACTICO, 'syntax_error',t.lexer.lineno)
+    #webbrowser.open("file:/Errores Lexicos.html", new=2, autoraise=True)
 
-
-#Analizador sintactico
-import ply.yacc as yacc
+# Analizador sintactico
 parser = yacc.yacc()
+
+def parse(input) :
+    global output2
+    global errors2
+    retorno = parser.parse(input)
+    graficarAST(retorno)
+    # Se instancia un AST y se ejecutan las instruccion
+    ast = AST(retorno)
+    ast.executeAST()
+    ast.printOutputs()
+    ast.printErrors()
+    ast.generateTSReport()
+    ast.errors += Errores
+    ast.erroresHTML()
+    
+    # Se crear el reporte gramatical en formato BNF
+    crearReporte(retorno)
+    return ast
+
+
+# Funciones para generar el codigo DOT del AST---------------------------------------
+c = 0
+def recorrerNodos(nodo):
+    global c
+    c += 1
+    codigo = ""
+    padre = 'nodo'+str(c)
+    codigo = padre + '[label = \"' + nodo.etiqueta + '\\n' + nodo.valor + '\"];\n'
+    for hijo in nodo.hijos: 
+        codigo += padre + '->' + 'nodo' + str(c+1) + '\n'
+        codigo += recorrerNodos(hijo)
+    return codigo
+
+def graficarAST(raiz):
+
+    file = open("ast.dot", "w")
+    file.write(
+            'digraph G {\n'
+            + 'rankdir=TB; '
+            + 'node[fillcolor=\"darkturquoise:darkslategray2\", shape=record ,fontname = \"Berlin Sans FB\" ,style = filled]  \n'
+            + 'edge[arrowhead=none]; \n'
+        )
+    file.write(recorrerNodos(raiz))
+    file.write('}\n')
+    file.close()
+    render('dot','svg','ast.dot')
 

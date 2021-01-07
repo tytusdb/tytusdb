@@ -3,6 +3,8 @@ class Table(object):
         self.name = name
         self.columns = columns
         self.constraint = constraint
+        self.alias = None
+        self.herencia = None
     
     def createColumn(self, column):
         self.columns.append(column)

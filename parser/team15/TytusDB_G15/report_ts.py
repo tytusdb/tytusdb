@@ -45,7 +45,7 @@ class RTablaDeSimbolos:
             while i < len(ts_global.simbolos):
                 f.write("                    <tr>")
                 f.write("                        <td class=\"text-left\">"+ str(i+1) +"</td>")
-                f.write("                        <td class=\"text-left\">"+ str(ts_global.simbolos[i].id) +"</td>")
+                f.write("                        <td class=\"text-left\">"+ str(ts_global.simbolos[i].val) +"</td>")
                 f.write("                        <td class=\"text-left\">"+ str(ts_global.simbolos[i].tipo) +"</td>")
                 f.write("                        <td class=\"text-left\">"+ str(ts_global.simbolos[i].valor) +"</td>")
                 f.write("                        <td class=\"text-left\">"+ str(ts_global.simbolos[i].ambito) +"</td>")

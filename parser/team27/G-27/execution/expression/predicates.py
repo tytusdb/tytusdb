@@ -1,15 +1,10 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
-from expression import *
-from typ import *
-from literal import *
-from id import *
-from checker import *
+from execution.abstract.expression import *
+from execution.symbol.typ import *
+from execution.expression.literal import *
+from execution.expression.id import *
+from TypeChecker.checker import *
 
-class Logic(Expression):
+class Predicates(Expression):
     # si es el oprando not mandar un None como operador right
     def __init__(self, operator1, operator2,operator3,tipoPredicate, row, column):
         Expression.__init__(self, row, column)
@@ -31,11 +26,11 @@ class Logic(Expression):
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }
             #TODO verificar tipos de los 3 operandos
-            if op1['typ']!= op2['typ'] or op2['typ'] != op3['typ']
+            if op1['typ']!= op2['typ'] or op2['typ'] != op3['typ']:
                 return {'Error':'El tipo de dato de la columna es diferente al tipo de dato a comparar ', 'Linea':self.row, 'Columna': self.column }
             if op2['value'] >= op3['value']:
                 return {'Error':'El valor 1 es mayor o igual que el valor 2', 'Linea':self.row, 'Columna': self.column }
-            if op1['value'] > op2['value'] and op1['value'] < op3['value']
+            if op1['value'] > op2['value'] and op1['value'] < op3['value']:
                 return {'value':True,'typ':Type.BOOLEAN}
             else:
                 return {'value':False,'typ':Type.BOOLEAN}
@@ -45,11 +40,11 @@ class Logic(Expression):
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }
             #TODO verificar tipos de los 3 operandos
-            if op1['typ']!= op2['typ'] or op2['typ'] != op3['typ']
+            if op1['typ']!= op2['typ'] or op2['typ'] != op3['typ']:
                 return {'Error':'El tipo de dato de la columna es diferente al tipo de dato a comparar ', 'Linea':self.row, 'Columna': self.column }
             if op2['value'] > op3['value']:
                 return {'Error':'El valor 1 es mayor o igual que el valor 2', 'Linea':self.row, 'Columna': self.column }
-            if op1['value'] < op2['value'] or op1['value'] > op3['value']
+            if op1['value'] < op2['value'] or op1['value'] > op3['value']:
                 return {'value':True,'typ':Type.BOOLEAN}
             else:
                 return {'value':False,'typ':Type.BOOLEAN}
@@ -59,18 +54,18 @@ class Logic(Expression):
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }
             #TODO verificar tipos de los 3 operandos
-            if op1['typ']!= op2['typ'] or op2['typ'] != op3['typ']
+            if op1['typ']!= op2['typ'] or op2['typ'] != op3['typ']:
                 return {'Error':'El tipo de dato de la columna es diferente al tipo de dato a comparar ', 'Linea':self.row, 'Columna': self.column }
             if op2['value'] >= op3['value']:
                 return {'Error':'El valor 1 es igual que el valor 2 por lo que no hay rango', 'Linea':self.row, 'Columna': self.column }
 
             if op2['value'] < op3['value']:
-                if op1['value'] < op2['value'] or op1['value'] > op3['value']
+                if op1['value'] < op2['value'] or op1['value'] > op3['value']:
                     return {'value':True,'typ':Type.BOOLEAN}
                 else:
                     return {'value':False,'typ':Type.BOOLEAN}
             else:
-                if op1['value'] < op3['value'] or op1['value'] > op2['value']
+                if op1['value'] < op3['value'] or op1['value'] > op2['value']:
                     return {'value':True,'typ':Type.BOOLEAN}
                 else:
                     return {'value':False,'typ':Type.BOOLEAN}
@@ -80,18 +75,18 @@ class Logic(Expression):
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }
             #TODO verificar tipos de los 3 operandos
-            if op1['typ']!= op2['typ'] or op2['typ'] != op3['typ']
+            if op1['typ']!= op2['typ'] or op2['typ'] != op3['typ']:
                 return {'Error':'El tipo de dato de la columna es diferente al tipo de dato a comparar ', 'Linea':self.row, 'Columna': self.column }
             if op2['value'] >= op3['value']:
                 return {'Error':'El valor 1 es igual que el valor 2 por lo que no hay rango', 'Linea':self.row, 'Columna': self.column }
 
             if op2['value'] < op3['value']:
-                if op1['value'] < op2['value'] or op1['value'] > op3['value']
+                if op1['value'] < op2['value'] or op1['value'] > op3['value']:
                     return {'value':True,'typ':Type.BOOLEAN}
                 else:
                     return {'value':False,'typ':Type.BOOLEAN}
             else:
-                if op1['value'] < op3['value'] or op1['value'] > op2['value']
+                if op1['value'] < op3['value'] or op1['value'] > op2['value']:
                     return {'value':True,'typ':Type.BOOLEAN}
                 else:
                     return {'value':False,'typ':Type.BOOLEAN}
@@ -100,9 +95,9 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ']!= op2['typ']
+            if op1['typ']!= op2['typ']:
                 return {'Error':'El tipo de dato de la columna es diferente al tipo de dato a comparar ', 'Linea':self.row, 'Columna': self.column }        
-            if op1['value'] != op2['value']
+            if op1['value'] != op2['value']:
                 return {'value':True,'typ':Type.BOOLEAN}
             else:
                 return {'value':False,'typ':Type.BOOLEAN}
@@ -110,9 +105,9 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ']!= op2['typ']
+            if op1['typ']!= op2['typ']:
                 return {'Error':'El tipo de dato de la columna es diferente al tipo de dato a comparar ', 'Linea':self.row, 'Columna': self.column }        
-            if op1['value'] == op2['value']
+            if op1['value'] == op2['value']:
                 return {'value':True,'typ':Type.BOOLEAN}
             else:
                 return {'value':False,'typ':Type.BOOLEAN}
@@ -121,7 +116,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':True,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':True,'typ':Type.BOOLEAN}
@@ -132,7 +127,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':False,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':False,'typ':Type.BOOLEAN}
@@ -143,7 +138,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':True,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':True,'typ':Type.BOOLEAN}
@@ -154,7 +149,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':False,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':False,'typ':Type.BOOLEAN}
@@ -165,7 +160,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':False,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':False,'typ':Type.BOOLEAN}
@@ -181,7 +176,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':True,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':True,'typ':Type.BOOLEAN}
@@ -197,7 +192,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':True,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':True,'typ':Type.BOOLEAN}
@@ -213,7 +208,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':False,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':False,'typ':Type.BOOLEAN}
@@ -229,7 +224,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':True,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':True,'typ':Type.BOOLEAN}
@@ -240,7 +235,7 @@ class Logic(Expression):
             op1 = self.operator3.execute(environment)
             if 'Error' in op1:
                 return {'Error':'El id indicado no existe en la tabla ', 'Linea':self.row, 'Columna': self.column }            
-            if op1['typ'] == Type.NULL
+            if op1['typ'] == Type.NULL:
                 return {'value':False,'typ':Type.BOOLEAN}
             elif op1['value'] == 'null':
                 return {'value':False,'typ':Type.BOOLEAN}

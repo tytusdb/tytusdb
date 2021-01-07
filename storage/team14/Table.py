@@ -1,5 +1,5 @@
-from ISAM import ISAM
-from ISAM import Tuple
+from ISAMMode.ISAM import ISAM
+from ISAMMode.ISAM import Tuple
 
 
 class Table:
@@ -7,7 +7,7 @@ class Table:
         self.name = name
         self.numberColumns = numberColumns
         self.PK = []
-        self.hiddenPK = 0
+        self.hiddenPK = 1
         self.tuples = ISAM()
         self.PKDefined = False
         self.droppdedPK = False
@@ -41,3 +41,4 @@ class Table:
             PKCols = self.hiddenPK
             self.hiddenPK += 1
         return self.tuples.update(register, cols, PKCols)
+
