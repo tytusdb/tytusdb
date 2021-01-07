@@ -130,14 +130,17 @@ def Execute_(procedures, row, column):
     return execute_.Execute(procedures, row, column)
 
 
-def DropFunction(id,  row, column):
-    return drop_func.DropFunction(id,  row, column)
+def DropFunction(id, row, column):
+    return drop_func.DropFunction(id, row, column)
+
 
 def Identifier(id, isBlock, row, column):
     return datatype.Identifier(id, isBlock, row, column)
 
+
 def BinaryExpression(temp, exp1, exp2, operator, isBlock, row, column):
     return datatype.BinaryExpression(temp, exp1, exp2, operator, isBlock, row, column)
+
 
 def UnaryExpression(temp, exp, operator, isBlock, row, column):
     return datatype.UnaryExpression(temp, exp, operator, isBlock, row, column)
