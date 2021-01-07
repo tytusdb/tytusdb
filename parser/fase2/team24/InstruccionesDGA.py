@@ -5,12 +5,16 @@ import mathtrig as mt
 import hashlib
 from datetime import date
 
+from variables import cont
+from variables import tabla
+from variables import NombreDB
+from procedural import llamadaF
+
 #VARIABLES GLOBALES
 resultadotxt = ""
-tabla = TS.Tabla()
-cont = 0
+
 contambito = 0
-NombreDB = ""
+
 contregistro = 0
 
 
@@ -68,8 +72,8 @@ class createdb(instruccion):
         if self.mode != "":
             traduccion += ' MODE =' + self.mode
         traduccion += ';")'
-        print(traduccion)
-        return traduccion + ';\n'
+        
+        return traduccion + '\n'
 
     def ejecutar(self):
         global resultadotxt
@@ -122,7 +126,7 @@ class showdb(instruccion):
         traduccion = '\t'
         traduccion += 'sql.execute("SHOW DATABASES '+ self.nombre + ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -163,7 +167,7 @@ class alterdb(instruccion):
             traduccion += ' RENAME TO ' + self.alterdb2.alterdb3.iden
         traduccion += ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -228,7 +232,7 @@ class dropdb(instruccion):
         traduccion += ' ' + self.iden
         traduccion += ';)"'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -275,7 +279,7 @@ class usedb(instruccion):
         traduccion += 'sql.execute("USE DATABASE '+ self.iden
         traduccion += '";)'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -313,7 +317,7 @@ class createtb(instruccion):
         traduccion += ');")'
         traduccion = traduccion.replace(',)',')')
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
 
@@ -445,7 +449,7 @@ class droptb(instruccion):
         traduccion = '\t'
         traduccion += 'sql.execute("DROP TABLE '+ self.iden + ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -514,7 +518,7 @@ class altertb(instruccion):
                 subtraduccion += ';")'
                 subtraduccion += '\n'
                 traduccion += subtraduccion
-        print(traduccion)
+        
         return traduccion
 
 
@@ -627,24 +631,34 @@ class insert(instruccion):
         self.valores = valores
 
     def traducir(self):
-        traduccion = '\t'
-        traduccion += 'sql.execute("INSERT INTO '+ self.iden + ' VALUES('
+        c3d = ''
+        traduccion = ''
+        traduccion += '\tsql.execute("INSERT INTO '+ self.iden + ' VALUES('
 
         for v in self.valores:
-            if isinstance(v , (int, float, complex)):
-                traduccion += str(v) + ","
-            elif isinstance(v, str):
-                traduccion += "'"+ v + "'" + ","
-            elif isinstance(v, bool):
-                traduccion += str(v) + ","
-            elif "ejecutar" in dir(v) :
-                traduccion += str(v.ejecutar()) + ","
+            print(type(v))
+            if isinstance(v, llamadaF):
+                print(v) 
+                c = v.traducir()
+                c3d += '\t'+str(c[0]).replace('\n','\n\t')
+                c3d += '\n'
+                traduccion += "\"+"+str(c[1])+ "+\","
+            else:
+                if isinstance(v , (int, float, complex)):
+                    traduccion += str(v) + ","
+                elif isinstance(v, str):
+                    traduccion += "'"+ v + "'" + ","
+                elif isinstance(v, bool):
+                    traduccion += str(v) + ","
+                elif "ejecutar" in dir(v) :
+                    traduccion += str(v.ejecutar()) + ","
 
         traduccion = traduccion.replace(",)",")")
         traduccion += ');")'
         traduccion += '\n'
-        print(traduccion.replace(',)',')'))
-        return traduccion.replace(',)',')')
+        c3d += traduccion
+        print(c3d.replace(',)',')'))
+        return c3d.replace(',)',')')
 
     def ejecutar(self):
         global resultadotxt
@@ -1723,7 +1737,7 @@ class update(instruccion):
 
         traduccion += ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -1859,7 +1873,7 @@ class delete(instruccion):
 
         traduccion += ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -1984,6 +1998,9 @@ class IndexCreate(instruccion):
         self.id2 = id2
         self.createind2 = createind2
 
+    def traducir(self):
+        return ''
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -2069,6 +2086,9 @@ class IndexDrop(instruccion):
         self.listaindices = listaindices
         self.orden = orden
 
+    def traducir(self):
+        return ''
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -2097,6 +2117,9 @@ class IndexAlter(instruccion):
     def __init__(self, tipo, alterind2):
         self.tipo = tipo
         self.alterind2 = alterind2
+
+    def traducir(self):
+        return ''
 
     def ejecutar(self):
         global resultadotxt

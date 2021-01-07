@@ -242,7 +242,7 @@ class Pantalla:
         with open(path) as file:
             return json.load(file)
     def open_AST(self):  # Abre la pantalla del AST
-        os.system('cd test-output & round-table.gv.png')
+        os.system('cd test-output & round-table.gv.svg')
         windowTableS = Pantalla_AST(self.window)
 
     def open_Reporte(self):  # Abre la pantalla de los reportes de errores

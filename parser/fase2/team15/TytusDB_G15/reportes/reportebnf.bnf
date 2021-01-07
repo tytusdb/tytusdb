@@ -92,26 +92,6 @@
  
 <instrucciones> ::= <instruccion>
  
-<instruccion> ::= <select_insrt> PTCOMA
- 
-<select_insrt> ::= SELECT <opcion_select_tm>
- 
-<opcion_select_tm> ::= <opcion_select_lista>  FROM <opciones_sobrenombres>
- 
-<opciones_sobrenombres> ::= <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID
- 
-<opcion_select_lista> ::= <opciones_select_lista>
- 
-<opciones_select_lista> ::= <opcion_select>
- 
-<opcion_select> ::= ASTERISCO
- 
-<init> ::= <instrucciones>
- 
-<instrucciones> ::= <instruccion>
- 
 <instruccion> ::= <update_insrt>
  
 <update_insrt> ::= UPDATE ID SET <lista_update> <cond_where> PTCOMA
@@ -930,8 +910,6 @@
  
 <instrucciones> ::= <instruccion>
  
-<campos_c> ::= ID
- 
 <init> ::= <instrucciones>
  
 <instrucciones> ::= <instruccion>
@@ -985,8 +963,6 @@
 <init> ::= <instrucciones>
  
 <instrucciones> ::= <instruccion>
- 
-<campos_c> ::= ID
  
 <init> ::= <instrucciones>
  

@@ -40,19 +40,19 @@ La interfaz de usuario cuenta con las siguientes funcionalidades:
 ###### Reportes
 - **Tabla de Simbolos:** Muestra las definiciones de las tablas ingresadas en la base de datos, mostrando la fila y columna en la que se encuentra y el ambito en el que se encuentra.
 
-!["Tabla de simbolos"](Images/TabladeSimbolos.png)
+!["Tabla de simbolos"](Images/TabladeSimbolos.PNG)
 
 - **Tabla de Tipos:** Muestra las deficiones de cada columna de una tabla haciendo referencia a todos sus atributos, como el tipo de variable, tamaño, y a que tabla pertenece.
 
-!["Tabla de tipos"](Images/Typechecker.png)
+!["Tabla de tipos"](Images/Typechecker.PNG)
 
 - **AST:** es una representación grafica del recorrido de estructura sintactica, cada nodo del arbol muestra una producción del lenguaje utilizado.
 
-!["Arbol ast"](Images/Ast.png)
+!["Arbol ast"](Images/Ast.PNG)
 
 - **Errores:** muestra los errores encontrados en el texto de entrada identificando el tipo de error y en que linea y columna ocurren.
 
-!["Tabla de errores"](Images/Errores.png)
+!["Tabla de errores"](Images/Errores.PNG)
 
 #### Funcionalidad
 
@@ -70,7 +70,7 @@ Al ingresar a la siguiente instrucción el administrador de base de datos creara
 
 La salida al escribir esta instruccion de forma correcta, mostrara el siguiente mensaje:
 
-!["Ejemplo Salida"](Images/Salida.png)
+!["Ejemplo Salida"](Images/Salida.PNG)
 
 Para mayor información de la sintaxis correcta del lenguaje visite el siguiente enlace.
 
