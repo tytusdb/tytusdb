@@ -85,6 +85,7 @@ def p_instruction(t):
     instruction : stmt
     | block
     | execute S_PUNTOCOMA
+    | drop_func
     """
     try:
         if t[1].dot():
@@ -480,10 +481,18 @@ def p_statement(t):
     statement : if_stmt
             | case_stmt
             | stmt_without_substmt
+            | drop_func
     """
     t[0] = t[1]
     repGrammar.append(t.slice)
 
+def p_drop_func(t):
+    """
+    drop_func : R_DROP R_FUNCTION ID S_PUNTOCOMA
+            | R_DROP R_PROCEDURE ID S_PUNTOCOMA
+    """
+    t[0] = code.DropFunction(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
 
 def p_stmt_without_substmt(t):
     """
@@ -1597,6 +1606,9 @@ def p_extract_1(t):
     """
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM timeStamp S_PARDER
     """
+    t[0] = code.FunctionCall(
+        "extract", [t[3], t[5][0], t[5][1]], isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -1612,6 +1624,7 @@ def p_timeStamp(t):
     timeStamp : R_TIMESTAMP STRING
           | R_INTERVAL STRING
     """
+    t[0] = [t[1], t[2]]
     repGrammar.append(t.slice)
 
 
@@ -1624,6 +1637,7 @@ def p_optsExtract(t):
                   | R_MINUTE
                   | R_SECOND
     """
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -1631,6 +1645,9 @@ def p_datePart(t):
     """
     datePart : R_DATE_PART S_PARIZQ STRING S_COMA dateSource S_PARDER
     """
+    t[0] = code.FunctionCall(
+        "date_part", [t[3], t[5][0], t[5][1]], isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -1642,6 +1659,7 @@ def p_dateSource(t):
           | R_INTERVAL STRING
           | R_NOW S_PARIZQ S_PARDER
     """
+    t[0] = [t[1], t[2]]
     repGrammar.append(t.slice)
 
 
@@ -1650,6 +1668,7 @@ def p_current(t):
     current : R_CURRENT_DATE
           | R_CURRENT_TIME
     """
+
     repGrammar.append(t.slice)
 
 
@@ -1728,7 +1747,7 @@ def p_datatype_operadores_binarios1(t):
     | datatype O_EXPONENTE datatype
     | datatype O_MODULAR datatype
     """
-    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryExpression(newTemp(), t[1], t[3], t[2], isBlock, t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1736,7 +1755,7 @@ def p_datatype_operadores_binarios2(t):
     """
     datatype : datatype OC_CONCATENAR datatype
     """
-    t[0] = code.BinaryOperation(newTemp(), t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = code.BinaryExpression(newTemp(), t[1], t[3], t[2], isBlock, t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
 
@@ -1772,7 +1791,7 @@ def p_datatype_operadores_unarios(t):
     datatype : O_RESTA datatype %prec UO_RESTA
     | O_SUMA datatype %prec UO_SUMA
     """
-    t[0] = code.UnaryOperation(newTemp(), t[2], t[1], t[2].row, t[2].column)
+    t[0] = code.UnaryExpression(newTemp(), t[2], t[1], isBlock, t[2].row, t[2].column)
     repGrammar.append(t.slice)
 
 
@@ -1986,7 +2005,8 @@ def p_columnName_id(t):
     """
     columnName : ID
     """
-    t[0] = expression.C3D("", t[1], t.slice[1].lineno, t.slice[1].lexpos)
+    global isBlock
+    t[0] = code.Identifier(t[1], isBlock, t.slice[1].lineno, t.slice[1].lexpos)
 
     repGrammar.append(t.slice)
 
@@ -1995,6 +2015,8 @@ def p_columnName_table_id(t):
     """
     columnName : ID S_PUNTO ID
     """
+    global isBlock
+    t[0] = code.Identifier(t[1]+"."+t[3], isBlock, t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
