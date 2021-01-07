@@ -1,4 +1,5 @@
 from storageManager.TypeChecker_Manager import *
+from storageManager.TypeChecker import *
 from prettytable import PrettyTable
 
 import sys
@@ -18,6 +19,17 @@ def printSymbolTable(self):
         while i < len(Databases):        
             x.add_row([a, str(Databases[i].name), "Database", "Global"])
             a += 1
+            #index
+            n= TCgetIndex(str(Databases[i].name),a)
+            print(n)
+            if(len(n)>0):
+                nn=0
+                while nn< len(n): 
+                    
+                    x.add_row([a,str(n[nn]['NAME'])+'('+str(n[nn]['COLUMN'])+')',str(n[nn]['TYPE']),'Local'])
+                    a+=1
+                    nn+=1
+
             #Tables
             Tables = Databases[i].tables
             j = 0
@@ -28,11 +40,13 @@ def printSymbolTable(self):
                 Columns = Tables[j].columns
                 k = 0
                 while k < len(Columns):        
+                    #if(Columns[k].index_==None):
                     x.add_row([a, str(Columns[k].name), "Column type " + str(Columns[k].type_), "Local"])
                     a += 1
                     k += 1
                 j += 1
             i += 1
+        #x.add_row([a, str(Databases[i].name), "Database", "Global"])
     except Exception as e:
         print_error("Unknown Error", "Incorrectly generated Symbol Table")
         #print(e)

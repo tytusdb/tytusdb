@@ -134,5 +134,9 @@ class AlterIndexColumn(Instruccion):
     def __init__(self, cadena):
         self.cadena = cadena
 
+class DeleteTable(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
+
 
 

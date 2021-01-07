@@ -1163,49 +1163,103 @@ def procesar_create_type(instr,ts,tc):
 
 #delete
 def procesar_delete(instr,ts,tc):
+#print(instr.expresion.expresion)
+
+    global salida
+    arrayPK = []
+    arrayFilter = []
+    arrayColumnasIds = []
     if instr.etiqueta == TIPO_DELETE.DELETE_NORMAL:
-        nada = 1
+        if instr.expresion != None:
+            columnas = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+            if columnas == []:
+                salida = "\nERROR:  relation \"" + str(instr.val) +"\" does not exist\nSQL state: 42P01"
+            else:
+                iPk = 0
+                for ic in columnas:
+                    get = tc.obtenerReturn(str(useCurrentDatabase),instr.val,ic)
+                    if get:
+                        for icons in get.listaCons:
+                            if icons == OPCIONES_CONSTRAINT.PRIMARY:
+                                arrayPK.append(iPk)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_RETURNING:
-        nada = 1
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                    iPk += 1
+                
+                columnsTable = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+                resultArray = j.extractTable(str(useCurrentDatabase),str(instr.val))
+                arrayWhere = resultArray
+                arrayWhere.insert(0,columnsTable)   
+                #print(resultArray)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_EXIST:    
-        if instr.expresion.operador == OPERACION_RELACIONAL.MAYQUE:
-            if instr.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR and instr.expresion.exp2.etiqueta ==  TIPO_VALOR.NUMERO:
-                nada = 1           
+                arrayFilter.append(arrayWhere[0])
+                arrayupdateNum = []
+                i = 1
+                coli = 0
+                while i < len(arrayWhere):
+                    arrayTS = []
+                    arrayTS.append(arrayWhere[0])
+                    arrayTS.append(arrayWhere[i])
+                    val = resolver_expresion_logica(instr.expresion.expresion,arrayTS)
+                    if val == 1:
+                        arrayFilter.append(arrayWhere[i])
+                        arrayupdateNum.append(coli)
+                    i+=1
+                    coli += 1
 
-   
-    elif instr.etiqueta == TIPO_DELETE.DELETE_EXIST_RETURNING:
-        
-        nada = 1
+                #print(arrayFilter)
+                #print(arrayupdateNum)
 
-        if instr.expresion.operador == OPERACION_RELACIONAL.MAYQUE:
-            if instr.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR and instr.expresion.exp2.etiqueta ==  TIPO_VALOR.NUMERO:
-                nada = 1
+                arrayDeletePks = []
 
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                iArrF = 1
+                while iArrF < len(arrayFilter):
+                    #print(arrayFilter[iArrF])
+                    tempPks = []
+                    for itPK in arrayPK:
+                        tempPks.append(arrayFilter[iArrF][itPK])
+                    arrayDeletePks.append(tempPks)
+                    iArrF+=1
+                
+                #print(arrayDeletePks)
 
-        
-    elif instr.etiqueta == TIPO_DELETE.DELETE_CONDIFION:
-        nada = 1
-    
-    elif instr.etiqueta == TIPO_DELETE.DELETE_CONDICION_RETURNING:
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                for pksDelete in arrayDeletePks:
+                    j.delete(str(useCurrentDatabase),str(instr.val),pksDelete)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_USING:
-        nada = 1
+                salida = '\nDELETE ' + str(len(arrayDeletePks))
+        else:
+            columnas = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+            if columnas == []:
+                salida = "\nERROR:  relation \"" + str(instr.val) +"\" does not exist\nSQL state: 42P01"
+            else:
+                iPk = 0
+                for ic in columnas:
+                    get = tc.obtenerReturn(str(useCurrentDatabase),instr.val,ic)
+                    if get:
+                        for icons in get.listaCons:
+                            if icons == OPCIONES_CONSTRAINT.PRIMARY:
+                                arrayPK.append(iPk)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_USING_returnin:
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                    iPk += 1
+                
+                columnsTable = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+                resultArray = j.extractTable(str(useCurrentDatabase),str(instr.val))
+                arrayFilter = resultArray
+                arrayFilter.insert(0,columnsTable)   
+                
+                arrayDeletePks = []
+
+                iArrF = 1
+                while iArrF < len(arrayFilter):
+                    tempPks = []
+                    for itPK in arrayPK:
+                        tempPks.append(arrayFilter[iArrF][itPK])
+                    arrayDeletePks.append(tempPks)
+                    iArrF+=1
+
+                for pksDelete in arrayDeletePks:
+                    j.delete(str(useCurrentDatabase),str(instr.val),pksDelete)
+
+                salida = '\nDELETE ' + str(len(arrayDeletePks))
 
 
 

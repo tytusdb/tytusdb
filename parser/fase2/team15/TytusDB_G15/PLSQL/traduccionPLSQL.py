@@ -181,6 +181,9 @@ def generarC3D(instrucciones, ts_global):
         elif isinstance(instruccion, AlterIndexColumn):
             cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
             cadenaFuncionIntermedia += createAlterIndexColumnFuncion(instruccion, ts)
+        elif isinstance(instruccion, DeleteTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createDeleteTableFuncion(instruccion, ts)
             
         indice = indice + 1
     tablaSimbolos = ts
@@ -235,6 +238,15 @@ def generarPrincipal(instruccion, ts):
         elif isinstance(instruccion, UpdateTable):
             cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
             cadenaFuncionIntermedia += createUpdateTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, DeleteTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createDeleteTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, SelectTable):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createSelectTableFuncion(instruccion, ts)
+        elif isinstance(instruccion, SelectUniones):
+            cadenaTraduccion += "\n\tprint(inter.procesar_funcion"+str(numFuncionSQL)+"())"
+            cadenaFuncionIntermedia += createSelectUnionesTableFuncion(instruccion, ts)
         indice = indice + 1
 
 def generarEtiqueta(instruccion, ts):
@@ -713,6 +725,12 @@ def createAlterIndexFuncion(instruccion, ts):
     return cadenaSQL
 
 def createAlterIndexColumnFuncion(instruccion, ts):
+    global numFuncionSQL
+    print(instruccion.cadena)
+    cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)
+    return cadenaSQL
+
+def createDeleteTableFuncion(instruccion, ts):
     global numFuncionSQL
     print(instruccion.cadena)
     cadenaSQL = generarFuncionesSQL(instruccion.cadena,numFuncionSQL)

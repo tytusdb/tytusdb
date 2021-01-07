@@ -174,5 +174,9 @@ def analize(entrada):
             i += 1
     text_Consola.insert(INSERT, "\n")
     tabControl.pack()
-
+    retorno = querys
+    for ret in retorno:
+        for i in range(0, len(ret)):
+            if i == len(ret) - 1:
+                return len(ret[i])
 

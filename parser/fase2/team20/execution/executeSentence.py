@@ -1,16 +1,16 @@
 from .AST.sentence import *
 from .AST.instruction import Instruction
-from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreateType
+from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreateType,executeCreateUnique
 from .executeShow import executeShowDatabases
 from .executeUpdate import executeUpdate
 from .executeSelect import executeSelect
-from .executeDrop import executeDropDatabase,executeDropTable
+from .executeDrop import executeDropDatabase,executeDropTable,executeDropIndex
 from .executeUse import executeUse, executeUseAlter
 from .executeExpression import executeExpression
 from .executeInsert import executeInsertAll, executeInsert
 from .executeDelete import executeDelete
-from .executeAlter import executeAlterDatabaseRename,executeAlterTableDropPK,executeAlterType, executeAlterTableAddColumn, executeAlterTableDropColumn
-from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCdropTable,TCalterDatabase
+from .executeAlter import executeAlterDatabaseRename,executeAlterTableDropPK,executeAlterType, executeAlterTableAddColumn, executeAlterTableDropColumn,executeAlterIndex
+from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCdropTable,TCalterDatabase,TCDropIndex
 from .AST.error import * 
 import sys
 sys.path.append("../")
@@ -61,7 +61,7 @@ def executeSentence(self, sentence):
             print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence,CreateTable):
         result=executeCreateTable(self,sentence)
-        print(CreateTable)
+        
         if(result==0):
             print_success("QUERY"," Table "+sentence.name+" has been created")
         elif(result==1):
@@ -122,7 +122,7 @@ def executeSentence(self, sentence):
         else:
             print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence,Update):
-       executeUpdate(self,sentence)
+        executeUpdate(self,sentence)
     elif isinstance(sentence,AlterTableDropConstraint):
         if(len(sentence.constraint)>2):
             if(sentence.constraint[len(sentence.constraint)-2:len(sentence.constraint)]=='PK'):
@@ -155,3 +155,53 @@ def executeSentence(self, sentence):
         executeAlterTableAddColumn(self, sentence)
     elif isinstance(sentence, AlterTableDropColumn):
         executeAlterTableDropColumn(self, sentence)
+    elif isinstance(sentence, CreateIndex):
+        result=executeCreateUnique(self,sentence)
+        
+        if(result==0):
+            print_success("QUERY"," Index into"+sentence.table+" has been created")
+        elif(result==1):
+            print_error("SEMANTIC ERROR","error in the operation")
+        elif(result==2):
+            print_error("SEMANTIC ERROR","DataBase not exists")
+        elif(result==3):
+            print_error("SEMANTIC ERROR","Table "+sentence.table+" dont exists")
+        elif(result==4):
+            print_error("SEMANTIC ERROR","Column "+sentence.ascdesc[0]+" dont exists")
+        elif(result==5):
+            print_error("SEMANTIC ERROR","Index in column "+sentence.ascdesc[0]+" already exists")
+        else:
+            print_error("SEMANTIC ERROR",'error in the operation')
+    elif isinstance(sentence, DropIndex):
+        result=executeDropIndex(self,sentence)
+        
+        if(result==0):
+            print_success("QUERY"," Index "+sentence.name+" has been dropped")
+        elif(result==1):
+            print_error("SEMANTIC ERROR","error in the operation")
+        elif(result==2):
+            print_error("SEMANTIC ERROR","DataBase not exists")
+        elif(result==3):
+            print_error("SEMANTIC ERROR","Any Index was found")
+        elif(result==4):
+            if(sentence.ifExistsFlag):
+                print_success("WARNING","Index "+sentence.name+" dont exists Query returned sucessfuly")
+            else:
+                print_error("SEMANTIC ERROR","Index "+sentence.name+" dont exists")
+        else:
+            print_error("SEMANTIC ERROR",'error in the operation')
+    elif isinstance(sentence, AlterIndex):
+        result=executeAlterIndex(self,sentence)
+        
+        if(result==0):
+            print_success("QUERY"," Index "+sentence.oldname+" has been alter")
+        elif(result==1):
+            print_error("SEMANTIC ERROR","error in the operation")
+        elif(result==2):
+            print_error("SEMANTIC ERROR","DataBase not exists")
+        elif(result==3):
+            print_error("SEMANTIC ERROR","Any Index was found")
+        elif(result==4):
+            print_error("SEMANTIC ERROR","Index "+sentence.oldname+" dont exists")
+        else:
+            print_error("SEMANTIC ERROR",'error in the operation')
