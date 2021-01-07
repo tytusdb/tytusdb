@@ -1,14 +1,19 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, url_for, request, redirect
 import requests,json
+import time
+from consola import consola
 
 app = Flask(__name__)
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    form = consola()
+    return render_template('index.html',form=form)
 
-@app.route('/SomeFunction/',  methods=['POST'])
+@app.route('/SomeFunction/',  methods=['GET','POST'])
 def SomeFunction():
+    form = consola(request.form)
     print('Envio de la entrada') 
     entr = request.form['content']
     print(entr)
@@ -16,7 +21,10 @@ def SomeFunction():
     res = requests.post('http://127.0.0.1:5000/ejecutar', json=dictToSend)
     y = json.loads(res.text)       
     print("Mensaje del servidor: "+y['resultado'])
-    return render_template('index.html')
+    mens = y['resultado']
+    form.text.data = mens
+  #  request.form['content2'] = y['resultado']
+    return render_template("index.html", form=form)
 
 @app.route('/Commit/', methods=["POST"])
 def Commit():
