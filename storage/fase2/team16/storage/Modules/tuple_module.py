@@ -17,18 +17,23 @@ class TupleModule:
     def insert(self, database: str, table: str, register: list) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str) or not isinstance(register, list):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
-                    action = actionCreator(_table.mode, 'insert', ['database', 'table', 'register'])
-                    result = eval(action)
-                    if result == 0 and _table.security:
-                        _table.security.insert(database, table, register)
-                        self.handler.rootupdate(self.dbs)
-                    return result
+                    try:
+                        [str(x).encode(tmp.encoding) for x in register]
+                    except:
+                        raise Exception('Registro no codificable')
+                    else:
+                        action = actionCreator(_table.mode, 'insert', ['database', 'table', 'register'])
+                        result = eval(action)
+                        if result == 0 and _table.security:
+                            _table.security.insert(database, table, register)
+                            self.handler.rootupdate(self.dbs)
+                        return result
                 return 3
             return 2
         except:
@@ -37,7 +42,7 @@ class TupleModule:
     def loadCSV(self, file: str, database: str, table: str) -> list:
         try:
             if not isinstance(database, str) or not isinstance(table, str) or not file.endswith(".csv"):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -52,7 +57,7 @@ class TupleModule:
     def extractRow(self, database: str, table: str, columns: list) -> list:
         try:
             if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columns, list):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -67,22 +72,27 @@ class TupleModule:
     def update(self, database: str, table: str, register: dict, columns: list) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columns, list):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
-                    if _table.security:
-                        row = self.extractRow(database, table, columns)
-                        if not row:
-                            raise
-                    action = actionCreator(_table.mode, 'update', ['database', 'table', 'register', 'columns'])
-                    result = eval(action)
-                    if result == 0 and _table.security:
-                        _table.security.update(database, table, register, row)
-                        self.handler.rootupdate(self.dbs)
-                    return result
+                    try:
+                        [str(x).encode(tmp.encoding) for x in register]
+                    except:
+                        raise Exception('Registro no codificable')
+                    else:
+                        if _table.security:
+                            row = self.extractRow(database, table, columns)
+                            if not row:
+                                raise Exception()
+                        action = actionCreator(_table.mode, 'update', ['database', 'table', 'register', 'columns'])
+                        result = eval(action)
+                        if result == 0 and _table.security:
+                            _table.security.update(database, table, register, row)
+                            self.handler.rootupdate(self.dbs)
+                        return result
                 return 3
             return 2
         except:
@@ -91,7 +101,7 @@ class TupleModule:
     def delete(self, database: str, table: str, columns: list) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columns, list):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
@@ -100,7 +110,7 @@ class TupleModule:
                     if _table.security:
                         row = self.extractRow(database, table, columns)
                         if not row:
-                            raise
+                            raise Exception()
                     action = actionCreator(_table.mode, 'delete', ['database', 'table', 'columns'])
                     result = eval(action)
                     if result == 0 and _table.security:
@@ -115,7 +125,7 @@ class TupleModule:
     def truncate(self, database: str, table: str) -> int:
         try:
             if not isinstance(database, str) or not isinstance(table, str):
-                raise
+                raise Exception()
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:

@@ -21,7 +21,7 @@ CODES = ['ASCII',
 
 
 class Database:
-    def __init__(self, name, mode, encoding):
+    def __init__(self, name, mode, encoding='ASCII'):
         self.name = str(name)
         self.mode = mode
         self.encoding = encoding
@@ -196,7 +196,19 @@ class DatabaseModule:
             return 1
 
     def alterDatabaseEncoding(self, database: str, encoding: str) -> int:
-        pass
+        try:
+            if not isinstance(database, str) or self.handler.invalid(database):
+                raise Exception('Base de datos no válida')
+            if not encoding.upper() in CODES:
+                return 3
+            self.databases = self.handler.rootinstance()
+            for db in self.databases:
+                if db.name.upper() == database.upper():
+                    db.encoding = encoding.upper()
+                    return 0
+            return 2
+        except:
+            return 1
 
     def checksumDatabase(self, database: str, mode: str) -> str:
         try:
