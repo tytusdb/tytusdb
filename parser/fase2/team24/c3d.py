@@ -13,10 +13,8 @@ for i in range(100):
 
 def ejecutar():
     cont = contador
-	sql.execute("CREATE DATABASE ayuda;")
 	
-
-
+	sql.execute("CREATE DATABASE ayuda;")
 	n_db = ts.buscarIDTB(NombreDB)
 	NuevoSimbolo = TAS.Simbolo(cont,'CALCULOS',TAS.TIPO.FUNCTION,n_db)
 	ts.agregar(NuevoSimbolo)
