@@ -1,1 +1,40 @@
-SELECT 1+1;
+CREATE DATABASE IF NOT EXISTS test
+    OWNER = 'root'
+    MODE = 1;
+
+
+USE database test;
+show databases;
+CREATE table tbusuario (
+  idusuario integer primary key NOT NULL,
+    nombre varchar(50),
+    fechacreacion date
+);
+
+CREATE TABLE tbrol (
+  idrol integer primary key NOT NULL,
+    rol varchar(15)
+);
+
+CREATE TABLE tbrolxusuario (
+  idrol integer NOT NULL,
+    idusuario integer NOT NULL
+);
+
+
+insert into tbrol values (1,'Administrador');
+insert into tbrol values (2,'Secretaria');
+insert into tbrol values (3,'Ventas');
+
+
+insert into tbusuario values(1, md5('Luis Fernando'), now());
+insert into tbusuario values(2,'Maria Cristina', '2020/02/08');
+insert into tbusuario values(3,'Hugo Alberto', '2020/02/08');
+
+insert into tbrolxusuario values(1,1);
+insert into tbrolxusuario values(2,2);
+insert into tbrolxusuario values(2,3);
+
+select distinct td.idrol, s.idusuario, sin(td.idrol), td.idrol, g.idusuario, abs(g.idusuario)
+from tbrol td, tbusuario s, (select f.idusuario, f.nombre, f.fechacreacion from tbusuario f) r, (select f.idusuario, f.nombre, f.fechacreacion from tbusuario f) g
+where idrol > 1;

@@ -7,3 +7,7 @@ parser/team13/.vscode/settings.json
 parser/team13/.vscode/settings.json
 data
 .vscode
+*.pyc
+client/team01/__pycache__/Controller.cpython-39.pyc
+client/team01/__pycache__/Controller.cpython-39.pyc
+client/team01/__pycache__/Controller.cpython-39.pyc
