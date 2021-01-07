@@ -82,7 +82,7 @@ def showTables(database:str):
     respuesta = JM.showTables(database)
     return respuesta
 
-def createColumn(database:str,table:str,nombre:str,tipo:str):
+def createColumn(database:str,table:str,nombre:str,tipo):
     # 0:operación exitosa, 1: error en la operación, 2: base de datos inexistente, 3: tabla inexistente, 4: columna ya existente
     actualBase = obtenerBase(database)
     if(actualBase!=None):
@@ -113,6 +113,40 @@ def createAtributo(database:str,table:str,nuevo:Atributo):
                 return 0
     else:
         return 2
+
+def showColumns(database:str,table:str):
+    # retorna un diccionario clave,valor = columna,tipo. o vacio
+    diccionario = {}
+    actualBase = obtenerBase(database)
+    if actualBase is not None:
+        if not actualBase.listaTablas.existeTabla(table):
+            return diccionario
+        else:
+            actualTabla = actualBase.listaTablas.obtenerTabla(table)
+            actualAtributo = actualTabla.listaAtributos.primero
+            while actualAtributo is not None:
+                diccionario[actualAtributo.nombre] = actualAtributo.tipo
+                actualAtributo = actualAtributo.siguiente
+            return diccionario
+    else:
+        return diccionario
+
+def showPrimaryKeys(database:str,table:str) -> list:
+    #retorna un list con los nombres de las columnas que son llaves primarias o la lista vacia
+    lista = []
+    actualBase = obtenerBase(database)
+    if actualBase is not None:
+        if not actualBase.listaTablas.existeTabla(table):
+            return lista
+        else:
+            actualTabla = actualBase.listaTablas.obtenerTabla(table)
+            if actualTabla.primary is not None:
+                lista = actualTabla.primary.columnas
+                return lista
+            else:
+                return lista
+    else:
+        return lista
 
 def obtenerTipoColumna(database:str,table:str,nombreColumna:str):
     # Retorna el tipo de la columna, sino retorna None
@@ -295,6 +329,7 @@ def alterRenameColumn(database:str, table: str, columnOld:str, columnNew:str) ->
                     actualAtributo = actualTabla.listaAtributos.obtenerAtributo(columnOld)
                     actualAtributo.nombre = columnNew
                     actualTabla.renombrarLlavesForaneas(actualBase,table,columnOld,columnNew)
+                    actualTabla.renombrarLlavePrimaria(columnOld, columnNew)
                     return 0
                 else:
                     return 5
@@ -329,6 +364,7 @@ def alterAddFK(database:str,table:str,nombreConstraint:str,columns:list,referenc
         if (actualTabla is not None):
             if not actualTabla.existeForanea(nombreConstraint):
                 actualTabla.foreigns.append(ConstraintForeign.Foreign(nombreConstraint, columns, referenceTable, referencesColumns))
+                return 0
             else:
                 return 4
         else:
@@ -382,10 +418,11 @@ def getIfTipoColumnaIsReserverd(tipo:str):
         'money': 7,
         'character': 8,
         'varchar': 9,
-        'character': 10,
-        'charn': 11,
+        'character varying': 10,
+        'char': 11,
         'text': 12,
-        'boolean': 13
+        'boolean': 13,
+        'date': 15
     }
     return tiposReservados.get(tipo, 14)
 

@@ -17,5 +17,5 @@ class Error:
         self.fila        = fila
     
     def __str__(self):
-        return "ERROR => lexema: %s, componente: %s, descripcion: %s, columna: %d, fila: %d " % (self.lexema, self.componente, self.descripcion, self.columna, self.fila)
+        return "ERROR => lexema: %s, tipo: %s, descripcion: %s, columna: %d, fila: %d " % (self.lexema, self.tipo, self.descripcion, self.columna, self.fila)
 

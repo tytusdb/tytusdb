@@ -1,9 +1,4 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/storage')
-sys.path.append('/opt/miniconda3/lib/python3.8/site-packages')
-
-from querie import * 
+from execution.abstract.querie import * 
 from storageManager import jsonMode as admin
 from prettytable import PrettyTable
 

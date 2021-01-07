@@ -1,9 +1,9 @@
 #from Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 #from storageManager.jsonMode import *
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
+from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as ts
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 
 
 
@@ -11,11 +11,12 @@ import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as 
 class CreateReplace(Instruccion):
     '''#1 create
        #2 create or replace'''
-    def __init__(self, caso, exists, id, complemento,fila,columna):
+    def __init__(self, caso, exists, id, complemento,concatena,fila,columna):
         self.caso = caso
         self.exists = exists
         self.id = id
         self.complemento = complemento
+        self.concatena = concatena
         self.fila = fila
         self.columna = columna
 
@@ -97,6 +98,23 @@ class CreateReplace(Instruccion):
             print(ts.simbolos)
 
 
+    def traducir(createDatabase,ts,consola,Exception,tv):
+
+        #iniciar traduccion
+        info = "" #info contiene toda el string a mandar como parametros
+        print("concatena \n")
+        print(createDatabase.concatena)
+        for data in createDatabase.concatena:
+            info += " " +data
+
+        contador = tv.Temp()
+        consola.append(f"\n\t{contador} = \"{info}\"")
+
+        consola.append(f"\n\tarbol = obtener_arbol({contador})")
+        consola.append(f"\n\tstack.append(arbol)\n")
+
+
+
 
 
 
@@ -110,4 +128,6 @@ class ComplementoCR(Instruccion):
         self.mode = mode
         self.fila = fila
         self.columna = columna
+
+
 

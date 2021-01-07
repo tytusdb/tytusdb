@@ -1039,14 +1039,14 @@ class window:
 
         instruccions = []
 
-        #try:
-        instruccions = gramatica.parse(contenido)            
-        self.ejecutar_resultado(instruccions)          
-        #except:            
-        #    if len(contenido) == 1:
-        #        add_text("No hay código para ejecutar")
-        #    else:
-        #        add_text("Error al ejecutar el código")
+        try:
+            instruccions = gramatica.parse(contenido)
+            self.ejecutar_resultado(instruccions)
+        except:
+            if len(contenido) == 1:
+                add_text("No hay código para ejecutar")
+            else:
+                add_text("Error al ejecutar el código")
 
         #Imprimir consola
         for tab_item in self.tab_salida.winfo_children():

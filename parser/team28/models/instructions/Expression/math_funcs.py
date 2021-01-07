@@ -39,11 +39,12 @@ class Abs(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.fabs(value.value),self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Abs"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Cbrt(Expression):
     '''
@@ -80,11 +81,12 @@ class Cbrt(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value.value, 1/3), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Cbrt"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Ceil(Expression):
     '''
@@ -122,11 +124,12 @@ class Ceil(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Ceil"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Ceiling(Expression):
     '''
@@ -163,11 +166,12 @@ class Ceiling(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Ceiling"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Degrees(Expression):
     '''
@@ -204,11 +208,12 @@ class Degrees(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.degrees(value.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Degrees"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Div(Expression):
     '''
@@ -264,11 +269,12 @@ class Div(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, value1.value // value2.value, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Div"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Exp(Expression):
     '''
@@ -304,11 +310,12 @@ class Exp(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.exp(value.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Exp"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Factorial(Expression):
     '''
@@ -343,11 +350,12 @@ class Factorial(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.factorial(value.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Factorial"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Floor(Expression):
     '''
@@ -385,11 +393,12 @@ class Floor(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.floor(value.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Floor"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Gcd(Expression):
     '''
@@ -445,11 +454,12 @@ class Gcd(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.gcd(value1.value, value2.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Gcd"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Ln(Expression):
     '''
@@ -484,11 +494,12 @@ class Ln(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, round(math.log(value.value),3), self.line, self.column) #With one argument, return the natural logarithm of x (to base e).
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Ln"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Log(Expression):
     '''
@@ -523,11 +534,12 @@ class Log(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, round(math.log10(value.value),3), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Log"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Mod(Expression):
     '''
@@ -582,11 +594,12 @@ class Mod(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, value1.value%value2.value, self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Mod"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Pi(Expression):
     '''
@@ -602,7 +615,12 @@ class Pi(Expression):
         return str(vars(self))
     
     def process(self, environment):
-        return PrimitiveData(DATA_TYPE.NUMBER,round(math.pi,6), self.line, self.column)
+        try:
+            return PrimitiveData(DATA_TYPE.NUMBER,round(math.pi,6), self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+            return
 
 class Power(Expression):
     '''
@@ -657,11 +675,12 @@ class Power(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value1.value, value2.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Power"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Radians(Expression):
     '''
@@ -697,11 +716,12 @@ class Radians(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.radians(value.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Radians"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Round(Expression):
     '''
@@ -757,11 +777,12 @@ class Round(Expression):
                         else:
                             return PrimitiveData(DATA_TYPE.NUMBER, round(value.value, digits.value), self.line, self.column)
             except TypeError:
-                print("Error de tipo")
-                print(self)
+                desc = "Tipo de dato invalido para Round"
+                ErrorController().add(37, 'Execution', desc, self.line, self.column)
                 return
             except:
-                print("FATAL ERROR, ni idea porque murio, F --- Math")
+                desc = "FATAL ERROR --- MathFuncs"
+                ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Sign(Expression):
     '''
@@ -802,11 +823,12 @@ class Sign(Expression):
                         else:
                             return PrimitiveData(DATA_TYPE.NUMBER, -1, self.line, self.column)
             except TypeError:
-                print("Error de tipo")
-                print(self)
+                desc = "Tipo de dato invalido para Sign"
+                ErrorController().add(37, 'Execution', desc, self.line, self.column)
                 return
             except:
-                print("FATAL ERROR, ni idea porque murio, F --- Math")
+                desc = "FATAL ERROR --- MathFuncs"
+                ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Sqrt(Expression):
     '''
@@ -843,11 +865,12 @@ class Sqrt(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.sqrt(value.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Sqrt"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class WithBucket(Expression):
     '''
@@ -875,11 +898,12 @@ class WithBucket(Expression):
             index = self.index.process(environment)
             return PrimitiveData(DATA_TYPE.NUMBER, width_bucket_func(expr1.value, min_value.value, max_value.value, index.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para WithBucket"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Trunc(Expression):
     '''
@@ -917,11 +941,12 @@ class Trunc(Expression):
                 else:
                     return PrimitiveData(DATA_TYPE.NUMBER, math.trunc(value.value), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Trunc"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Random(Expression):
     '''
@@ -941,11 +966,12 @@ class Random(Expression):
         try:
             return PrimitiveData(DATA_TYPE.NUMBER, randint(0,1), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Random"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 class Greatest(Expression):
     '''
@@ -967,11 +993,12 @@ class Greatest(Expression):
             array = operating_list_number(self.val_array, environment)
             return PrimitiveData(DATA_TYPE.NUMBER, max(array), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Greatest"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
 
 class Least(Expression):
@@ -993,8 +1020,9 @@ class Least(Expression):
             array = operating_list_number(self.val_array, environment)
             return PrimitiveData(DATA_TYPE.NUMBER, min(array), self.line, self.column)
         except TypeError:
-            print("Error de tipo")
-            print(self)
+            desc = "Tipo de dato invalido para Least"
+            ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
-            print("FATAL ERROR, ni idea porque murio, F --- Math")
+            desc = "FATAL ERROR --- MathFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)

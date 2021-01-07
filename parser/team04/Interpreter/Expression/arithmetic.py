@@ -1,8 +1,8 @@
-from Interpreter.Expressions.expression import Expression
+from Interpreter.Expression.expression import Expression
 
 
 class Arithmetic(Expression):
-    def __init__(self, left, right):
+    def __init__(self, left, right=None):
         self.left = left
         self.right = right
 
@@ -89,3 +89,27 @@ class Modulo(Arithmetic):
 
         if areNums:
             return leftValue % rightValue
+
+
+class UnaryMinus(Arithmetic):
+    def __init__(self, left):
+        Arithmetic.__init__(self, left)
+
+    def getValue(self, env):
+        value = self.left.getValue(env)
+        isNum = self.isNumeric(value)
+
+        if isNum:
+            return - value
+
+
+class UnaryPlus(Arithmetic):
+    def __init__(self, left):
+        Arithmetic.__init__(self, left)
+
+    def getValue(self, env):
+        value = self.left.getValue(env)
+        isNum = self.isNumeric(value)
+
+        if isNum:
+            return - value if value < 0 else value

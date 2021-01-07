@@ -1,0 +1,7 @@
+__pycache__/
+.vscode/
+data/
+!parser.out
+!parsetab.py
+!PLSQL/parser.out
+!PLSQL/parsetab.py

@@ -1,0 +1,66 @@
+digraph G{
+edge [color=black]; rankdir = TB;
+Nodo0[label="INICIO"]
+Nodo1[label="Instrucciones"]
+Nodo0 -> Nodo1;
+Nodo2[label="CREATE DATABASE"]
+Nodo1 -> Nodo2;
+Nodo3[label="IF NOT EXISTS"]
+Nodo2 -> Nodo3;
+Nodo4[label="test"]
+Nodo2 -> Nodo4;
+Nodo5[label="MODE: 1"]
+Nodo2 -> Nodo5;
+Nodo10[label="USE DATABASE [test]"]
+Nodo1 -> Nodo10;
+Nodo11[label="Instruccion: CREATE TABLE"]
+Nodo1 -> Nodo11;
+Nodo12[label="Id: tabla"]
+Nodo11 -> Nodo12;
+Nodo13[label="Campo"]
+Nodo11 -> Nodo13;
+Nodo14[label="Id: id"]
+Nodo13 -> Nodo14;
+Nodo15[label="Tipo: Tipo_Dato.INTEGER"]
+Nodo13 -> Nodo15;
+Nodo16[label="Campo"]
+Nodo11 -> Nodo16;
+Nodo17[label="Id: column2"]
+Nodo16 -> Nodo17;
+Nodo18[label="Tipo: Tipo_Dato.INTEGER"]
+Nodo16 -> Nodo18;
+Nodo19[label="Campo"]
+Nodo11 -> Nodo19;
+Nodo20[label="Id: column3"]
+Nodo19 -> Nodo20;
+Nodo21[label="Tipo: Tipo_Dato.INTEGER"]
+Nodo19 -> Nodo21;
+Nodo22[label="Campo"]
+Nodo11 -> Nodo22;
+Nodo23[label="Id: column4"]
+Nodo22 -> Nodo23;
+Nodo24[label="Tipo: Tipo_Dato.INTEGER"]
+Nodo22 -> Nodo24;
+Nodo25[label="Instruccion: CREATE TABLE"]
+Nodo1 -> Nodo25;
+Nodo26[label="Id: tbbodega"]
+Nodo25 -> Nodo26;
+Nodo27[label="Campo"]
+Nodo25 -> Nodo27;
+Nodo28[label="Id: id"]
+Nodo27 -> Nodo28;
+Nodo29[label="Tipo: Tipo_Dato.INTEGER"]
+Nodo27 -> Nodo29;
+Nodo30[label="Campo"]
+Nodo25 -> Nodo30;
+Nodo31[label="Id: bodega"]
+Nodo30 -> Nodo31;
+Nodo32[label="Tipo: Tipo_Dato.VARCHAR"]
+Nodo30 -> Nodo32;
+Nodo33[label="Campo"]
+Nodo25 -> Nodo33;
+Nodo34[label="Id: id2"]
+Nodo33 -> Nodo34;
+Nodo35[label="Tipo: Tipo_Dato.INTEGER"]
+Nodo33 -> Nodo35;
+}

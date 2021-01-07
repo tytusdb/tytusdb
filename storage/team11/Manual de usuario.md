@@ -31,8 +31,11 @@ ___
 - [E-grafías](#E-grafías)
 
 # Descripción general 
-Este paquete es el encargado de gestionar el almacenamiento de las bases de datos del proyecto mediante arboles AVL, el cual proporciona al servidor un conjunto de funciones para manipular la información que ingresa a las bases de datos.
-Para la persistencia de los datos  utiliza un sistema jerárquico de ficheros que guardan la información de cada estructura.
+Este paquete es el encargado de gestionar el almacenamiento de las bases de datos del proyecto mediante arboles AVL, el cual proporciona al servidor un conjunto de funciones para manipular la información que ingresa a las bases de datos de manera muy eficiente.
+Para la persistencia de los datos  utiliza un sistema jerárquico de ficheros que guardan la información de cada estructura generada.
+___
+# Alcance de proyecto
+El modelo AVL cuenta con interfaz grafica en el cual se instancia  la clase ```Manager.py``` que contiene todas las funciones que ofrece el paquete, es decir controla las funciones tanto para administrar bases de datos, tablas o los mismos registros de dichas tablas, centralizando asi el paquete y con facil adaptacion para la interfaz grafica.
 ___
 # Interfaz gráfica
  Tytus DB cuenta con una interfaz grafica que facilita la creación y manejo de bases de datos. Por medio de ésta, el usuario es capaz de visualizar las bases de datos por medio de imagenes que representan las estructuras implementadas y la navegacion de la misma consta de presionar botones.
@@ -64,6 +67,12 @@ Instrucciones | ```Del menu comandos,despliega las distintas funcionalidades del
 ```Paso 1```| ![](https://i.imgur.com/zegBsrV.png)
 ```Paso 2```| ![](https://i.imgur.com/ukMZHAi.png)
 ```Paso 3``` | ![](https://i.imgur.com/SseyqIF.png)
+### Recursos adicionales
+
+Opciones | Descripcion
+---------------------|------------
+```Explorar arbol``` | ```En dado caso el arbol no se lograra visualizar en su totalidad en la seccion derecha de la pantalla esta opcion brinda la visualizacion en un archivo SVG en el navegador``` 
+```Ver``` | ```Esta opcion genera una imagen completa del arbol que se desee``` 
 
 ___
 # Glosario
@@ -73,10 +82,13 @@ ___
 - **Arbol AVL:** Los árboles AVL están siempre equilibrados de tal modo que para todos los nodos, la altura de la rama izquierda no difiere en más de una unidad de la altura de la rama derecha o viceversa.
 - **Tupla:** Una tupla es una secuencia de valores agrupados. Una tupla sirve para agrupar, como si fueran un único valor, varios valores que, por su naturaleza, deben ir juntos.
 - **Fichero:** Un archivo es un fichero (dato) almacenado en algún recurso de memoria, generalmente en Disco Duro, pero dependiendo del uso (en ciertos casos) son almacenados en RAM. 
-- **Estructura de datos:** Es una forma particular de organizar datos en una computadora para que puedan ser utilizados de manera eficiente.
+- **Tablas:** Se refiere al tipo de modelado de datos donde se guardan los datos recogidos por un programa
 - **Open Source(codigo abierto):** Es el software cuyo código fuente y otros derechos que normalmente son exclusivos para quienes poseen los derechos de autor, son publicados bajo una licencia de código abierto o forman parte del dominio público.
+- **Comandos:** Se define comando al mensaje enviado al ordenador, por parte del usuario, y que va a provocar una respuesta en este.
+- **Funcion:** Es un tipo de subalgoritmo que describe una secuencia de órdenes.
 # E-grafías
 ___
 - tkinter — Python interface to Tcl/Tk. Library.https://docs.python.org/3/library/tkinter.html
 - Arbol AVL https://www.geeksforgeeks.org/avl-tree-set-2-deletion/
 - Estructura de datos https://www.ecured.cu/Estructura_de_datos
+
