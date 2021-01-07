@@ -249,7 +249,8 @@ reservadas = {
     'language' : 'LANGUAGE',
     'plpgsql' : 'PLPGSQL',
     'rowtype' : 'ROWTYPE',
-    'alias' : 'ALIAS'
+    'alias' : 'ALIAS',
+    'return' : 'RETURN'
 # revisar funciones de tiempo y fechas
 }
 

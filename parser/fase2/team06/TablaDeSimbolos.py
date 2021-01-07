@@ -540,7 +540,7 @@ class TablaDeSimbolos() :
                 #columnas.append(simb)   
         if a=="": 
             print("A va vacio")
-            return 0
+            return "0"
         else:
             print("vera si genera el dataframe")
             df=pd.DataFrame(datos)
@@ -573,7 +573,7 @@ class TablaDeSimbolos() :
                     #columnas.append(simb)
         if a=="": 
             print("A va vacio")
-            return 0
+            return "0"
         else:
             print("vera si genera el dataframe")
             df=pd.DataFrame(datos)
@@ -595,7 +595,7 @@ class TablaDeSimbolos() :
 
         if a=="": 
             print("A va vacio")
-            return 0
+            return "0"
         else:
             return a
 
@@ -624,7 +624,7 @@ class TablaDeSimbolos() :
                         #columnas.append(simb)
         if a=="": 
             print("A va vacio")
-            return 0
+            return "0"
         else:
             print("vera si genera el dataframe")
             df=pd.DataFrame(datos)
@@ -658,7 +658,7 @@ class TablaDeSimbolos() :
                 
         if a=="": 
             print("A va vacio")
-            return 0
+            return "0"
         else:
             print("vera si genera el dataframe")
             df=pd.DataFrame(datos)
