@@ -11,6 +11,6 @@ class DropIndex(Instruccion):
     
     def traducir(self,tabla,arbol,cadenaTraducida):
         temporal = arbol.generaTemporal()
-        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
-        codigo += "\t\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
         return codigo
