@@ -70,7 +70,6 @@ def traduccionSelect(nodoRaiz):
     stringRetornar += ";\n"
     return stringRetornar
 
-    
 def traduccion_create_table(nodoRaiz):
     identificador = nodoRaiz.hijos[0].valor
     cuerpo = ''

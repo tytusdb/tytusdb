@@ -12,11 +12,20 @@ sys.path.append(nodo_select)
 nodo_function_select = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','..','..')) + '\\DML\\Select\\')
 sys.path.append(nodo_function_select)
 
+start_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','..','..')) + '\\Start\\')
+sys.path.append(start_dir)
+
+c3d_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','..','..')) + '\\C3D\\')
+sys.path.append(c3d_dir)
+
 from Expresion import Expresion
 from Tipo import Data_Type
 from Tipo_Expresion import Type_Expresion
 from Response_Exp import Response
 from Select import Select
+from Traduccion import *
+from Label import *
+from Temporal import *
 
 class Select_Expresion(Expresion):
     
@@ -37,11 +46,10 @@ class Select_Expresion(Expresion):
             l = []
             for exp in lista_Exp.hijos :
 
-                value = exp.execute(None)
+                value = exp.execute(eviroment)
 
                 if exp.tipo.data_type == Data_Type.error :
                     print("Error: ")
-
                 else :
 
                     if exp.nombreNodo == 'ALIAS':
@@ -79,3 +87,14 @@ class Select_Expresion(Expresion):
             responseSelect.tipos = tipos
             return responseSelect
 
+    def compile(self, enviroment):
+        temporalAsignado = instanceTemporal.getTemporal()
+        codigo3D = temporalAsignado
+        codigo3D += ' = \'' + traduccionSelect(self) + '\' \n'
+        codigo3D += 'display[p] = ' + temporalAsignado + '\n'
+        codigo3D += 'p = p + 1\n'
+        print(codigo3D)
+        return codigo3D
+
+    def getText(self):
+        return traduccionSelect(self)

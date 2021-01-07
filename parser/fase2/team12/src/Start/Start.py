@@ -5,6 +5,9 @@ sys.path.append(nodo_dir)
 c3d_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\C3D\\')
 sys.path.append(c3d_dir)
 
+nodo_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\ENTORNO\\')
+sys.path.append(nodo_dir)
+
 from prettytable import PrettyTable
 from Libraries import Nodo
 from Libraries import Database
@@ -23,7 +26,7 @@ from Libraries import Index
 from Traduccion import *
 from Label import *
 from Temporal import *
-
+from Entorno import *
 
 # Importación de Clases para Execute
 
@@ -61,7 +64,17 @@ class Start(Nodo):
         
     # recursiva por la izquierda
     def execute(self, enviroment):
- 
+        
+        entornoGlobal = Entorno(None)
+        entornoGlobal.Global = entornoGlobal
+        entornoGlobal.nombreEntorno = 'Global'
+
+        for hijo in self.hijos:
+            if hijo.nombreNodo == 'SENTENCIA_FUNCTION':
+                hijo.execute(entornoGlobal)
+        
+        #entornoGlobal.recorrerEntorno()
+        
         for hijo in self.hijos:
             if hijo.nombreNodo == 'CREATE_DATABASE':
                 nuevaBase=Database()                
@@ -83,11 +96,11 @@ class Start(Nodo):
                 nuevoEnum = Type()
                 nuevoEnum.execute(hijo)
             elif hijo.nombreNodo == 'SENTENCIA_SELECT' or hijo.nombreNodo == 'SENTENCIA_SELECT_DISTINCT':
-                respuesta = hijo.execute(enviroment)
+                respuesta = hijo.execute(entornoGlobal)
                 if respuesta.data != None:
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(respuesta.encabezados, respuesta.data)})
             elif hijo.nombreNodo == 'E':
-                hijo.execute(enviroment)
+                hijo.execute(entornoGlobal)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
                 print("Expresion valor: "+str(hijo.valorExpresion))
             elif hijo.nombreNodo == 'SENTENCIA_INSERT':
@@ -120,9 +133,11 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
             elif hijo.nombreNodo == 'SENTENCIA_EXCEPT':
                 nuevoExcept = Except()
+                
                 resp = nuevoExcept.execute(hijo)
                 if resp.data != None:
-                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+                    self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})            
+
             elif hijo.nombreNodo == 'SENTENCIA_UPDATE':
                 nuevoUpdate = UpdateTable()
                 res = nuevoUpdate.execute(hijo,enviroment)
@@ -143,12 +158,16 @@ class Start(Nodo):
                 nuevoIndex = Index()
                 resp = nuevoIndex.execute(hijo)
 
-                
+
+            
     def compile(self,enviroment = None):
 
         pilaInstrucciones = []
         instanceLabel.labelActual = 1
         instanceTemporal.temporalActual = 1
+        entornoGlobal = Entorno(None)
+        entornoGlobal.Global = entornoGlobal
+        entornoGlobal.nombreEntorno = 'Global'
 
         for hijo in self.hijos:
             if hijo.nombreNodo == 'CREATE_DATABASE':
@@ -169,6 +188,10 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'SENTENCIA_PROCEDURE':
                 nuevoProcedure = Procedure()
                 nuevoProcedure.compile(hijo)
+            elif hijo.nombreNodo == 'SENTENCIA_SELECT' or hijo.nombreNodo == 'SENTENCIA_SELECT_DISTINCT':
+                respuesta = hijo.compile(enviroment)
+            elif hijo.nombreNodo == 'SENTENCIA_IF':
+                print(hijo.compile(entornoGlobal))
         
         
 

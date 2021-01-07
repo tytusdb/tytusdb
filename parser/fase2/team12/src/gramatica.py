@@ -1,4 +1,13 @@
 from Start.Start import * 
+from VARIABLES.Instrucciones_Asignacion import *
+from VARIABLES.Declaracion_Variable import *
+from VARIABLES.Asignacion_Variable import *
+from VARIABLES.Lista_Declaraciones import *
+from VARIABLES.Sentencia_Asignacion import *
+from FUNCIONES.Declaration_Function import *
+from BLOQUE.Bloque import *
+from SENTENCIA_IF.Sentencia_If import *
+from SENTENCIA_IF.Sentencia_Else import *
 from EXPRESION.OPERADOR.Node_Operator import *
 from EXPRESION.EXPRESION.Expresion import *
 from EXPRESION.EXPRESIONES_TERMINALES.NUMERIC.NODE_NUMERIC.Node_Numeric import *
@@ -19,6 +28,7 @@ from EXPRESION.EXPRESIONES_TERMINALES.CASE.Case import *
 from EXPRESION.EXPRESIONES_TERMINALES.CASE.Sentencia_Case import *
 from EXPRESION.EXPRESIONES_TERMINALES.CASE.Lista_Case import *
 from EXPRESION.EXPRESIONES_TERMINALES.CASE.Else import *
+from EXPRESION.EXPRESIONES_TERMINALES.LLAMADA_METODO.Llamada_Metodo import *
 from DDL.DROP.Drop import *
 from DDL.SHOW.Show import *
 from ERROR.Error import *
@@ -249,6 +259,7 @@ keywords = {
 'RENAME' : 'RENAME',
 'REPLACE' : 'REPLACE',
 'RETURNING' : 'RETURNING',
+'RETURN' : 'RETURN',
 'RETURNS':'RETURNS',
 'RIGHT' : 'RIGHT',
 'ROUND' : 'ROUND',
@@ -463,6 +474,7 @@ def p_instruccion(t):
                     | sentencia_except
                     | sentencia_index
                     | sentencia_procedure
+                    | sentencia_function
                     | sentencia_execute
                     | Exp
                     | error'''
@@ -475,7 +487,6 @@ def p_error(t):
         tok = yacc.token()
         if not tok or tok.type == 'PUNTOYCOMA': break
     yacc.restart()
-
 #------------------------------- Sentencia Execute-----------------------------------------
 def p_sentencia_execute(t):
     '''sentencia_execute : EXECUTE IDENTIFICADOR sent_parametros_execute'''
@@ -492,7 +503,6 @@ def p_sent_parametros_execute_2(t):
     t[0] = t[2]
 
 #------------------------------- Sentencia Execute-----------------------------------------
-
 #------------------------------- Produccion Union ------------------------------------------
 def p_sentencia_union(t):
     'sentencia_union : sentencia_select UNION sentencia_select'
@@ -1138,7 +1148,7 @@ def p_tipo_declaracion_1(t):
                 | BOOLEAN'''
     reportebnf.append(bnf["p_tipo_declaracion_1"])                
     nuevo = Start("TIPO_DECLARACION")
-    nuevo.createChild(t[1], t.lineno(1))
+    nuevo.createChild(t[1].upper(), t.lineno(1))
     t[0] = nuevo
 
 def p_tipo_declaracion_2(t):
@@ -1595,108 +1605,167 @@ def p_sentencia_use(t):
 #--------------------------------DECLARACION DE VARIABLES-----------------------------------
 def p_instrucciones_asignacion_1(t):
     '''instrucciones_asignacion : instrucciones_asignacion declaracion_variable PUNTOYCOMA'''
-    t[0] = Start("INSTRUCCIONES_ASIGNACION")
-    for hijo in t[1].hijos:
-        t[0].addChild(hijo)
-    t[0].addChild(t[2])
+    t[0] = t[1]
+    t[0].hijos.append(t[2])
 
 def p_instrucciones_asignacion_2(t):
     '''instrucciones_asignacion : declaracion_variable PUNTOYCOMA'''
-    t[0] = Start("INSTRUCCIONES_ASIGNACION")
-    t[0].addChild(t[1])
+    t[0] = Lista_Declaracion("INSTRUCCIONES_ASIGNACION")
+    t[0].hijos.append(t[1])
 
 def p_declaracion_variable_1(t):
     '''declaracion_variable : IDENTIFICADOR tipo_declaracion asignacion_variable'''
-    t[0] = Start("DECLARACION_VARIABLE")
-    t[0].createTerminal(t.slice[1])
-    t[0].addChild(t[2])
-    t[0].addChild(t[3])
+    t[0] = Declaracion_Variable("DECLARACION_VARIABLE")
+    identificador = Identificator_Expresion('Identificador',t.lineno(1),t.lexpos(1),t[1])
+    t[0].hijos.append(identificador)
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(t[3])
     
 
 def p_declaracion_variable_2(t):
     '''declaracion_variable : IDENTIFICADOR tipo_declaracion'''
-    t[0] = Start("DECLARACION_VARIABLE")
-    t[0].createTerminal(t.slice[1])
-    t[0].addChild(t[2])
+    t[0] = Declaracion_Variable("DECLARACION_VARIABLE")
+    identificador = Identificator_Expresion('Identificador',t.lineno(1),t.lexpos(1),t[1])
+    t[0].hijos.append(identificador)
+    t[0].hijos.append(t[2])
+
 
 def p_asignacion_variable(t):
-    '''asignacion_variable : DEFAULT Exp
-                            | DOSPUNTOS IGUAL Exp'''
-    t[0] = Start("ASIGNACION_VARIABLE")
-    if len(t) == 3:
-        t[0].addChild(t[2])
-    elif len(t) == 4:
-        t[0].addChild(t[3])
-    
+    '''asignacion_variable : DEFAULT Exp '''
+    t[0] = Asignacion_Variable("ASIGNACION_VARIABLE_DEFAULT")
+    t[0].hijos.append(t[2])
+
+def p_asignacion_variable_1(t):
+    '''asignacion_variable : DOSPUNTOS IGUAL Exp'''
+    t[0] = Asignacion_Variable("ASIGNACION_VARIABLE")
+    t[0].hijos.append(t[3])
+
 #--------------------------------DECLARACION DE VARIABLES-----------------------------------
 
 #-------------------------------------SENTENCIA IF------------------------------------------
 def p_sentencia_if_1(t):
-    '''sentencia_if : IF Exp THEN instrucciones_procedure sentencias_opcionales_if END IF'''
-    t[0] = Start("SENTENCIA_IF")
-    t[0].addChild(t[2])
-    t[0].addChild(t[4])
-    t[0].addChild(t[5])
+    '''sentencia_if : IF Exp THEN bloque sentencias_opcionales_if END IF'''
+    t[0] = Sentencia_If("SENTENCIA_IF")
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(t[4])
+    t[0].hijos.append(t[5])
 
 def p_sentencia_if_2(t):
-    '''sentencia_if : IF Exp THEN instrucciones_procedure sentencia_opcional_else END IF'''
-    t[0] = Start("SENTENCIA_IF")
-    t[0].addChild(t[2])
-    t[0].addChild(t[4])
-    t[0].addChild(t[5])
+    '''sentencia_if : IF Exp THEN bloque sentencia_opcional_else END IF'''
+    t[0] = Sentencia_If("SENTENCIA_IF")
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(t[4])
+    t[0].hijos.append(t[5])
 
 def p_sentencia_if_3(t):
-    '''sentencia_if : IF Exp THEN instrucciones_procedure sentencias_opcionales_if sentencia_opcional_else END IF'''
-    t[0] = Start("SENTENCIA_IF")
-    t[0].addChild(t[2])
-    t[0].addChild(t[4])
-    t[0].addChild(t[5])
-    t[0].addChild(t[6])
+    '''sentencia_if : IF Exp THEN bloque sentencias_opcionales_if sentencia_opcional_else END IF'''
+    t[0] = Sentencia_If("SENTENCIA_IF")
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(t[4])
+    t[0].hijos.append(t[5])
+    t[0].hijos.append(t[6])
 
 def p_sentencia_if_4(t):
-    '''sentencia_if : IF Exp THEN instrucciones_procedure END IF'''
-    t[0] = Start("SENTENCIA_IF")
-    t[0].addChild(t[2])
-    t[0].addChild(t[4])
+    '''sentencia_if : IF Exp THEN bloque END IF'''
+    t[0] = Sentencia_If("SENTENCIA_IF")
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(t[4])
 
 def p_sentencias_opcionales_if_1(t):
     '''sentencias_opcionales_if : sentencias_opcionales_if sentencia_elsif'''
-    t[0] = Start("SENTENCIA_ELSIF")
-    for hijo in t[1].hijos:
-        t[0].addChild(hijo)
-    t[0].addChild(t[2])
+    t[0] = t[1]
+    t[0].hijos.append(t[2])
 
 def p_sentencias_opcionales_if_2(t):
     '''sentencias_opcionales_if : sentencia_elsif'''
     t[0] = Start("SENTENCIA_ELSIF")
-    t[0].addChild(t[1])
+    t[0].hijos.append(t[1])    
 
 def p_sentencia_opcional_else(t):
-    '''sentencia_opcional_else :  ELSE instrucciones_procedure'''
-    t[0] = Start("SENTENCIA_ELSE")
-    t[0].addChild(t[2])
+    '''sentencia_opcional_else :  ELSE bloque'''
+    t[0] = Sentencia_Else("SENTENCIA_ELSE")
+    t[0].hijos.append(t[2])
 
 def p_sentencia_else_if(t):
-    '''sentencia_elsif : ELSIF Exp THEN instrucciones_procedure'''
-    t[0] = Start("SENTENCIA_ELSIF")
-    t[0].addChild(t[2])
-    t[0].addChild(t[4])
+    '''sentencia_elsif : ELSIF Exp THEN bloque'''
+    t[0] = Sentencia_If("ELSIF")
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(t[4])
 
 #-------------------------------------SENTENCIA IF------------------------------------------
 
 
 #--------------------------------------PROCEDURE--------------------------------------------
 def p_sentencia_function(t):
-    '''sentencia_procedure : CREATE sentencia_orreplace FUNCTION IDENTIFICADOR argumentos_procedure argumentos_retorno definicion_procedure'''
-    t[0] = Start("SENTENCIA_FUNCTION")
+    '''sentencia_function : CREATE sentencia_orreplace FUNCTION IDENTIFICADOR argumentos_procedure argumentos_retorno definicion_function'''
+    t[0] = Declaration_Function("SENTENCIA_FUNCTION",t.lineno(3),t.lexpos(3),None)
     if t[2] != None:
-        t[0].addChild(t[2])
-    t[0].createTerminal(t.slice[4])
+        t[0].hijos.append(t[2])
+    
+    identificador = Identificator_Expresion("Identificador",t.lineno(4),t.lexpos(4),t[4])
+    t[0].hijos.append(identificador)
+
     if t[5] != None:
-        t[0].addChild(t[5])
+        t[0].hijos.append(t[5])
+    
     if t[6] != None:
-        t[0].addChild(t[6])
-    t[0].addChild(t[7])
+        t[0].hijos.append(t[6])
+    
+    t[0].hijos.append(t[7])    
+
+
+def p_sentencia_function_definicion_function(t):
+    'definicion_function : declaraciones_procedure BEGIN END'
+    t[0] = Start('CUERPO_FUNCTION')
+    t[0].hijos.append(t[1])
+    bloque = Bloque('BLOQUE_SENTENCIA')
+    t[0].hijos.append(bloque)
+
+def p_sentencia_function_definicion_function_2(t):
+    'definicion_function : declaraciones_procedure BEGIN bloque END'
+    t[0] = Start('CUERPO_FUNCTION')
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(t[3])
+
+def p_sentencia_function_definicion_function_3(t):
+    'definicion_function : BEGIN END'
+    t[0] = Start('CUERPO_FUNCTION')    
+    bloque = Bloque('BLOQUE_SENTENCIA')
+    t[0].hijos.append(bloque)
+
+def p_sentencia_function_definicion_function_4(t):
+    'definicion_function : BEGIN bloque END'
+    t[0] = Start('CUERPO_FUNCTION')    
+    t[0].hijos.append(t[2])
+
+def p_bloque(t):
+    'bloque : bloque instruccion_function PUNTOYCOMA'
+    t[0] = t[1]
+    t[0].hijos.append(t[2])
+
+def p_bloque_1(t):
+    'bloque : instruccion_function PUNTOYCOMA'
+    t[0] = Bloque('BLOQUE_SENTENCIA')
+    t[0].hijos.append(t[1])
+
+def p_instruccion_procedure(t):
+    '''instruccion_function : sent_insertar
+                            | sent_update 
+                            | sent_delete
+                            | sentencia_select
+                            | sentencia_union
+                            | sentencia_union_all
+                            | sentencia_intersect
+                            | sentencia_except
+                            | sentencia_asignacion
+                            | sentencia_if
+                            | sentencia_return'''
+    t[0] = t[1]
+
+def p_sentencia_return(t):
+    'sentencia_return : RETURN Exp '
+    t[0] = Start('SENTENCIA_RETURN',-1,-1,None)
+    t[0].hijos.append(t[2])
 
 def p_argumentos_retorno(t):
     '''argumentos_retorno : RETURNS tipo_declaracion asignacion_alias
@@ -1706,7 +1775,6 @@ def p_argumentos_retorno(t):
         t[0].addChild(t[2])
         if t[3] != None:
             t[0].addChild(t[3])
-
 
 def p_asingacion_alias(t):
     '''asignacion_alias : AS Exp
@@ -1733,14 +1801,12 @@ def p_argumentos_procedure_2(t):
 
 def p_lista_argfuncion_1(t):
     '''lista_argfuncion : lista_argfuncion COMA arg_funcion'''
-    t[0] = Start("LISTA_ARG_FUNCION")
-    for child in t[1].hijos:
-        t[0].addChild(child)
+    t[0] = t[1]    
     t[0].addChild(t[3])
 
 def p_lista_argfuncion_2(t):
     '''lista_argfuncion : arg_funcion'''
-    t[0] = Start("ARG_FUNCION")
+    t[0] = Start("LISTA_ARG_FUNCION")
     t[0].addChild(t[1])
 
 def p_arg_funcion(t):
@@ -1773,14 +1839,11 @@ def p_sent_argmode(t):
         t[0].createTerminal(t.slice[1])
 
 def p_sent_argname(t):
-    '''arg_name : IDENTIFICADOR
-                    | '''
+    '''arg_name : IDENTIFICADOR'''
     if len(t) == 2:
         t[0] = Start("NOMBRE_ARGUMENTO")
         t[0].createTerminal(t.slice[1])
     
-
-
 
 def p_definicion_procedure_1(t):
     '''definicion_procedure : declaraciones_procedure cuerpo_procedure END'''
@@ -1795,8 +1858,7 @@ def p_definicion_procedure_2(t):
 
 def p_declaraciones_procedure(t):
     '''declaraciones_procedure : DECLARE instrucciones_asignacion'''
-    t[0] = Start("DECLARACIONES_PROCEDURE")
-    t[0].addChild(t[2])
+    t[0] = t[2]
 
 def p_cuerpo_procedure(t):
     '''cuerpo_procedure :  BEGIN instrucciones_procedure'''
@@ -1816,7 +1878,7 @@ def p_instrucciones_procedure_2(t):
     t[0] = Start("INSTRUCCIONES_PROCEDURE")
     t[0].addChild(t[1])
     
-def p_instruccion_procedure(t):
+def p_instruccion_procedure_3(t):
     '''instruccion_procedure : sent_insertar
                             | sent_update 
                             | sent_delete
@@ -1831,9 +1893,10 @@ def p_instruccion_procedure(t):
 
 def p_asignacion_procedure(t):
     '''sentencia_asignacion : IDENTIFICADOR DOSPUNTOS IGUAL Exp'''
-    t[0] = Start("SENTENCIA_ASIGNACION")
-    t[0].createTerminal(t.slice[1])
-    t[0].addChild(t[4])
+    t[0] = Sentencia_Asignacion("SENTENCIA_ASIGNACION")
+    identificador = Identificator_Expresion('Identificador',t.lineno(1),t.lexpos(1)+1,t[1])
+    t[0].hijos.append(identificador)
+    t[0].hijos.append(t[4])
 
 
 #--------------------------------------PROCEDURE--------------------------------------------
@@ -1864,8 +1927,8 @@ def p_sentencia_index_1(t):
 def p_sentencia_index_2(t):
     '''sentencia_index : CREATE UNIQUE INDEX IDENTIFICADOR ON IDENTIFICADOR sentencia_index_p opcional_where_index'''
     nuevo = Start("CREATE_UNIQUE_INDEX")
-    nuevo.createTerminal(t.slice[4])
-    nuevo.createTerminal(t.slice[6])
+    nuevo.createChild(t.slice[4])
+    nuevo.createChild(t.slice[6])
     nuevo.addChild(t[7])
     if t[8] != None:
         nuevo.addChild(t[8])
@@ -1934,7 +1997,8 @@ def p_atrib_exp_index_2(t):
 
 def p_atrib_exp_index_3(t):
     '''atrib_exp_index : LOWER PARENTESISIZQ atrib_exp_index PARENTESISDER'''
-    t[0] = t[3]
+    t[0] = t[3]    
+
 
 def p_opc_order(t):
     '''opc_order : ASC
@@ -2104,8 +2168,7 @@ def p_list_col_update1(t):
     reportebnf.append(bnf["p_list_col_update1"])    
     nuevo = Update('LISTA_UPDATE')
     nuevo.hijos.append(t[1])
-    t[0] = nuevo
-    
+    t[0] = nuevo    
 def p_column_update(t):
     '''col_update : IDENTIFICADOR IGUAL Exp'''
     reportebnf.append(bnf["p_column_update"])    
@@ -2570,7 +2633,40 @@ def p_exp_case(t):
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
 
+def p_exp_llamada_metodo(t):
+    'Exp : llamada_metodo'
+    t[0] = Expresion('E',-1,-1,None)
+    t[0].hijos.append(t[1])
+
 # *********************************************************************************
+# ------------------------------ LLAMADA METODO -----------------------------------
+def p_llamada_Metodo(t):
+    'llamada_metodo : IDENTIFICADOR PARENTESISIZQ PARENTESISDER'
+    t[0] = Llamada_Metodo('LLAMADA_METODO',-1,-1,None)
+    identificador = Identificator_Expresion('Identificador',t.lineno(1),t.lexpos(1)+1,t[1])
+    lista_par = Start('LISTA_PARAMETROS')
+    t[0].hijos.append(identificador)
+    t[0].hijos.append(lista_par)
+
+def p_llamada_Metodo_2(t):
+    'llamada_metodo : IDENTIFICADOR PARENTESISIZQ lista_parametros PARENTESISDER'
+    t[0] = Llamada_Metodo('LLAMADA_METODO',-1,-1,None)
+    identificador = Identificator_Expresion('Identificador',t.lineno(1),t.lexpos(1)+1,t[1])    
+    t[0].hijos.append(identificador)
+    t[0].hijos.append(t[3])
+
+# ---------------------------------------------------------------------------------
+# ----------------------------- LISTA PARAMETROS ----------------------------------
+def p_lista_parametros_llamada(t):
+    'lista_parametros : lista_parametros COMA Exp'
+    t[0] = t[1]
+    t[0].hijos.append(t[3])
+
+def p_lista_parametros_llamada_2(t):
+    'lista_parametros : Exp'
+    t[0] = Start('LISTA_PARAMETROS')
+    t[0].hijos.append(t[1])
+# ---------------------------------------------------------------------------------
 # ----------------------------------  Access --------------------------------------
 def p_option_exp_access(t):
     'Acceso : IDENTIFICADOR PUNTO option_access'

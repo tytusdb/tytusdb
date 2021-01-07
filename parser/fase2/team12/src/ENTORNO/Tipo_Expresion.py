@@ -4,6 +4,7 @@ class Type_Expresion():
     
     def __init__(self,data_type):
         self.data_type = data_type
+        self.data_specific = ''
     
     # Metodos para verificar el tipo de dato
     def is_numeric(self):
