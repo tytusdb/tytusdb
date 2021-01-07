@@ -63,15 +63,16 @@ def main():
 	Sra = Sra + 1	
 	Ss0[Sra] = 7	
 	goto. sp_validaupdate	
-	label. retorno7	
+	label. retorno7
+	print(inter.procesar_funcion21())	
 	ta1 = 'tbbodega'	
 	ta2 = 4	
 	Sra = Sra + 1	
 	Ss0[Sra] = 8	
 	goto. ValidaRegistros	
 	label. retorno8
-	print(inter.procesar_funcion21())
 	print(inter.procesar_funcion22())
+	print(inter.procesar_funcion23())
 	print(inter.Reportes())	
 	goto. end	
 	
@@ -158,17 +159,18 @@ def main():
 	goto. retorno	
 	
 	label. sp_validainsert
-	print(inter.procesar_funcion23())
 	print(inter.procesar_funcion24())
 	print(inter.procesar_funcion25())
 	print(inter.procesar_funcion26())
-	print(inter.procesar_funcion27())	
+	print(inter.procesar_funcion27())
+	print(inter.procesar_funcion28())	
 	print('INSERT  ')	
 	goto. retorno	
 	
 	label. sp_validaupdate	
 	print('UPDATE  ')
-	print(inter.procesar_funcion28())	
+	print(inter.procesar_funcion29())
+	print(inter.procesar_funcion30())	
 	goto. retorno	
 	
 	label. retorno	

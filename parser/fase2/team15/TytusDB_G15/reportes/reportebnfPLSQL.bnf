@@ -86,6 +86,36 @@
  
 <instrucciones_global_sent> ::= <funciones> | <llamada_funcion> | <createDB_insrt> | <show_databases_instr> 
  
+<delete_insrt> ::= DELETE FROM ID <cond_where> PTCOMA
+ 
+<cond_where> ::= WHERE <expresion_where>
+ 
+<expresion_where> ::= <expresion_logica_w>
+ 
+<expresion_logica_w> ::= <expresion_whereb>
+ 
+<expresion_whereb> ::= 
+ 
+<expresion_wherea> ::= <expresion>
+ 
+<expresion ::= <expresion_dato>
+ 
+<expresion_dato> ::= <expresion_numero>
+ 
+<expresion_numero> ::= ENTERO
+ 
+<expresion_wherea> ::= <expresion>
+ 
+<expresion ::= <expresion_dato>
+ 
+<expresion_dato> ::= <string_type>
+ 
+<string_type> ::= ID
+ 
+<instrucciones_globales_list> ::= <instrucciones_globales_list><instrucciones_global_sent>
+ 
+<instrucciones_global_sent> ::= <funciones> | <llamada_funcion> | <createDB_insrt> | <show_databases_instr> 
+ 
 <llamada_funcion> ::= EXECUTE ID PARA <params> PARC PTCOMA
  
 <params> ::= <expresionPLSQL> | <empty>
@@ -97,6 +127,24 @@
 <instrucciones_global_sent> ::= <funciones> | <llamada_funcion> | <createDB_insrt> | <show_databases_instr> 
  
 <funciones> ::= 
+ 
+<instrucciones_funct_list> ::= <instrucciones_funct_list> <instrucciones_funct_sent>
+ 
+<instrucciones_funct_sent> ::= <select_insrt> PTCOMA
+ 
+<select_insrt> ::= SELECT <opcion_select_tm>
+ 
+<opcion_select_tm> ::= <opcion_select_lista> FROM <opciones_sobrenombres> 
+ 
+<opciones_sobrenombres> ::= <opcion_sobrenombre>
+ 
+<opcion_sobrenombre> ::= ID 
+ 
+<opcion_select_lista> ::= <opciones_select_lista>
+ 
+<opciones_select_lista> ::= <opcion_select>
+ 
+<opcion_select> ::= POR
  
 <instrucciones_funct_list> ::= <instrucciones_funct_list> <instrucciones_funct_sent>
  
