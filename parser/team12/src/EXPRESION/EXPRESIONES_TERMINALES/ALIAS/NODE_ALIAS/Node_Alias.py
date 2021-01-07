@@ -37,3 +37,16 @@ class Alias_Expresion(Expresion):
             self.valorExpresion = expValue
             return self.valorExpresion
 
+    def compile(self, enviroment):
+        print("")
+    
+    def getText(self):
+        expresionAlias = self.hijos[0]
+        nombreAlias = self.hijos[1]
+
+        if nombreAlias.nombreNodo == 'Identificador':
+            stringAlias = expresionAlias.getText() + ' as ' + nombreAlias.valor
+            return stringAlias
+        else:
+            stringAlias = expresionAlias.getText() + ' as \'' + nombreAlias.valor + '\''
+            return stringAlias    

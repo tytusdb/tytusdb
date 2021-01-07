@@ -31,8 +31,11 @@ class TIPO_DATO(Enum):
     INDEX_UNIQUE = 27
     INDEX_ORDER = 28
 
-
-
+    FUNCTION = 29
+    DECLARE = 30
+    BEGIN = 31
+    PARAMETRO = 32
+    DECLARACION = 33
 
 
 

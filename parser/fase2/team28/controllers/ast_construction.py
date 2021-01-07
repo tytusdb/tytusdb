@@ -108,6 +108,134 @@ def p_sql_sql_functions(p):
     nodo.production += f"{p[1].production}"
     p[0] = nodo
 
+#TODO ESTO LO AGREGUE YO EN EL DROPS
+def p_sql_sql_drop_functions(p):
+    '''sqlinstruction : SQL_DROP_FUNCTION
+    '''
+    nodo = Node('SQL Instruction')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<sqlinstruction> ::= <SQL_DROP_FUNCTIONS>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+def p_sql_sql_drop_procedures(p):
+    '''sqlinstruction : SQL_DROP_PROCEDURE
+    '''
+    nodo = Node('SQL Instruction')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<sqlinstruction> ::= <SQL_DROP_PROCEDURE>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_functions_drop_inst_a(p):
+    '''SQL_DROP_FUNCTION : DROP FUNCTION IF EXISTS DETAIL_FUNC_DROP SEMICOLON
+    '''
+    nodo = Node('SQL_DROP_FUNCTION')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(Node(p[3]))
+    nodo.add_childrens(Node(p[4]))
+    nodo.add_childrens(p[5])
+    nodo.add_childrens(Node(p[6]))
+    nodo.production = f'<SQL_DROP_FUNCTION> := DROP FUNCTION IF EXISTS <DETAIL_FUNC_DROP> SEMICOLON\n'
+    nodo.production += f'{p[5].production}'
+    p[0] = nodo
+
+
+def p_sql_functions_drop_inst_b(p):
+    '''SQL_DROP_FUNCTION : DROP FUNCTION DETAIL_FUNC_DROP SEMICOLON
+    '''
+    nodo = Node('SQL_DROP_FUNCTION')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f'<SQL_DROP_FUNCTION> := DROP FUNCTION <DETAIL_FUNC_DROP> SEMICOLON\n'
+    nodo.production += f'{p[3].production}'
+    p[0] = nodo
+
+
+def p_sql_procedures_drop_inst_a(p):
+    '''SQL_DROP_PROCEDURE : DROP PROCEDURE IF EXISTS DETAIL_FUNC_DROP SEMICOLON
+    '''
+    nodo = Node('SQL_DROP_PROCEDURE')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_Childrens(Node(p[3]))
+    nodo.add_childrens(Node(p[4]))
+    nodo.add_childrens(p[5])
+    nodo.add_childrens(Node(p[6]))
+    nodo.production = f'<SQL_DROP_PROCEDURE> := DROP PROCEDURE UF EXISTS <DETAIL_FUNC_DROP> SEMICOLON\n'
+    nodo.production += f'{p[5].production}'
+    p[0] = nodo
+
+def p_sql_procedures_drop_inst_b(p):
+    '''SQL_DROP_PROCEDURE : DROP PROCEDURE DETAIL_FUNC_DROP SEMICOLON
+    '''
+    nodo = Node('SQL_DROP_PROCEDURE')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f'<SQL_DROP_PROCEDURE> := DROP PROCEDURE <DETAIL_FUNC_DROP> SEMICOLON\n'
+    nodo.production += f'{p[3].production}'
+    p[0] = nodo
+
+
+def p_sql_detail_func_drop(p):
+    '''DETAIL_FUNC_DROP : DETAIL_FUNC_DROP COMMA FUNCTIONS_TO_DROP
+                         | FUNCTIONS_TO_DROP
+    '''
+    nodo = Node('DETAIL_FUNC_DROP')
+    if len(p) == 4:
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.production = f'<DETAIL_FUNC_DROP> := <DETAIL_FUNC_DROP> COMMA <FUNCTIONS_TO_DROP>\n'
+        nodo.production += f'{p[1].production}'
+        nodo.production += f'{p[3].production}'
+        p[0] = nodo
+
+    else:
+        nodo.add_childrens(p[1])
+        nodo.production = f'<DETAIL_FUNC_DROP> := <FUNCTIONS_TO_DROP>\n'
+    
+def p_sql_functions_to_drop(p):
+    '''FUNCTIONS_TO_DROP : ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS
+                         | ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS
+                         | ID
+    '''
+    nodo = Node('FUNCTIONS_TO_DROP')
+    if len(p) == 5:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.production = f'<FUNCTIONS_TO_DROP> := ID LEFT_PARENTHESIS <LIST_ARGUMENT> RIGHT_PARENTHESIS\n'
+        nodo.production += f'{p[3].production}'
+        p[0] = nodo
+
+    elif len(p) == 4:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.production = f'<FUNCTIONS_TO_DROP> := ID LEFT_PARENTHESIS RIGHT_PARENTHESIS\n'
+        p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f'<FUNCTIONS_TO_DROP> := ID\n'
+        p[0] = nodo
+
+
+
+
+#TODO ACA TERMINE
+
+
+
+
+
 #---->
 def p_sql_sql_procedures(p):
     '''sqlinstruction : SQL_PROCEDURES
@@ -791,8 +919,231 @@ def p_options_col_list(p):
         nodo.production += f"{p[1].production}"
         p[0] = nodo
 
-def p_indexes_statement(p):
-    '''INDEXES_STATEMENT : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
+def p_indexes_statement_create(p):
+    '''INDEXES_STATEMENT : CREATE_INDEXES'''
+    nodo = Node('INDEXES_STATEMENT')
+    nodo.add_childrens(p[1])
+    nodo.production = f'<INDEXES_STATEMENT> := <CREATE_INDEXES>\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
+def p_indexes_statement_drop(p):
+    '''INDEXES_STATEMENT : DROP_INDEXES SEMICOLON'''
+    nodo = Node('INDEXES_STATEMENT')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.production = f'<INDEXES_STATEMENT> := <DROP_INDEXES> SEMICOLON\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
+def p_indexes_statement_alter(p):
+    '''INDEXES_STATEMENT : ALTER_INDEXES SEMICOLON'''
+    nodo = Node('INDEXES_STATEMENT')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.production = f'<INDEXES_STATEMENT> := <ALTER_INDEXES> SEMICOLON\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
+def p_indexes_alter(p):
+    '''ALTER_INDEXES : ALTER INDEX IF EXISTS ID RENAME TO ID
+                     | ALTER INDEX ID RENAME TO ID
+                     | ALTER INDEX IF EXISTS ID ALTER COLUMN body_cont_index
+                     | ALTER INDEX ID ALTER COLUMN body_cont_index
+                     | ALTER INDEX ID ALTER body_cont_index
+                     | ALTER INDEX IF EXISTS ID ALTER body_cont_index'''
+    nodo = Node('ALTER_INDEXES')
+    if len(p) == 9:
+        if p.slice[6].type == "ALTER":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(Node(p[6]))
+            nodo.add_childrens(Node(p[7]))
+            nodo.add_childrens(p[8])
+            nodo.production = f'<ALTER_INDEXES> := ALTER INDEX IF EXISTS ID ALTER COLUMN <body_cont_index>\n'
+            nodo.production += f'{p[8].production}'
+            p[0] = nodo
+        else:
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(Node(p[6]))
+            nodo.add_childrens(Node(p[7]))
+            nodo.add_childrens(Node(p[8]))
+            nodo.production = f'<ALTER_INDEXES> := ALTER INDEX IF EXISTS ID RENAME TO ID\n'
+            p[0] = nodo
+    
+    elif len(p) == 8:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(Node(p[6]))
+        nodo.add_childrens(p[7])
+        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX IF EXISTS ID ALTER <body_cont_index>\n'
+        nodo.production += f'{p[7].production}'
+        p[0] = nodo
+
+    elif len(p) == 7:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(p[6])
+        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX ID ALTER COLUMN <body_cont_index>\n'
+        nodo.production += f'{p[6].production}'
+        p[0] = nodo
+    elif len(p) == 6:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX ID ALTER <body_cont_index>\n'
+        nodo.production += f'{p[5].production}'
+        p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(Node(p[6]))
+        nodo.production = f'<ALTER_INDEXES> := ALTER INDEX ID RENAME TO ID\n'
+        p[0] = nodo
+
+def p_index_alter_body(p):
+    '''body_cont_index : ID
+                       | INT_NUMBER'''
+    nodo = Node('body_cont_index')
+    if p.slice[1].type == "ID":
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f'<body_cont_index> := ID\n'
+        p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f'<body_cont_index> := INT_NUMBER\n'
+        p[0] = nodo
+
+
+def p_indexes_drop(p):
+    '''DROP_INDEXES : DROP INDEX CONCURRENTLY IF EXISTS columnlist CASCADE
+                    | DROP INDEX CONCURRENTLY IF EXISTS columnlist RESTRICT
+                    | DROP INDEX IF EXISTS columnlist RESTRICT
+                    | DROP INDEX IF EXISTS columnlist CASCADE
+                    | DROP INDEX columnlist CASCADE
+                    | DROP INDEX columnlist RESTRICT 
+                    | DROP INDEX CONCURRENTLY IF EXISTS columnlist
+                    | DROP INDEX CONCURRENTLY columnlist
+                    | DROP INDEX IF EXISTS columnlist
+                    | DROP INDEX columnlist '''
+    nodo = Node("DROP_INDEXES")
+    if len(p) == 8:
+        if p.slice[7].type == "CASCADE":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(p[6])
+            nodo.add_childrens(Node(p[7]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX CONCURRENTLY IF EXISTS <columnlist> CASCADE\n'
+            nodo.production += f'{p[6].production}'
+            p[0] = nodo
+        else:
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(p[6])
+            nodo.add_childrens(Node(p[7]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX CONCURRENTLY IF EXISTS <columnlist> RESTRICT\n'
+            nodo.production += f'{p[6].production}'
+            p[0] = nodo
+    elif len(p) == 7:
+        if p.slice[6].type == "CASCADE":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(p[5])
+            nodo.add_childrens(Node(p[6]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX IF EXISTS <columnlist> CASCADE\n'
+            nodo.production += f'{p[5].production}'
+            p[0] = nodo
+        elif p.slice[3].type == "CONCURRENTLY":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(Node(p[5]))
+            nodo.add_childrens(p[6])
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX CONCURRENTLY IF EXISTS <columnlist>\n'
+            nodo.production += f'{p[6].production}'
+            p[0] = nodo
+        else:
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(Node(p[4]))
+            nodo.add_childrens(p[5])
+            nodo.add_childrens(Node(p[6]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX IF EXISTS <columnlist> RESTRICT\n'
+            nodo.production += f'{p[5].production}'
+            p[0] = nodo
+    elif len(p) == 6:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+        nodo.production = f'<DROP_INDEXES> := DROP INDEX IF EXISTS <columnlist>\n'
+        nodo.production += f'{p[5].production}'
+        p[0] = nodo
+    elif len(p) == 5:
+        if p.slice[4].type == "CASCADE":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(p[3])
+            nodo.add_childrens(Node(p[4]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX <columnlist> CASCADE\n'
+            nodo.production += f'{p[3].production}'
+            p[0] = nodo
+        elif p.slice[3].type == "CONCURRENTLY":
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(Node(p[3]))
+            nodo.add_childrens(p[4])
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX CONCURRENTLY <columnlist>\n'
+            nodo.production += f'{p[4].production}'
+            p[0] = nodo
+        else:
+            nodo.add_childrens(Node(p[1]))
+            nodo.add_childrens(Node(p[2]))
+            nodo.add_childrens(p[3])
+            nodo.add_childrens(Node(p[4]))
+            nodo.production = f'<DROP_INDEXES> := DROP INDEX <columnlist> RESTRICT\n'
+            nodo.production += f'{p[3].production}'
+            p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.production = f'<DROP_INDEXES> := DROP INDEX <columnlist>\n'
+        nodo.production += f'{p[3].production}'
+        p[0] = nodo
+ 
+
+def p_indexes_create(p):
+    '''CREATE_INDEXES    : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
@@ -2330,6 +2681,34 @@ def p_statement_type_raise_exception(p):
     nodo.production = f'<statementType> := <RAISE_EXCEPTION>\n'
     nodo.production += f'{p[1].production}'
     p[0] = nodo
+def p_statement_type_dml_sql(p):
+    '''statementType : DML 
+    '''
+    nodo = Node('statementType')
+    nodo.add_childrens(p[1])
+    nodo.production = f'<statementType> := <DML>\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
+
+def p_statement_type_ddl_sql(p):
+    '''statementType : ddl 
+    '''
+    nodo = Node('statementType')
+    nodo.add_childrens(p[1])
+    nodo.production = f'<statementType> := <ddl>\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
+
+def p_statement_type_call_procedures(p):
+    '''statementType : CALL_FUNCTIONS_PROCEDURE SEMICOLON 
+    '''
+    nodo = Node('statementType')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.production = f'<statementType> := <CALL_FUNCTIONS_PROCEDURE> SEMICOLON\n'
+    nodo.production += f'{p[1].production}'
+    p[0] = nodo
 
 def p_statement_type_body_declaration(p):
     '''statementType :  BODY_DECLARATION
@@ -2407,6 +2786,20 @@ def p_plpsql_expression_assignation(p):
     nodo.production += f'{p[2].production}'
     nodo.production += f'{p[3].production}'
     p[0] = nodo
+
+def p_plpsql_expression_assignation_to_call(p):
+    '''PLPSQL_EXPRESSION : PLPSQL_PRIMARY_EXPRESSION ASSIGNATION_SYMBOL CALL_FUNCTIONS_PROCEDURE
+    '''
+    nodo = Node('PLPSQL_EXPRESSION')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(p[3])
+    nodo.production = f'<PLPSQL_EXPRESSION> := <PLPSQL_PRIMARY_EXPRESSION> <ASSIGNATION_SYMBOL> <CALL_FUNCTIONS_PROCEDURE>\n'
+    nodo.production += f'{p[1].production}'
+    nodo.production += f'{p[2].production}'
+    nodo.production += f'{p[3].production}'
+    p[0] = nodo
+
 
 def p_plpsql_expression_not_equal(p):
     '''PLPSQL_EXPRESSION :  PLPSQL_PRIMARY_EXPRESSION NOT_EQUAL PLPSQL_PRIMARY_EXPRESSION

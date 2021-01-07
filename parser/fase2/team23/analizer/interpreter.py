@@ -12,6 +12,8 @@ from analizer.symbol.environment import Environment
 from prettytable import PrettyTable
 
 
+global_env = Environment()
+
 def getc3d(input):
     """
     docstring
@@ -25,10 +27,11 @@ def getc3d(input):
     if len(lexerErrors) + len(syntaxErrors) == 0 and result:
 
         for v in result:
-            if isinstance(v, inst.FunctionPL):
+            if isinstance(v, inst.FunctionPL) or isinstance(v, inst.ProcedureStmt):
                 v.c3d(tabla)
 
         tabla.codigo += "def main():\n"
+        tabla.conta_exec = 0
 
         for v in result:
             if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
@@ -40,8 +43,11 @@ def getc3d(input):
                 else:
                     querys.append(None)
 
-            elif isinstance(v, inst.FunctionPL):
-                pass
+            elif isinstance(v, inst.FunctionPL) or isinstance(v, inst.ProcedureStmt):
+                cont = tabla.conta_exec
+                tabla.codigo += "".join(tabla.count_tabs) + "C3D.pila = "+str(cont)+"\n"
+                tabla.codigo += "".join(tabla.count_tabs) + "C3D.ejecutar() #Llamada\n\n"
+                tabla.conta_exec+=1
 
             else:
                 r = v.c3d(tabla)
@@ -74,7 +80,8 @@ def execution(input):
         pickle.dump(result, f)
     lexerErrors = grammar.returnLexicalErrors()
     syntaxErrors = grammar.returnSyntacticErrors()
-    tabla = Environment()
+    tabla = global_env
+    cont = 0
     if len(lexerErrors) + len(syntaxErrors) == 0 and result:
         for v in result:
             if isinstance(v, inst.Select) or isinstance(v, inst.SelectOnlyParams):
@@ -93,9 +100,14 @@ def execution(input):
                     print("\n")
                 else:
                     querys.append(None)
+            elif isinstance(v, inst.FunctionPL) or isinstance(v, inst.ProcedureStmt):
+                v.pos = cont
+                r = v.execute(tabla)
+                messages.append(r)
             else:
                 r = v.execute(tabla)
                 messages.append(r)
+            cont+=1
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
     symbols = symbolReport()

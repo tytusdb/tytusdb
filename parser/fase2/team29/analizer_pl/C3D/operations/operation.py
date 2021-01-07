@@ -1,6 +1,9 @@
 from analizer_pl.abstract.expression import Expression
 from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
+from analizer_pl.reports.Nodo import Nodo
+from analizer_pl.abstract.environment import Environment
+from analizer_pl import grammar
 
 
 class Ternary(Expression):
@@ -46,6 +49,16 @@ class Ternary(Expression):
         self.temp += 1
         return str(self.temp)
 
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        n3 = self.exp3.dot()
+        new = Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        new.addNode(n3)
+        return new
+
 
 class Binary(Expression):
     """
@@ -62,7 +75,7 @@ class Binary(Expression):
 
     def execute(self, environment):
         tab = ""
-        if environment:
+        if isinstance(environment, Environment):
             tab = "\t"
         exp1 = self.exp1.execute(environment)
         exp2 = self.exp2.execute(environment)
@@ -70,8 +83,8 @@ class Binary(Expression):
             self.operator = "!="
         elif self.operator == "=":
             self.operator = "=="
-        exp1.temp = values.get(exp1.temp ,exp1.temp )
-        exp2.temp = values.get(exp2.temp ,exp2.temp )
+        exp1.temp = values.get(exp1.temp, exp1.temp)
+        exp2.temp = values.get(exp2.temp, exp2.temp)
         exp = (
             exp1.value
             + exp2.value
@@ -85,7 +98,18 @@ class Binary(Expression):
             + str(exp2.temp)
             + "\n"
         )
+        grammar.optimizer_.addAritOp(
+            self.temp, str(exp1.temp), exp2.temp, self.operator.lower(), self.row
+        )
         return code.C3D(exp, self.temp, self.row, self.column)
+
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        new = Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        return new
 
 
 class Unary(Expression):
@@ -102,7 +126,7 @@ class Unary(Expression):
 
     def execute(self, environment):
         tab = ""
-        if environment:
+        if isinstance(environment, Environment):
             tab = "\t"
         exp = self.exp.execute(environment)
         if self.operator == "+":
@@ -110,19 +134,22 @@ class Unary(Expression):
         elif self.operator == "-":
             exp = exp.value + tab + self.temp + " = -1 * " + str(exp.temp) + "\n"
         elif self.operator == "NOTNULL":
-            exp = exp.value + tab + self.temp + " = " + str(exp.temp) + " != None " + "\n"
+            exp = (
+                exp.value + tab + self.temp + " = " + str(exp.temp) + " != None " + "\n"
+            )
         elif self.operator == "NOT":
             exp = exp.value + tab + self.temp + " = not " + str(exp.temp) + "\n"
         else:
             if "NOT" in self.operator:
                 exp2 = self.operator[5:]
                 self.operator = " != "
-
             else:
                 exp2 = self.operator[2:]
                 self.operator = " == "
-
-            exp2 = values.get(exp2,exp2)
+            grammar.optimizer_.addAritOp(
+                self.temp, exp.temp, exp2, self.operator, self.row
+            )
+            exp2 = values.get(exp2, exp2)
             exp = (
                 exp.value
                 + tab
@@ -135,9 +162,16 @@ class Unary(Expression):
             )
         return code.C3D(exp, self.temp, self.row, self.column)
 
+    def dot(self):
+        n = self.exp.dot()
+        new = Nodo(self.operator)
+        new.addNode(n)
+        return new
+
+
 values = {
-    "TRUE":"True",
-    "FALSE":"False",
-    "UNKNOWN":"None",
-    "NULL":"None",
+    "TRUE": "True",
+    "FALSE": "False",
+    "UNKNOWN": "None",
+    "NULL": "None",
 }

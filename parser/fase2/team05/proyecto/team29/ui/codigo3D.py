@@ -7,6 +7,7 @@ from team29.ui.Pantalla_AST import *
 from team29.ui.Pantalla_Error import *
 import tkinter.messagebox
 from team29.analizer import interpreter
+from goto import with_goto
 
 # VARIABLES GLOBALES
 window = Tk()
@@ -18,7 +19,7 @@ semanticErrors = list()
 postgreSQL = list()
 ts = list()
 lista = []
-
+simulador_pila = [None]*100
 
 def main():
     global window, tabControl, text_Consola, lexicalErrors, syntacticErrors, semanticErrors, postgreSQL, ts
@@ -43,8 +44,6 @@ def main():
     tabControl.add(console_frame, text="Consola")
     tabControl.pack()
     main3d()
-    if len(lexicalErrors) + len(syntacticErrors) + len(semanticErrors) + len(postgreSQL) > 0:
-        tkinter.messagebox.showerror(title="Error", message="La consulta contiene errores")
     window.mainloop()
 
 
@@ -124,6 +123,21 @@ def show_result(consults):
     tabControl.pack()
 
 
+def refresh():
+    global tabControl, text_Consola, lexicalErrors, syntacticErrors, semanticErrors, postgreSQL, ts
+    tabls = tabControl.tabs()
+    i = 1
+    while i < len(tabls):
+        tabControl.forget(tabls[i])
+        i += 1
+    text_Consola.delete("1.0", "end")
+    semanticErrors.clear()
+    syntacticErrors.clear()
+    lexicalErrors.clear()
+    postgreSQL.clear()
+    ts.clear()
+
+
 def analize(entrada):
     global tabControl, text_Consola, lexicalErrors, syntacticErrors, semanticErrors, postgreSQL, ts
     entrada = str(entrada)
@@ -140,6 +154,9 @@ def analize(entrada):
             + len(postgreSQL)
             > 0
     ):
+        tkinter.messagebox.showerror(
+            title="Error", message="La consulta contiene errores"
+        )
         if len(postgreSQL) > 0:
             i = 0
             text_Consola.insert(INSERT, "-----------ERRORS----------" + "\n")
@@ -160,26 +177,24 @@ def analize(entrada):
 
 
 def funcionIntermedia(): 
-    global lista
-    entrada = lista.pop()
-    analize(entrada)
+	global lista
+	entrada = lista.pop()
+	analize(entrada)
 
 
+@with_goto
 def main3d(): 
-    global lista
-    t1 = "use prueba2;"
-    lista = [t1 ]
-    funcionIntermedia()
-    t3 = "insert into tabla1 values (  11,13255);"
-    lista = [t3 ]
-    funcionIntermedia()
-    t4 = "insert into tabla1 values (  12,13256);"
-    lista = [t4 ]
-    funcionIntermedia()
-    t5 = "select * from tabla1;"
-    lista = [t5 ]
-    funcionIntermedia()
+	global lista 
+	t0 = "use dbfase2;"
+	lista = [t0 ] 
+	funcionIntermedia() 
+	t1 = "SELECT COUNT(*) from tbProducto where estado = 2;"
+	lista = [t1 ] 
+	funcionIntermedia() 
+	t2 = "SELECT COUNT(*) from tbbodega;"
+	lista = [t2 ] 
+	funcionIntermedia() 
 
 
 if __name__ == "__main__": 
-     main()
+	 main()

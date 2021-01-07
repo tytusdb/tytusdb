@@ -33,8 +33,6 @@ def execution(input):
                 else:
                     querys.append(None)
                     messages.append("Error: Select.")
-                # print(r[0].iloc[0].iloc[0])
-                # print(r)
             else:
                 r = v.execute(None)
                 print(r)
@@ -42,6 +40,7 @@ def execution(input):
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
     symbols = symbolReport()
+    indexes = indexReport()
     obj = {
         "messages": messages,
         "querys": querys,
@@ -50,6 +49,7 @@ def execution(input):
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
         "symbols": symbols,
+        "indexes": indexes,
     }
     printTable_PT(querys)
     astReport()
@@ -103,17 +103,32 @@ def symbolReport():
     return report
 
 
+def selectFirstValue(input):
+    """
+    Funcion para obtener el primer valor de un select
+    """
+    result = grammar.parse(input)
+    if len(result) > 1:
+        result = result[0].execute(None)
+        result = result[1].execute(None)[0].iloc[0].iloc[0]
+    else:
+        result = result[0].execute(None)[0].iloc[0].iloc[0]
+    return result
+
+
 def indexReport():
     index = File.importFile("Index")
-    enc = [["Nombre", "Tabla", "Unico", "Metodo","Columnas"]]
+    enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
     filas = []
     for (name, Index) in index.items():
         columns = ""
         for column in Index["Columns"]:
             columns += ", " + column["Name"]
-        filas.append([name,Index["Table"],Index["Unique"],Index["Method"],columns[1:]])
+        filas.append(
+            [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
+        )
     enc.append(filas)
-    return [enc]
+    return enc
 
 
 def printTable_PT(tables):

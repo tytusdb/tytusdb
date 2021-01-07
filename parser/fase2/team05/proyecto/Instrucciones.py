@@ -50,12 +50,13 @@ class Select2(Instruccion):
 class Select3(Instruccion):
     """ Instrucción SELECT """
 
-    def __init__(self, valores, pfrom, where, complementos, distinct):
+    def __init__(self, valores, pfrom, where, complementos, distinct,instruccion3d):
         self.valores = valores
         self.pfrom = pfrom
         self.where = where
         self.complementos = complementos
         self.distinct = distinct
+        self.instruccion3d = instruccion3d
 
 
 # INSTRUCCION SELECT SOLO VALORES
@@ -235,17 +236,18 @@ class DropDB(Instruccion):
 class DropT(Instruccion):
     """ Instrucción DROPTB """
 
-    def __init__(self, nombre):
+    def __init__(self, nombre,instruccion3d):
         self.nombre = nombre
-        
+        self.instruccion3d = instruccion3d
 
 # INSTRUCCION IFEXIST1
 class IfExist1(Instruccion):
     """ Instrucción IF EXIST """
 
-    def __init__(self, nombre,exist):  # exist true o false
+    def __init__(self, nombre,exist,instruccion3d):  # exist true o false
         self.nombre = nombre
         self.exist = exist
+        self.instruccion3d = instruccion3d
 
         
 # INSTRUCCION IFEXIST2
@@ -260,10 +262,11 @@ class IfExist2(Instruccion):
 # ----------INICIO DE INSERT--------------------
 # INSTRUCCION INSERT
 class Insert(Instruccion):
-    def __init__(self,tabla,columnas,valores):
+    def __init__(self,tabla,columnas,valores,instruccion3d):
         self.tabla = tabla
         self.columnas = columnas
         self.valores = valores
+        self.instruccion3d = instruccion3d
 
 
 
@@ -344,27 +347,30 @@ class TipoConstraintFK(Instruccion):
 class Alter(Instruccion):
     """ Instrucción ALTER """
 
-    def __init__(self, nombreTabla,columnas ):
+    def __init__(self, nombreTabla,columnas,instruccion3d):
         self.nombreTabla = nombreTabla
         self.columnas = columnas
+        self.instruccion3d = instruccion3d
 
 # INSTRUCCION ALTERDB
 class AlterDB(Instruccion):
     """ Instrucción ALTER """
 
-    def __init__(self, nombreDB,operacion ):
+    def __init__(self, nombreDB,operacion,instruccion3d ):
         self.nombreDB = nombreDB
         self.operacion = operacion
+        self.instruccion3d = instruccion3d
 # ----------FIN DE ALTER--------------------
 
 
 # ----------INICIO DE UPDATE--------------------
 # UPDATE
 class Update(Instruccion):
-    def __init__(self,idUp,valUp,valWhere):
+    def __init__(self,idUp,valUp,valWhere,instruccion3d):
         self.idUp = idUp
         self.valUp = valUp
         self.valWhere = valWhere
+        self.instruccion3d = instruccion3d
 
 class UpdateTrigo(Instruccion):
     def __init__(self,condicion,trigonometrica,valor):
@@ -385,8 +391,9 @@ class Md5(Instruccion):
 class Show(Instruccion):
     """ Instrucción SHOW """
 
-    def __init__(self, param=None):
+    def __init__(self, param,instruccion3d):
         self.param = param
+        self.instruccion3d = instruccion3d
 
 # ----------FIN DE SHOW--------------------
 
@@ -416,11 +423,12 @@ class UseDatabase(Instruccion):
 class CreateDatabase(Instruccion):
     """ Instrucción CREATE DATABASE """
 
-    def __init__(self, idData, datos,IfNot,Replace):
+    def __init__(self, idData, datos,IfNot,Replace,instruccion3d):
         self.idData = idData
         self.datos = datos
         self.IfNot = IfNot
         self.Replace = Replace
+        self.instruccion3d = instruccion3d
 
 # OWNER Y MODE
 class OwnerMode(Instruccion):
@@ -449,17 +457,19 @@ class Owner_Mode(Instruccion):
 # CREATE TYPE
 
 class CreateType(Instruccion):
-    def __init__(self,idtype,valores):
+    def __init__(self,idtype,valores,instruccion3d):
         self.idtype = idtype
         self.valores = valores
+        self.instruccion3d = instruccion3d
 
 # DELETE
 
 class DeleteFrom(Instruccion):
 
-    def __init__(self, valor,pwhere ):
+    def __init__(self, valor,pwhere,instruccion3d):
         self.valor = valor
         self.pwhere = pwhere
+        self.instruccion3d = instruccion3d
 
 #SUBCONSULTA
 
@@ -661,10 +671,11 @@ class AlterDBRename(Instruccion):
 # CREATE TABLE
 
 class CreateTable(Instruccion):
-    def __init__(self,nombreTabla,atributos,idInherits):
+    def __init__(self,nombreTabla,atributos,idInherits,instruccion3d):
         self.nombreTabla = nombreTabla
         self.atributos = atributos
         self.idInherits = idInherits
+        self.instruccion3d = instruccion3d
 
 class CreateFK(Instruccion):
      
@@ -742,34 +753,39 @@ class Limit(Instruccion):
 class AlterAddC(Instruccion):
     """ Instrucción ALTER """
 
-    def __init__(self, nombreTabla,columnas ):
+    def __init__(self, nombreTabla,columnas,instruccion3d):
         self.nombreTabla = nombreTabla
         self.columnas = columnas
+        self.instruccion3d = instruccion3d
 
 class AlterD(Instruccion):
     """ Instrucción ALTER """
 
-    def __init__(self, nombreTabla,columnas ):
+    def __init__(self, nombreTabla,columnas,instruccion3d ):
         self.nombreTabla = nombreTabla
         self.columnas = columnas
+        self.instruccion3d = instruccion3d
 
 class AlterTBAdd(Instruccion):
      
-    def __init__(self, idTable, tipo):
+    def __init__(self, idTable, tipo,instruccion3d):
         self.idTable = idTable
         self.tipo = tipo
+        self.instruccion3d = instruccion3d
 
 class AlterNotNull(Instruccion):
 
-    def __init__(self,idTabla,idColumna ):
+    def __init__(self,idTabla,idColumna,instruccion3d):
         self.idTabla = idTabla
         self.id_Columna = idColumna
+        self.instruccion3d = instruccion3d
 
 class AlterDConstraint(Instruccion):
 
-    def __init__(self,idTabla,idConstraint ):
+    def __init__(self,idTabla,idConstraint,instruccion3d):
         self.idTabla = idTabla
         self.id_Constraint = idConstraint
+        self.instruccion3d = instruccion3d
 
 class AlterType(Instruccion):
 
@@ -863,14 +879,29 @@ class IndexW(Instruccion):
         self.Lwhere = Lwhere
 
 class IndexMM(Instruccion):
-    def __init__(self,name,table,Lindex,major,minor):
+    def __init__(self,name,table,major,minor):
         self.name = name
         self.table = table
-        self.Lindex = Lindex
         self.major = major
         self.minor = minor
 
 class SelectFun(Instruccion):
-    def __init__(self,nombrefun,parametros):
+    def __init__(self,nombrefun,parametros,instruccion3d):
         self.nombrefun = nombrefun
         self.parametros = parametros
+        self.instruccion3d = instruccion3d
+
+class DropIndex(Instruccion):
+    def __init__(self,idI):
+        self.idI = idI
+
+class AlterRenameIn(Instruccion):
+    def __init__(self,nombreIn,nuevoNom):
+        self.nombreIn = nombreIn
+        self.nuevoNom = nuevoNom
+
+
+class AlterIndex(Instruccion):
+    def __init__(self,nombre,columna):
+        self.nombre = nombre
+        self.columna = columna

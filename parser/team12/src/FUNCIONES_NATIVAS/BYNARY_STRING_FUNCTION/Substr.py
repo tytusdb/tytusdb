@@ -53,3 +53,15 @@ class Function_Substr(Expresion):
             self.tipo = Type_Expresion(Data_Type.error)
             self.valorExpresion = None
             return self.valorExpresion
+
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+
+        exp = self.hijos[0]
+        exp2 = self.hijos[1]
+        exp3 = self.hijos[2]
+
+        stringReturn = 'substr(' + exp.getText() + ',' + exp2.getText() + ',' + exp3.getText() + ')'
+        return stringReturn
