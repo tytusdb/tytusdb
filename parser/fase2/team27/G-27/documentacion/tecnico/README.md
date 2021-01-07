@@ -1,23 +1,23 @@
-# Gramática SQL :page_facing_up:
+# Manual Técnico Fase 2 :blue_book:
 
-## __Integrantes__
-**201800634**	ANTHONY FERNANDO SON MUX
+### Integrantes
+201800634	ANTHONY FERNANDO SON MUX
 
-**201801181**	CÉSAR EMANUEL GARCIA PÉREZ
+201801181	CÉSAR EMANUEL GARCIA PÉREZ
 
-**201801195**	JOSE CARLOS JIMENEZ
+201801195	JOSE CARLOS JIMENEZ
 
-**201801237**	JOSÉ RAFAEL MORENTE GONZÁLEZ
+201801237	JOSÉ RAFAEL MORENTE GONZÁLEZ
 
-## __GRAMÁTICA ASCENDENTE__
+## Contenido
+1. [Gramática Ascendente](#id1)
+2. [PLY](#id2)
+2. [Optimizacion de Código Intermedio](#id3)
+3. [Ejecución Programa](#id4)
+4. [Librerías Utilizadas](#id5)
 
-### INICIO  DE INSTRUCCION EN SQL POSTGRESQL
-
-
-La elección de gramática ascendente se debe a que es más sencillo utilizar atributos sintetizados al momento de recorrer el AST. Analizando el comportamiento de la gramática descendente concluimos que es la peor opción al momento de ejecutar las instrucciones ya que tenemos dos opciones generar el árbol de análisis sintáctico y posteriormente recorrerlo para ir ejecutando las instrucciones o la otra opción es manipular la pila para ir heredando atributos para posteriormente sintetizarlos, el problema de utilizar la pila es que si hacemos una mala referencia a una parte de memoria inexistente entonces el programa va a tender a tener bugs, tambien el uso de una gramática descendente en el momento de ejecución lo vuelve lento ya que debe de realizar dos veces el recorrido, mientras que con una gramática ascendente se sintetizan los atributos por lo tanto no hay que realizar dos o mas veces el recorrido del árbol, con una pasada es suficiente para poder ejecutar las instrucciones.
-
-
-### GRAMÁTICA DE INSTRUCCIONES
+### Gramática Ascendente<a name="id1"></a>
+#### GRAMÁTICA DE INSTRUCCIONES
 ~~~
 <INICIO> ::= <INSTRUCCIONES>
 
@@ -39,16 +39,16 @@ La elección de gramática ascendente se debe a que es más sencillo utilizar at
                 | <ALTER_INDEX>
 ~~~
 
-### GRAMÁTICA DE INSTRUCCION DE USE
+#### GRAMÁTICA DE INSTRUCCION DE USE
 ~~~
 <INS_USE> ::= USE ID ';'
 ~~~
-### GRAMÁTICA DE INSTRUCCION SHOW DATABSE
+#### GRAMÁTICA DE INSTRUCCION SHOW DATABSE
 ~~~
 <INS_SHOW> ::= SHOW DATABASES ';'
 ~~~
 
-### GRAMÁTICA DE INSTRUCCIONES ALTER DATABASE Y ALTER TABLE
+#### GRAMÁTICA DE INSTRUCCIONES ALTER DATABASE Y ALTER TABLE
 ~~~
 <INS_ALTER> ::= ALTER <TIPO_ALTER>
 
@@ -68,7 +68,7 @@ La elección de gramática ascendente se debe a que es más sencillo utilizar at
                 | DROP CONSTRAINT ID
 ~~~
 
-### GRAMÁTICA DE INSTRUCCIONES DROP  DATABASE Y DROP TABLE 
+#### GRAMÁTICA DE INSTRUCCIONES DROP  DATABASE Y DROP TABLE 
 ~~~
 <INS_DROP> ::= DROP <TIPO_DROP>
 
@@ -76,7 +76,7 @@ La elección de gramática ascendente se debe a que es más sencillo utilizar at
                 | TABLE ID ';'
 ~~~
 
-### GRAMÁTICA DE INSTRUCCIONES CREATE  DATABASE Y CREATE TABLE
+#### GRAMÁTICA DE INSTRUCCIONES CREATE  DATABASE Y CREATE TABLE
 ~~~
 <INS_CREATE> ::= CREATE <TIPO_CREATE>
 
@@ -122,12 +122,12 @@ La elección de gramática ascendente se debe a que es más sencillo utilizar at
                 |   EPSILON
 ~~~
 
-### GRAMÁTICA DE INSTRUCCIONES INSERT
+#### GRAMÁTICA DE INSTRUCCIONES INSERT
 ~~~
 <INS_INSERT> ::= INSERT INTO ID VALUES '(' <LIST_VLS> ')' ';'
 ~~~
 
-### DEFINICIÓN DE INSTRUCCIONES SELECT
+#### DEFINICIÓN DE INSTRUCCIONES SELECT
 ~~~
 <INS_SELECT> ::= <INS_SELECT> UNION <OPTION_ALL> <INS_SELECT> ';'
                 |    <INS_SELECT> INTERSECT <OPTION_ALL> <INS_SELECT> ';'
@@ -203,7 +203,7 @@ ARG_OFFSET   ::= OFFSET NUMERO
                 |  EPSILON
 ~~~
 
-### DEFINICIÓN DE INSTRUCCIONES UPDATES
+#### DEFINICIÓN DE INSTRUCCIONES UPDATES
 ~~~
 <INS_UPDATE>   ::= UPDATE ID SET <ASIGN_LIST> WHERE <EXP> ';'
 
@@ -221,12 +221,12 @@ ARG_OFFSET   ::= OFFSET NUMERO
                 |   F_HORA
 ~~~
 
-### DEFINICIÓN DE INSTRUCCIONES DELETE
+#### DEFINICIÓN DE INSTRUCCIONES DELETE
 ~~~
 <INS_DELETE>   ::= DELETE FROM ID WHERE <EXP> ';'
 ~~~
 
-### DEFINICIÓN DE TIPO DE DATO
+#### DEFINICIÓN DE TIPO DE DATO
 ~~~
 <TIPO_DATO> ::= SMALLINT          
                 | BIGINT
@@ -257,7 +257,7 @@ ARG_OFFSET   ::= OFFSET NUMERO
                 | EPSILON
 ~~~
 
-### DEFINICIÓN DE COLUMNAS EN TABLAS
+#### DEFINICIÓN DE COLUMNAS EN TABLAS
 ~~~
 <DEFINICION_COLUMNA> ::= <DEFINICION_COLUMNA> ',' <COLUMNA> 
                 | <COLUMNA>
@@ -267,7 +267,7 @@ ARG_OFFSET   ::= OFFSET NUMERO
                 | EPSILON
 ~~~
 
-### DEFINICIÓN DE EXPRESIONES
+#### DEFINICIÓN DE EXPRESIONES
 ~~~
 <EXP_LIST>  ::= <EXP_LIST> ',' <EXP>
                 | <EXP>
@@ -322,7 +322,7 @@ ARG_OFFSET   ::= OFFSET NUMERO
 <ARG_LEAST>  ::= LEAST '(' <EXP_LIST> PARCIERR
 ~~~
 
-### DECLARACIÓN DE PREDICADOS
+#### DECLARACIÓN DE PREDICADOS
 ~~~
 <PREDICATES>  ::=  BETWEEN <LIST_VLS> AND <LIST_VLS>
                 | <DATA> NOT BETWEEN <LIST_VLS> AND <LIST_VLS>
@@ -354,7 +354,7 @@ ARG_OFFSET   ::= OFFSET NUMERO
                 |   F_HORA
 ~~~
 
-### DECLARACIÓN DE FUNCIONES DE AGREGACIÓN
+#### DECLARACIÓN DE FUNCIONES DE AGREGACIÓN
 ~~~
 <AGGREGATES>   ::=   COUNT '(' <PARAM> ')'
                 |   SUM '(' <PARAM> ')'
@@ -366,7 +366,7 @@ ARG_OFFSET   ::= OFFSET NUMERO
                 |   SIGNO_POR
 ~~~
 
-### DECLARACION DE FUNCIONES  
+#### DECLARACION DE FUNCIONES  
 ~~~
 <FUNCTIONS>  ::=   <MATH>
                 |   <TRIG>
@@ -453,7 +453,7 @@ ARG_OFFSET   ::= OFFSET NUMERO
                 |   SECOND
 ~~~
 
-### INSTRUCCIONES PL/PSQL
+#### INSTRUCCIONES PL/PSQL
 ~~~
     <INS_CREATE_PL> ::= CREATE <OP_REPLACE> FUNCTION ID '('() <PARAMETERS> ')' <RETURNS> AS  <BLOCK> LANGUAGE ID ';'
                 | CREATE <OP_REPLACE> PROCEDURE ID '('() <PARAMETERS> ')'() AS  <BLOCK> LANGUAGE ID ';'
@@ -601,7 +601,7 @@ ARG_OFFSET   ::= OFFSET NUMERO
     <NULL> ::= NULL ';'
 ~~~
 
-### INSTRUCCIONES INDICES
+#### INSTRUCCIONES INDICES
 ~~~
     <CREATE_INDEX> ::= CREATE <ARG_UNIQUE> INDEX ID ON ID <ARG_HASH> '(' <PARAM_INDEX> ')' <ARG_INCLUDE> <ARG_WHERE_INDEX> <ARG_PUNTO_COMA>
     
@@ -680,207 +680,293 @@ ARG_OFFSET   ::= OFFSET NUMERO
 <DROP_INDEX> : DROP INDEX ID <ARG_PUNTO_COMA>
 ~~~
 
-## __GRAMÁTICA DESCENDENTE__
+### PLY<a name="id2"></a>
+PLY es una implementación de las herramientas de análisis lex y yacc para Python.
 
-### INICIO  DE INSTRUCCIONES EN SQL POSTGRESQL
-~~~
-<INICIO> ::= <LISTA_SENTENCIA>
+#### Características
+  - Está implementado completamente en Python.
+  - Utiliza el análisis sintáctico LR que es razonablemente eficiente y muy adecuado para gramáticas más extensas.
+  - PLY proporciona la mayoría de las características estándar de lex / yacc, incluido el soporte para producciones vacías, reglas de precedencia, recuperación de errores y soporte para gramáticas ambiguas.
+  - PLY es fácil de usar y proporciona una comprobación de errores muy extensa.
+  - PLY no intenta hacer nada más o menos que proporcionar la funcionalidad básica de lex / yacc. En otras palabras, no es un gran marco de análisis o un componente de algún sistema más grande.
 
-<LISTA_SENTENCIA> ::=   <SENTENCIA> ';' <LISTA_SENTENCIA>
-                |   EPSILON
+### Optimizacion de Código Intermedio<a name="id3"></a>
 
-<SENTENCIA> ::= <SENTENCIA_USE>
-                |     <SENTENCIA_CREATE>
-                |     <SENTENCIA_INSERT>
-                |     <SENTENCIA_UPDATE>
-                |     <SENTENCIA_DROP
-                |     <SENTENCIA_ALTER>
-                |     <DECLARACION_SHOW_DB>
-~~~
+Para el proyecto Tytus, el proceso de optimización ha utilizar será el método conocido como mirilla.
 
-### GRAMÁTICA DE INSTRUCCION DE USE
-~~~
-<SENTENCIA_USE> ::= USE ID ';'
-~~~
-### GRAMÁTICA DE INSTRUCCION SHOW DATABSE
-~~~
-<DECLARACION_SHOW_DB> ::= SHOW DATABASES <REGEX> 
+Los tipos de transformación para realizar la optimización por mirilla serán los siguientes:
+  - Eliminación de instrucciones redundantes de carga y almacenamiento.
+  - Eliminación de código inalcanzable.
+  - Optimizaciones de Flujo de control.
+  - Simplificación algebraica y reducción por fuerza.
 
-<REGEX> ::= LIKE '%' IDENTIFICADOR '%'
-                | EPSILON
-~~~
+#### Regla No. 1
+Si existe una asignación de valor de la forma a = b y posteriormente existe una asignación de
+forma b = a, se eliminará la segunda asignación siempre que a no haya cambiado su valor. Se
+deberá tener la seguridad de que no exista el cambio de valor y no existan etiquetas entre las 2
+asignaciones:
 
-### GRAMÁTICA DE INSTRUCCIONES ALTER DATABASE Y ALTER TABLE
-~~~
-<SENTENCIA_ALTER>   ::= ALTER <OPCION_ALTER> 
+```
+ENTRADA: 
+t2 = b;
+b = t2;
 
-<OPCION_ALTER>   ::= <DECLARACION_ALTER_DB>
-                | <DECLARACION_ALTER_TABLE>
+SALIDA:
+t2 = b
+```
 
-<DECLARACION_ALTER_DB> ::= ALTER DATABASE IDENTIFICADOR <CUERPO_ALERT_DB>
+#### Regla No. 2
+Si existe un salto condicional de la forma Lx y exista una etiqueta Lx:, todo código contenido
+entre el goto Lx y la etiqueta Lx, podrá ser eliminado siempre y cuando no exista una etiqueta
+en dicho código.
 
-<CUERPO_ALTER_DB> ::=   RENAME TO IDENTIFICADOR
-                | OWNER TO { IDENTIFICADOR | CURRENT_USER | SESSION_USER }
+```
+ENTRADA: 
+goto L1;
+<instrucciones>
+L1:
 
-<DECLARACION_ALTER_TABLE> ::= ALTER TABLE IDENTIFICADOR <CUERPO_ALTER_TABLE>
-<CUERPO_ALTER_TABLE> ::=     ADD <CUERPO_ALTER_TABLE_ADD> 
-                |   DROP 
-                |   ALTER  COLUMN IDENTIFICADOR SET NOT NULL;
-                |   RENAME COLUMN IDENTIFICADOR TO IDENTIFICADOR
-<CUERPO_ALTER_TABLE_ADD> ::= CHECK '(' IDENTIFICADOR '<>' '' ')'
-                | CONSTRAINT IDENTIFICADOR UNIQUE '(' IDENTIFICADOR ')'
-                | FOREIGN KEY '(' IDENTIFICADOR ')' REFERENCES IDENTIFICADOR
+SALIDA:
+L1:
+```
 
-~~~
+#### Regla No. 3
+Si existe un alto condicional de la forma if <cond> goto Lv; goto Lf; inmediatamente después de
+sus etiquetas Lv: <instrucciones> Lf: se podrá reducir el número de saltos negando la
+condición, cambiando el salto condicional hacia la etiqueta falsa Lf: y eliminando el salto
+condicional innecesario a goto Lf y quitando la etiqueta Lv:.
 
-### GRAMÁTICA DE INSTRUCCIONES CREATE  DATABASE Y CREATE TABLE
-~~~
-<SENTENCIA_CREATE>   ::= CREATE <OPCION_CREATE> 
+```
+ENTRADA: 
+if a == 10 goto L1;
+goto L2;
+L1:
+<instrucciones>
+L2:
 
-<OPCION_CREATE>   ::= <DECLARACION_CREATE_DB>
-                | <DECLARACION_CREATE_TABLE>
+SALIDA:
+if a != 10 goto L2;
+<instrucciones>
+L2:
+```
 
-<DECLARACION_CREATE_DB> ::= <ARGUMENTO_OR_REPLACE> IDENTIFICADOR <ARGUMENTO_IF_NOT_EXITS> IDENTIFICADOR
-    [ OWNER [=] IDENTIFICADOR ]         //[ OWNER [=] USER_NAME ]
-    [ MODE [=] IDENTIFICADOR ]        //[ MODE [=] MODE_NUMBER ]
+#### Regla No. 4
+Si se utilizan valores constantes dentro de las condiciones de la forma if <cond> goto Lv; goto
+Lf; y el resultado de la condición es una constante verdadera, se podrá transformar en un salto
+incondicional y eliminarse el salto hacia la etiqueta falsa Lf.
 
-<DECLARACION_CREATE_TABLE> ::= TABLE IDENTIFICADOR '(' <CUERPO_CREATE> ')' [INHERITS '(' IDENTIFICADOR ')' ] 
+```
+ENTRADA: 
+if 1 == 1 goto L1;
+goto L2;
 
-<SENTENCIA_INHERIT> ::= INHERITS IDENTIFICADOR
-                | EPSILON
+SALIDA:
+goto L1;
+```
 
-<CUERPO_CREATE> ::= IDENTIFICADOR <TYPE> <ARGUMENTO_DEFAULT_VALUE> <ARGUMENTO_NNULL> <ARGUMENTO_CONSTRAINT_UNIQUE> [[CONSTRAINT NAME] CHECK (CONDITION_COLUMN1)]
+#### Regla No. 5
+Si se utilizan valores constantes dentro de las condiciones de la forma if <cond> goto Lv; goto
+Lf; y el resultado de la condición es una constante falsa, se podrá transformar en un salto
+incondicional y eliminarse el salto hacia la etiqueta verdadera Lv.
 
-<CUERPO_CREATE'> ::= ',' IDENTIFICADOR <TYPE> <ARGUMENTO_DEFAULT_VALUE> <ARGUMENTO_NNULL> <ARGUMENTO_CONSTRAINT_UNIQUE> [[CONSTRAINT NAME] CHECK (CONDITION_COLUMN1)]
-                |   ',' UNIQUE '(' <LISTA_COLUMNA> ) <CUERPO_CREATE'>
-                |   ',' <ARGUMENTO_CONSTRAINT> CHECK '(' CONDITION_MANY_COLUMNS ')' <CUERPO_CREATE'>
-                |   ',' PRIMARY KEY  '(' <LISTA_COLUMNA> ')' <CUERPO_CREATE'>
-                |   ',' FOREIGN KEY  '(' <LISTA_COLUMNA> ')' REFERENCES TABLE '(' <LISTA_COLUMNA> ')' <CUERPO_CREATE'>
-                |   EPSILON
-~~~
+```
+ENTRADA: 
+if 1 == 0 goto L1;
+goto L2;
 
-### DEFINICIÓN DE INSTRUCCIONES UPDATE
-~~~
-<SENTENCIA_UPDATE>   ::=  UPDATE IDENTIFICADOR SET IDENTIFICADOR = <__EXPRESION__>> WHERE <__SENTENCIA__>>;
-~~~
+SALIDA:
+goto L2;
+```
 
-### DEFINICIÓN DE TIPO DE DATO
-~~~
-<TYPE>  ::= SMALLINT
-                | INTEGER
-                | BIGINT
-                | DECIMAL
-                | NUMERIC
-                | REAL
-                | DOUBLE PRECISION
-                | MONEY
-                | CHARACTER [VARYING]
-                | VARCHAR
-                | CHAR
-                | TEXT
-                | TIME
-                | TIMESTAMP
-                | DATE
-                | INTERVAL
+#### Regla No. 6
+Si existe un salto incondicional de la forma goto Lx donde existe la etiqueta Lx: y la primera
+instrucción, luego de la etiqueta, es otro salto, de la forma goto Ly; se podrá realizar la
+modificación al primer salto para que sea dirigido hacia la etiqueta Ly: , para omitir el salto
+condicional hacia Lx.
 
-<TIME> ::=  YEAR
-            | MONTH
-            | DAY
-            | HOUR
-            | MINUTE
-            | SECOND 
+```
+ENTRADA: 
+goto L1;
+<instrucciones>
+L1:
+goto L2;
 
-<VALUE>   ::= CADENA
-            | NUMERO
-            | DEMCIMAL
-            | TRUE
-            | FALSE
-            | CADENA_DATE
-~~~
+SALIDA:
+goto L2;
+<instrucciones>
+L1:
+goto L2;
+```
 
-### DEFINICIÓN DE COLUMNAS EN TABLAS
-~~~
-<ARGUMENTO_IF_EXITS> ::= IF EXIST
-                | EPSILON
+#### Regla No. 7
+Si existe un salto incondicional de la forma if <cond> goto Lx; y existe la etiqueta Lx: y la
+primera instrucciones luego de la etiqueta es otro salto, de la forma goto Ly; se podrá realizar la
+modificación al primer salto para que sea dirigido hacia la etiqueta Ly: , para omitir el salto
+condicional hacia Lx
 
-<ARGUMENTO_IF_NOT_EXITS> ::= IF NOT EXIST
-                | EPSILON
+```
+ENTRADA: 
+if t9 >= t10 goto L1;
+<instrucciones>
+L1:
+goto L2;
 
-<ARGUMENTO_OR_REPLACE> ::= OR REPLACE
-                | EPSILON
+SALIDA:
+if t9 >= t10 goto L2;
+<instrucciones>
+L1:
+goto L2;
+```
 
-<ARGUMENTO_ONLY> ::= ONLY
-                | EPSILON
+#### Regla No. 8
+Eliminación de las instrucciones que tenga la siguiente forma:
 
-<ARGUMENTO_ONLY> ::= AS
-                | EPSILON
+```
+ENTRADA: 
+x = x + 0;
 
-<ARGUMENTO_NNULL> ::= NULL
-                | NOT NULL
-                | EPSILON
+SALIDA:
+#Se elimina la instrucción
+```
 
-<ARGUMENTO_CONSTRAINT_UNIQUE>   ::= <ARGUMENTO_CONSTRAINT> UNIQUE
-                | EPSILON
+#### Regla No. 9
+Eliminación de las instrucciones que tenga la siguiente forma:
 
-<ARGUMENTO_CONSTRAINT>  ::= CONSTRAINT IDENTIFICADOR
-                |   EPSILON
+```
+ENTRADA: 
+x = x - 0;
 
-<ARGUMENTO_DEFAULT_VALUE>   ::= DEFAULT <VALUE>
-                | EPSILON
+SALIDA:
+#Se elimina la instrucción
+```
 
-<LISTA_COLUMNA> ::= IDENTIFICADOR <COLMNA_TABLA> <LISTA_COLUMNA'>
+#### Regla No. 10
+Eliminación de las instrucciones que tenga la siguiente forma:
 
-<COLMNA_TABLA>  ::= '.' IDENTIFICADOR
-                | EPSILON
+```
+ENTRADA: 
+x = x * 1;
 
-<LISTA_COLUMNA> ::= ',' IDENTIFICADOR <COLMNA_TABLA> <LISTA_COLUMNA'>
-                | EPSILON
-~~~
+SALIDA:
+#Se elimina la instrucción
+```
 
-### DEFINICIÓN DE EXPRESIONES
-~~~
+#### Regla No. 11
+Eliminación de las instrucciones que tenga la siguiente forma:
 
-<EXPRESION_BOLEANA> ::= <TERMINO_BOLEANO> <EXPRESION_BOLEANA'>
+```
+ENTRADA: 
+x = x / 1;
 
-<EXPRESION_BOLEANA'> ::=  '||' <TERMINO_BOLEANO> <EXPRESION_BOLEANA'>
-                | EPSILON
-                
-<TERMINO_BOLEANO>   ::= <FACTOR_BOLEANO> <TERMINO_BOLEANO'>
+SALIDA:
+#Se elimina la instrucción
+```
 
-<TERMINO_BOLEANO'>  ::= '&&' <FACTOR_BOLEANO> <TERMINO_BOLEANO'>
-                | EPSILON
+#### Regla No. 12
+Eliminación de las instrucciones que tenga la siguiente forma:
 
-<FACTOR_BOLEANO> ::= NOT <PRUEBA_BOLEANO>
-                | <PRUEBA_BOLEANO>
+```
+ENTRADA: 
+x = y + 0; 
 
-<PRUEBA_BOLEANO> ::= <PREDICADO>
-                | '(' EXPRESION_BOLEANA ')'
+SALIDA:
+x = y; 
+```
 
-<PREDICADO> ::= <PREDICADO_BETWEN>
-                | <PREDICADO_BETWEN>
+#### Regla No. 13
+Eliminación de las instrucciones que tenga la siguiente forma:
 
-<OPERATOR_LOGICO>  ::=  '&&'
-                | '||'
+```
+ENTRADA: 
+x = y + 0; 
 
-<OPERATOR_COMPA> ::=     ‘<’  
-                |  ‘>’  
-                |  ‘<=’  
-                |  ‘>=’  
-                |  ‘=’  
-                |  ‘<>’  
-                |  ‘!=’
-~~~
+SALIDA:
+x = y; 
+```
 
-#### DECLARACION DE FUNCIONES  
-~~~
-<FUNCIONES_AGREGACION>  ::= COUNT '(' IDENTIFICADOR ')'
-                | SUM '(' IDENTIFICADOR ')'
-                | AVG '(' IDENTIFICADOR ')'
-                | MAX '(' IDENTIFICADOR ')'
-                | MIN '(' IDENTIFICADOR ')'
-~~~
+#### Regla No. 14
+Eliminación de las instrucciones que tenga la siguiente forma:
 
-License
-----
+```
+ENTRADA: 
+x = y * 1; 
 
-MIT
+SALIDA:
+x = y; 
+```
+
+#### Regla No. 15
+Eliminación de las instrucciones que tenga la siguiente forma:
+
+```
+ENTRADA: 
+x = y / 1;
+
+SALIDA:
+x = y;
+```
+
+#### Regla No. 16
+Eliminación de las instrucciones que tenga la siguiente forma:
+
+```
+ENTRADA: 
+x = y * 2; 
+
+SALIDA:
+x = y + y;
+```
+
+#### Regla No. 17
+Eliminación de las instrucciones que tenga la siguiente forma:
+
+```
+ENTRADA: 
+x = y * 0;
+
+SALIDA:
+x = 0;
+```
+
+#### Regla No. 18
+Eliminación de las instrucciones que tenga la siguiente forma:
+
+```
+ENTRADA: 
+x = 0 / y;
+
+SALIDA:
+x = 0;
+```
+
+### Ejecución Programa<a name="id4"></a>
+
+Para ejecutar el programa de python, debes de seguir los siguientes pasos:
+
+```sh
+$ cd G-27
+$ python inicio.py
+```
+
+### Librerías usadas<a name="id5"></a>
+
+Si quieres ejecutar el programa en python, debes asegurarte que tengas instaladas las siguientes librerías, utilizando el comando.
+
+```sh
+$ pip install <NAME-PACKAGE>
+```
+#### PrettyTable
+
+El objetivo principal de PrettyTable es permitirle imprimir tablas en un atractivo formato ASCII.
+
+```sh
+$ pip install prettytable
+```
+
+#### Pandas
+
+Pandas es un paquete de Python que proporciona estructuras de datos rápidas, flexibles y expresivas diseñadas para que el trabajo con datos estructurados y de series de tiempo sea fácil e intuitivo.
+
+```sh
+$ pip install pandas
+```
