@@ -22,7 +22,7 @@ datos = l.Lista({}, '')
 
 #print(dic1)
 
-ruta = '../G26/entrada.txt'
+ruta = '..\\G26\\entrada.txt'
 f = open(ruta, "r")
 input = f.read()
 
