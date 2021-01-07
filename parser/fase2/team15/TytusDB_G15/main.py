@@ -66,26 +66,24 @@ def analizar(txt):
 
 def analizar_select(e):
     global selected
-    '''if my_text.selection_get():
+    if my_text.selection_get():
 
-        global instrucciones_Global,tc_global1,ts_global1,listaErrores
+        global instrucciones_GlobalPL
         selected = my_text.selection_get()
-        #print(selected)
-        instrucciones = g.parse(selected)
+        instruccionesPL = TRADUC.runC3D(selected)
         
+
         if erroressss.getList() == []:
-            instrucciones_Global = instrucciones
-            ts_global = TS.TablaDeSimbolos()
-            tc_global = TC.TablaDeTipos()
-            tc_global1 = tc_global
-            ts_global1 = ts_global
-            salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
-            if type(salida) == list:
-                salida_table(1,salida)
-            else:
-                salida_table(2,salida)
+            instrucciones_GlobalPL = instruccionesPL
+            ts_globalPL = TSPL.TablaDeSimbolos()
+            codigo3D = ""
+            codigo3D = TRADUC.generarC3D(instruccionesPL, ts_globalPL)
+            salida3D = open("./salida3D.py", "w")
+            salida3D.write(codigo3D)
+            salida3D.close()
+            salida_table(2,'3D GENERADO CON EXITO')
         else:
-            salida_table(2,"PARSER ERROR")'''
+            salida_table(2,"PARSER ERROR")
             
 
 def generarReporteAST():

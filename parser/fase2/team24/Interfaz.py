@@ -15,7 +15,8 @@ from reportBNF import *
 import webbrowser as wb
 import OptimizarMirilla as optm
 import OptimizarObjetos as optobj
-
+# Esta es la lista de objetos
+from procedural import objopt
 default_db = 'DB1'
 ts = TabladeSimbolos.Tabla()
 
@@ -47,7 +48,7 @@ def analiz(input):
     ListaAsignaciones.append(optobj.Asignacion("x","y","0","*"))
     ListaAsignaciones.append(optobj.Asignacion("x","0","y","/"))
 
-    #optm.Optimizador(ListaAsignaciones).ejecutar()
+    print(optm.Optimizador(ListaAsignaciones).ejecutar())
     
     for simbolo in ts.simbolos:
         print("ID: " + str(ts.simbolos[simbolo].id) + " Nombre: " + ts.simbolos[simbolo].nombre + " Ambito: " + str(ts.simbolos[simbolo].ambito) + " Tipo indice: " + str(ts.simbolos[simbolo].tipoind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind))
@@ -66,7 +67,7 @@ def traducir(input):
             print('')
         else:
             results.append(res)
-
+    return results
 root = Tk()
 cont = 1
 
@@ -134,20 +135,21 @@ def Analizar():
         consola.insert(str(float(cont)), '\n')
 
 def Analizar2(texto: str):
-    results = analiz(texto)
+    results = traducir(texto)
     global cont
     for res in results:
         #consola.insert(str(float(cont)), res)
-        print(str(float(cont)), res)
+        #print(str(float(cont)), res)
         if isinstance(res,pt.PrettyTable):
             cont += (res.get_string().count('\n')+2)
         else:
             cont += (res.count('\n')+2)
         #consola.insert(str(float(cont)), '\n')
+        consola.insert(str(float(cont)), res)
         print(str(float(cont)), res)
 
 def Traducir():
-    traducir(texto.get("1.0", "end-1c"))
+    Analizar2(texto.get("1.0", "end-1c"))
 def AbrirAST():
     wb.open_new(r'tree.gv.pdf')
 def AbrirBNF():

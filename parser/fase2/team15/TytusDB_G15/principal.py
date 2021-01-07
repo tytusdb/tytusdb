@@ -1163,49 +1163,103 @@ def procesar_create_type(instr,ts,tc):
 
 #delete
 def procesar_delete(instr,ts,tc):
+#print(instr.expresion.expresion)
+
+    global salida
+    arrayPK = []
+    arrayFilter = []
+    arrayColumnasIds = []
     if instr.etiqueta == TIPO_DELETE.DELETE_NORMAL:
-        nada = 1
+        if instr.expresion != None:
+            columnas = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+            if columnas == []:
+                salida = "\nERROR:  relation \"" + str(instr.val) +"\" does not exist\nSQL state: 42P01"
+            else:
+                iPk = 0
+                for ic in columnas:
+                    get = tc.obtenerReturn(str(useCurrentDatabase),instr.val,ic)
+                    if get:
+                        for icons in get.listaCons:
+                            if icons == OPCIONES_CONSTRAINT.PRIMARY:
+                                arrayPK.append(iPk)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_RETURNING:
-        nada = 1
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                    iPk += 1
+                
+                columnsTable = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+                resultArray = j.extractTable(str(useCurrentDatabase),str(instr.val))
+                arrayWhere = resultArray
+                arrayWhere.insert(0,columnsTable)   
+                #print(resultArray)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_EXIST:    
-        if instr.expresion.operador == OPERACION_RELACIONAL.MAYQUE:
-            if instr.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR and instr.expresion.exp2.etiqueta ==  TIPO_VALOR.NUMERO:
-                nada = 1           
+                arrayFilter.append(arrayWhere[0])
+                arrayupdateNum = []
+                i = 1
+                coli = 0
+                while i < len(arrayWhere):
+                    arrayTS = []
+                    arrayTS.append(arrayWhere[0])
+                    arrayTS.append(arrayWhere[i])
+                    val = resolver_expresion_logica(instr.expresion.expresion,arrayTS)
+                    if val == 1:
+                        arrayFilter.append(arrayWhere[i])
+                        arrayupdateNum.append(coli)
+                    i+=1
+                    coli += 1
 
-   
-    elif instr.etiqueta == TIPO_DELETE.DELETE_EXIST_RETURNING:
-        
-        nada = 1
+                #print(arrayFilter)
+                #print(arrayupdateNum)
 
-        if instr.expresion.operador == OPERACION_RELACIONAL.MAYQUE:
-            if instr.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR and instr.expresion.exp2.etiqueta ==  TIPO_VALOR.NUMERO:
-                nada = 1
+                arrayDeletePks = []
 
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                iArrF = 1
+                while iArrF < len(arrayFilter):
+                    #print(arrayFilter[iArrF])
+                    tempPks = []
+                    for itPK in arrayPK:
+                        tempPks.append(arrayFilter[iArrF][itPK])
+                    arrayDeletePks.append(tempPks)
+                    iArrF+=1
+                
+                #print(arrayDeletePks)
 
-        
-    elif instr.etiqueta == TIPO_DELETE.DELETE_CONDIFION:
-        nada = 1
-    
-    elif instr.etiqueta == TIPO_DELETE.DELETE_CONDICION_RETURNING:
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                for pksDelete in arrayDeletePks:
+                    j.delete(str(useCurrentDatabase),str(instr.val),pksDelete)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_USING:
-        nada = 1
+                salida = '\nDELETE ' + str(len(arrayDeletePks))
+        else:
+            columnas = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+            if columnas == []:
+                salida = "\nERROR:  relation \"" + str(instr.val) +"\" does not exist\nSQL state: 42P01"
+            else:
+                iPk = 0
+                for ic in columnas:
+                    get = tc.obtenerReturn(str(useCurrentDatabase),instr.val,ic)
+                    if get:
+                        for icons in get.listaCons:
+                            if icons == OPCIONES_CONSTRAINT.PRIMARY:
+                                arrayPK.append(iPk)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_USING_returnin:
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                    iPk += 1
+                
+                columnsTable = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+                resultArray = j.extractTable(str(useCurrentDatabase),str(instr.val))
+                arrayFilter = resultArray
+                arrayFilter.insert(0,columnsTable)   
+                
+                arrayDeletePks = []
+
+                iArrF = 1
+                while iArrF < len(arrayFilter):
+                    tempPks = []
+                    for itPK in arrayPK:
+                        tempPks.append(arrayFilter[iArrF][itPK])
+                    arrayDeletePks.append(tempPks)
+                    iArrF+=1
+
+                for pksDelete in arrayDeletePks:
+                    j.delete(str(useCurrentDatabase),str(instr.val),pksDelete)
+
+                salida = '\nDELETE ' + str(len(arrayDeletePks))
 
 
 
@@ -1434,51 +1488,59 @@ def procesar_select_general(instr,ts,tc):
                     #print(datos.val)
             #print(arrayTablas)
             #tc.obtenerColumns(useCurrentDatabase,tables[0])
-            arrayColumnsPrimera = tc.obtenerColumns(useCurrentDatabase,arrayTablas[0][0])
-            arrayColumnsSegunda = tc.obtenerColumns(useCurrentDatabase,arrayTablas[1][0])
-
             arrayColumnsMerge = []
             arrC = 0
             while arrC < len(arrayTablas):
-                if arrC == 0:
-                    for arrCP in arrayColumnsPrimera:
-                        columP = str(arrayTablas[0][1])+"."+str(arrCP)
-                        arrayColumnsMerge.append(columP)
-                if arrC == 1:
-                    for arrCS in arrayColumnsSegunda:
-                        columS = str(arrayTablas[1][1])+"."+str(arrCS)
-                        arrayColumnsMerge.append(columS)
+                arrayColumnsPrimera = []
+                arrayColumnsPrimera = tc.obtenerColumns(useCurrentDatabase,arrayTablas[arrC][0])
+                for arrCP in arrayColumnsPrimera:
+                    columP = str(arrayTablas[arrC][1])+"."+str(arrCP)
+                    arrayColumnsMerge.append(columP)
                 arrC +=1
 
             columnsTable = arrayColumnsMerge
+            #print(columnsTable)
             #print(arrayColumnsMerge)
 
-            arrayPrimera = j.extractTable(str(useCurrentDatabase),str(arrayTablas[0][0]))
-            arraySegunda = j.extractTable(str(useCurrentDatabase),str(arrayTablas[1][0]))
-            
 
-            arrayMerge = []
-            arrayMerge.append(arrayColumnsMerge)           
-            arrP = 0
-            while arrP < len(arrayPrimera):
-                
-                arrS = 0
-                while arrS < len(arraySegunda):
-                    arrFilas = []
-                    arrPP = 0
-                    while arrPP < len(arrayPrimera[arrP]):
-                        arrFilas.append(arrayPrimera[arrP][arrPP])
-                        arrPP +=1
-                    arrSS = 0
-                    while arrSS < len(arraySegunda[arrS]):
-                        arrFilas.append(arraySegunda[arrS][arrSS])
-                        arrSS +=1
-                    #print(arrayPrimera[arrP],arraySegunda[arrS])
-                    arrayMerge.append(arrFilas)
-                    arrS+=1
-                arrP +=1
+            arrayMerge = [] 
+            #arrayMerge.append(columnsTable)
+            arrayPrimera = []
+            arraySegunda = []   
+            temp = []
+            iT = 1
+            while iT < len(arrayTablas):
+                if iT == 1:
+                    arrayPrimera = j.extractTable(str(useCurrentDatabase),arrayTablas[0][0])
+                    arraySegunda = j.extractTable(str(useCurrentDatabase),arrayTablas[1][0])
+                else:
+                    arrayMerge = []
+                    arrayPrimera = temp
+                    arraySegunda = j.extractTable(str(useCurrentDatabase),arrayTablas[iT][0])
+                arrP = 0
+                while arrP < len(arrayPrimera):
+                    
+                    arrS = 0
+                    while arrS < len(arraySegunda):
+                        arrFilas = []
+                        arrPP = 0
+                        while arrPP < len(arrayPrimera[arrP]):
+                            arrFilas.append(arrayPrimera[arrP][arrPP])
+                            arrPP +=1
+                        arrSS = 0
+                        while arrSS < len(arraySegunda[arrS]):
+                            arrFilas.append(arraySegunda[arrS][arrSS])
+                            arrSS +=1
+                        #print(arrayPrimera[arrP],arraySegunda[arrS])
+                        arrayMerge.append(arrFilas)
+                        arrS+=1
+                    arrP +=1
+                    
+                temp = arrayMerge
+                iT +=1
 
-            #print(arrayMerge)
+            arrayMerge.insert(0,columnsTable)
+            #print(toPretty(arrayMerge))
 
                     
         if instr.instr2.expwhere != None:
@@ -1495,15 +1557,13 @@ def procesar_select_general(instr,ts,tc):
                 i+=1
         
             arrayFilter = arrayFilterFilter
-            #print(instr.instr2.expwhere.expresion)
-            #print(instr.instr2.expwhere.etiqueta)
-            #print(instr.instr2.expwhere.expresion.etiqueta)
 
         if '*' in arrayColumnsF:
             for filas in arrayFilter:
                 arrayReturn.append(filas)
 
             salida = toPretty(arrayReturn)
+            #print(arrayReturn)
 
         else:
             for filasF in arrayFilter:
@@ -1515,6 +1575,7 @@ def procesar_select_general(instr,ts,tc):
                 arrayReturn.append(arrayTemp)
 
             salida = toPretty(arrayReturn)
+            #print(arrayReturn)
 
         '''if instr.instr2.expgb != None:
             print(instr.instr2.expgb.etiqueta)

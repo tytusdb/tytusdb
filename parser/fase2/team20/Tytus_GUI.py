@@ -18,7 +18,6 @@ from graphviz import Source
 import webbrowser
 
 from prettytable import PrettyTable
-from C3D import up
 
 class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
     def __init__(self, *args, **kwargs):
@@ -119,7 +118,6 @@ def compile():
     #run analysis results
     exec = Execute(result_analyze.noderoot)
     result_execute = exec.execute()
-    up()
     #process results and display reports
     process_results_and_display_reports(result_analyze, result_execute)
     

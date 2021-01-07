@@ -14,10 +14,11 @@ class Raise(instruction.Instruction):
     def dot(self):
         new = Nodo.Nodo("RAISE")
         string1 = Nodo.Nodo("STRING")
-        string2 = Nodo.Nodo(self.string2.dot())
+        string2 = self.string2.dot()
         if self.notice:
             notice_ = Nodo.Nodo("NOTICE")
             new.addNode(notice_)
+        string1.addNode(Nodo.Nodo(self.string1))
         new.addNode(string1)
         new.addNode(string2)
         return new

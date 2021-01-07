@@ -56,8 +56,8 @@ class Indexes(Instruction):
                     
 
         isTabla = self.searchTableIndex(table, self.line, self.column)
-
-        if isTabla:
+        isDuplicate = self.searchDuplicateIndex(self.variable)
+        if isTabla and not isDuplicate:
             if type_index.lower() == 'index': # Normal
                 if mode == None:
                     SymbolTable().add(Index(type_index, table, variable, 'BTREE', lista_id, lista_sort), variable,'Index', None, table, self.line, self.column)
@@ -80,7 +80,7 @@ class Indexes(Instruction):
                     DataWindow().consoleText('Query returned successfully: Create Index')
                     
         else:
-            desc = "FATAL ERROR, la tabla no existe para crear el index"
+            desc = "FATAL ERROR, la tabla no existe para crear el index o el index es repetido"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
     def compile(self, enviroment):
@@ -118,8 +118,8 @@ class Indexes(Instruction):
         isTabla = self.searchTableIndex(table, self.line, self.column)
         # temp = ThreeAddressCode().newTemp()
         # c3d =  ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
-        
-        if isTabla:
+        isDuplicate = self.searchDuplicateIndex(self.variable)
+        if isTabla and not isDuplicate:
             if type_index.lower() == 'index': # Normal
                 if mode == None:
                     SymbolTable().add(Index(type_index, table, variable, 'BTREE', lista_id, lista_sort), variable,'Index', None, table, self.line, self.column)
@@ -147,7 +147,7 @@ class Indexes(Instruction):
                     DataWindow().consoleText('Query returned successfully: Create Index')
                     # return c3d
         else:
-            desc = "FATAL ERROR, la tabla no existe para crear el index"
+            desc = "FATAL ERROR, la tabla no existe para crear el index o el index es duplicado"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
     def searchTableIndex(self, tabla, linea, column):
@@ -167,7 +167,11 @@ class Indexes(Instruction):
     
         headers = TypeChecker().searchColumnHeadings(table_tp)
         return True
-
+    def searchDuplicateIndex(self, name):
+        for index, c in enumerate(SymbolTable().getList()):
+            if c.value == name and c.dataType == 'Index':
+                return True
+        return False
 
 class DropIndex(Instruction):
     def __init__(self, name_index, line, column):
@@ -205,31 +209,49 @@ class DropIndex(Instruction):
         return False
 
 class AlterIndex(Instruction):
-    def __init__(self, name_index, new_name, line, column):
+    def __init__(self, name_index, new_name, line, column, isColumn, index_specific):
         self.name_index = name_index
         self.new_name = new_name
+        self.index_specific = index_specific
         self.line = line
         self.column = column
+        self.isColumn = isColumn
         
 
     def __repr__(self):
         return str(vars(self))
     
     def process(self, enviroment):
-        isChangeName = self.search_index(self.name_index, self.new_name)
-        if isChangeName:
-            DataWindow().consoleText('Query returned successfully: Alter Index')
+        if self.isColumn:
+            isChangeName = self.rename_column(self.name_index, self.new_name, self.index_specific)
+            if isChangeName:
+                DataWindow().consoleText('Query returned successfully: Alter Index')
+            else:
+                desc = f": Name of Index not Exists"
+                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
         else:
-            desc = f": Name of Index not Exists"
-            ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
+            isChangeName = self.search_index(self.name_index, self.new_name)
+            if isChangeName:
+                DataWindow().consoleText('Query returned successfully: Alter Index')
+            else:
+                desc = f": Name of Index not Exists"
+                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
         
     def compile(self, enviroment):
-        isChangeName = self.search_index(self.name_index, self.new_name)
-        if isChangeName:
-            DataWindow().consoleText('Query returned successfully: Alter Index')
+        if self.isColumn:
+            isChangeName = self.rename_column(self.name_index, self.new_name)
+            if isChangeName:
+                DataWindow().consoleText('Query returned successfully: Alter Index')
+            else:
+                desc = f": Name of Index not Exists"
+                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
         else:
-            desc = f": Name of Index not Exists"
-            ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
+            isChangeName = self.search_index(self.name_index, self.new_name)
+            if isChangeName:
+                DataWindow().consoleText('Query returned successfully: Alter Index')
+            else:
+                desc = f": Name of Index not Exists"
+                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
 
     def search_index(self, name, new_name):
         for index, c in enumerate(SymbolTable().getList()):
@@ -238,4 +260,20 @@ class AlterIndex(Instruction):
                 SymbolTable().getList()[index].name.variable = new_name
                 SymbolTable().getList()[index].value = new_name
                 return True
+        return False
+
+    def rename_column(self, name, column, position):
+        for index, c in enumerate(SymbolTable().getList()):
+            if c.value == name and c.dataType == 'Index' and column != None:
+                if isinstance(position, int):
+                    if position-1 > len(SymbolTable().getList())-1:
+                        return False
+                    SymbolTable().getList()[index].name.list_column_reference[position-1] = column
+                    return True
+                else:
+                    if not position in SymbolTable().getList()[index].name.list_column_reference:
+                        return False
+                    position = SymbolTable().getList()[index].name.list_column_reference.index(position)
+                    SymbolTable().getList()[index].name.list_column_reference[position] = column
+                    return True
         return False

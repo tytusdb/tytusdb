@@ -130,12 +130,10 @@ class Create_type(Instruccion):
         self.lista_datos = lista_datos
 
 class Definicion_delete(Instruccion):
-    def __init__(self, val, etiqueta, expresion, id_using, returning = []):
+    def __init__(self, val, etiqueta, expresion):
         self.val = val
         self.etiqueta = etiqueta
         self.expresion = expresion
-        self.id_using = id_using
-        self.returning = returning
 
 
 class Create_select_time(Instruccion):
