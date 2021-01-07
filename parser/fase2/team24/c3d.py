@@ -1,35 +1,40 @@
-from InstruccionesDGA import tabla 
+from InstruccionesDGA import tabla as ts
 from datetime import date
-from InstruccionesDGA import cont 
+from InstruccionesDGA import cont as contador
 from InstruccionesDGA import NombreDB
-from tablaDGA import *
-from sql import * 
+import tablaDGA as TAS
+import sql as sql 
 import mathtrig as mt
-#Funcion sql.execute
+
 
 pila = []
 for i in range(100):
     pila.append(i)
 
-def ejecutar(): 
+def ejecutar():
+    cont = contador
+	sql.execute("CREATE DATABASE ayuda;")
+	
+
+
 	n_db = ts.buscarIDTB(NombreDB)
-	NuevoSimbolo = Simbolo(cont,'CALCULOS',TIPO.FUNCTION,n_db)
+	NuevoSimbolo = TAS.Simbolo(cont,'CALCULOS',TAS.TIPO.FUNCTION,n_db)
 	ts.agregar(NuevoSimbolo)
 	cont+=1
 
 	ambitoFuncion =  ts.buscarIDF()
-	NuevoSimbolo = TAS.Simbolo(cont,'SENO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	NuevoSimbolo = TAS.Simbolo(cont,'SENO',TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
 	ts.agregar(NuevoSimbolo)
 	cont+=1
 
 	ambitoFuncion =  ts.buscarIDF()
-	NuevoSimbolo = TAS.Simbolo(cont,'VALOR',TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	NuevoSimbolo = TAS.Simbolo(cont,'VALOR',TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
 	ts.agregar(NuevoSimbolo)
 	cont+=1
 
 
 	ambitoFuncion =  ts.buscarIDF()
-	NuevoSimbolo = TAS.Simbolo(cont,'ABSOLUTO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	NuevoSimbolo = TAS.Simbolo(cont,'ABSOLUTO',TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
 	ts.agregar(NuevoSimbolo)
 	cont+=1
 
@@ -45,23 +50,23 @@ def ejecutar():
 
 	print( 'Funcion CALCULOSno existe')
 	n_db = ts.buscarIDTB(NombreDB)
-	NuevoSimbolo = Simbolo(cont,'ayuda',TIPO.FUNCTION,n_db)
+	NuevoSimbolo = TAS.Simbolo(cont,'ayuda',TAS.TIPO.FUNCTION,n_db)
 	ts.agregar(NuevoSimbolo)
 	cont+=1
 
 	ambitoFuncion =  ts.buscarIDF()
-	NuevoSimbolo = TAS.Simbolo(cont,'SENO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	NuevoSimbolo = TAS.Simbolo(cont,'SENO',TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
 	ts.agregar(NuevoSimbolo)
 	cont+=1
 
 	ambitoFuncion =  ts.buscarIDF()
-	NuevoSimbolo = TAS.Simbolo(cont,'VALOR',TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	NuevoSimbolo = TAS.Simbolo(cont,'VALOR',TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
 	ts.agregar(NuevoSimbolo)
 	cont+=1
 
 
 	ambitoFuncion =  ts.buscarIDF()
-	NuevoSimbolo = TAS.Simbolo(cont,'ABSOLUTO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	NuevoSimbolo = TAS.Simbolo(cont,'ABSOLUTO',TAS.TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
 	ts.agregar(NuevoSimbolo)
 	cont+=1
 
@@ -75,9 +80,21 @@ def ejecutar():
 	ts.modificar_valor(VALOR, 20.0)
 	ts.modificar_valor(VALOR, 10.0)
 
+	n_db = ts.buscarIDTB(NombreDB)
+	NuevoSimbolo = TAS.Simbolo(cont,'myFuncion',TAS.TIPO.FUNCTION,n_db)
+	ts.agregar(NuevoSimbolo)
+	cont+=1
+
+t33 = 'INICIO CALIFICACION FASE 2'
+pila[0] = t33
+myFuncion()
+print(pila[10])
+	sql.execute('3D')
+
 def ayuda():
 	
-	pila[10] = t0
+	SENO = 0
+	VALOR = 0
 	
 	ABSOLUTO = 0
 	nombre = pila[0]
@@ -126,5 +143,11 @@ def ayuda():
 	t31 = VALOR
 	
 	pila[10] = t31
+	
+def myFuncion():
+	texto = pila[0]
+	t32 = texto
+	
+	pila[10] = t32
 	
 ejecutar()

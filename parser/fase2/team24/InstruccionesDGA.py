@@ -68,8 +68,8 @@ class createdb(instruccion):
         if self.mode != "":
             traduccion += ' MODE =' + self.mode
         traduccion += ';")'
-        print(traduccion)
-        return traduccion + ';\n'
+        
+        return traduccion + '\n'
 
     def ejecutar(self):
         global resultadotxt
@@ -122,7 +122,7 @@ class showdb(instruccion):
         traduccion = '\t'
         traduccion += 'sql.execute("SHOW DATABASES '+ self.nombre + ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -163,7 +163,7 @@ class alterdb(instruccion):
             traduccion += ' RENAME TO ' + self.alterdb2.alterdb3.iden
         traduccion += ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -228,7 +228,7 @@ class dropdb(instruccion):
         traduccion += ' ' + self.iden
         traduccion += ';)"'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -275,7 +275,7 @@ class usedb(instruccion):
         traduccion += 'sql.execute("USE DATABASE '+ self.iden
         traduccion += '";)'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -313,7 +313,7 @@ class createtb(instruccion):
         traduccion += ');")'
         traduccion = traduccion.replace(',)',')')
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
 
@@ -445,7 +445,7 @@ class droptb(instruccion):
         traduccion = '\t'
         traduccion += 'sql.execute("DROP TABLE '+ self.iden + ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -514,7 +514,7 @@ class altertb(instruccion):
                 subtraduccion += ';")'
                 subtraduccion += '\n'
                 traduccion += subtraduccion
-        print(traduccion)
+        
         return traduccion
 
 
@@ -1723,7 +1723,7 @@ class update(instruccion):
 
         traduccion += ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -1859,7 +1859,7 @@ class delete(instruccion):
 
         traduccion += ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
