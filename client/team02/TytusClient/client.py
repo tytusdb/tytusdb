@@ -109,7 +109,7 @@ class Example(Frame):
         self.nb.fm.rowconfigure(3, weight=1)
         self.nb.fm.rowconfigure(5, pad=7)
         self.nb.add(self.nb.fm, text='Query '+str(self.contadorQuerysTabs))
-        self.nb.grid(row=1, column=0, columnspan=2, rowspan=4,
+        self.nb.grid(row=1, column=1, columnspan=2, rowspan=4,
                      padx=5, sticky=E + W + S + N)
         self.nb.fm.area = Text(self.nb.fm)
         self.nb.fm.area.grid(row=1, column=0, columnspan=2, rowspan=4,
