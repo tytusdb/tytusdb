@@ -8,13 +8,13 @@ class where(instruccion):
         super().__init__(line,column)
         self.expresiones=expresiones
         self.nodo = nodo_AST('WHERE',num_nodo)
-        print(expresiones)
-        if expresiones != None:
-            for element in expresiones:
-                if element != None:
-                    self.nodo.hijos.append(element.nodo)
-         
-        self.grammar_=''
-        
-    def ejecutar(self):
-        return retorno(self.expresiones,'WHERE') 
+        #print(expresiones)
+        self.nodo.hijos.append(nodo_AST('WHERE',num_nodo+1))
+        self.nodo.hijos.append(expresiones.nodo)
+
+        #Gramatica
+        self.grammar_ = '<TR><TD> donde ::= WHERE expression  </TD><TD> donde = new where(); </TD></TR>\n'
+        self.grammar_ += expresiones.grammar_
+
+    def ejecutar(self, lista_id):
+        return self.expresiones.ejecutar(lista_id)

@@ -1,4 +1,5 @@
 import TypeCheck.ListaAtributos as ListaAtributos
+import TypeCheck.Base as Base
 
 class Tabla:
     def __init__(self,nombreTabla:str):

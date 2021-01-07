@@ -49,6 +49,39 @@ def Reporte_Errores(lexicos,sintacticos):
     return texto
 
 
+def Reporte_Errores_Sem(semanticos):
+    texto = '''
+    <!DOCTYPE html>
+    <html lang=\"es\">
+    <head><meta charset=\"UTF-8\">  <title> Reporte de Errores Semanticos </title> 
+    <style type=\"text/css\"> \n'''
+    texto += textocss
+    texto += '''</style> </head> </body>
+    <div id=\"main-container\">
+    <table> <thead> <tr>
+    <th>#</th>
+    <th>Listado de Errores</th>
+    </tr> </thead>
+    '''
+    contador = 1
+    for i in semanticos:
+        try: 
+            texto += '<tr><td> '+ str(contador)+ '</td>' 
+            texto += '<td> '+ i + '</td></tr>'
+            contador = contador+1
+        except Exception as e:
+            print("Error al generar reporte de errores semanticos "+ str(e))
+      
+    texto += "</table> </div> </body> </html>"
+    try:
+        with open('Reporte_Errores_Sem.html','w') as rep:
+            rep.write(texto)
+    except Exception as e:
+        print("No fue posible generar el reporte: "+ str(e))
+    
+    return texto
+
+
 def ReporteTS():
     texto = '''
     <!DOCTYPE html>

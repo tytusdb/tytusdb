@@ -268,3 +268,58 @@ class RealizarReportes:
       print("Cerrando escritura")
       f.write(texto)
       f.close()
+
+    def generar_reporte_semanticos(self, lista):
+        #   print("estoy generando mi reporte")
+
+        nombre = "ErroresSemanticos.html"
+        texto = ""
+        texto += "<!DOCTYPE html>"
+        texto += "<head>"
+        texto += "<title>Semantico</title>"
+        texto += "<style>"
+        texto += "table {"
+        texto += "position: relative;"
+        texto += "border: 1px solid #1c0d02;"
+        texto += "box-shadow: 0px 0px 20px black;"
+        texto += "width: 100%;"
+        texto += "}"
+        texto += "td, th {"
+        texto += "border: 2px solid #dddddd;"
+        texto += "text-align: center;"
+        texto += "padding: 10px;"
+        texto += "}"
+        texto += "th{"
+        texto += "background-color:cornflowerblue;"
+        texto += "}"
+        texto += "td{"
+        texto += "background-color:bluegreen;"
+        texto += "}"
+
+        texto += "</style>"
+        texto += "</head>"
+        texto += "<body>"
+        texto += "<h2>Reporte analísis semantico</h2>"
+        texto += "<table>"
+        texto += "<tr>"
+
+        texto += "<th>#</th>"
+        texto += "<th>Errores semantico- codigo- descrpcion - fila - columna</th>"
+        texto += "</tr>"
+        texto += "<tr>"
+
+        i = 1
+        for token in lista:
+            print("LLEgo aqui")
+
+            texto += "<td>" + str(i) + "</td>"
+            texto += "<td>" + token + "</td>"
+            texto += "</tr>"
+            i = i + 1
+
+        texto += "</table>"
+
+        f = open(nombre, 'w')
+        print("Cerrando escritura")
+        f.write(texto)
+        f.close()

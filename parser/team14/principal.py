@@ -9,10 +9,9 @@ from storageManager import jsonMode
 from Expresion.variablesestaticas import variables
 from graphviz import Digraph
 
-
 #variables.ventana = Tk()
-variables.ventana.geometry("1000x600")
-variables.ventana.resizable(False, False)
+variables.ventana.geometry("1245x600")
+variables.ventana.resizable(False,False)
 variables.ventana.config(background="gray25")
 
 global tablaSym
@@ -25,16 +24,12 @@ ErroresS = Digraph("reporte",node_attr={'shape':'record'})
 ErroresS.attr(style='rounded',color='#4b8dc5')
 contenidoE:str = ""
 
-
-
-
-
 def send_data():
     print("Analizando Entrada:")
     print("==============================================")
     # reporteerrores = []
     contenido = Tentrada.get(1.0, 'end')
-    variables.consola.delete("1.0", "end")
+    variables.consola.delete(1.0, "end")
     variables.consola.configure(state='normal')
 
     # print(contenido)
@@ -46,35 +41,12 @@ def send_data():
     variables.consola.insert(INSERT, "Salida de consultas\n")
     for instr in instrucciones:
         if instr != None:
-
-            res = instr.ejecutar(Principal)
-            if res != None:
-                res = str(res) + '\n'
+            instr.ejecutar(Principal)
                 
     variables.consola.configure(state='disabled')
     #variables.consola.configure()
 
     setContenido(Principal.mostrarSimbolos())
-
-    
-
-def setContenido(cont:str):
-    global contenidoSym
-    contenidoSym += cont
-    
-
-def arbol_ast():
-    contenido = Tentrada.get(1.0, 'end')
-    a.generarArbol(contenido)
-
-def verSimbolos():
-    tablaSym.node("TS",contenidoSym)
-    tablaSym.render('ts', view=True)  # doctest: +SKIP
-    'ts.pdf'
-
-def gramatica():
-    contenido = Tentrada.get(1.0,'end')
-    g.generaReporteBNF(contenido)
 
 def reporte_lex_sin():
     if len(reporteerrores) != 0:
@@ -95,17 +67,36 @@ def mostrarimagenre():
     ErroresS.node("ErroresR",label=contenidoE)
     ErroresS.render('erroresr', view=True)  # doctest: +SKIP
     'erroresr.pdf'
+
+def setContenido(cont:str):
+    global contenidoSym
+    contenidoSym = cont
     
+
+def arbol_ast():
+    contenido = Tentrada.get(1.0, 'end')
+    a.generarArbol(contenido)
+
+def verSimbolos():
+    tablaSym.node("TS",contenidoSym)
+    tablaSym.render('ts', view=True)  # doctest: +SKIP
+    'ts.pdf'
+
+def gramatica():
+    contenido = Tentrada.get(1.0,'end')
+    g.generaReporteBNF(contenido)
+
+
 entrada = StringVar()
 Tentrada = Text(variables.ventana)
-Tentrada.config(width=120, height=20)
+Tentrada.config(width=150, height=20)
 Tentrada.config(background="gray18")
 Tentrada.config(foreground="white")
 Tentrada.config(insertbackground="white")
 Tentrada.place(x=10, y=10)
 
 variables.consola = Text(variables.ventana)
-variables.consola.config(width=120, height=15)
+variables.consola.config(width=150, height=15)
 variables.consola.config(background="gray10")
 variables.consola.config(foreground="white")
 variables.consola.config(insertbackground="white")

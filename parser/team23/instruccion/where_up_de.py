@@ -5,21 +5,17 @@ from storage import jsonMode as funciones
 from error.errores import *
 
 class where_up_de(instruccion):
-    def __init__(self, id, dato, line, column, num_nodo):
+    def __init__(self, dato, line, column, num_nodo):
         super().__init__(line, column)
-        self.id = id
         self.dato = dato
-
 
         #Nodo del Where
         self.nodo = nodo_AST('WHERE', num_nodo)
         self.nodo.hijos.append(nodo_AST('WHERE', num_nodo + 1))
-        self.nodo.hijos.append(nodo_AST(id, num_nodo + 2))
-        self.nodo.hijos.append(nodo_AST('=', num_nodo + 3))
-        self.nodo.hijos.append(nodo_AST(dato, num_nodo + 4))
+        self.nodo.hijos.append(dato.nodo)
 
         # Gramatica
-        self.grammar_ = "<TR><TD>WHERE ::= WHERE ID IGUAL op_val </TD><TD>WHERE = falta poner accicon;</TD></TR>"
+        self.grammar_ = "<TR><TD>WHERE ::= WHERE expression </TD><TD>WHERE = new where_up_de(expression); </TD></TR>"
 
-    def ejecutar(self):
-        pass
+    def ejecutar(self, list_tb):
+        return self.dato.ejecutar(list_tb)
