@@ -33,9 +33,3 @@ h = 0
 @with_goto
 def exec():
     global p
-    t0 = "CREATE INDEX test2_mm_idx ON tabla(id);"
-    stack[p] = t0
-    p = p + 1
-
-exec()
-call_funcion_intermedia()

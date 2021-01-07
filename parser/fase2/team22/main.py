@@ -11,6 +11,7 @@ import os
 #from sintactico import ejecutar_analisis
 import reportes.RealizarReportes
 import reportes.reportesimbolos as rs
+import reportes.reporteFunciones as rf
 import reportes.RealizarGramatica
 
 from Instrucciones.TablaSimbolos.Tabla import Tabla
@@ -82,6 +83,7 @@ class interfaz():
         mnreportes = Menu(menu,tearoff=0)
         mnreportes.add_command(label='Tabla de Errores', command=self.tblerrores_click)
         mnreportes.add_command(label='Tabla de Simbolos', command=self.tblsimbolos_click)
+        mnreportes.add_command(label='Tabla de Funciones y Procedimientos', command=self.tblfunciones_click)
         mnreportes.add_command(label='AST', command=self.ast_click)
         mnreportes.add_command(label='Reporte Gramatical', command=self.repDin_click)
         menu.add_cascade(label='Reportes', menu=mnreportes)
@@ -190,6 +192,11 @@ class interfaz():
         global arbol
         rs.crear_tabla(arbol)  
         arbol = None         
+    def tblfunciones_click(self):
+        # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
+        global arbol
+        rf.crear_tabla(arbol)  
+        arbol = None   
 
     def ast_click(self):
         try:

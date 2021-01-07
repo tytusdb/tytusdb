@@ -22,6 +22,11 @@ class Funcion(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+        val = self.id_tabla.devolverTabla(tabla, arbol)
+        objetoTabla = arbol.devolviendoTablaDeBase(val)
+        objetoTabla.lista_de_funciones.append('funcion')
+
+
         '''tablaLocal = Tabla(None)
         print("==>>>", self.parametros)
         for i in self.parametros:

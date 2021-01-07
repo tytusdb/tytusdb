@@ -33,6 +33,3 @@ h = 0
 @with_goto
 def exec():
     global p
-
-exec()
-call_funcion_intermedia()
