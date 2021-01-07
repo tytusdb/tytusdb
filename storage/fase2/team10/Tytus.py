@@ -1,4 +1,3 @@
-  
 import os
 import pickle
 import zlib
@@ -114,8 +113,8 @@ def createTable(database, table, nCols):
 def showTables(database):
     chargePersistence()
     tables = []
-    for item in structs:
-        value = item.showTables(database)
+    for item in databases:
+        value = item["mod"].showTables(database)
         if value:
             tables.append(value)
             break
@@ -123,7 +122,7 @@ def showTables(database):
 
 def extractTable(database, table):
     chargePersistence()
-    # alterDatabaseDecompress(database)
+    alterDatabaseDecompress(database)
     for item in structs:
         value = item.extractTable(database, table)
         if value is not None:
@@ -236,7 +235,7 @@ def loadCSV(fileCSV, db, table):
             return value
     return value
 
-def update(database, table,  register, columns):
+def update(database, table, register, columns):
     for item in structs:
         value = item.update(database, table, register, columns)
         if value != 2:
@@ -245,10 +244,11 @@ def update(database, table,  register, columns):
                     for t in i["tables"]:
                         if table == t["name"]:
                             for tup in t["tuples"]:
-                                index = 0
-                                for key in register:
-                                    index = key
-                                tup["register"][index] = register[1]
+                                if tup["register"][0] == columns[0]:
+                                    index = 0
+                                    for key in register:
+                                        index = key
+                                    tup["register"][index] = register[index]
                         persistence(databases)
                         return value
     return 2
@@ -391,6 +391,7 @@ def alterDatabaseCompress(database, level):
         for db in databases:
             if db["name"] == database:
                 for table in db["tables"]:
+                    changueMode(databases)
                     tableCopy = table.copy()
                     table["tuples"] = []
                     db["mod"].truncate(db["name"], table["name"])
@@ -402,8 +403,6 @@ def alterDatabaseCompress(database, level):
                                 register = zlib.compress(text, level)
                             newRegister.append(register)
                         insert(db['name'], table["name"], newRegister)
-            else:
-                return 2
         return 0
     except:
         return 1
@@ -414,6 +413,7 @@ def alterDatabaseDecompress(database):
         for db in databases:
             if db["name"] == database:
                 for table in db["tables"]:
+                    changueMode(databases)
                     tableCopy = table.copy()
                     table["tuples"] = []
                     db["mod"].truncate(db["name"], table["name"])
@@ -426,8 +426,6 @@ def alterDatabaseDecompress(database):
                                 isCompressed = True
                             newRegister.append(register)
                         insert(db['name'], table["name"], newRegister)
-            else:
-                return 2
         if not isCompressed:
             return 3
         return 0
@@ -441,6 +439,7 @@ def alterTableCompress(database, table, level):
         for db in databases:
             if db["name"] == database:
                 for t in db["tables"]:
+                    changueMode(databases)
                     if t["name"] == table:
                         tableCopy = t.copy()
                         t["tuples"] = []
