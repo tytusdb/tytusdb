@@ -35,13 +35,13 @@ class Delete(ASTNode):
         to_delete = list(map(lambda x: f'{x[primary_key]}|', data))
         result = delete(table.get_current_db().name, self.table_name, to_delete)
         if result == 1:
-            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
         elif result == 3:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P07: table_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P07: table_does_not_exists')
         elif result == 4:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P10: PK_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P10: PK_does_not_exists')
         else:
             return f'A register has been deleted from {self.table_name}'
 

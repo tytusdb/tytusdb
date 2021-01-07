@@ -27,9 +27,9 @@ class DropDatabase(ASTNode):
                 table.drop_data_base(result_name)
                 return "Database " + str(result_name) + " has been dropped."
             elif result == 1:  # operation error
-                raise Error(0, 0, ErrorType.RUNTIME, '58000: system_error')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '58000: system_error')
             elif result == 2:  # database does not exist.
-                raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
 
     def generate(self, table, tree):
         super().generate(table, tree)
@@ -52,11 +52,11 @@ class DropTable(ASTNode):
             table.drop_table(result_name)
             return "Table " + str(result_name) + " has been dropped."
         elif result == 1:  # operation error
-            raise Error(0, 0, ErrorType.RUNTIME, '58000: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '58000: system_error')
         elif result == 2:  # database does not exist.
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
         elif result == 3:  # table does not exist
-            raise Error(0, 0, ErrorType.RUNTIME, '42P01: table_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P01: table_does_not_exists')
 
     def generate(self, table, tree):
         super().generate(table, tree)

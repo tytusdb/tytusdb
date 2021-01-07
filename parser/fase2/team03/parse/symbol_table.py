@@ -100,19 +100,20 @@ class FunctionSymbol(Symbol):
 
 
 class IndexSymbol(Symbol):
-    def __init__(self, name, table, db_id, lista):
+    def __init__(self, name, table, db_id, is_unique, applied_to, where):
         Symbol.__init__(self, SymbolType.INDEX, name)
         self.db_id = db_id
         self.name = name
+        self.is_unique = is_unique
         self.table_name = table
-        self.lista = lista
+        self.where = where
+        self.applied_to = applied_to
 
     def str_list(self):
         str_l = ''
-        for item in self.lista:
-            print(item)
-            str_l = f'{str_l}{item};'
-        return str_l
+        for item in self.applied_to:
+            str_l = f'{str_l}{item},'
+        return str_l[:-1] if str_l != '' else ''
 
 
 class SymbolTable:

@@ -17,11 +17,11 @@ class AlterDatabaseRename(ASTNode):
         super().execute(table, tree)
         result = alterDatabase(self.name, self.new_name)
         if result == 1:
-            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: old_database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: old_database_does_not_exists')
         elif result == 3:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: new_database_already_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: new_database_already_exists')
         else:
             old_symbol = table.get(self.name, SymbolType.DATABASE)
             old_symbol.name = self.new_name
@@ -73,11 +73,11 @@ class AlterTableAddColumn(ASTNode):
         result_field_length = self.field_length
         result = alterAddColumn(table.get_current_db().name, result_table_name, None)
         if result == 1:
-            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
         elif result == 3:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: table_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: table_does_not_exists')
         else:
             total_fields = len(table.get_fields_from_table(result_table_name))
             column_symbol = FieldSymbol(
@@ -139,19 +139,19 @@ class AlterTableDropColumn(ASTNode):
         column_symbol = next((sym for sym in all_fields_symbol if sym.field_name == result_field_name), None)
         result = alterDropColumn(table.get_current_db().name, result_table_name, column_symbol.field_index)
         if result == 1:
-            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
             # log error, old database name does not exists
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
         elif result == 3:
             # log error, table does not exists
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: table_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: table_does_not_exists')
         elif result == 4:
             # log error, PK cannot be deleted or table to be empty
-            raise Error(0, 0, ErrorType.RUNTIME, '2300: integrity_constraint_violation')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '2300: integrity_constraint_violation')
         elif result == 5:
             # log error, column out of index
-            raise Error(0, 0, ErrorType.RUNTIME, '2300: column_out_of_index')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '2300: column_out_of_index')
         else:
             for field in all_fields_symbol:
                 # Update indexes for higher fields
