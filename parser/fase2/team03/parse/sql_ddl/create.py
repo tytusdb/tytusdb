@@ -58,10 +58,10 @@ class CreateDatabase(ASTNode):
 
         if result == 1:
             # log error on operation
-            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2 and self.exists is False:
             # log error because db already exists
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: duplicate_database')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: duplicate_database')
         else:
             # return table.add(DatabaseSymbol(result_name, result_owner, result_mode)) #chaged by loadDatabases
             table.LoadDataBases()
@@ -97,11 +97,11 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
         result = createTable(table.get_current_db().name, result_name, len(result_fields))
 
         if result == 1:
-            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
         elif result == 3:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P07: duplicate_table')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P07: duplicate_table')
         else:
             # add primary keys, jsonMode needs the number of the column to set it to primarykey
             keys = list(
