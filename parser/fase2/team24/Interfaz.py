@@ -15,7 +15,8 @@ from reportBNF import *
 import webbrowser as wb
 import OptimizarMirilla as optm
 import OptimizarObjetos as optobj
-
+# Esta es la lista de objetos
+from procedural import objopt
 default_db = 'DB1'
 ts = TabladeSimbolos.Tabla()
 

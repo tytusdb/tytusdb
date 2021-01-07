@@ -431,15 +431,15 @@ def p_alterindp(p):
     """
     alterindp    :   ALTER INDEX ifexistsind alterind2 ownedbyind alterind2 nowait PUNTOCOMA
     """
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+    p[0] = inst_procedural(p.slice)
 
 def p_dropindp(p):
     "dropindp    :   DROP INDEX concind ifexistsind listaidind cascrestind PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+    p[0] = inst_procedural(p.slice)
 
 def p_createindp(p):
     "createindp  :   CREATE uniqueind INDEX id ON id createind2"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7])
+    p[0] = inst_procedural(p.slice)
 
 def p_querypp(t):
     'querypp : queryp com PUNTOCOMA'
@@ -449,52 +449,52 @@ def p_querypp(t):
 
 def p_deletep(p):
     "deletep :   DELETE FROM id WHERE wherecond PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_updatep(p):
     "updatep :   UPDATE id SET cond WHERE wherecond PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_insertp(p):
     "insertp :   INSERT INTO id colkey VALUES PARA valores PARC PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8]+p[9])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_altertbp(p):
     "altertbp   :   ALTER TABLE id altertb2 PUNTOCOMA"
-    p[0] = inst.altertb(p[1]+p[2]+p[3]+p[4]+p[5])
+    p[0] = inst.altertb(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_droptbp(p):
     "droptbp :   DROP TABLE id PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_createtbp(p):
     "createtbp   :   CREATE TABLE id PARA coltb PARC inherits PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5]+p[6]+p[7]+p[8])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_dropdbp(p):
     "dropdbp :   DROP DATABASE ifexists id PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4]+p[5])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_alterdbp(p):
     "alterdbp    :   ALTER DATABASE alterdb2 PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3]+p[4])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_showdbp(p):
     "showdbp :   SHOW DATABASES PUNTOCOMA"
-    p[0] = inst_procedural(p[1]+p[2]+p[3])
+    p[0] = inst_procedural(p.slice)
     insertProduction(p.slice, len(p.slice))
 
 def p_createdbp(t):
     "createdbp   :   CREATE replacedb DATABASE ifnotexists id owner mode PUNTOCOMA"
-    t[0] = inst_procedural(t[1]+t[2]+t[3]+t[4]+t[5]+t[6]+t[7]+t[8])
+    t[0] = inst_procedural(t.slice)
     insertProduction(t.slice, len(t.slice))
 
 def p_id(p):
@@ -2004,7 +2004,7 @@ def p_declare(t):
     if len(t) > 2 :
         t[0] = t[2]
     else:
-        t[0] = t[1]
+        t[0] = []
 
 
 def p_declareList(t):
@@ -2465,7 +2465,6 @@ def p_newexp_bi(t):
 
 def p_createproc(t):
     'createproc : CREATE PROCEDURE ID PARA lparamsp PARC LANGUAGE PLPGSQL AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
-    pritn('Esta en proceso')
     t[0] = createfunc(t[3],t[5],None,t[12])
 
 def p_error(t):
