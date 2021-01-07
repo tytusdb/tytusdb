@@ -18,7 +18,7 @@ class Optimizer:
     OP_SUMA = 11
     OP_AND = 12
     OP_OR = 13
-    OP_CONCAT = 14
+    OP_NOT = 14
     TOP_ARIT = 1
     TOP_JUMP = 2
     TOP_PROP = 4
