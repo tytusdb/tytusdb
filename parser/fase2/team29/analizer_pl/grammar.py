@@ -405,7 +405,6 @@ def p_types_d_params_str(t):
     | T_CHAR optParams
     """
     t[0] = TYPE.STRING
-
     repGrammar.append(t.slice)
 
 
@@ -414,7 +413,6 @@ def p_typesvar(t):
     types_d : T_CHARACTER T_VARYING optParams
     """
     t[0] = TYPE.STRING
-
     repGrammar.append(t.slice)
 
 
@@ -486,6 +484,7 @@ def p_statement(t):
     t[0] = t[1]
     repGrammar.append(t.slice)
 
+
 def p_drop_func(t):
     """
     drop_func : R_DROP R_FUNCTION ID S_PUNTOCOMA
@@ -493,6 +492,7 @@ def p_drop_func(t):
     """
     t[0] = code.DropFunction(t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
+
 
 def p_stmt_without_substmt(t):
     """
@@ -706,8 +706,8 @@ def p_return_stmt_exp(t):
 
 
 def p_execute(t):
-    """execute : R_EXECUTE funcCall into_strict"""
-    t[0] = code.Execute_(t[2], t.slice[1].lineno, t.slice[1].lexpos)
+    """execute : R_EXECUTE isblock_ funcCall isblock_f into_strict"""
+    t[0] = code.Execute_(t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1607,7 +1607,12 @@ def p_extract_1(t):
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM timeStamp S_PARDER
     """
     t[0] = code.FunctionCall(
-        "extract", [t[3], t[5][0], t[5][1]], isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+        "extract",
+        [t[3], t[5][0], t[5][1]],
+        isBlock,
+        newTemp(),
+        t.slice[1].lineno,
+        t.slice[1].lexpos,
     )
     repGrammar.append(t.slice)
 
@@ -1624,7 +1629,10 @@ def p_timeStamp(t):
     timeStamp : R_TIMESTAMP STRING
           | R_INTERVAL STRING
     """
-    t[0] = [t[1], t[2]]
+    t[0] = [
+        expression.C3D("", "'" + t[1] + "'", t.slice[1].lineno, t.slice[1].lexpos),
+        expression.C3D("", t[2], t.slice[1].lineno, t.slice[1].lexpos),
+    ]
     repGrammar.append(t.slice)
 
 
@@ -1637,7 +1645,7 @@ def p_optsExtract(t):
                   | R_MINUTE
                   | R_SECOND
     """
-    t[0] = t[1]
+    t[0] = expression.C3D("", "'" + t[1] + "'", t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1645,8 +1653,14 @@ def p_datePart(t):
     """
     datePart : R_DATE_PART S_PARIZQ STRING S_COMA dateSource S_PARDER
     """
+    temp = expression.C3D("", t[3], t.slice[1].lineno, t.slice[1].lexpos)
     t[0] = code.FunctionCall(
-        "date_part", [t[3], t[5][0], t[5][1]], isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+        "date_part",
+        [temp, t[5][0], t[5][1]],
+        isBlock,
+        newTemp(),
+        t.slice[1].lineno,
+        t.slice[1].lexpos,
     )
     repGrammar.append(t.slice)
 
@@ -1659,7 +1673,10 @@ def p_dateSource(t):
           | R_INTERVAL STRING
           | R_NOW S_PARIZQ S_PARDER
     """
-    t[0] = [t[1], t[2]]
+    t[0] = [
+        expression.C3D("", "'" + t[1] + "'", t.slice[1].lineno, t.slice[1].lexpos),
+        expression.C3D("", t[2], t.slice[1].lineno, t.slice[1].lexpos),
+    ]
     repGrammar.append(t.slice)
 
 
@@ -1747,7 +1764,9 @@ def p_datatype_operadores_binarios1(t):
     | datatype O_EXPONENTE datatype
     | datatype O_MODULAR datatype
     """
-    t[0] = code.BinaryExpression(newTemp(), t[1], t[3], t[2], isBlock, t[1].row, t[1].column)
+    t[0] = code.BinaryExpression(
+        newTemp(), t[1], t[3], t[2], isBlock, t[1].row, t[1].column
+    )
     repGrammar.append(t.slice)
 
 
@@ -1755,7 +1774,9 @@ def p_datatype_operadores_binarios2(t):
     """
     datatype : datatype OC_CONCATENAR datatype
     """
-    t[0] = code.BinaryExpression(newTemp(), t[1], t[3], t[2], isBlock, t[1].row, t[1].column)
+    t[0] = code.BinaryExpression(
+        newTemp(), t[1], t[3], t[2], isBlock, t[1].row, t[1].column
+    )
     repGrammar.append(t.slice)
 
 
@@ -2016,7 +2037,9 @@ def p_columnName_table_id(t):
     columnName : ID S_PUNTO ID
     """
     global isBlock
-    t[0] = code.Identifier(t[1]+"."+t[3], isBlock, t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.Identifier(
+        t[1] + "." + t[3], isBlock, t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
