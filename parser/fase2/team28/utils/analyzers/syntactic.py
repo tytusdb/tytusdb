@@ -613,15 +613,14 @@ def p_call_functions_or_procedure(p):
     noLine = p.slice[1].lineno
     if p.slice[1].type == 'EXECUTE':
         if len(p) == 5: #Tercera produccion
-            # Call(p[2], None)
             p[0] = Funcion(p[2], [], [], None, False, True, noLine, noColumn)
         else:           #Cuarta produccion
             p[0] = Funcion(p[2], p[4], [], None, False, True, noLine, noColumn)
-    # else:
-    #     if len(p) == 5: #Primera produccion
-    #         Call(p[1], p[3])
-    #     else:           #Segunda produccion
-    #         Call(p[1], None)
+    else:
+        if len(p) == 5: #Primera produccion
+            p[0] = Funcion(p[1], p[3], [], None, False, True, noLine, noColumn)
+        else:           #Segunda produccion
+            p[0] = Funcion(p[1], [], [], None, False, True, noLine, noColumn)
 
 
 def p_option_col(p):  # TODO verificar
@@ -1093,9 +1092,9 @@ def p_staments(p):
 
     elif p.slice[1].type == "RETURN":
         if len(p) == 3:     #tercera produccion
-            p[0] = ReturnFuncProce(None)
+            p[0] = [ReturnFuncProce(None)]
         else:               #cuarta produccion
-            p[0] = ReturnFuncProce(p[2])
+            p[0] = [ReturnFuncProce(p[2])]
     
 
 def p_options_statements(p):
@@ -1242,13 +1241,11 @@ def p_if_statement(p):
     if len(p) == 11: #Primera produccion
         if_anidados = anidarIFs(0, p[5], p[7])
         p[0] = If(p[2], p[4], None, if_anidados)
-        print("IF ANIDADOS")
-        print(p[0])
+
     elif len(p) == 9: #Segunda produccion
         if_anidados = anidarIFs(0, p[5], None)
         p[0] = If(p[2], p[4], None, if_anidados)
-        print("IF ANIDADOS")
-        print(p[0])
+
     elif len(p) == 10: #Tercera produccion
         p[0] = If(p[2], p[4], None, p[6])
     else: #Cuarta produccion
@@ -1944,7 +1941,7 @@ def p_sql_relational_expression(p):
         else:
             p[0] = [p[1], p[2]]
     elif (len(p) == 4):
-        print(p[2])
+        # print(p[2])
         if p[2][1] == '=':
             p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3], p[2][1],
                          p[2][0].lineno, find_column(p[2][0]))
@@ -2404,19 +2401,19 @@ def p_expressions_time(p):
         if p.slice[1].type.upper() == 'EXTRACT':
             p[0] = ExpressionsTime(
                 SymbolsTime.EXTRACT, p[3], p[6], p[1], p.lineno(1), find_column(p.slice[1]))
-            p[0]._tac = f'EXTRACT ( {p[3]} FROM TIMESTAMP {p[6].value} )'
+            p[0]._tac = f'EXTRACT ( {p[3]._tac} FROM TIMESTAMP {p[6]._tac} )'
         elif p.slice[1].type.upper() == 'DATE_PART':
             p[0] = ExpressionsTime(
                 SymbolsTime.DATE_PART, p[3], p[6], p[1], p.lineno(1), find_column(p.slice[1]))
-            p[0]._tac = f'DATE_PART ({p[3].value} , INTERVAL {p[6].value})'
+            p[0]._tac = f'DATE_PART ({p[3]._tac} , INTERVAL {p[6]._tac})'
     elif (len(p) == 3):
         p[0] = ExpressionsTime(SymbolsTime.TIMESTAMP, None,
                                p[2], p[1], p.lineno(1), find_column(p.slice[1]))
-        p[0]._tac = f'TIMESTAMP {p[2].value}'
+        p[0]._tac = f'TIMESTAMP {p[2]._tac}'
     elif (len(p) == 7):
         p[0] = ExtractFromIdentifiers(
             SymbolsTime.EXTRACT, p[3], p[5], p[1], p.lineno(1), find_column(p.slice[1]))
-        p[0]._tac = f"EXTRACT ({p[3]} FROM {p[5].value})"
+        p[0]._tac = f"EXTRACT ({p[3]} FROM {p[5]._tac})"
     else:
         if p.slice[1].type.upper() == 'CURRENT_DATE':
             p[0] = ExpressionsTime(SymbolsTime.CURRENT_DATE, None, None, p[1], p.lineno(

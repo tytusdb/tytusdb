@@ -20,3 +20,12 @@ class GlobalEnvironment:
         """
         if id in self.functions:
             return self.functions[id]
+
+    def dropFunction(self, id):
+        """
+        Esta funcion elimina un simbolo de la tabla.
+        """
+        if id in self.functions:
+            del self.functions[id]
+            return True
+        return None

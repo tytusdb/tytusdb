@@ -22,7 +22,7 @@ def prueba():
 def prueba2():
     if request.method == 'POST':
         content = request.get_json()
-        name = content['name']
+        name = content['codigo']
         instrucciones = g.parse(name)
         for instr in instrucciones['ast'] :
             if instr == None:
@@ -35,7 +35,7 @@ def prueba2():
             else:
                 try:
                     #response = "hola " + name
-                    response = str(result)
+                    response = {"codigo":str(result)}
                     return response
                 except ClientError as e:
                     logging.error(e)

@@ -14,6 +14,8 @@ from Utils.fila import fila
 from Error import *
 import Instrucciones.DML.select as select
 import json
+
+import optimizar as opt
 #from select import *
 
 ##########################################################################
@@ -61,10 +63,12 @@ import gramatica as g
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
 import Instrucciones.DML.select as select
+from Error import *
 
 #storage.dropAll()
 
 heap = []
+semerrors = []
 
 datos = l.Lista({}, '')
 l.readData(datos)
@@ -73,11 +77,22 @@ l.readData(datos)
 #funcion intermedia
 def mediador(value):
     global heap
+    global semerrors
    # Analisis sintactico
     instrucciones = g.parse(heap.pop())
     for instr in instrucciones['ast'] :
-        if isinstance(instr, select.Select) :
+
+        try:
             val = instr.execute(datos)
+        except:
+            val = (instr.execute(datos, {}))
+
+        if isinstance(val, Error):
+            'error semántico'
+            print(val)
+            semerrors.append(val)
+        elif isinstance(instr, select.Select) :
+            
             if value == 0:
                 try:
                     print(val)
@@ -96,19 +111,10 @@ def mediador(value):
                 print(instr.ImprimirTabla(val))
         else :
             try:
-                valor = instr.execute(datos)
-                print(valor)
-                try:
-                    return valor.val
-                except:
-                    ''
+                return val.val
             except:
-                valor = (instr.execute(datos, {}))
-                print(valor)
-                try:
-                    return valor.val
-                except:
-                    ''
+                print(val)
+
     l.writeData(datos)
 '''
 
@@ -118,17 +124,18 @@ def mediador(value):
 
 '''
     l.readData(datos)
-
+    optt = ""
     for val in datos.tablaSimbolos.keys():
         if val == 'funciones_':
             for func in datos.tablaSimbolos[val]:
                 try:
                     f = open("./Funciones/" + func['name'] + ".py", "r")
-                    exepy += f.read()
+                    pruebaaa = f.read()
+                    optt = opt.optimizar(pruebaaa)
+                    exepy += optt
                     f.close()
                 except:
                     exepy += '#Se cambio el nombre del archivo que guarda la funcion. Funcion no encontrada'
-
     exepy += '''
 #main
 @with_goto
@@ -199,7 +206,11 @@ if __name__ == "__main__":
 
     escribirEnSalidaFinal('Se ha generado el codigo en 3 direcciones.')
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
-
+    reptOpti = prueba['opt']
+    fro = open("./Reportes/ReporteOptimizacion.txt", "w")
+    fro.write(reptOpti)
+    fro.close()
+    
 def Rerrores(errores, semanticos):
     f = open("./Reportes/Reporte_Errores.html", "w")
     f.write("<!DOCTYPE html>\n")
