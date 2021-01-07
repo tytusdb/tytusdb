@@ -86,8 +86,9 @@ class FromClause(instruction.Instruction):
                 t1 = Nodo.Nodo(t.name)
                 new.addNode(t1)
         for a in self.aliases:
-            a1 = Nodo.Nodo(a)
-            new.addNode(a1)
+            if a != '':
+                a1 = Nodo.Nodo(a)
+                new.addNode(a1)
         return new
 
 

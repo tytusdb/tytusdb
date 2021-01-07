@@ -10,7 +10,8 @@ import mathtrig as mt
 import prettytable as pt
 import reportError as errores
 from reportError import CError
-#
+from sql import *
+
 
 #
 class exp_type(Enum):
@@ -42,8 +43,7 @@ class select_func(query):
                 return e
             else:
                 tables = {}
-                
-                
+
                 results = []
                 for col in self.lista:
                     res = col.ejecutar(tables)
@@ -83,6 +83,20 @@ class select(query):
         if having is not None and condition is not None:
             self.condition.append(having)
         
+    def traducir(self):
+        global Listaselects
+        Nuevoselect = select(self.distinct,self.select_list,self.table_expression,self.condition,
+        self.group,self.having,
+        self.orderby,
+        self.limit,
+        self.offset)
+
+        insertarS(Nuevoselect)
+        serialaizer()
+        traduccion = '\t'
+        traduccion += 'sql.execute(SELECT * FROM temp)'
+        print(traduccion)
+        return traduccion
 
     def ejecutar(self):
 
@@ -424,7 +438,7 @@ class exp_id(exp_query):
                     }
                     return dict
                 #Obtenemos el indice de esa tabla
-                indice = main.ts.getIndice(dga.NombreDB,table,self.val)
+                indice = ts.getIndice(dga.NombreDB,table,self.val)
                 if indice == -1:
                     e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
                     errores.insert_error(e)
@@ -439,14 +453,6 @@ class exp_id(exp_query):
                     "columna" : [{"nombre":self.val,"indice":indice,"tabla":table}] 
                 }
                 return dic
-
-
-
-
-
-
-
-
 
 class exp_bool(exp_query):
     'Esta expresion devuelve un'
@@ -2353,11 +2359,6 @@ class trig_cos(column_mathtrig):
             trim = mt.cos(float(temp))
             
             return trim
- 
-
-
-
-
 
 class trig_cosd(column_mathtrig):
     def __init__(self, exp, alias):

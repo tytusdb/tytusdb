@@ -1,6 +1,8 @@
 from analizer_pl.abstract import instruction
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
+from analizer_pl.abstract.environment import Environment
+from analizer_pl import grammar
 
 class CreateType(instruction.Instruction):
     def __init__(self, exists, name, row, column, values):
@@ -16,8 +18,19 @@ class CreateType(instruction.Instruction):
         out += "TYPE "
         out += self.exists + " "
         out += self.name + " AS ENUM ("
-        out += self.values + ");"
+
+        j = 0
+        for i in range(len(self.values)-1):
+            j = i + 1
+            pval = self.values[i].execute(environment)
+            out += pval.temp + ", "
+        pval = self.values[j].execute(environment)
+        out += pval.temp
+
+        out += ");"
         out += '")\n'
+        grammar.optimizer_.addIgnoreString(out,self.row,False)
         return code.C3D(out, "create_type", self.row, self.column)
+
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_CREATE_TYPE")
