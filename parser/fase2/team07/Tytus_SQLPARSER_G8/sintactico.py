@@ -2122,7 +2122,7 @@ def p_parametro_fucion(t):
 
 def p_returns(t):
     '''
-    returns_n 	:	RETURNS
+    returns_n 	:	RETURNS 
     '''
 
 
