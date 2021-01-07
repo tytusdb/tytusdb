@@ -1,14 +1,23 @@
 #TyTusDB server. 
 #Dev by Group 4
 #BD1 2020
-
+import sys
+sys.path.append('../../../../parser/team26/G26/Instrucciones')
+sys.path.append('../../../../parser/team26/G26/Librerias')
+sys.path.append('../../../../parser/team26/G26/Utils')
 import cgi
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import socketserver
 import io
 import os
 import json
-
+'''
+import gramatica as g
+import Utils.Lista as l
+import Librerias.storeMaganer.jsonMode as storage
+import Instrucciones.DML.select as select
+from Error import *
+'''
 
 # Setting server port
 PORT = 8000
