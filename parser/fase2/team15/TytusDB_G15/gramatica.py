@@ -264,7 +264,9 @@ reservadas = {
     'exit' : 'EXIT',
     'text_pattern_ops' : 'TEXT_PATTERN_OPS',
     'varchar_pattern_ops' : 'VARCHAR_PATTERN_OPS',
-    'bpchar_pattern_ops' : 'BPCHAR_PATTERN_OPS'
+    'bpchar_pattern_ops' : 'BPCHAR_PATTERN_OPS',
+    'btree':'BTREE', 'hash':'HASH', 'gist' : 'GIST', 'spgist': 'SPGIST', 'gin': 'GIN', 'brin':'BRIN',
+
 
 }
 
@@ -3176,106 +3178,88 @@ def p_expresion_logica_w3(t):
 # TODO                         INDEX
 #? ###################################################################
 def p_ins_createIndex(t):
-    'instruccion : createIndex'
+    'instruccion : createIndex2'
     t[0] = t[1]
 
 def p_createIndex(t):
-    ' createIndex : CREATE INDEX ID ON ID opc_index PTCOMA '
-    t[0] = Funcion_Index(INDEX.INDEX,t[3],t[5],t[6],None)
-    
-def p_createIndex1(t):
-    ' createIndex : CREATE INDEX ID ON ID opc_index cond_where PTCOMA '
-    t[0] = Funcion_Index(INDEX.INDEX_WHERE,t[3],t[5],t[6],t[7])
+    'createIndex2 : CREATE unique_option INDEX ID ON ID usingIndex PAR_A lista_index PAR_C PTCOMA'
+    listaRestricciones = []
+    listaRestricciones.append('UNIQUE: '+str(t[2]))
+    listaRestricciones.append('USING: '+str(t[7]))
+    listaRestricciones.append('WHERE: '+str(False))
+    t[0] = CreateIndexNew(t[4],t[6],listaRestricciones,t[9])
 
 def p_createIndex2(t):
-    ' createIndex : CREATE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA '
-    t[0] = Funcion_Index(INDEX.INDEX_INCLUDE,t[3],t[5],t[6],t[8])
+    'createIndex2 : CREATE unique_option INDEX ID ON ID usingIndex PAR_A lista_index PAR_C cond_where PTCOMA'
+    listaRestricciones = []
+    listaRestricciones.append('UNIQUE: '+str(t[2]))
+    listaRestricciones.append('USING: '+str(t[7]))
+    listaRestricciones.append('WHERE: '+str(True))
+    t[0] = CreateIndexNew(t[4],t[6],listaRestricciones,t[9])
 
-def p_createIndex3(t):
-    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index PTCOMA '
-    t[0] = Funcion_Index(INDEX.INDEX_UNIQUE_WHERE,t[4],t[6],t[7],None)
 
-def p_createIndex4(t):
-    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index cond_where PTCOMA '
-    t[0] = Funcion_Index(INDEX.INDEX_INCLUDE,t[4],t[6],t[7],t[8])
-
-def p_createIndex5(t):
-    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA '
-    t[0] = Funcion_Index(INDEX.INDEX_INCLUDE,t[4],t[6],t[7],t[9])
-
-def p_otro_index(t):
-    'createIndex : CREATE INDEX ID ON ID PAR_A ID opclass PAR_C PTCOMA'
-    t[0] = Funcion_Index(INDEX.INDEX_CLASS,t[3],t[5],t[7],t[8])
-    
-def p_otro_index1(t):
-    'createIndex : CREATE INDEX ID ON ID PAR_A ID opclass sortoptions PAR_C PTCOMA'
-    t[0] = Funcion_Index(t[3],t[5],t[7],t[8],t[9])
-
-def p_createIndex6(t):
-    '''opc_index :  USING HASH PAR_A ID PAR_C
-                  | PAR_A opc_index_par PAR_C'''
-    if t[1].upper() == 'USING':
-        t[0] = index_cuerpo(TIPO_INDEX.USING_HASH,t[4],None)
+def p_index_unique_option(t):
+    '''unique_option : UNIQUE
+                    | empty'''
+    if t[1] == None:
+        t[0] = False
     else:
-        t[0]= t[2]
+        t[0] = True
+    
 
-def p_createIndex2_0(t):
-    ' opc_index_par : campos_c '
-    t[0] = index_cuerpo(TIPO_INDEX.CAMPOS,t[1],None)
+def p_index_usingIndex(t):
+    '''usingIndex : USING HASH
+                    | USING BTREE 
+                    | USING GIST 
+                    | USING SPGIST
+                    | USING GIN 
+                    | USING BRIN
+                    | empty'''
+    if t[1] == None:
+        t[0] = 'BTREE'
+    else:
+        t[0] = t[2]
 
-def p_createIndex2_1(t):
-    ' opc_index_par : ID NULLS first_last'
-    t[0] = index_cuerpo(TIPO_INDEX.NULLS,t[1],t[3])
-
-def p_createIndex2_1_1(t):
-    ' opc_index_par : ID orden NULLS first_last '
-    t[0] = index_cuerpo(TIPO_INDEX.NULLS,t[1], t[4])
-
-def p_createIndex2_3(t):
-    ' opc_index_par : ID COLLATE string_type '   
-    t[0] = index_cuerpo(TIPO_INDEX.COLLATE,t[1],t[3])
-
-def p_createIndex2_30(t):
-    ' opc_index_par : LOWER PAR_A ID PAR_C '
-    t[0] = index_cuerpo(TIPO_INDEX.LOWER,t[3],None)
-
-def p_createIndex_5(t):
-    ' opc_index_par : ID PAR_A ID PAR_C '
-    t[0] = index_cuerpo(TIPO_INDEX.WITH_IDS,t[1],t[3])
-
-def p_first_last(t):
-    ''' first_last : FIRST
-                   | LAST'''
+def p_index_lista_index(t):
+    '''lista_index : lista_index COMA paramIndex'''
+    t[1].append(t[3])
     t[0] = t[1]
 
-
-def p_sortoptions(t):
-    'sortoptions : sortoptions sortoption'
-    t[1].append(t[2])
-    t[0] = t[1]
-
-def p_sortoptions0(t):
-    'sortoptions : sortoption'
+def p_index_lista_index1(t):
+    '''lista_index : paramIndex'''
     t[0] = [t[1]]
 
-def p_sortoptions1(t):
-    '''sortoption : COLLATE
-                    | ASC
-                    | DESC '''
+
+def p_index_paramIndex(t):
+    '''paramIndex : LOWER PAR_A ID PAR_C sort_options null_options'''
+    t[0] = t[3]
+
+def p_index_paramIndex1(t):
+    '''paramIndex : ID sort_options null_options '''
     t[0] = t[1]
 
+def p_index_sort_options(t):
+    '''sort_options : ASC
+                    | DESC
+                    | empty'''
+    if t[1] == None:
+        t[0] = 'ASC'
+    else:
+        t[0] = str(t[1])
 
- 
-def p_sortoptions2(t):
-    '''sortoption :  NULLS FIRST
-                    | NULLS LAST '''
-    t[0] = t[2]
 
-def p_opclass(t):
-    '''opclass : TEXT_PATTERN_OPS
-               | VARCHAR_PATTERN_OPS
-               | BPCHAR_PATTERN_OPS '''
-    t[0] = t[1]
+def p_index_null_options(t):
+    '''null_options : NULLS FIRST
+                    | NULLS LAST
+                    | empty'''
+    if t[1] == None:
+        t[0] = 'NULLS FIRST'
+    else:
+        t[0] = str(t[1]) + ' ' + str(t[2])
+    
+def p_empty(t):
+    'empty :'
+    pass
 
 #?######################################################
 # TODO        GRAMATICA DROP INDEX
@@ -3308,12 +3292,12 @@ def p_AlterIndex(t):
     t[0] = Create_AlterIndex(t[3],t[6])
 
 def p_Alter_Index_Column(t):
-    'alterindex_insrt : ALTER INDEX ID ALTER ID opcionIndex PTCOMA'
-    t[0] = Create_AlterIndexColumn(t[3],t[5],t[6])
+    'alterindex_insrt : ALTER INDEX ID ALTER COLUMN ID opcionIndex PTCOMA'
+    t[0] = Create_AlterIndexColumn(t[3],t[6],t[7])
 
 def p_Alter_Index_Column2(t):
-    'alterindex_insrt : ALTER INDEX IF EXISTS ID ALTER ID opcionIndex PTCOMA'
-    t[0] = Create_AlterIndexColumn(t[5],t[7],t[8])
+    'alterindex_insrt : ALTER INDEX IF EXISTS ID ALTER COLUMN ID opcionIndex PTCOMA'
+    t[0] = Create_AlterIndexColumn(t[5],t[8],t[9])
 
 def p_Alter_Index_Column_Opciones(t):
     '''opcionIndex : ENTERO'''
