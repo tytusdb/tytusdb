@@ -69,7 +69,7 @@ def list_expressions_groupby(array, enviroment):
         if len(lista1) == len(lista3):
             dictionary = convert_dictionary(lista3, lista1)
             table = pd.DataFrame(dictionary)
-            print(table)
+            # print(table)
             lista5.append(table)
             lista5.append(lista2)
             lista5.append(lista4)
@@ -111,7 +111,7 @@ def loop_list_of_order_by(array, enviroment):
                 lista1.append(valores[1])
             else:
                 lista1.append(valores.value)
-        print(lista1)
+        # print(lista1)
         return lista1
     except:
         desc = "FATAL ERROR, Funciones Select"

@@ -1,5 +1,5 @@
 from error import error
-
+import optimizar as opt 
 errores = list()
 
 reservadas = {
@@ -379,6 +379,7 @@ precedence = (
 def p_init(t) :
     'init            : instrucciones'
     t[0] = t[1]
+    t[0]['opt'] = opt.getreporte()
 
 def p_instrucciones_lista(t) :
     'instrucciones : instrucciones instruccion'
@@ -2094,6 +2095,11 @@ def p_alterpi(t):
     text = "INDEX " + t[2] + " " +t[3] + " ALTER " + t[5] + " " + t[6] + ";"
     t[0] =  {'text': text, 'c3d' : '' }
 
+def p_alterpiN(t):
+    '''alter    : INDEX iexi ID ALTER coluem ENTERO PTCOMA'''
+    text = "INDEX " + t[2] + " " +t[3] + " ALTER " + t[5] + " " + t[6] + ";"
+    t[0] =  {'text': text, 'c3d' : '' }  
+
 def p_alterpiiexi(t):
     '''iexi    : IF EXISTS
                 | '''
@@ -2476,7 +2482,9 @@ def p_createfunction(t):
     'createfunction :  FUNCTION ID PARENIZQ argumentosp PARENDER RETURNS tipo AS body LANGUAGE ID PTCOMA'
     ftext = '@with_goto\n' + 'def ' + t[2] + '():\n'
     ftext += t[4]['text']
-    ftext += t[9]['text']
+    texxto = t[9]['text']
+    texxto = opt.optimizar(texxto)
+    ftext += texxto
     #----Validando función--------
     l.readData(datos)
     printList = ''
@@ -2642,9 +2650,28 @@ def p_statement_b(t):
 
 def p_asigment(t):
     '''asigment : ID igualdad fasign'''
+    text = ""
     text = t[3]['c3d']
     text += '    '  + t[1] + ' = ' + t[3]['text'] + '\n'
+    if 'flag' in t[3]:
+        prueba = t[1] + " = "+ t[3]['flag']
+        if "+" in prueba:
+            if not opt.regla8(prueba):
+                    text = ""
+        elif "-" in prueba:
+            if not opt.regla9(prueba):
+                    text = ""
+        elif "*" in prueba:
+            if not opt.regla10(prueba):
+                    text = ""
+        elif "/" in prueba:
+            if not opt.regla11(prueba):
+                    text = ""
+        else:
+            text = t[3]['c3d']
+            text += '    '  + t[1] + ' = ' + t[3]['text'] + '\n'
     t[0] = {'text': text, 'c3d': ''}
+
 
 def p_finasigment_conds(t):
     '''fasign   : condiciones PTCOMA'''
@@ -2654,7 +2681,7 @@ def p_finasigment_conds(t):
 def p_finasigment_args(t):
     '''fasign   : argument PTCOMA'''
     text = t[1]['tflag']
-    t[0] =  {'text': text, 'c3d' : t[1]['c3d'] }
+    t[0] =  {'text': text, 'c3d' : t[1]['c3d'],'flag': t[1]['text'] }
     
 def p_finasigment_inst(t):
     '''fasign   : instruccion'''
@@ -2819,3 +2846,7 @@ parser = yacc.yacc()
 
 def parse(input) :
     return parser.parse(input)
+
+def getReporteopti():
+    f = opt.getreporte()
+    return f

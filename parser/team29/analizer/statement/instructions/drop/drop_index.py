@@ -1,10 +1,9 @@
 from analizer.abstract import instruction
 from analizer.typechecker.Metadata import File
-from analizer.reports import Nodo
+from analizer.reports.Nodo import Nodo
 
 
 class Drop(instruction.Instruction):
-
     def __init__(self, exists, names, row, column):
         instruction.Instruction.__init__(self, row, column)
         self.names = names
@@ -23,10 +22,18 @@ class Drop(instruction.Instruction):
             else:
                 Index.pop(name)
                 result.append("INDEX : " + name + " eliminado")
-        
-        File.exportFile(Index,"Index")
+
+        File.exportFile(Index, "Index")
         return result
 
-
     def dot(self):
-        pass
+        new = Nodo("DROP_INDEX")
+
+        if self.exists:
+            ifex = Nodo("IF_EXISTS")
+            new.addNode(ifex)
+        
+        for n in self.names:
+            idn = Nodo(str(n))
+            new.addNode(idn)
+        return new

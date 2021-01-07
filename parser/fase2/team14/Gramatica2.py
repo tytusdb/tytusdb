@@ -1046,24 +1046,24 @@ def p_ALTER(t):
         t[0] = AlterTable(str(t[3]), t[4])
 
 def p_ALTERIDX(t):
-    'ALTER : alter index id alter id'
-    listaBNF.append("ALTER ::= alter index " + str(t[3]) + " alter " + str(t[5]))
-    t[0] = AlterIndex(str(t[3]),False,False,str(t[5]))
+    'ALTER : alter index id alter EXP'
+    listaBNF.append("ALTER ::= alter index " + str(t[3]) + " alter EXP")
+    t[0] = AlterIndex(str(t[3]),False,False,t[5].valor)
 
 def p_ALTERIDX1(t):
-    'ALTER : alter index if exist id alter id'
-    listaBNF.append("ALTER ::= alter index if exists " + str(t[5]) + " alter " + str(t[7]))
-    t[0] = AlterIndex(str(t[5]),True,False,str(t[7]))
+    'ALTER : alter index if exist id alter EXP'
+    listaBNF.append("ALTER ::= alter index if exists " + str(t[5]) + " alter EXP")
+    t[0] = AlterIndex(str(t[5]),True,False,t[7].valor)
 
 def p_ALTERIDX2(t):
-    'ALTER : alter index id alter column id'
-    listaBNF.append("ALTER ::= alter index " + str(t[3]) + " alter column " + str(t[6]))
-    t[0] = AlterIndex(str(t[3]),False,True,str(t[6]))
+    'ALTER : alter index id alter column EXP'
+    listaBNF.append("ALTER ::= alter index " + str(t[3]) + " alter column EXP")
+    t[0] = AlterIndex(str(t[3]),False,True,t[6].valor)
 
 def p_ALTERIDX3(t):
-    'ALTER : alter index if exist id alter column id'
-    listaBNF.append("ALTER ::= alter index if exists " + str(t[5]) + " alter column " + str(t[8]))
-    t[0] = AlterIndex(str(t[5]),True,True,str(t[8]))
+    'ALTER : alter index if exist id alter column EXP'
+    listaBNF.append("ALTER ::= alter index if exists " + str(t[5]) + " alter column EXP")
+    t[0] = AlterIndex(str(t[5]),True,True,t[8].valor)
 
 
 def p_LOP(t):
@@ -1498,7 +1498,6 @@ def p_LIMIT(t):
             t[0] = Limit(t[2], t[4],str(t[1]) + " " + str(t[2]) + " " + str(t[3]) + " " + str(t[4]))
         elif str(t[1]).lower() == 'offset':
             t[0] = Limit(t[4], t[2],str(t[1]) + " " + str(t[2]) + " " + str(t[3]) + " " + str(t[4]))
-
 
 
 def p_WHERE(t):
