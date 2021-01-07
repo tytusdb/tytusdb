@@ -945,8 +945,13 @@ def p_valortipo(p):
                 |   TEXTO
                 |   FALSE
                 |   TRUE
+                |  callfunc
     """
-    p[0] = str(p[1])
+    
+    if isinstance(p[1],llamadaF):
+        p[0] = p[1]
+    else:
+        p[0] = str(p[1])
     insertProduction(p.slice, len(p.slice))
 
 def p_valornume(p):
@@ -2688,9 +2693,7 @@ def p_return(t):
     'rtrn : RETURN newexp PUNTOCOMA'
     t[0] = rtrn(t[2])
 
-def p_newexp_callfunc(t):
-    'newexp : callfunc'
-    t[0] = t[1]
+
 
 
 def p_newexp_id(t):
@@ -2727,6 +2730,8 @@ def p_newexpFun(t):
             | funcn
     '''
     t[0] = t[1]
+
+
 
 def p_mathn(t):
     '''
@@ -2858,6 +2863,9 @@ def p_funcn(t):
     elif t[1].lower() == 'convert' : t[0] = fun_convertp(t[3],t[5],None)
     elif t[1].lower() == 'now' : t[0] = fun_nowp(None)
 
+def p_newexp_callfunc(t):
+    'newexp : callfunc'
+    t[0] = t[1]
 
 
 def p_nlexps(t):

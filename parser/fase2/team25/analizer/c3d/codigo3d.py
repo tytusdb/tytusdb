@@ -145,7 +145,7 @@ class Codigo3d:
                         else:# REPLACE
                                 # * SI SALE TODO BIEN
                                 tn = self.getNewTemporal()
-                                salida = f'\t{tn} = {coincidencia}'
+                                salida = f'\t{tn} = {coincidencia}\n\t{tn} = RETURN[0]'
                                 if goToMain:
                                     self.addToMain(salida)
                                 else:
@@ -187,7 +187,7 @@ class Codigo3d:
                         else:# REPLACE
                             # * SI SALE TODO BIEN
                             tn = self.getNewTemporal()
-                            salida = f'\t{tn} = {coincidencia}'
+                            salida = f'\t{tn} = {coincidencia}\n\t{tn} = RETURN[0]'
                             if goToMain:
                                 self.addToMain(salida)
                             else:

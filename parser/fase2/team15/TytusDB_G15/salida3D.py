@@ -5,75 +5,75 @@ inter = Intermedio()
 
 @with_goto  # Decorador necesario.
 def main():
-	Sra = -1
-	Ss0 = [0] * 10000
+	pos = -1
+	arr = [0] * 10000
 
-	print(inter.procesar_funcion0())
-	print(inter.procesar_funcion1())	
+	inter.procesar_funcionCreateDatabase0()
+	inter.procesar_funcionUseDatabase1()	
 	ta0 = 'INICIO CALIFICACION FASE 2'	
-	Sra = Sra + 1	
-	Ss0[Sra] = 1	
+	pos = pos + 1	
+	arr[pos] = 1	
 	goto. myFuncion	
 	label. retorno1
-	print(inter.procesar_funcion2())
-	print(inter.procesar_funcion3())
-	print(inter.procesar_funcion4())
-	print(inter.procesar_funcion5())
-	print(inter.procesar_funcion6())
-	print(inter.procesar_funcion7())
-	print(inter.procesar_funcion8())
-	print(inter.procesar_funcion9())
-	print(inter.procesar_funcion10())
-	print(inter.procesar_funcion11())
-	print(inter.procesar_funcion12())
-	print(inter.procesar_funcion13())	
+	inter.procesar_funcionCreateTable2()
+	inter.procesar_funcionCreateIndex3()
+	inter.procesar_funcionCreateTable4()
+	inter.procesar_funcionCreateIndex5()
+	inter.procesar_funcionInsert6()
+	inter.procesar_funcionInsert7()
+	inter.procesar_funcionInsert8()
+	inter.procesar_funcionInsert9()
+	inter.procesar_funcionInsert10()
+	inter.procesar_funcionInsert11()
+	inter.procesar_funcionInsert12()
+	inter.procesar_funcionInsert13()	
 	ta1 = 'tbProducto'	
 	ta2 = 8	
-	Sra = Sra + 1	
-	Ss0[Sra] = 2	
+	pos = pos + 1	
+	arr[pos] = 2	
 	goto. ValidaRegistros	
 	label. retorno2
-	print(inter.procesar_funcion14())
-	print(inter.procesar_funcion15())	
+	inter.procesar_funcionInsert14()
+	inter.procesar_funcionUpdate15()	
 	ta1 = 'tbProductoUp'	
 	ta2 = 8	
-	Sra = Sra + 1	
-	Ss0[Sra] = 3	
+	pos = pos + 1	
+	arr[pos] = 3	
 	goto. ValidaRegistros	
 	label. retorno3
-	print(inter.procesar_funcion16())	
-	Sra = Sra + 1	
-	Ss0[Sra] = 4	
+	inter.procesar_funcionInsert16()	
+	pos = pos + 1	
+	arr[pos] = 4	
 	goto. CALCULOS	
 	label. retorno4
-	print(inter.procesar_funcion17())
-	print(inter.procesar_funcion18())
-	print(inter.procesar_funcion19())	
-	Sra = Sra + 1	
-	Ss0[Sra] = 5	
+	inter.procesar_funcionInsert17()
+	inter.procesar_funcionCreateTable18()
+	inter.procesar_funcionCreateIndex19()	
+	pos = pos + 1	
+	arr[pos] = 5	
 	goto. sp_validainsert	
 	label. retorno5	
 	ta1 = 'tbbodega'	
 	ta2 = 5	
-	Sra = Sra + 1	
-	Ss0[Sra] = 6	
+	pos = pos + 1	
+	arr[pos] = 6	
 	goto. ValidaRegistros	
 	label. retorno6
-	print(inter.procesar_funcion20())	
-	Sra = Sra + 1	
-	Ss0[Sra] = 7	
+	inter.procesar_funcionInsert20()	
+	pos = pos + 1	
+	arr[pos] = 7	
 	goto. sp_validaupdate	
 	label. retorno7
-	print(inter.procesar_funcion21())	
+	inter.procesar_funcionDelete21()	
 	ta1 = 'tbbodega'	
 	ta2 = 4	
-	Sra = Sra + 1	
-	Ss0[Sra] = 8	
+	pos = pos + 1	
+	arr[pos] = 8	
 	goto. ValidaRegistros	
 	label. retorno8
-	print(inter.procesar_funcion22())
-	print(inter.procesar_funcion23())
-	print(inter.Reportes())	
+	inter.procesar_funcionInsert22()
+	inter.procesar_funcionSelect23()
+	inter.Reportes()	
 	goto. end	
 	
 	label. myFuncion	
@@ -159,31 +159,30 @@ def main():
 	goto. retorno	
 	
 	label. sp_validainsert
-	print(inter.procesar_funcion24())
-	print(inter.procesar_funcion25())
-	print(inter.procesar_funcion26())
-	print(inter.procesar_funcion27())
-	print(inter.procesar_funcion28())	
+	inter.procesar_funcionInsert24()
+	inter.procesar_funcionInsert25()
+	inter.procesar_funcionInsert26()
+	inter.procesar_funcionInsert27()
+	inter.procesar_funcionInsert28()	
 	print('INSERT  ')	
 	goto. retorno	
 	
 	label. sp_validaupdate	
 	print('UPDATE  ')
-	print(inter.procesar_funcion29())
-	print(inter.procesar_funcion30())	
+	inter.procesar_funcionUpdate29()	
 	goto. retorno	
 	
 	label. retorno	
-	Ssp = Ss0[Sra]	
-	Sra = Sra - 1	
-	if Ssp == 1: goto. retorno1	
-	if Ssp == 2: goto. retorno2	
-	if Ssp == 3: goto. retorno3	
-	if Ssp == 4: goto. retorno4	
-	if Ssp == 5: goto. retorno5	
-	if Ssp == 6: goto. retorno6	
-	if Ssp == 7: goto. retorno7	
-	if Ssp == 8: goto. retorno8
+	posR = arr[pos]	
+	pos = pos - 1	
+	if posR == 1: goto. retorno1	
+	if posR == 2: goto. retorno2	
+	if posR == 3: goto. retorno3	
+	if posR == 4: goto. retorno4	
+	if posR == 5: goto. retorno5	
+	if posR == 6: goto. retorno6	
+	if posR == 7: goto. retorno7	
+	if posR == 8: goto. retorno8
 
 	label .end
 	return

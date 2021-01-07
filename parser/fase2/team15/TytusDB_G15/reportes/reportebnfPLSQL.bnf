@@ -130,24 +130,6 @@
  
 <instrucciones_funct_list> ::= <instrucciones_funct_list> <instrucciones_funct_sent>
  
-<instrucciones_funct_sent> ::= <select_insrt> PTCOMA
- 
-<select_insrt> ::= SELECT <opcion_select_tm>
- 
-<opcion_select_tm> ::= <opcion_select_lista> FROM <opciones_sobrenombres> 
- 
-<opciones_sobrenombres> ::= <opcion_sobrenombre>
- 
-<opcion_sobrenombre> ::= ID 
- 
-<opcion_select_lista> ::= <opciones_select_lista>
- 
-<opciones_select_lista> ::= <opcion_select>
- 
-<opcion_select> ::= POR
- 
-<instrucciones_funct_list> ::= <instrucciones_funct_list> <instrucciones_funct_sent>
- 
 <instrucciones_funct_sent> ::= <asignacion> | <declaracion> | <imprimir> | <sentencia_if> 
  
 <drop_insrt> ::= UPDATE TABLE <lista_drop_id> PTCOMA
@@ -524,9 +506,13 @@
  
 <createIndex> ::= CREATE INDEX ID ON ID <opc_index> PTCOMA
  
-<opc_index> ::= PARA <opc_index_par> PARC
+<empty> ::= 
  
-<opc_index_par> ::= LOWER PARA ID PARC 
+<empty> ::= 
+ 
+<empty> ::= 
+ 
+<empty> ::= 
  
 <instrucciones_globales_list> ::= <instrucciones_globales_list><instrucciones_global_sent>
  
@@ -1628,13 +1614,13 @@
  
 <instrucciones_global_sent> ::= <funciones> | <llamada_funcion> | <createDB_insrt> | <show_databases_instr> 
  
-<createIndex> ::= CREATE UNIQUE INDEX ID ON ID <opc_index> PTCOMA
+<createIndex> ::= CREATE INDEX ID ON ID <opc_index> PTCOMA
  
-<opc_index> ::= PARA <opc_index_par> PARC
+<empty> ::= 
  
-<opc_index_par> ::= <campos_c> 
+<empty> ::= 
  
-<campos_c> ::= ID
+<empty> ::= 
  
 <instrucciones_globales_list> ::= <instrucciones_globales_list><instrucciones_global_sent>
  
@@ -1688,13 +1674,13 @@
  
 <instrucciones_global_sent> ::= <funciones> | <llamada_funcion> | <createDB_insrt> | <show_databases_instr> 
  
-<createIndex> ::= CREATE UNIQUE INDEX ID ON ID <opc_index> PTCOMA
+<createIndex> ::= CREATE INDEX ID ON ID <opc_index> PTCOMA
  
-<opc_index> ::= PARA <opc_index_par> PARC
+<empty> ::= 
  
-<opc_index_par> ::= <campos_c> 
+<empty> ::= 
  
-<campos_c> ::= ID
+<empty> ::= 
  
 <instrucciones_globales_list> ::= <instrucciones_globales_list><instrucciones_global_sent>
  
