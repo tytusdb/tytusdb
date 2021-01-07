@@ -613,15 +613,14 @@ def p_call_functions_or_procedure(p):
     noLine = p.slice[1].lineno
     if p.slice[1].type == 'EXECUTE':
         if len(p) == 5: #Tercera produccion
-            # Call(p[2], None)
             p[0] = Funcion(p[2], [], [], None, False, True, noLine, noColumn)
         else:           #Cuarta produccion
             p[0] = Funcion(p[2], p[4], [], None, False, True, noLine, noColumn)
-    # else:
-    #     if len(p) == 5: #Primera produccion
-    #         Call(p[1], p[3])
-    #     else:           #Segunda produccion
-    #         Call(p[1], None)
+    else:
+        if len(p) == 5: #Primera produccion
+            p[0] = Funcion(p[1], p[3], [], None, False, True, noLine, noColumn)
+        else:           #Segunda produccion
+            p[0] = Funcion(p[1], [], [], None, False, True, noLine, noColumn)
 
 
 def p_option_col(p):  # TODO verificar
@@ -1093,9 +1092,9 @@ def p_staments(p):
 
     elif p.slice[1].type == "RETURN":
         if len(p) == 3:     #tercera produccion
-            p[0] = ReturnFuncProce(None)
+            p[0] = [ReturnFuncProce(None)]
         else:               #cuarta produccion
-            p[0] = ReturnFuncProce(p[2])
+            p[0] = [ReturnFuncProce(p[2])]
     
 
 def p_options_statements(p):
