@@ -459,7 +459,7 @@ def p_inicio_1(t) :
     salida+="\n"
     a+=salida
     a+="if __name__ == \"__main__\":\n"
-    a+="    main()"
+    a+="   main()"
     t[0]=a
 
     
@@ -3328,7 +3328,7 @@ def p_if_2(t):
     '''
     j=t[2].replace("\\'",'"')
     a= "if "+str(j)+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
-    a+= "label .L"+str(h.conteoEtiquetas)+"\n  "+str(t[4])+"\n"
+    a+= "label .L"+str(h.conteoEtiquetas)+"\n"+str(t[4])+"\n"
     h.conteoEtiquetas+=1
     t[0]=a 
 def p_if_3(t):
