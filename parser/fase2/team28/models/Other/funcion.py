@@ -65,11 +65,8 @@ class Funcion(Instruction):
 
         ThreeAddressCode().newFunction()
 
-        newAmbito = None
-        if self.isNew:
-            newAmbito = environment
-        else:
-            newAmbito = Ambito(environment)
+        
+        newAmbito = Ambito(environment)
 
         pos = 0
         var_array = []
