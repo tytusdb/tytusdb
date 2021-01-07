@@ -28,7 +28,7 @@ def rollback(nombre):
 def __init__():
     global lista_db
     lista_db = []
-    #lista_db = rollback("prueba")
+    lista_db = rollback("prueba")
 __init__()
 
 
@@ -448,20 +448,19 @@ def alterTableAddUnique(database, table, indexName, columns):
         lista = showTables(database)
         if lista != None:
             if table in lista:
-                if nodo[5] != None:
-                    dict = nodo[3]
-                    if table in dict:
-                        tab = verificarmodo(dict[table]).extractTable(database, table)
-                    else:
-                        tab = verificarmodo(nodo[1]).extractTable(database, table)
-                    try:
-                        for columna in columns:
-                            if columna > len(tab[0]):
-                                return 4
-                        nodo[5].append([table,indexName,columns])
-                        return 0
-                    except:
-                        return 1
+                dict = nodo[3]
+                if table in dict:
+                    tab = verificarmodo(dict[table]).extractTable(database, table)
+                else:
+                    tab = verificarmodo(nodo[1]).extractTable(database, table)
+                try:
+                    for columna in columns:
+                        if columna > len(tab[0]):
+                            return 4
+                    nodo[5].append([table,indexName,columns])
+                    return 0
+                except:
+                    return 1
     else:
         return 2
 
@@ -471,14 +470,13 @@ def alterTableDropUnique(database, table, indexName):
         lista = showTables(database)
         if table in lista:
             try:
-                if nodo[5] != None:
-                    indice = nodo[5]
-                    c=0
-                    for i in indice:
-                        if i[0] == table:
-                            indice.pop(c)
-                        c = c + 1
-                        return 0
+                indice = nodo[5]
+                c=0
+                for i in indice:
+                    if i[0] == table:
+                        indice.pop(c)
+                    c = c + 1
+                    return 0
             except:
                 return 1
         else:
@@ -491,21 +489,40 @@ def alterTableAddIndex(database, table, indexName, columns):
     if nodo != None:
         lista = showTables(database)
         if table in lista:
-            if nodo[3]!=None:
-                dict = nodo[3]
-                if table in dict:
-                    tab = verificarmodo(dict[table]).extractTable(database, table)
-                else:
-                    tab = verificarmodo(nodo[1]).extractTable(database, table)
-                try:
-                    if len(tab)!=0:
-                        for columna in columns:
-                            if columna > len(tab[0]):
-                                return 4
-                    nodo[5].append([table, indexName, columns])
+            dict = nodo[3]
+            if table in dict:
+                tab = verificarmodo(dict[table]).extractTable(database, table)
+            else:
+                tab = verificarmodo(nodo[1]).extractTable(database, table)
+            try:
+                if len(tab)!=0:
+                    for columna in columns:
+                        if columna > len(tab[0]):
+                            return 4
+                nodo[5].append([table, indexName, columns])
+                return 0
+            except:
+                return 1
+        else:
+            return 3
+    else:
+        return 2
+
+def alterTableDropIndex(database, table, indexName):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if table in lista:
+            try:
+                indice = nodo[5]
+                c=0
+                for i in indice:
+                    if i[0] == table:
+                        indice.pop(c)
+                    c = c + 1
                     return 0
-                except:
-                    return 1
+            except:
+                return 1
         else:
             return 3
     else:
@@ -517,15 +534,14 @@ def alterTableAddFK(database, table, indexName, columns,  tableRef, columnsRef):
         try:
             lista = showTables(database)
             if table in lista and tableRef in lista:
-                if nodo[5]!=None:
-                    indices = nodo[5]
-                    for i in indices:
-                        if i[0] == table and i[1]==indexName:
-                            if len(columns) != len(columnsRef):
-                                return 4
-                            else:
-                                fk = nodo[6]
-                                fk.append([indexName,table,columns,tableRef,columnsRef])
+                indices = nodo[5]
+                for i in indices:
+                    if i[0] == table and i[1]==indexName:
+                        if len(columns) != len(columnsRef):
+                            return 4
+                        else:
+                            fk = nodo[6]
+                            fk.append([indexName,table,columns,tableRef,columnsRef])
             else:
                 return 3
             return 0
@@ -540,20 +556,20 @@ def alterTableDropFK(database, table, indexName):
         lista = showTables(database)
         if table in lista:
             try:
-                if nodo[6]!=None:
-                    indice = nodo[6]
-                    c = 0
-                    for i in indice:
-                        if i[0] == indexName and i[1]==table:
-                            indice.pop(c)
-                        c = c + 1
-                        return 0
+                indice = nodo[6]
+                c = 0
+                for i in indice:
+                    if i[0] == indexName and i[1]==table:
+                        indice.pop(c)
+                    c = c + 1
+                    return 0
             except:
                 return 1
         else:
             return 3
     else:
         return 2
+
 
 def alterTableDropIndex(database, table, indexName):
     nodo = buscar(database)
@@ -561,14 +577,13 @@ def alterTableDropIndex(database, table, indexName):
         lista = showTables(database)
         if table in lista:
             try:
-                if nodo[5] != None:
-                    indice = nodo[5]
-                    c=0
-                    for i in indice:
-                        if i[0] == indexName and i[1] == table:
-                            indice.pop(c)
-                        c = c + 1
-                        return 0
+                indice = nodo[6]
+                c=0
+                for i in indice:
+                    if i[0] == indexName and i[1] == table:
+                        indice.pop(c)
+                    c = c + 1
+                    return 0
 
             except:
                 return 1
@@ -576,59 +591,59 @@ def alterTableDropIndex(database, table, indexName):
             return 3
     else:
         return 2
+        
+def graphDSD(database):
+    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        for tabla in lista:
+            grafica += tabla + "[\nlabel="+tabla+"\nshape=record\n];\n"
+        fk = nodo[6]
+        c = 0
+        bandera = False
+        for tabla in lista:
+            for t in nodo[6]:
+                if bandera == False:
+                    if tabla == t[3]:
+                        grafica += t[1]+":f1 -> "+tabla+":f2 [\nid = "+str(c)+"\n];\n"
+                        bandera = True
+                bandera = False
+            c = c + 1
 
-def decrypt(cipherbackup,clave):
-    encrypt=""
-    devuelve = ""
-    try:
-        if cipherbackup == None or cipherbackup == "":
-            archivo=open(clave+".txt","r")
-            encrypt=archivo.read()
+    grafica +="}"
+    return grafica
 
-        else:
-            encrypt=cipherbackup
+def graphDF(database, table):
+    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        for tabla in lista:
+            if tabla == table:
+                grafica += tabla + "[\nlabel=" + tabla + "\nshape=record\n];\n"
+        fk = nodo[6]
+        c = 0
+        bandera = False
+        for tabla in lista:
+            if tabla ==table:
+                for t in nodo[6]:
+                    if bandera == False:
+                        if tabla == t[3]:
+                            grafica += t[1] + ":f1 -> " + tabla + ":f2 [\nid = " + str(c) + "\n];\n"
+                            bandera = True
+                    bandera = False
+                c = c + 1
 
-        llave = open(clave+".key","r").read()
-        f = Fernet(llave)
-        decrypted = f.decrypt(encrypt.encode())
-        textoOriginal = decrypted.decode()
-        devuelve = "0\n"+textoOriginal
-    except:
-        devuelve = "1"
-    return devuelve
+        for tabla in lista:
+            if tabla ==table:
+                for t in nodo[6]:
+                    if bandera == False:
+                        if tabla == t[1]:
+                            grafica += t[1] + ":f1 -> " + t[3] + ":f2 [\nid = " + str(c) + "\n];\n"
+                            bandera = True
+                    bandera = False
+                c = c + 1
 
-def encrypt(backup,clave):
-    devuelve = ""
-    encoded = backup.encode()
-    key = Fernet.generate_key()
-    llaveBin = open(clave+".key","wb")
-    llaveBin.write(key)
-    try:
-        f = Fernet(key)
-        encrypted = f.encrypt(encoded)
-        encriptado = encrypted.decode()
-        #creando el archivo
-        archivo = open(clave+".txt","w")
-        archivo.write(encrypted.decode())
-        archivo.close()
-        devuelve = "0\n"+encriptado
-    except:
-        devuelve = "1"
-    return devuelve
-
-    #f = Fernet(clave)
-    #textoencriptado = f.encrypt(backup.encode("utf-8"))
-    #return textoencriptado
-
-    
-
-    #print(clave.encode())
-    #pss = base64.encodebytes(clave.encode())
-    #f = Fernet(pss)
-    #textodesencriptado = f.decrypt(cipherbackup)
-    #return textodesencriptado.decode()
-
-
-os.system('cls')
-print(encrypt("este es el mensaje","llave"))
-print(decrypt("","llave"))
+    grafica += "}"
+    return grafica
