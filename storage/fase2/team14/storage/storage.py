@@ -8,7 +8,8 @@ from .AVLMode import avlMode as AVLM
 from .jsonMode import jsonMode as jsonM
 from .DictMode import DictMode as DictM
 import os
-
+import hashlib
+import zlib
 
 #*---------------------------------------others----------------------------------------------*
 
@@ -630,4 +631,33 @@ def truncate(database: str, table: str) -> int:
         return result
     except:
         return 1
+    
+#Genera el checksum de una base de datos
+def checksumDatabase(database: str, mode: str) -> str:
+    try:
+        if database in databasesinfo[0]:
+            if mode.lower() == 'md5':
+                hash = hashlib.md5()
+            elif mode.lower() == 'sha256':
+                hash = hashlib.sha256()
+            else:
+                return None
+            for key, value in list(databasesinfo[1][database].items()):
+                if value['mode'] == 'avl':
+                    hash.update(open('data/avlMode/' + database + '_' + key + '.tbl', 'rb').read())
+                elif value['mode'] == 'b':
+                    hash.update(open('data/BMode/' + database + '-' + key + '-' + 'b'+'.bin', 'rb').read())
+                elif value['mode'] == 'bplus':
+                    hash.update(open('data/BPlusMode/' + database + '/' + key + '/' + key + '.bin', 'rb').read())
+                elif value['mode'] == 'dict':
+                    hash.update(open('data/' + database + '/' + key + '.bin', 'rb').read())
+                elif value['mode'] == 'isam':
+                    hash.update(open('data/ISAMMode/tables/' + database + key + '.bin', 'rb').read())
+                elif value['mode'] == 'json':
+                    hash.update(open('data/json/' + database + '-' + key, 'rb').read())
+                elif value['mode'] == 'hash':
+                    hash.update(open('data/hash/' + database + '/' + key + '.bin', 'rb').read())
+            return hash.hexdigest()
+    except:
+        return None
      
