@@ -67,7 +67,38 @@ class Reporte_Gramaticas:
                 textoAsc += '<mostrar> ::= "SHOW" "DATABASES" { mostrar.val = MostrarDB() } \n'
             elif isinstance(instruccion,MostrarTB):
                 textoAsc += '<mostrar> ::= "SHOW" "TABLE" { mostrar.val = MostrarTB() } \n'
-
+            elif isinstance(instruccion,Indice):
+                textoAsc += '<crear> ::= "CREATE" <unicidad_index> "INDEX" ID "ON" ID <tipo_index> "(" <lista_exp> <value_direction> <value_rang> ")" <cond_where> { crear.val = Indice(Operando_ID(t[4]),Operando_ID(t[6]),Operando_Booleano(t[7]),Operando_Booleano(t[2]),t[9],t[10])} \n'
+                textoAsc += '<unicidad_index> ::= "UNIQUE" { unicidad_index.val = true; } \n'
+                textoAsc += '<unicidad_index> ::= "empty" { unicidad_index.val = false; } \n'
+                textoAsc += '<cond_where> ::= "WHERE" <exp>{ cond_where.val = t[2] } '
+                textoAsc += '<value_direction> : ASC | DESC  \n'
+            elif isinstance(instruccion,Funcion):
+                textoAsc += '<crear> ::= "CREATE" <reemplazar> "FUNCTION" <ID> "(" <lparametros> ")" "RETURNS" <tipo> <lenguaje_funcion> "AS" <dollar_var> <cuerpo_funcion> <dollar_var> <lenguaje_funcion>{ crear.val = Funcion(t[2],t[4],t[6],t[9],t[12],t[13])  }  \n'
+                textoAsc += '<reemplazar> ::= "OR" "REPLACE" \n'
+                textoAsc += '             |  empty  { reemplazar.val = t[0] } \n'
+                textoAsc += '<lparametros> ::= <lparametros> "," <parametro> \n'
+                textoAsc += '               | <parametro> { lparametros.append(t[3]); lparametros.val = t[1];  }  \n'
+                textoAsc += '<lenguaje_funcion> ::= "LANGUAGE" "PLPSQL" \n'
+                textoAsc += '                   | "LANGUAGE" "SQL"  { lenguaje_funcion.val = t[2]} \n'
+            elif isinstance(instruccion,Drop_Function):
+                textoAsc += '<liberar> ::= "DROP" "FUNCTION" <lnombres>  { liberar.val = Drop_Function(t[3]) }  \n'
+                textoAsc += '<lnombres> ::= <lnombres> "," "ID" \n'
+                textoAsc += '            | "ID" { lnombres.append(t[3]); lnombres.val = t[1]; } \n' 
+            elif isinstance(instruccion,Drop_Procedure):
+                textoAsc += '<liberar> ::= "DROP" "PROCEDURE" <lnombres>  { liberar.val = Drop_Procedure(t[3]) }  \n'
+                textoAsc += '<lnombres> ::= <lnombres> "," "ID" \n'
+                textoAsc += '            | "ID" { lnombres.append(t[3]); lnombres.val = t[1]; } \n' 
+            elif isinstance(instruccion,Procedimiento):
+                textoAsc += '<crear> ::= "CREATE" <reemplazar> "PROCEDURE" <ID> "(" <lparametros> ")"  <lenguaje_funcion> "AS" <dollar_var> <cuerpo_funcion> <dollar_var> { crear.val = Procedimiento(t[2],t[4],t[6],t[9],t[12],t[13])  }  \n' 
+                textoAsc += '<reemplazar> ::= "OR" "REPLACE" \n'
+                textoAsc += '             |  empty  { reemplazar.val = t[0] } \n'
+                textoAsc += '<lparametros> ::= <lparametros> "," <parametro> \n'
+                textoAsc += '               | <parametro> { lparametros.append(t[3]); lparametros.val = t[1];  }  \n'
+                textoAsc += '<lenguaje_funcion> ::= "LANGUAGE" "PLPSQL" \n'
+                textoAsc += '                   | "LANGUAGE" "SQL"  { lenguaje_funcion.val = t[2]} \n'
+            else:
+                print("No se incluyo en el reporte")
             tam = tam + 1
 
         textoAsc += '``` \n '
