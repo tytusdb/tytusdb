@@ -14,5 +14,5 @@ def search_symbol(name_):
 #MODIFY THE VALUE OF A SYMBOL, THE type_ VERIFICATION MUST BE DONE BEFORE EXECUTE THIS
 def modify_symbol(name_,value_):
     if name_ in symbolTable:
-        symbolTable[name_]=[symbolTable[name_][1],value_] 
+        symbolTable[name_][1]=value_ 
 

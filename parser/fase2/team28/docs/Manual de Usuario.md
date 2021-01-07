@@ -68,6 +68,66 @@ Opciones disponibles:
     <img src="../assets/img/reportes.png" width="300">
 </div>
 
+##  FASE 2, OVERVIEW
+***
+Se implementa el lenguaje procedural en la nueva fase 2 incluyendo los procedimientos almacenados, las funciones y los índices.
+Dentro de las funciones y procedimientos se hacen uso de las instrucciones de programación básicas como lo es la declaración y asignación de variables, la realización de operaciones operar, así como los condicionales y los tipo case que forman parte de elementos condicionales.
+
+La nueva versión del Query Tool presenta en la parte izquierda un editor de texto y en la parte derecha una consola con los resultados obtenidos.
+Se ha implementado la función de generación de código 3 direcciones, un código a más bajo nivel que simula las instrucciones en alto nivel con una estructura similar a la de ensamblador.
+
+<div align="center">
+    <p align="center">
+        Consola y editor del Query Tool
+    </p>
+    <img src="../assets/img/img1_f2.png" width="300">
+</div>
+
+Se implementó la optimización del código 3 direcciones haciendo uso de las reglas de mirilla, donde se toma como entrada el código 3 direcciones obtenido de la traducción de la entrada procedural y se aplica las reglas necesarias generando un reporte que muestra las reglas aplicadas al código.
+
+<div align="center">
+    <p align="center">
+        Consola y editor del Query Tool
+    </p>
+    <img src="../assets/img/img2_f2.png" width="300">
+</div>
+
+Teniendo la entrada en código 3 direcciones se puede optimizar, de ser así se puede ver en el reporte de optimización las reglas que han sido aplicadas mostrando el código antiguo y el nuevo código.
+
+<div align="center">
+    <p align="center">
+        Reporte de optimización
+    </p>
+    <img src="../assets/img/img3_f2.png" width="300">
+</div>
+
+Los procedimientos almacenados funcionan de la misma forma que las funciones con la salvedad de que no tienen aceptan un retorno de datos.
+
+Se agregó el apartado de índices donde se puede agregar un índice, editar y borrar a una tabla con una respectiva columna, en la fase de integración se usaría para la optimización de recursos en tiempos de búsqueda.
+
+<div align="center">
+    <p align="center">
+        Reporte de optimización
+    </p>
+    <img src="../assets/img/img4_f2.png" width="300">
+</div>
+
+Si se desea ver la existencia de los índices se puede hacer uso de la tabla de símbolos.
+
+<div align="center">
+    <p align="center">
+        Indice en tabla de símbolos
+    </p>
+    <img src="../assets/img/img5_f2.png" width="300">
+</div>
+
+<div align="center">
+    <p align="center">
+        Reporte gramatical actualizado
+    </p>
+    <img src="../assets/img/img6_f2.png" width="300">
+</div>
+
 
 ### Tech
 
@@ -82,5 +142,3 @@ Tecnologias y librerias utilizadas para el desarrollo del SQL Parser
 
 Desea contribuir o saber mas acerca del proyecto?
 Repositorio: https://github.com/tytusdb/tytus
-
-

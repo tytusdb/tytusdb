@@ -130,12 +130,10 @@ class Create_type(Instruccion):
         self.lista_datos = lista_datos
 
 class Definicion_delete(Instruccion):
-    def __init__(self, val, etiqueta, expresion, id_using, returning = []):
+    def __init__(self, val, etiqueta, expresion):
         self.val = val
         self.etiqueta = etiqueta
         self.expresion = expresion
-        self.id_using = id_using
-        self.returning = returning
 
 
 class Create_select_time(Instruccion):
@@ -206,3 +204,18 @@ class index_cuerpo(Instruccion):
         self.etiqueta = etiqueta
         self.identificador = identificador
         self.expresion = expresion
+
+class Crear_Drop_INDEX(Instruccion):
+    def __init__(self, lista_ids = []):
+        self.lista_ids = lista_ids
+    
+class Create_AlterIndex(Instruccion):
+    def __init__(self,oldName, newName):
+        self.oldName = oldName
+        self.newName = newName
+
+class Create_AlterIndexColumn(Instruccion):
+    def __init__(self,idIndex,oldColumn, newColum):
+        self.idIndex = idIndex
+        self.oldColumn = oldColumn
+        self.newColum = newColum

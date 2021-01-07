@@ -128,8 +128,7 @@ precedence = (
 
 # Definición de la gramática
 
-from expresiones import *
-from instrucciones import *
+
 
 def p_init(t) :
     'init            : instrucciones'
@@ -197,7 +196,7 @@ def p_funciones_aux(t) :
 
 def p_ifS(t) :
     ''' ifI         : IF expression  DOSPT GOTO   PUNTO ID'''
-    respuesta.append('    '+str(t[1])+' '+str(t[2])+' '+str(t[3])+' '+str(t[4])+' '+str(t[5])+str(t[6])+'\n')
+    respuesta.append('\n    '+str(t[1])+' '+str(t[2])+' '+str(t[3])+' '+str(t[4])+' '+str(t[5])+str(t[6])+'\n')
     t[0]=t[1]
 
 def p_gotoS(t) :
@@ -314,7 +313,7 @@ def reglas(auxP):
         if str(operador)=='+' :
             if str(derecha) == '0' :            
                 if (str(izquierda)!=str(idP)):  # REGLA 12
-                    respuesta.append('    '+str(idP)+' = '+str(izquierda))
+                    respuesta.append('\n    '+str(idP)+' = '+str(izquierda))
                     reporte_optimizar.append(["Regla 12", str(idP) + " = " + str(izquierda) + str(operador) + str(derecha) , str(idP)+' = '+str(izquierda)])
                     return True
                 elif (str(izquierda)==str(idP)):    # REGLA 8
@@ -324,7 +323,7 @@ def reglas(auxP):
         elif str(operador) == '-' :
             if str(derecha) == '0' :
                 if (str(izquierda)!=str(idP)):  # REGLA 13
-                    respuesta.append('    '+str(idP)+' = '+str(izquierda))
+                    respuesta.append('\n    '+str(idP)+' = '+str(izquierda))
                     reporte_optimizar.append(["Regla 13", str(idP) + " = " + str(izquierda) + str(operador) + str(derecha) , str(idP)+' = '+str(izquierda)])
                     return True
                 elif (str(izquierda)==str(idP)):    # REGLA 9
@@ -333,34 +332,34 @@ def reglas(auxP):
         elif str(operador) == '*' :
             if str(derecha) == '1' :
                 if (str(izquierda)!=str(idP)):  # REGLA 14
-                    respuesta.append('    '+str(idP)+' = '+str(izquierda))
+                    respuesta.append('\n    '+str(idP)+' = '+str(izquierda))
                     reporte_optimizar.append(["Regla 14", str(idP) + " = " + str(izquierda) + str(operador) + str(derecha) , str(idP)+' = '+str(izquierda)])
                     return True
                 elif (str(izquierda)==str(idP)):    # REGLA 10
                     reporte_optimizar.append(["Regla 10", str(idP) + " = " + str(izquierda) + str(operador) + str(derecha) , "Se elimina"])
                     return True
             elif str(derecha) == '0':   # REGLA 17
-                respuesta.append('    '+str(idP)+' = 0')
+                respuesta.append('\n    '+str(idP)+' = 0')
                 reporte_optimizar.append(["Regla 17", str(idP) + " = " + str(izquierda) + str(operador) + str(derecha) , str(idP)+' = 0'])
                 return True
             elif str(derecha) == '2' :  # REGLA 16
-                respuesta.append('    ' + str(idP) + ' = ' + str(izquierda) + ' + ' + str(izquierda))
+                respuesta.append('\n    ' + str(idP) + ' = ' + str(izquierda) + ' + ' + str(izquierda))
                 reporte_optimizar.append(["Regla 16", str(idP) + " = " + str(izquierda) + str(operador) + str(derecha) , str(idP) + ' = ' + str(izquierda) + ' + ' + str(izquierda)])
                 return True
         elif str(operador) == '/' :
             if str(derecha) == '1' :
                 if (str(izquierda)!=str(idP)):  # REGLA 15
-                    respuesta.append('    '+str(idP)+' = '+str(izquierda))
+                    respuesta.append('\n    '+str(idP)+' = '+str(izquierda))
                     reporte_optimizar.append(["Regla 15", str(idP) + " = " + str(izquierda) + str(operador) + str(derecha) , str(idP)+' = '+str(izquierda)])
                     return True
                 elif (str(izquierda)==str(idP)):    # REGLA 11
                     reporte_optimizar.append(["Regla 11", str(idP) + " = " + str(izquierda) + str(operador) + str(derecha) , "Se elimina"])
                     return True
             elif str(izquierda) == '0' :    # REGLA 18
-                respuesta.append('    '+str(idP)+' = 0')
+                respuesta.append('\n    '+str(idP)+' = 0')
                 reporte_optimizar.append(["Regla 18", str(idP) + " = " + str(izquierda) + str(operador) + str(derecha) , str(idP)+' = 0'])
                 return True
-        respuesta.append('    '+str(idP) + ' = ' + str(izquierda) + str(operador) + str(derecha))
+        respuesta.append('\n    '+str(idP) + ' = ' + str(izquierda) + str(operador) + str(derecha))
         return True
     except:
         print('Pasa algo malo en optimizar esta funcion')

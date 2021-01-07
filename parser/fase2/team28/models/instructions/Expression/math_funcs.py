@@ -16,6 +16,7 @@ class Abs(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
 
     def __repr__(self):
         return str(vars(self))
@@ -76,7 +77,7 @@ class Cbrt(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -140,6 +141,7 @@ class Ceil(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
 
     def __repr__(self):
         return str(vars(self))
@@ -201,7 +203,7 @@ class Ceiling(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -262,7 +264,7 @@ class Degrees(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -323,7 +325,7 @@ class Div(Expression):
         self.alias = f'{type_fm}({self.dividendo.alias},{self.divisor.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -404,7 +406,7 @@ class Exp(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -464,6 +466,7 @@ class Factorial(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
 
     def __repr__(self):
         return str(vars(self))
@@ -527,7 +530,7 @@ class Floor(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -590,7 +593,7 @@ class Gcd(Expression):
         self.alias = f'{type_fm}({self.value1.alias},{self.value2.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -672,7 +675,7 @@ class Ln(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -733,7 +736,7 @@ class Log(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -796,7 +799,7 @@ class Mod(Expression):
         self.alias = f'{type_fm}({self.value1.alias},{self.value2.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -875,7 +878,7 @@ class Pi(Expression):
         self.alias = f'{type_fm}()'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -912,6 +915,7 @@ class Power(Expression):
         self.alias = f'{type_fm}({self.base.alias},{self.exp.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
 
     def __repr__(self):
         return str(vars(self))
@@ -992,7 +996,7 @@ class Radians(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -1054,7 +1058,7 @@ class Round(Expression):
         self.alias = f'{type_fm}({self.value.alias},{self.n_digits.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -1137,7 +1141,7 @@ class Sign(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -1208,7 +1212,7 @@ class Sqrt(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -1273,7 +1277,7 @@ class WithBucket(Expression):
         self.alias = f'{type_fm}({self.expre.alias},{self.min_value.alias},{self.max_value.alias},{self.index.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -1330,7 +1334,7 @@ class Trunc(Expression):
         self.alias = f'{type_fm}({self.value.alias})'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -1391,7 +1395,7 @@ class Random(Expression):
         self.alias = f'{type_fm}()'
         self.line = line
         self.column = column
-
+        self._tac = self.alias
     def __repr__(self):
         return str(vars(self))
 
@@ -1434,6 +1438,7 @@ class Greatest(Expression):  # TODO IMPLEMENTAR COMPILE
         self.alias = f'{type_fm}({obtain_string(self.val_array)})'
         self.line = line
         self.column = column
+        self._tac = ""
 
     def __repr__(self):
         return str(vars(self))
@@ -1492,6 +1497,7 @@ class Least(Expression):  # TODO IMPLEMENTAR COMPILE
         self.alias = f'{type_fm}({obtain_string(self.val_array)})'
         self.line = line
         self.column = column
+        self._tac = ""
 
     def __repr__(self):
         return str(vars(self))

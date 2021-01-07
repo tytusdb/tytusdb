@@ -17,3 +17,15 @@ class UpdateCol(Nodo):
 
     def addChild(self, node):
         self.hijos.append(node)
+                 
+    def compile(self):
+        tmp = instanceTemporal.getTemporal()
+        dir = f"{tmp} = '{self.getText()}'\n"
+        dir += f'display[p] = {tmp}\n'
+        dir += 'p = p + 1'
+    
+    def getText(self):
+        table_ =  self.hijos[0].valor.upper()
+        exp =  self.hijos[1].hijos[0].getText()
+        return f"{table_} = {exp}"
+          

@@ -1,5 +1,3 @@
-
-
 from graphviz import Digraph, nohtml
 import pickle
 from typing import Any
@@ -743,7 +741,6 @@ def leerREG():
 #Guarda pickles a disco
 def serializar(archivo, modo, data):
     with open(archivo, modo) as f:
-        # Pickle the 'data' dictionary using the highest protocol available.
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
 
 #Lee pickles desde disco
@@ -769,26 +766,20 @@ def graficaBD() -> int:
 def graficaTBL(database: str) -> int:
     nodoBD = mBBDD.obtener(database)
     if nodoBD:
-        nodoBD.datos.armararbol(nodoBD.datos.raiz, "Tablas: " + nodoBD.clave, "Tablas")
+        nodoBD.datos.armararbol(nodoBD.datos.raiz, "Base de Datos: " + nodoBD.clave, nodoBD.clave)
         return 0 #Operación exitosa
     else:
         return 1 #Error en la operación
     
 #Grafica la estructura que contiene los Registros que pertenecen a una Tabla dentro de una Base de Datos
-def graficaREG(database: str, table: str) -> int:    
+def graficaREG(database: str, table: str) -> int:
     nodoBD = mBBDD.obtener(database)
     if nodoBD:
         nodoTBL = nodoBD.datos.obtener(table)
         if nodoTBL:
-            lista = []  
-            nodoTBL.extraer(nodoTBL.datos.raiz,lista)                          
-            nodoTBL.datos.armararbol(lista[0], "Tabla: " + nodoTBL.clave, "Registros",tipo="registro")
+            nodoTBL.datos.armararbol(nodoTBL.datos.raiz, "Tabla: " + nodoTBL.clave, nodoTBL.clave)
             return 0 #Operación exitosa
         else:
             return 1 #Error en la operación
     else:
         return 1 #Error en la operación
-
-def showCollection():
-    from team01 import Principal as interfaz
-    mostrar = interfaz.Application()
