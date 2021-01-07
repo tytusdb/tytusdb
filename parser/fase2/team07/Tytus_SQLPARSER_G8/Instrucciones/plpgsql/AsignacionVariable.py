@@ -14,6 +14,6 @@ class AsignacionVariable(Instruccion):
 
         simbolo = self.exprecion.traducir(tabla,arbol,cadenaTraducida)
         codigo += simbolo.codigo
-        codigo += "\t\t" + self.id + " = " + simbolo.temporal + "\n"
+        codigo += "\t" + self.id + " = " + simbolo.temporal + "\n"
         
         return codigo

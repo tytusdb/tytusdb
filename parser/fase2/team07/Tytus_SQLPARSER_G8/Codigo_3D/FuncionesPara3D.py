@@ -32,11 +32,8 @@ class FuncionesPara3D():
         cont = "from Codigo_3D.FuncionesPara3D import FuncionesPara3D\n\n"
         
         cont += "class Codigo3D():\n\n"
+        cont += "\tmensaje = \"\"\n"
 
-        cont += "\tdef __init__(self):\n"
-        cont += "\t\tself.mensaje = \"\" \n\n"
-
-        cont += "\tdef ejecutar(self):\n\n"
         #Se esribe el codigo traducido
         cont += codigo
         

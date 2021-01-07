@@ -12,10 +12,10 @@ class DeclaracionRetorno(Instruccion):
         codigo = ""
 
         if self.exprecion is None:
-            codigo += "\t\treturn\n"
+            codigo += "\treturn\n"
         else:
             simbolo = self.exprecion.traducir(tabla,arbol,cadenaTraducida)
             codigo += simbolo.codigo
-            codigo += "\t\treturn " + simbolo.temporal + "\n"
+            codigo += "\treturn " + simbolo.temporal + "\n"
 
         return codigo

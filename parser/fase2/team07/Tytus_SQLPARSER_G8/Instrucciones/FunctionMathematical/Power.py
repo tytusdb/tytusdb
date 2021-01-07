@@ -42,6 +42,6 @@ class Power(Instruccion):
     def traducir(self, tabla, arbol, cadenaTraducida):
         codigo = ""
         temporal = arbol.generaTemporal()
-        codigo += "\t\t" + temporal + " = " + str(self.ejecutar(tabla, arbol)) + "\n"
+        codigo += "\t" + temporal + " = " + str(self.ejecutar(tabla, arbol)) + "\n"
         nuevo = Simbolo3d(Tipo("",Tipo_Dato.INTEGER), temporal, codigo, None, None)
         return nuevo

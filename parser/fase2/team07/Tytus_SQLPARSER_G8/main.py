@@ -89,6 +89,7 @@ class interfaz():
         menu3d = Menu(menu,tearoff=0)
         menu3d.add_command(label='Traducir C3D', command=self.traducirc3d_click)
         menu3d.add_command(label='Ejecutar C3D', command=self.ejecutarc3d_click)
+        menu3d.add_command(label='Optimizar C3D', command=self.optimizarc3d_click)
         menu.add_cascade(label='3 Direcciones', menu=menu3d)
         self.window.config(menu=menu)
 

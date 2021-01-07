@@ -15,7 +15,7 @@ class Primitivo(Instruccion):
     def traducir(self,tabla,arbol,cadenaTraducida):
         super().ejecutar(tabla,arbol)
         temporal = arbol.generaTemporal()
-        codigo = "\t\t" + temporal + " = " + str(self.valor) + "\n"
+        codigo = "\t" + temporal + " = " + str(self.valor) + "\n"
         nuevo = Simbolo3d(self.tipo,temporal,codigo,None,None)
         return nuevo
 
