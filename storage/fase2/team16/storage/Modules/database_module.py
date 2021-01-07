@@ -37,16 +37,9 @@ class DatabaseModule:
                 return 3
             if not encoding.lower() in self.encoding:
                 return 4
-
-            mode = mode.lower()
-            result = 1
-            action = actionCreator(mode, 'createDatabase', ['database'])
-            result = eval(action)
-
-            if result == 0:
-                self.databases.append(Database(database, mode, encoding))
-                self.handler.rootupdate(self.databases)
-            return result
+            self.databases.append(Database(database, mode, encoding))
+            self.handler.rootupdate(self.databases)
+            return 0
         except:
             return 1
 
@@ -67,19 +60,18 @@ class DatabaseModule:
             for i in self.databases:
                 if databaseOld.upper() == i.name.upper():
                     index = self.databases.index(i)
+                    tables = [x.name for x in i.tables]
                     break
             if index != -1:
                 for i in self.databases:
                     if databaseNew.upper() == i.name.upper():
                         return 3
-
-                action = actionCreator(self.databases[index].mode, 'alterDatabase', ['databaseOld', 'databaseNew'])
-                result = eval(action)
-
-                if result == 0:
-                    self.databases[index].name = databaseNew
-                    self.handler.rootupdate(self.databases)
-                return result
+                for t in tables:
+                    self.handler.rename(t.mode, databaseOld + '_' + t.name + '.tbl',
+                                        databaseNew + '_' + t.name + '.tbl')
+                self.databases[index].name = databaseNew
+                self.handler.rootupdate(self.databases)
+                return 0
             return 2
         except:
             return 1
@@ -93,15 +85,13 @@ class DatabaseModule:
             for i in range(len(self.databases)):
                 if database.upper() == self.databases[i].name.upper():
                     index = i
+                    tables = [x.name for x in self.databases[i].tables]
                     break
             if index != -1:
-                result = 1
-                action = actionCreator(self.databases[index].mode, 'dropDatabase', ['database'])
-                result = eval(action)
-
-                if result == 0:
-                    self.databases.pop(index)
-                    self.handler.rootupdate(self.databases)
+                for t in tables:
+                    self.handler.delete('.data/' + t.mode + '/' + database + '_' + t.name + '.tbl')
+                self.databases.pop(index)
+                self.handler.rootupdate(self.databases)
                 return 0
             return 2
         except:
@@ -117,14 +107,12 @@ class DatabaseModule:
             db, index = self._exist(database)
             if not db:
                 return 2
-            result = eval(actionCreator(mode, 'createDatabase', ['database']))
-            if result != 0:
-                raise
-
+            if db.mode == mode:
+                return 1
             tables = db.tables[:]
             for table in tables:
                 tuples = result = eval(actionCreator(table.mode, 'extractTable', ['database', 'table.name']))
-                if result:
+                if result or result == []:
                     if eval(actionCreator(mode, 'createTable', ['database', 'table.name', 'table.numberColumns'])) != 0:
                         raise
                     if len(table.pk) != 0:
@@ -136,19 +124,22 @@ class DatabaseModule:
                     file = 'tmp.csv'
                     self.handler.writer('tmp', tuples)
                     read = eval(actionCreator(mode, 'loadCSV', ['file', 'database', 'table.name']))
+                    self.handler.delete(file)
                     if len(read) == 0:
                         raise
-                    self.handler.delete(file)
                 else:
                     raise
-            eval(actionCreator(db.mode, 'dropDatabase', ['database']))
+            for table in tables:
+                self.handler.delete('./data/' + table.mode + "/" + database + "_" + table.name + ".tbl")
+            self.handler.clean(self.databases[index].mode)
             self.databases[index].mode = mode
             for x in self.databases[index].tables:
                 x.mode = mode
             self.handler.rootupdate(self.databases)
             return 0
         except:
-            eval(actionCreator(mode, 'dropDatabase', ['database']))
+            for table in tables:
+                self.handler.delete('./data/' + mode + "/" + database + "_" + table.name + ".tbl")
             return 1
 
     def alterTableMode(self, database: str, table: str, mode: str) -> int:
@@ -161,16 +152,14 @@ class DatabaseModule:
             db, index = self._exist(database)
             if not db:
                 return 2
-            tmp = next(x for x in db.tables if x.name.lower() == table.lower())
+            tmp = next((x for x in db.tables if x.name.lower() == table.lower()), None)
             if not tmp:
                 return 3
             elif tmp.mode == mode:
-                raise
-            if eval(actionCreator(mode, 'createDatabase', ['database'])) != 0:
-                raise
+                return 1
 
             tuples = result = eval(actionCreator(tmp.mode, 'extractTable', ['database', 'table']))
-            if result:
+            if result or result == []:
                 if eval(actionCreator(mode, 'createTable', ['database', 'table', 'tmp.numberColumns'])) != 0:
                     raise
                 if len(tmp.pk) != 0:
@@ -186,16 +175,13 @@ class DatabaseModule:
                         raise
             else:
                 raise
-            previous = tmp.mode
+            self.handler.delete('./data/' + tmp.mode + "/" + database + "_" + tmp.name + ".tbl")
+            self.handler.clean(self.databases[index].mode)
             self.databases[index].tables[self.databases[index].tables.index(tmp)].mode = mode
-            if not next((x for x in db.tables if x.mode.lower() == previous.lower()), None):
-                eval(actionCreator(previous, 'dropDatabase', ['database']))
-            else:
-                eval(actionCreator(previous, 'dropTable', ['database', 'table']))
             self.handler.rootupdate(self.databases)
             return 0
         except:
-            eval(actionCreator(mode, 'dropDatabase', ['database']))
+            self.handler.delete('./data/' + mode + "/" + database + "_" + tmp.name + ".tbl")
             return 1
 
     def alterDatabaseEncoding(self, database: str, encoding: str) -> int:
@@ -209,7 +195,6 @@ class DatabaseModule:
 
     def dropAll(self):
         self.handler.reset()
-        hash.__init2__()
 
     def _exist(self, database: str):
         tmp = None

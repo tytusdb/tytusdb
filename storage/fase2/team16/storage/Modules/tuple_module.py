@@ -21,10 +21,14 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.name.lower() for x in tmp.tables]
-                if table.lower() in listtmp:
-                    action = actionCreator(tmp.mode, 'insert', ['database', 'table', 'register'])
-                    return eval(action)
+                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
+                if _table:
+                    action = actionCreator(_table.mode, 'insert', ['database', 'table', 'register'])
+                    result = eval(action)
+                    if result == 0 and _table.security:
+                        _table.security.insert(database, table, register)
+                        self.handler.rootupdate(self.dbs)
+                    return result
                 return 3
             return 2
         except:
@@ -37,9 +41,9 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.name.lower() for x in tmp.tables]
-                if table.lower() in listtmp:
-                    action = actionCreator(tmp.mode, 'loadCSV', ['file', 'database', 'table'])
+                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
+                if _table:
+                    action = actionCreator(_table.mode, 'loadCSV', ['file', 'database', 'table'])
                     return eval(action)
             return []
         except:
@@ -52,9 +56,9 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.name.lower() for x in tmp.tables]
-                if table.lower() in listtmp:
-                    action = actionCreator(tmp.mode, 'extractRow', ['database', 'table', 'columns'])
+                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
+                if _table:
+                    action = actionCreator(_table.mode, 'extractRow', ['database', 'table', 'columns'])
                     return eval(action)
             return []
         except:
@@ -67,10 +71,18 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.name.lower() for x in tmp.tables]
-                if table.lower() in listtmp:
-                    action = actionCreator(tmp.mode, 'update', ['database', 'table', 'register', 'columns'])
-                    return eval(action)
+                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
+                if _table:
+                    if _table.security:
+                        row = self.extractRow(database, table, columns)
+                        if not row:
+                            raise
+                    action = actionCreator(_table.mode, 'update', ['database', 'table', 'register', 'columns'])
+                    result = eval(action)
+                    if result == 0 and _table.security:
+                        _table.security.update(database, table, register, row)
+                        self.handler.rootupdate(self.dbs)
+                    return result
                 return 3
             return 2
         except:
@@ -83,10 +95,18 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.name.lower() for x in tmp.tables]
-                if table.lower() in listtmp:
-                    action = actionCreator(tmp.mode, 'delete', ['database', 'table', 'columns'])
-                    return eval(action)
+                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
+                if _table:
+                    if _table.security:
+                        row = self.extractRow(database, table, columns)
+                        if not row:
+                            raise
+                    action = actionCreator(_table.mode, 'delete', ['database', 'table', 'columns'])
+                    result = eval(action)
+                    if result == 0 and _table.security:
+                        _table.security.delete(database, table, row)
+                        self.handler.rootupdate(self.dbs)
+                    return result
                 return 3
             return 2
         except:
@@ -99,9 +119,9 @@ class TupleModule:
             self.dbs = self.handler.rootinstance()
             tmp, index = self._exist(database)
             if tmp:
-                listtmp = [x.name.lower() for x in tmp.tables]
-                if table.lower() in listtmp:
-                    action = actionCreator(tmp.mode, 'truncate', ['database', 'table'])
+                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
+                if _table:
+                    action = actionCreator(_table.mode, 'truncate', ['database', 'table'])
                     return eval(action)
                 return 3
             return 2
@@ -117,3 +137,6 @@ class TupleModule:
                 tmp = db
                 break
         return tmp, index
+
+    def getprev(self, mode: str, database: str, table: str):
+        pass

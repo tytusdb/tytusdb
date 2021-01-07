@@ -9,28 +9,10 @@ import pickle
 import re
 import shutil
 import csv
+import json
 
 
 class Handler:
-
-    @staticmethod
-    def createJson(database:str, table:str, text:str):
-        try:
-            f = open("blockchain/" + database + "_" + table + ".json", "wb")
-            f.write(text)
-            f.close()
-        except:
-            None
-
-    @staticmethod
-    def readJson(database:str, table:str) -> str:
-        try:
-            f = open("blockchain/" + database + "_" + table + ".json", "r")
-            result = f.read()
-            f.close()
-            return result
-        except:
-            return None
 
     @staticmethod
     def rootinstance() -> list:
@@ -74,9 +56,58 @@ class Handler:
             writer.writerows(tuples)
 
     @staticmethod
+    def tableinstance(mode: str, database: str, tableName: str):
+        if os.path.getsize('./data/' + mode + '/' + str(database) + '_' + str(tableName) + '.tbl') > 0:
+            with open('./data/' + mode + '/' + str(database) + '_' + str(tableName) + '.tbl', 'rb') as f:
+                return pickle.load(f)
+        else:
+            return None
+
+    @staticmethod
+    def tableupdate(mode: str, database: str, tableName: str, structure):
+        f = open('./data/' + mode + '/' + str(database) + '_' + str(tableName) + '.tbl', 'wb')
+        pickle.dump(structure, f)
+        f.close()
+
+    @staticmethod
+    def rename(mode: str, oldName, newName):
+        try:
+            os.rename('./data/' + mode + '/' + oldName, './data/' + mode + '/' + newName)
+        except:
+            print("No se pudo renombrar")
+
+    @staticmethod
     def delete(filename):
         try:
             os.remove(filename)
         except:
             print("No se encontró el archivo")
 
+    @staticmethod
+    def modeinstance(mode: str):
+        if not os.path.exists('data'):
+            os.makedirs('data')
+        if not os.path.exists('./data/' + mode):
+            os.makedirs('data/' + mode)
+
+    @staticmethod
+    def readcsv(file):
+        return csv.reader(open(file, "r", encoding="utf-8-sig"), delimiter=",")
+
+    @staticmethod
+    def clean(mode):
+        if os.path.exists('./data/' + mode):
+            if len(os.listdir('./data/' + mode)) == 0:
+                shutil.rmtree('./data/' + mode)
+
+    @staticmethod
+    def readJSON(database: str, table: str) -> list:
+        path = './data/security/' + database + '_' + table + '.json'
+        with open(path, 'r', encoding='UTF-8') as f:
+            return json.loads(f.read())
+
+    @staticmethod
+    def writeJSON(database: str, table: str, blocks):
+        path = './data/security/' + database + '_' + table + '.json'
+        with open(path, 'w+', encoding='UTF-8') as f:
+            json.dump(blocks, f, ensure_ascii=False, indent=3)
