@@ -716,7 +716,6 @@ def p_extract_1(t):
     t[0] = expression.ExtractDate(
         t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
     )
-
     repGrammar.append(t.slice)
 
 

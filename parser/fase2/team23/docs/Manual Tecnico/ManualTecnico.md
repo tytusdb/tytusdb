@@ -12,12 +12,13 @@ Los requisitos del sistema son basados en el hardware y software sobre el cual f
 ---
 * Core I3 3220 or AMD Ryzen 5
 * 8 GB RAM
-* 200 MB Espacio almacenamiento
+* 800 MB Espacio almacenamiento
 
 #### SOFTWARE
 ---
 * Windows 10 
-* Python
+* Python 3.6
+* Python 3.9
 
 ### LIBRERIAS UTILIZADAS PARA EL DESARROLLO
 
@@ -30,6 +31,7 @@ datetime
 random
 decimal
 math
+goto
 ```
 
 ### INSTRUCTIVO DE USO
@@ -51,7 +53,7 @@ Después de tener todas las herramientas instaladas, puedes utilizar la consola 
 
 ### FLUJO DE LA APLICACIÓN
 ---
-Es una aplicación de escritorio, con las funciones principales de un editor de texto, dicha aplicación incluye las funciones como Guardar, Guardar Como, Abrir, Buscar, Reemplazar; puedes editar el código entre diferentes tabs, y ejecutar dicho código SQL, mostrando el resultado de cada instrucción en su consola. Por ende la interfaz de la aplicación es muy intuitiva y fácil de usar.
+Es una aplicación de escritorio, con las funciones principales de un editor de texto, dicha aplicación incluye las funciones como Guardar, Guardar Como, Abrir, Buscar, Reemplazar; puedes editar el código entre diferentes tabs, y ejecutar dicho código SQL y codigo  pl/SQL, mostrando el codigo traducido en 3 direcciones de cada instrucción en su consola. Para luego en un archivo de python, poder ejecutar ese codigo generado, usando la version de Python 3.6.
 
 La aplicación también tiene la opción de mostrar los reportes Gramaticales de la entrada, los errores léxicos, sintácticos y semánticos que surgen en tiempo de ejecución, la tabla de simbolos y el AST, en formato PDF.
 
@@ -76,6 +78,48 @@ DROP TABLE usuarios;
 # SELECTS
 SELECT * FROM usuarios;
 SELECT nombre FROM usuarios WHERE id > 10;
+
+CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+BEGIN
+	RETURN texto;
+END;
+$$ LANGUAGE plpgsql;
+
+create procedure sp_validaupdate()
+language plpgsql
+as $$
+begin
+	update tbbodega set bodega = 'bodega zona 9' where idbodega = 4; 
+end; $$
+
+```
+Que traducido a C3D seria :
+
+```sh
+from goto import with_goto 
+import C3D 
+
+@with_goto  # Decorador necesario
+def myfuncion():
+	# SEGMENTO BEGIN
+	# RETURN
+	t1 = texto
+	# SEGMENTO END
+
+def main():
+ C3D.pila = 0
+ C3D.ejecutar() #Crear Base de datos
+
+ C3D.pila = 1
+ C3D.ejecutar() #Usar Base de datos
+
+ C3D.pila = 2
+ C3D.ejecutar() #Llamada
+
+ C3D.pila = 3
+ C3D.ejecutar() #Creando select con parametros
+
+main()
 
 ```
 Como se mencionó anteriormente, la aplicación es de escritorio para el sistema operativo Windows, así también la aplicación posee una consola de salida, para mostrar todos los valores retornados por las funciones explicadas anteriormente. Para más información de las funciones disponibles en TYTUS puedes consultar la documentación de [SQL](https://www.postgresql.org/docs/13/sql.html).

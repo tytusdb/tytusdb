@@ -44,7 +44,14 @@ class Pantalla_TS:
                     table_scrollX.pack(side=BOTTOM, fill=X)
                     table.pack(side=LEFT, fill=BOTH)
                     frame.pack(fill=BOTH)
-                    self.tabControl.add(frame, text="Tabla_Select " + str(i))
+                    if i == len(consults):
+                        self.tabControl.add(frame, text="Procedimientos")
+                    elif i == len(consults)-1:
+                        self.tabControl.add(frame, text="Funciones")  
+                    elif i == len(consults)-2:
+                        self.tabControl.add(frame, text="Indices")
+                    else:
+                        self.tabControl.add(frame, text="Tabla_Select " + str(i))
         self.tabControl.pack()
 
     def fill_table(

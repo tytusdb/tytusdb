@@ -1,4 +1,6 @@
 import grammar2 as g
+from reportTable import *
+from InstruccionesDGA import tabla as ts
 
 #print(g.funciones)
 
@@ -30,6 +32,7 @@ results = []
 res =''
     #executeGraphTree(raiz)
 for val in raiz:
+    
     res += val.traducir()
 
     
@@ -40,5 +43,6 @@ for fa in g.funciones:
    
    a.write(fa)
 
-a.write('''ejecutar() ''')
+a.write('''ejecutar()''')
 a.close()
+graphTable(ts)
