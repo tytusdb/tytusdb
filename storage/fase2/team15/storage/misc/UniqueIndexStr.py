@@ -43,7 +43,7 @@ class UniqueIndexStr:
 
                 var = []
 
-                var.append(func.createTable(self.database, self.table, 4))
+                var.append(func.createTable(self.database, self.table, 3))
                 var.append(func.alterAddPK(self.database, self.table, [0]))
 
                 return var

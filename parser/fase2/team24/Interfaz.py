@@ -15,7 +15,8 @@ from reportBNF import *
 import webbrowser as wb
 import OptimizarMirilla as optm
 import OptimizarObjetos as optobj
-
+# Esta es la lista de objetos
+from procedural import objopt
 default_db = 'DB1'
 ts = TabladeSimbolos.Tabla()
 
@@ -29,7 +30,7 @@ def analiz(input):
             results.append("Error "+ res.tipo+". Descripcion: " +res.descripcion)
         else:
             results.append( res)
-    #graphTable(ts)
+    graphTable(ts)
     #report_errors()
     #report_BNF()
     #--------------------------------------------------------
@@ -51,7 +52,7 @@ def analiz(input):
     
     for simbolo in ts.simbolos:
         print("ID: " + str(ts.simbolos[simbolo].id) + " Nombre: " + ts.simbolos[simbolo].nombre + " Ambito: " + str(ts.simbolos[simbolo].ambito) + " Tipo indice: " + str(ts.simbolos[simbolo].tipoind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind))
-
+    #graphTable(ts)
     #--------------------------------------------------------
     return results
 

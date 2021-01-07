@@ -61,10 +61,12 @@ import gramatica as g
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
 import Instrucciones.DML.select as select
+from Error import *
 
 #storage.dropAll()
 
 heap = []
+semerrors = []
 
 datos = l.Lista({}, '')
 l.readData(datos)
@@ -73,11 +75,22 @@ l.readData(datos)
 #funcion intermedia
 def mediador(value):
     global heap
+    global semerrors
    # Analisis sintactico
     instrucciones = g.parse(heap.pop())
     for instr in instrucciones['ast'] :
-        if isinstance(instr, select.Select) :
+
+        try:
             val = instr.execute(datos)
+        except:
+            val = (instr.execute(datos, {}))
+
+        if isinstance(val, Error):
+            'error semántico'
+            print(val)
+            semerrors.append(val)
+        elif isinstance(instr, select.Select) :
+            
             if value == 0:
                 try:
                     print(val)
@@ -96,19 +109,10 @@ def mediador(value):
                 print(instr.ImprimirTabla(val))
         else :
             try:
-                valor = instr.execute(datos)
-                print(valor)
-                try:
-                    return valor.val
-                except:
-                    ''
+                return val.val
             except:
-                valor = (instr.execute(datos, {}))
-                print(valor)
-                try:
-                    return valor.val
-                except:
-                    ''
+                print(val)
+
     l.writeData(datos)
 '''
 

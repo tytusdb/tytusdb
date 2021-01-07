@@ -106,5 +106,12 @@ def ayuda():
 	t15 = aas
 	
 	pila[10] = t15
+	NuevoSimbolo = Simbolo(cont,sp_validainsert,TIPO.FUNCTION,n_db)
+	cont+=1
+ insert into tbbodega  values ( 1 BODEGA CENTRAL 1 ) ; insert into tbbodega idbodega bodega values ( 2 BODEGA ZONA 12 ) ; insert into tbbodega ( idbodega, bodega) estado values ( 3 BODEGA ZONA 11 1 ) ; insert into tbbodega ( idbodega, bodega) estado values ( 4 BODEGA ZONA 1 1 ) ; insert into tbbodega ( idbodega, bodega) estado values ( 5 BODEGA ZONA 10 1 ) ;def sp_validainsert():
+	
+	
+	
+	
 	
 ejecutar() 

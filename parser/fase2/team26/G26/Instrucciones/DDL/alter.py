@@ -3,6 +3,7 @@ sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Librerias/storageManager')
 sys.path.append('../G26/Utils')
 sys.path.append('../G26/Expresiones')
+sys.path.append('../G26/Instrucciones/DDL')
 
 from instruccion import *
 from Error import *
@@ -10,6 +11,7 @@ from jsonMode import *
 from TablaSimbolos import *
 from Condicionales import *
 from Identificador import *
+from index import *
 
 class Alter(Instruccion):
     #altertipo:
@@ -21,6 +23,10 @@ class Alter(Instruccion):
         self.alteropts = alteropts
         
     def execute(self, data):
+
+        if data.databaseSeleccionada == '':
+            error = Error('Semántico', 'Error(???): No se selecciono db.', 0, 0)
+            return error
         
         if self.altertipo :
             'table'
@@ -50,7 +56,7 @@ class Alter(Instruccion):
 
             return 'Alter realizado con éxito.'
 
-        return self.id
+        return 'Alter realizado con éxito.'
 
     def __repr__(self):
         return str(self.__dict__)
@@ -482,8 +488,6 @@ class AlterTableAddPK(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
-
 #---------------------------------------------------------------------------------------------------alter------
 class AlterTableAlterNull(Instruccion):
     #alter column set:
@@ -574,6 +578,103 @@ class AlterTableAlterTipo(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
+class AlterIndex(Instruccion):
+    def __init__(self, indexid, oldcol, newcol):
+        self.indexid = indexid
+        self.oldcol = oldcol
+        self.newcol = newcol
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+    def execute(self, data):
+
+        if not self.oldcol == '' :
+            
+            for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas']:
+                found = False
+                for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][table]['columns']:
+                    if colu.name == self.oldcol.upper() :
+                        found = True
+                        break
+                if found :
+                    break
+
+            if not found:
+                error = Error('Semántico', 'Error(???): No se encontró la columna '+self.colid.upper()+'.', 0, 0)
+                return error
+
+        for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas']:
+            found = False
+            for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][table]['columns']:
+                if colu.name == self.newcol.upper() :
+                    found = True
+                    break
+            if found :
+                break
+
+            if not found:
+                error = Error('Semántico', 'Error(???): No se encontró la columna '+self.colid.upper()+'.', 0, 0)
+                return error
+
+        for index in data.tablaSimbolos[data.databaseSeleccionada]['index'] :
+            if index.name == self.indexid.upper() :
+                #print(index)
+                for ind in index.columns :
+                    if ind.column == self.oldcol.upper():
+                        ind.column = self.newcol.upper()
+                        #print(data)
+                        return 'Index Modificado.'
+
+        error = Error('Semántico', 'Error(???): No se encontró el índice '+self.indexid.upper()+'.', 0, 0)
+        return error
+        
+class AlterIndexN(Instruccion):
+    def __init__(self, indexid, oldcol, newcol):
+        self.indexid = indexid
+        self.oldcol = oldcol
+        self.newcol = newcol
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+    def execute(self, data):
+
+        if not self.oldcol == '' :
+
+            for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas']:
+
+                found = False
+                for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][table]['columns']:
+
+                    if colu.name == self.oldcol.upper() :
+                        found = True
+                        break
+                if found :
+                    break
+
+            if not found:
+                error = Error('Semántico', 'Error(???): No se encontró la columna '+self.colid.upper()+'.', 0, 0)
+                return error
+        
+        try:
+                    
+            for index in data.tablaSimbolos[data.databaseSeleccionada]['index'] :
+                if index.name == self.indexid.upper() :
+                    #print(index)
+                    colu = data.tablaSimbolos[data.databaseSeleccionada]['tablas'][index.table]['columns'][self.newcol-1].name
+                    for ind in index.columns :
+                        if ind.column == self.oldcol.upper():
+                            ind.column = colu
+                            #print(data)
+                            return 'Index Modificado.'
+
+            error = Error('Semántico', 'Error(???): No se encontró el índice '+self.indexid.upper()+'.', 0, 0)
+            return error
+
+        except:
+            error = Error('Semántico', 'Error(???): Index out of range.', 0, 0)
+            return error
 #--------------------------------------------------------------------------------------------------------------drop------
 class AlterTableDropCol(Instruccion):
 
@@ -582,7 +683,7 @@ class AlterTableDropCol(Instruccion):
 
     def execute(self, data, tbname, cons, idconst = 'ALTER'):
 
-        print(self.id.upper())
+        #print(self.id.upper())
         #validate if listaid1 exists
         colindex = 0
         found = False
@@ -590,7 +691,7 @@ class AlterTableDropCol(Instruccion):
             if colu.name == self.id.upper() :
                 found = True
                 if not colu.pk == None:
-                    error = Error('Semántico', 'Error(???): No se pueden elminar columnas que sean PK.', 0, 0)
+                    error = Error('Semántico', 'Error(???): No se pueden eliminar columnas que sean PK.', 0, 0)
                     return error
                 break
 
@@ -608,7 +709,7 @@ class AlterTableDropCol(Instruccion):
         retor = alterDropColumn(data.databaseSeleccionada, tbname, colindex) #al parcer da problemas
 
         if retor == 0 :
-            print('Éxito')
+            #print('Éxito')
             return 'Storage: Operación exitosa'
         elif retor == 1 :
             error = Error('Storage', 'Error(1): error en la operación.', 0, 0)
@@ -632,8 +733,8 @@ class AlterTableDropCons(Instruccion):
         self.id = id
 
     def execute(self, data, tbname, cons, idconst = 'ALTER'):
-        print(data)
-        print(self.id)
+        #print(data)
+        #print(self.id)
         if data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['constraint'] == [] :
             error = Error('Semántico', 'Error(???): No existe el constraint ' + self.id.upper()+' en la tabla.', 0, 0)
             return error
@@ -654,7 +755,7 @@ class AlterTableDropCons(Instruccion):
             error = Error('Semántico', 'Error(???): No existe el constraint ' + self.id.upper()+' en la tabla.', 0, 0)
             return error
 
-        print(consttipo)
+        #print(consttipo)
         if consttipo == 'pk' :
             for id in idpks :
                 for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas'] : 
@@ -679,7 +780,7 @@ class AlterTableDropCons(Instruccion):
                         break
                     i+=1
                 if foundc:
-                    print(str(i))
+                    #print(str(i))
                     del col.check[i]
 
             elif consttipo == 'fk':
@@ -693,7 +794,7 @@ class AlterTableDropCons(Instruccion):
                         break
                     i+=1
                 if foundc:
-                    print(str(i))
+                    #print(str(i))
                     del col.fk[i]
 
 
@@ -795,7 +896,7 @@ class AlterTableDropFK(Instruccion):
         self.ids = ids
 
     def execute(self, data, tbname, cons, idconst = 'ALTER'):
-        print(self.ids)
+        #print(self.ids)
 
         colindex = []
         for id in self.ids :
