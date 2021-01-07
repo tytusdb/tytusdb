@@ -230,7 +230,35 @@ def buscarIndice(nombre):
                 pos=pos+1
         else:
             break
+    return False
+
+def buscarFUN_PROC(tipo,nombre):
+    global outputTS
+    pos=0
+    while pos< len(outputTS):
+        if pos+1 < len(outputTS):
+            if(outputTS[pos].instruccion==tipo and outputTS[pos+1].identificador==nombre):
+                return True
+            else:
+                pos=pos+1
+        else:
+            break
     return False   
+
+def EliminarFUN_PROC(tipo,instr,ts):
+    global outputTS
+    for nm in instr.nombres:
+        pos=0
+        while pos< len(outputTS):
+            if pos+1 < len(outputTS):
+                if(outputTS[pos].instruccion==tipo and outputTS[pos+1].identificador==nm):
+                    outputTS.pop(pos+1)
+                    outputTS.pop(pos)
+                    break
+                else:
+                    pos=pos+1
+            else:
+                break
 
 def insertartabla(columnas,nombre):
     global listaTablas
@@ -3616,6 +3644,8 @@ def Funciones(instr,ts):
             CD3.PCreateFuncion(nombreF,tipoF,contenidoF,parAuxF,False)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
+            agregarTSRepor("FUNCTION","","","","","","","")
+            agregarTSRepor("",nombreF,tipoF,"","","1",parAuxF,"")
         else:
             #verificar el replace
             if(reemplazarF):
@@ -3890,6 +3920,8 @@ def Eliminar_Funcion(instr,ts):
         if buscarFuncion(nm.lower()) is not None:
             eliminarFuncion(nm.lower())
             agregarMensjae('exito', 'Funcion '+nm.lower()+' eliminada','')
+            if buscarFUN_PROC("FUNCTION",nm):
+                EliminarFUN_PROC("FUNCTION",instr,ts)
         else:
             agregarMensjae('error', '42883:Funcion no registrada','42883')
 
@@ -4161,6 +4193,8 @@ def Crear_Procedimiento(instr,ts):
             CD3.PCreateProcedure(name,cuerpo,parametros,0)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
+            agregarTSRepor("PROCEDURE","","","","","","","")
+            agregarTSRepor("",name,"","","","1",parAuxF,"")
         else:
             #verificar el replace
             if(reemplazar):
@@ -4327,6 +4361,8 @@ def Eliminar_Procedimientos(instr,ts):
         if findProcedure(i.lower()) is not None:
             eliminarProcedure(i.lower())
             agregarMensjae('exito', 'Procedure '+i.lower()+' eliminado','')
+            if buscarFUN_PROC("PROCEDURE",i):
+                EliminarFUN_PROC("PROCEDURE",instr,ts)
         else:
             agregarMensjae('error', '42883: No existe el procedimiento '+i.lower(),'42883')
 

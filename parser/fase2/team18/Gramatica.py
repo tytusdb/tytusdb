@@ -462,12 +462,15 @@ def p_alterIndex_column(t):
      t[0] = Alter_Index_Col(Operando_ID(t[4]),t[6],t[7])
 
 def p_alterIndex_op(t):
-     '''alterop : ALTER
-                | empty'''
+     '''alterop : alteropcional columnaopcional'''
 
-def p_columna_id(t):
-     '''column_id : COLUMN'''
-     t[0] = False
+def p_alterindex_opcional(t):
+     '''alteropcional : ALTER
+                      | empty'''
+
+def p_alterindex_opcional_columna(t):
+     '''columnaopcional : COLUMN
+                        | empty'''
 
 def p_columna_id_id(t):
      '''column_id : ID'''
