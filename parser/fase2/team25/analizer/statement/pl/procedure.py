@@ -3,7 +3,7 @@ import sys
 
 sys.path.append("../../..")
 from analizer.abstract import instruction
-from analizer.reports import Nodo
+from analizer.reports.Nodo import Nodo
 from analizer.symbol.environment import Environment
 import analizer.symbol.c3dSymbols as SymbolTable
 from analizer.abstract.expression import TYPE
