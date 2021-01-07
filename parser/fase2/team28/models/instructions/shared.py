@@ -89,7 +89,7 @@ class TableReference(Instruction):
         self.option_join = option_join
         self.line = line
         self.column = column
-        self._tac = self.alias
+        self._tac = ''
     def __repr__(self):
         return str(vars(self))
 

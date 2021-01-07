@@ -6,6 +6,7 @@ import Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Declaracion import Declaracion
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Return import Return
+from Analisis_Ascendente.Instrucciones.PLPGSQL.plasignacion import Plasignacion
 
 class Expresion(Exp):
     def __init__(self, iz, dr, operador,fila,columna):
@@ -15,12 +16,33 @@ class Expresion(Exp):
         self.fila = fila
         self.columna = columna
 
+
+    def limpiarFuncion(expr,tsglobal):
+        if isinstance(expr,Funcion):
+            bdactual = tsglobal.buscar_sim("usedatabase1234")
+            BD = tsglobal.buscar_sim(bdactual.valor)
+            entornoBD = BD.Entorno
+            try:
+                if entornoBD.validar_sim(expr.id) == 1:  # Verificamos si el nombre de la función existe en la DB
+                    simboloFuncion = entornoBD.buscar_sim(expr.id)
+                    Expresion.vaciarFuncion(simboloFuncion)
+            except:
+                None
+
+    def vaciarFuncion(simboloFuncion):
+        entornoFN = simboloFuncion.Entorno
+        for simbolo in entornoFN.simbolos.values():
+            if simbolo.categoria == TS.TIPO_DATO.PARAMETRO:
+                simbolo.valor = None
+            elif simbolo.categoria == TS.TIPO_DATO.DECLARACION:
+                entornoFN.eliminar_sim(simbolo.id)
+        simboloFuncion.valor = None
+
     def ResolverFuncion(expr,tsglobal,tstabla,Consola,exception):
         if isinstance(expr, Funcion):
             return Expresion.ejecutarFuncion(expr,tsglobal,tstabla,Consola,exception)
 
     def Resolver(expr,ts,Consola,exception):
-
         if isinstance(expr,Expresion):
             exp1 = Expresion.Resolver(expr.iz,ts,Consola,exception)
             exp2 = Expresion.Resolver(expr.dr,ts,Consola,exception)
@@ -88,7 +110,6 @@ class Expresion(Exp):
         elif isinstance(expr, Trigonometrica.Trigonometrica):
             return Trigonometrica.Trigonometrica.Resolver(expr,ts,Consola,exception)
         elif isinstance(expr, Math.Math_):
-            print("estoy llegango")
             return  Math.Math_.Resolver(expr,ts,Consola,exception)
         elif isinstance(expr,Time):
             return Time.resolverTime(expr)
@@ -127,7 +148,6 @@ class Expresion(Exp):
         except:
             return "Error en ejecutar la Funcion"
 
-
     def asignarArgumentos(simboloFuncion,listaExpresiones,ts,consola,exception):
         #VERFICAMOS CADA EXPRESION CON EL TIPO DE DATO DE CADA PARAMETRO
         argumentoscorrectos = True
@@ -148,7 +168,6 @@ class Expresion(Exp):
                         simbolo.valor = None
                 break
         return argumentoscorrectos
-
 
     def verificarArgumento(tipoargumento,tipoparametro):
         correcto = False
@@ -171,27 +190,49 @@ class Expresion(Exp):
             declaraciones = simbolodeclare.valor                                #List de objetos: Declaracion
             for declaracion in declaraciones:
                 if isinstance(declaracion,Declaracion):
-                    ejecutarDeclaracion(declaracion,simboloFuncion)
+                    ejecutarDeclaracion(declaracion,simboloFuncion,ts,consola,exception)
         #Ejecutamos el bloque begin
         simbolobegin = simboloFuncion.Entorno.buscar_sim('BEGIN')           #List de objetos: cualquier instruccion
         instrucciones = simbolobegin.valor
         for instr in instrucciones:
-            if isinstance(instr,Return):
+            if isinstance(instr,Plasignacion):
+                ejecutarPlasignacion(instr,ts,simboloFuncion,consola,exception)
+            elif isinstance(instr,Return):
                 ejecutarReturn(instr,ts,simboloFuncion,consola,exception)
 
-def ejecutarDeclaracion(declaracion,simboloFuncion):
+
+def ejecutarPlasignacion(plasignacion,ts,simboloFuncion,consola,exception):
+    #Validamos que la variable exista en la función
+    entornoFN =  simboloFuncion.Entorno
+    if entornoFN.validar_sim(plasignacion.id) == 1:
+        simvariable = entornoFN.buscar_sim(plasignacion.id)
+        valorRetorno = ResolverReturn(plasignacion.expresion,ts,entornoFN,consola,exception)
+        if valorRetorno == 'TRUE':
+            valorRetorno = True
+        elif valorRetorno == 'FALSE':
+            valorRetorno = False
+        #verifico que concuerde el tipo de la expresion con el tipo de la variable
+        correcto = verificarRetorno(valorRetorno,simvariable.tipo.tipo)
+        if correcto:
+            simvariable.valor = valorRetorno
+        else:
+            consola.append(f"Error: El valor a asignar a la variable: {simvariable.id} no coincide con su tipo")
+    else:
+        consola.append(f"Error: No existe la variable: {plasignacion.id} en la función: {simboloFuncion.id}")
+
+
+def ejecutarDeclaracion(declaracion,simboloFuncion,ts,consola,exception):
     entornoFN = simboloFuncion.Entorno
     nuevosimbolo = None
     if declaracion.asignacion == None:
         nuevosimbolo = TS.Simbolo(TS.TIPO_DATO.DECLARE, declaracion.id, declaracion.tipo, None, None)
     else:
-        expre = Expresion.Resolver(declaracion.asignacion)
+        expre = Expresion.Resolver(declaracion.asignacion,ts,consola,exception)
         nuevosimbolo = TS.Simbolo(TS.TIPO_DATO.DECLARE, declaracion.id, declaracion.tipo, expre, None)
     entornoFN.agregar_sim(nuevosimbolo)
 
-
 def ejecutarReturn(Retu,ts,simfuncion,Consola,exception):
-    valorRetorno = ResolverReturn(Retu,ts,simfuncion.Entorno,Consola,exception)
+    valorRetorno = ResolverReturn(Retu.expr,ts,simfuncion.Entorno,Consola,exception)
     if valorRetorno == 'TRUE':
         valorRetorno = True
     elif valorRetorno == 'FALSE':
@@ -201,96 +242,94 @@ def ejecutarReturn(Retu,ts,simfuncion,Consola,exception):
     correcto = verificarRetorno(valorRetorno,simfuncion.tipo)
     if correcto:
         simfuncion.valor = valorRetorno
-        Consola.append(f"Se realizo el return de la función con exito")
+        Consola.append(f"Se realizo el return de la función {simfuncion.id} con exito")
     else:
         simfuncion.valor = None
         Consola.append(f"El tipo de dato a retornar no concuerda con el tipo de returns de la función")
 
-
-def ResolverReturn(Retu,ts,entornoFuncion,Consola,exception):
-        if isinstance(Retu.expr,Expresion):
-            exp1 = ResolverReturn(Retu.expr.iz,ts,Consola,exception)
-            exp2 = ResolverReturn(Retu.expr.dr,ts,Consola,exception)
-            if Retu.expr.operador == '=':
+def ResolverReturn(expr,ts,entornoFuncion,Consola,exception):
+        if isinstance(expr,Expresion):
+            exp1 = ResolverReturn(expr.iz,ts,entornoFuncion,Consola,exception)
+            exp2 = ResolverReturn(expr.dr,ts,entornoFuncion,Consola,exception)
+            if expr.operador == '=':
                 return exp1 == exp2
-            elif Retu.expr.operador == '*':
+            elif expr.operador == '*':
                 # id = expresion
                 # id = (x < 9)
                 if (isinstance(exp1,float) and isinstance(exp2,float)) or (isinstance(exp1,int) and isinstance(exp2,int)) or (isinstance(exp1,float) and isinstance(exp2,int))  or (isinstance(exp1,int) and isinstance(exp2,float)) :
                     return exp1 * exp2
                 return 'error'
-            elif Retu.expr.operador == '/':
+            elif expr.operador == '/':
                 if (isinstance(exp1,float) and isinstance(exp2,float)) or (isinstance(exp1,int) and isinstance(exp2,int)) or (isinstance(exp1,float) and isinstance(exp2,int))  or (isinstance(exp1,int) and isinstance(exp2,float)) :
                     return exp1 / exp2
                 return 'error'
-            elif Retu.expr.operador == '+':
+            elif expr.operador == '+':
                 if (isinstance(exp1,float) and isinstance(exp2,float)) or (isinstance(exp1,int) and isinstance(exp2,int)) or (isinstance(exp1,float) and isinstance(exp2,int))  or (isinstance(exp1,int) and isinstance(exp2,float)):
                     return exp1 + exp2
                 return 'error'
-            elif Retu.expr.operador == '-':
+            elif expr.operador == '-':
                 if (isinstance(exp1,float) and isinstance(exp2,float)) or (isinstance(exp1,int) and isinstance(exp2,int)) or (isinstance(exp1,float) and isinstance(exp2,int))  or (isinstance(exp1,int) and isinstance(exp2,float)):
                     return exp1 - exp2
                 return 'error'
-            elif Retu.expr.operador == '^':
+            elif expr.operador == '^':
                 if (isinstance(exp1,float) and isinstance(exp2,float)) or (isinstance(exp1,int) and isinstance(exp2,int)) or (isinstance(exp1,float) and isinstance(exp2,int))  or (isinstance(exp1,int) and isinstance(exp2,float)):
                     return exp1 ** exp2
                 return 'error'
-            elif Retu.expr.operador == '%':
+            elif expr.operador == '%':
                 if (isinstance(exp1,float) and isinstance(exp2,float)) or (isinstance(exp1,int) and isinstance(exp2,int)) or (isinstance(exp1,float) and isinstance(exp2,int))  or (isinstance(exp1,int) and isinstance(exp2,float)):
                     return exp1 % exp2
                 return 'error'
-            elif Retu.expr.operador == '==': #comparacion---------------------------------------
+            elif expr.operador == '==': #comparacion---------------------------------------
                 boole= exp1 == exp2
                 return  boole
-            elif Retu.expr.operador == '<>':
+            elif expr.operador == '<>':
                 boole = exp1 != exp2
                 return boole
-            elif Retu.expr.operador == '>':
+            elif expr.operador == '>':
                 boole = exp1 > exp2
                 return boole
-            elif Retu.expr.operador == '<':
+            elif expr.operador == '<':
                 boole = exp1 < exp2
                 return boole
-            elif Retu.expr.operador == '!=':
+            elif expr.operador == '!=':
                 boole = exp1 != exp2
                 return boole
-            elif Retu.expr.operador == '>=':
+            elif expr.operador == '>=':
                 boole = exp1 >= exp2
                 return boole
-            elif Retu.expr.operador == '<=':
+            elif expr.operador == '<=':
                 boole = exp1 <= exp2
                 return boole
-        elif isinstance(Retu.expr,Id):
-            if ts.validar_sim(Retu.expr.id) == 1:       #Esta opción no debería de ejecutarse normalmente
-                simbolo = ts.buscar_sim(Retu.expr.id)
+        elif isinstance(expr,Id):
+            if ts.validar_sim(expr.id) == 1:       #Esta opción no debería de ejecutarse normalmente
+                simbolo = ts.buscar_sim(expr.id)
                 return simbolo.valor
             else:
                 #VERIFICAMOS SI ES UNA VARIABLE DE LA FUNCION
-                if entornoFuncion.validar_sim(Retu.expr.id) == 1:
-                    simbolo = entornoFuncion.buscar_sim(Retu.expr.id)
+                if entornoFuncion.validar_sim(expr.id) == 1:
+                    simbolo = entornoFuncion.buscar_sim(expr.id)
                     return simbolo.valor
-        elif isinstance(Retu.expr, Primitivo):
-            return Retu.expr.valor
-        elif isinstance(Retu.expr, Trigonometrica.Trigonometrica):
-            return Trigonometrica.Trigonometrica.Resolver(Retu.expr,ts,Consola,exception)
-        elif isinstance(Retu.expr, Math.Math_):
-            print("estoy llegango")
-            return  Math.Math_.Resolver(Retu.expr,ts,Consola,exception)
-        elif isinstance(Retu.expr,Time):
-            return Time.resolverTime(Retu.expr)
-        elif isinstance(Retu.expr,Binario):
-            return Binario.Resolver(Retu.expr,ts,Consola,exception)
-        elif isinstance(Retu.expr, Unario):
-            exp1 = Expresion.Resolver(Retu.expr.op,ts,Consola,exception)
-            if Retu.expr.operador == '-':
+        elif isinstance(expr, Primitivo):
+            return expr.valor
+        elif isinstance(expr, Trigonometrica.Trigonometrica):
+            return Trigonometrica.Trigonometrica.Resolver(expr,ts,Consola,exception)
+        elif isinstance(expr, Math.Math_):
+            #print("estoy llegango")
+            return  Math.Math_.Resolver(expr,ts,Consola,exception)
+        elif isinstance(expr,Time):
+            return Time.resolverTime(expr)
+        elif isinstance(expr,Binario):
+            return Binario.Resolver(expr,ts,Consola,exception)
+        elif isinstance(expr, Unario):
+            exp1 = Expresion.Resolver(expr.op,ts,Consola,exception)
+            if expr.operador == '-':
                 if isinstance(exp1, int) or isinstance(exp1, float):
                     return exp1 * -1
-            elif Retu.expr.operador == '+':
+            elif expr.operador == '+':
                 if isinstance(exp1, int) or isinstance(exp1, float):
                     return exp1
-            elif Retu.expr.operador == '!':
+            elif expr.operador == '!':
                     return not exp1
-
 
 def verificarRetorno(valorRetorno, tipoFuncion) -> bool:
     correcto = False
@@ -310,3 +349,4 @@ def verificarRetorno(valorRetorno, tipoFuncion) -> bool:
     elif tipoFuncion == 'TIMESTAMP' or tipoFuncion == 'DATE' or tipoFuncion == 'TIME' or tipoFuncion == 'INTERVAL':
         correcto = True
     return correcto
+

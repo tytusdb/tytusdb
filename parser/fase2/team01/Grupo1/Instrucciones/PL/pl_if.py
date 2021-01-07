@@ -23,13 +23,16 @@ class IFNOTFOUND(Instruccion):
 
 class IFELSEELSIF(Instruccion):
 
-    def __init__(self, argIf, argCondicion1, argInstruccion1, argelsif, argelse, arginstruccion3 ):
+    def __init__(self,arg0,arg1,  argIf, argCondicion1, argInstruccion1, argelsif, argelse, arginstruccion3 ):
         self.argIf = argIf
         self.argCondicion1 = argCondicion1
         self.argInstruccion1 = argInstruccion1
         self.argelsif = argelsif
         self.argelse = argelse
         self.arginstruccion3 = arginstruccion3
+        self.arg0 = arg0
+        self.arg1 = arg1
+
 
     def execute(self):
         return self.notv
@@ -41,10 +44,12 @@ class IFELSEELSIF(Instruccion):
 
 class ELSIF(Instruccion):
 
-    def __init__(self, argelsif, argCondicion, argInstruccion):
+    def __init__(self, arg0,arg1,argelsif, argCondicion, argInstruccion):
         self.argelsif = argelsif
         self.argCondicion = argCondicion
         self.argInstruccion = argInstruccion
+        self.arg0 = arg0
+        self.arg1 = arg1
 
     def execute(self):
         return self.notv

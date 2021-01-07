@@ -238,7 +238,8 @@ reservadas = {
     'language' : 'LANGUAGE',
     'plpgsql' : 'PLPGSQL',
     'rowtype' : 'ROWTYPE',
-    'alias' : 'ALIAS'
+    'alias' : 'ALIAS',
+    'return' : 'RETURN'
 # revisar funciones de tiempo y fechas
 }
 
@@ -575,28 +576,28 @@ def p_alterIndex_1(t):
     t[0] = AlterIndex(t[5],t[8]) 
 # ------------------------------------------------------ALTER INDEX COLUMN ----------------------------------------------------
 def p_alterIndex_2(t):
-    'alterIndex    : ALTER INDEX ID ALTER final PUNTOYCOMA'
+    'alterIndex    : ALTER INDEX ID ALTER ID final PUNTOYCOMA'
     h.reporteGramatical1 +="alterIndex    ::=        ALTER INDEX ID ALTER final PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0] = AlterIndex(t[5],t[8]) \n"
-    t[0] = AlterColumnIndex(t[3],t[5])  
+    h.reporteGramatical2 +="t[0] = AlterColumnIndex(t[3],t[5],t[6])   \n"
+    t[0] = AlterColumnIndex(t[3],t[5],t[6])  
 
 def p_alterIndex_3(t):
-    'alterIndex    : ALTER INDEX ID ALTER COLUMN final PUNTOYCOMA'
+    'alterIndex    : ALTER INDEX ID ALTER COLUMN ID final PUNTOYCOMA'
     h.reporteGramatical1 +="alterIndex    ::=        ALTER INDEX ID ALTER COLUMN final PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0] = AlterIndex(t[5],t[8]) \n"
-    t[0] = AlterColumnIndex(t[3],t[6])
+    h.reporteGramatical2 +="t[0] = AlterColumnIndex(t[3],t[6],t[7]) \n"
+    t[0] = AlterColumnIndex(t[3],t[6],t[7])
 
 def p_alterIndex_4(t):
-    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER final PUNTOYCOMA'
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER ID final PUNTOYCOMA'
     h.reporteGramatical1 +="alterIndex    ::=        ALTER INDEX IF EXISTS ID ALTER final PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0] = AlterIndex(t[5],t[8]) \n"
-    t[0] = AlterColumnIndex(t[5],t[7])  
+    h.reporteGramatical2 +="t[0] = AlterColumnIndex(t[5],t[7],t[8])  \n"
+    t[0] = AlterColumnIndex(t[5],t[7],t[8])  
 
 def p_alterIndex_5(t):
-    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER COLUMN final PUNTOYCOMA'
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER COLUMN ID final PUNTOYCOMA'
     h.reporteGramatical1 +="alterIndex    ::=        ALTER INDEX IF EXISTS ID ALTER COLUMN final PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0] = AlterIndex(t[5],t[8]) \n"
-    t[0] = AlterColumnIndex(t[5],t[8])     
+    h.reporteGramatical2 +="t[0] = AlterColumnIndex(t[5],t[8],t[9]) \n"
+    t[0] = AlterColumnIndex(t[5],t[8],t[9])     
 # --------------------------------------------------------------------------------------------------------------------------------
 def p_indexParams(t):
     'indexParams    : sort'

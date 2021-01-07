@@ -13,7 +13,7 @@ from storage.json import jsonMode as json
 
 import os, traceback
 from storage.misc import serealizar as sr, ForeignKeyStr as fk_str, UniqueIndexStr as ui_str, IndexStr as i_str, \
-    checksum as ch, compresion as comp, BlockChain as BC
+    checksum as ch, compresion as comp, BlockChain as BC, Grafos as graph
 
 _main_path = os.getcwd() + "\\data"
 
@@ -507,11 +507,10 @@ def extractTable(database: str, table: str) -> list:
     if bd:
 
         tb = _table(database, table)
-
+        encodingold = bd["encoding"]
         if tb:
 
             mode = tb["modo"]
-
             val = -1
 
             if mode == "avl":
@@ -535,6 +534,15 @@ def extractTable(database: str, table: str) -> list:
             elif mode == "dict":
                 val = dict.extractTable(database, table)
 
+            for x in val:
+                i = 0
+                for y in x:
+                    if type(y) == str:
+                        try:
+                            x[i] = y.decode(encodingold, "strict")
+                        except: 
+                            return 1
+                    i += 1
             return val
 
         else:
@@ -1001,8 +1009,16 @@ def insert(database: str, table: str, register: list) -> int:
 
             # if _Comprobar(database, table, register):
 
+            encoding = bd["encoding"]
             mode = tb["modo"]
-
+            i = 0
+            for y in register:
+                if type(y) == str:
+                    try:
+                        register[i] = y.encode(encoding, "strict")
+                    except: 
+                        return 1
+                i += 1
             val = -1
 
             if mode == "avl":
@@ -1187,8 +1203,16 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
 
         if tb:
 
+            lista = list(register.keys())
             mode = tb["modo"]
-
+            for t in lista:
+                if type(register[t]) == str:
+                    register[t] = register[t].encode(bd["encoding"],"strict")
+            i = 0
+            for c in columns:
+                c = str(c).encode(bd["encoding"],"strict")
+                columns[i] = x
+                i += 1
             val = -1
 
             if mode == "avl":
@@ -1735,15 +1759,48 @@ def alterDatabaseEncoding(database: str, encoding: str) -> int:
     if bd:
 
         if bd["encoding"] == encoding or encoding not in ["utf8", "ascii", "iso-8859-1"]:
-            return 4
-
-        bd["encoding"] = encoding
-
-        # verificar que se cumpla el nuevo encoding
-
+            return 3
+        else:
+            res = 0
+            aux = {}
+            encodingold = bd["encoding"]
+            bd["encoding"] = encoding
+            try:
+                table = _database(database)["tablas"]
+                for t in table:
+                    val = t.extractTable(database, t)['nombre']
+                    aux.update({t['nombre']:val[:]})
+                    truncate(database,t['nombre'])
+                    if len(val):
+                        for x in val:
+                            i = 0
+                            for y in x:
+                                if type(y) == str:
+                                    try:
+                                        x[i] = y.decode(encodingold, "strict")
+                                    except: 
+                                        res = 1
+                                        break
+                                i += 1
+                            if res:
+                                break
+                            res = insert(database, t['nombre'], x)
+                            if res:
+                                break
+                        if res:
+                            break        
+                if res:
+                    for t in list(aux.keys()):
+                        truncate(database,t['nombre'])
+                        for x in aux[t]:
+                            insert(database, t['nombre'], x)
+                else:
+                    _Guardar()
+                    return 0
+            except:
+                return 1
     else:
         return 2
-
 
 # ===============================//=====================================
 #                      ADMINISTRACION DE CHECKSUM
@@ -2052,22 +2109,27 @@ def _Graficar(database, table):
         if mode == "avl":
 
             avl._Cargar(database, table)
+            return "avl"
 
         elif mode == "b":
 
             b._Cargar(database, table)
+            return "b"
 
         elif mode == "bplus":
 
             bplus._Cargar(database, table)
+            return "bplus"
 
         if mode == "hash":
 
             hash._Cargar(database, table)
+            return "hash"
 
         elif mode == "isam":
 
             isam._Cargar(database, table)
+            return "isam"
 
         return 0
 
@@ -2102,7 +2164,7 @@ def graphDSD(database: str) -> int:
     db = _database(database)
 
     if db:
-        pass
+        return graph.graphDSD(database)
 
     else:
         return None
@@ -2123,7 +2185,7 @@ def graphDF(database: str, table: str) -> int:
     db = _database(database)
 
     if db:
-        pass
+        return graph.graphDF(database,table)
 
     else:
         return None

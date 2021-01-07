@@ -6,6 +6,7 @@ sys.path.append('../G26/Utils')
 from jsonMode import *
 from Error import *
 from instruccion import *
+import os
 
 class Drop(Instruccion):
     #False: Drop table
@@ -104,8 +105,13 @@ class DropFunction(Instruccion):
         i = 0
         for func in data.tablaSimbolos['funciones_'] :
             if self.id == func['name'] :
+
+                if not func['tipo'] == 'Funcion' :
+                   continue 
+                
                 'eliminar funcion'
                 data.tablaSimbolos['funciones_'].pop(i)
+                os.remove('../G26/Funciones/' + self.id +'.py')
                 return 'función eliminada'
             i += 1
         return 'función no encontrada'
@@ -124,8 +130,13 @@ class DropProc(Instruccion):
         i = 0
         for proc in data.tablaSimbolos['funciones_'] :
             if self.id == proc['name'] :
-                'eliminar funcion'
+
+                if not proc['tipo'] == 'Procedimiento' :
+                   continue 
+
+                'eliminar procedure'
                 data.tablaSimbolos['funciones_'].pop(i)
+                os.remove('../G26/Funciones/' + self.id +'.py')
                 return 'procedimiento eliminado'
             i += 1
         return 'procedimiento no encontrado'
