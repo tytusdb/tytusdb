@@ -331,7 +331,6 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
                         register1 = extractTable(database, table)
                         register2 = extractTable(database, tableRef)
                         if len(register1) == 0 and len(register2) == 0:
-                            print(databasesinfo)
                             res = createTable(database, table + 'FK', 2)
                             if res == 0:
                                 res1 = insert(database, table + 'FK', [tableRef, columnsRef])
@@ -339,7 +338,6 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
                                     dictFK = {indexName: {'columns': columns}}
                                     FKey = {'FK': dictFK}
                                     databasesinfo[1][database][table].update(FKey)
-                                    print(databasesinfo)
                                     commit(databasesinfo, 'databasesInfo')
                                 else:
                                     result = 1
@@ -376,7 +374,6 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
                                             Val1 = False
                                             break
                                     if Val1:
-                                        print(databasesinfo)
                                         res = createTable(database,table + 'FK',3)
                                         if res == 0:
                                             res1 = insert(database,table+'FK',[indexName,tableRef,columnsRef])
@@ -384,7 +381,6 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
                                                 dictFK = {indexName: {'columns':columns}}
                                                 FKey = {'FK': dictFK}
                                                 databasesinfo[1][database][table].update(FKey)
-                                                print(databasesinfo)
                                                 commit(databasesinfo,'databasesInfo')
                                             else: result = 1
                                         else:
@@ -412,13 +408,11 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
         elif table not in databasesinfo[1][database]:
             result = 3
         else:
-            print(databasesinfo)
             if 'FK' in databasesinfo[1][database][table]:
                 if indexName in databasesinfo[1][database][table]['FK']:
                     res = dropTable(database, table+'FK')
                     if res == 0:
                         del databasesinfo[1][database][table]['FK'][indexName]
-                        print(databasesinfo)
                         commit(databasesinfo,'databasesinfo')
                         result = 0
                     else:
@@ -450,7 +444,6 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
                 if col1:
                     registers = extractTable(database,table)
                     if len(registers) == 0:
-                        print(databasesinfo)
                         res = createTable(database, table + 'IndexUnique', 2)
                         if res == 0:
                             res1 = insert(database, table + 'IndexUnique', [indexName,columns])
@@ -458,7 +451,6 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
                                 dictIU = {indexName: {'columns': columns}}
                                 IndexU = {'IndexUnique': dictIU}
                                 databasesinfo[1][database][table].update(IndexU)
-                                print(databasesinfo)
                                 commit(databasesinfo, 'databasesInfo')
                             else:
                                 result = 1
@@ -487,7 +479,6 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
                                 else:
                                     Values1.append(Fk1)
                             if Rep:
-                                print(databasesinfo)
                                 res = createTable(database, table + 'IndexUnique', 2)
                                 if res == 0:
                                     res1 = insert(database, table + 'IndexUnique', [indexName, columns])
@@ -495,7 +486,6 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
                                         dictIU = {indexName: {'columns': columns}}
                                         IndexU = {'IndexUnique': dictIU}
                                         databasesinfo[1][database][table].update(IndexU)
-                                        print(databasesinfo)
                                         commit(databasesinfo, 'databasesInfo')
                                     else:
                                         result = 1
@@ -522,13 +512,11 @@ def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
         elif table not in databasesinfo[1][database]:
             result = 3
         else:
-            print(databasesinfo)
             if 'IndexUnique' in databasesinfo[1][database][table]:
                 if indexName in databasesinfo[1][database][table]['IndexUnique']:
                     res = dropTable(database, table + 'IndexUnique')
                     if res == 0:
                         del databasesinfo[1][database][table]['IndexUnique'][indexName]
-                        print(databasesinfo)
                         commit(databasesinfo, 'databasesinfo')
                         result = 0
                     else:
@@ -558,7 +546,6 @@ def alterTableAddIndex(database: str, table: str, indexName: str, columns: list)
                         col1 = False
                         break
                 if col1:
-                    print(databasesinfo)
                     res = createTable(database, table + 'Index', 2)
                     if res == 0:
                         res1 = insert(database, table + 'Index', [indexName, columns])
@@ -566,7 +553,6 @@ def alterTableAddIndex(database: str, table: str, indexName: str, columns: list)
                             dictI = {indexName: {'columns': columns}}
                             Index = {'Index': dictI}
                             databasesinfo[1][database][table].update(Index)
-                            print(databasesinfo)
                             commit(databasesinfo, 'databasesInfo')
                         else:
                             result = 1
@@ -589,13 +575,11 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
         elif table not in databasesinfo[1][database]:
             result = 3
         else:
-            print(databasesinfo)
             if 'Index' in databasesinfo[1][database][table]:
                 if indexName in databasesinfo[1][database][table]['Index']:
                     res = dropTable(database, table + 'Index')
                     if res == 0:
                         del databasesinfo[1][database][table]['Index'][indexName]
-                        print(databasesinfo)
                         commit(databasesinfo, 'databasesinfo')
                         result = 0
                     else:
