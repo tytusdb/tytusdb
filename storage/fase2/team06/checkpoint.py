@@ -442,6 +442,144 @@ def insert(db,tabla,lista):
     else:
         return 2
 
+def alterTableAddUnique(database, table, indexName, columns):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if lista != None:
+            if table in lista:
+                if nodo[5] != None:
+                    dict = nodo[3]
+                    if table in dict:
+                        tab = verificarmodo(dict[table]).extractTable(database, table)
+                    else:
+                        tab = verificarmodo(nodo[1]).extractTable(database, table)
+                    try:
+                        for columna in columns:
+                            if columna > len(tab[0]):
+                                return 4
+                        nodo[5].append([table,indexName,columns])
+                        return 0
+                    except:
+                        return 1
+    else:
+        return 2
+
+def alterTableDropUnique(database, table, indexName):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if table in lista:
+            try:
+                if nodo[5] != None:
+                    indice = nodo[5]
+                    c=0
+                    for i in indice:
+                        if i[0] == table:
+                            indice.pop(c)
+                        c = c + 1
+                        return 0
+            except:
+                return 1
+        else:
+            return 3
+    else:
+        return 2
+
+def alterTableAddIndex(database, table, indexName, columns):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if table in lista:
+            if nodo[3]!=None:
+                dict = nodo[3]
+                if table in dict:
+                    tab = verificarmodo(dict[table]).extractTable(database, table)
+                else:
+                    tab = verificarmodo(nodo[1]).extractTable(database, table)
+                try:
+                    if len(tab)!=0:
+                        for columna in columns:
+                            if columna > len(tab[0]):
+                                return 4
+                    nodo[5].append([table, indexName, columns])
+                    return 0
+                except:
+                    return 1
+        else:
+            return 3
+    else:
+        return 2
+
+
+def alterTableAddFK(database, table, indexName, columns,  tableRef, columnsRef):
+    nodo = buscar(database)
+    if nodo != None:
+        try:
+            lista = showTables(database)
+            if table in lista and tableRef in lista:
+                if nodo[5]!=None:
+                    indices = nodo[5]
+                    for i in indices:
+                        if i[0] == table and i[1]==indexName:
+                            if len(columns) != len(columnsRef):
+                                return 4
+                            else:
+                                fk = nodo[6]
+                                fk.append([indexName,table,columns,tableRef,columnsRef])
+            else:
+                return 3
+            return 0
+        except:
+            return 1
+    else:
+        return 2
+
+def alterTableDropFK(database, table, indexName):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if table in lista:
+            try:
+                if nodo[6]!=None:
+                    indice = nodo[6]
+                    c = 0
+                    for i in indice:
+                        if i[0] == indexName and i[1]==table:
+                            indice.pop(c)
+                        c = c + 1
+                        return 0
+            except:
+                return 1
+        else:
+            return 3
+    else:
+        return 2
+
+
+def alterTableDropIndex(database, table, indexName):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        if table in lista:
+            try:
+                if nodo[5] != None:
+                    indice = nodo[5]
+                    c=0
+                    for i in indice:
+                        if i[0] == indexName and i[1] == table:
+                            indice.pop(c)
+                        c = c + 1
+                        return 0
+
+            except:
+                return 1
+        else:
+            return 3
+    else:
+        return 2
+    
+
 def decrypt(cipherbackup,clave):
     encrypt=""
     devuelve = ""
