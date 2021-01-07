@@ -1,5 +1,6 @@
 /venv/
 /.idea/
+/codigo3D.py
 /__pycache__/
 /ply/__pycache__/
 /parser.out
