@@ -18,7 +18,7 @@ from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, Alt
 from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set, CreateIndex
 from Instrucciones.Sql_declare import Declare
 from Instrucciones.Sql_delete import DeleteTable
-from Instrucciones.Sql_drop import DropDatabase, DropTable
+from Instrucciones.Sql_drop import DropDatabase, DropTable, DropIndex
 from Instrucciones.Sql_insert import insertTable
 from Instrucciones.Sql_Joins import Join, JoinFull, JoinInner, JoinLeft, JoinRight
 from Instrucciones.Sql_select import GroupBy, Having, Limit, OrderBy, Select, Where, SelectLista
@@ -2411,6 +2411,25 @@ def p_instruccion_index(t):
     strTipo = t[2] + " INDEX " + t[7]
     strSent = "CREATE " + t[2] + " INDEX " + t[4] + " ON " + t[6] + " " + t[7] + " (" + strId +") " + t[11] + ";"
     t[0] = CreateIndex.CreateIndex(t[4], strTipo, t[6], strId, "", t.lexer.lineno, t.lexer.lexpos, strSent)
+
+def p_instruccion_del_index(t):
+    '''
+    instruccion : DROP INDEX if_op ID PUNTO_COMA
+    '''
+    strSent = "DROP " + "INDEX " + t[3] + t[4] + ";"
+    t[0] = DropIndex.DropIndex(t[4],None, "", t.lexer.lineno, t.lexer.lexpos, strSent)
+
+def p_index_if_exists(t):
+    '''
+    if_op : IF EXISTS
+    '''
+    t[0] = "IF EXISTS "
+
+def p_index_if_e(t):
+    '''
+    if_op : 
+    '''
+    t[0] = ""
 
 def p_index_nombre(t):
     '''
