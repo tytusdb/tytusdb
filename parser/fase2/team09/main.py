@@ -19,6 +19,8 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 
 from storageManager.jsonMode import *
 
+from Instrucciones.C3D.controlador import controlador
+
 import sintactico
 
 global arbol
@@ -54,8 +56,8 @@ class interfaz():
         ##############################################VENTANA PRINCIPAL####################################
         self.window=Tk()
         #self.window.configure(background="#04DE5E")
-        img = PhotoImage(file='img/icons/postgesql2.png')
-        self.window.tk.call('wm', 'iconphoto', self.window._w, img)
+       # img = PhotoImage(file='img/icons/postgesql2.png')
+        #self.window.tk.call('wm', 'iconphoto', self.window._w, img)
         #img = PhotoImage(file='img/icons/Postgresql.ico')
         #self.window.tk.call('wm', 'iconphoto', self.window._w, img)
         self.window.configure(background="#6a8d92")
@@ -83,16 +85,16 @@ class interfaz():
 
         ##############################################BOTONES####################################
         
-        img2 = PhotoImage(file='img/icons/AnalyzeMP.png')
-        btnanalizar = Button(self.window,image=img2 , bg="#6a8d92",height=35, width=40, command=self.btnanalizar_click)
+        #img2 = PhotoImage(file='img/icons/AnalyzeMP.png')
+        btnanalizar = Button(self.window , bg="#6a8d92",height=35, width=40, command=self.btnanalizar_click)
         btnanalizar.place(x=20,y=4)
 
-        img3 = PhotoImage(file='img/icons/play32.png')
-        btnejecutar = Button(self.window,image = img3 , bg="#6a8d92",height=35, width=40,command=self.btnejecutar_click)
+       # img3 = PhotoImage(file='img/icons/play32.png')
+        btnejecutar = Button(self.window , bg="#6a8d92",height=35, width=40,command=self.btnejecutar_click)
         btnejecutar.place(x=115,y=5)
 
-        img4 = PhotoImage(file='img/icons/op.png')
-        btnoptimizar = Button(self.window, image=img4, bg="#6a8d92",height=35, width=40,command=self.btnoptimizar_click)
+       # img4 = PhotoImage(file='img/icons/op.png')
+        btnoptimizar = Button(self.window, bg="#6a8d92",height=35, width=40,command=self.btnoptimizar_click)
         btnoptimizar.place(x=200,y=5)
 
         ##############################################PESTAÑAS####################################
@@ -209,14 +211,26 @@ class interfaz():
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
         if arbol is None or arbol.instrucciones is None:
             return
-        for i in arbol.instrucciones:
-            if i is None:
-                break
+        
+        #for i in arbol.instrucciones:
+           # if i is None:
+                #break
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
-            resultado = i.ejecutar(tablaGlobal,arbol)
+            #resultado = i.ejecutar(tablaGlobal,arbol)
+
         # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
+
+        #Traduccion a codigo 3D
+        control = controlador()
+        
+        for i in arbol.instrucciones:
+            resultado2 = i.traducir(tablaGlobal,control)
+
+        control.c3d += '\nejecutar_3d()'
+        print (control.c3d)
+
         # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
         mensaje = ''
         for m in arbol.consola:

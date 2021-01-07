@@ -2,6 +2,7 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select.SelectLista import Alias
+from Instrucciones.C3D.temporal import temporal
 import time
 import numpy as np
 
@@ -85,7 +86,8 @@ class Relacional(Instruccion):
                     tablaRes.append(fil)
 
                 #agregar la tabla al arbol
-                arbol.setTablaActual(tablaRes)                  
+                arbol.setTablaActual(tablaRes)      
+                print(tablaRes)            
                 return tablaRes
             else:
                 if (self.opIzq.tipo.tipo == Tipo_Dato.SMALLINT or self.opIzq.tipo.tipo == Tipo_Dato.INTEGER or self.opIzq.tipo.tipo == Tipo_Dato.BIGINT or self.opIzq.tipo.tipo == Tipo_Dato.DECIMAL or self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC or self.opIzq.tipo.tipo == Tipo_Dato.REAL or self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or self.opIzq.tipo.tipo == Tipo_Dato.MONEY) and (self.opDer.tipo.tipo == Tipo_Dato.SMALLINT or self.opDer.tipo.tipo == Tipo_Dato.INTEGER or self.opDer.tipo.tipo == Tipo_Dato.BIGINT or self.opDer.tipo.tipo == Tipo_Dato.DECIMAL or self.opDer.tipo.tipo == Tipo_Dato.NUMERIC or self.opDer.tipo.tipo == Tipo_Dato.REAL or self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or self.opDer.tipo.tipo == Tipo_Dato.MONEY):
@@ -777,3 +779,23 @@ class Relacional(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
+
+    def traducir(self, tabla, controlador):
+        codigo = ''
+        # Si existe algún error en el operador izquierdo, retorno el error.
+        resultadoIzq = self.opIzq.traducir(tabla, controlador)
+        if isinstance(resultadoIzq, Excepcion):
+            return resultadoIzq
+        # Si existe algún error en el operador derecho, retorno el error.
+        resultadoDer = self.opDer.traducir(tabla, controlador)
+        if isinstance(resultadoDer, Excepcion):
+            return resultadoDer
+                
+        temp_izq = resultadoIzq.get_temp()
+        temp_der = resultadoDer.get_temp()
+
+        controlador.cont_temp = controlador.cont_temp + 1
+        temp_resultado = temporal(controlador.cont_temp,None)
+
+        if self.operador == '>': 
+            temp_resultado.tipo = Tipo_Dato.BOOLEAN

@@ -307,6 +307,7 @@ class Aritmetica(Instruccion):
                 return error
         return None
 
+#******************** traduccion fase 2 *****************
     def traducir(self, tabla, controlador):
         codigo =''
         
@@ -331,61 +332,61 @@ class Aritmetica(Instruccion):
                 if self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.INTEGER)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.INTEGER)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif  self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado               
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.CHAR and self.opDer.tipo.tipo == Tipo_Dato.CHAR:
                     self.tipo = Tipo(Tipo_Dato.CHAR)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.CHAR)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' + ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado               
                 else:
@@ -397,55 +398,55 @@ class Aritmetica(Instruccion):
                 if self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.INTEGER)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.INTEGER)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif  self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado              
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' - ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 else:
@@ -457,55 +458,55 @@ class Aritmetica(Instruccion):
                 if self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.INTEGER)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.INTEGER)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif  self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado               
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' * ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 else:
@@ -522,55 +523,55 @@ class Aritmetica(Instruccion):
                 if self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.INTEGER)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.INTEGER)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
                     self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' / ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 else:
@@ -588,18 +589,18 @@ class Aritmetica(Instruccion):
                     lr = controlador.get_etiqueta()
                     controlador.cont_temp = controlador.cont_temp +1
                     temp = temporal(controlador.cont_temp,None)
-
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
-                    codigo += str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
-                    codigo += 'label .'+str(lr) + ' \n'
-                    codigo += 'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
-                    codigo += '    goto .'+ str(lv) + ' \n \n'
-                    codigo += 'goto .'+ str(lf) +'\n'
-                    codigo += 'label .'+ str(lv) + ' \n'
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
-                    codigo += str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
-                    codigo += 'goto .'+str(lr) + '\n'
-                    codigo += 'label .' + str(lf) + '\n'
+                    codigo += '     # operacion de potencia \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
+                    codigo += '    '+str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
+                    codigo += '    '+'label .'+str(lr) + ' \n'
+                    codigo += '    '+'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
+                    codigo += '    '+'    goto .'+ str(lv) + ' \n \n'
+                    codigo += '    '+'goto .'+ str(lf) +'\n'
+                    codigo += '    '+'label .'+ str(lv) + ' \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
+                    codigo += '    '+str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
+                    codigo += '    '+'goto .'+str(lr) + '\n'
+                    codigo += '    '+'label .' + str(lf) + '\n'
 
                     controlador.append_3d(codigo)
                     return temp_resultado
@@ -612,18 +613,18 @@ class Aritmetica(Instruccion):
                     lr = controlador.get_etiqueta()
                     controlador.cont_temp = controlador.cont_temp +1
                     temp = temporal(controlador.cont_temp,None)
-
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
-                    codigo += str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
-                    codigo += 'label .'+str(lr) + ' \n'
-                    codigo += 'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
-                    codigo += '    goto .'+ str(lv) + ' \n \n'
-                    codigo += 'goto .'+ str(lf) +'\n'
-                    codigo += 'label .'+ str(lv) + ' \n'
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
-                    codigo += str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
-                    codigo += 'goto .'+str(lr) + '\n'
-                    codigo += 'label .' + str(lf) + '\n'
+                    codigo += '     # operacion de potencia \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
+                    codigo += '    '+str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
+                    codigo += '    '+'label .'+str(lr) + ' \n'
+                    codigo += '    '+'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
+                    codigo += '    '+'    goto .'+ str(lv) + ' \n \n'
+                    codigo += '    '+'goto .'+ str(lf) +'\n'
+                    codigo += '    '+'label .'+ str(lv) + ' \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
+                    codigo += '    '+str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
+                    codigo += '    '+'goto .'+str(lr) + '\n'
+                    codigo += '    '+'label .' + str(lf) + '\n'
 
                     controlador.append_3d(codigo)
                     return temp_resultado
@@ -636,18 +637,18 @@ class Aritmetica(Instruccion):
                     lr = controlador.get_etiqueta()
                     controlador.cont_temp = controlador.cont_temp +1
                     temp = temporal(controlador.cont_temp,None)
-
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
-                    codigo += str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
-                    codigo += 'label .'+str(lr) + ' \n'
-                    codigo += 'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
-                    codigo += '    goto .'+ str(lv) + ' \n \n'
-                    codigo += 'goto .'+ str(lf) +'\n'
-                    codigo += 'label .'+ str(lv) + ' \n'
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
-                    codigo += str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
-                    codigo += 'goto .'+str(lr) + '\n'
-                    codigo += 'label .' + str(lf) + '\n'
+                    codigo += '     # operacion de potencia \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
+                    codigo += '    '+str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
+                    codigo += '    '+'label .'+str(lr) + ' \n'
+                    codigo += '    '+'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
+                    codigo += '    '+'    goto .'+ str(lv) + ' \n \n'
+                    codigo += '    '+'goto .'+ str(lf) +'\n'
+                    codigo += '    '+'label .'+ str(lv) + ' \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
+                    codigo += '    '+str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
+                    codigo += '    '+'goto .'+str(lr) + '\n'
+                    codigo += '    '+'label .' + str(lf) + '\n'
 
                     controlador.append_3d(codigo)
                     return temp_resultado
@@ -660,18 +661,18 @@ class Aritmetica(Instruccion):
                     lr = controlador.get_etiqueta()
                     controlador.cont_temp = controlador.cont_temp +1
                     temp = temporal(controlador.cont_temp,None)
-
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
-                    codigo += str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
-                    codigo += 'label .'+str(lr) + ' \n'
-                    codigo += 'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
-                    codigo += '    goto .'+ str(lv) + ' \n \n'
-                    codigo += 'goto .'+ str(lf) +'\n'
-                    codigo += 'label .'+ str(lv) + ' \n'
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
-                    codigo += str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
-                    codigo += 'goto .'+str(lr) + '\n'
-                    codigo += 'label .' + str(lf) + '\n'
+                    codigo += '     # operacion de potencia \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
+                    codigo += '    '+str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
+                    codigo += '    '+'label .'+str(lr) + ' \n'
+                    codigo += '    '+'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
+                    codigo += '    '+'    goto .'+ str(lv) + ' \n \n'
+                    codigo += '    '+'goto .'+ str(lf) +'\n'
+                    codigo += '    '+'label .'+ str(lv) + ' \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
+                    codigo += '    '+str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
+                    codigo += '    '+'goto .'+str(lr) + '\n'
+                    codigo += '    '+'label .' + str(lf) + '\n'
 
                     controlador.append_3d(codigo)
                     return temp_resultado
@@ -684,18 +685,18 @@ class Aritmetica(Instruccion):
                     lr = controlador.get_etiqueta()
                     controlador.cont_temp = controlador.cont_temp +1
                     temp = temporal(controlador.cont_temp,None)
-
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
-                    codigo += str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
-                    codigo += 'label .'+str(lr) + ' \n'
-                    codigo += 'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
-                    codigo += '    goto .'+ str(lv) + ' \n \n'
-                    codigo += 'goto .'+ str(lf) +'\n'
-                    codigo += 'label .'+ str(lv) + ' \n'
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
-                    codigo += str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
-                    codigo += 'goto .'+str(lr) + '\n'
-                    codigo += 'label .' + str(lf) + '\n'
+                    codigo += '     # operacion de potencia \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
+                    codigo += '    '+str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
+                    codigo += '    '+'label .'+str(lr) + ' \n'
+                    codigo += '    '+'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
+                    codigo += '    '+'    goto .'+ str(lv) + ' \n \n'
+                    codigo += '    '+'goto .'+ str(lf) +'\n'
+                    codigo += '    '+'label .'+ str(lv) + ' \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
+                    codigo += '    '+str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
+                    codigo += '    '+'goto .'+str(lr) + '\n'
+                    codigo += '    '+'label .' + str(lf) + '\n'
 
                     controlador.append_3d(codigo)
                     return temp_resultado
@@ -708,18 +709,18 @@ class Aritmetica(Instruccion):
                     lr = controlador.get_etiqueta()
                     controlador.cont_temp = controlador.cont_temp +1
                     temp = temporal(controlador.cont_temp,None)
-
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
-                    codigo += str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
-                    codigo += 'label .'+str(lr) + ' \n'
-                    codigo += 'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
-                    codigo += '    goto .'+ str(lv) + ' \n \n'
-                    codigo += 'goto .'+ str(lf) +'\n'
-                    codigo += 'label .'+ str(lv) + ' \n'
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
-                    codigo += str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
-                    codigo += 'goto .'+str(lr) + '\n'
-                    codigo += 'label .' + str(lf) + '\n'
+                    codigo += '     # operacion de potencia \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
+                    codigo += '    '+str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
+                    codigo += '    '+'label .'+str(lr) + ' \n'
+                    codigo += '    '+'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
+                    codigo += '    '+'    goto .'+ str(lv) + ' \n \n'
+                    codigo += '    '+'goto .'+ str(lf) +'\n'
+                    codigo += '    '+'label .'+ str(lv) + ' \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
+                    codigo += '    '+str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
+                    codigo += '    '+'goto .'+str(lr) + '\n'
+                    codigo += '    '+'label .' + str(lf) + '\n'
 
                     controlador.append_3d(codigo)
                     return temp_resultado
@@ -732,18 +733,18 @@ class Aritmetica(Instruccion):
                     lr = controlador.get_etiqueta()
                     controlador.cont_temp = controlador.cont_temp +1
                     temp = temporal(controlador.cont_temp,None)
-
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
-                    codigo += str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
-                    codigo += 'label .'+str(lr) + ' \n'
-                    codigo += 'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
-                    codigo += '    goto .'+ str(lv) + ' \n \n'
-                    codigo += 'goto .'+ str(lf) +'\n'
-                    codigo += 'label .'+ str(lv) + ' \n'
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
-                    codigo += str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
-                    codigo += 'goto .'+str(lr) + '\n'
-                    codigo += 'label .' + str(lf) + '\n'
+                    codigo += '     # operacion de potencia \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
+                    codigo += '    '+str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
+                    codigo += '    '+'label .'+str(lr) + ' \n'
+                    codigo += '    '+'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
+                    codigo += '    '+'    goto .'+ str(lv) + ' \n \n'
+                    codigo += '    '+'goto .'+ str(lf) +'\n'
+                    codigo += '    '+'label .'+ str(lv) + ' \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
+                    codigo += '    '+str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
+                    codigo += '    '+'goto .'+str(lr) + '\n'
+                    codigo += '    '+'label .' + str(lf) + '\n'
 
                     controlador.append_3d(codigo)
                     return temp_resultado
@@ -756,18 +757,18 @@ class Aritmetica(Instruccion):
                     lr = controlador.get_etiqueta()
                     controlador.cont_temp = controlador.cont_temp +1
                     temp = temporal(controlador.cont_temp,None)
-
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
-                    codigo += str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
-                    codigo += 'label .'+str(lr) + ' \n'
-                    codigo += 'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
-                    codigo += '    goto .'+ str(lv) + ' \n \n'
-                    codigo += 'goto .'+ str(lf) +'\n'
-                    codigo += 'label .'+ str(lv) + ' \n'
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
-                    codigo += str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
-                    codigo += 'goto .'+str(lr) + '\n'
-                    codigo += 'label .' + str(lf) + '\n'
+                    codigo += '     # operacion de potencia \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
+                    codigo += '    '+str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
+                    codigo += '    '+'label .'+str(lr) + ' \n'
+                    codigo += '    '+'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
+                    codigo += '    '+'    goto .'+ str(lv) + ' \n \n'
+                    codigo += '    '+'goto .'+ str(lf) +'\n'
+                    codigo += '    '+'label .'+ str(lv) + ' \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
+                    codigo += '    '+str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
+                    codigo += '    '+'goto .'+str(lr) + '\n'
+                    codigo += '    '+'label .' + str(lf) + '\n'
 
                     controlador.append_3d(codigo)
                     return temp_resultado             
@@ -780,18 +781,18 @@ class Aritmetica(Instruccion):
                     lr = controlador.get_etiqueta()
                     controlador.cont_temp = controlador.cont_temp +1
                     temp = temporal(controlador.cont_temp,None)
-
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
-                    codigo += str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
-                    codigo += 'label .'+str(lr) + ' \n'
-                    codigo += 'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
-                    codigo += '    goto .'+ str(lv) + ' \n \n'
-                    codigo += 'goto .'+ str(lf) +'\n'
-                    codigo += 'label .'+ str(lv) + ' \n'
-                    codigo += str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
-                    codigo += str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
-                    codigo += 'goto .'+str(lr) + '\n'
-                    codigo += 'label .' + str(lf) + '\n'
+                    codigo += '     # operacion de potencia \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' #base potencia \n'
+                    codigo += '    '+str(temp.get_temp()) + ' = 1  #contador de potencia  \n' 
+                    codigo += '    '+'label .'+str(lr) + ' \n'
+                    codigo += '    '+'if('+str(temp.get_temp()) + ' < ' + str(temp_der) +'): \n'
+                    codigo += '    '+'    goto .'+ str(lv) + ' \n \n'
+                    codigo += '    '+'goto .'+ str(lf) +'\n'
+                    codigo += '    '+'label .'+ str(lv) + ' \n'
+                    codigo += '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_resultado.get_temp()) + ' * ' + str(temp_izq) + '\n'
+                    codigo += '    '+str(temp.get_temp()) + ' = ' +  str(temp.get_temp()) + '+ 1 \n'
+                    codigo += '    '+'goto .'+str(lr) + '\n'
+                    codigo += '    '+'label .' + str(lf) + '\n'
 
                     controlador.append_3d(codigo)
                     return temp_resultado
@@ -809,25 +810,25 @@ class Aritmetica(Instruccion):
                 if self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.INTEGER)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.INTEGER)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' % ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' % ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' % ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' % ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.INTEGER and self.opDer.tipo.tipo == Tipo_Dato.NUMERIC:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' % ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' % ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 elif self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC and self.opDer.tipo.tipo == Tipo_Dato.INTEGER:
                     self.tipo = Tipo(Tipo_Dato.NUMERIC)
                     temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
-                    codigo = str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' % ' + str(temp_der) 
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = ' + str(temp_izq) + ' % ' + str(temp_der) 
                     controlador.append_3d(codigo)
                     return temp_resultado
                 else:
@@ -840,3 +841,44 @@ class Aritmetica(Instruccion):
                 #arbol.excepciones.append(error)
                 #arbol.consola.append(error.toString())
                 return error
+
+        # Operación unaria
+        else:
+            # Si existe algún error en el operador izquierdo, retorno el error.
+
+             # Si existe algún error en el operador izquierdo, retorno el error.
+            resultadoIzq = self.opIzq.traducir(tabla, controlador)
+            if isinstance(resultadoIzq, Excepcion):
+                return resultadoIzq
+            
+            temp_izq = resultadoIzq.get_temp()
+
+            controlador.cont_temp = controlador.cont_temp + 1
+            temp_resultado = temporal(controlador.cont_temp,None)
+
+            if self.operador == '-':
+                if self.opIzq.tipo.tipo == Tipo_Dato.INTEGER:
+                    self.tipo = Tipo(Tipo_Dato.INTEGER)
+                    temp_resultado.Tipo = Tipo(Tipo_Dato.INTEGER)
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = 0 -' + str(temp_izq) 
+                    controlador.append_3d(codigo)
+                    return temp_resultado
+                if self.opIzq.tipo.tipo == Tipo_Dato.NUMERIC:
+                    self.tipo = Tipo(Tipo_Dato.NUMERIC)
+                    temp_resultado.Tipo = Tipo(Tipo_Dato.NUMERIC)
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = 0 -' + str(temp_izq) 
+                    controlador.append_3d(codigo)
+                    return temp_resultado
+                if self.opIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
+                    self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
+                    temp_resultado.Tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
+                    codigo = '    '+str(temp_resultado.get_temp()) + ' = 0 -' + str(temp_izq) 
+                    controlador.append_3d(codigo)
+                    return temp_resultado
+                else:
+                    error = Excepcion('42883',"Semántico","Tipo de datos incorrectos en la operación negativo",self.linea,self.columna)
+                    return error
+            else:
+                error = Excepcion('42883',"Semántico","Operador desconocido.",self.linea,self.columna)
+                return error
+        return None

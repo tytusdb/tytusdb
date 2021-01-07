@@ -1,7 +1,9 @@
 
 class controlador():
     def __init__(self):
-        self.c3d = ''
+        #encabezado del archivo de salia en python
+        self.c3d = 'from goto import with_goto \n \n#### ejecucion de codigo 3d #### \n@with_goto\ndef ejecutar_3d():\n'
+        
         self.cont_temp = 0
         self.etiquetas = 0
         self.heap = 0
