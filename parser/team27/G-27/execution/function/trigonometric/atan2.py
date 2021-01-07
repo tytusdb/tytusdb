@@ -31,4 +31,4 @@ class Atan2(Function):
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
             if value2['typ'] != Type.INT and value2['typ'] != Type.DECIMAL:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-            return [{'value':atan2(value['value'],value2['value']), 'typ': Type.INT}]
+            return {'value':atan2(value['value'],value2['value']), 'typ': Type.INT}

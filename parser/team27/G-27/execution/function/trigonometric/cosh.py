@@ -33,4 +33,4 @@ class Cosh(Function):
             if value['value'] < -710 or value['value'] > 710:
                     return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [-710,710] soportado por python en la funcion cosh() ", 'linea':self.row,'columna':self.column }
 
-            return [{'value':cosh(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':cosh(value['value']), 'typ': Type.DECIMAL}

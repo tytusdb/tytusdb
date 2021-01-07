@@ -10,4 +10,4 @@ class Randomic(Function):
         Function.__init__(self,row,column)
     
     def execute(self, environment):
-        return [{'value':randomn(), 'typ': Type.INT}]
+        return {'value':randomn(), 'typ': Type.INT}

@@ -25,7 +25,10 @@ class Min(object):
                 data.append(minimo)
 
             #AGREGANDO A LA METADATA
-            columna = Column( 'MAX('+self.id.id+')', DBType.numeric, 0, -1)
+            columna = Column( 'MIN('+self.id.id+')', DBType.numeric, 0, -1)
             if not any(columna.name == x.name for x in metadata.columns):
                 metadata.columns.append(columna)
             return {'tabla': metadata, 'data': tabla}
+
+    def getColumn(self):
+        return Column( 'MIN('+self.id.id+')', DBType.numeric, 0, -1)

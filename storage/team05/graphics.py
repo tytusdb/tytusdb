@@ -51,10 +51,8 @@ def reloadTablas():
 def showContenido(db,tabla):
     print('DB:'+str(db),'TB:'+str(tabla))
     newHash.graficar(str(db),str(tabla))
+    
 
-
-#metodos bar pendientes
-#metodos
 #ventanas de DATABASE
 def ventana_createDatabase():
     def mostrarError(value):
@@ -120,11 +118,12 @@ def ventana_alterDatabase():
     cb_nombreOld.place(x=50, y=100)
     entry_nombreNew=Tk.Entry(ventanaAlterDB)
     entry_nombreNew.place(x=225,y=100)
+
     b_alter=Tk.Button(ventanaAlterDB,text="Modificar Base de Datos",command=lambda :[newDataAlterDB(cb_nombreOld.get(),entry_nombreNew.get()),ventanaAlterDB.destroy()])
     b_alter.place(x=125,y=150)
 
 def ventana_dropDatabase():
-   def mostrarError(value):
+    def mostrarError(value):
         if value==1:
             messagebox.showerror("Error: "+str(value),"Error en la operacion")
         if value==2:
@@ -158,7 +157,7 @@ def ventana_dropDatabase():
 
 #ventanas de TABLAS
 def ventana_createTable():
-       def mostrarError(value):
+    def mostrarError(value):
         if value==1:
             messagebox.showerror("Error: "+str(value),"Error en la operacion")
         if value==2:
@@ -201,11 +200,11 @@ def ventana_createTable():
     entry_columna.place(x=225,y=150)
 
     b_createTable=Tk.Button(ventanaCreateTable,text="Crear Tabla",command=lambda : [newDataCreateT(cb_createTable.get(),entry_nombre.get(),entry_columna.get()),ventanaCreateTable.destroy()])
-    b_createTable.place(x=50,y=200)   
+    b_createTable.place(x=50,y=200)
     pass
 
 def ventana_alterTable():
-   def mostrarError(value):
+    def mostrarError(value):
         if value==1:
             messagebox.showerror("Error: "+str(value),"Error en la operacion")
         if value==2:
@@ -256,7 +255,7 @@ def ventana_alterTable():
 
     b_alter=Tk.Button(ventanaAlterTable,text="Modificar Tabla",command=lambda:[alterTable(cb_showdb.get(),cb_showtable.get(),entry_newName.get()),ventanaAlterTable.destroy()])
     b_alter.place(x=400,y=150)
-
+    
 def ventana_delTable():
     def mostrarError(value):
         if value==1:
@@ -297,10 +296,10 @@ def ventana_delTable():
     cb_showtable=Ttk.Combobox(ventanaDropTable,state="readonly")
     cb_showtable['values']=newData.showTables(cb_showdb.get())
     cb_showtable.place(x=225,y=100)
-    
+
     b_dropTable=Tk.Button(ventanaDropTable,text="Eliminar Tabla",command=lambda:[dropTable(cb_showdb.get(),cb_showtable.get()),ventanaDropTable.destroy()])
     b_dropTable.place(x=400,y=100)
-    
+
 def ventana_alterAddColumn():
     def mostrarError(value):
         if value==1:
@@ -350,7 +349,6 @@ def ventana_alterAddColumn():
 
     b_addcol=Tk.Button(ventanaAlterAddCol,text="Agregar Columna",command=lambda:[alterAddCol(cb_showdb.get(),cb_showtable.get(),entry_col.get()),ventanaAlterAddCol.destroy()])
     b_addcol.place(x=400,y=150)
-
 
 def ventana_AlterDropColumn():
     def mostrarError(value):
@@ -405,7 +403,7 @@ def ventana_AlterDropColumn():
 
     b_dropcol=Tk.Button(ventanaAlterDropCol,text="Eliminar Columna",command=lambda:[alterDropCol(cb_showdb.get(),cb_showtable.get(),entry_col.get()),ventanaAlterDropCol.destroy()])
     b_dropcol.place(x=400,y=150)
-
+ 
 def ventana_AlterAddPK():
     def mostrarError(value):
         if value==1:
@@ -584,7 +582,7 @@ def ventana_ExtractRT():
         cb_showtable['values']=newData.showTables(nombre)
 
     def extractRT(db,tabla,colnum,low,up):
-        retorno=newHash.extractRangeTable(db,tabla,colnum,low,up)
+        retorno=newHash.extractRangeTable(db,tabla,int(colnum),int(low),int(up))
         lb_tabla.delete('0',Tk.END)
         if retorno==None:
             messagebox.showerror("Error","Ha ocurrido un error")
@@ -649,7 +647,6 @@ def ventana_ExtractRT():
     lb_tabla=Tk.Listbox(ventanaExtractRTable,width=82,yscrollcommand=sb.set)
     lb_tabla.place(x=50,y=300)
     sb.config(command=lb_tabla.yview)
-
 
 #Ventana Tuples
 def ventana_Insert():
@@ -793,6 +790,7 @@ def ventana_Update():
             messagebox.showinfo("Exito","Se ha realizado un Update a la tabla")
         else:
             mostrarError(retorno)
+
 
 
     ventanaUpdate=Tk.Tk()
@@ -1010,7 +1008,6 @@ def ventana_abrirCSV():
     b_loadData=Tk.Button(ventanaCSV,text="Carga Informacion",command=lambda:[loadData(archivo_csv,cb_showdb.get(),cb_showtable.get()),ventanaCSV.destroy()])
     b_loadData.place(x=400,y=150)
     
-#finmetodos
 
 #objetos de menu
 bar_menu=Tk.Menu(ventana)
@@ -1021,9 +1018,19 @@ archivo.add_command(label="Guardar",command=saveDatabaseFile)
 archivo.add_separator()
 archivo.add_command(label="Salir...",command=ventana.quit)
 
+def link(tipo):
+    import webbrowser
+    if tipo=="repo":
+        webbrowser.open("https://github.com/tytusdb/tytus/tree/main/storage/team05")
+    if tipo=="tecnico":
+        webbrowser.open("https://github.com/tytusdb/tytus/tree/main/storage/team05/ManualTecnico.md")
+    if tipo=="user":
+        webbrowser.open("https://github.com/tytusdb/tytus/tree/main/storage/team05/ManualUsuario.md")
 #Cascada ayuda
 ayuda=Tk.Menu(bar_menu,tearoff=0)
-ayuda.add_command(label="Ayuda")
+ayuda.add_command(label="Repositorio", command=lambda:[link("repo")])
+ayuda.add_command(label="Manual Tecnico",command=lambda:[link("tecnico")])
+ayuda.add_command(label="Manual Usuario",command=lambda:[link("user")])
 ayuda.add_command(label="Acerca de...",command=show_acercade)
 
 #cascada Database
@@ -1058,13 +1065,18 @@ tuplas.add_command(label="Update",command=ventana_Update)
 tuplas.add_command(label="Delete",command=ventana_Delete)
 tuplas.add_command(label="Truncate",command=ventana_Truncate)
 
+#reportes
+reportes=Tk.Menu(bar_menu,tearoff=0)
+reportes.add_command(label="Base de Datos",command=lambda:[newData.graficarBaseDato()])
+reportes.add_command(label="Tablas",command=lambda:[newData.graficarTablaBaseDato()])
+
 #--Cargar al menu las cascadas
 bar_menu.add_cascade(label="Archivo",menu=archivo)
 bar_menu.add_cascade(label="Base De Datos",menu=database)
 bar_menu.add_cascade(label="Tablas",menu=tables)
 bar_menu.add_cascade(label="Tuplas",menu=tuplas)
+bar_menu.add_cascade(label="Reportes",menu=reportes)
 bar_menu.add_cascade(label="Ayuda",menu=ayuda)
-#fin metodos bar
 
 #variables
 tablas=[]

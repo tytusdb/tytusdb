@@ -504,34 +504,36 @@ def loadCSV(file: str, database: str, table: str) -> list:
     
     try:
 
-        archivo = open(file, "r")
+        archivo = open(file, "r", encoding="utf-8-sig")
 
         temp = _storage.Buscar(database)
 
         if temp:
             
-            try:
-
-                b = temp.Buscar(table)        
-                nombre = temp.list_table[b[1]]
+            b = temp.Buscar(table)        
+            nombre = temp.list_table[b[1]]
+            
+            if b[0]:
                 
-                if b[0]:
-                    
-                    tabla = serealizar.rollback(nombre, _main_path+"\\"+database)
-                    registros = csv.reader(archivo, delimiter = ",")
-                    valores=[]                
+                tabla = temp.Cargar(nombre)
+                registros = list(csv.reader(archivo, delimiter = ","))
 
-                    for registro in registros:                       
-                        valores.append(tabla.insertar(registro))
+                valores=[]     
+                for registro in registros:     
 
-                    else:
-                        serealizar.commit(tabla, table, _main_path+"\\"+database)
-                        return valores
+                    for i in range(len(registro)):
+
+                        if registro[i].isnumeric():
+                            nuevo=int(registro[i])
+                            registro[i]=nuevo
+
+                    valores.append(tabla.insertar(registro))
 
                 else:
-                    return []
+                    temp.Guardar()
+                    return valores
 
-            except:
+            else:
                 return []
 
         else:

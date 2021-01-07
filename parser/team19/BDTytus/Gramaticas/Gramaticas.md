@@ -298,7 +298,7 @@
                     | t_rename t_column id t_to id 
 
     ADD_OPC ::= t_column id TIPO
-                | CONSTRAINT_ALTERTB t_foreign t_key par1 id par2 t_references id
+                | CONSTRAINT_ALTERTB t_foreign t_key par1 id par2 t_references id par1 Lista_ID par2
                 | CONSTRAINT_ALTERTB t_unique par1 id par2
                 | CONSTRAINT_ALTERTB t_check EXP 
 

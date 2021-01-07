@@ -32,4 +32,4 @@ class Sinh(Function):
                     return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [-710,710] soportado por python en la funcion sinh() ", 'linea':self.row,'columna':self.column }
 
 
-            return [{'value':sinh(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':sinh(value['value']), 'typ': Type.DECIMAL}

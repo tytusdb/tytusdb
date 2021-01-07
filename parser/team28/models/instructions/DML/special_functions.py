@@ -6,28 +6,41 @@ from controllers.data_controller import *
 from prettytable import PrettyTable
 import pandas as pd 
 def operating_list_number(array, environment):
-    lista1 = []
-    lista2 = []
-    for index, _ in enumerate(array):
-        lista1.append(array[index].process(environment))
-        lista2.append(lista1[index].value)
-    return lista2
+    try:
+        lista1 = []
+        lista2 = []
+        for index, _ in enumerate(array):
+            lista1.append(array[index].process(environment))
+            lista2.append(lista1[index].value)
+        return lista2
+    except:
+        desc = "FATAL ERROR, Funciones Select"
+        ErrorController().add(34, 'Execution', desc, 0, 0)
+        
 def format_table_list(array: list):
-    table_value = PrettyTable(array[0])
-    table_value.add_row(array[1])
-    return str(table_value)
+    try:
+        table_value = PrettyTable(array[0])
+        table_value.add_row(array[1])
+        return str(table_value)
+    except:
+        desc = "FATAL ERROR, Funciones Select"
+        ErrorController().add(34, 'Execution', desc, 0, 0)
 
 def list_expressions(array, enviroment):
     lista1 = []
     lista2 = []
     lista3 = []
-    for _, data in enumerate(array):
-        valores = data.process(enviroment)
-        lista1.append(valores.value)
-        lista2.append(data.alias)
-    lista3.append(lista2)
-    lista3.append(lista1)
-    return lista3
+    try:
+        for _, data in enumerate(array):
+            valores = data.process(enviroment)
+            lista1.append(valores.value)
+            lista2.append(data.alias)
+        lista3.append(lista2)
+        lista3.append(lista1)
+        return lista3
+    except:
+        desc = "FATAL ERROR, Funciones Select"
+        ErrorController().add(34, 'Execution', desc, 0, 0)
 
 def list_expressions_groupby(array, enviroment):
     lista1 = [] # lista para columnas 
@@ -35,34 +48,36 @@ def list_expressions_groupby(array, enviroment):
     lista3 = [] # lista para los heders
     lista4 = [] # lista para los alias generales
     lista5 = []
-    for _, data in enumerate(array):
-        valores = data.process(enviroment)
-        if isinstance(valores, list):
-            if len(valores) == 3:
-                if valores[1] == "*":
-                    lista2.append(valores[0])
-                    lista4.append(data.alias)
+    try:
+        for _, data in enumerate(array):
+            valores = data.process(enviroment)
+            if isinstance(valores, list):
+                if len(valores) == 3:
+                    if valores[1] == "*":
+                        lista2.append(valores[0])
+                        lista4.append(data.alias)
+                    else:
+                        lista1.append(valores[0])
+                        lista2.append(valores[2])
+                        lista3.append(valores[1])
+                        lista4.append(data.alias)
                 else:
                     lista1.append(valores[0])
-                    lista2.append(valores[2])
                     lista3.append(valores[1])
                     lista4.append(data.alias)
-            else:
-                lista1.append(valores[0])
-                lista3.append(valores[1])
-                lista4.append(data.alias)
             
-    if len(lista1) == len(lista3):
-        dictionary = convert_dictionary(lista3, lista1)
-        table = pd.DataFrame(dictionary)
-        print(table)
-        lista5.append(table)
-        lista5.append(lista2)
-        lista5.append(lista4)
-        lista5.append(lista3)
-        return lista5
-    else:
-        return None
+        if len(lista1) == len(lista3):
+            dictionary = convert_dictionary(lista3, lista1)
+            table = pd.DataFrame(dictionary)
+            print(table)
+            lista5.append(table)
+            lista5.append(lista2)
+            lista5.append(lista4)
+            lista5.append(lista3)
+            return lista5
+    except:
+        desc = "FATAL ERROR, Funciones Select"
+        ErrorController().add(34, 'Execution', desc, 0, 0)
     # lista3.append(lista2)
     # lista3.append(lista1) 
     # return lista3
@@ -70,54 +85,64 @@ def list_expressions_groupby(array, enviroment):
 def loop_list(array, enviroment):
     lista1 = []
     tabla = None
-    for _, data in enumerate(array):
-        valores = data.process(enviroment)
-        if isinstance(valores, DataFrame):
-            tabla = valores
+    try:
+        for _, data in enumerate(array):
+            valores = data.process(enviroment)
+            if isinstance(valores, DataFrame):
+                tabla = valores
+            else:
+                lista1.append(valores.value)
+        if len(lista1) >= 1:
+            return lista1
         else:
-            lista1.append(valores.value)
-    if len(lista1) >= 1:
-        return lista1
-    else:
-        return tabla
+            return tabla
+    except:
+        desc = "FATAL ERROR, Funciones Select"
+        ErrorController().add(34, 'Execution', desc, 0, 0)
 
 def loop_list_of_order_by(array, enviroment):
     lista1 = []
-    for _, data in enumerate(array):
-        valores = data.process(enviroment)
-        if isinstance(valores, list):
-            lista1.append(valores[1])
-        else:
-            lista1.append(valores.value)
-    print(lista1)
-    return lista1
+    try:
+        for _, data in enumerate(array):
+            valores = data.process(enviroment)
+            if isinstance(valores, list):
+                lista1.append(valores[1])
+            else:
+                lista1.append(valores.value)
+        print(lista1)
+        return lista1
+    except:
+        desc = "FATAL ERROR, Funciones Select"
+        ErrorController().add(34, 'Execution', desc, 0, 0)
 
 def loop_list_with_columns(array, name, enviroment):
     lista1 = []
     result = []
     alias = []
-    name_column = ""
-    # hora de simplificar esta mierda xd 
-    for _, data in enumerate(array):
-        valores = data.process(enviroment)
-        if isinstance(valores, list):
-            lista1.append(valores[0])
-            alias.append(data.alias)
-        else:
-            result.append(valores.value)
-            alias.append(data.alias)
+    try:
+        name_column = ""
+        # hora de simplificar esta mierda xd 
+        for _, data in enumerate(array):
+            valores = data.process(enviroment)
+            if isinstance(valores, list):
+                lista1.append(valores[0])
+                alias.append(data.alias)
+            else:
+                result.append(valores.value)
+                alias.append(data.alias)
     
-    valor = search_symbol(name).name
-    lista2 = []
+        valor = search_symbol(name).name
+        lista2 = []
     
 
-    lista1 = results_list_select_columns(valor,result,lista2,lista1)
-    if len(lista1) == len(alias):
-        dictionary = convert_dictionary(alias, lista1)
-        table = pd.DataFrame(dictionary)
-        return table
-    else:
-        return None
+        lista1 = results_list_select_columns(valor,result,lista2,lista1)
+        if len(lista1) == len(alias):
+            dictionary = convert_dictionary(alias, lista1)
+            table = pd.DataFrame(dictionary)
+            return table
+    except:
+        desc = "FATAL ERROR, Funciones Select"
+        ErrorController().add(34, 'Execution', desc, 0, 0)
 
 
 def results_list_select_columns(valor, lista1, lista2, result_list):

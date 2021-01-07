@@ -23,4 +23,4 @@ class Trim(Function):
             value = self.input.execute(environment)
             if value['typ'] != Type.STRING:
                 return {'Error':"El valor " + value['value'] + " no es String", 'linea':self.row,'columna':self.column }
-            return [{'value':trim(value['value']), 'typ': Type.STRING}]
+            return {'value':trim(value['value']), 'typ': Type.STRING}

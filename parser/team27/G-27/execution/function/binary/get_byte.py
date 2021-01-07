@@ -32,6 +32,6 @@ class Get_Byte:
                 error = incorrect[0] if (input1['typ'] != Type.STRING) else  ""
                 error += incorrect[1] if (input2['typ'] != Type.INT) else  ""
                 return {'Error':"El valor " + error, 'linea':self.row,'columna':self.column }
-            return [{'value': get_byte(input1['value'],input2['value']), 'typ': Type.STRING}]
+            return {'value': get_byte(input1['value'],input2['value']), 'typ': Type.STRING}
 
 

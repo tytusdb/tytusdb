@@ -1,4 +1,9 @@
 from Expresion.Binaria import Binaria
+from Expresion.Aritmetica import Aritmetica
+from Expresion.Unaria import Unaria
+from Expresion.Aritmetica import Aritmetica
+from Expresion.Logica import Logica
+from Expresion.FuncionesNativas import  FuncionesNativas
 from Entorno import Entorno
 from Tipo import Tipo
 from Expresion.Terminal import Terminal
@@ -17,31 +22,27 @@ class Relacional(Binaria):
             if (self.exp1.tipo.tipo == 'identificador' or self.exp2.tipo.tipo == 'identificador'):
                 return self
 
-
-        valizq = self.exp1.getval(entorno);
-        valder = self.exp2.getval(entorno);
-
-        if (isinstance(valizq, Terminal)):
-            valizq = valizq.getval(entorno)
-        if (isinstance(valder, Terminal)):
-            valder = valder.getval(entorno)
+        valizq=self.exp1.getval(entorno);
+        valder=self.exp2.getval(entorno);
+        valizq=valizq.valor
+        valder=valder.valor
 
         try:
             if self.operador == '>':
-                self.val = valizq > valder;
+                self.valor = valizq > valder;
             elif self.operador == '<':
-                self.val = valizq < valder;
+                self.valor = valizq < valder;
             elif self.operador == '>=':
-                self.val = valizq >= valder;
+                self.valor = valizq >= valder;
             elif self.operador == '<=':
-                self.val = valizq <= valder;
+                self.valor = valizq <= valder;
             elif self.operador == '<>':
-                self.val = valizq != valder;
+                self.valor = valizq != valder;
             elif self.operador == '=':
-                self.val = valizq == valder;
+                self.valor = valizq == valder;
 
             self.tipo = 'boolean'
-            return self.val
+            return self
         except :
             reporteerrores.append(Lerrores("Error Semantico",
                                            'Los tipos que se estan comparando no coinciden',

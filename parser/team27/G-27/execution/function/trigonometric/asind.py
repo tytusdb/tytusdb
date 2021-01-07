@@ -32,4 +32,4 @@ class Asind(Function):
             if value['value'] < -1 or value['value'] > 1:
                 return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [1,infinito] que son aceptados por la funcion asind()", 'linea':self.row,'columna':self.column }
 
-            return [{'value':asind(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':asind(value['value']), 'typ': Type.DECIMAL}

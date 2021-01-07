@@ -98,3 +98,36 @@ Una vez se cuente con los requerimientos minimos, para la ejecucion del servidor
 <p align="center">
   <img src="img/mensaje.png" width="800" alt="TytusDB">
 </p>
+
+
+**Interaccion con el usuario**
+
+Al ingresar al sitio nos encontraremos con una ventana que nos pedira iniciar sesion, en esta las credenciales de administrador corresponden a los valores *Admin* *Admin*.
+
+<p algin = "center">
+    <img src = "img/login.png">
+</p>
+
+Luego de haber ingresado las credenciales para poder iniciar se nos presentara la pantalla en la cual cada ya se pueden realizar las acciones basicas y comunes con una base de datos.
+
+<p align = "center">
+    <img src = "img/inicio.png">
+</p>
+
+**Funciones** 
+
+- Ejecutar, este ejecutara el script escrito en la consola de querys.
+
+- Create backup, este realiza un backup de la base de datos.
+
+- Help, desplega una pagina de ayuda que indica el funcionamiento en tytusDB.
+
+- Create database, crea una nueva base de datos.
+
+- Delete database, elimina una de las bases de datos existentes.
+
+- Drop, esta elimina una tabla perteneciente a una base de datos.
+
+- New script, esta limpiara la consola de querys para poder escribir un script desde cero.
+
+- Open script, esta abrira un archivo localizado en nuestro computador que contenga una script.

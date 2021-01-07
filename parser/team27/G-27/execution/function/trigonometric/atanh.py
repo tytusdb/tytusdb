@@ -32,4 +32,4 @@ class Atanh(Function):
             if value['value'] <= -1 or value['value'] >= 1:
                 return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [-1,1] que son aceptados por la funcion atanh()", 'linea':self.row,'columna':self.column }
 
-            return [{'value':atanh(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':atanh(value['value']), 'typ': Type.DECIMAL}

@@ -19,7 +19,22 @@ class select_funciones(instruccion):
                 if element2 != None:
                     self.nodo.hijos.append(element2.nodo)
 
-    def ejecutar(self): 
+    def ejecutar(self, imprimir=None):
+        id_db = get_actual_use() 
+        salidaTabla = PrettyTable()
+        encabezados=[]
+        registro = []
+        list_campo = []
         for dato in self.expresiones:
             if dato != None:
-                auxDato=dato.ejecutar() 
+                auxDato=dato.ejecutar(id_db)
+                list_campo.append(auxDato.valor)
+            salidaTabla.add_column(auxDato.query,list_campo)
+            list_campo.clear()
+        
+        add_text('\n')
+        add_text(salidaTabla)
+        add_text('\n')
+
+
+        return retorno(registro,encabezados)

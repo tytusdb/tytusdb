@@ -1,371 +1,80 @@
 graph g {
 	node [height=.1 shape=plaintext]
-	table [label=<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR>
- <TR><TD> REPLACE_OP →   </TD><TD> t[0] = 0 </TD></TR>
- <TR><TD> IF_NOT_EXISTIS → IF NOT EXISTS   </TD><TD> t[0] = 1 </TD></TR>
- <TR><TD> OWNER_DATABASE →  OWNER IGUAL ID </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> MODE_DATABASE →  MODE IGUAL ENTERO  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> CREATE_DATABASE → CREATE REPLACE_OP DATABASE IF_NOT_EXISTIS ID OWNER_DATABASE MODE_DATABASE PUNTOCOMA  </TD><TD> t[0] = CreateDataBase(t[2], t[4], t[5], t[6], t[7])  </TD></TR>
- <TR><TD> DDL_COMANDOS → OPERACION DDL_COMANDOS   </TD><TD> t[0] = t[1]  </TD></TR>
- <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> DQL_COMANDOS → USE ID PUNTOCOMA </TD><TD> DQL_COMANDOS=t[2] </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> NOMBRE_T → idusuario    </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
- <TR><TD> VALIDACION_CAMPO_CREATE →   NOTNULL   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
- <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
- <TR><TD> VALIDACION_CAMPO_CREATE →   primarykey   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
- <TR><TD> LISTA3 →  LISTA3  VALIDACION_CAMPO_CREATE   </TD><TD>  t[1].append(t[2])  t[0] = t[1] </TD></TR>
- <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
- <TR><TD> LISTA_DE_COLUMNAS →     LISTA2 </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> NOMBRE_T → nombre    </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> TIPO_CAMPO →   TIPO TEXTO PARIZQ expresion_aritmetica PARDER  </TD><TD>  t[0] = valorTipo(t[1], t[3]) </TD></TR>
- <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE_VACIO    </TD><TD>  t[0] = [t[1]]  </TD></TR>
- <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
- <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> NOMBRE_T → apellido    </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> TIPO_CAMPO →   TIPO TEXTO PARIZQ expresion_aritmetica PARDER  </TD><TD>  t[0] = valorTipo(t[1], t[3]) </TD></TR>
- <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE_VACIO    </TD><TD>  t[0] = [t[1]]  </TD></TR>
- <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
- <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> NOMBRE_T → usuario    </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> TIPO_CAMPO →   TIPO TEXTO PARIZQ expresion_aritmetica PARDER  </TD><TD>  t[0] = valorTipo(t[1], t[3]) </TD></TR>
- <TR><TD> VALIDACION_CAMPO_CREATE →   UNIQUE   </TD><TD>  t[0] = CampoValidacion(t[1], None) </TD></TR>
- <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
- <TR><TD> VALIDACION_CAMPO_CREATE →   NOTNULL   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
- <TR><TD> LISTA3 →  LISTA3  VALIDACION_CAMPO_CREATE   </TD><TD>  t[1].append(t[2])  t[0] = t[1] </TD></TR>
- <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
- <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> NOMBRE_T → password    </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> TIPO_CAMPO →   TIPO TEXTO PARIZQ expresion_aritmetica PARDER  </TD><TD>  t[0] = valorTipo(t[1], t[3]) </TD></TR>
- <TR><TD> VALIDACION_CAMPO_CREATE →   NOTNULL   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
- <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
- <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
- <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> NOMBRE_T → fechacreacion    </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> TIPO_CAMPO →   date  </TD><TD>   t[0] = t[1]  </TD></TR>
- <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE_VACIO    </TD><TD>  t[0] = [t[1]]  </TD></TR>
- <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE   </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
- <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> CUERPO_CREATE_TABLE →   LISTA_DE_COLUMNAS </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> DML_COMANDOS →   CREATE TABLE ID PARIZQ  CUERPO_CREATE_TABLE PARDER PUNTOCOMA </TD><TD> t[0] = CreateTable(t[3], t[5], None)  </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> NOMBRE_T → idrol    </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
- <TR><TD> VALIDACION_CAMPO_CREATE →   NOTNULL   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
- <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
- <TR><TD> VALIDACION_CAMPO_CREATE →   primarykey   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
- <TR><TD> LISTA3 →  LISTA3  VALIDACION_CAMPO_CREATE   </TD><TD>  t[1].append(t[2])  t[0] = t[1] </TD></TR>
- <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
- <TR><TD> LISTA_DE_COLUMNAS →     LISTA2 </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> NOMBRE_T → rol    </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> TIPO_CAMPO →   TIPO TEXTO PARIZQ expresion_aritmetica PARDER  </TD><TD>  t[0] = valorTipo(t[1], t[3]) </TD></TR>
- <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE_VACIO    </TD><TD>  t[0] = [t[1]]  </TD></TR>
- <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
- <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE   </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
- <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> CUERPO_CREATE_TABLE →   LISTA_DE_COLUMNAS </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> DML_COMANDOS →   CREATE TABLE ID PARIZQ  CUERPO_CREATE_TABLE PARDER PUNTOCOMA </TD><TD> t[0] = CreateTable(t[3], t[5], None)  </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR>
- <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
- <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
- <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →      VALOR   </TD><TD> t[0] = [t[1]] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion COMA   </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
- <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
- <TR><TD> VALOR →      expresion    </TD><TD> t[0] = t[1] </TD></TR>
- <TR><TD> VALORES →     VALORES VALOR   </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
- <TR><TD> DATOS →   VALUES PARIZQ VALORES PARDER  </TD><TD> t[0] = t[3] </TD></TR>
- <TR><TD> DML_COMANDOS →   INSERT INTO  LISTA_DE_IDS DATOS PUNTOCOMA   </TD><TD>  t[0] = Insert_Datos(t[3], t[4]) </TD></TR><TR><TD> INSTRUCCIONES → INSTRUCCIONES INSTRUCCION </TD><TD> INSTRUCCIONES=t[1].append(t[2]) <BR/> INSTRUCCIONES=t[1] </TD></TR></TABLE>>]
+	table [label=<<TABLE border="1" cellpadding="0" cellspacing="0"   >
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>DATOS</B> </TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">BASE DATOS</TD>
+                                <TD bgcolor="#BEF781">TABLA</TD>
+                                <TD bgcolor="#BEF781">COLUMNA</TD>
+                                <TD bgcolor="#BEF781">VALOR </TD>
+                                <TD bgcolor="#BEF781">FILA</TD>
+                            </TR>
+                            <TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>1</TD><TD>229</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Recepcionista</TD><TD>229</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>4000</TD><TD>229</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>2</TD><TD>272</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>AsistenteContable</TD><TD>272</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>4500</TD><TD>272</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>FALSE</TD><TD>272</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>3</TD><TD>128</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Contador General</TD><TD>128</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>9000</TD><TD>128</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>FALSE</TD><TD>128</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>4</TD><TD>358</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Asistente de RRHH</TD><TD>358</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>4000</TD><TD>358</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>FALSE</TD><TD>358</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>5</TD><TD>129</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Recepcionista Gerencia</TD><TD>129</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>5000</TD><TD>129</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>FALSE</TD><TD>129</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>6</TD><TD>196</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Vendedor 1</TD><TD>196</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>2500</TD><TD>196</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>196</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>7</TD><TD>105</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Vendedor 2</TD><TD>105</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>2750</TD><TD>105</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>105</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>8</TD><TD>167</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Vendedor 3</TD><TD>167</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>3000</TD><TD>167</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>167</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>9</TD><TD>456</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Jefe de Ventas</TD><TD>456</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>4000</TD><TD>456</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>456</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>10</TD><TD>71</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Jefe de Ventas Regional</TD><TD>71</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>2500</TD><TD>71</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>71</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>1</TD><TD>137</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>1</TD><TD>137</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>ADMINISTRACION</TD><TD>137</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>2</TD><TD>416</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>50</TD><TD>416</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>CONTABILIDAD</TD><TD>416</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>3</TD><TD>320</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>3</TD><TD>320</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>CONTABILIDAD</TD><TD>320</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>4</TD><TD>56</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>6</TD><TD>56</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>VENTAS</TD><TD>56</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>5</TD><TD>362</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>6</TD><TD>362</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>VENTAS</TD><TD>362</TD></TR> <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>VALIDACIONES</B> </TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">TABLA</TD>
+                                <TD bgcolor="#BEF781">CAMPO</TD>
+                                <TD bgcolor="#BEF781">TIPO</TD>
+                                <TD bgcolor="#BEF781">ID</TD>
+                                <TD bgcolor="#BEF781"> </TD>
+                            </TR>
+                            <TR><TD>tbpuesto</TD><TD>None</TD><TD>primary key</TD><TD>None</TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>not</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>not</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>FOREIGN KEY</TD><TD>FK_empleado</TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>FOREIGN KEY</TD><TD>FK_empleado</TD><TD></TD></TR> <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"><B> TABLAS</B> </TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">ID TABLA</TD>
+                                <TD bgcolor="#BEF781">ID COLUMNA</TD>
+                                <TD bgcolor="#BEF781">TIPO COLUMNA</TD>
+                                <TD bgcolor="#BEF781">  </TD>
+                                <TD bgcolor="#BEF781">  </TD>
+                            </TR><TR><TD COLSPAN="5" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbpuesto</TD><TD>idpuesto</TD><TD>smallint</TD><TD></TD><TD></TD></TR><TR><TD>tbpuesto</TD><TD>puesto</TD><TD>character(25)</TD><TD></TD><TD></TD></TR><TR><TD>tbpuesto</TD><TD>salariobase</TD><TD>money</TD><TD></TD><TD></TD></TR><TR><TD>tbpuesto</TD><TD>bandera</TD><TD>boolean</TD><TD></TD><TD></TD></TR><TR><TD COLSPAN="5" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>integer</TD><TD></TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>integer</TD><TD></TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>varchar(50)</TD><TD></TD><TD></TD></TR> <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>TIPOS </B></TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">BASE DE DATOS</TD>
+                                <TD bgcolor="#BEF781"> TIPO </TD>
+                                <TD bgcolor="#BEF781">VALOR</TD>
+                                <TD bgcolor="#BEF781">  </TD>
+                                <TD bgcolor="#BEF781">  </TD>
+                            </TR> <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>BASES DE DATOS</B> </TD>
+                            </TR>
+                            <TR>
+                                <TD bgcolor="#BEF781">ID BASE DE DATOS</TD>
+                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781"></TD>
+                            </TR><TR><TD>test2</TD><TD></TD><TD></TD><TD></TD><TD></TD></TR></TABLE>>]
 }

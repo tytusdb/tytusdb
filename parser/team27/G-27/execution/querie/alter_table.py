@@ -23,6 +23,10 @@ class Alter_Table(Querie):
             return {'Error': 'El nombre indicado de la tabla no es una cadena.', 'Fila':self.row, 'Columna': self.column }
         
         if isinstance(self.operacion,list):
-            print('')
+            arreglo = []
+            for item in self.operacion:
+                strVar = item.execute(environment, self.tableName)
+                arreglo.append(strVar)
+            return arreglo
         else:   
             return self.operacion.execute(environment,self.tableName)

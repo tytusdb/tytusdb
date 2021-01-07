@@ -23,4 +23,4 @@ class Sha256(Function):
             value = self.input.execute(environment)
             if value['typ'] != Type.STRING:
                 return {'Error':"El valor " + value['value'] + " no es String", 'linea':self.row,'columna':self.column }
-            return [{'value':sha256(value['value']), 'typ': Type.STRING}]
+            return {'value':sha256(value['value']), 'typ': Type.STRING}

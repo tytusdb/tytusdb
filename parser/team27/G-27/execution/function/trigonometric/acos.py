@@ -32,4 +32,4 @@ class Acos(Function):
             if value['value'] < -1 or value['value'] > 1:
                 return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [-1,1] que son aceptados por la funcion acos()", 'linea':self.row,'columna':self.column }
 
-            return [{'value':acos(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':acos(value['value']), 'typ': Type.DECIMAL}

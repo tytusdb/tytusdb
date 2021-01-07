@@ -172,7 +172,6 @@ class Ctable(Instruccion):
 
     def __init__(self, i_id,inherits):
         self.i_id = i_id
-        self.atributos = atributos
         self.inherits = inherits
 
 # ----------FIN DE CTABLE------------------

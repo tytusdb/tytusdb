@@ -23,4 +23,4 @@ class Length(Function):
             value = self.input.execute(environment)
             if value['typ'] != Type.STRING:
                 return {'Error':"El valor " + value['value'] + " no es String", 'linea':self.row,'columna':self.column }
-            return [{'value':length(value['value']), 'typ': Type.INT}]
+            return {'value':length(value['value']), 'typ': Type.INT}

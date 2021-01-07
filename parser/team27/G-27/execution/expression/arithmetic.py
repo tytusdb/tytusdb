@@ -37,7 +37,7 @@ class Arithmetic(Expression):
         2. DIVISION ENTRE CERO NO DEFINIDA
         
         '''
-        if self.operator == '/':
+        if self.operator == '/' and op2['value'] == 0:
             #Reportar error de división entre cero
             return {'Error':"La división entre cero no tiene definición matemática", 'Linea':self.row, 'Columna': self.column }
         if op1['typ'] != Type.INT and op1['typ'] != Type.DECIMAL:

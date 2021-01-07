@@ -363,7 +363,6 @@ def p_columns_table(p):
                     | column
     '''
     nodo = Node('Columns Table')
-
     if len(p) == 4:
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
@@ -1068,7 +1067,7 @@ def p_add_alter(p):
     '''addalter : COLUMN ID typecol
                 | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
                 | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
+                | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
     '''
     nodo = Node('Add Alter')
 
@@ -1103,11 +1102,14 @@ def p_add_alter(p):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
         nodo.add_childrens(Node(p[6]))
         nodo.add_childrens(Node(p[7]))
-        nodo.production = f"<addalter> ::= FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID\n"
+        nodo.add_childrens(Node(p[8]))
+        nodo.add_childrens(p[9])
+        nodo.add_childrens(Node(p[10]))
+        nodo.production = f"<addalter> ::= FOREIGN KEY LEFT_PARENTHESIS <columnlist> RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS <columnlist> RIGHT_PARENTHESIS\n"
         p[0] = nodo
 
 
@@ -1415,6 +1417,7 @@ def p_sql_expression2_uREST(p):
     nodo.add_childrens(p[2])
     nodo.production = f"<SQLEXPRESSION2> ::= REST <SQLEXPRESSION2> %prec UREST\n"
     nodo.production += f"{p[2].production}"
+    p[0] = nodo
 
 
 def p_sql_expression2_uPLUS(p):
@@ -1424,6 +1427,7 @@ def p_sql_expression2_uPLUS(p):
     nodo.add_childrens(p[2])
     nodo.production = f"<SQLEXPRESSION2> ::= PLUS <SQLEXPRESSION2> %prec UPLUS\n"
     nodo.production += f"{p[2].production}"
+    p[0] = nodo
 
 
 def p_sql_expression2_LEFT_PARENTHESIS(p):
@@ -1491,6 +1495,22 @@ def p_sql_expression2_SQLINTEGER(p):
     nodo.add_childrens(p[1])
     nodo.production = f"<SQLEXPRESSION2> ::= <SQLINTEGER>\n"
     nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_expression2_TRUE(p):
+    '''SQLEXPRESSION2 : TRUE'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLEXPRESSION2> ::= TRUE\n"
+    p[0] = nodo
+
+
+def p_sql_expression2_FALSE(p):
+    '''SQLEXPRESSION2 : FALSE'''
+    nodo = Node('SQL Expression 2')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLEXPRESSION2> ::= FALSE\n"
     p[0] = nodo
 
 
@@ -2100,42 +2120,43 @@ def p_from_clause(p):
 
 def p_from_clause_list(p):
     '''FROMCLAUSELIST : FROMCLAUSELIST COMMA TABLEREFERENCE
-                      | FROMCLAUSELIST LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
-                      | FROMCLAUSELIST LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
+                      | FROMCLAUSELIST COMMA LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
+                      | FROMCLAUSELIST COMMA LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
                       | TABLEREFERENCE'''
     nodo = Node('From Clause List')
-    if (len(p) == 6):
+    if (len(p) == 7):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
-        nodo.production = f"<FROMCLAUSELIST> ::= <FROMCLAUSELIST> LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS <SQLALIAS>\n"
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(p[4])
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(p[6])
+        nodo.production = f"<FROMCLAUSELIST> ::= <FROMCLAUSELIST> COMMA LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS <SQLALIAS>\n"
         nodo.production += f"{p[1].production}"
-        nodo.production += f"{p[3].production}"
-        nodo.production += f"{p[5].production}"
+        nodo.production += f"{p[4].production}"
+        nodo.production += f"{p[6].production}"
         p[0] = nodo
     elif (len(p) == 5):
-        if (p[1] == "("):
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(p[2])
-            nodo.add_childrens(Node(p[3]))
-            nodo.add_childrens(p[4])
-            nodo.production = f"<FROMCLAUSELIST> ::= LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS <SQLALIAS>\n"
-            nodo.production += f"{p[2].production}"
-            nodo.production += f"{p[4].production}"
-            p[0] = nodo
-        else:
-            nodo.add_childrens(p[1])
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(p[3])
-            nodo.add_childrens(Node(p[4]))
-            nodo.production = f"<FROMCLAUSELIST> ::= <FROMCLAUSELIST> LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
-            nodo.production += f"{p[1].production}"
-            nodo.production += f"{p[3].production}"
-            p[0] = nodo
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(p[2])
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(p[4])
+        nodo.production = f"<FROMCLAUSELIST> ::= LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS <SQLALIAS>\n"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[4].production}"
+        p[0] = nodo
+    elif (len(p) == 6):
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(p[4])
+        nodo.add_childrens(Node(p[5]))
+        nodo.production = f"<FROMCLAUSELIST> ::= <FROMCLAUSELIST> COMMA LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[4].production}"
+        p[0] = nodo
     elif (len(p) == 4):
         if (p[1] == "("):
             nodo.add_childrens(Node(p[1]))
@@ -2461,63 +2482,161 @@ def p_sql_expression_AND(p):
     p[0] = nodo
 
 
-def p_exits_or_relational_clause(p):  # TODO
-    '''EXISTSORSQLRELATIONALCLAUSE : EXISTSCLAUSE
-                                   | SQLRELATIONALEXPRESSION'''
-    nodo = Node('EXISTSORSQLRELATIONALCLAUSE')
+def p_exits_or_relational_clause(p):
+    '''EXISTSORSQLRELATIONALCLAUSE : EXISTSCLAUSE'''
+    nodo = Node('Exists Or SQL Relational Clause')
     nodo.add_childrens(p[1])
+    nodo.production = f"<EXISTSORSQLRELATIONALCLAUSE> ::= <EXISTSCLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_exits_or_relational_clause_SQLRELATIONALEXPRESSION(p):
+    '''EXISTSORSQLRELATIONALCLAUSE : SQLRELATIONALEXPRESSION'''
+    nodo = Node('Exists Or SQL Relational Clause')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<EXISTSORSQLRELATIONALCLAUSE> ::= <SQLRELATIONALEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
     p[0] = nodo
 
 
 def p_exists_clause(p):
     '''EXISTSCLAUSE : EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
-    nodo = Node('EXISTSCLAUSE')
+    nodo = Node('Exists Clause')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.add_childrens(p[3])
     nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<EXISTSCLAUSE> ::= EXISTS LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
     p[0] = nodo
 
 
 def p_sql_relational_expression(p):
     '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION
                                | SQLSIMPLEEXPRESSION SQLINCLAUSE
-                               | SQLSIMPLEEXPRESSION SQLBETWEENCLAUSE
-                               | SQLSIMPLEEXPRESSION SQLLIKECLAUSE
-                               | SQLSIMPLEEXPRESSION SQLISCLAUSE
                                | SQLSIMPLEEXPRESSION'''
-    nodo = Node('SQLRELATIONALEXPRESSION')
+    nodo = Node('SQL Relational Expression')
     if (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
+        nodo.production = f"<SQLRELATIONALEXPRESSION> ::= <SQLSIMPLEEXPRESSION> <SQLINCLAUSE>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     elif (len(p) == 4):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
         nodo.add_childrens(p[3])
+        nodo.production = f"<SQLRELATIONALEXPRESSION> ::= <SQLSIMPLEEXPRESSION> <RELOP> <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
+        nodo.production = f"<SQLRELATIONALEXPRESSION> ::= <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
+
+
+def p_sql_relational_expression_SQLBETWEENCLAUSE(p):
+    '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION SQLBETWEENCLAUSE'''
+    nodo = Node('SQL Relational Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLRELATIONALEXPRESSION> ::= <SQLSIMPLEEXPRESSION> <SQLBETWEENCLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_sql_relational_expression_SQLLIKECLAUSE(p):
+    '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION SQLLIKECLAUSE'''
+    nodo = Node('SQL Relational Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLRELATIONALEXPRESSION> ::= <SQLSIMPLEEXPRESSION> <SQLLIKECLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_sql_relational_expression_SQLISCLAUSE(p):
+    '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION SQLISCLAUSE'''
+    nodo = Node('SQL Relational Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLRELATIONALEXPRESSION> ::= <SQLSIMPLEEXPRESSION> <SQLISCLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
 
 
 def p_sql_in_clause(p):
     '''SQLINCLAUSE  : NOT IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
-                    | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
-                    | IN LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
-    nodo = Node('SQLINCLAUSE')
+                    | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
+    nodo = Node('SQL In Clause')
     if (len(p) == 6):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
+        nodo.production = f"<SQLINCLAUSE> ::= NOT IN LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[4].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<SQLINCLAUSE> ::= IN LEFT_PARENTHESIS <SUBQUERY> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
+        p[0] = nodo
+
+
+def p_sql_in_clause_listain(p):
+    '''SQLINCLAUSE  : NOT IN LEFT_PARENTHESIS listain RIGHT_PARENTHESIS
+                    | IN LEFT_PARENTHESIS listain RIGHT_PARENTHESIS'''
+    nodo = Node('SQL In Clause')
+    if (len(p) == 6):
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(p[4])
+        nodo.add_childrens(Node(p[5]))
+        nodo.production = f"<SQLINCLAUSE> ::= NOT IN LEFT_PARENTHESIS <listain> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[4].production}"
+        p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<SQLINCLAUSE> ::= IN LEFT_PARENTHESIS <listain> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
+        p[0] = nodo
+
+
+def p_lista_in(p):
+    '''listain : listain COMMA SQLSIMPLEEXPRESSION
+               | SQLSIMPLEEXPRESSION 
+    '''
+    nodo = Node('List In')
+    if len(p) == 4:
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.production = f"<listain> ::= <listain> COMMA <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
+        p[0] = nodo
+
+    else:
+        nodo.add_childrens(p[1])
+        nodo.production = f"<listain> ::= <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
@@ -2526,7 +2645,7 @@ def p_sql_between_clause(p):
                         | NOT BETWEEN SYMMETRIC SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION
                         | BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION 
                         | BETWEEN SYMMETRIC SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION '''
-    nodo = Node('SQLBETWEENCLAUSE')
+    nodo = Node('SQL Between Clause')
     if (len(p) == 6):
         if (p[3] == 'SYMMETRIC'):
             nodo.add_childrens(Node(p[1]))
@@ -2534,6 +2653,9 @@ def p_sql_between_clause(p):
             nodo.add_childrens(p[3])
             nodo.add_childrens(Node(p[4]))
             nodo.add_childrens(p[5])
+            nodo.production = f"<SQLBETWEENCLAUSE> ::= BETWEEN SYMMETRIC <SQLSIMPLEEXPRESSION> AND <SQLSIMPLEEXPRESSION>\n"
+            nodo.production += f"{p[3].production}"
+            nodo.production += f"{p[5].production}"
             p[0] = nodo
         else:
             nodo.add_childrens(Node(p[1]))
@@ -2541,12 +2663,18 @@ def p_sql_between_clause(p):
             nodo.add_childrens(p[3])
             nodo.add_childrens(Node(p[4]))
             nodo.add_childrens(p[5])
+            nodo.production = f"<SQLBETWEENCLAUSE> ::= NOT BETWEEN <SQLSIMPLEEXPRESSION> AND <SQLSIMPLEEXPRESSION>\n"
+            nodo.production += f"{p[3].production}"
+            nodo.production += f"{p[5].production}"
             p[0] = nodo
     elif (len(p) == 5):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
+        nodo.production = f"<SQLBETWEENCLAUSE> ::= BETWEEN <SQLSIMPLEEXPRESSION> AND <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[4].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -2555,55 +2683,60 @@ def p_sql_between_clause(p):
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
         nodo.add_childrens(p[6])
+        nodo.production = f"<SQLBETWEENCLAUSE> ::= NOT BETWEEN SYMMETRIC <SQLSIMPLEEXPRESSION> AND <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[4].production}"
+        nodo.production += f"{p[6].production}"
         p[0] = nodo
 
 
 def p_sql_like_clause(p):
     '''SQLLIKECLAUSE  : NOT LIKE SQLSIMPLEEXPRESSION
                       | LIKE SQLSIMPLEEXPRESSION'''
-    nodo = Node('SQLLIKECLAUSE')
+    nodo = Node('SQL Like Clause')
     if (len(p) == 4):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
+        nodo.production = f"<SQLLIKECLAUSE> ::= NOT LIKE <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
+        nodo.production = f"<SQLLIKECLAUSE> ::= LIKE <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
 
 
 def p_sql_is_clause(p):
     '''SQLISCLAUSE : IS NULL
-                   | IS NOT NULL
                    | ISNULL
-                   | NOTNULL
-                   | IS TRUE
                    | IS NOT TRUE
-                   | IS FALSE
-                   | IS NOT FALSE
-                   | IS UNKNOWN
-                   | IS NOT UNKNOWN
                    | IS NOT DISTINCT FROM SQLNAME
                    | IS DISTINCT FROM SQLNAME'''
-    nodo = Node('SQLISCLAUSE')
+    nodo = Node('SQL Is Clause')
     if len(p) == 2:
         nodo.add_childrens(Node(p[1]))
+        nodo.production = f"<SQLISCLAUSE> ::= ISNULL\n"
         p[0] = nodo
     elif len(p) == 3:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
+        nodo.production = f"<SQLISCLAUSE> ::= IS NULL\n"
         p[0] = nodo
     elif len(p) == 4:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
+        nodo.production = f"<SQLISCLAUSE> ::= IS NOT TRUE\n"
         p[0] = nodo
     elif len(p) == 5:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
+        nodo.production = f"<SQLISCLAUSE> ::= IS DISTINCT FROM <SQLNAME>\n"
+        nodo.production += f"{p[4].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -2611,135 +2744,629 @@ def p_sql_is_clause(p):
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(p[5])
+        nodo.production = f"<SQLISCLAUSE> ::= IS NOT DISTINCT FROM <SQLNAME>\n"
+        nodo.production += f"{p[5].production}"
         p[0] = nodo
+
+
+def p_sql_is_clause_2(p):
+    '''SQLISCLAUSE : IS NOT NULL
+                   | NOTNULL
+                   | IS TRUE'''
+    nodo = Node('SQL Is Clause')
+    if len(p) == 2:
+        nodo.add_childrens(Node(p[1]))
+        nodo.production = f"<SQLISCLAUSE> ::= NOTNULL\n"
+        p[0] = nodo
+    elif len(p) == 3:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.production = f"<SQLISCLAUSE> ::= IS TRUE\n"
+        p[0] = nodo
+    elif len(p) == 4:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.production = f"<SQLISCLAUSE> ::= IS NOT NULL\n"
+        p[0] = nodo
+
+
+def p_sql_is_clause_3(p):
+    '''SQLISCLAUSE : IS FALSE
+                   | IS NOT FALSE'''
+    nodo = Node('SQL Is Clause')
+    if len(p) == 3:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.production = f"<SQLISCLAUSE> ::= IS FALSE\n"
+        p[0] = nodo
+    elif len(p) == 4:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.production = f"<SQLISCLAUSE> ::= IS NOT FALSE\n"
+        p[0] = nodo
+
+
+def p_sql_is_clause_4(p):
+    '''SQLISCLAUSE : IS UNKNOWN
+                   | IS NOT UNKNOWN'''
+    nodo = Node('SQL Is Clause')
+    if len(p) == 3:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.production = f"<SQLISCLAUSE> ::= IS UNKNOWN\n"
+        p[0] = nodo
+    elif len(p) == 4:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.production = f"<SQLISCLAUSE> ::= IS NOT UNKNOWN\n"
+        p[0] = nodo
+
+
+def p_sql_simple_expression_PLUS(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION PLUS SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> PLUS <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_REST(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION REST SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> REST <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_ASTERISK(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION ASTERISK SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> ASTERISK <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_DIVISION(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION DIVISION SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> DIVISION <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_EXPONENT(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION EXPONENT SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> EXPONENT <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_MODULAR(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION MODULAR SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> MODULAR <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_uREST(p):
+    '''SQLSIMPLEEXPRESSION : REST SQLSIMPLEEXPRESSION %prec UREST'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= REST <SQLSIMPLEEXPRESSION> %prec UREST\n"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_uPLUS(p):
+    '''SQLSIMPLEEXPRESSION : PLUS SQLSIMPLEEXPRESSION %prec UPLUS'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= PLUS <SQLSIMPLEEXPRESSION> %prec UPLUS\n"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_BITWISE_SHIFT_RIGHT(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION BITWISE_SHIFT_RIGHT SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> BITWISE_SHIFT_RIGHT <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_BITWISE_SHIFT_LEFT(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION BITWISE_SHIFT_LEFT SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> BITWISE_SHIFT_LEFT <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_BITWISE_AND(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION BITWISE_AND SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> BITWISE_AND <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_BITWISE_OR(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION BITWISE_OR SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> BITWISE_OR <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_BITWISE_XOR(p):
+    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION BITWISE_XOR SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLSIMPLEEXPRESSION> BITWISE_XOR <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_BITWISE_NOT(p):
+    '''SQLSIMPLEEXPRESSION : BITWISE_NOT SQLSIMPLEEXPRESSION %prec UREST'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= BITWISE_NOT <SQLSIMPLEEXPRESSION> %prec UREST\n"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_SQLEXPRESSION(p):
+    '''SQLSIMPLEEXPRESSION : LEFT_PARENTHESIS SQLEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.add_childrens(Node(p[3]))
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= LEFT_PARENTHESIS <SQLEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_AGGREGATEFUNCTIONS(p):
+    '''SQLSIMPLEEXPRESSION : AGGREGATEFUNCTIONS'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <AGGREGATEFUNCTIONS>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_GREATESTORLEAST(p):
+    '''SQLSIMPLEEXPRESSION : GREATESTORLEAST'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <GREATESTORLEAST>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_EXPRESSIONSTIME(p):
+    '''SQLSIMPLEEXPRESSION : EXPRESSIONSTIME'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <EXPRESSIONSTIME>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_SQUARE_ROOT(p):
+    '''SQLSIMPLEEXPRESSION : SQUARE_ROOT SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= SQUARE_ROOT <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_CUBE_ROOT(p):
+    '''SQLSIMPLEEXPRESSION : CUBE_ROOT SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= CUBE_ROOT <SQLSIMPLEEXPRESSION>\n"
+    nodo.production += f"{p[2].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_MATHEMATICALFUNCTIONS(p):
+    '''SQLSIMPLEEXPRESSION : MATHEMATICALFUNCTIONS'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <MATHEMATICALFUNCTIONS>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_CASECLAUSE(p):
+    '''SQLSIMPLEEXPRESSION : CASECLAUSE'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <CASECLAUSE>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_BINARY_STRING_FUNCTIONS(p):
+    '''SQLSIMPLEEXPRESSION : BINARY_STRING_FUNCTIONS'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <BINARY_STRING_FUNCTIONS>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_TRIGONOMETRIC_FUNCTIONS(p):
+    '''SQLSIMPLEEXPRESSION : TRIGONOMETRIC_FUNCTIONS'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <TRIGONOMETRIC_FUNCTIONS>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_SQLINTEGER(p):
+    '''SQLSIMPLEEXPRESSION : SQLINTEGER'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <SQLINTEGER>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_OBJECTREFERENCE(p):
+    '''SQLSIMPLEEXPRESSION : OBJECTREFERENCE'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(p[1])
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= <OBJECTREFERENCE>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_NULL(p):
+    '''SQLSIMPLEEXPRESSION : NULL'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= NULL\n"
+    p[0] = nodo
+
+
+def p_sql_simple_expression_TRUE(p):
+    '''SQLSIMPLEEXPRESSION : TRUE'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= TRUE\n"
+    p[0] = nodo
 
 
 def p_sql_simple_expression(p):
-    '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION PLUS SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION REST SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION ASTERISK SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION DIVISION SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION EXPONENT SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION MODULAR SQLSIMPLEEXPRESSION
-                           | REST SQLSIMPLEEXPRESSION %prec UREST
-                           | PLUS SQLSIMPLEEXPRESSION %prec UPLUS
-                           | SQLSIMPLEEXPRESSION BITWISE_SHIFT_RIGHT SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION BITWISE_SHIFT_LEFT SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION BITWISE_AND SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION BITWISE_OR SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION BITWISE_XOR SQLSIMPLEEXPRESSION
-                           | BITWISE_NOT SQLSIMPLEEXPRESSION %prec UREST
-                           | LEFT_PARENTHESIS SQLEXPRESSION RIGHT_PARENTHESIS
-                           | AGGREGATEFUNCTIONS
-                           | GREATESTORLEAST
-                           | EXPRESSIONSTIME
-                           | SQUARE_ROOT SQLSIMPLEEXPRESSION
-                           | CUBE_ROOT SQLSIMPLEEXPRESSION
-                           | MATHEMATICALFUNCTIONS
-                           | CASECLAUSE
-                           | BINARY_STRING_FUNCTIONS
-                           | TRIGONOMETRIC_FUNCTIONS
-                           | SQLINTEGER
-                           | OBJECTREFERENCE
-                           | NULL
-                           | TRUE
-                           | FALSE'''
-    nodo = Node('SQLSIMPLEEXPRESSION')
-    if (len(p) == 4):
-        if (p[1] == "("):
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(p[2])
-            nodo.add_childrens(Node(p[3]))
-            p[0] = nodo
-        else:
-            nodo.add_childrens(p[1])
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(p[3])
-            p[0] = nodo
-    elif (len(p) == 3):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-        p[0] = nodo
-    else:
-        if p[1] == 'NULL' or p[1] == 'TRUE' or p[1] == 'FALSE':
-            nodo.add_childrens(Node(p[1]))
-            p[0] = nodo
-        else:
-            nodo.add_childrens(p[1])
-            p[0] = nodo
+    '''SQLSIMPLEEXPRESSION : FALSE'''
+    nodo = Node('SQL Simple Expression')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLSIMPLEEXPRESSION> ::= FALSE\n"
+    p[0] = nodo
 
 
 def p_sql_expression_list(p):
     '''SQLEXPRESSIONLIST : SQLEXPRESSIONLIST COMMA SQLEXPRESSION
                          | SQLEXPRESSION'''
-    nodo = Node('SQLEXPRESSIONLIST')
+    nodo = Node('SQL Expression List')
     if (len(p) == 4):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
+        nodo.production = f"<SQLEXPRESSIONLIST> ::= <SQLEXPRESSIONLIST> COMMA <SQLEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     elif (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<SQLEXPRESSIONLIST> ::= <SQLEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
+def p_mathematical_functions_ABS(p):
+    '''MATHEMATICALFUNCTIONS : ABS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= ABS LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_CBRT(p):
+    '''MATHEMATICALFUNCTIONS : CBRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= CBRT LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_CEIL(p):
+    '''MATHEMATICALFUNCTIONS : CEIL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= CEIL LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_CEILING(p):
+    '''MATHEMATICALFUNCTIONS : CEILING LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= CEILING LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_DEGREES(p):
+    '''MATHEMATICALFUNCTIONS : DEGREES LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= DEGREES LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_DIV(p):
+    '''MATHEMATICALFUNCTIONS : DIV LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.add_childrens(p[5])
+    nodo.add_childrens(Node(p[6]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= DIV LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    nodo.production += f"{p[5].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_EXP(p):
+    '''MATHEMATICALFUNCTIONS : EXP LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= EXP LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_FACTORIAL(p):
+    '''MATHEMATICALFUNCTIONS : FACTORIAL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= FACTORIAL LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_FLOOR(p):
+    '''MATHEMATICALFUNCTIONS : FLOOR LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= FLOOR LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_GCD(p):
+    '''MATHEMATICALFUNCTIONS : GCD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.add_childrens(p[5])
+    nodo.add_childrens(Node(p[6]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= GCD LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    nodo.production += f"{p[5].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_LN(p):
+    '''MATHEMATICALFUNCTIONS : LN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= LN LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_LOG(p):
+    '''MATHEMATICALFUNCTIONS : LOG LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= LOG LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_MOD(p):
+    '''MATHEMATICALFUNCTIONS : MOD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.add_childrens(p[5])
+    nodo.add_childrens(Node(p[6]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= MOD LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    nodo.production += f"{p[5].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_POWER(p):
+    '''MATHEMATICALFUNCTIONS : POWER LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.add_childrens(p[5])
+    nodo.add_childrens(Node(p[6]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= POWER LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    nodo.production += f"{p[5].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_RADIANS(p):
+    '''MATHEMATICALFUNCTIONS : RADIANS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= RADIANS LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_SIGN(p):
+    '''MATHEMATICALFUNCTIONS : SIGN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= SIGN LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_SQRT(p):
+    '''MATHEMATICALFUNCTIONS : SQRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= SQRT LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_mathematical_functions_RANDOM(p):
+    '''MATHEMATICALFUNCTIONS : RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(Node(p[3]))
+    nodo.production = f"<MATHEMATICALFUNCTIONS> ::= RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS\n"
+    p[0] = nodo
+
+
 def p_mathematical_functions(p):
-    '''MATHEMATICALFUNCTIONS : ABS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | CBRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | CEIL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | CEILING LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | DEGREES LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | DIV LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | EXP LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | FACTORIAL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | FLOOR LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | GCD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | LN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | LOG LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | MOD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | PI LEFT_PARENTHESIS RIGHT_PARENTHESIS
-                             | POWER LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | RADIANS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+    '''MATHEMATICALFUNCTIONS : PI LEFT_PARENTHESIS RIGHT_PARENTHESIS
                              | ROUND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | SIGN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | SQRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                              | WIDTH_BUCKET LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | TRUNC LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS '''
-    nodo = Node('MATHEMATICALFUNCTIONS')
-    if (len(p) == 6):
+                             | TRUNC LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Mathematical Functions')
+    if (len(p) == 5):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
+        nodo.production = f"<MATHEMATICALFUNCTIONS> ::= TRUNC LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
-    elif (len(p) == 5):
-        if (p[1] == 'PI' or p[1] == 'RANDOM'):
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(Node(p[3]))
-            nodo.add_childrens(p[4])
-            p[0] = nodo
-        else:
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(p[3])
-            nodo.add_childrens(Node(p[4]))
-            p[0] = nodo
     elif len(p) == 4:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
-        p[0] = nodo
-    elif (len(p) == 8):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
-        nodo.add_childrens(Node(p[6]))
-        nodo.add_childrens(p[7])
+        nodo.production = f"<MATHEMATICALFUNCTIONS> ::= PI LEFT_PARENTHESIS RIGHT_PARENTHESIS\n"
         p[0] = nodo
     elif (len(p) == 7):
         nodo.add_childrens(Node(p[1]))
@@ -2748,19 +3375,9 @@ def p_mathematical_functions(p):
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(p[5])
         nodo.add_childrens(Node(p[6]))
-        p[0] = nodo
-    elif (len(p) == 12):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
-        nodo.add_childrens(Node(p[6]))
-        nodo.add_childrens(p[7])
-        nodo.add_childrens(Node(p[8]))
-        nodo.add_childrens(p[9])
-        nodo.add_childrens(Node(p[10]))
-        nodo.add_childrens(p[11])
+        nodo.production = f"<MATHEMATICALFUNCTIONS> ::= ROUND LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[5].production}"
         p[0] = nodo
     elif (len(p) == 11):
         nodo.add_childrens(Node(p[1]))
@@ -2773,75 +3390,153 @@ def p_mathematical_functions(p):
         nodo.add_childrens(Node(p[8]))
         nodo.add_childrens(p[9])
         nodo.add_childrens(Node(p[10]))
+        nodo.production = f"<MATHEMATICALFUNCTIONS> ::= WIDTH_BUCKET LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[5].production}"
+        nodo.production += f"{p[7].production}"
+        nodo.production += f"{p[9].production}"
         p[0] = nodo
 
 
 def p_binary_string_functions(p):
-    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                               | SUBSTRING LEFT_PARENTHESIS  SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
-                               | TRIM LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                               | MD5 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
-                               | SHA256 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
-                               | SUBSTR LEFT_PARENTHESIS SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
-                               | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
-    nodo = Node('BINARY_STRING_FUNCTIONS')
-    if len(p) == 9:
+    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
+                               | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS'''
+    nodo = Node('Binary String Functions')
+    if len(p) == 5:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= LENGTH LEFT_PARENTHESIS <SQLNAME> RIGHT_PARENTHESIS\n"
+        p[0] = nodo
+    elif len(p) == 9:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+        nodo.add_childrens(Node(p[6]))
+        nodo.add_childrens(p[7])
+        nodo.add_childrens(Node(p[8]))
+        nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= SUBSTRING LEFT_PARENTHESIS <SQLNAME> COMMA <SQLINTEGER> COMMA <SQLINTEGER> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
+        p[0] = nodo
+    elif len(p) == 7:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(Node(p[5]))
         nodo.add_childrens(Node(p[6]))
-        nodo.add_childrens(Node(p[7]))
-        nodo.add_childrens(Node(p[8]))
+        nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= CONVERT LEFT_PARENTHESIS <SQLNAME> AS DATE RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
-    elif len(p) == 7:
-        if p[3] == 'STRINGCONT':
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(Node(p[3]))
-            nodo.add_childrens(Node(p[4]))
-            nodo.add_childrens(Node(p[5]))
-            nodo.add_childrens(Node(p[6]))
-            p[0] = nodo
-        else:
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(p[3])
-            nodo.add_childrens(Node(p[4]))
-            nodo.add_childrens(Node(p[5]))
-            nodo.add_childrens(Node(p[6]))
-            p[0] = nodo
-    elif len(p) == 5:
+
+
+def p_binary_string_functions_TRIM(p):
+    '''BINARY_STRING_FUNCTIONS : TRIM LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
+                               | SUBSTR LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS'''
+    nodo = Node('Binary String Functions')
+    if len(p) == 5:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= TRIM LEFT_PARENTHESIS <SQLNAME> RIGHT_PARENTHESIS\n"
+        p[0] = nodo
+    elif len(p) == 9:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+        nodo.add_childrens(Node(p[6]))
+        nodo.add_childrens(p[7])
+        nodo.add_childrens(Node(p[8]))
+        nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= SUBSTR LEFT_PARENTHESIS <SQLNAME> COMMA <SQLINTEGER> COMMA <SQLINTEGER> RIGHT_PARENTHESIS\n"
+        p[0] = nodo
+    elif len(p) == 7:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(Node(p[5]))
+        nodo.add_childrens(Node(p[6]))
+        nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= CONVERT LEFT_PARENTHESIS <SQLNAME> AS INTEGER RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
 
 
-def p_greatest_or_least(p):
-    '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
-                       | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
-    nodo = Node('GREATESTORLEAST')
+def p_binary_string_functions_MD5(p):
+    '''BINARY_STRING_FUNCTIONS : MD5 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
+                               | DECODE LEFT_PARENTHESIS SQLNAME COMMA SQLNAME RIGHT_PARENTHESIS'''
+    nodo = Node('Binary String Functions')
+    if len(p) == 5:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= MD5 LEFT_PARENTHESIS <SQLNAME> RIGHT_PARENTHESIS\n"
+        p[0] = nodo
+    elif len(p) == 7:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+        nodo.add_childrens(Node(p[6]))
+        nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= DECODE LEFT_PARENTHESIS <SQLNAME> COMMA <SQLNAME> RIGHT_PARENTHESIS\n"
+        p[0] = nodo
+
+
+def p_binary_string_functions_SHA256(p):
+    '''BINARY_STRING_FUNCTIONS : SHA256 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS'''
+    nodo = Node('Binary String Functions')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
     nodo.add_childrens(p[3])
     nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= SHA256 LEFT_PARENTHESIS <SQLNAME> RIGHT_PARENTHESIS\n"
+    p[0] = nodo
+
+
+def p_greatest(p):
+    '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
+    nodo = Node('Greatest or Least')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<GREATESTORLEAST> ::= GREATEST LEFT_PARENTHESIS <LISTVALUESINSERT> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_least(p):
+    '''GREATESTORLEAST : LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
+    nodo = Node('Greatest or Least')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<GREATESTORLEAST> ::= LEAST LEFT_PARENTHESIS <LISTVALUESINSERT> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
     p[0] = nodo
 
 
 def p_case_clause(p):
     '''CASECLAUSE : CASE CASECLAUSELIST END ID
                   | CASE CASECLAUSELIST ELSE SQLSIMPLEEXPRESSION END ID'''
-    nodo = Node('CASECLAUSE')
+    nodo = Node('Case Clause')
     if(len(p) == 5):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<CASECLAUSE> ::= CASE <CASECLAUSELIST> END ID\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -2850,6 +3545,9 @@ def p_case_clause(p):
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
         nodo.add_childrens(Node(p[6]))
+        nodo.production = f"<CASECLAUSE> ::= CASE <CASECLAUSELIST> ELSE <SQLSIMPLEEXPRESSION> END ID\n"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[4].production}"
         p[0] = nodo
 
 
@@ -2867,6 +3565,12 @@ def p_case_clause_list(p):
         nodo.add_childrens(p[5])
         nodo.add_childrens(Node(p[6]))
         nodo.add_childrens(p[7])
+        nodo.production = f"<CASECLAUSELIST> ::= <CASECLAUSELIST> WHEN <SQLSIMPLEEXPRESSION> <RELOP> <SQLSIMPLEEXPRESSION> THEN <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[4].production}"
+        nodo.production += f"{p[5].production}"
+        nodo.production += f"{p[7].production}"
         p[0] = nodo
     elif (len(p) == 7):
         nodo.add_childrens(Node(p[1]))
@@ -2875,6 +3579,11 @@ def p_case_clause_list(p):
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
         nodo.add_childrens(p[6])
+        nodo.production = f"<CASECLAUSELIST> ::= WHEN <SQLSIMPLEEXPRESSION> <RELOP> <SQLSIMPLEEXPRESSION> THEN <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[4].production}"
+        nodo.production += f"{p[6].production}"
         p[0] = nodo
     elif (len(p) == 6):
         nodo.add_childrens(p[1])
@@ -2882,44 +3591,33 @@ def p_case_clause_list(p):
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(p[5])
+        nodo.production = f"<CASECLAUSELIST> ::= <CASECLAUSELIST> WHEN <SQLSIMPLEEXPRESSION> THEN <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[5].production}"
         p[0] = nodo
     else:  # len = 5
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
+        nodo.production = f"<CASECLAUSELIST> ::= WHEN <SQLSIMPLEEXPRESSION> THEN <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[2].production}"
+        nodo.production += f"{p[4].production}"
         p[0] = nodo
 
 
-def p_trigonometric_functions(p):
+def p_trigonometric_functions_ACOS(p):
     '''TRIGONOMETRIC_FUNCTIONS : ACOS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ACOSD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ASIN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ASIND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ATAN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ATAND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ATAN2 LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ATAN2D LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | COS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | COSD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | COT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | COTD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | SIN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | SIND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | TAN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | TAND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | COSH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | SINH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | TANH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ACOSH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ASINH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                               | ATANH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
-    nodo = Node('TRIGONOMETRIC_FUNCTIONS')
+                               | ATAN2 LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
     if (len(p) == 5):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ACOS LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(Node(p[1]))
@@ -2928,19 +3626,267 @@ def p_trigonometric_functions(p):
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(p[5])
         nodo.add_childrens(Node(p[6]))
+        nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ATAN2 LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[5].production}"
         p[0] = nodo
+
+
+def p_trigonometric_functions_ACOSD(p):
+    '''TRIGONOMETRIC_FUNCTIONS : ACOSD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ATAN2D LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    if (len(p) == 5):
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ACOSD LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
+        p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+        nodo.add_childrens(Node(p[6]))
+        nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ATAN2D LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> COMMA <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[5].production}"
+        p[0] = nodo
+
+
+def p_trigonometric_functions_ASIN(p):
+    '''TRIGONOMETRIC_FUNCTIONS : ASIN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ASIN LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_ASIND(p):
+    '''TRIGONOMETRIC_FUNCTIONS : ASIND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ASIND LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_ATAN(p):
+    '''TRIGONOMETRIC_FUNCTIONS : ATAN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ATAN LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_ATAND(p):
+    '''TRIGONOMETRIC_FUNCTIONS : ATAND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ATAND LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_COS(p):
+    '''TRIGONOMETRIC_FUNCTIONS : COS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= COS LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_COSD(p):
+    '''TRIGONOMETRIC_FUNCTIONS : COSD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= COSD LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_COT(p):
+    '''TRIGONOMETRIC_FUNCTIONS : COT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= COT LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_COTD(p):
+    '''TRIGONOMETRIC_FUNCTIONS : COTD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= COTD LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_SIN(p):
+    '''TRIGONOMETRIC_FUNCTIONS : SIN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= SIN LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_SIND(p):
+    '''TRIGONOMETRIC_FUNCTIONS : SIND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= SIND LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_TAN(p):
+    '''TRIGONOMETRIC_FUNCTIONS : TAN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= TAN LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_TAND(p):
+    '''TRIGONOMETRIC_FUNCTIONS : TAND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= TAND LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_COSH(p):
+    '''TRIGONOMETRIC_FUNCTIONS : COSH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= COSH LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_SINH(p):
+    '''TRIGONOMETRIC_FUNCTIONS : SINH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= SINH LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_TANH(p):
+    '''TRIGONOMETRIC_FUNCTIONS : TANH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= TANH LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_ACOSH(p):
+    '''TRIGONOMETRIC_FUNCTIONS : ACOSH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ACOSH LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_ASINH(p):
+    '''TRIGONOMETRIC_FUNCTIONS : ASINH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ASINH LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
+
+
+def p_trigonometric_functions_ATANH(p):
+    '''TRIGONOMETRIC_FUNCTIONS : ATANH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+    nodo = Node('Trigonometric Functions')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    nodo.production = f"<TRIGONOMETRIC_FUNCTIONS> ::= ATANH LEFT_PARENTHESIS <SQLSIMPLEEXPRESSION> RIGHT_PARENTHESIS\n"
+    nodo.production += f"{p[3].production}"
+    p[0] = nodo
 
 
 def p_sql_alias(p):
     '''SQLALIAS : AS SQLNAME
                 | SQLNAME'''
-    nodo = Node('SQLALIAS')
+    nodo = Node('SQL Alias')
     if (len(p) == 3):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
+        nodo.production = f"<SQLALIAS> ::= AS <SQLNAME>\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
     elif (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<SQLALIAS> ::= <SQLNAME>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
@@ -2949,9 +3895,8 @@ def p_expressions_time(p):
                        | NOW LEFT_PARENTHESIS RIGHT_PARENTHESIS
                        | DATE_PART LEFT_PARENTHESIS SQLNAME COMMA INTERVAL SQLNAME RIGHT_PARENTHESIS
                        | CURRENT_DATE
-                       | CURRENT_TIME
                        | TIMESTAMP SQLNAME'''
-    nodo = Node('EXPRESSIONSTIME')
+    nodo = Node('Expressions Time')
     if (len(p) == 8):
         if (p[1] == 'EXTRACT'):
             nodo.add_childrens(Node(p[1]))
@@ -2961,6 +3906,9 @@ def p_expressions_time(p):
             nodo.add_childrens(Node(p[5]))
             nodo.add_childrens(p[6])
             nodo.add_childrens(Node(p[7]))
+            nodo.production = f"<EXPRESSIONSTIME> ::= EXTRACT LEFT_PARENTHESIS <DATETYPES> FROM TIMESTAMP <SQLNAME> RIGHT_PARENTHESIS\n"
+            nodo.production += f"{p[3].production}"
+            nodo.production += f"{p[6].production}"
             p[0] = nodo
         else:
             nodo.add_childrens(Node(p[1]))
@@ -2970,31 +3918,51 @@ def p_expressions_time(p):
             nodo.add_childrens(Node(p[5]))
             nodo.add_childrens(p[6])
             nodo.add_childrens(Node(p[7]))
+            nodo.production = f"<EXPRESSIONSTIME> ::= DATE_PART LEFT_PARENTHESIS <SQLNAME> COMMA INTERVAL <SQLNAME> RIGHT_PARENTHESIS\n"
+            nodo.production += f"{p[3].production}"
+            nodo.production += f"{p[6].production}"
             p[0] = nodo
 
     elif (len(p) == 3):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
+        nodo.production = f"<EXPRESSIONSTIME> ::= TIMESTAMP <SQLNAME>\n"
+        nodo.production += f"{p[2].production}"
         p[0] = nodo
+
     elif len(p) == 4:
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
+        nodo.production = f"<EXPRESSIONSTIME> ::= NOW LEFT_PARENTHESIS RIGHT_PARENTHESIS\n"
         p[0] = nodo
+
     else:
         nodo.add_childrens(Node(p[1]))
+        nodo.production = f"<EXPRESSIONSTIME> ::= CURRENT_DATE\n"
         p[0] = nodo
+
+
+def p_expressions_time_CURRENT_TIME(p):
+    '''EXPRESSIONSTIME : CURRENT_TIME'''
+    nodo = Node('Expressions Time')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<EXPRESSIONSTIME> ::= CURRENT_TIME\n"
+    p[0] = nodo
 
 
 def p_aggregate_functions(p):
     '''AGGREGATEFUNCTIONS : AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS
                           | AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS SQLALIAS'''
-    nodo = Node('AGGREGATEFUNCTIONS')
+    nodo = Node('Aggregate Functions')
     if (len(p) == 5):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
+        nodo.production = f"<AGGREGATEFUNCTIONS> ::= <AGGREGATETYPES> LEFT_PARENTHESIS <CONTOFAGGREGATE> RIGHT_PARENTHESIS\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
@@ -3002,137 +3970,314 @@ def p_aggregate_functions(p):
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
         nodo.add_childrens(p[5])
+        nodo.production = f"<AGGREGATEFUNCTIONS> ::= <AGGREGATETYPES> LEFT_PARENTHESIS <CONTOFAGGREGATE> RIGHT_PARENTHESIS <SQLALIAS>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
+        nodo.production += f"{p[5].production}"
         p[0] = nodo
 
 
 def p_cont_of_aggregate(p):
     '''CONTOFAGGREGATE : ASTERISK
                        | SQLSIMPLEEXPRESSION'''
-    nodo = Node('CONTOFAGGREGATE')
+    nodo = Node('Contof Aggregate')
     if (p[1] == '*'):
         nodo.add_childrens(Node(p[1]))
+        nodo.production = f"<CONTOFAGGREGATE> ::= ASTERISK\n"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
+        nodo.production = f"<CONTOFAGGREGATE> ::= <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
 def p_sql_object_reference(p):
     '''OBJECTREFERENCE : SQLNAME DOT ASTERISK
                        | SQLNAME'''
-    nodo = Node('OBJECTREFERENCE')
+    nodo = Node('Object Reference')
     if (len(p) == 2):
         nodo.add_childrens(p[1])
+        nodo.production = f"<OBJECTREFERENCE> ::= <SQLNAME>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
     elif (len(p) == 4):
-        if (p[3] == '*'):
-            nodo.add_childrens(p[1])
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(Node(p[3]))
-            p[0] = nodo
-        else:
-            nodo.add_childrens(p[1])
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(p[3])
-            p[0] = nodo
-    else:
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
+        nodo.add_childrens(Node(p[3]))
+        nodo.production = f"<OBJECTREFERENCE> ::= <SQLNAME> DOT ASTERISK\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
+
+
+def p_sql_object_reference_SQLNAME(p):
+    '''OBJECTREFERENCE : SQLNAME DOT SQLNAME'''
+    nodo = Node('Object Reference')
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.production = f"<OBJECTREFERENCE> ::= <SQLNAME> DOT <SQLNAME>\n"
+    nodo.production += f"{p[1].production}"
+    p[0] = nodo
 
 
 def p_list_values_insert(p):
     '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
                         | SQLSIMPLEEXPRESSION'''
-    nodo = Node('LISTVALUESINSERT')
+    nodo = Node('List Values Insert')
     if(len(p) == 4):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(p[3])
+        nodo.production = f"<LISTVALUESINSERT> ::= <LISTVALUESINSERT> COMMA <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
+        nodo.production += f"{p[3].production}"
         p[0] = nodo
     else:
         nodo.add_childrens(p[1])
+        nodo.production = f"<LISTVALUESINSERT> ::= <SQLSIMPLEEXPRESSION>\n"
+        nodo.production += f"{p[1].production}"
         p[0] = nodo
 
 
-def p_type_combine_query(p):
-    '''TYPECOMBINEQUERY : UNION
-                        | INTERSECT
-                        | EXCEPT'''
-    nodo = Node('TYPECOMBINEQUERY')
+def p_type_combine_query_UNION(p):
+    '''TYPECOMBINEQUERY : UNION'''
+    nodo = Node('Type Combine Query')
     nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<TYPECOMBINEQUERY> ::= UNION\n"
     p[0] = nodo
 
 
-def p_relop(p):
-    '''RELOP : EQUALS 
-             | NOT_EQUAL
-             | GREATE_EQUAL
-             | GREATE_THAN
-             | LESS_THAN
-             | LESS_EQUAL
-             | NOT_EQUAL_LR'''
-    nodo = Node('RELOP')
+def p_type_combine_query_INTERSECT(p):
+    '''TYPECOMBINEQUERY : INTERSECT'''
+    nodo = Node('Type Combine Query')
     nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<TYPECOMBINEQUERY> ::= INTERSECT\n"
     p[0] = nodo
 
 
-def p_aggregate_types(p):
-    '''AGGREGATETYPES : AVG
-                      | SUM
-                      | COUNT
-                      | MAX
-                      | MIN'''
-    nodo = Node('AGGREGATETYPES')
+def p_type_combine_query_EXCEPT(p):
+    '''TYPECOMBINEQUERY : EXCEPT'''
+    nodo = Node('Type Combine Query')
     nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<TYPECOMBINEQUERY> ::= EXCEPT\n"
     p[0] = nodo
 
 
-def p_date_types(p):
-    '''DATETYPES : YEAR
-                 | MONTH
-                 | DAY
-                 | HOUR
-                 | MINUTE
-                 | SECOND'''
-    nodo = Node('DATETYPES')
+def p_relop_EQUALS(p):
+    '''RELOP : EQUALS'''
+    nodo = Node('Relop')
     nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<RELOP> ::= EQUALS\n"
+    p[0] = nodo
+
+
+def p_relop_NOT_EQUAL(p):
+    '''RELOP : NOT_EQUAL'''
+    nodo = Node('Relop')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<RELOP> ::= NOT_EQUAL\n"
+    p[0] = nodo
+
+
+def p_relop_GREATE_EQUAL(p):
+    '''RELOP : GREATE_EQUAL'''
+    nodo = Node('Relop')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<RELOP> ::= GREATE_EQUAL\n"
+    p[0] = nodo
+
+
+def p_relop_GREATE_THAN(p):
+    '''RELOP : GREATE_THAN'''
+    nodo = Node('Relop')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<RELOP> ::= GREATE_THAN\n"
+    p[0] = nodo
+
+
+def p_relop_LESS_THAN(p):
+    '''RELOP : LESS_THAN'''
+    nodo = Node('Relop')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<RELOP> ::= LESS_THAN\n"
+    p[0] = nodo
+
+
+def p_relop_LESS_EQUAL(p):
+    '''RELOP : LESS_EQUAL'''
+    nodo = Node('Relop')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<RELOP> ::= LESS_EQUAL\n"
+    p[0] = nodo
+
+
+def p_relop_NOT_EQUAL_LR(p):
+    '''RELOP : NOT_EQUAL_LR'''
+    nodo = Node('Relop')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<RELOP> ::= NOT_EQUAL_LR\n"
+    p[0] = nodo
+
+
+def p_aggregate_types_AVG(p):
+    '''AGGREGATETYPES : AVG'''
+    nodo = Node('Aggregate Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<AGGREGATETYPES> ::= AVG\n"
+    p[0] = nodo
+
+
+def p_aggregate_types_SUM(p):
+    '''AGGREGATETYPES : SUM'''
+    nodo = Node('Aggregate Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<AGGREGATETYPES> ::= SUM\n"
+    p[0] = nodo
+
+
+def p_aggregate_types_COUNT(p):
+    '''AGGREGATETYPES : COUNT'''
+    nodo = Node('Aggregate Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<AGGREGATETYPES> ::= COUNT\n"
+    p[0] = nodo
+
+
+def p_aggregate_types_MAX(p):
+    '''AGGREGATETYPES : MAX'''
+    nodo = Node('Aggregate Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<AGGREGATETYPES> ::= MAX\n"
+    p[0] = nodo
+
+
+def p_aggregate_types_MIN(p):
+    '''AGGREGATETYPES : MIN'''
+    nodo = Node('Aggregate Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<AGGREGATETYPES> ::= MIN\n"
+    p[0] = nodo
+
+
+def p_date_types_YEAR(p):
+    '''DATETYPES : YEAR'''
+    nodo = Node('Date Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<DATETYPES> ::= YEAR\n"
+    p[0] = nodo
+
+
+def p_date_types_MONTH(p):
+    '''DATETYPES : MONTH'''
+    nodo = Node('Date Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<DATETYPES> ::= MONTH\n"
+    p[0] = nodo
+
+
+def p_date_types_DAY(p):
+    '''DATETYPES : DAY'''
+    nodo = Node('Date Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<DATETYPES> ::= DAY\n"
+    p[0] = nodo
+
+
+def p_date_types_HOUR(p):
+    '''DATETYPES : HOUR'''
+    nodo = Node('Date Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<DATETYPES> ::= HOUR\n"
+    p[0] = nodo
+
+
+def p_date_types_MINUTE(p):
+    '''DATETYPES : MINUTE'''
+    nodo = Node('Date Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<DATETYPES> ::= MINUTE\n"
+    p[0] = nodo
+
+
+def p_date_types_SECOND(p):
+    '''DATETYPES : SECOND'''
+    nodo = Node('Date Types')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<DATETYPES> ::= SECOND\n"
     p[0] = nodo
 
 
 def p_sql_integer(p):
-    '''SQLINTEGER : INT_NUMBER
-                  | FLOAT_NUMBER'''
-    nodo = Node('SQLINTEGER')
+    '''SQLINTEGER : INT_NUMBER'''
+    nodo = Node('SQL Integer')
     nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLINTEGER> ::= INT_NUMBER\n"
+    p[0] = nodo
+
+
+def p_sql_integer_FLOAT_NUMBER(p):
+    '''SQLINTEGER : FLOAT_NUMBER'''
+    nodo = Node('SQL Integer')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLINTEGER> ::= FLOAT_NUMBER\n"
+    p[0] = nodo
+
+
+def p_sql_name_STRINGCONT(p):
+    '''SQLNAME : STRINGCONT'''
+    nodo = Node('SQL Name')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLINTEGER> ::= STRINGCONT\n"
+    p[0] = nodo
+
+
+def p_sql_name_CHARCONT(p):
+    '''SQLNAME : CHARCONT'''
+    nodo = Node('SQL Name')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLINTEGER> ::= CHARCONT\n"
     p[0] = nodo
 
 
 def p_sql_name(p):
-    '''SQLNAME : STRINGCONT
-               | CHARCONT
-               | ID'''
-    nodo = Node('SQLNAME')
+    '''SQLNAME : ID'''
+    nodo = Node('SQL Name')
     nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<SQLINTEGER> ::= ID\n"
     p[0] = nodo
 
 
-def p_type_select(p):
-    '''TYPESELECT : ALL
-                  | DISTINCT
-                  | UNIQUE'''
-    nodo = Node('TYPESELECT')
+def p_type_select_ALL(p):
+    '''TYPESELECT : ALL'''
+    nodo = Node('Type Select')
     nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<TYPESELECT> ::= ALL\n"
+    p[0] = nodo
+
+
+def p_type_select_DISTINCT(p):
+    '''TYPESELECT : DISTINCT'''
+    nodo = Node('Type Select')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<TYPESELECT> ::= DISTINCT\n"
+    p[0] = nodo
+
+
+def p_type_select_UNIQUE(p):
+    '''TYPESELECT : UNIQUE'''
+    nodo = Node('Type Select')
+    nodo.add_childrens(Node(p[1]))
+    nodo.production = f"<TYPESELECT> ::= UNIQUE\n"
     p[0] = nodo
 
 
 def p_sub_query(p):
     '''SUBQUERY : SELECTSTATEMENT'''
-    nodo = Node('SUBQUERY')
+    nodo = Node('SubQuery')
     nodo.add_childrens(p[1])
+    nodo.production = f"<SUBQUERY> ::= <SELECTSTATEMENT>\n"
+    nodo.production += f"{p[1].production}"
     p[0] = nodo
 
 

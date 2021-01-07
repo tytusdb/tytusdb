@@ -8,22 +8,19 @@ import { faSync } from '@fortawesome/free-solid-svg-icons';
 })
 export class TreeComponent implements OnInit {
 
-  cadena_db: String = "";
+  json: String = "";
   faSync = faSync
 
   constructor() {
   }
 
   ngOnInit(): void {
-    this.funcion1()
-
+    //this.funcion1()
   }
 
   funcion1() {
     let toggler = document.getElementsByClassName("caret");
-    let i = 0;
-
-    for (i; i < toggler.length; i++) {
+    for (let i = 0; i < toggler.length; i++) {
       toggler[i].addEventListener("click", function () {
         this.parentElement.querySelector(".animacion").classList.toggle("activada");
         this.classList.toggle("caret-down");
@@ -31,51 +28,38 @@ export class TreeComponent implements OnInit {
     }
   }
 
-
-
-
-  refrescar() {
-    alert("def showDatabases()")
-
+  refresh() {
+    alert("def showDatabases()")                  //funcion a la que se invocara en siguiente fase
     let item_db = document.getElementById("db")
-    item_db.innerHTML = ""
-
-    this.cadena_db = prompt("recibiendo datos", "[basedatos1,basedatos2, basedatos3]");
-
-    // analizando respuesta
-    let array = this.analizar(this.cadena_db)
-    console.log("data bases : ", array)
-
-    //  actualizando el numero de base de datos 
-    let numero_db = document.getElementById("num_db")
-    numero_db.innerText = String(array.length)
-
+    item_db.innerHTML = ""                        //limpiando los datos almacenados 
+    this.json = prompt("recibiendo lista de bases de datos...", "[basedatos1,basedatos2, basedatos3]");
+    let array = this.parser(this.json)            //array que contiene las bases de datos
+    console.log("data base : ", array)
+    document.getElementById("num_db").innerText = String(array.length)  //  actualizando el numero de base de datos en el navegador
+    var contenedor=""
     for (let i = 0; i < array.length; i++) {
-      item_db.innerHTML += '<li><span class="caret">' +
-        array[i] +
-        '</span><ul class="animacion"><li><span class="caret">Tabla [<a id ="t_' +
-        array[i] +
-        '">0</a>]</span><ul class="animacion" id="' +
-        array[i] +
-        '"></ul></li></ul></li>'
 
-      let item = document.getElementById(array[i])
-      alert("def showtablees(" + array[i] + ")")
-      this.cadena_db = prompt("recibiendo tabla de la base de datos : " + array[i], "[]");
-      let respuesta = this.analizar(this.cadena_db)
-      let num = document.getElementById('t_' + array[i])
-      num.innerText = String(respuesta.length)
+      item_db.innerHTML += 
+        '<li> <span class="caret"> <i class="fa fa-database"></i> ' + array[i] +' </span>'+
+        '<ul class="animacion">'+
+        '<li><span class="caret"><i class="fa fa-folder-o"></i> Tablas [<a id ="t_' +array[i] +'">0</a>]</span>'+
+        '<ul class="animacion" id="'+array[i] +'"></ul>'+
+        '</li></ul></li>'
+
+      let item_tabla = document.getElementById(array[i])
+      alert("def showtablees(" + array[i] + ")")        //funcion a la que se invocara en la siguiente fase
+      this.json = prompt("recibiendo tablas para la base de datos '" + array[i]+"'", "[ciudad,cliente,factura,proveedor]");
+      let respuesta = this.parser(this.json)                                          // array que contiene las tablas 
+      document.getElementById('t_' + array[i]).innerText=  String(respuesta.length)   // actualiza el numero de tabla en cada base de datos
+      
       for (let i = 0; i < respuesta.length; i++) {
-        item.innerHTML += '<li>' + respuesta[i] + '</li>'
+        item_tabla.innerHTML += '<li><i class="fa fa-table"></i> ' + respuesta[i] + '</li>'
       }
     }
-
-
     this.funcion1()
-
   }
 
-  analizar(data) {
+  parser(data) {
     var array = []
     data = data.replace('[', "")
     data = data.replace(']', "")
@@ -85,6 +69,5 @@ export class TreeComponent implements OnInit {
     }
     return array
   }
-
 
 }

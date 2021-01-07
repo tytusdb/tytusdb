@@ -1,3 +1,7 @@
+# Package:      BPlusMode
+# License:      Released under MIT License
+# Notice:       Copyright (c) 2020 TytusDB Team
+
 import os
 
 class BPLUS_TUPLE:
