@@ -7,11 +7,17 @@ sys.path.append(dir_nodo)
 ent_nodo = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\ENTORNO\\')
 sys.path.append(ent_nodo)
 
+c3d_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\C3D\\')
+sys.path.append(c3d_dir)
+
 from Expresion import Expresion
 from Tipo import Data_Type
 from Tipo_Expresion import Type_Expresion
+from Label import *
+from Temporal import *
 
 class Function_Trunc(Expresion):
+
 
     def __init__(self, nombreNodo, fila, columna, valor):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)    
@@ -68,7 +74,55 @@ class Function_Trunc(Expresion):
                 return self.valorExpresion
     
     def compile(self, enviroment):
-        print("compile")
+        cantExp = len(self.hijos)        
+
+        if cantExp == 1 :
+
+            exp = self.hijos[0]
+            expValue = exp.compile(enviroment)
+
+            if exp.tipo.data_type == Data_Type.numeric :
+
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                self.dir = instanceTemporal.getTemporal()
+                self.cod = expValue
+                self.cod += self.dir + ' = math.trunc(' + exp.dir + ')\n' 
+                return self.cod
+            
+            else :
+
+                self.tipo = Type_Expresion(Data_Type.error)
+                self.dir = ''
+                self.cod = ''
+                return self.cod
+
+        else:
+
+            exp = self.hijos[0]
+            exp2 = self.hijos[1]
+
+            expValue = exp.compile(enviroment)
+            exp2Value = exp2.compile(enviroment)
+
+            if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
+                
+                valor2 = str(instanceTemporal.getTemporal())
+                factor = str(instanceTemporal.getTemporal())
+
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                self.cod = expValue + exp2Value
+                self.cod += valor2 + ' = int(' + exp2.dir + ')\n'                
+                self.cod += factor + ' = 10.0 ** ' + valor2 + '\n'
+                self.dir = instanceTemporal.getTemporal()
+                self.cod += self.dir + ' = math.trunc(' + exp.dir + ' * ' + factor + ') / ' + factor + '\n'
+                return self.cod
+
+            else :
+
+                self.tipo = Type_Expresion(Data_Type.error)
+                self.dir = ''
+                self.cod = ''
+                return self.cod
     
     def getText(self):
         

@@ -51,6 +51,7 @@ class Function_Abs(Expresion):
             self.tipo = Type_Expresion(Data_Type.numeric)
             self.dir = instanceTemporal.getTemporal()
             self.cod = res
+            self.cod += self.dir + ' = 0\n'
             self.cod += 'if ' + hijo.dir + ' < 0 :\n'
             self.cod += '\t' + self.dir + ' = ' + hijo.dir + '*-1\n'
             self.cod += 'else :\n'
