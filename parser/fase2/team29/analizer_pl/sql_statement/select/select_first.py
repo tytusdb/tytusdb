@@ -32,6 +32,8 @@ class SelectOnlyParamsFirst(instruction.Instruction):
             out = "\t" + out
         return code.C3D(parVal + out, self.temp, self.row, self.column)
 
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_SELECT")
 
 class SelectFirstValue(instruction.Instruction):
     def __init__(self, temp, select):
@@ -109,3 +111,6 @@ class SelectFirstValue(instruction.Instruction):
         else:
             grammar.optimizer_.addIgnoreString(out, self.row, False)
         return code.C3D(parVal + out, self.temp, self.row, self.column)
+
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_SELECT")
