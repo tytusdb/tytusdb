@@ -1,0 +1,7 @@
+digraph AST {
+	node1 [label=INIT]
+	node2 [label=INSTRUCCIONES]
+	node1 -> node2
+	node3 [label=SELECT]
+	node2 -> node3
+}

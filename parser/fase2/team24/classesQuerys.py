@@ -2,15 +2,17 @@
 import hashlib
 from datetime import date
 from os.path import split
-from InstruccionesDGA import tabla as ts
+from variables import tabla as ts
+from variables import NombreDB
 import storage as s
 from enum import Enum
-import InstruccionesDGA as dga
+
 import mathtrig as mt
 import prettytable as pt
 import reportError as errores
 from reportError import CError
-#
+from sql import *
+
 
 #
 class exp_type(Enum):
@@ -42,8 +44,7 @@ class select_func(query):
                 return e
             else:
                 tables = {}
-                
-                
+
                 results = []
                 for col in self.lista:
                     res = col.ejecutar(tables)
@@ -67,11 +68,6 @@ class select_func(query):
                 #print(ptable)
                 return ptable
             
-                
-
-
-
-
 
 class select(query):
 
@@ -88,7 +84,20 @@ class select(query):
         if having is not None and condition is not None:
             self.condition.append(having)
         
-        
+    def traducir(self):
+        global Listaselects
+        Nuevoselect = select(self.distinct,self.select_list,self.table_expression,self.condition,
+        self.group,self.having,
+        self.orderby,
+        self.limit,
+        self.offset)
+
+        insertarS(Nuevoselect)
+        serialaizer()
+        traduccion = '\t'
+        traduccion += 'sql.execute(\'SELECT * FROM temp\')\n'
+        print(traduccion)
+        return traduccion
 
     def ejecutar(self):
 
@@ -292,9 +301,9 @@ class exp_id(exp_query):
                     errores.insert_error(e)
                     return e
                 t = list(tables)[0]
-                registros = s.extractTable(dga.NombreDB,t)
+                registros = s.extractTable(NombreDB,t)
                 #Buscamos los encabezados
-                encabezados = ts.getColumns(dga.NombreDB,t)
+                encabezados = ts.getColumns(NombreDB,t)
                 if registros ==[] and encabezados == []:
                     e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
                     errores.insert_error(e)
@@ -367,9 +376,9 @@ class exp_id(exp_query):
             if self.table not in tables.values():
                 # si no fuera un alias 
                 #significa que el nombre es la tabla
-                registros = s.extractTable(dga.NombreDB,self.table)
+                registros = s.extractTable(NombreDB,self.table)
                 if self.val == '*':
-                    encabezados = ts.getColumns(dga.NombreDB,self.table)
+                    encabezados = ts.getColumns(NombreDB,self.table)
                     cols = []
                     #llenamos vacio
                     cont = len(registros[0])
@@ -385,7 +394,7 @@ class exp_id(exp_query):
                     }
                     return dict
 
-                indice = ts.getIndice(dga.NombreDB,self.table,self.val)
+                indice = ts.getIndice(NombreDB,self.table,self.val)
                 if registros ==[] and indice == -1:
                     e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
                     errores.insert_error(e)
@@ -407,10 +416,10 @@ class exp_id(exp_query):
                 if isinstance(table,CError):
                     return table    
                 #Obtenemos la tabla
-                registros = s.extractTable(dga.NombreDB,table)
+                registros = s.extractTable(NombreDB,table)
 
                 if self.val == '*':
-                    encabezados = ts.getColumns(dga.NombreDB,table)
+                    encabezados = ts.getColumns(NombreDB,table)
                     if registros ==[] and encabezados == []:
                         e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
                         errores.insert_error(e)
@@ -430,7 +439,7 @@ class exp_id(exp_query):
                     }
                     return dict
                 #Obtenemos el indice de esa tabla
-                indice = main.ts.getIndice(dga.NombreDB,table,self.val)
+                indice = ts.getIndice(NombreDB,table,self.val)
                 if indice == -1:
                     e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
                     errores.insert_error(e)
@@ -445,14 +454,6 @@ class exp_id(exp_query):
                     "columna" : [{"nombre":self.val,"indice":indice,"tabla":table}] 
                 }
                 return dic
-
-
-
-
-
-
-
-
 
 class exp_bool(exp_query):
     'Esta expresion devuelve un'
@@ -2359,11 +2360,6 @@ class trig_cos(column_mathtrig):
             trim = mt.cos(float(temp))
             
             return trim
- 
-
-
-
-
 
 class trig_cosd(column_mathtrig):
     def __init__(self, exp, alias):
@@ -4264,7 +4260,7 @@ def ejecutar_groupBy(valores,select_list):
     name_table = agg['columna'][0]['tabla']
     index_col = agg['columna'][0]['indice']
 
-    t = s.extractTable(dga.NombreDB,name_table)
+    t = s.extractTable(NombreDB,name_table)
     data = []
     for reg in t:
         data.append(reg[index_col])

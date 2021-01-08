@@ -2066,6 +2066,16 @@ def p_alterpi(t):
     reporte = "<alter> ::= INDEX ID ALTER ID ID PTCOMA\n"
     t[0] = {'ast' : alter.AlterIndex(t[3], t[5], t[6]), 'graph' : grafo.index, 'reporte': reporte}
 
+def p_alterpiN(t):
+    '''alter    : INDEX iexi ID ALTER coluem ENTERO PTCOMA'''
+    grafo.newnode('ALTER')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenE(t[5])
+    grafo.newchildrenE(t[6])
+    reporte = "<alter> ::= INDEX ID ALTER ID ENTERO PTCOMA\n"
+    t[0] = {'ast' : alter.AlterIndexN(t[3], t[5], t[6]), 'graph' : grafo.index, 'reporte': reporte}
+
 def p_alterpiiexi(t):
     '''iexi    : IF EXISTS
                 | '''
@@ -2282,9 +2292,7 @@ def p_instrucciones_delete(t) :
     grafo.newnode('DELETE')
     grafo.newchildrenE(t[2])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
-    reporte = "<delete> ::= "
-    if t[1].lower() == "from":
-        reporte += "FROM " + t[2].upper() + " <condicionesops> PTCOMA\n"
+    reporte = "<delete> ::= FROM " + t[2].upper() + " <condicionesops> PTCOMA\n"
     t[0] = {'ast' : delete.Delete(ident.Identificador(t[2], None), t[3]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionesdelete_e(t):
@@ -2401,8 +2409,7 @@ def p_instrucciones_update(t):
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[4]['graph'])
-    if t[2].lower() == "set":
-        reporte = " <update> ::= " + t[1].upper() + " SET <asignaciones> <condiciones> PTCOMA\n" + t[3]['reporte'] + t[4]['reporte']
+    reporte = " <update> ::= " + t[1].upper() + " SET <asignaciones> <condiciones> PTCOMA\n" + t[3]['reporte'] + t[4]['reporte']
     t[0] = {'ast' : update.Update(ident.Identificador(t[1], None), t[3]['ast'], t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccions_update_e(t):

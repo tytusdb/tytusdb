@@ -23,4 +23,34 @@
                             <tr>
                                 <th>Reglas</th>
                             </tr>
-                
+                  <tr>
+                        <td>Regla 1: <br>	T1 = a
+<br>	a = T1
+. Se optimiza por: 	T1 = a
+</td>
+                    </tr>  <tr>
+                        <td>Regla 2: 	goto .L1
+	t50=False
+	label .L1
+. Se optimiza por: L1
+</td>
+                    </tr>  <tr>
+                        <td>Regla 2: 	if t71>1: goto .L33
+	label .L33
+. Se optimiza por: L33
+</td>
+                    </tr>  <tr>
+                        <td>Regla 2: 	goto .L34
+	t72=True
+	goto .L35
+	label .L34
+. Se optimiza por: L34
+</td>
+                    </tr>  <tr>
+                        <td>Regla 2: 	goto .L37
+	VALOR=20
+	goto .L38
+	label .L37
+. Se optimiza por: L37
+</td>
+                    </tr>

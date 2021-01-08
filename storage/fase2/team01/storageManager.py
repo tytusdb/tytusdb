@@ -1,4 +1,6 @@
 #Acceso a los diferentes modos de almacenamiento
+import hashlib
+import datetime
 from storage.avl import avl_mode as _AVL
 from storage.b import b_mode as _B
 from storage.bplus import bplus_mode as _BPLUS
@@ -106,7 +108,7 @@ def elegirModo(m):
 #*************************************
 
 #Creación de bases de datos
-def createDatabase(database: str, mode: str, encoding: str) -> int:
+def createDatabase(database: str, mode: str, encoding: str) -> int:    
     try:
         d = database.lower()
         m = mode.lower()
@@ -351,9 +353,9 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
                 if columnNumber not in itemTBL.PK:
                     if itemTBL.columnas > 1:
                         resultado = elegirModo(itemTBL.modo).alterDropColumn(d, t, columnNumber)
-                    if resultado == 0:
-                        itemTBL.columnas -= 1
-                    return resultado #0=Operación exitosa, 1=Error en la operación
+                        if resultado == 0:
+                            itemTBL.columnas -= 1
+                        return resultado #0=Operación exitosa, 1=Error en la operación
                     else:
                         return 4 #Tabla no puede quedarse sin columnas
                 else:
@@ -498,3 +500,82 @@ def truncate(database: str, table: str) -> int:
             return 2 #Base de datos inexistente
     except:
         return 1 #Error en la operación
+
+#*******************************************
+#** FUNCIONES PARA LA FASE 2 DEL PROYECTO **
+#*******************************************
+
+#Cambia el modo de almacenamiento de una Base de Datos
+def alterDatabaseMode(database: str, mode: str) -> int:
+    try:
+        d = database.lower()
+        m = mode.lower()
+        if not database.isidentifier():
+            raise Exception()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            if m in cModos:
+                if itemBD.modo != m:
+                    resultado = elegirModo(m).createDatabase(itemBD.nombre)
+                    if resultado == 0:
+                        lista = [item for item in lista_tablas if item.bd == itemBD.nombre]
+                        for itemTBL in lista:
+                            resultado = elegirModo(m).createTable(itemBD.nombre, itemTBL.nombre, itemTBL.columnas)
+                            if resultado == 0:
+                                if itemTBL.PK != []:
+                                    resultado = elegirModo(m).alterAddPK(itemBD.nombre, itemTBL.nombre, itemTBL.PK)
+                                lista_registros = elegirModo(itemTBL.modo).extractTable(itemBD.nombre, itemTBL.nombre)
+                                for registro in lista_registros:
+                                    resultado = elegirModo(m).insert(itemBD.nombre, itemTBL.nombre, registro)
+                                    if resultado != 0:
+                                        elegirModo(m).dropDatabase(itemBD.nombre)
+                                        return resultado #Error en la opración
+                                if resultado == 0:
+                                    elegirModo(itemBD.modo).dropDatabase(itemBD.nombre)
+                                    itemBD.modo = m
+                                    for item in lista_tablas:
+                                        if item.bd == itemBD.nombre:
+                                            item.modo = m
+                                    return resultado #Operación exitosa
+                            else:
+                                elegirModo(m).dropDatabase(itemBD.nombre)
+                                return resultado #Error en la opración
+                    else:
+                        return resultado
+                else:
+                    #El modo es el mismo
+                    return 0 #Operación exitosa
+            else:
+                return 4 #Modo incorrecto
+        else:
+            return 2 #Base de Datos no existente
+    except:
+        return 1 #Error en la operación
+#funciones de checksum
+x = datetime.datetime.now()
+def checksumDatabase(database:str, mode:str) -> str:
+    stringDatabase =""
+    for bases in showTables(database):       
+        stringDatabase += bases
+        for tables in extractTable(database,bases):            
+            for regitros in tables:              
+                stringDatabase += str(regitros)
+    stringDatabase += str(x)    
+    if mode == "MD5":        
+        h=hashlib.md5(stringDatabase.encode('utf-8'))   
+        return h.hexdigest()
+    elif mode == "SHA256":        
+        h=hashlib.sha256(stringDatabase.encode('utf-8'))   
+        return h.hexdigest()
+def checksumTable(database:str, table:str, mode:str) -> str:
+    stringTable=""
+    for tables in extractTable(database,table):            
+            for regitros in tables:              
+                stringTable += str(regitros)
+    stringTable += str(x)
+    if mode == "MD5":        
+        h=hashlib.md5(stringTable.encode('utf-8'))   
+        return h.hexdigest()
+    elif mode == "SHA256":        
+        h=hashlib.sha256(stringTable.encode('utf-8'))   
+        return h.hexdigest()

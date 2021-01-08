@@ -5,6 +5,8 @@ import analizer.symbol.c3dSymbols as SymbolTable
 from analizer.statement.functions.call import FunctionCall
 from analizer.statement.expressions.identifiers import Identifiers
 from datetime import datetime
+from analizer.reports.Nodo import Nodo
+from analizer.reports.AST import AST
 
 class Declaration(instruction.Instruction):
     def __init__(self,nombre,tipo,valor,row,column):
@@ -15,6 +17,7 @@ class Declaration(instruction.Instruction):
         self.row=row
         self.column=column
         self.classType=str(self.valor.__class__.__name__).casefold()
+        self.exp = self.valor
     def execute(self,environment):
         pass
     def generate3d(self,environment,instanciaAux):
@@ -164,3 +167,27 @@ class Declaration(instruction.Instruction):
             )
             print(9, e)
             return None
+    def dot(self):
+        nuevo_nodo = Nodo("DECLARACION")
+        id_nodo = Nodo("IDENTIFICADOR")
+        tipo_nodo = Nodo("TIPO")
+        ident_nodo = Nodo(self.nombre)
+        type_nodo = Nodo(self.tipo[0])
+        if isinstance (self.tipo[1], list):
+            if self.tipo[1][0]!=None:
+                dim = Nodo("DIMENSION")
+                dim.addNode(str(self.tipo[1][0]))
+                tipo_nodo.addNode(dim)
+        elif self.tipo[1]!=None:
+            dim = Nodo("DIMENSION")
+            dim.addNode(str(self.tipo[1]))
+            tipo_nodo.addNode(dim) 
+        id_nodo.addNode(ident_nodo)
+        tipo_nodo.addNode(type_nodo)
+        nuevo_nodo.addNode(id_nodo)
+        nuevo_nodo.addNode(tipo_nodo)
+        if self.exp != None:
+            exp_nodo = Nodo("EXPRESION")
+            exp_nodo.addNode(self.exp.dot())
+            nuevo_nodo.addNode(exp_nodo)
+        return nuevo_nodo

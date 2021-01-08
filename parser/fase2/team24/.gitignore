@@ -2,6 +2,7 @@ entrada.txt
 __pycache__/
 .idea/
 data/
+c3d.py
 parser.out
 parsetab.py 
 pruebas.py

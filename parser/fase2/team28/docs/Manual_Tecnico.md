@@ -99,3 +99,48 @@ Existen diversas alternativas para manejar una traducción y acciones en un aná
 </div>
 
 Si se desea hacer uso de la alternativa de construcción de un árbol sintáctico para realizar su recorrido y así lograr el traspaso de atributos entre los nodos entonces esto conlleva más tiempo como se ve reflejado en la figura 7, dependiendo de la complejidad de la gramática y el tamaño, el tiempo de ejecución puede crecer.
+
+##  FASE 2
+***
+Para el desarrollo de la fase 2 del proyecto se hizo uso de la librería de python llamada goto lo cual permite el uso de etiquetas (Labels) y saltos (goto) que permite realizar la ejecución del código en 3 direcciones moviéndose a través de saltos por medio del archivo. 
+[Libreria Goto](https://github.com/snoack/python-goto/blob/master/test_goto.py)
+
+<div align="center">
+    <p align="center">
+        Ejemplo libreria Goto
+    </p>
+    <img src="../assets/img/img7_f2.png" width="300">
+</div>
+
+Se hizo uso de clases abstractas y se definió un método abstracto llamado compile, el cual es el encargado de la traducción a código 3 direcciones según cada instrucción, es prudente hacer énfasis en los objetos que son instancia de asignación, expresión y de los condicionales, debido a que la parte del lenguaje procedural de postgresql fue la traducida a código 3d. Se hace uso de una clase de ámbito para manejar el alcance que tienen las variables dentro de un bloque.
+
+Se muestra un ejemplo de una instrucción vital para la traducción a código 3d, la cual es la instrucción if, esta tiene como atributos una condición, las instrucciones pertenecientes y posibles cuerpos de un else if o un else. 
+
+A grandes rasgos la instrucción if en su método compile genera los labels necesarios para permitir hacer saltos según la condición, siempre tendrá un label true y un label false. Al momento de darle a su condición la ejecución del método compile este devolverá la condición en un formato válido para código 3d, y se va dando una estructura válida para el formato en código 3d y que sea aceptado por la libreria goto.
+
+<div align="center">
+    <p align="center">
+        Instrucción If y metodo compile.
+    </p>
+    <img src="../assets/img/img8_f2.png" width="300">
+</div>
+
+En el caso de la optimización se hizo un parser aparte que analice la salida del primer parse, es decir, analizará el código 3d generado por el primer parser, al ir reconociendo la estructura del archivo del código 3d se pueden hacer uso de las reglas de optimización de mirilla.
+
+<div align="center">
+    <p align="center">
+        Método regla 1 optimización.
+    </p>
+    <img src="../assets/img/img9_f2.png" width="300">
+</div>
+
+Se realizó un método de optimización por cada una de las reglas, si en dado caso es posible optimizarla entonces se agrega a un reporte donde muestra el código no optimizado con el código ya optimizado.
+
+<div align="center">
+    <p align="center">
+        Clase Label C3D.
+    </p>
+    <img src="../assets/img/img10_f2.png" width="300">
+</div>
+
+En este caso se hace uso de instrucciones fundamentales, el número de instrucciones se reduce considerablemente debido a que el formato en código 3d acepta instrucciones elementales. Gracias al manejo de clases se puede hacer validaciones para las reglas de optimización al saber si un objeto es o no instancia de cierta clase.

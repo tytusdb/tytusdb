@@ -525,12 +525,14 @@ class Main(tk.Tk):
         C3D_opt = []
         f = open("team29/ui/codigo3D.py", 'r')
         Lines = f.readlines()
-        optimizarDesde = Lines.index(str(GC3D[0]) + '\n')
+        optimizarDesde = Lines.index('def main3d(): ' + '\n')
         while optimizarDesde < len(Lines):
             porOptimizar = Lines[optimizarDesde]
             C3D_opt.append(porOptimizar)
             optimizarDesde += 1
         optimizar(C3D_opt)
+        print('*************************************')
+        print(retornoOpt())
         reporteOptimizacion(reglasOpt)
 
 
@@ -560,6 +562,7 @@ class Main(tk.Tk):
             # Start parser
             ins = g.parse(tytus)
             #g.gramaticaBNF(tytus)
+            #Contador de temporales utilizados
             temp = g.contador
             gen = Generador(temp, 0, ins.getInstruccion())
             gen.ejecutar()
@@ -607,6 +610,8 @@ class Main(tk.Tk):
                 self.do_dropIndex(inst,p_st,es_global,st.SymbolTable())
             elif isinstance(inst,AlterRenameIn):
                 self.do_AlterRIndex(inst,p_st,es_global,st.SymbolTable())
+            elif isinstance(inst,AlterIndex):
+                self.do_AlterOrden(inst,p_st)
             else:
                 print(inst)
 
@@ -661,12 +666,7 @@ class Main(tk.Tk):
         existe = p_st.get(sKey)
 
         if existe:
-            for key, v in tSimbolo.symbols.items():
-                if p_inst.nombre == v.id and v.type == "create":
-                    v.id = ""
-                    v.type = ""
-                    v.value = ""
-                    v.p_Orden = ""
+            p_st.destroy(sKey)
 
     # CREACIÓN DE LISTADO DE TIPOS
     def do_create_type(self, p_inst, p_st):
@@ -678,48 +678,53 @@ class Main(tk.Tk):
 
     def do_index(self, p_inst, p_st, p_es):
         key = 'CI_' + p_inst.name
-        if isinstance(p_inst, Index):
-            if p_inst.Unique == True:
-                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Index tipo: '+'Unique','')
-            elif p_inst.Using == True:
-                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Metodo: '+'Using Hash','')
-            else:
-                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'','')
-        elif isinstance(p_inst,IndexW):
-            simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'','')
-        elif isinstance(p_inst, IndexMM):
-            simbolo = st.Symbol(key, p_inst.name, 'INDEX', str(p_inst.major)+ ',' + str(p_inst.minor),'','')
-        elif isinstance(p_inst, IndexOrden):
-            if p_inst.Orden == 'ANF':
-                p_inst.Orden = 'ASC NULLS FIRST'
-            elif p_inst.Orden == 'ANL':
-                p_inst.Orden = 'ASC NULLS LAST'
-            elif p_inst.Orden == 'DNF':
-                p_inst.Orden = 'DESC NULLS FIRST'
-            elif p_inst.Orden == 'DNL':
-                p_inst.Orden = 'DESC NULLS LAST'
-            elif p_inst.Orden == 'NF':
-                p_inst.Orden = 'NULLS FIRST'
-            elif p_inst.Orden == 'NL':
-                p_inst.Orden = 'NULLS LAST'
-
-            simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.valor,'Orden: '+p_inst.Orden,'')
-
         existe = p_st.get(key)
-        if not existe:
-            p_st.add(simbolo)
+        ckey = 'CTB_'+p_inst.table+'_'
+        existet = p_st.get(ckey)
+        
+        if existe == False and existet != False:
+            if isinstance(p_inst, Index):
+                if p_inst.Unique == True:
+                    simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Se utiliza tabla: '+p_inst.table+'<br>'+'Index tipo: '+'Unique','')
+                elif p_inst.Using == True:
+                    simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Se utiliza tabla: '+p_inst.table+'<br>'+'Metodo: '+'Using Hash','')
+                else:
+                    simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Se utiliza tabla: '+p_inst.table+'<br>','')
+            elif isinstance(p_inst,IndexW):
+                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Se utiliza tabla: '+p_inst.table+'<br>','')
+            elif isinstance(p_inst, IndexMM):
+                simbolo = st.Symbol(key, p_inst.name, 'INDEX', str(p_inst.major)+ ',' + str(p_inst.minor),'Se utiliza tabla: '+p_inst.table+'<br>','')
+            elif isinstance(p_inst, IndexOrden):
+                if p_inst.Orden == 'ANF':
+                    p_inst.Orden = 'ASC NULLS FIRST'
+                elif p_inst.Orden == 'ANL':
+                    p_inst.Orden = 'ASC NULLS LAST'
+                elif p_inst.Orden == 'DNF':
+                    p_inst.Orden = 'DESC NULLS FIRST'
+                elif p_inst.Orden == 'DNL':
+                    p_inst.Orden = 'DESC NULLS LAST'
+                elif p_inst.Orden == 'NF':
+                    p_inst.Orden = 'NULLS FIRST'
+                elif p_inst.Orden == 'NL':
+                    p_inst.Orden = 'NULLS LAST'
+                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.valor,'Se utiliza tabla: '+p_inst.table+'<br>'+'Orden: '+p_inst.Orden,'')
+
+            if existe == False:
+                p_st.add(simbolo)
+                self.new_output("SE CREO CON EXITO EL INDICE:"+p_inst.name)
+        
+        else:
+            self.new_output("EL INDICE QUE SE DESEA AGREGAR YA EXISTE")
 
     def do_dropIndex(self, p_inst, p_st, p_es,tSimbolo):
         sKey = 'CI_' + p_inst.idI
         existe = p_st.get(sKey)
 
-        if existe:
-            for key, v in tSimbolo.symbols.items():
-                if p_inst.idI == v.id and v.type == "INDEX":
-                    v.id = ""
-                    v.type = ""
-                    v.value = ""
-                    v.p_Orden = ""
+        if existe != False:
+            p_st.destroy(sKey)
+            self.new_output("SE ELIMINO EXITOSAMENTE EL INDICE: "+ p_inst.idI)
+        else:
+            self.new_output("ERROR: EL INDICE"+ p_inst.idI+"A ELIMINAR NO EXISTE")
 
     def do_AlterRIndex(self, p_inst, p_st, p_es,tSimbolo):
         sKey = 'CI_' + p_inst.nombreIn
@@ -729,6 +734,42 @@ class Main(tk.Tk):
             for key, v in tSimbolo.symbols.items():
                 if p_inst.nombreIn == v.id:
                     v.id = p_inst.nuevoNom
+                    break
+
+    def do_AlterOrden(self, p_inst, p_st):
+        sKey = 'CI_' + p_inst.nombre
+        objeto = p_st.get(sKey)
+        existe = objeto  
+        tabla = ""
+        valores = ""
+
+        if existe != False:   
+            tabla = existe.p_Orden.split('<br>')
+            tabla = str(tabla[0]).split(':')
+            tabla = str(tabla[1])
+            tabla = tabla[1:]                     
+            
+
+            ckey = 'CTB_'+tabla+'_'
+            existe1 = p_st.get(ckey)
+            if existe1 != False:
+                if p_inst.tipoC == True:
+                    valores = existe1.value.split(',')
+                    if p_inst.columnaCambio <= len(valores) and p_inst.columnaCambio > 0:
+                        columna = valores[p_inst.columnaCambio - 1]
+                        valoresColumna = columna.split(' ')
+                        nombreColumna = valoresColumna[0]
+                        objeto.value = objeto.value.replace(p_inst.columna,nombreColumna)
+                        p_st.update1(objeto)
+                        self.new_output("SE REALIZO EL CAMBIO DE LA COLUMNA: "+ p_inst.columna+" A: "+nombreColumna)
+                else:
+                    valores = existe1.value.split(',')
+                    for val in valores:
+                        if p_inst.columnaCambio in val:
+                            objeto.value = objeto.value.replace(p_inst.columna,p_inst.columnaCambio)
+                            p_st.update1(objeto)
+                            self.new_output("SE REALIZO EL CAMBIO DE LA COLUMNA: "+ p_inst.columna+" A: "+p_inst.columnaCambio)
+                            break
 
     def do_funcion(self, p_inst, p_st, p_es):
         key = 'CFUN_'+p_inst.id
@@ -782,13 +823,7 @@ class Main(tk.Tk):
         existe = p_st.get(key)
 
         if existe:
-            for key, v in tSimbolo.symbols.items():
-                print(v.id)
-                if p_inst.nombre == v.id and v.type == "create table":
-                    v.id = ""
-                    v.type = ""
-                    v.value = ""
-                    v.p_Orden = ""
+            p_st.destroy(key)
 
     # SHOW DATABASES
     def do_show(self, p_inst, p_st, es_global, ct_global):
