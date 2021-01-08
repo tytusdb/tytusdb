@@ -14,6 +14,6 @@ class DropFuncion(Instruccion):
         codigo = ""
 
         #Se declara la eliminacion con el nombre
-        codigo += "\tdel " + self.id + "()\n"
+        codigo += "\tdel " + self.id + "\n"
 
         return codigo
