@@ -15,9 +15,11 @@ class SelectParam(instruction.Instruction):
         pval = self.exp.execute(environment)
         c3d = pval.temp
         if self.alias != "":
-            c3d += " AS "+self.alias
+            c3d += self.alias
         return code.C3D(pval.value, c3d, self.row, self.column)
 
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_SELECT")
 
 class SelectOnlyParams(instruction.Instruction):
     def __init__(self, params, row, column) -> None:
@@ -41,12 +43,28 @@ class SelectOnlyParams(instruction.Instruction):
         out += ";"
         out += '")\n'
         if isinstance(environment, Environment):
+            grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
-        return code.C3D(parVal+out, "select", self.row, self.column)
+        else:
+            grammar.optimizer_.addIgnoreString(out, self.row, False)
+        return code.C3D(parVal + out, "select", self.row, self.column)
 
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_SELECT")
 
 class Select(instruction.Instruction):
-    def __init__(self, distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column):
+    def __init__(
+        self,
+        distinct,
+        params,
+        fromcl,
+        wherecl,
+        groupbyCl,
+        limitCl,
+        orderByCl,
+        row,
+        column,
+    ):
         instruction.Instruction.__init__(self, row, column)
         self.distinct = distinct
         self.params = params
@@ -62,7 +80,6 @@ class Select(instruction.Instruction):
         out += '" '
         out += "SELECT "
         out += self.distinct + " "
-
         # SelectParams
         j = 0
         for i in range(len(self.params) - 1):
@@ -73,16 +90,13 @@ class Select(instruction.Instruction):
         pval = self.params[j].execute(environment)
         parVal += pval.value
         out += pval.temp
-
         # From
         out += " " + self.fromcl + " "
-
         # where
         pval = self.wherecl.execute(environment)
         if pval.temp != "":
-            out += "WHERE "+pval.temp + " "
+            out += "WHERE " + pval.temp + " "
         parVal += pval.value
-
         # group by
         if self.groupbyCl:
             groupbyCl = ""
@@ -94,28 +108,27 @@ class Select(instruction.Instruction):
                     groupbyCl += g.id
 
             out += "GROUP BY " + groupbyCl[2:] + self.groupbyCl[1] + " "
-
         # limit
         out += self.limitCl + " "
-
         # order by
-        out += self.orderByCl + " "
-
-        out += ";"
+        if self.orderByCl:
+            orderbyCl = ""
+            for o in self.orderByCl:
+                orderbyCl += ", "
+                if type(o[0]) == int:
+                    orderbyCl += str(o[0]) + o[1] + o[2]
+                else:
+                    orderbyCl += o[0].id + o[1] + o[2]
+            out += "ORDER BY " + orderbyCl[2:]
+        out = out.rstrip() + ";"
         out += '")\n'
-        if isinstance(environment, Environment):
-            out = "\t" + out
-
         # TODO: optimizacion
-        '''
         if isinstance(environment, Environment):
             grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
         else:
             grammar.optimizer_.addIgnoreString(out, self.row, False)
-        '''
-        return code.C3D(parVal+out, "select", self.row, self.column)
-
+        return code.C3D(parVal + out, "select", self.row, self.column)
 
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_SELECT")

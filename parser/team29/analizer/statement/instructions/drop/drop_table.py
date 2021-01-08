@@ -17,6 +17,7 @@ class Drop(instruction.Instruction):
         self.exists = exists
 
     def execute(self, environment):
+        Struct.load()
         try:
             if self.structure == "TABLE":
                 if instruction.dbtemp != "":

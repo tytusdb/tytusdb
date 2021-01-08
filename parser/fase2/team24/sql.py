@@ -17,17 +17,27 @@ contador = -1
 jsonObject = None
 
 def execute(script: str):
-    
-    
-    raiz = g.parse(script)
-    
-    for a in raiz:
-        ts = a.ejecutar()[1]
+    global Listaselects
+    global ts
+    if 'SELECT * FROM temp' in script:
+        try:
+            Listaselects = cargar()
+            s = Listaselects.pop()
+            print('Se debe hacer un select')
+            x = s.ejecutar()
+            serialaizer()
+        except:
+            '''Error'''
+    else:
+        raiz = g.parse(script)
 
-    print(type(ts), ts)
-    graphTable(ts)
-    return ts
-    
+        try:
+            for a in raiz:
+                a.ejecutar()
+        except:
+            print('Error' + script)
+    return
+
 
 
 def execute1(script: str):
@@ -64,7 +74,7 @@ def insertarS(s):
 def cargar():
     with open('data.pickle', 'rb') as f:
         return pickle.load(f)
-    
+
 
 def carga():
     with open('table.pickle', 'rb') as f:

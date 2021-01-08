@@ -9,8 +9,10 @@ import json
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk, font, messagebox
+import analizer.typechecker.Metadata.Struct as databases
 from datetime import date
 from datetime import datetime
+from tkinter import simpledialog
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv_add = ('localhost', 10000)
@@ -23,8 +25,9 @@ class cliente():
     def __init__(self, img_carpeta, iconos):
         self.consoleMode = False
 
-        self.send_scritp('create database prueba7;')
-
+        self.send_scritp('create database shooooooooooooooooo___x2_alv;')
+        databases.load()    
+        print(databases.Databases)
         # Creacion de la Ventana
         self.raiz = Tk()
         self.f_log()
@@ -118,7 +121,9 @@ class cliente():
         # Programacion del Menu de Herramientas
         self.toolsMenu.add_command(
             label="Query Tool", command=self.f_query_tool, image=self.START_ICON, compound=LEFT)
-
+            
+        self.toolsMenu.add_command(
+            label="Crear DB", command=self.f_crear_db, image=self.START_ICON, compound=LEFT)
         # Programacion del Menu de informacion
         self.aboutMenu.add_command(
             label="GRUPO 10", command=self.f_integrantes, image=self.GRUPO_ICON, compound=LEFT)
@@ -170,14 +175,14 @@ class cliente():
         self.treeview = ttk.Treeview(treeFrame, selectmode="extended")
         self.treeview.column("#0", anchor=W, width=300)
         
-        item = self.treeview.insert("", tk.END, text="Server", image=self.SERV_ICON)
-        for x in range(1, 5):
-            item2 = self.treeview.insert(item, tk.END,text="Databases"+str(x),image=self.BD_ICON)
-            item3 = self.treeview.insert(item2, tk.END, text="Tables",image=self.TB_ICON)
-            for x in range(1, 5):
-                item4 = self.treeview.insert(item3, tk.END, text="Tabla"+str(x),image=self.TB_ICON)
-                for x in range(1, 4):
-                    self.treeview.insert(item4, tk.END, text="Columna"+str(x),image=self.COL_ICON)
+        item = self.treeview.insert("", tk.END, text=" Server", image=self.SERV_ICON)
+        for x in self.databases:
+            item2 = self.treeview.insert(item, tk.END,text=" "+x['name'],image=self.BD_ICON)
+            item3 = self.treeview.insert(item2, tk.END, text=" Tables",image=self.TB_ICON)
+            for y in x['tables']:
+                item4 = self.treeview.insert(item3, tk.END, text=" "+y['name'],image=self.TB_ICON)
+                for z in y['columns']:
+                    self.treeview.insert(item4, tk.END, text=" "+z['name'],image=self.COL_ICON)
         self.treeview.pack(fill=BOTH, expand=True)
 
         # SubCuerpo
@@ -297,9 +302,10 @@ class cliente():
         data_json = json.loads(data.decode())
         recibido += len(data)
         #imprimiendo todo el json
-        print(data_json);
+        print(data_json)
         #Leyendo los hijos del padre mensaje
-        print(data_json['messages']);
+        self.databases = data_json['databases']
+        print(data_json['databases'])
 
     def f_switch_console_mode(self):
         self.consoleMode = not self.consoleMode
@@ -326,7 +332,12 @@ class cliente():
             self.output.tag_add('error', '1.0', '1.6')
             self.output.tag_config('error', foreground="red")
             self.output.config(state = 'disabled')
-        
+
+    def f_crear_db(self):
+        dll_db = simpledialog.askstring("Create DB", "Ingresar nombre")
+        query = "create database "+dll_db+";"
+        serv.sendall(query.encode('utf-8'))
+        self.treeview.delete(*self.treeview.get_children())
 
 
     #abrir query tool

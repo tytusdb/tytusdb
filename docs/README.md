@@ -271,7 +271,7 @@ def alterDatabaseCompress(database: str, level: int) -> int:
 Agregue compresión utilizando la biblioteca zlib de python y las funciones compress y decompress. Se debe agregar a columna tipo varchar o text de cada tabla de la base de datos. De igual manera, al extraer la información se debe descomprimir.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos que se desea modificar, debe cumplir con las reglas de identificadores de SQL.  
 Parámetro level: es el nivel de compressión definido por la función compress de la bilbioteca zlib de Python.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 4 level incorrecto.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 level incorrecto.  
 
 ```
 def alterDatabaseDecompress(database: str) -> int:
@@ -287,7 +287,7 @@ Agregue compresión utilizando la biblioteca zlib de python y las funciones comp
 Parámetro database: es el nombre de la base de datos que se desea modificar, debe cumplir con las reglas de identificadores de SQL.  
 Parámetro table: es el nombre de la tabla.  
 Parámetro level: es el nivel de compressión definido por la función compress de la bilbioteca zlib de Python.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 4 level incorrecto.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 level incorrecto.  
 
 ```
 def alterTableDecompress(database: str, table: str) -> int:
@@ -295,7 +295,7 @@ def alterTableDecompress(database: str, table: str) -> int:
 Quita la compresión de una base de datos especificada.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 no había compresión.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 no había compresión.  
 
 
 ### 7. Seguridad
@@ -309,14 +309,14 @@ def encrypt(backup: str, password: str) -> str:
 Crifra el texto backup con la llave password y devuelve el criptograma. Se puede utilizar cualquier método y biblioteca.  (UPDATE)  
 Parámetro backup: es el nombre de la base de datos a utilizar.  
 Parámetro password: es la llave para cifrar.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación.  
+Valor de retorno: contenido del archivo cifrado, None si hay un error.  
 
 ```
 def decrypt(cipherBackup: str, password: str) -> str:
 ```
 Descrifra el texto cipherBackup con la llave password y devuelve el texto plano. Se puede utilizar cualquier método y biblioteca.  (UPDATE)  
 Parámetro cipherBackup: es el nombre de la base de datos a utilizar.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación.  
+Valor de retorno: contenido del archivo cifrado, None si hay un error.  
 
 - BlockChain: el storageManager debe proveer un mecanismo para trabajar en modo seguro una tabla. Es decir, al activar el modo seguro de una tabla, cuando se realicen operaciones de inserción se debe ir creando bloques con sus respectivos valores Hash (esto almacenado en un archivo JSON), cuando algún bloque sea modificado o eliminado la cadena quedará incosistente y debe mostrarse de manera gráfica.
 

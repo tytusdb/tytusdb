@@ -36,16 +36,20 @@ tokens = reservadas + ['TEMPORAL','ID','PARABRE','PARCIERRE','COMA','DOSPUNTOS',
                         'PUNTO','SIGNO_IGUAL','SIGNO_MAS','SIGNO_MENOS','SIGNO_DIVISION','SIGNO_POR','SIGNO_DOBLE_IGUAL',
                         'LLAVEABRE','LLAVECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','SIGNO_MENORQUE_MAYORQUE',
                         'MAYORIGUALQUE','MENORIGUALQUE','MAYORQUE','MENORQUE','SIGNO_NOT','ARROBA','CADENASIMPLE',
-                        'NUMERO','NUM_DECIMAL','COMMENT','COMMENT_MULT','NONE'
+                        'NUMERO','NUM_DECIMAL','COMMENT','COMMENT_MULT','NONE','TABULACION'
                        ]
 
 
 # ======================================================================
 #                      EXPRESIONES REGULARES TOKEN
 # ======================================================================
-t_ignore = '\t\r '
+t_ignore = '\r '
+t_ignore_OMITIR_TAB = r'\t* \#.*'
+t_ignore_DESCARTAR_TAB = r'\t+\n'
+
 t_SIGNO_MENORQUE_MAYORQUE = r'\<\>'
 t_SIGNO_NOT = r'\!\='
+t_TABULACION = r'\t'
 
 t_ARROBA = r'\@'
 t_SIGNO_DOBLE_IGUAL = r'\=\='
@@ -163,11 +167,21 @@ precedence = (
 
 def p_inicio(t):
     '''inicio : imports code'''
+    # for item in t[2]:
+    #     if isinstance(item,Instruccion):
+    #         print(item.execute().get('ins'))
+    #         for item2 in item.execute().get('func',[]):
+    #             print(item2.execute())
+    #     else:
+    #         print(item.execute())
+
+
+    # for item in t[2]:
+    #     print(item.toString(0))
+
+    regla.Optimizar(t[2])
     for item in t[2]:
-       print(item.execute()['ins'])
-       for item2 in item.execute()['func']:
-           print(item2.execute())
-    regla.regla2(t[2])
+        print(item.toString(0))
         
 def p_immports(t):
     '''imports : FROM GOTO IMPORT WITH_GOTO  FROM PARSER IMPORT PARSER
@@ -194,12 +208,13 @@ def p_code(t):
 def p_instruction(t):
     '''instruction : functions
                   | parser 
+                  | asignacion
                   | ID PARABRE params PARCIERRE
                   |'''
     if len(t) == 2:
         t[0] = t[1]
     elif len(t) == 5:
-        t[0] = Funcion('Funcion',t[3],[])
+        t[0] = Funcion(t[1],t[3],None)
     else:
         t[0] = None
 
@@ -212,33 +227,36 @@ def p_function(t):
     t[0] = Funcion(t[4],t[6],t[9])
 
 def p_func_instrucciones(t):
-    '''func_instrucciones : func_instrucciones func_instruccion
-                            | func_instruccion
+    '''func_instrucciones : func_instrucciones tabulacion func_instruccion
+                            | tabulacion func_instruccion
                             |'''
-    if len(t) == 3:
-        if isinstance(t[2],list):
-            t[1] += t[2]
-        elif t[2] != None:
-            t[1].append(t[2])
+    if len(t) == 4:
+        if isinstance(t[3],list):
+            t[1] += t[3]
+        elif t[3] != None:
+            t[1].append(t[3])
         t[0] = t[1]
-    elif len(t) == 2:
-        t[0] = [t[1]]
+    elif len(t) == 3:
+        t[0] = [t[2]]
     else:
-        t[0] = None
+        t[0] = []
 
 def p_func_instruccion(t):
-    '''func_instruccion : asignacion
-                     | ins_if
-                     | ID PARABRE params PARCIERRE
-                     | LABEL PUNTO ID
+    '''func_instruccion : LABEL PUNTO ID
                      | GOTO PUNTO ID
-                     | RETURN exp'''
+                     | RETURN exp
+                     | parser
+                     | asignacion
+                     | ins_if
+                     | ID PARABRE params PARCIERRE'''
     if t.slice[1].type == 'LABEL':
         t[0] = Label(t[3])
     elif t.slice[1].type == 'GOTO':
         t[0] = Goto_Label(t[3])
     elif t.slice[1].type == 'RETURN':
         t[0] = Ins_return('RETURN',t[2])
+    elif len(t) == 5:
+        t[0] = Funcion('Funcion',t[3],None)
     else:
         t[0] = t[1]
 
@@ -251,8 +269,8 @@ def p_asignacion(t):
         t[0] = Asignacion(t[1],t[3],None,None)
 
 def p_ins_if(t):
-    '''ins_if : IF exp DOSPUNTOS GOTO PUNTO ID'''
-    t[0] = Ins_if('IF' ,t[2], t[6])
+    '''ins_if : IF exp DOSPUNTOS tabulacion GOTO PUNTO ID'''
+    t[0] = Ins_if('IF' ,t[2], t[7])
 
 def p_exp(t):
     '''exp  : exp SIGNO_MAS exp
@@ -286,11 +304,13 @@ def p_exp(t):
             '''
     if t.slice[1].type == 'SIGNO_MENOS':
         t[0] = t[2]*-1
-    if len(t) == 4:
+    elif t.slice[1].type == 'NONE':
+        t[0] = None
+    elif len(t) == 4:
         t[0] = {'val1':t[1],'op':t[2],'val2':t[3]}
     elif len(t) == 5:
         if t.slice[2].type == 'PARABRE':
-            t[0] = Funcion('Funcion',t[3],None)
+            t[0] = Funcion(t[1],t[3],None)
     elif len(t) == 2:
         t[0] = t[1]
     
@@ -307,6 +327,15 @@ def p_params(t):
         t[0] = [t[1]]
     else:
         t[0] = []
+        
+def p_tabulacion(t):
+    '''tabulacion : tabulacion TABULACION  
+                    | TABULACION
+                    '''
+    if len(t) == 2:
+        t[0] = 1
+    elif len(t) == 3:
+        t[0] = t[1] + 1
 
 def p_error(t):
     if t != None:
@@ -331,27 +360,42 @@ from goto import with_goto
 from parser import parser
 
 @with_goto
-def myFuncion(texto):
-	#INICIA DECLARE
-    T1 = A
-    T3=tabla=="tbProducto"
-	if T3: 
-		goto .L3
-	goto .L4
-	label .L3
-    A = T1
+def sp_validainsert():
+    
+	GOTO .L1
+	A = 5
+ 	B = 6
+	T5 = A !=  B
+	IF T5 :
+		GOTO .L1
+	LABEL .L1
+    
+ 	a  = a + d
+ 	c = d + 0
+ 	label.L1
+ 	GOTO . L3
+	GOTO . L2
 
-    label .L4
+T5 = T1 + T2
 
-    goto .L5
-	return texto
-    label. L5
-		
-
-    '''
+	
+    
+'''
 
 print(analizarLex(entrada))
 analizarSin(entrada)
 
 for item in TokenError:
     print(item)
+
+'''
+
+	GOTO . L2
+	LABEL.L1
+
+	T5 = T1 + T2
+
+	LABEL.L2
+
+	T4 = A
+'''

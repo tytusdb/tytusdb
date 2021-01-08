@@ -26,7 +26,7 @@ class TIPO_DATO(Enum):
     USE = 22
     CLASEENUMERADA = 23
     FUNCION = 24
-    PROCEDEMIENTO = 25
+    PROCEDIMIENTO = 25
     INDEX = 26
 
 

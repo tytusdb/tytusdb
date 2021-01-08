@@ -3,6 +3,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato
 from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional, Between
+from Instrucciones.PL import Execute
+from Instrucciones.TablaSimbolos.Simbolo import Simbolo as N
 
 class Asignacion(Instruccion):
     def __init__(self, id,expresion, strGram ,linea, columna):
@@ -10,21 +12,26 @@ class Asignacion(Instruccion):
         self.expresion = expresion
         self.id = id
         self.val=""
+        self.linea = linea
+        self.columna=columna
 
     def ejecutar(self, tabla, arbol):
-        super().ejecutar(tabla,arbol)
+        print("extraer ejecutar ")        
+
+        
         pass
 
     def analizar(self, tabla, arbol):
-        super().analizar(tabla,arbol)
-        resultado = self.expresion.analizar(tabla,arbol)
-        if not isinstance(resultado, Excepcion):
-            self.tipo = resultado
-        return resultado
-        
+
+        print("extraer analizarAsignacion ")        
+        try: 
+             self.traducir( "No",tabla, arbol)
+        except Exception as e:
+                   print(e)   
     def extraer(self,tabla,arbol):
         
         cadena = " "
+        print("extraer Asignacion ")        
 
         try: 
              print("Primitivo self.expresion es",self.expresion)        
@@ -32,7 +39,12 @@ class Asignacion(Instruccion):
              if isinstance(self.expresion, Primitivo.Primitivo):
                  cadena += self.expresion.traducir(tabla,arbol).temporalAnterior
                  print("extraer Primitivo es"+cadena)        
+             """ 
+             if isinstance(self.expresion, Execute.Execute):
+                 print("es insta Execute")  
 
+                 cadena += self.expresion.traducir(tabla,arbol)
+                 print("extraer Primitivo es"+cadena)   """
              
         except Exception as e:
                    print(e)      
@@ -55,6 +67,17 @@ class Asignacion(Instruccion):
               cadena += self.extraer(tabla,arbol) 
         except Exception as e:
               print(e)
+        try: 
+        #    a=simbolo.simbolo(funcion.id,"funcion/proc",funcion.linea,funcion.columna)
+
+             a = N(self.id,"",cadena,self.linea,self.columna)
+             tabla.setVariable(a)
+
+             print("se agrego Variable de tabla "+self.id)
+
+        except Exception as e:
+                print(e) 
+
 
         print("cadena es ",cadena)
 

@@ -28,6 +28,7 @@ from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
 from Instrucciones.PL import Func, Declaracion,Execute,Asignacion,Return,If,Drop
 from Instrucciones.PL.Imprimir import Imprimir
+from Instrucciones.Index import Index
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -1390,9 +1391,7 @@ def p_expresion7(t):
     strGram = strGram + "<expresion> ::= ARROBA ID"
     t[0] = Primitivo.Primitivo(t[1],Tipo_Dato.ARROBA, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_expresion8(t):
-    '''expresion : ID PARIZQ lcol PARDER
-    '''
+
 def p_expresion82(t):
     '''expresion : POR
     '''
@@ -1633,6 +1632,7 @@ def p_funciones2(t):
    
     t[0] = Func.Func("funcion",t[4], t[2], t[6], t[14], [12],strGram, t.lexer.lineno, t.lexer.lexpos)
 
+
 def p_lista_pars_f20(t):
     '''lista_pars : tiposanidados
     '''
@@ -1761,6 +1761,30 @@ def p_execute2(t):
     t[0] = Execute.Execute(t[2],t[4],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 
+""" def p_expresion8(t):
+    '''expresion : ID PARIZQ lcol PARDER
+    ''' """
+
+
+def p_expresion8(t):
+    '''expresion : ID PARIZQ l_expresiones PARDER
+    '''  
+    strGram = "<instruccion> ::= EXECUTE  ID PARIZQ PARDER PUNTO_COMA"
+
+
+    t[0] = Execute.Execute(t[1],t[3],strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_expresion80(t):
+    '''
+    expresion :  ID PARIZQ PARDER PUNTO_COMA
+               
+    '''
+  
+    strGram = "<instruccion> ::= EXECUTE  ID PARIZQ PARDER PUNTO_COMA"
+
+
+    t[0] = Execute.Execute(t[1],[],strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 
 def p_if(t):
@@ -1874,7 +1898,10 @@ def p_for3(t):
 def p_create_index1(t):
     '''instruccion : CREATE INDEX ID ON ID PARIZQ lcol PARDER indexWhere PUNTO_COMA
     '''
-    
+    strGram = "<instruccion> ::= INDEX ID ON ID PARIZQ  <lcol> PARDER  <indexWhere> PUNTO_COMA"
+
+    t[0] = Index.Index(t[3],t[5],t[7],t[9],strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_create_index2(t):
     '''
@@ -1973,6 +2000,7 @@ def p_asignacionr(t):
     strGram = "ID DOS_PUNTOS IGUAL <expre> PUNTO_COMA"
 
     t[0] = Asignacion.Asignacion(t[1],t[3],strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 
 

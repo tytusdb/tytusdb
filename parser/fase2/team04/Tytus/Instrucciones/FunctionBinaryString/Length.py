@@ -12,7 +12,7 @@ class Length(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        resultado = self.valor.ejecutar(tabla,arbol)
+        """ resultado = self.valor.ejecutar(tabla,arbol)
         if isinstance(resultado, Excepcion):
             return resultado
         #print("RESULTADO:",resultado)
@@ -27,7 +27,28 @@ class Length(Instruccion):
         arbol.excepciones.append(error)
         arbol.consola.append("HINT: Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos.")
         arbol.consola.append(error.toString())
-        return error
+        return error """
+        return len(str(self.valor))
+    
+    def getCodigo(self, tabla, arbol):
+        result = self.valor.getCodigo(tabla, arbol)        
+        value_list = []
+        
+        value_list.append(result['dir'])
+        value_list.append(f"None")
+        value_list.append(f"\"{self.strGram}\"")
+        value_list.append(self.linea)
+        value_list.append(self.columna)
+        
+        native_result = arbol.getExpressionCode(value_list, 'length')
+        
+        codigo = result['codigo']
+        codigo += native_result['codigo']
+        
+        return {'codigo': codigo, 'dir': native_result['dir']}
+    
+    def toString(self):
+        return f"LENGTH({self.valor})"
 
 '''
 instruccion = Length("hola mundo",None, 1,2)

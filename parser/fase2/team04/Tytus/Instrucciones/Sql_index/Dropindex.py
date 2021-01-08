@@ -5,8 +5,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 
 class DropIndex(Instruccion):
-    def __init__(self,num,nombre,tipo,col,opcion,rest,linea,columna):
-        Instruccion.__init__(self,tipo,nombre,linea,columna)
+    def __init__(self,num,nombre,tipo,col,opcion,rest,linea,columna,strGram):
+        Instruccion.__init__(self,tipo,linea,columna,strGram)
         self.num = num
         self.nombre = nombre
         self.tipo = tipo
@@ -17,11 +17,43 @@ class DropIndex(Instruccion):
     
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        if(self.num == 1):
-            #arbol.consola.append("SE EJECUTO DROP  INDEX TIPO: "+ str(self.tipo))
-            arbol.setIndex([self.nombre,self.tipo,self.col,self.opcion,self.rest,self.linea]) 
-                       
+        db = arbol.getBaseDatos()
+        bandera = 0
+        index = 0
+        lista_index = arbol.getIndex()
+        for x in range(0,len(lista_index)):
+            for item in lista_index[x]:
+                if item['Base'] == db:
+                    if item['Nombre'] == self.col:
+                            bandera = 1
+                            index = x
+                            break 
+            if(bandera == 1):
+                break                  
+        if bandera == 1 :
+            lista_index.pop(index)
+            print(f"DROP INDEX : {self.col} SE ELIMINO CORRECTAMENTE")
+        else:     
+            print(f"ERROR DROP: El index no existe o es una base de datos equivocada")
+
     def getCodigo(self, tabla, arbol):
-        if(self.num == 1):
-           # arbol.consola.append("SE EJECUTO DROP  INDEX TIPO: "+ str(self.tipo))
-            arbol.setIndex([self.nombre,self.tipo,self.col,self.opcion,self.rest,self.linea]) 
+        db = arbol.getBaseDatos()
+        bandera = 0
+        index = 0
+        lista_index = arbol.getIndex()
+        for x in range(0,len(lista_index)):
+            for item in lista_index[x]:
+                if item['Base'] == db:
+                    if item['Nombre'] == self.col:
+                            bandera = 1
+                            index = x
+                            break 
+            if(bandera == 1):
+                break                  
+        if bandera == 1 :
+            lista_index.pop(index)
+            print(f"DROP INDEX : {self.col} SE ELIMINO CORRECTAMENTE")
+        else:     
+            print(f"ERROR DROP: El index no existe o es una base de datos equivocada")
+        return ""
+

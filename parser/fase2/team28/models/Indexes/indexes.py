@@ -8,7 +8,7 @@ from models.objects.index import Index
 from models.instructions.shared import Instruction
 
 class Indexes(Instruction):
-    def __init__(self, type_index, table, variable, mode, list_column_reference, where_optional, line, column, tac):
+    def __init__(self, type_index, table, variable, mode, list_column_reference, where_optional, line, column):
         self.type_index = type_index
         self.table = table
         self.variable = variable
@@ -18,7 +18,7 @@ class Indexes(Instruction):
         self.alias = table
         self.line = line
         self.column = column
-        self._tac = tac
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -46,6 +46,8 @@ class Indexes(Instruction):
                     if len(lista_id) > len(lista_sort):
                         if index == len(lista_valores) - 1:
                             if len(lista_valores) == 1:
+                                lista_sort.append("Not Sort")
+                            elif isinstance(data, str):
                                 lista_sort.append("Not Sort")
                             else:
                                 pass
@@ -84,71 +86,12 @@ class Indexes(Instruction):
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
     def compile(self, enviroment):
-        lista_sort = []
-        lista_id = []
-        type_index = self.type_index
-        table = self.table
-        variable = self.variable
-        mode = self.mode
-        lista_valores = self.list_column_reference
-        where_clause = self.where_optional
-        if isinstance(lista_valores, list):
-            for index, data in enumerate(lista_valores):
-
-                if isinstance(data, bool):
-                    if data == True:
-                        lista_sort.append('DESC')
-                    else:
-                        lista_sort.append('ASC')
-                else:
-                    
-                    lista_id.append(data)
-                    if len(lista_id) > len(lista_sort):
-                        if index == len(lista_valores) - 1:
-                            if len(lista_valores) == 1:
-                                lista_sort.append("Not Sort")
-                            else:
-                                pass
-                        elif isinstance(lista_valores[index+1], bool):
-                            pass
-                        else:
-                            lista_sort.append("Not Sort")
-                    
-
-        isTabla = self.searchTableIndex(table, self.line, self.column)
-        # temp = ThreeAddressCode().newTemp()
-        # c3d =  ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
-        isDuplicate = self.searchDuplicateIndex(self.variable)
-        if isTabla and not isDuplicate:
-            if type_index.lower() == 'index': # Normal
-                if mode == None:
-                    SymbolTable().add(Index(type_index, table, variable, 'BTREE', lista_id, lista_sort), variable,'Index', None, table, self.line, self.column)
-                    DataWindow().consoleText('Query returned successfully: Create Index')
-                    # return c3d
-                elif mode.upper() == 'BTREE':
-                    SymbolTable().add(Index(type_index, table, variable, 'BTREE', lista_id, lista_sort), variable,'Index', None, table, self.line, self.column)
-                    DataWindow().consoleText('Query returned successfully: Create Index')
-                    # return c3d
-                else: # HASH
-                    SymbolTable().add(Index(type_index, table, variable, 'HASH', lista_id, lista_sort), variable,'Index', None, table, self.line, self.column)
-                    DataWindow().consoleText('Query returned successfully: Create Index')
-                    # return c3d
-            else: # Unique
-                if mode == None:
-                    SymbolTable().add(Index(type_index, table, variable, 'BTREE', lista_id, lista_sort), variable,'Index', None, table, self.line, self.column)
-                    DataWindow().consoleText('Query returned successfully: Create Index')
-                    # return c3d
-                elif mode.upper() == 'BTREE':
-                    SymbolTable().add(Index(type_index, table, variable, 'BTREE', lista_id, lista_sort), variable,'Index', None, table, self.line, self.column)
-                    DataWindow().consoleText('Query returned successfully: Create Index')
-                    # return c3d
-                else: # HASH
-                    SymbolTable().add(Index(type_index, table, variable, 'HASH', lista_id, lista_sort), variable,'Index', None, table, self.line, self.column)
-                    DataWindow().consoleText('Query returned successfully: Create Index')
-                    # return c3d
-        else:
-            desc = "FATAL ERROR, la tabla no existe para crear el index o el index es duplicado"
-            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
 
     def searchTableIndex(self, tabla, linea, column):
         database_id = SymbolTable().useDatabase
@@ -178,6 +121,7 @@ class DropIndex(Instruction):
         self.name_index = name_index
         self.line = line
         self.column = column
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -192,13 +136,18 @@ class DropIndex(Instruction):
                 ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
 
     def compile(self, enviroment):
-        for name in self.name_index:
-            isDropIndex = self.search_index(name)
-            if isDropIndex:
-                DataWindow().consoleText('Query returned successfully: Drop Index')
-            else:
-                desc = f": Name of Index not Exists"
-                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
+
+        try:
+            pass
+        except:
+            desc = f": Name of Index not Exists"
+            ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
 
     def search_index(self, name):
         for index, c in enumerate(SymbolTable().getList()):
@@ -216,6 +165,7 @@ class AlterIndex(Instruction):
         self.line = line
         self.column = column
         self.isColumn = isColumn
+        self._tac = ''
         
 
     def __repr__(self):
@@ -238,20 +188,18 @@ class AlterIndex(Instruction):
                 ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
         
     def compile(self, enviroment):
-        if self.isColumn:
-            isChangeName = self.rename_column(self.name_index, self.new_name)
-            if isChangeName:
-                DataWindow().consoleText('Query returned successfully: Alter Index')
-            else:
-                desc = f": Name of Index not Exists"
-                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
-        else:
-            isChangeName = self.search_index(self.name_index, self.new_name)
-            if isChangeName:
-                DataWindow().consoleText('Query returned successfully: Alter Index')
-            else:
-                desc = f": Name of Index not Exists"
-                ErrorController().add(4, 'Execution', desc, self.line , self.column)#manejar linea y columna
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
+        
+        try:
+            pass
+        except:
+            desc = f": Name of Index not Exists"
+            ErrorController().add(4, 'Execution', desc, self.line , self.column) #manejar linea y columna
 
     def search_index(self, name, new_name):
         for index, c in enumerate(SymbolTable().getList()):

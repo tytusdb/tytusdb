@@ -20,11 +20,14 @@ class Ambito:
         self.padre = padre
         self.lbl_return = None
 
+    def __repr__(self):
+        return str(vars(self))
+
     def getReturn(self):
         return self.lbl_return
 
     def addVar(self, id, _type, value, pos, line, col):
-        id = id.lower()
+        # id = id.lower()
         if self.variables.get(id) == None:
             SymbolTable().add(id, value, _type, self, None, line, col)
             newVar = Variable(pos, _type, value, line, col)
@@ -37,7 +40,7 @@ class Ambito:
 
     def getVar(self, id):
         ambito_actual = self
-        id = id.lower()
+        # id = id.lower()
         while ambito_actual is not None:
             if ambito_actual.variables.get(id) is not None:
                 return ambito_actual.variables.get(id)

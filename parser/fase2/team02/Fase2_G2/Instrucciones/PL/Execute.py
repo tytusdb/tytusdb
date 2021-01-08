@@ -45,29 +45,33 @@ class Execute(Instruccion):
                     print(e)
 
         return cadena
-    def generar(self, tabla, arbol):
+    def generar(self, j,tabla, arbol):
             try:
                     cadena = self.extraer(tabla,arbol) 
                     caden = cadena.replace('()', '')
-                    for ele in self.parametros: 
+
+                    for ele in self.parametros:
+
                             hasparam=True
-                            print("listadotraducir es ",ele.traducir(tabla,arbol).temporalAnterior)
                             param=ele.traducir(tabla,arbol).temporalAnterior
-                           
+
                           
-                            self.agregar("",param,caden)
+                            self.agregar("",param,caden,j)
 
                          
 
           
             except Exception as e:
               print(e) 
-    def traducir(self, tabla, arbol):
+    def traducir(self,tipe, tabla, arbol):
 
         cadena = ""
         myfunc=None
         try: 
-              cadena +=self.id+'()'
+              namf=self.id 
+              if tipe>0 : namf+= str(tipe)
+
+              cadena +=namf+'()'
             #   cadena += self.extraer(tabla,arbol) 
             #   caden = cadena.replace('()', '')
         # tabla.setFuncion(self)
@@ -90,7 +94,7 @@ class Execute(Instruccion):
         if  hayf==None:  
               return
 
-
+        if tipe>0 :hayf.traducir(tipe,tabla, arbol)
 
 
         hasparam=False
@@ -154,9 +158,9 @@ class Execute(Instruccion):
         #arbol.addc3d(f"Pila[{temporal3}] = {temporal1}")
         if(hasparam):
             arbol.addComen("Llamada de funcion")
-            arbol.addc3d(f"P = P+"+str(tp-1))
+            arbol.addc3d(f"P = P+2")
             arbol.addc3d(cadena)
-            arbol.addc3d(f"P = P-"+str(tp-1))
+            arbol.addc3d(f"P = P-2")
             arbol.addComen("Salida de funcion")
 
 
@@ -177,7 +181,7 @@ class Execute(Instruccion):
         temporalR = tabla.getTemporal()
         arbol.addc3d(f"{temporalR} = Pila[{ temporalX }]")
         arbol.addc3d(f"print({temporalR}) ")
-
+        temporalRz=temporalR
 
 
         arbol.addComen("Entrar al ambito")
@@ -204,9 +208,9 @@ class Execute(Instruccion):
         arbol.addc3d(f"P = P-2")    
 
 
-
+        return "str("+str(temporalRz)+")"
   
-    def agregar(self,name,value,funcion):
+    def agregar(self,name,value,funcion,j):
         f = open ('reporteast.txt', "a+")
-        f.write(name+"ý"+value+"ý"+funcion+"\n")
+        f.write(name+"ý"+value+"ý"+funcion+"ý"+str(j)+"\n")
         f.close()    
