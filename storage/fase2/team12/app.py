@@ -873,31 +873,190 @@ def alterDatabaseEncoding(database,encoding):
         dropDatabase(database)
         createDatabase(database,mode_name)
     else:
-        db = load('metadata')
-        DB = {}
-        for t in tables:
-            registros = avl_mode.extractTable(database,t)
-            newRegisters = []
-            for r in registros:
-                newRegister = []
-                for c in r :
-                    if isinstance(c,bytes):
-                        aux = c.decode(db[database][1]).encode(encoding,'replace')
-                        if '?' in str(aux):
-                            return 1
-                        newRegister.append(aux)
-                    else:
-                        newRegister.append(c)
-                    newRegisters.append(newRegister)
-                DB.update({t: newRegisters})
-            for key in DB:
-                avl_mode.truncate(database,key)
-                registros = DB[key]
+        if mode == 0:
+            db = load('metadata')
+            DB = {}
+            for t in tables:
+                registros = avl_mode.extractTable(database, t)
+                newRegisters = []
                 for r in registros:
-                    avl_mode.insert(database,key,r)
-            db[database][1] = encoding
-            save(db,'metadata')
-            return 0
+                    newRegister = []
+                    for c in r:
+                        if isinstance(c, bytes):
+                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
+                            if '?' in str(aux):
+                                return 1
+                            newRegister.append(aux)
+                        else:
+                            newRegister.append(c)
+                        newRegisters.append(newRegister)
+                    DB.update({t: newRegisters})
+                for key in DB:
+                    avl_mode.truncate(database, key)
+                    registros = DB[key]
+                    for r in registros:
+                        avl_mode.insert(database, key, r)
+                db[database][1] = encoding
+                save(db, 'metadata')
+                return 0
+        elif mode == 1:
+            db = load('metadata')
+            DB = {}
+            for t in tables:
+                registros = b_mode.extractTable(database, t)
+                newRegisters = []
+                for r in registros:
+                    newRegister = []
+                    for c in r:
+                        if isinstance(c, bytes):
+                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
+                            if '?' in str(aux):
+                                return 1
+                            newRegister.append(aux)
+                        else:
+                            newRegister.append(c)
+                        newRegisters.append(newRegister)
+                    DB.update({t: newRegisters})
+                for key in DB:
+                    b_mode.truncate(database, key)
+                    registros = DB[key]
+                    for r in registros:
+                        b_mode.insert(database, key, r)
+                db[database][1] = encoding
+                save(db, 'metadata')
+                return 0
+
+        elif mode == 2:
+            db = load('metadata')
+            DB = {}
+            for t in tables:
+                registros = bplus_mode.extractTable(database, t)
+                newRegisters = []
+                for r in registros:
+                    newRegister = []
+                    for c in r:
+                        if isinstance(c, bytes):
+                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
+                            if '?' in str(aux):
+                                return 1
+                            newRegister.append(aux)
+                        else:
+                            newRegister.append(c)
+                        newRegisters.append(newRegister)
+                    DB.update({t: newRegisters})
+                for key in DB:
+                    bplus_mode.truncate(database, key)
+                    registros = DB[key]
+                    for r in registros:
+                        bplus_mode.insert(database, key, r)
+                db[database][1] = encoding
+                save(db, 'metadata')
+                return 0
+        elif mode == 3:
+            db = load('metadata')
+            DB = {}
+            for t in tables:
+                registros = dict_mode.extractTable(database, t)
+                newRegisters = []
+                for r in registros:
+                    newRegister = []
+                    for c in r:
+                        if isinstance(c, bytes):
+                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
+                            if '?' in str(aux):
+                                return 1
+                            newRegister.append(aux)
+                        else:
+                            newRegister.append(c)
+                        newRegisters.append(newRegister)
+                    DB.update({t: newRegisters})
+                for key in DB:
+                    dict_mode.truncate(database, key)
+                    registros = DB[key]
+                    for r in registros:
+                        dict_mode.insert(database, key, r)
+                db[database][1] = encoding
+                save(db, 'metadata')
+                return 0
+        elif mode == 4:
+            db = load('metadata')
+            DB = {}
+            for t in tables:
+                registros = isam_mode.extractTable(database, t)
+                newRegisters = []
+                for r in registros:
+                    newRegister = []
+                    for c in r:
+                        if isinstance(c, bytes):
+                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
+                            if '?' in str(aux):
+                                return 1
+                            newRegister.append(aux)
+                        else:
+                            newRegister.append(c)
+                        newRegisters.append(newRegister)
+                    DB.update({t: newRegisters})
+                for key in DB:
+                    isam_mode.truncate(database, key)
+                    registros = DB[key]
+                    for r in registros:
+                        isam_mode.insert(database, key, r)
+                db[database][1] = encoding
+                save(db, 'metadata')
+                return 0
+        elif mode == 5:
+            db = load('metadata')
+            DB = {}
+            for t in tables:
+                registros = json_mode.extractTable(database, t)
+                newRegisters = []
+                for r in registros:
+                    newRegister = []
+                    for c in r:
+                        if isinstance(c, bytes):
+                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
+                            if '?' in str(aux):
+                                return 1
+                            newRegister.append(aux)
+                        else:
+                            newRegister.append(c)
+                        newRegisters.append(newRegister)
+                    DB.update({t: newRegisters})
+                for key in DB:
+                    json_mode.truncate(database, key)
+                    registros = DB[key]
+                    for r in registros:
+                        json_mode.insert(database, key, r)
+                db[database][1] = encoding
+                save(db, 'metadata')
+                return 0
+        elif mode == 6:
+            db = load('metadata')
+            DB = {}
+            for t in tables:
+                registros = hash_mode.extractTable(database, t)
+                newRegisters = []
+                for r in registros:
+                    newRegister = []
+                    for c in r:
+                        if isinstance(c, bytes):
+                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
+                            if '?' in str(aux):
+                                return 1
+                            newRegister.append(aux)
+                        else:
+                            newRegister.append(c)
+                        newRegisters.append(newRegister)
+                    DB.update({t: newRegisters})
+                for key in DB:
+                    hash_mode.truncate(database, key)
+                    registros = DB[key]
+                    for r in registros:
+                        hash_mode.insert(database, key, r)
+                db[database][1] = encoding
+                save(db, 'metadata')
+                return 0
+
 
 
 
