@@ -615,7 +615,7 @@ def putVarValues(entry:str, temps_array:[], environment: Ambito):
     entry = entry.replace("))", ")")
     variables = environment.getAllVarIds()
     temp = None
-    entry_lower = entry.lower()
+    entry_lower = entry
     for variable in variables:
         print(f"variable: {variable}")
         # variable = f" {variable} "
@@ -655,7 +655,7 @@ def putVarValues(entry:str, temps_array:[], environment: Ambito):
         contador_funciones = 0
         for func in funciones:
             print(f"funcion: {func}")
-            func = func.lower()
+            # func = func.lower()
 
             if func in entry_lower:
                 contador_temporales = ThreeAddressCode().tempCounter
@@ -715,12 +715,8 @@ def hacerUnSoloCambio(func, entry_lower, temps_array, contador_funciones):
                 #METIENDO COMILLAS
                 if type_return == ColumnsTypes.TEXT or type_return == ColumnsTypes.VARCHAR:
                     ThreeAddressCode().addCode(f"{temp} = \"{val}\" + \"\\\"\"")
-                    temp_b = temp
                     temp = ThreeAddressCode().newTemp()
-                    ThreeAddressCode().addCode(f"{temp} = {temp_b} + str({temp_ant})")
-                    temp_b = temp
-                    temp = ThreeAddressCode().newTemp()
-                    ThreeAddressCode().addCode(f"{temp} = {temp_b} + \"\\\"\"")
+                    ThreeAddressCode().addCode(f"{temp} = str({temp_ant}) + \"\\\"\"")
                 else:
                     ThreeAddressCode().addCode(f"{temp} = \"{val}\" + str({temp_ant})")
             newString += f"{val}"
