@@ -31,14 +31,15 @@ class Value(Expression):
         else: dot += str(hash(self)) + '[label=\"\'' + str(self.value) + '\'\"]\n'
         return dot
     def translate(self,opts,indent):
-        diccionario = None
-        if(self.type == 3):
-            diccionario = {'resultado':opts.generateTemp(),'argumento1':"'"+str(self.value)+"'",'argumento2':None,'operacion':None}
-            opts.pila.append(diccionario)
-            return (indent*"\t")+diccionario['resultado']+"='"+str(self.value)+"'\n"
-        diccionario = {'resultado':opts.generateTemp(),'argumento1':str(self.value),'argumento2':None,'operacion':None}
-        opts.pila.append(diccionario)
-        return (indent*"\t")+diccionario['resultado']+"="+str(self.value)+"\n"
+        # diccionario = None
+        # if(self.type == 3):
+        #     diccionario = {'resultado':opts.generateTemp(),'argumento1':"'"+str(self.value)+"'",'argumento2':None,'operacion':None}
+        #     opts.pila.append(diccionario)
+        #     return (indent*"\t")+diccionario['resultado']+"='"+str(self.value)+"'\n"
+        # diccionario = {'resultado':opts.generateTemp(),'argumento1':str(self.value),'argumento2':None,'operacion':None}
+        # opts.pila.append(diccionario)
+        # return (indent*"\t")+diccionario['resultado']+"="+str(self.value)+"\n"
+        return self
 
 class Arithmetic(Expression):
     def __init__(self, value1, value2, type):
@@ -67,9 +68,22 @@ class Arithmetic(Expression):
     def translate(self,opts,indent):
         t1 = self.value1.translate(opts,indent)
         t2 = self.value2.translate(opts,indent)
-        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':inspect.cleandoc(t2.split("\n")[-2].split("=")[0]),'operacion':self.type}
+        code = ""
+        diccionario = {}
+        diccionario['resultado']=opts.generateTemp()
+        if isinstance(t1,Value): 
+            diccionario['argumento1']=str(t1.value)
+        else: 
+            diccionario['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+            code+=t1
+        if isinstance(t2,Value): 
+            diccionario['argumento2']=str(t2.value)
+        else: 
+            diccionario['argumento2']=inspect.cleandoc(t2.split("\n")[-2].split("=")[0])
+            code+=t2
+        diccionario['operacion']=self.type
         opts.pila.append(diccionario)
-        return t1+t2+(indent*"\t")+diccionario['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+self.type+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
+        return code+(indent*"\t")+diccionario['resultado']+"="+diccionario['argumento1']+self.type+diccionario['argumento2']+"\n"
 
 class Range(Expression):
     def __init__(self, value1, value2, type):
@@ -98,9 +112,22 @@ class Range(Expression):
     def translate(self,opts,indent):
         t1 = self.value1.translate(opts,indent)
         t2 = self.value2.translate(opts,indent)
-        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':inspect.cleandoc(t2.split("\n")[-2].split("=")[0]),'operacion':self.type}
+        code = ""
+        diccionario = {}
+        diccionario['resultado']=opts.generateTemp()
+        if isinstance(t1,Value): 
+            diccionario['argumento1']=str(t1.value)
+        else: 
+            diccionario['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+            code+=t1
+        if isinstance(t2,Value): 
+            diccionario['argumento2']=str(t2.value)
+        else: 
+            diccionario['argumento2']=inspect.cleandoc(t2.split("\n")[-2].split("=")[0])
+            code+=t2
+        diccionario['operacion']=self.type
         opts.pila.append(diccionario)
-        return t1+t2+(indent*"\t")+diccionario['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+self.type+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
+        return code+(indent*"\t")+diccionario['resultado']+"="+diccionario['argumento1']+self.type+diccionario['argumento2']+"\n"
 
 class Logical(Expression):
     def __init__(self, value1, value2, type):
@@ -132,9 +159,22 @@ class Logical(Expression):
     def translate(self,opts,indent):
         t1 = self.value1.translate(opts,indent)
         t2 = self.value2.translate(opts,indent)
-        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':inspect.cleandoc(t2.split("\n")[-2].split("=")[0]),'operacion':self.type}
+        code = ""
+        diccionario = {}
+        diccionario['resultado']=opts.generateTemp()
+        if isinstance(t1,Value): 
+            diccionario['argumento1']=str(t1.value)
+        else: 
+            diccionario['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+            code+=t1
+        if isinstance(t2,Value): 
+            diccionario['argumento2']=str(t2.value)
+        else: 
+            diccionario['argumento2']=inspect.cleandoc(t2.split("\n")[-2].split("=")[0])
+            code+=t2
+        diccionario['operacion']=self.type.lower()
         opts.pila.append(diccionario)
-        return t1+t2+(indent*"\t")+diccionario['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+" "+self.type.lower()+" "+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
+        return code+(indent*"\t")+diccionario['resultado']+"="+diccionario['argumento1']+self.type.lower()+diccionario['argumento2']+"\n"
 
 class Relational(Expression):
     def __init__(self, value1, value2, type):
@@ -165,9 +205,22 @@ class Relational(Expression):
         t2 = self.value2.translate(opts,indent)
         transtype = self.type
         if self.type == "=": transtype = "=="
-        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':inspect.cleandoc(t2.split("\n")[-2].split("=")[0]),'operacion':transtype}
+        code = ""
+        diccionario = {}
+        diccionario['resultado']=opts.generateTemp()
+        if isinstance(t1,Value): 
+            diccionario['argumento1']=str(t1.value)
+        else: 
+            diccionario['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+            code+=t1
+        if isinstance(t2,Value): 
+            diccionario['argumento2']=str(t2.value)
+        else: 
+            diccionario['argumento2']=inspect.cleandoc(t2.split("\n")[-2].split("=")[0])
+            code+=t2
+        diccionario['operacion']=transtype
         opts.pila.append(diccionario)
-        return t1+t2+(indent*"\t")+diccionario['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+" "+transtype+" "+inspect.cleandoc(t2.split("\n")[-2].split("=")[0])+"\n"
+        return code+(indent*"\t")+diccionario['resultado']+"="+diccionario['argumento1']+transtype+diccionario['argumento2']+"\n"
 
 class Unary(Expression):
     def __init__(self, value, type):
@@ -182,9 +235,18 @@ class Unary(Expression):
         return dot
     def translate(self,opts,indent):
         t1 = self.value.translate(opts,indent)
-        diccionario = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':self.type}
+        code = ""
+        diccionario = {}
+        diccionario['resultado']=opts.generateTemp()
+        if isinstance(t1,Value): 
+            diccionario['argumento1']=str(t1.value)
+        else: 
+            diccionario['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+            code+=t1
+        diccionario['argumento2']=None
+        diccionario['operacion']=self.type
         opts.pila.append(diccionario)
-        return t1+(indent*"\t")+diccionario['resultado']+"="+self.type+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"\n"
+        return code+(indent*"\t")+diccionario['resultado']+"="+self.type+diccionario['argumento1']+"\n"
 
 class MathFunction(Expression):
     def __init__(self, function, expression):
@@ -199,38 +261,80 @@ class MathFunction(Expression):
         return dot
     def translate(self,opts,indent):
         t1 = self.expression.translate(opts,indent)
+        code = ""
         result = ""
+        diccionario1 = {}
+        diccionario2 = {}
+        diccionario3 = {}
+        diccionario4 = {}
         if self.function == "ABS":
-            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':"0",'operacion':">"}
+            diccionario1['resultado']=opts.generateTemp()
+            if isinstance(t1,Value): 
+                diccionario1['argumento1']=str(t1.value)
+            else: 
+                diccionario1['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+                code+=t1
+            diccionario1['argumento2']="0"
+            diccionario1['operacion']=">"
             opts.pila.append(diccionario1)
-            result+=t1+(indent*"\t")+diccionario1['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+">0\n"
-            diccionario2 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':"0",'operacion':"<"}
+            result+=code+(indent*"\t")+diccionario1['resultado']+"="+diccionario1['argumento1']+">0\n"
+            diccionario2['resultado']=opts.generateTemp()
+            if isinstance(t1,Value): 
+                diccionario2['argumento1']=str(t1.value)
+            else: 
+                diccionario2['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+                code+=t1
+            diccionario2['argumento2']="0"
+            diccionario2['operacion']="<"
             opts.pila.append(diccionario2)
-            result+=(indent*"\t")+diccionario2['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"<0\n"
+            result+=(indent*"\t")+diccionario2['resultado']+"="+diccionario2['argumento1']+"<0\n"
             diccionario3 = {'resultado':opts.generateTemp(),'argumento1':diccionario1['resultado'],'argumento2':diccionario2['resultado'],'operacion':"-"}
             opts.pila.append(diccionario3)
             result+=(indent*"\t")+diccionario3['resultado']+"="+diccionario1['resultado']+"-"+diccionario2['resultado']+"\n"
             diccionario4 = {'resultado':opts.generateTemp(),'argumento1':diccionario1['resultado'],'argumento2':diccionario2['resultado'],'operacion':"-"}
             opts.pila.append(diccionario4)
-            result+=(indent*"\t")+diccionario4['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"*"+diccionario3['resultado']+"\n"
+            result+=(indent*"\t")+diccionario4['resultado']+"="+diccionario1['argumento1']+"*"+diccionario3['resultado']+"\n"
         elif self.function == "CEIL" or self.function == "CEILING":
-            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.ceil"}
+            diccionario1['resultado']=opts.generateTemp()
+            if isinstance(t1,Value): 
+                diccionario1['argumento1']=str(t1.value)
+            else: 
+                diccionario1['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+                code+=t1
+            diccionario1['argumento2']=None
+            diccionario1['operacion']="math.ceil"
             opts.pila.append(diccionario1)
-            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.ceil("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+")\n"
+            result+=code+(indent*"\t")+diccionario1['resultado']+"=math.ceil("+diccionario1['argumento1']+")\n"
         elif self.function == "CBRT":
+            if isinstance(t1,Value): 
+                diccionario2['argumento1']=str(t1.value)
+            else: 
+                diccionario2['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+                code+=t1
             diccionario1 = {'resultado':opts.generateTemp(),'argumento1':'1','argumento2':"3",'operacion':"/"}
             opts.pila.append(diccionario1)
-            result+=t1+(indent*"\t")+diccionario1['resultado']+"="+"1/3\n"
-            diccionario2 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':diccionario1['resultado'],'operacion':"**"}
+            result+=code+(indent*"\t")+diccionario1['resultado']+"="+"1/3\n"
+            diccionario2['resultado']=opts.generateTemp()
+            diccionario2['argumento2']=diccionario1['resultado']
+            diccionario2['operacion']="**"
             opts.pila.append(diccionario2)
-            result+=(indent*"\t")+diccionario2['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"**"+diccionario1['resultado']+"\n"
+            print(diccionario1)
+            print(diccionario2)
+            result+=(indent*"\t")+diccionario2['resultado']+"="+diccionario2['argumento1']+"**"+diccionario2['argumento2']+"\n"
         elif self.function == "SQRT":
+            if isinstance(t1,Value): 
+                diccionario2['argumento1']=str(t1.value)
+            else: 
+                diccionario2['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+                code+=t1
             diccionario1 = {'resultado':opts.generateTemp(),'argumento1':'1','argumento2':"2",'operacion':"/"}
             opts.pila.append(diccionario1)
-            result+=t1+(indent*"\t")+diccionario1['resultado']+"="+"1/2\n"
-            diccionario2 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':diccionario1['resultado'],'operacion':"**"}
+            result+=code+(indent*"\t")+diccionario1['resultado']+"="+"1/2\n"
+            diccionario2['resultado']=opts.generateTemp()
+            diccionario2['argumento2']=diccionario1['resultado']
+            diccionario2['operacion']="**"
             opts.pila.append(diccionario2)
-            result+=(indent*"\t")+diccionario2['resultado']+"="+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"**"+diccionario1['resultado']+"\n"
+            result+=(indent*"\t")+diccionario2['resultado']+"="+diccionario1['argumento1']+"**"+diccionario1['resultado']+"\n"
         return result
     
 
@@ -249,18 +353,41 @@ class TrigonometricFunction(Expression):
     def translate(self,opts,indent):
         t1 = self.expression.translate(opts,indent)
         result = "" #sin sinh acosd
+        diccionario1 = {}
+        code = ""
         if self.function == "SIN":
-            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.sin"}
+            diccionario1['resultado']=opts.generateTemp()
+            if isinstance(t1,Value): 
+                diccionario1['argumento1']=str(t1.value)
+            else: 
+                diccionario1['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+                code+=t1
+            diccionario1['argumento2']=None
+            diccionario1['operacion']="math.sin"
             opts.pila.append(diccionario1)
-            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.sin("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+")\n"
+            result+=code+(indent*"\t")+diccionario1['resultado']+"=math.sin("+diccionario1['argumento1']+")\n"
         elif self.function == "SINH":
-            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.sinh"}
+            diccionario1['resultado']=opts.generateTemp()
+            if isinstance(t1,Value): 
+                diccionario1['argumento1']=str(t1.value)
+            else: 
+                diccionario1['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+                code+=t1
+            diccionario1['argumento2']=None
+            diccionario1['operacion']="math.sinh"
             opts.pila.append(diccionario1)
-            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.sinh("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+")\n"
+            result+=code+(indent*"\t")+diccionario1['resultado']+"=math.sinh("+diccionario1['argumento1']+")\n"
         elif self.function == "ACOSD":
-            diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.acosd"}
+            diccionario1['resultado']=opts.generateTemp()
+            if isinstance(t1,Value): 
+                diccionario1['argumento1']=str(t1.value)
+            else: 
+                diccionario1['argumento1']=inspect.cleandoc(t1.split("\n")[-2].split("=")[0])
+                code+=t1
+            diccionario1['argumento2']=None
+            diccionario1['operacion']="math.acosd"
             opts.pila.append(diccionario1)
-            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.degrees(math.acos("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+"))\n"
+            result+=code+(indent*"\t")+diccionario1['resultado']+"=math.degrees(math.acos("+diccionario1['argumento1']+"))\n"
         return result
 
 class ArgumentListFunction(Expression):
@@ -289,7 +416,7 @@ class ArgumentListFunction(Expression):
         if self.function == "TRUNC":
             diccionario1 = {'resultado':opts.generateTemp(),'argumento1':inspect.cleandoc(t1.split("\n")[-2].split("=")[0]),'argumento2':None,'operacion':"math.trunc"}
             opts.pila.append(diccionario1)
-            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.trunc("+inspect.cleandoc(t1.split("\n")[-2].split("=")[0])+")\n"
+            result+=t1+(indent*"\t")+diccionario1['resultado']+"=math.trunc("+diccionario1['argumento1']+")\n"
         return result
         
 class AggFunction(Expression):
