@@ -3,6 +3,9 @@ from Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 import C3D.GeneradorTemporales as GeneradorTemporales
 import Analisis_Ascendente.reportes.Reportes as Reportes
+from Analisis_Ascendente.Instrucciones.PLPGSQL.Ifpl import *
+from Analisis_Ascendente.Instrucciones.expresion import Primitivo
+from Analisis_Ascendente.Instrucciones.Time import Time
 
 class plCall(Instruccion):
 
@@ -23,7 +26,8 @@ class plCall(Instruccion):
                 simboloP = entornoBD.buscar_sim(plCall.id)
 
                 if plCall.parametros == None:
-                    Expresion.ejecutarSentencias(ts,simboloP,consola,exceptions)
+                    #Ifpl.procesar_instrucciones(Ifpl,simboloP.valor,ts,consola,exceptions)
+                    print('arreglar')
                 else:
                     pass
 
@@ -40,18 +44,33 @@ class plCall(Instruccion):
 
 
     def getC3D(self, lista_optimizaciones_C3D):
-
-        etiqueta = GeneradorTemporales.nuevo_temporal()
-        instruccion_quemada = 'Execute '
-        instruccion_quemada += '%s ' % self.id + '('
-        instruccion_quemada += ') ;'
+        temporal = GeneradorTemporales.nuevo_temporal()
+        parametros = ''
+        if self.parametros is not None:
+            for parametro in self.parametros:
+                if isinstance(parametro, Primitivo):
+                    if isinstance(parametro.valor, str):
+                        parametro_texto = "'%s'" % parametro.valor
+                    else:
+                        parametro_texto = parametro.valor
+                elif isinstance(parametro, Time):
+                    parametro_texto = parametro.resolverTime()
+                else:
+                    parametro_texto = parametro
+                if parametros == '':
+                    parametros = parametro_texto
+                else:
+                    parametros += ', %s' % parametro_texto
         c3d = '''
     # --------- Execute -----------
-    top_stack = top_stack + 1
-    %s = "%s"
-    stack[top_stack] = %s
-
-    ''' % (etiqueta, instruccion_quemada, etiqueta)
+    funcion_intermedia()
+    try:
+        %s(%s)
+    except:
+        %s = "El stored procedure %s, no existe"
+        salida = salida + %s
+        salida = salida + '\\n'
+    ''' % (self.id, parametros, temporal, self.id, temporal)
 
         optimizacion1 = Reportes.ListaOptimizacion("c3d original", "c3d que entra", Reportes.TipoOptimizacion.REGLA1)
         lista_optimizaciones_C3D.append(optimizacion1)
