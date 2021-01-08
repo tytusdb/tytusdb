@@ -176,6 +176,7 @@ class insertTable(Instruccion):
                         arbol.consola.append(error.toString())
                         return error
                     arbol.consola.append(f"el registro se inserto correctamente.")
+                    print("EL REGISTRO SE INSERTO CORRECTAMENTE [InsertTable ejecutado correctamente]")
                     
                 # El insert no tiene una lista de columnas
                 else:
@@ -269,6 +270,7 @@ class insertTable(Instruccion):
                         arbol.consola.append(error.toString())
                         return error
                     arbol.consola.append(f"el registro se inserto correctamente.")
+                    print("EL REGISTRO SE INSERTO CORRECTAMENTE [InserTable ejecutado correctamente]")
             else:
                 error = Excepcion('42P01',"Semántico","No existe la relación "+self.valor,self.linea,self.columna)
                 arbol.excepciones.append(error)
@@ -382,7 +384,7 @@ class insertTable(Instruccion):
         campos = f""   
         if (self.lcol is not None):
             for item in self.lcol:
-                columnas += f"\t{item}{', ' if self.lcol.index(item) < len(self.lcol) - 1 else ''}\n"
+                columnas += f"{item}{', ' if self.lcol.index(item) < len(self.lcol) - 1 else ''}"
             
             for item2 in self.lexpre:
                 parametro = item2.toString()
@@ -390,14 +392,11 @@ class insertTable(Instruccion):
                     if(str.isdigit(parametro) == False):
                         parametro = f"'{parametro}'"
 
-                    campos += f"\t{parametro}{', ' if self.lexpre.index(item2) < len(self.lexpre) - 1 else ''}\n"
+                    campos += f"{parametro}{', ' if self.lexpre.index(item2) < len(self.lexpre) - 1 else ''}"
                 except:
                     print("no se pudo evaluar si el parametro era dígito")
             
-            table = f"insert into {tabla} \n"
-            table += f"({columnas}) values(\n"  
-            table += f"{campos}"
-            table += f"\t);"
+            table = f"insert into {tabla} ({columnas}) values ({campos});\t"
         else:  
             # for c in range(0,len(listaColumnas)):
             #     campos += f"\t{self.lexpre[c]}{', ' if self.lexpre.index(c) < len(self.lexpre) - 1 else ''}\n"  
@@ -405,8 +404,8 @@ class insertTable(Instruccion):
             for item in self.lexpre:
                 parametro = item.toString()
                 try:
-                    if(str.isdigit(parametro) == False):
-                        parametro = f"'{parametro}'"
+                    # if(str.isdigit(parametro) == False):
+                    #     parametro = f"{parametro}"
                     
                     campos += f"{parametro}{', ' if self.lexpre.index(item) < len(self.lexpre) - 1 else ''}"
                 except:
@@ -428,18 +427,19 @@ class insertTable(Instruccion):
         temp_result = arbol.getTemporal()
 
         codigo = f"\t#INSERT TABLE 3D\n"
-        codigo += f"\t{temp_param1} = f\"{table}\"\n"
+        codigo += f"\t{temp_param1} = \"{table}\"\n"
         codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
         codigo += f"\t{temp_index_param1} = {temp_tam_func} + 1\n"
         codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo
 
         #-------------------------------------
         # num_params = 7
