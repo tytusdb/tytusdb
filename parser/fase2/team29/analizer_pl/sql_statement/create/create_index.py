@@ -18,24 +18,26 @@ class CreateIndex(instruction.Instruction):
         self.usingMethod = usingMethod
 
     def execute(self, environment):
-        out = "fase1.execution(dbtemp + "
-        out += '" '
-        out += "CREATE "
-        out += self.unique + " "
-        out += "INDEX "
-        out += self.idIndex + " "
-        out += "ON "
-        out += self.idTable
-        out += self.usingMethod + " ("
-        out += self.optList + ")"
-        out += self.whereCl + ";"
-        out += '")\n'
-        if isinstance(environment, Environment):
-            grammar.optimizer_.addIgnoreString(out, self.row, True)
-            out = "\t" + out
-        else:
-            grammar.optimizer_.addIgnoreString(out, self.row, False)
-        return code.C3D(out, "create_index", self.row, self.column)
-
+        try:
+            out = "fase1.execution(dbtemp + "
+            out += '" '
+            out += "CREATE "
+            out += self.unique + " "
+            out += "INDEX "
+            out += self.idIndex + " "
+            out += "ON "
+            out += self.idTable
+            out += self.usingMethod + " ("
+            out += self.optList + ")"
+            out += self.whereCl + ";"
+            out += '")\n'
+            if isinstance(environment, Environment):
+                grammar.optimizer_.addIgnoreString(out, self.row, True)
+                out = "\t" + out
+            else:
+                grammar.optimizer_.addIgnoreString(out, self.row, False)
+            return code.C3D(out, "create_index", self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Create Index")
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_CREATE_INDEX")

@@ -12,26 +12,31 @@ class SelectOnlyParamsFirst(instruction.Instruction):
         self.temp = "t" + temp
 
     def execute(self, environment):
-        parVal = ""
-        out = self.temp + " = "
-        out += "fase1.selectFirstValue(dbtemp + "
-        out += '" '
-        out += "SELECT "
-        j = 0
-        for i in range(len(self.params) - 1):
-            j = i + 1
-            pval = self.params[i].execute(environment)
+        try:
+            parVal = ""
+            out = self.temp + " = "
+            out += "fase1.selectFirstValue(dbtemp + "
+            out += '" '
+            out += "SELECT "
+            j = 0
+            for i in range(len(self.params) - 1):
+                j = i + 1
+                pval = self.params[i].execute(environment)
+                parVal += pval.value
+                out += pval.temp + ", "
+            pval = self.params[j].execute(environment)
             parVal += pval.value
-            out += pval.temp + ", "
-        pval = self.params[j].execute(environment)
-        parVal += pval.value
-        out += pval.temp
-        out += ";"
-        out += '")\n'
-        if isinstance(environment, Environment):
-            out = "\t" + out
-        return code.C3D(parVal + out, self.temp, self.row, self.column)
-
+            out += pval.temp
+            out += ";"
+            out += '")\n'
+            if isinstance(environment, Environment):
+                grammar.optimizer_.addIgnoreString(out, self.row, True)
+                out = "\t" + out
+            else:
+                grammar.optimizer_.addIgnoreString(out, self.row, False)
+            return code.C3D(parVal + out, self.temp, self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: PLgsql Fatal Error -> Hint Select")
 
 class SelectFirstValue(instruction.Instruction):
     def __init__(self, temp, select):
@@ -46,66 +51,76 @@ class SelectFirstValue(instruction.Instruction):
         self.temp = "t" + temp
 
     def execute(self, environment):
-        parVal = ""
-        out = self.temp + " = "
-        out += "fase1.selectFirstValue(dbtemp + "
-        out += '" '
-        out += "SELECT "
-        out += self.distinct + " "
+        try:
+            parVal = ""
+            out = self.temp + " = "
+            out += "fase1.selectFirstValue(dbtemp + "
+            out += '" '
+            out += "SELECT "
+            out += self.distinct + " "
 
-        # SelectParams
-        j = 0
-        for i in range(len(self.params) - 1):
-            j = i + 1
-            pval = self.params[i].execute(environment)
+            # SelectParams
+            j = 0
+            for i in range(len(self.params) - 1):
+                j = i + 1
+                pval = self.params[i].execute(environment)
+                parVal += pval.value
+                out += pval.temp + ", "
+            pval = self.params[j].execute(environment)
             parVal += pval.value
-            out += pval.temp + ", "
-        pval = self.params[j].execute(environment)
-        parVal += pval.value
-        out += pval.temp
+            out += pval.temp
 
-        # From
-        out += " " + self.fromcl + " "
+            # From
+            out += " " + self.fromcl + " "
 
-        # where
-        pval = self.wherecl.execute(environment)
-        if pval.temp != "":
-            out += "WHERE " + pval.temp + " "
-        parVal += pval.value
+            # where
+            pval = self.wherecl.execute(environment)
+            if pval.temp != "":
+                out += "WHERE " + pval.temp + " "
+            parVal += pval.value
 
-        # group by
-        if self.groupbyCl:
-            groupbyCl = ""
-            for g in self.groupbyCl[0]:
-                groupbyCl += ", "
-                if type(g) == int:
-                    groupbyCl += str(g)
-                else:
-                    groupbyCl += g.id
+            # group by
+            if self.groupbyCl:
+                groupbyCl = ""
+                for g in self.groupbyCl[0]:
+                    groupbyCl += ", "
+                    if type(g) == int:
+                        groupbyCl += str(g)
+                    else:
+                        groupbyCl += g.id
 
-            out += "GROUP BY " + groupbyCl[2:] + self.groupbyCl[1] + " "
+                out += "GROUP BY " + groupbyCl[2:] + self.groupbyCl[1] + " "
 
-        # limit
-        out += self.limitCl + " "
+            # limit
+            out += self.limitCl + " "
 
-        # order by
-        if self.orderByCl:
-            orderbyCl = ""
-            for o in self.orderByCl:
-                orderbyCl += ", "
-                if type(o[0]) == int:
-                    orderbyCl += str(o[0]) + o[1] + o[2]
-                else:
-                    orderbyCl += o[0].id + o[1] + o[2]
-            out += "ORDER BY " + orderbyCl[2:]
+            # order by
+            if self.orderByCl:
+                orderbyCl = ""
+                for o in self.orderByCl:
+                    orderbyCl += ", "
+                    if type(o[0]) == int:
+                        orderbyCl += str(o[0]) + o[1] + o[2]
+                    else:
+                        orderbyCl += o[0].id + o[1] + o[2]
+                out +=  "ORDER BY " + orderbyCl[2:]
 
-        out += ";"
-        out += '")\n'
+            out += ";"
+            out += '")\n'
+            if isinstance(environment, Environment):
+                grammar.optimizer_.addIgnoreString(out, self.row, True)
+                out = "\t" + out
+            else:
+                grammar.optimizer_.addIgnoreString(out, self.row, False)
 
-        # TODO: optimizacion
-        if isinstance(environment, Environment):
-            grammar.optimizer_.addIgnoreString(out, self.row, True)
-            out = "\t" + out
-        else:
-            grammar.optimizer_.addIgnoreString(out, self.row, False)
-        return code.C3D(parVal + out, self.temp, self.row, self.column)
+            # TODO: optimizacion
+            """
+            if isinstance(environment, Environment):
+                grammar.optimizer_.addIgnoreString(out, self.row, True)
+                out = "\t" + out
+            else:
+                grammar.optimizer_.addIgnoreString(out, self.row, False)
+            """
+            return code.C3D(parVal + out, self.temp, self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: PLgsql Fatal Error -> Hint Select")

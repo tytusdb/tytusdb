@@ -3,6 +3,7 @@ from analizer_pl.modules.expressions import C3D
 from analizer_pl.C3D.operations import operation
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.global_env import GlobalEnvironment
+from analizer_pl import grammar
 
 
 class Identifier(Expression):
@@ -19,7 +20,8 @@ class Identifier(Expression):
         if not isinstance(environment, GlobalEnvironment):
             if environment.getVar(self.id):
                 return C3D("", '"+str(' + self.id + ')+"', self.row, self.column)
-
+            else:
+                grammar.PL_errors.append("Error P0000: La variable "+self.id+" no esta declarada")
         return C3D("", self.id, self.row, self.column)
 
     def dot(self):

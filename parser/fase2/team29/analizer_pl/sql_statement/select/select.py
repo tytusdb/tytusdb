@@ -12,12 +12,14 @@ class SelectParam(instruction.Instruction):
         self.alias = alias
 
     def execute(self, environment):
-        pval = self.exp.execute(environment)
-        c3d = pval.temp
-        if self.alias != "":
-            c3d += self.alias
-        return code.C3D(pval.value, c3d, self.row, self.column)
-
+        try:
+            pval = self.exp.execute(environment)
+            c3d = pval.temp
+            if self.alias != "":
+                c3d += self.alias
+            return code.C3D(pval.value, c3d, self.row, self.column)
+        except:
+           grammar.PL_errors.append("Error P0000: PLgsql Fatal Error -> Hint Select") 
 
 class SelectOnlyParams(instruction.Instruction):
     def __init__(self, params, row, column) -> None:
@@ -115,15 +117,22 @@ class Select(instruction.Instruction):
                     orderbyCl += str(o[0]) + o[1] + o[2]
                 else:
                     orderbyCl += o[0].id + o[1] + o[2]
-            out += "ORDER BY " + orderbyCl[2:]
+            out +=  "ORDER BY " + orderbyCl[2:]
         out = out.rstrip() + ";"
         out += '")\n'
-        # TODO: optimizacion
         if isinstance(environment, Environment):
             grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
         else:
             grammar.optimizer_.addIgnoreString(out, self.row, False)
+        # TODO: optimizacion
+        """
+        if isinstance(environment, Environment):
+            grammar.optimizer_.addIgnoreString(out, self.row, True)
+            out = "\t" + out
+        else:
+            grammar.optimizer_.addIgnoreString(out, self.row, False)
+        """
         return code.C3D(parVal + out, "select", self.row, self.column)
 
     def dot(self):

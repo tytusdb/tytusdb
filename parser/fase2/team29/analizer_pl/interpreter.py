@@ -33,7 +33,7 @@ def traducir(input):
     f = open("test-output/c3d.py", "w+")
     f.write(c3d)
     f.close()
-    # optimizacion += grammar.optimizer_.optimize()
+    optimizacion += grammar.optimizer_.optimize()
     f = open("test-output/c3dopt.py", "w+")
     f.write(optimizacion)
     f.close()

@@ -14,15 +14,21 @@ class Declaration(Instruction):
         self.ass = ass
 
     def execute(self, environment: Environment):
-        environment.addVar(self.id, self.id, self.type, self.row, self.column)
-        val = ""
-        tmp = self.id
-        if self.ass:
-            a = self.ass.execute(environment)
-            val = a.value
-            tmp = a.temp
+        try:
+            verificacion = environment.addVar(self.id, self.id, self.type, self.row, self.column)
+            if verificacion ==None:
+                grammar.PL_errors.append("Error P0002: La variable "+self.id+" ya existe")
+                grammar.semantic_errors.append("La variable "+self.id+" ya existe")
+            val = ""
+            tmp = self.id
+            if self.ass:
+                a = self.ass.execute(environment)
+                val = a.value
+                tmp = a.temp
 
-        return code.C3D(val, tmp, self.row, self.column)
+            return code.C3D(val, tmp, self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: plpgsql fatal error ")
 
     def dot(self):
         new = Nodo("DECLARATION")

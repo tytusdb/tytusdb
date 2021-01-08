@@ -26,6 +26,8 @@ if_stmt = 0
 back_fill = BackFill()
 optimizer_ = Optimizer()
 lexer = lex.lex()
+PL_errors = list()
+semantic_errors = list()
 
 # Asociación de operadores y precedencia
 listInst = []
@@ -2830,6 +2832,17 @@ def returnSyntacticErrors():
     global syntax_errors
     return syntax_errors
 
+def returnPLErrors():
+    global PL_errors
+    temp = PL_errors
+    PL_errors = list()
+    return temp
+
+def returnSemanticErrors():
+    global semantic_errors
+    temp = semantic_errors
+    semantic_errors = list()
+    return temp
 
 def parse(input):
     try:
