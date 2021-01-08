@@ -113,3 +113,110 @@ def p_pglobal(t):
     '_global : GLOBAL ID'
     t[0] = Global(t[2], t.lexer.lineno)
     
+    def p_expresion(t):
+    '''
+    expresion : expresion MENOS    expresion   
+              | expresion MAS      expresion
+              | expresion POR      expresion
+              | expresion DIVIDIDO expresion
+              | expresion MAYORQ expresion
+              | expresion MENORQ expresion
+              | expresion MAYOR_IGUALQ expresion	    
+              | expresion MENOR_IGUALQ expresion
+              | expresion IGUAL_IGUAL  expresion
+              | expresion PUNTO expresion
+              | PARIZQ expresion PARDER	  
+              | llamada_funcion     
+              | arreglo
+              | literal
+    '''
+    if t[1] == '(' and t[3] == ')':
+        t[0] = t[2]
+    elif len(t) == 4:
+        t[0] = Operacion(t[1],t[2],t[3],t.lexer.lineno)
+    else:
+        t[0] = t[1]
+        
+def p_primitivo(t):
+    '''
+    literal :   ENTERO
+              | CADENA
+              | CARACTER
+              | TEMPORAL
+              | ID 
+              | NAME
+              | NONE 
+    '''
+    t[0] = Literal('None', t.lexer.lineno) if t[1] == 'NONE' else Literal(t[1], t.lexer.lineno)
+    
+def p_arreglo(t):
+    '''
+    arreglo : ID CORIZQ expresion CORDER
+            | CORIZQ expresion CORDER
+    '''
+    t[0] = Arreglo(t[1],t[3],t.lexer.lineno) if len(t) == 5 else Arreglo("",t[2],t.lexer.lineno)
+
+def p_llamada_funcion(t):
+    '''
+    llamada_funcion :  expresion PARIZQ list_parametros PARDER
+                    |  expresion PARIZQ  PARDER
+    '''
+    t[0] = Llamada(t[1],t[3],t.lexer.lineno) if len(t) == 5 else Llamada(t[1],[],t.lexer.lineno)
+    
+def p_list_parametros(t):
+    '''
+    list_parametros : list_parametros COMA expresion
+                    | expresion
+    '''
+    if len(t) == 4:    
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+    
+
+
+#FIN DE LA GRAMATICA
+# MODO PANICO **************************************************************************************
+
+def p_error(p):
+
+    if not p:
+        print("Fin del Archivo!")
+        return
+    dato = Excepcion(1,"Error Sintáctico", f"Se esperaba una instrucción y viene {p.value}", p.lexer.lineno, find_column(lexer.lexdata,p))
+    lista_lexicos.append(dato)
+    while True:
+        
+        tok = parser2.token()             # Get the next token
+        if not tok or tok.type == 'PUNTO_COMA':
+            if not tok:
+                print("FIN DEL ARCHIVO")
+                return
+            else:
+                print("Se recupero con ;")
+                break
+        dato = Excepcion(1,"Error Sintáctico", f"Se esperaba una instrucción y viene {tok.value}", p.lexer.lineno, find_column(lexer.lexdata,tok))
+        lista_lexicos.append(dato)
+        
+    parser2.restart()
+    
+def find_column(input,token):
+    last_cr = str(input).rfind('\n',0,token.lexpos)
+    if last_cr < 0:
+	    ast_cr = 0
+    column = (token.lexpos - last_cr) + 1
+    return column
+
+parser2 = yacc.yacc()
+def ejecutar_analisis(texto):
+    
+    #LIMPIAR VARIABLES
+    columna=0
+    lista_lexicos.clear()
+    #se limpia analisis lexico
+    lexer.input("")
+    lexer.lineno = 0
+    #se obtiene la acción de analisis sintactico
+    #print("inicio")
+    return parser2.parse(texto)
