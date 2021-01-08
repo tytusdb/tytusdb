@@ -24,6 +24,7 @@ class AlterTableDropConstraint(Instruccion):
                 if existe != None:
                     existe.constraint.remove(constraintBorrar)
                     arbol.consola.append("Consulta devuelta correctamente.")  
+                    print ("Consulta ALTER TABLE DROP CONSTRAINT devuelta correctamente")
                 else:
                     error = Excepcion('42P01',"Semántico","No existe la columna «"+self.col+"» en la llave",self.linea,self.columna)
                     arbol.excepciones.append(error)
@@ -101,9 +102,10 @@ class AlterTableDropConstraint(Instruccion):
         codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo

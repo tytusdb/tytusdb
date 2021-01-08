@@ -46,6 +46,7 @@ class AlterTableAlterColumnType(Instruccion):
                             if columnas.nombre == c.id:
                                 columnas.tipo = c.tipo
                     arbol.consola.append("Consulta devuelta correctamente.")
+                    print("Consulta ALTER TABLE ALTER COLUMN TYPE devuleta correctamente")
                 else:
                     for c in list(set(self.lista_col) - set(listaMatch)):
                         error = Excepcion('42703',"Semántico","No existe la columna «"+c.id+"» en la relación «"+self.tabla+"»",c.linea,c.columna)
@@ -94,9 +95,10 @@ class AlterTableAlterColumnType(Instruccion):
         codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo
