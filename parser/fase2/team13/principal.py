@@ -95,6 +95,7 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 contadoresT+=1
                 texttraduccion += identacion+Eti+"= p3.typeEnumEx(\"stack["+str(puntero)+"]\")\n"
                 #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
+                puntero +=1
             elif isinstance(nodo, SUpdateBase):
                 stack.append(nodo)
                 Eti ="t"+str(contadoresT)
@@ -1932,9 +1933,6 @@ def ejecutaLlamadaQ(valor,base):
         consola += str(resultado)+"\n"
         print("RESULTADO->"+str(resultado))
         
-        
-
-
 def crearBase(nodo, tablaSimbolos):
     val = nodo.id.valor
     global consola
@@ -2461,8 +2459,6 @@ def functionInsert(useActual,NombreTabla,lista=[]):
           print("Se inserto Correctamente")
       else:
           print("No inserto Correctamente")
-
-
             
 
 def InsertTable(nodo, tablaSimbolos,cod3D):
@@ -2475,6 +2471,8 @@ def InsertTable(nodo, tablaSimbolos,cod3D):
     temp3=""
     Etiqueta=""
     Etiqueta1=""
+
+    print("TOY ADENTRO DE INSERT WE -----------------------------------------")
     
     if (cod3D):
 
@@ -3236,6 +3234,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
     global consola
     global texttraduccion
     global contadoresT,contadoresEtiqueta,identacion, textoptimizado
+    print(expresion)
     if isinstance(expresion, SOperacion):
         # Logicas
         if (expresion.operador == Logicas.AND):
@@ -3706,7 +3705,6 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             else:
                 result = opIzq.valor ** opDer.valor
                 return SExpresion(result, opIzq.tipo)
-    # f
     elif isinstance(expresion, SFuncMath):
         if expresion.funcion.lower() == "abs":
             param = Interpreta_Expresion(expresion.param, tablaSimbolos, tabla, cod3D)
@@ -4029,6 +4027,60 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                 return Etiquetas(Etiqueta,Expresion.NEGATIVO,False,False,False,0)
             else:
                 return SExpresion(result, Expresion.NEGATIVO)
+
+        elif expresion.tipo == Expresion.LLAMADA:
+            nombreFuncion=expresion.valor.id
+            cadenaEjecutarb = "c3ddddd."+nombreFuncion+"("
+            contador=0
+            tipo=""
+            bande=False
+            base=tablaSimbolos.get(useActual)
+            fun=base.getFuncion(expresion.valor.id)
+            if fun!=None:
+                tipo=retornarTipo(fun.retorno.dato)
+                bande=True
+
+            print("ADENTRO DE SCALL@@@@@@@@@@@@@@@@@@@@@@@@@")
+            expresion.tipo=tipo
+            print(expresion.valor.id)
+            print(tipo)
+
+            if bande:
+                for x in expresion.valor.params:
+                    #print(x.valor)
+                    x=Interpreta_Expresion(x,tablaSimbolos,tabla,cod3D)
+                    param=x.valor
+                    if contador == 0:
+                        if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
+                            cadenaEjecutarb+=str(param)
+                        elif x.tipo == Expresion.BOOLEAN:
+                            cadenaEjecutarb+=str(param)
+                        elif x.tipo == Expresion.ID:
+                            cadenaEjecutarb+=str(param)
+                        else:
+                            cadenaEjecutarb+="\'"+str(param)+"\'"
+                    
+                    else:
+                        if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
+                            cadenaEjecutarb+=","+str(param)
+                        elif x.tipo == Expresion.BOOLEAN:
+                            cadenaEjecutarb+=","+str(param)
+                        elif x.tipo == Expresion.ID:
+                            cadenaEjecutarb+=","+str(param)
+                        else:
+                            cadenaEjecutarb+=",\'"+str(param)+"\'"
+                    contador += 1
+
+                cadenaEjecutarb += ")"
+                resultado = eval(cadenaEjecutarb)
+                print("RESULTADO->"+str(resultado))
+                print("TIPO-----"+str(tipo))
+                expresion.valor=resultado
+                return SExpresion(resultado,tipo)
+            else: 
+                listaSemanticos.append(Error.ErrorS("Error semantico","No se encontró la función "+ expresion.id))
+                return SExpresion(0,Expresion.ENTERO)
+
 
         elif expresion.tipo == Expresion.ID:
 
@@ -4373,6 +4425,8 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
         res = cadena.valor[inicio.valor:inicio.valor+tamanio.valor]==comparar.valor
 
         return SExpresion(res,Expresion.BOOLEAN)
+    
+    
     if cod3D:
         if isinstance(expresion,SOperacion):
             print(expresion.opDer)
