@@ -507,7 +507,7 @@ def p_asig_basica(t):
                          '''    
     childsProduction  = addNotNoneChild(t,[2,3])
     graph_ref = graph_node(str("asig_basica"),    [t[1], t[2],t[3]]       , childsProduction)
-    addCad("**\<ASIG_BASICA>** ::=  '='   \<EXP>  ';'       ")
+    addCad("**\<ASIG_BASICA>** ::= tIdentifier \<ASIG_ASIGNACION>    \<VALOR_ASIGNACION>         ")
     t[0] = Declaration(t[1], False, None, True, t[3], None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 
@@ -529,15 +529,18 @@ def p_valor_asignacion(t):
     '''valor_asignacion : expression
                         | PARA statements_sql PARC'''
     if len(t) == 2:
-        childsProduction  = addNotNoneChild(t,[1])
-        graph_ref = graph_node(str("expression"),    [t[1]]       , childsProduction)
+        #NoDEScomentar
+        #childsProduction  = addNotNoneChild(t,[1])
+        #graph_ref = graph_node(str("expression"),    [t[1]]       , childsProduction)
         addCad("**\<VALOR_ASIGNACION>** ::= \<EXPRESSION> ")
+        #t[1].graph_ref = graph_ref
         t[0] = t[1]
         #####  
     elif len(t) == 4:
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("valor_asignacion"), [t[1], t[2], t[3]],childsProduction )
         addCad("**\<VALOR_ASIGNACION>** ::= '('  \<STATEMENTS_SQL> ')'   ")
+        t[2].graph_ref = graph_ref
         t[0] = t[2]
 
 
@@ -700,7 +703,7 @@ def p_if_inst0(t):
 def p_stm_begin(t):
     '''stm_begin   : declares_opt BEGIN statements_begin exception_opt return_opt END  if_opt '''
     lista = None
-    childsProduction = addNotNoneChild(t,[4,7])
+    childsProduction = addNotNoneChild(t,[4,5,7])
     if t[1] != None:
         lista = t[1][0]
         childsProduction.append(lista.graph_ref)
@@ -709,7 +712,7 @@ def p_stm_begin(t):
     if t[3] != None:
         lista2 = t[3][0]
         childsProduction.append(lista2.graph_ref)
-    graph_ref = graph_node(str("stm_begin"), [lista, t[2], lista2, t[4], t[5], t[7]],childsProduction )
+    graph_ref = graph_node(str("stm_begin"), [lista, t[2], lista2, t[4], t[5],t[6] ,t[7]],childsProduction )
     addCad("**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tBegin \<STATEMENTS_BEGIN>  [\<EXCEPTION_OPT>]  tEnd  [\<IF_OPT>]   ")
     t[0] = FunctionBody(t[1], t[3], t[4], ret, t.slice[2].lineno, t.slice[2].lexpos, graph_ref)
 
@@ -730,7 +733,13 @@ def p_statements_begin(t):
             childsProduction.append(lista.graph_ref)
         graph_ref = graph_node(str("statements_begin"), [lista, t[2]],childsProduction )
         addCad("**\<statements_begin>** ::= statements_begin  \<STATEMENTS_SQL>  ';'     ")
-        t[0] = [upNodo("token", 0, 0, graph_ref)]
+        if t[1] is None:
+            t[2].graph_ref = graph_ref
+            t[0] = [t[2]]            
+        else:
+            t[1][0].graph_ref = graph_ref
+            t[1].append(t[2])
+            t[0] = t[1]
         
     elif token.type == "stm_if":
         childsProduction  = addNotNoneChild(t,[2])
@@ -740,7 +749,13 @@ def p_statements_begin(t):
             childsProduction.append(lista.graph_ref)
         graph_ref = graph_node(str("statements_begin"), [lista, t[2]],childsProduction )
         addCad("**\<statements_begin>** ::= statements_begin  \<STM_IF>   ")    
-        t[0] = [upNodo("token", 0, 0, graph_ref)]
+        if t[1] is None:
+            t[2].graph_ref = graph_ref
+            t[0] = [t[2]]            
+        else:
+            t[1][0].graph_ref = graph_ref
+            t[1].append(t[2])
+            t[0] = t[1]
 
     elif token.type == "asig_basica":
         lista = None
@@ -765,8 +780,14 @@ def p_statements_begin(t):
             childsProduction.append(lista.graph_ref)
         graph_ref = graph_node(str("statements_begin"), [lista, t[2]],childsProduction )
         addCad("**\<statements_begin>** ::= statements_begin  \<STM_CASE>   ")
-        t[0] = [upNodo("token", 0, 0, graph_ref)]
-    elif token.type == "RETURN":
+        if t[1] is None:
+            t[2].graph_ref = graph_ref
+            t[0] = [t[2]]            
+        else:
+            t[1][0].graph_ref = graph_ref
+            t[1].append(t[2])
+            t[0] = t[1]
+    elif token.type == "return_":
         lista = None
         childsProduction  = addNotNoneChild(t,[2])
         if t[1] != None:
@@ -784,11 +805,11 @@ def p_statements_begin(t):
         
   
     #Please to not comment the next  5 lines, else after your test uncomment it
-    if t[1] is None:
-        t[0] = [t[2]]            
-    else:
-        t[1].append(t[2])
-        t[0] = t[1]   
+    #if t[1] is None:
+    #    t[0] = [t[2]]            
+    #else:
+    #    t[1].append(t[2])
+    #    t[0] = t[1]   
     
 
 def p_statements_begin0(t):
