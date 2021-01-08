@@ -8,6 +8,7 @@ from analizer.libs import MathFunctions as mf
 from analizer.libs import StringFunctions as strf
 from datetime import datetime
 from analizer.statement.pl.function import envFunction
+from analizer.abstract import instruction
 
 class FunctionCall(Expression):
     """
@@ -206,41 +207,41 @@ class FunctionCall(Expression):
             new.addNode(p)
         return new
 
-    def generate3d(self, environment, instanciaAux):
+    def generate3d(self, environment, instanciaAux): # PARA EXPRESIONES
             if self.function == "abs":
-                return f'{self.execute(0).value}'  #FALTA COSEGUIR LOS PARAMTROS en las funciones No definidas
+                return f'{self.execute(0).value}'
             elif self.function == "cbrt":
-                return f'{self.execute(0).value}' 
+                return f'{self.execute(0).value}'
             elif self.function == "ceil":
-                return f'{self.execute(0).value}' 
+                return f'{self.execute(0).value}'
             elif self.function == "ceiling":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "degrees":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "div":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "exp":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "factorial":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "floor":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "gcd":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "lcm":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "ln":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "log":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "log10":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "mod":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "pi":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "power":
-                return f'{self.execute(0).value}'  
+                return f'{self.execute(0).value}'
             elif self.function == "radians":
                 return f'{self.execute(0).value}'  
             elif self.function == "round":
@@ -326,124 +327,210 @@ class FunctionCall(Expression):
             elif self.function == "now":
                 return f'{self.execute(0).value}'  
             else:
-                tbFun = envFunction.getFunc(self.function)
-                print(tbFun)
                 #falta validacion de existencia
+                fun = envFunction.getFunc(self.function.lower())
+                if fun :# primer filtro el nombre
+                    if len(fun.params) != len(self.params):
+                        instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en funcion {self.function}",self.row))
+                else:
+                    instruction.semanticErrors.append((f"ERROR: la funcion {self.function} no esta definida",self.row))
+
                 tn = instanciaAux.getNewTemporal()
-                salida = f'\t{tn} = {self.function}\n\t{tn} = RETURN[0]'
+                salida = f'\t{self.function}({self.getParametrosToCode(environment, instanciaAux)})\n\t{tn} = RETURN[0]'
                 instanciaAux.addToCode(salida)
             return tn
 
+    def getParametrosToCode(self, environment, instanciaAux):
+        cad = ''
+        # CASO DE SALIDA CUANDO SOLO ES UN PARAMETRO
+        if len(self.params) == 1:
+                return self.params[0].generate3d(environment, instanciaAux)
+        # CASO RECURSIVO
+        i = 0
+        c = ','
+        for parametro in self.params:
+            if  i == len(self.params)-1:
+                c = ''
+            cad +=  parametro.generate3d(environment, instanciaAux) + c
+            c =','
+            i+=1
+        return cad
 
-    def validaFuncionesFase2(self):
+    def validaFuncionesFase2(self): # PARA EL SELECT E INSERT
             if self.function == "abs":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "cbrt":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "ceil":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "ceiling":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "degrees":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "div":
-                pass
+                if 2 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "exp":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "factorial":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "floor":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "gcd":
-                pass
+                if 2 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "lcm":
                 pass
             elif self.function == "ln":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "log":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "log10":
                 pass
             elif self.function == "mod":
-                pass
+                if 2 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "pi":
-                pass
+                if 0 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "power":
-                pass
+                if 2 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "radians":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "round":
-                pass
+                if 1 != len(self.params) and 2 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "sign":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "sqrt":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "trunc":
-                pass
+                if 1 != len(self.params) and 2 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "width_bucket":
-                pass
+                if 4 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "random":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "acos":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "acosd":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "asin":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "asind":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "atan":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "atand":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "atan2":
-                pass
+                if 2 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "atan2d":
-                pass
+                if 2 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "cos":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "cosd":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "cot":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "cotd":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             elif self.function == "sin":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "sind":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "tan":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "tand":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "sinh":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "cosh":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "tanh":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "asinh":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "acosh":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "atanh":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "length":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "substring":
-                pass
+                if 3 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "trim":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "get_byte":
                 pass
             elif self.function == "md5":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "set_byte":
                 pass
             elif self.function == "sha256":
-                pass
+                if 1 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "substr":
-                pass
+                if 3 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+
             elif self.function == "convert_date":
                 pass
             elif self.function == "convert_int":
@@ -453,8 +540,12 @@ class FunctionCall(Expression):
             elif self.function == "decode":
                 pass
             elif self.function == "now":
-                pass
+                if 0 != len(self.params):
+                    instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
             else:
-                tbFun = envFunction.getFunc(self.function)
-                print(tbFun)
-                pass
+                fun = envFunction.getFunc(self.function.lower())
+                if fun :# primer filtro el nombre
+                    if len(fun.params) != len(self.params):
+                        instruction.semanticErrors.append((f"ERROR: cantidad de parametros incorrecta en {self.function}",self.row))
+                else:
+                    instruction.semanticErrors.append((f"ERROR: la funcion {self.function} no esta definida",self.row))

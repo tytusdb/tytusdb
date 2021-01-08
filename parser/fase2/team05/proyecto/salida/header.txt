@@ -6,6 +6,7 @@ from team29.ui.Pantalla_TS import *
 from team29.ui.Pantalla_AST import *
 from team29.ui.Pantalla_Error import *
 import tkinter.messagebox
+import math
 from team29.analizer import interpreter
 from goto import with_goto
 

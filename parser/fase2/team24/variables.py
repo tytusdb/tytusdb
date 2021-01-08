@@ -5,3 +5,4 @@ import tablaDGA as TS
 tabla = TS.Tabla()
 cont = 0
 NombreDB = ""
+name = ''

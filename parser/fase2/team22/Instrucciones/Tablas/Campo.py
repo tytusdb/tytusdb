@@ -15,4 +15,4 @@ class Campo():
         return self.nombre
 
     def generar3D(self, tabla, arbol):
-        pass
+        print('!!!!!!!!!!!!!!!!!!', self.nombre, self.tipo, self.pk, self.orden, self.constraint)

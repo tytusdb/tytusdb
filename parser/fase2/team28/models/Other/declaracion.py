@@ -1,8 +1,10 @@
 from models.instructions.shared import ObjectReference
-from models.instructions.Expression.expression import Expression, PrimitiveData
+from models.instructions.Expression.expression import Expression, PrimitiveData, DATA_TYPE
 from models.Other.ambito import Ambito, Variable
 from controllers.three_address_code import ThreeAddressCode
 from models.instructions.DML.select import Select
+from controllers.error_controller import ErrorController
+
 class DeclaracionID(Expression):
     
     def __init__(self, id, data_type, value, line, column) :
@@ -16,14 +18,23 @@ class DeclaracionID(Expression):
         return str(vars(self))
 
     def compile(self, environment):
-        val = self.value.compile(environment)
+        val = None
+        if self.value is not None:
+            val = self.value.compile(environment)
+        if isinstance(val, PrimitiveData):
+            if val.data_type == DATA_TYPE.STRING:
+                val.value = f"'{val.value}'"
         pos = ThreeAddressCode().stackCounter
-        environment.addVar(self.id, self.data_type, val.value, pos, self.line, self.column)
-        temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = {val.value}")
-        ThreeAddressCode().addStack(temp)
+        if val is not None:
+            environment.addVar(self.id, self.data_type, val.value, pos, self.line, self.column)
+            temp = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temp} = {val.value}")
+            ThreeAddressCode().addStack(temp)
+        else:
+            environment.addVar(self.id, self.data_type, None, pos, self.line, self.column)
+
         # ThreeAddressCode().addCode(f"print(Stack)")
-        print("ANDO POR AQUI")
+        # print("ANDO POR AQUI")
 
 class AsignacionID(Expression):
     
@@ -49,6 +60,7 @@ class AsignacionID(Expression):
         if var_search == None:
             print("VARIABLE NO DECLARADA ")
             print(self.id)
+            ErrorController().add(33, 'Execution', f"VARIABLE {id} NO DECLARADA", self.line, self.column)
             return
 
         if isinstance(self.value, ObjectReference): #Buscar variable
@@ -60,6 +72,7 @@ class AsignacionID(Expression):
             val = environment.getVar(val)
             if val is None: 
                 print("VARIABLE NO DECLARADA")
+                ErrorController().add(33, 'Execution', f"VARIABLE {id} NO DECLARADA", self.line, self.column)
                 return
 
             position = val.position
@@ -67,7 +80,10 @@ class AsignacionID(Expression):
             ThreeAddressCode().addCode(f"{temporal} = Stack[{position}]")
             ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {temporal}")
         else:
-            ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {val.value}")
+            if isinstance(val, str):
+                ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {val}")
+            else:
+                ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {val.value}")
 
 
 

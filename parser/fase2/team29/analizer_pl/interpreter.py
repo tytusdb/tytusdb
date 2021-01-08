@@ -3,11 +3,10 @@ from sys import path
 from os.path import dirname as dir
 
 path.append(dir(path[0]))
-
-import analizer_pl.grammar as grammar
-from analizer_pl.abstract import global_env
-from analizer_pl.reports import BnfGrammar
 from analizer_pl.C3D.operations import block
+from analizer_pl.reports import BnfGrammar
+from analizer_pl.abstract import global_env
+import analizer_pl.grammar as grammar
 
 
 def traducir(input):
@@ -92,64 +91,154 @@ def functionsReport(env):
 
 
 s = """ 
-CREATE function foo(i integer) RETURNS integer AS $$
-declare 
-	j integer := -i + 5;
-    texto text := now();
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE 
+resultado INTEGER; 
+retorna   INTEGER;
 BEGIN
-	case 
-        when i > -10 then
-            RETURN j;
-        when i < 10 then
-            texto = "yosoyfr";
-            RETURN texto;
-        else 
-            j = j + 1;
-            RETURN j;
-    end case;
+	if tabla = 'tbProducto' then
+	    resultado := (SELECT md5('23') si, puta as sho) ;
+    	if cantidad = resultado then
+			retorna = 1;
+		else 
+			retorna = 0;
+		end if;
+	end if;
+	if tabla = 'tbProductoUp' then
+	    resultado := (SELECT COUNT(*) FROM tbProducto where estado = 2);
+    	if cantidad = resultado then
+			retorna = 1;
+		else 
+			retorna = 0;
+		end if;
+	end if;
+	if tabla = 'tbbodega' then
+	    resultado := (SELECT COUNT(*) FROM tbbodega);
+    	if cantidad = resultado then
+			retorna = 1;
+		else 
+			retorna = 0;
+		end if;
+	end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+delete from tbbodega as tb where idbodega = 4 and idbodega = 5;
+"""
+s2 = """
+
+CREATE FUNCTION foo(texto text, b boolean) RETURNS text AS $$
+BEGIN
+update tbbodega set bodega = texto||"fr", id = 1 where idbodega = 4; 
+update tbbodega set bodega = "fr" where idbodega = 4; 
+return texto;
 END;
 $$ LANGUAGE plpgsql;
 
-
-CREATE DATABASE DBFase2;
-
-USE DBFase2;
-
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+CREATE FUNCTION myFuncion(texto text, b boolean) RETURNS text AS $$
 BEGIN
-INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(foo(texto)),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',foo(md5(texto)),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',foo(md5('texto')),1);
 INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(texto),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',md5('texto'),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',foo('texto'),1);
-	RETURN texto;
+SELECT 3-5>4 and -3=texto as sho, texto between symmetric 2 and 3 as alv;
+
+select * from tbCalificacion;
+select * from tbventa where ventaregistrada = false;
+select * from tbempleadopuesto group by departamento;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+
+
+select v.id+foo(texto, 3)
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido,fechaventa
+limit 1;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = texto
+group by 1,2,3
+order by 1;
+
+b = texto between symmetric 2 and 3;
+RETURN (3+1)*-1;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TABLE tbProducto (idproducto integer not null primary key,
-  						 producto varchar(150) not null,
-  						 fechacreacion date not null,
-						 estado integer);
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
 
-CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
+select (3+3)*5;
 
-CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
-							 item varchar(100) not null,
-							 punteo integer not null);
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = texto
+group by 1,2,3
+order by col ,1 ;
 
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-
-INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
-INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
-INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
-INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
-INSERT INTO tbProducto values(5,'WIFI USB',now(),1);
-INSERT INTO tbProducto values(6,'Laptop HP',now(),1);
-INSERT INTO tbProducto values(7,'Teclado Flexible USB',now(),1);
-INSERT INTO tbProducto values(8,'Laptop Samsung','2021-01-02',1);
 
 """
 
+s3 = """
+select E.* from tabla;
+select departamento,count(*) CantEmpleados 
+from tbempleadopuesto
+group by departamento;
+select primernombre,segundonombre,primerapellido,sum(montoventa) 
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+create table tblibrosalario
+( idempleado integer not null,
+  aniocalculo integer not null CONSTRAINT aniosalario CHECK (aniocalculo > 0),
+  mescalculo  integer not null CONSTRAINT mescalculo CHECK (mescalculo > 0),
+  salariobase  money not null,
+  comision     decimal,
+  primary key(idempleado)
+ );
+EXECUTE md5("francisco");
+update tbbodega set bodega = 'bodega zona 9' where idbodega = 4; 
+update tbbodega set bodega = DEFAULT where idbodega = 4; 
+"""
 
-traducir(s)
+s4 = """
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+	if tabla = 'tbProducto' then
+	    resultado := not ((4+4*10/3) NOT IN  (SELECT COUNT(*) FROM tbProducto)); 
+		retorna = 0;
+		
+	end if;
+	if tabla = 'tbProductoUp' then
+	    resultado := xd IN (SELECT * FROM tbProducto where estado = 2);
+    	retorna = 1;
+	end if;
+	if tabla = 'tbbodega' then
+	    resultado := EXISTS (SELECT COUNT(*) FROM tbbodega);
+    	retorna = 2;
+	end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;				 
+	
+"""
+
+traducir(s4)
