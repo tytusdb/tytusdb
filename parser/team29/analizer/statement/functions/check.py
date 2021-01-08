@@ -1,5 +1,5 @@
 from analizer.abstract.expression import Expression
-
+from analizer.reports import Nodo
 
 class CheckValue(Expression):
     """
@@ -15,3 +15,8 @@ class CheckValue(Expression):
 
     def execute(self, environment):
         return self
+
+    def dot(self):
+        new = Nodo.Nodo("CHECK")
+        new.addNode(Nodo.Nodo(str(self.value)))
+        return new

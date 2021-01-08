@@ -7,3 +7,10 @@ class Simbolo():
         self.valor = valor
         self.linea = linea
         self.columna = columna
+
+        self.namevar = 0
+        self.fun = 0
+        self.typo = 0
+        self.val = 0
+
+
