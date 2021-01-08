@@ -504,6 +504,7 @@ def p_alter_function(t):
     #ALTER INDEX [ IF EXISTS ] name ALTER [ COLUMN ] column_number
     #ALTER INDEX ind1 ALTER COLUMN nombre id
     #ALTER INDEX ind1 ALTER COLUMN apellido numero
+                                                    #vieja nueva
     'instruccion        : ALTER INDEX ID ALTER COLUMN ID ID PTCOMA'
 
 
@@ -2524,15 +2525,15 @@ def p_instselect(t):
     global columna
     global concatenaTime
 
-    fromt = Select.obtenerCadenaInner(t[5])
+    fromt = Select.obtenerCadenaInner(t[5],None)
     order=''
     if t[6] !=None:
-        order= ' ORDER BY '+str(Select.obtenerCadenalistColumna(t[6]))
+        order= ' ORDER BY '+str(Select.obtenerCadenalistColumna(t[6],None))
 
     if isinstance(t[3],str):
         concatenaTime.append(f"SELECT DISTINCT * FROM  {fromt} {order};")
     else:
-        cols = Select.obtenerCadenalistColumna(t[3])
+        cols = Select.obtenerCadenalistColumna(t[3],None)
 
         concatenaTime.append(f"SELECT DISTINCT {cols} FROM {fromt} {order};")
 
@@ -2548,11 +2549,11 @@ def p_instselect2(t):
     global columna
     global concatenaTime
 
-    fromt = Select.obtenerCadenaInner(t[5])
+    fromt = Select.obtenerCadenaInner(t[5],None)
     order = ''
     subq=''
     if t[6] != None:
-        order = ' ORDER BY ' + str(Select.obtenerCadenalistColumna(t[6]))
+        order = ' ORDER BY ' + str(Select.obtenerCadenalistColumna(t[6],None))
 
     if t[4]!=None and t[4].caso!=4:
         subq= '( '+(t[4]).concatena[0].replace(";","") + ' ) '
@@ -2560,7 +2561,7 @@ def p_instselect2(t):
     if isinstance(t[2], str):
         concatenaTime.append(f"SELECT  * FROM  {subq}{fromt} {order};")
     else:
-        cols = Select.obtenerCadenalistColumna(t[2])
+        cols = Select.obtenerCadenalistColumna(t[2],None)
 
         concatenaTime.append(f"SELECT  {cols} FROM  {subq}{fromt}{order};")
 
@@ -2601,14 +2602,14 @@ def p_instselect4(t):
     global columna
     global concatenaTime
 
-    fromt = Select.obtenerCadenaInner(t[5])
+    fromt = Select.obtenerCadenaInner(t[5],None)
     order = ''
     subq = ''
 
     where=''
-    where = ' WHERE ' +str(Select.obtenerCadenaWhere(t[7]))+' '
+    where = ' WHERE ' +str(Select.obtenerCadenaWhere(t[7],None))+' '
     if t[8] != None:
-        order = ' ORDER BY ' + str(Select.obtenerCadenalistColumna(t[6]))+' '
+        order = ' ORDER BY ' + str(Select.obtenerCadenalistColumna(t[6],None))+' '
 
     if t[4] != None and t[4].caso != 4:
         subq = '( ' + (t[4]).concatena[0].replace(";","") + ' ) '
@@ -2616,7 +2617,7 @@ def p_instselect4(t):
     if isinstance(t[2], str):
         concatenaTime.append(f"SELECT  * FROM  {subq}{fromt} {where}{order};")
     else:
-        cols = Select.obtenerCadenalistColumna(t[2])
+        cols = Select.obtenerCadenalistColumna(t[2],None)
 
         concatenaTime.append(f"SELECT  {cols} FROM  {subq}{fromt}{where}{order};")
     t[0] = Select(5, False, None, t[2], t[4], t[5], t[8], t[9], t[7],concatenaTime, lexer.lineno, columna)
@@ -3503,7 +3504,13 @@ def procesar_instrucciones(instrucciones, ts):
 
                     ret = None
                     try:
-                        ret = int(data)
+                        if "[" in str(data):
+                            data = str(data).replace("[","")
+                            data = str(data).replace("]", "")
+                            ret = int(data)
+                            print("sisi",ret)
+                        else:
+                            ret = int(data)
                     except:
                         ret =data
 
@@ -3707,6 +3714,7 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
     #---------FIN MODIFICACION
     global  obtiene_drops
     global recolecta_funciones_procedimientos
+    print('ENTRAAAAAAAAAA')
     for instr in instrucciones:
 
         if isinstance(instr, CreateReplace):
@@ -3727,7 +3735,10 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
                 Selectp3.traducir(instr,  consolaaux,TV)
                 print("ejecute select 4")
             elif (instr.caso == 5):
+
                 print("Aqui merito")
+                print('CASO 5 :(')
+
                 Selectp4.traducir(instr, ts, consolaaux,recolecta_funciones_procedimientos,TV)
             elif (instr.caso == 6):
                 consola.append('caso 6')
@@ -3771,7 +3782,7 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
         #---------prueba
         #no borrar
         elif isinstance(instr, AsignacionF2):
-            AsignacionF2.traducir(instr, ts, consolaaux, exceptions, TV, regla, antes, optimizado)
+            AsignacionF2.traducir(instr, ts, consolaaux, exceptions, TV, regla, antes, optimizado,recolecta_funciones_procedimientos)
         elif isinstance(instr, SIF):
             SIF.traducir(instr, ts,consolaaux ,metodos_funciones, exceptions, TV, concatena, regla, antes, optimizado)
         elif isinstance(instr, Function):

@@ -240,9 +240,15 @@ def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consol
         datafinal = Expresion.Resolver(lista_valores[index],ts,Consola,exception)
         datainsertar.append(datafinal)
     else:
-        datafinal = lista_valores[index].valor
-        datainsertar.append(datafinal)
-    print(datafinal)
+        print("quepaso",lista_valores[index])
+        if isinstance(lista_valores[index],Primitivo):
+            print("si es primtivo")
+            datafinal = lista_valores[index].valor
+            datainsertar.append(datafinal)
+        else:
+            return
+
+    print(datafinal, "que estoy haciendo mal",tabla.id)
 
 
     if isinstance(datafinal,int) and 'INTEGER' in str(lista_tabla.get(campo).tipo).upper():
