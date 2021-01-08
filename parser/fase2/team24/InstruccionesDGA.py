@@ -144,7 +144,7 @@ class showdb(instruccion):
 
     def traducir(self):
         traduccion = '\t'
-        traduccion += 'sql.execute("SHOW DATABASES '+ self.nombre + ';")'
+        traduccion += 'sql.execute("SHOW DATABASES;")'
         traduccion += '\n'
         
         return traduccion
@@ -698,6 +698,7 @@ class insert(instruccion):
             if not tablas:
                 e = errores.CError(0,0,"No existe la tabla " + self.iden,'Semantico')
                 errores.insert_error(e)
+                print("No existe la tabla " + self.iden + "\n")
                 return "No existe la tabla " + self.iden + "\n"
             for simbolo in tabla.simbolos:
                 if tabla.simbolos[simbolo].ambito == tablas.id and not tabla.simbolos[simbolo].tipo == TS.TIPO.DATABASE and not tabla.simbolos[simbolo].tipo == TS.TIPO.TABLE and not tabla.simbolos[simbolo].tipo == TS.TIPO.TUPLA:
@@ -712,6 +713,7 @@ class insert(instruccion):
                             if isinstance(valcorrecto,errores.CError):
                                 e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                                 errores.insert_error(e)
+                                print("Funcion Erronea")
                                 return "Funcion Erronea"
                             else:
                                 colcorrecta.append(str(valcorrecto))
@@ -722,6 +724,7 @@ class insert(instruccion):
                                 if isinstance(valcorrecto,errores.CError):
                                     e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                                     errores.insert_error(e)
+                                    print("Funcion Erronea")
                                     return "Funcion Erronea"
                                 else:
                                     colcorrecta.append(str(valcorrecto))
@@ -1791,6 +1794,7 @@ class update(instruccion):
                     if isinstance(Condicion,errores.CError):
                         e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                         errores.insert_error(e)
+                        print("Funcion Erronea")
                         return "Funcion Erronea"
             except:
                     try:
@@ -1799,6 +1803,7 @@ class update(instruccion):
                             if isinstance(Condicion,errores.CError):
                                 e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                                 errores.insert_error(e)
+                                print("Funcion Erronea")
                                 return "Funcion Erronea"
                     except:
                         Condicion = self.wherecond.tipo
@@ -1813,6 +1818,7 @@ class update(instruccion):
                         if isinstance(cond2,errores.CError):
                             e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                             errores.insert_error(e)
+                            print("Funcion Erronea")
                             return "Funcion Erronea"
                 except:
                     try:
@@ -1821,6 +1827,7 @@ class update(instruccion):
                             if isinstance(cond2,errores.CError):
                                 e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                                 errores.insert_error(e)
+                                print("Funcion Erronea")
                                 return "Funcion Erronea"
                     except:
                         cond2 = self.wherecond.tipo2
@@ -1863,6 +1870,7 @@ class update(instruccion):
                 resultadotxt += "Los registros fueron actualizados\n"
         except:
             """ERROR"""
+        print(resultadotxt)
         return resultadotxt
         
 #DELETE-------------------------------------------
@@ -1912,6 +1920,7 @@ class delete(instruccion):
             if not TablaActual:
                 e = errores.CError(0,0,"No existe la tabla " + self.iden,'Semantico')
                 errores.insert_error(e)
+                print("No existe la tabla " + self.iden)
                 return "No existe la tabla " + self.iden
             TuplasTabla = []
             ColumnasTabla = []
@@ -1931,6 +1940,7 @@ class delete(instruccion):
                         if isinstance(cond2,errores.CError):
                             e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                             errores.insert_error(e)
+                            print("Funcion Erronea")
                             return "Funcion Erronea"
                 except:
                     try:
@@ -1939,6 +1949,7 @@ class delete(instruccion):
                             if isinstance(cond2,errores.CError):
                                 e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                                 errores.insert_error(e)
+                                print("Funcion Erronea")
                                 return "Funcion Erronea"
                     except:
                         cond2 = self.wherecond.tipo2
@@ -1951,6 +1962,7 @@ class delete(instruccion):
                         if isinstance(cond1,errores.CError):
                             e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                             errores.insert_error(e)
+                            print("Funcion Erronea")
                             return "Funcion Erronea"
                 except:
                     try:
@@ -1959,6 +1971,7 @@ class delete(instruccion):
                             if isinstance(cond1,errores.CError):
                                 e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                                 errores.insert_error(e)
+                                print("Funcion Erronea")
                                 return "Funcion Erronea"
                     except:
                         cond1 = self.wherecond.tipo
@@ -1985,6 +1998,7 @@ class delete(instruccion):
                         if isinstance(cond,errores.CError):
                             e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                             errores.insert_error(e)
+                            print("Funcion Erronea")
                             return "Funcion Erronea"
                 except:
                     try:
@@ -1993,6 +2007,7 @@ class delete(instruccion):
                             if isinstance(cond,errores.CError):
                                 e = errores.CError(0,0,"Funcion Erroneo",'Semantico')
                                 errores.insert_error(e)
+                                print("Funcion Erronea")
                                 return "Funcion Erronea"
                     except:
                         cond = self.wherecond.tipo
@@ -2011,6 +2026,7 @@ class delete(instruccion):
                 resultadotxt += "Se eliminaron los registros de la tabla\n"
         except:
             """ERROR"""
+        print (resultadotxt)
         return resultadotxt
 
 #--------------------------------------------CLASES PARA LOS INDICES--------------------------------------------------
@@ -2024,7 +2040,23 @@ class IndexCreate(instruccion):
         self.createind2 = createind2
 
     def traducir(self):
-        return ''
+            traduccion = '\t'
+        traduccion += 'sql.execute("CREATE UNIQUE INDEX ' + self.id1 + ' ON ' + self.id2 + '('
+
+        if isinstance(self.createind2, createind3):
+            temp = self.createind2.listacolind
+            for x in temp:
+                #falta ver si puede ser una llamada
+                if isinstance(x, str):
+                    traduccion += ' '+ x + ','
+                if isinstance(x, llamadaF):
+                    traduccion += ' ' + x.id + ','
+
+        traduccion = traduccion.replace(',)',')')
+        traduccion += ');")'
+        traduccion += '\n'
+        return traduccion.replace(',)',')')
+
 
     def ejecutar(self):
         global resultadotxt
@@ -2068,8 +2100,10 @@ class IndexCreate(instruccion):
                 NuevoIndice.columnaind = columnastexto
                 NuevoIndice.listacolind = columnasdeindice
             tabla.agregar(NuevoIndice)
+            print("Se agrego el indice " + self.id1 + " a la tabla de simbolos")
             return "Se agrego el indice " + self.id1 + " a la tabla de simbolos"
         except:
+            print("Error al crear indice")
             return "Error al crear indice"
 
 class createind3(instruccion):
@@ -2112,7 +2146,10 @@ class IndexDrop(instruccion):
         self.orden = orden
 
     def traducir(self):
-        return ''
+        traduccion = ''
+        for x in self.listaindices:
+            traduccion += '\tsql.execute("DROP INDEX ' + x + ';")'+ '\n'
+        return traduccion'
 
     def ejecutar(self):
         global resultadotxt
@@ -2133,8 +2170,10 @@ class IndexDrop(instruccion):
                 if simbolo.tipo == TS.TIPO.INDICE:
                     tabla.simbolos.pop(simbolo.id)
                     textores += "Se elimino el indice " + simbolo.nombre + " de la tabla de simbolos\n"
+            print(textores)
             return textores
         except:
+            print(return "Error en " + self.tipo)
             return "Error en " + self.tipo
 
 #--------------------------------------------CLASES PARA ALTER INDICES-------------------------------------------------
@@ -2170,9 +2209,12 @@ class IndexAlter(instruccion):
                         Indice.columnaind = columnastexto
                         tabla.actualizar(Indice)
                         if Indice.listacolind[iter] == self.alterind2.listacol.buscarid:
+                            print("No existe la columna " +  self.alterind2.listacol.buscarid + " en el indice " + self.alterind2.id)
                             return "No existe la columna " +  self.alterind2.listacol.buscarid + " en el indice " + self.alterind2.id
+                        print("Se cambio la columna " + self.alterind2.listacol.buscarid + " por " + self.alterind2.listacol.nuevoid + " del indice " + self.alterind2.id)
                         return "Se cambio la columna " + self.alterind2.listacol.buscarid + " por " + self.alterind2.listacol.nuevoid + " del indice " + self.alterind2.id
                     else:
+                        print("No existe el indice" + self.alterind2.id)
                         return "No existe el indice" + self.alterind2.id
             else:
                 NuevoAlterIndex = TS.Simbolo(cont,self.alterind2.id,TS.TIPO.INDICE,contambito)
@@ -2187,6 +2229,7 @@ class IndexAlter(instruccion):
                     coltexto += col + " "
                 NuevoAlterIndex.columnaind = coltexto
                 tabla.agregar(NuevoAlterIndex)
+                print("Se agrego el " + self.tipo + " a la tabla de simbolos")
                 return "Se agrego el " + self.tipo + " a la tabla de simbolos"
         except:
             return "Error en " + self.tipo
