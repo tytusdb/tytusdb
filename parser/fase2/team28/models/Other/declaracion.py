@@ -74,7 +74,10 @@ class AsignacionID(Expression):
             ThreeAddressCode().addCode(f"{temporal} = Stack[{position}]")
             ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {temporal}")
         else:
-            ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {val.value}")
+            if isinstance(val, str):
+                ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {val}")
+            else:
+                ThreeAddressCode().addCode(f"Stack[{var_search.position}] = {val.value}")
 
 
 
