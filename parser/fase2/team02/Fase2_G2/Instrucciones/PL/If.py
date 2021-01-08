@@ -47,8 +47,8 @@ class If(Instruccion):
 
         return cadena
 
-    def obtienesiexiste(self,name,valuestable, tabla,arbol):
-        print("obendra name= "+name+"con valuestable= ",valuestable)        
+    def obtienesiexiste(self,name,valuestable, j,tabla,arbol):
+        print("obendra name= "+name+"con valuestable= ",valuestable," y j",j)        
 
     
             # pro
@@ -57,14 +57,24 @@ class If(Instruccion):
         for key in valuestable:
            
             nam=key["name"]
-            
-            
-            if(name==str(nam)):
-                    return key["value"]          
-            
+            if name==str(nam) :
+                print("va a comp var con --"+str(key["tipo"])+"----")         
+
+                if str(key["tipo"])=="var":
+
+                    try: 
+                        h1=str(key["j"]).replace(" ","")
+                        print("h1 es  --"+h1+"----")         
+
+                        if str(j)==h1:
+                                return key["value"]          
+                    except Exception as e:
+                        print(e)
+                else :
+                 return key["value"]     
         return None         
 
-    def addvalues(self,my_dic, queue,tabla):
+    def addvalues(self,j,my_dic, queue,tabla):
   
         print("entro a diccionerio ")         
 
@@ -72,7 +82,7 @@ class If(Instruccion):
            #  self.my_dict.update({"name":queue.id,"value" :queue.val})
              print("agrego a diccionario : ")
   
-             my_dic.append({"name":queue.id,"value" :queue.val,"tipo" :""})      
+             my_dic.append({"name":queue.id,"value" :queue.val,"tipo" :"","j" :j})      
              
 
         except Exception as e:
@@ -80,15 +90,16 @@ class If(Instruccion):
 
     def traducir(self, tabla, arbol):
         pass
-    def versiexisteyactualiza(self,valuestable,objeto, tabla,arbol):
+
+    def versiexisteyactualiza(self,valuestable,objeto, k, tabla,arbol):
        
          for key in valuestable:
            
             nam=key["name"]
             
-            
+            f=str(key["j"]).replace(" ","")
                 #cadena es mi id de retorno           
-            if(objeto.id==str(nam)):
+            if(objeto.id==str(nam) and str(k)==f):
                     print("ya existe se sustituira su valor") 
 
                     cadena = ""
@@ -104,7 +115,7 @@ class If(Instruccion):
                     except Exception as e:
                             print(e)
 
-    def instr(self,expresiones,valuestable,tabla,arbol):
+    def instr(self,expresiones,valuestable,tipe,tabla,arbol):
             
         for ele in expresiones: 
 
@@ -123,10 +134,10 @@ class If(Instruccion):
                                   arbol.addComenfunc("Comienza instruccion de expresion")
 
                                   ele.traducir("No",tabla,arbol)
-                                  if self.versiexisteyactualiza(valuestable,ele, tabla,arbol):
+                                  if self.versiexisteyactualiza(valuestable,ele,tipe, tabla,arbol):
                                     pass
                                   else:
-                                     self.addvalues(valuestable,ele,tabla) 
+                                     self.addvalues(tipe,valuestable,ele,tabla) 
 
 
                             elif  Esif:
@@ -147,7 +158,8 @@ class If(Instruccion):
                                   if isinstance(ele.expresion, Identificador):
                                     node= ele.expresion
                                     valu = node.devolverId(tabla,arbol)                      
-                                    value1 =self.obtienesiexiste(valu,valuestable, tabla,arbol)
+                                    value1 =self.obtienesiexiste(valu,valuestable,tipe, tabla,arbol)
+
                                     print("obtuvoe el valor retun= ",value1)
 
                                     if value1==None:
@@ -241,7 +253,7 @@ class If(Instruccion):
                                 except Exception as e:
                                    print(e) 
 
-                                value1 =self.obtienesiexiste(valu,valuestable, tabla,arbol)
+                                value1 =self.obtienesiexiste(valu,valuestable,tipe, tabla,arbol)
                             except Exception as e:
                                  print(e)
                             print("obtuvoe el valor deentrada= ",value1)
@@ -253,6 +265,7 @@ class If(Instruccion):
                             value1 = value1.traducir(tabla,arbol).temporalAnterior
                         print("value1 es",value1)
 
+                        print("value2k3 es",value2)
 
                         if isinstance(value2, Identificador):
                         
@@ -265,13 +278,15 @@ class If(Instruccion):
                                 except Exception as e:
                                    print(e) 
 
-                                value2=self.obtienesiexiste(valu,valuestable, tabla,arbol)
+                                value2=self.obtienesiexiste(valu,valuestable,tipe, tabla,arbol)
                             except Exception as e:
                                  print(e)
                             print("obtuvoe el valor value2= ",value2)
                   
 
                         else:
+                            print("value2k es",value2)
+
                             value2 = value2.traducir(tabla,arbol).temporalAnterior
               
                         print("value2 es",value2)
@@ -337,7 +352,7 @@ class If(Instruccion):
                               """    if(tipe==1): 
                                     a=self.instr0(self.expresion,valuestable,tabla,arbol)
                               else : """
-                              a=self.instr(self.expresion,valuestable,tabla,arbol)
+                              a=self.instr(self.expresion,valuestable,tipe,tabla,arbol)
                               if a==1 : return
                               pass
                             except Exception as e:
@@ -353,11 +368,11 @@ class If(Instruccion):
                             #  arbol.addfunciones3d(f"\t#sentencias else...")
                             #  arbol.addfunciones3d(f"\tprint('es else')")
                                 try:
-                                    a=0
-                                    if(tipe==1): 
+                                   
+                                    """ if(tipe==1): 
                                        a=self.instr0(self.expresion2,valuestable,tabla,arbol)
-                                    else :
-                                       a=self.instr(self.expresion2,valuestable,tabla,arbol)
+                                    else : """
+                                    a=self.instr(self.expresion2,valuestable,tipe,tabla,arbol)
                            
 
                                     if a==1 : return

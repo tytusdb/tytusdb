@@ -8,6 +8,7 @@ from Instrucciones.Excepcion import Excepcion
 import numpy as np
 from storageManager.jsonMode import *
 from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
+from Instrucciones.PL import Func, Declaracion,Execute,Asignacion,Return,If,Drop
 
 # valor -----> nombre de la tabla
 # lcol ------> lista con el nombre de las columnas
@@ -375,7 +376,20 @@ class insertTable(Instruccion):
     def analizar(self, tabla, arbol):
         print("hola")
 
-    def extraer(self,tabla,arbol):
+    def validar(self,j, tabla, arbol):
+        cadena = ""
+        for ele in self.lexpre: 
+           if  isinstance(ele, Execute.Execute):
+                ele.generar(j,tabla,arbol) 
+                j=j+1   
+        return j           
+    def validar7(self, tabla, arbol):
+        cadena = ""
+        for ele in self.lexpre: 
+           if  isinstance(ele, Execute.Execute):
+               return True  
+        return False
+    def extraer(self,tipe,tabla,arbol):
         
         cadena = "\" "
 
@@ -391,13 +405,36 @@ class insertTable(Instruccion):
                 try: 
                         print(ele)
                       #  print("cadena es ",ele)
+                       
                         if isinstance(ele, Now.Now):
                             cadena += ele.traducir(tabla,arbol)
+                        elif  isinstance(ele, Execute.Execute):
+                    
+                          
+                                print("es invooommpue2 ")
+                                try:  
+                                        valu = ele.traducir(tipe,tabla,arbol)                                         
+                                        print("valu1 de Execute.traduci es ",valu)
+
+                   
+                                        print("obtuvoe el valor deentrada= ",valu)
+                                        cadena +=   "\"+"+ valu+ "+\""
+
+                                        
+                                except Exception as e:
+                                   
+                                   print(e) 
+                                   
+                                except Exception as e:
+                                   print(e) 
+
+
                         else:
                             cadena += ele.traducir(tabla,arbol).temporalAnterior 
                        # print(ele.traducir(tabla,arbol).temporalAnterior)
+                       
                         if( j > -1 and j<p-1):
-                            cadena += ", "
+                             cadena += ", "
                         j=j+1
                 except Exception as e:
                     print(e)
@@ -409,12 +446,12 @@ class insertTable(Instruccion):
         cadena+= "\" "
 
         return cadena  
-    def traducir(self, tabla, arbol):
+    def traducir(self,tipe, tabla, arbol):
         cadena = ""
         
         try: 
        
-              cadena += self.extraer(tabla,arbol) 
+              cadena += self.extraer(tipe,tabla,arbol) 
         except Exception as e:
               print(e)
 

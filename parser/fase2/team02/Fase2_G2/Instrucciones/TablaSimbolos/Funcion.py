@@ -11,7 +11,7 @@ export class Function extends Instruction{
 }
 '''
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
-from Instrucciones.TablaSimbolos.Tabla import Tabla
+form Instrucciones.TablaSimbolos.Tabla import Tabla
 
 class Funcion(Instruccion):
     def __init__(self, id, tipo, campos, ids, linea, columna):
