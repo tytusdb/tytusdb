@@ -354,18 +354,33 @@ def insert(database, name_table, register: list):
             if metadata_db.get_encondig().lower().strip() == "ascii":
                 if encodi_ascii_decod(register,"ascii") != 1:
                     status = struct.insert(database, name_table, register)
+                    if status == 0:
+                        if flag_block:
+                            block: BlockChain = get_block_chain(name_table)
+                            if block:
+                                block.create_block(register)
                     return status
                 else:
                     return 1
             elif metadata_db.get_encondig().lower().strip() == "utf-8":
                 if encodi_utf_decod(register,"utf-8") !=1:
                     status = struct.insert(database, name_table, register)
+                    if status == 0:
+                        if flag_block:
+                            block: BlockChain = get_block_chain(name_table)
+                            if block:
+                                block.create_block(register)
                     return status
                 else:
                     return 1
             elif metadata_db.get_encondig().lower().strip() == "iso-8859-1":
                 if encodi_iso_decod(register,"iso-8859-1") !=1:
                     status = struct.insert(database, name_table, register)
+                    if status == 0:
+                        if flag_block:
+                            block: BlockChain = get_block_chain(name_table)
+                            if block:
+                                block.create_block(register)
                     return status
                 else:
                     return 1
@@ -451,23 +466,22 @@ def extractRow(database, name_table, columns):
 
 
 def update(database, name_table, register, columns):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.update(database, name_table, register, columns)
-        elif mode.lower().strip() == "b":
-            return b.update(database, name_table, register, columns)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.update(database, name_table, register, columns)
-        elif mode.lower().strip() == "dict":
-            return diccionario.update(database, name_table, register, columns)
-        elif mode.lower().strip() == "hash":
-            return hash.update(database, name_table, register, columns)
-        elif mode.lower().strip() == "isam":
-            return isam.update(database, name_table, register, columns)
-        elif mode.lower().strip() == "json":
-            return json.update(database, name_table, register, columns)
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        data = struct.extractRow(database, name_table, columns).copy()
+        status = struct.update(database, name_table, register, columns)
+        if status == 0:
+            if flag_block:
+                block: BlockChain = get_block_chain(name_table)
+                id_block = block.get_block(data)
+                if block and id_block:
+                    block.update(register, id_block)
+                    #block.graficar()
+        return status
+    else:
+        return 1
+
 
 
 def loadCSV(file, database, name_table):
@@ -491,23 +505,21 @@ def loadCSV(file, database, name_table):
 
 
 def delete(database, name_table, columns):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.delete(database, name_table, columns)
-        elif mode.lower().strip() == "b":
-            return b.delete(database, name_table, columns)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.delete(database, name_table, columns)
-        elif mode.lower().strip() == "dict":
-            return diccionario.delete(database, name_table, columns)
-        elif mode.lower().strip() == "hash":
-            return hash.delete(database, name_table, columns)
-        elif mode.lower().strip() == "isam":
-            return isam.delete(database, name_table, columns)
-        elif mode.lower().strip() == "json":
-            return json.delete(database, name_table, columns)
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        data = struct.extractRow(database, name_table, columns).copy()
+        status = struct.delete(database, name_table, columns)
+        if status == 0:
+            if flag_block:
+                block: BlockChain = get_block_chain(name_table)
+                id_block = block.get_block(data)
+                if block and id_block:
+                    block.delete_block(id_block)
+                    #block.graficar()
+        return status
+    else:
+        return 1
 
 
 def truncate(database, name_table):
@@ -530,164 +542,104 @@ def truncate(database, name_table):
             return json.truncate(database, name_table)
 
 
-#  ------------------------------------------ -> Metodos del checksum <- -----------------------------------------------
-def get_object_mode(database: str):
-    index = 0
-    for mode in mode_list:
-        if mode.get_name_database() == database:
-            return mode, index
-        index += 1
-    return None, None
 
+#  ------------------------------------------ -> Methods checksum <- -----------------------------------------------
 
 def checksumDatabase(database, mode: str):
-    objet_mode, index = get_object_mode(database)
+    objet_mode, index = get_metadata_db(database)
     if objet_mode is None: return None
     mode_db = objet_mode.get_mode()
+    struct = get_struct(mode_db)
     # sha256 -> 1
-    if mode.lower().strip() == "sha256":
-        data = ""
-        if mode_db.lower().strip() == "avl":
-            data = avl.showTables(database)
-        elif mode_db.lower().strip() == "b":
-            data = list()
-            for tables in b.showTables(database):
-                data.append(b.extractTable(database, tables))
-        elif mode_db.lower().strip() == "bPlus".lower():
-            data = bPlus.showTables(database)
-        elif mode_db.lower().strip() == "dict":
-            data = diccionario.showTables(database)
-        elif mode_db.lower().strip() == "hash":
-            data = hash.showTables(database)
-        elif mode_db.lower().strip() == "isam":
-            data = isam.showTables(database)
-        elif mode_db.lower().strip() == "json":
-            data = json.showTables(database)
-        return checksum_database(1, database, mode_db, data)
     # md5 -> 2
-    elif mode.lower().strip() == "md5":
+    if mode.lower().strip() == "sha256" or mode.lower().strip() == "md5":
         data = ""
-        if mode_db.lower().strip() == "avl":
-            data = avl.showTables(database)
-        elif mode_db.lower().strip() == "b":
+        if mode_db != "b":
+            data = struct.showTables(database)
+        else:
             data = list()
-            for tables in b.showTables(database):
-                data.append(b.extractTable(database, tables))
+            for tables in struct.showTables(database):
+                data.append(struct.extractTable(database, tables))
 
-        elif mode_db.lower().strip() == "bPlus".lower():
-            data = bPlus.showTables(database)
-        elif mode_db.lower().strip() == "dict":
-            data = diccionario.showTables(database)
-        elif mode_db.lower().strip() == "hash":
-            data = hash.showTables(database)
-        elif mode_db.lower().strip() == "isam":
-            data = isam.showTables(database)
-        elif mode_db.lower().strip() == "json":
-            data = json.showTables(database)
-        return checksum_database(2, database, mode_db, data)
+        return checksum_database(1 if mode.lower().strip() == "sha256" else 2, database, mode_db, data)
     else:
         return None
 
 
 def checksumTable(database, table: str, mode: str):
-    object_mode, index = get_object_mode(database)
+    object_mode, index = get_metadata_db(database)
     if object_mode:
         mode_db = object_mode.get_mode()
-        if mode.lower().strip() == "sha256":
+        struct = get_struct(mode_db)
+        if mode.lower().strip() == "sha256" or mode.lower().strip() == "md5":
             data = ""
-            if mode_db.lower().strip() == "avl":
-                if table.strip() in avl.showTables(database):
+            if table in struct.showTables(database):
+                if mode_db != "b":
                     data = table
                 else:
-                    return None
-            elif mode_db.lower().strip() == "b":
-                if table.strip() in b.showTables(database):
-                    data = b.extractTable(database, table)
-                else:
-                    return None
-            elif mode_db.lower().strip() == "bPlus".lower():
-                if table.strip() in bPlus.showTables(database):
-                    data = table
-                else:
-                    return None
-            elif mode_db.lower().strip() == "dict":
-                if table.strip() in diccionario.showTables(database):
-                    data = table
-                else:
-                    return None
-            elif mode_db.lower().strip() == "hash":
-                if table.strip() in hash.showTables(database):
-                    data = table
-                else:
-                    return None
-            elif mode_db.lower().strip() == "isam":
-                if table.strip() in isam.showTables(database):
-                    data = table
-                else:
-                    return None
-            elif mode_db.lower().strip() == "json":
-                if table.strip() in json.showTables(database):
-                    data = table
-                else:
-                    return None
-            return checksum_table(1, database, mode_db, data)
-        elif mode.lower().strip() == "md5":
-            data = ""
-            if mode_db.lower().strip() == "avl":
-                if table.strip() in avl.showTables(database):
-                    data = table
-                else:
-                    return None
-            elif mode_db.lower().strip() == "b":
-                if table.strip() in b.showTables(database):
-                    data = b.extractTable(database, table)
-                else:
-                    return None
-            elif mode_db.lower().strip() == "bPlus".lower():
-                if table.strip() in bPlus.showTables(database):
-                    data = table
-                else:
-                    return None
-            elif mode_db.lower().strip() == "dict":
-                if table.strip() in diccionario.showTables(database):
-                    data = table
-                else:
-                    return None
-            elif mode_db.lower().strip() == "hash":
-                if table.strip() in hash.showTables(database):
-                    data = table
-                else:
-                    return None
-            elif mode_db.lower().strip() == "isam":
-                if table.strip() in isam.showTables(database):
-                    data = table
-                else:
-                    return None
-            elif mode_db.lower().strip() == "json":
-                if table.strip() in json.showTables(database):
-                    data = table
-                else:
-                    return None
-            return checksum_table(2, database, mode_db, data)
+                    data = struct.extractTable(database, table)
+            else:
+                return None
+            return checksum_table(1 if mode.lower().strip() == "sha256" else 2, database, mode_db, data)
         else:
             return None
+
     else:
         return None
 
-#  ------------------------------------------ -> -------------------- <- -----------------------------------------------
+
+# ------------------------------------ --> Methods  Cryptography <-- ----------------------------------------------
+def encrypt(backup: str, password: str):
+    return crypt.encrypt(backup, password)
 
 
-# if mode.lower().strip() == "avl":
-#     pass
-# elif mode.lower().strip() == "b":
-#     pass
-# elif mode.lower().strip() == "bPlus".lower():
-#     pass
-# elif mode.lower().strip() == "dict":
-#     pass
-# elif mode.lower().strip() == "hash":
-#     pass
-# elif mode.lower().strip() == "isam":
-#     pass
-# elif mode.lower().strip() == "json":
-#     pass
+def decrypt(cipherBackup: str, password: str):
+    return crypt.decrypt(cipherBackup, password)
+
+
+# ------------------------------------- --> Methods  BlockChain <-- ----------------------------------------------
+def get_block_chain(table: str):
+    for block in block_list:
+        if table.strip() == block.get_name_table():
+            return block
+    return None
+
+
+# Preguntar el que hizo el drop database si lo elimino de la lista de Mode
+def safeModeOn(database: str, table: str):
+    global flag_block
+    metadata_db, index = get_metadata_db(database)
+    blockchain: BlockChain = get_block_chain(table)
+    if blockchain: return 4
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        if table in struct.showTables(database):
+            new_block = BlockChain(table)
+            block_list.append(new_block)
+            flag_block = not flag_block
+            return 0
+        else:
+            return 3
+    else:
+        return 2
+
+
+def safeModeOff(database: str, table: str):
+    global flag_block
+    blockchain: BlockChain = get_block_chain(table)
+    objet_mode, index = get_metadata_db(database)
+    if blockchain is None: return 4
+    if objet_mode and blockchain:
+        struct = get_struct(objet_mode.get_mode())
+        if table in struct.showTables(database):
+            status = blockchain.delete_json()
+            block_list.remove(blockchain)
+            flag_block = not flag_block
+            return status
+        else:
+            return 3
+
+    else:
+        return 2
+
+#  ----------------------------------------------- -->  <-> <-- -------------------------------------------------------
