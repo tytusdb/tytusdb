@@ -21,12 +21,11 @@ def printSymbolTable(self):
             a += 1
             #index
             n= TCgetIndex(str(Databases[i].name),a)
-            print(n)
+            #print(n)
             if(len(n)>0):
                 nn=0
                 while nn< len(n): 
-                    
-                    x.add_row([a,str(n[nn]['NAME'])+'('+str(n[nn]['COLUMN'])+')',str(n[nn]['TYPE']),'Local'])
+                    x.add_row(n[nn])
                     a+=1
                     nn+=1
 

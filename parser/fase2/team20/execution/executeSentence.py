@@ -169,7 +169,7 @@ def executeSentence(self, sentence):
         elif(result==4):
             print_error("SEMANTIC ERROR","Column "+sentence.ascdesc[0]+" dont exists",2)
         elif(result==5):
-            print_error("SEMANTIC ERROR","Index in column "+sentence.ascdesc[0]+" already exists",2)
+            print_error("SEMANTIC ERROR","Index "+sentence.name+" already exists",2)
         else:
             print_error("SEMANTIC ERROR",'error in the operation',2)
     elif isinstance(sentence, DropIndex):
@@ -194,7 +194,7 @@ def executeSentence(self, sentence):
         result=executeAlterIndex(self,sentence)
         
         if(result==0):
-            print_success("QUERY"," Index "+sentence.oldname+" has been alter",2)
+            print_success("QUERY"," Index "+sentence.index+" has been alter",2)
         elif(result==1):
             print_error("SEMANTIC ERROR","error in the operation",2)
         elif(result==2):
@@ -202,6 +202,10 @@ def executeSentence(self, sentence):
         elif(result==3):
             print_error("SEMANTIC ERROR","Any Index was found",2)
         elif(result==4):
-            print_error("SEMANTIC ERROR","Index "+sentence.oldname+" dont exists",2)
+            print_error("SEMANTIC ERROR","Index "+sentence.index+" dont exists",2)
+        elif(result==5):
+            print_error("SEMANTIC ERROR","Column "+sentence.oldname+" dont exists",2)
+        elif(result==6):
+            print_error("SEMANTIC ERROR","Column "+sentence.newname+" dont exists",2)
         else:
             print_error("SEMANTIC ERROR",'error in the operation',2)

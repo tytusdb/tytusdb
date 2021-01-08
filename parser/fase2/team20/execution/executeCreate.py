@@ -368,19 +368,20 @@ def executeCreateType(self, typeEnum):
 def executeCreateUnique(self,unique):
     database=TCgetDatabase()
     mode=TCSearchDatabase(database)
+    #print(unique.ascdesc)
     ascdesc='ASC'
-    if(len(unique.ascdesc)==2):
-        ascdesc=unique.ascdesc[1]
+    '''if(len(unique.ascdesc)==2):
+        ascdesc=unique.ascdesc[1]'''
     if(mode==1):
-        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower())
+        return TCcreateIndex(database,unique.table,unique.ascdesc,unique.name)
     elif(mode==2):
-        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower()) 
+        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name) 
     elif(mode==3):
-        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower()) 
+        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name) 
     elif(mode==4):
-        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower())
+        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name)
     elif(mode==8):
-        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name,ascdesc.lower())
+        return TCcreateIndex(database,unique.table,unique.ascdesc[0],unique.name)
     else:
         print_error("SEMANTIC ERROR",'Mode between 1-5',2)
         return 1
