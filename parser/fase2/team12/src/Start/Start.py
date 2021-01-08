@@ -380,7 +380,21 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'CREATE_INDEX':
                 textoEntrada += traduccion_index(hijo) 
             elif hijo.nombreNodo == 'CREATE_UNIQUE_INDEX':
-                textoEntrada += traduccion_unique_index(hijo)                                                                                           
+                textoEntrada += traduccion_unique_index(hijo)
+            elif hijo.nombreNodo == 'SENTENCIA_UNION':
+                ne = Union()
+                textoEntrada += ne.getText(hijo)
+            elif hijo.nombreNodo == 'SENTENCIA_UNION_ALL':                
+                ne = UnionAll()
+                textoEntrada += ne.getText(hijo)
+            elif hijo.nombreNodo == 'SENTENCIA_INTERSECT':                
+                ne = Intersect()
+                textoEntrada += ne.getText(hijo)        
+            elif hijo.nombreNodo == 'SENTENCIA_EXCEPT':                
+                ne = Except()
+                textoEntrada += ne.getText(hijo)                     
+
+
 
         return textoEntrada
 

@@ -3,6 +3,12 @@ import sys, os.path
 storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\DML\\Groups')
 sys.path.append(storage)
 
+label_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))+"\\C3D\\")
+sys.path.append(label_dir)
+
+from Label import *
+from Temporal import *
+
 from RespuestaSelect import RespuestaSelect
 
 class Intersect():
@@ -11,6 +17,20 @@ class Intersect():
         self.Resp2 = Resp2
         self.Respuesta = RespuestaSelect()
 
+    def getText(self,nodoRaiz):
+        try:
+            select1 = nodoRaiz.hijos[0].getText()
+            select2 = nodoRaiz.hijos[1].getText()
+            return f'{select1} INTERSECT {select2};'
+        except:
+            return ''   
+
+    def compile(self,nodoRaiz):
+        tmp = instanceTemporal.getTemporal()
+        dir = f"{tmp} = \"{self.getText(nodoRaiz)}\"\n"
+        dir += f'display[p] = {tmp}\n'
+        dir += 'p = p + 1\n'
+        return dir
 
     def execute(self, parent):
         if len(parent.hijos) ==2 :

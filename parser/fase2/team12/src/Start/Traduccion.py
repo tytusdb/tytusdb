@@ -288,3 +288,10 @@ def traduccionCreate_database(nodoRaiz):
     string_ += f'{orr} DATABASE {ifne} {identificador} {opcionales_create};'
     return string_
         
+def traduccion_unions(text, nodoRaiz):
+    try:
+        select1 = nodoRaiz.hijos[0].getText()
+        select2 = nodoRaiz.hijos[1].getText()
+        return f'{select1} {text} {select2};'
+    except:
+        return ''
