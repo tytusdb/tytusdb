@@ -833,7 +833,14 @@ class Relacional(Instruccion):
                     codigo = resultadoIzq.codigo + resultadoDer.codigo
                     codigo = codigo + "\tif (" + resultadoIzq.temporal + ">" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
-                    return nuevo                                        
+                    return nuevo    
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo                                  
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" > "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)
@@ -860,6 +867,13 @@ class Relacional(Instruccion):
                     codigo = codigo + "\tif (" + resultadoIzq.temporal + "<" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" < "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)
@@ -886,6 +900,13 @@ class Relacional(Instruccion):
                     codigo = codigo + "\tif (" + resultadoIzq.temporal + ">=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" >= "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)
@@ -912,6 +933,13 @@ class Relacional(Instruccion):
                     codigo = codigo + "\tif (" + resultadoIzq.temporal + "<=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" <= "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)
@@ -943,6 +971,13 @@ class Relacional(Instruccion):
                     codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" = "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)
@@ -969,6 +1004,13 @@ class Relacional(Instruccion):
                     codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" <> "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)
@@ -989,6 +1031,13 @@ class Relacional(Instruccion):
                     codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" = "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)
@@ -1009,6 +1058,13 @@ class Relacional(Instruccion):
                     codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
                     return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" = "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)
