@@ -4,4 +4,7 @@ class Ins_parse(Instruccion):
         Instruccion.__init__(self, func, params)
     
     def execute(self):
-        return {'fun': Instruccion.func, 'params': self.params, 'ins': self.ins}
+        return {'ins': self.ins, 'params': self.params}
+
+    def toString(self,tab):
+        return '\t'*tab + self.params

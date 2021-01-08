@@ -83,9 +83,14 @@ class Simbolo() :
 class Tabla() :
     
     def __init__(self, simbolos = {}) :
+        print('SE CREO OTRO TABLA')
         self.simbolos = simbolos
+        self.nameDB = ''
 
     def agregar(self, simbolo) :
+        simbolo.id = int(id(simbolo))
+
+        
         self.simbolos[simbolo.id] = simbolo
     
     def obtener(self, id) :
@@ -193,6 +198,7 @@ class Tabla() :
 
     def buscarIDTB(self,nombre): 
         #Buscamos el ambito de la DB
+        print('buscando ',nombre)
         iddb = -1
         for simbolo in self.simbolos.values():  
             
@@ -273,7 +279,7 @@ class Tabla() :
 
         for a in range(cantidad):
             
-            print(a)
+            
 
             for simbolo in self.simbolos.values():
 
@@ -282,5 +288,9 @@ class Tabla() :
                     break
                 
 
-    
+    def existeF(self,name):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == name:
+                return True
+        return False
     

@@ -10,7 +10,6 @@ k_reserved = {
     'IMPORT': 'IMPORT',
     'FROM': 'FROM',
     'GOTO': 'GOTO',
-    'CONTROLLERS': 'CONTROLLERS',
     'WITH_GOTO': 'WITH_GOTO',
     'IF': 'IF',
     'LABEL': 'LABEL',
@@ -57,6 +56,7 @@ tokens = [
     # Assignment Operators
     'EQUALS_EQUALS',
     'EQUALS',
+    'COMMA',
 
     # Types of Contents
     'INT_NUMBER',
@@ -74,12 +74,13 @@ digit = r'[0-9]+'
 letter = r'([_A-Za-z])'
 identifier = r'(' + letter + r'(' + digit + r'|' + letter + r')*)'
 decimal = r'\d+\.\d+'
-char = r'\'[^"\'"]*\''
-string = r'\"[^"\""]*\"'
+char = r'\'[^\']*\''
+string = r'\"[^\"]*\"'
 single_line = r'\#.*\n'
 # Definition of Symbols
 t_DOT = r'\.'
 t_ASTERISK = r'\*'
+t_COMMA = r'\,'
 t_LEFT_PARENTHESIS = r'\('
 t_RIGHT_PARENTHESIS = r'\)'
 t_LESS_THAN = r'\<'
@@ -105,7 +106,6 @@ t_BITWISE_SHIFT_RIGHT = r'\>\>'
 t_LEFT_CORCH = r'\['
 t_RIGHT_CORCH = r'\]'
 t_ARROBA = r'\@'
-
 # Token recognition using patterns
 
 

@@ -14,7 +14,8 @@ class TIPO_DATO(Enum):
 class Funcion():
     'Esta clase representa una funcion dentro de nuestra tabla de funciones'
 
-    def __init__(self, id, tipo, parametros, temporales, instrucciones):
+    def __init__(self, tipo_funcion, id, tipo, parametros, temporales, instrucciones):
+        self.tipo_funcion = tipo_funcion
         self.id = id
         self.tipo = tipo
         self.parametros = parametros
@@ -35,12 +36,16 @@ class TablaDeFunciones():
 
     def obtener(self, id):
         if not id in self.funciones:
-            print('Error: variable ', id, ' no definida.')
+            print('Error: funcion ', id, ' no definida.')
             return None
         return self.funciones[id]
 
     def actualizar(self, funcion):
         if not funcion.id in self.funciones:
-            print('Error: variable ', funcion.id, ' no definida.')
+            print('Error: funcion ', funcion.id, ' no definida.')
         else:
             self.funciones[funcion.id] = funcion
+
+    def eliminar(self, id):
+        if id in self.funciones:
+            del self.funciones[id]

@@ -41,9 +41,15 @@ class Return(Instruccion):
     def traducir(self, tabla, arbol):
         pass
         
-    def traducir(self, typ,temporal,tabla, arbol):
-        print("entro  traduc return")
-        temporal1 = tabla.getTemporal()
-        arbol.addfunciones3d(f"{temporal1} = P+0")
-    
-        arbol.addfunciones3d(f"Pila[{temporal1}] = {temporal}")
+    def traducir(self, typ,value1,tabla, arbol):
+            temporal1o = tabla.getTemporal()   
+            arbol.addfunciones3d(f"{temporal1o} = {value1}")    
+            temporal2 = tabla.getTemporal()   
+
+            arbol.addfunciones3d(f"{temporal2} = P+0") 
+            print(" arbol.addfunciones") 
+
+            
+
+            arbol.addfunciones3d(f"Pila[{temporal2}] = {temporal1o}") 
+                    

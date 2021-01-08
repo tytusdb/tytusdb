@@ -24,18 +24,21 @@ class Index(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         val = self.idTabla.devolverTabla(tabla, arbol)
-        
+        print("El wkkkkkkene vacio")
+
         if(val == 0):
             error = Excepcion("42P01", "Semantico", "La tabla " + str(self.identificador.devolverId(tabla, arbol)) + " no existe", self.linea, self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             print('Error tabla no existe')
             return error
+        print("Eiiiiiiiviene vacio")
 
         tablaIndex = extractTable(arbol.getBaseDatos(), val)
         arbol.setTablaActual(tablaIndex)
         columnas = arbol.devolverColumnasTabla(val)
-        
+        print("El jjjjjjjjene vacio")
+
         data = np.array((tablaIndex))
         res = []
         # vamos a mostrar todos
@@ -47,6 +50,7 @@ class Index(Instruccion):
 
         ## solo me quedaria buscar entre las columnas si existe la columnas 
         print(res)  
+        print("El wheracio")
 
         if self.where:
             print("El where no viene vacio")
@@ -56,7 +60,35 @@ class Index(Instruccion):
         pass
         
     def traducir(self, tabla, arbol):
-        pass
+        tabla.setIndex(self)
+        cadena = ""
+        funcname = ""
+
+
+        self.valtable(self.my_dic)
+
+        h=0
+        val2param=""
+        val1param=""
+        try:
+                print("actuaparam in self.parametros") 
+
+                for param in self.parametros: 
+                        print("actualizaa999mera ",param) 
+
+                        if(h==0):val1param=param
+                        if(h==1):val2param=param
+                    #    self.agregar(self,"",param,cadena)
+
+                        h=h+1 
+                print("actualizaalaprimera ",val1param,val2param) 
+                print("start") 
+
+                self.actualizaalaprimera(val1param,val2param, tabla,arbol)
+
+        except Exception as e:
+            print(e) 
+        
         
 
 '''

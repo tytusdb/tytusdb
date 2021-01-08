@@ -1,8 +1,11 @@
 import os
+import json as Json
 import pickle
 import zlib
 import binascii
+import sys
 from cryptography.fernet import Fernet
+from BlockChain.BlockChain import BlockChain
 
 # 1. UNIFICACION DE INDICES
 from storage.AVLMode import avlMode as avl
@@ -16,6 +19,9 @@ from os import path
 
 structs = [avl, b, bplus, _hash, isam, _dict]
 databases = []
+listBlockChain = []
+uIndex = {}
+isCompressed = False
 
 def dropAll():
     avl.dropAll()
@@ -31,11 +37,11 @@ def addDatabase(name, mode, code, mod):
     database["mode"] = mode
     database["code"] = code
     databases.append(database)
-    # persistence()
+    persistence(databases)
 
 def createDatabase(name, mode = 'avl', code = 'ASCII'):
     try:
-        # chargePersistence()
+        chargePersistence()
         if code == 'UTF8' or code == 'ASCII' or code == 'ISO-8859-1':
             if mode == 'avl':
                 addDatabase(name, mode, code, avl)
@@ -66,30 +72,24 @@ def createDatabase(name, mode = 'avl', code = 'ASCII'):
         return 1
 
 def showDatabases():
-    # return databases
-    # chargePersistence()
+    chargePersistence()
     msg = "BASES DE DATOS\n"
-    dbs = []
+    # dbs = []
     for db in databases:
         if '_' not in db['name']:
             msg += f"\t{db['mode']}: {db['name']}\n"
-    # msg += f"\tAVL: {avl.showDatabases()}\n"
-    # msg += f"\tB: {b.showDatabases()}\n"
-    # msg += f"\tB+: {bplus.showDatabases()}\n"
-    # msg += f"\tHash: {_hash.showDatabases()}\n"
-    # msg += f"\tIsam: {isam.showDatabases()}\n"
-    # msg += f"\tDict: {_dict.showDatabases()}\n"
-    # msg += f"\tJSON: {json.showDatabases()}\n"
     return msg
 
 def alterDatabase(databaseOld, databaseNew):
     for item in structs:
         value = item.alterDatabase(databaseOld, databaseNew)
         if value != 2:
+            if value != 0:
+                return value
             for i in databases:
                 if databaseOld == i["name"]:
                     i["name"] = databaseNew
-                    persistence()
+                    # persistence()
                     return value
     return 2
 
@@ -97,10 +97,12 @@ def dropDatabase(nameDB):
     for item in structs:
         value = item.dropDatabase(nameDB)
         if value != 2:
+            if value != 0:
+                return value
             for i in databases:
                 if nameDB == i["name"]:
                     databases.remove(i)
-                    persistence()
+                    # persistence()
                     return value
     return 2
 
@@ -108,26 +110,35 @@ def createTable(database, table, nCols):
     for item in structs:
         value = item.createTable(database, table, nCols)
         if value != 2:
+            if value != 0:
+                return value
             for i in databases:
                 if database == i["name"]:
-                    t = {"name": table, "nCols": nCols, "tuples": []}
+                    t = {"name": table, "nCols": nCols, "tuples": [], "safeMode": False,
+                        "fk": None, "iu": None, "io": None}
                     i["tables"].append(t)
-                    # persistence()
+                    persistence(databases)
                     return value
     return 2
 
 def showTables(database):
+    chargePersistence()
     tables = []
-    for item in structs:
-        value = item.showTables(database)
+    changueMode(databases)
+    for item in databases:
+        value = item["mod"].showTables(database)
         if value:
             tables.append(value)
             break
     return tables
 
 def extractTable(database, table):
-    for item in structs:
-        value = item.extractTable(database, table)
+    chargePersistence()
+    # if isCompressed:
+    alterDatabaseDecompress(database)
+    changueMode(databases)
+    for item in databases:
+        value = item["mod"].extractTable(database, table)
         if value is not None:
             if value != []:
                 return value
@@ -144,27 +155,59 @@ def alterAddPK(database, table, columns):
     for item in structs:
         value = item.alterAddPK(database, table, columns)
         if value != 2:
-            return value
+            if value != 0:
+                return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            t["pk"] = columns
+                            persistence(databases)
+                            return value
     return 2
 
 def alterDropPK(database, table):
     for item in structs:
         value = item.alterDropPK(database, table)
         if value != 2:
-            return value
+            if value != 0:
+                return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            t["pk"] = []
+                            return value
     return 2
 
 def alterTable(database, old, new):
     for item in structs:
         value = item.alterTable(database, old, new)
         if value != 2:
-            return value
+            if value != 0:
+                return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if old == t["name"]:
+                            t["name"] = new
+                        return value
     return 2
 
 def alterDropColumn(database, table, columnNumber):
     for item in structs:
         value = item.alterDropColumn(database, table, columnNumber)
         if value != 2:
+            if value != 0:
+                return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            for tup in t["tuples"]:
+                                tup["register"].pop(columnNumber)
+            t["nCols"] -= 1
+            persistence(databases)
             return value
     return 2
 
@@ -172,27 +215,60 @@ def alterAddColumn(database, table, default):
     for item in structs:
         value = item.alterAddColumn(database, table, default)
         if value != 2:
+            if value != 0:
+                return value
             return value
+    return 2
+
+def dropTable(database, table):
+    for item in structs:
+        value = item.dropTable(database, table)
+        if value != 2:
+            if value != 0:
+                return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            i["tables"].remove(t)
+                    persistence()
+                    return value
     return 2
 
 def insert(database, table, register):
     for item in structs:
         codificacion = codificationValidation(getCodificationMode(database),register)
         if codificacion == True:
-            value = item.insert(database, table, register) ###AQUI CREO QUE TENGO QUE HACER ESA VALIDACION PAPUA
-            if value != 2:
-                for i in databases:
-                    if database == i["name"]:
-                        for t in i["tables"]:
-                            if table == t["name"]:
-                                tupla = {"register": register} 
-                                t["tuples"].append(tupla)
-                                return value
+            if insertVerifyUnique(database, table, register ):   #verifica si la tabla tiene indices unicos y si el indice unico viene en null
+                value = item.insert(database, table, register)
+                Unique(database,table,register)
+                if value != 2:
+                    if value != 0:
+                        return value
+                    for i in databases:
+                        if database == i["name"]:
+                            for t in i["tables"]:
+                                if table == t["name"]:
+                                    tupla = {"register": register} 
+                                    t["tuples"].append(tupla)
+                                    #START BlockChain
+                                    i = 0
+                                    while i<len(listBlockChain):
+                                        if(listBlockChain[i].getName() == (str(database)+"_"+str(table))):
+                                            listBlockChain[i].addNodeNoSecure(register)
+                                            listBlockChain[i].generateJsonSafeMode()
+                                        i += 1
+                                    #END BlockChain
+                                    persistence(databases)
+                                    return value
+            else:
+                return 1
         else:
             return 1                        
     return 2
 
 def extractRow(database, table, columns):
+    chargePersistence()
     for item in structs:
         value = item.extractRow(database, table, columns)
         if value:
@@ -201,15 +277,97 @@ def extractRow(database, table, columns):
 
 def loadCSV(fileCSV, db, table):
     for item in structs:
-        value = item.loadCSV(fileCSV, db, table)
-        if value != [] and value[0] != 2:
-            # persistence()
-            return value
-    return value
+        # value = item.loadCSV(fileCSV, db, table)
+        import csv
+        try:
+            with open(fileCSV, 'r') as fileCsv:
+                lector = csv.reader(fileCsv, delimiter = ',')
+                listaResultado = []
+                for f in lector:
+                    listaResultado.append(insert(db, table, f))
+                return listaResultado
+                # print("Operación Exitosa")
+        except:
+            raise
+
+def update(database, table, register, columns):
+    for item in structs:
+        value = item.update(database, table, register, columns)
+        # START BlockChain
+        i = 0
+        while i<len(listBlockChain):
+            if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
+                j = 0
+                tuplesBlockChain = listBlockChain[i].getListValues()
+                tuples = extractTable("ventas", "producto")
+                while j < len(tuplesBlockChain):
+                    k = 0
+                    newValue = ""
+                    while k < len(tuples):
+                        if tuples[k] not in tuplesBlockChain:
+                            newValue = tuples[k]
+                        k += 1
+                    if tuplesBlockChain[j] not in tuples:#.getValue()
+                        listBlockChain[i].alterValueNode(newValue, j)
+                        listBlockChain[i].generateJsonSafeMode()
+                    j += 1
+                break    
+            i += 1
+        # END BlockChain
+        if value != 2:
+            if value != 0:
+                return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            for tup in t["tuples"]:
+                                if tup["register"][0] == columns[0]:
+                                    index = 0
+                                    for key in register:
+                                        index = key
+                                    tup["register"][index] = register[index]
+                        persistence(databases)
+                        return value
+    return 2
+
+def delete(database, table, columns):
+    pass
+    # for item in structs:
+    #     value = item.delete(database, table, columns)
+    #     if value != 2:
+    #         for i in databases:
+    #             if database == i["name"]:
+    #                 for t in i["tables"]:
+    #                     if table == t["name"]:
+    #                         for tup in t["tuples"]:
+    #                             index = 0
+    #                             for key in columns:
+    #                                 index = key
+    #                             tup["register"][index] = register[1]
+    #                     return value
+    # return 2
+
+def truncate(database, table):
+    for item in structs:
+        value = item.truncate(database, table)
+        if value != 2:
+            if value != 0:
+                return value
+            for i in databases:
+                if database == i["name"]:
+                    for t in i["tables"]:
+                        if table == t["name"]:
+                            t["tuples"] = []
+                    # persistence()
+                    return value
+    return 2
 
 # 2. ADMINISTRADOR DE MODO DE ALMACENAMIENTO
 def alterDatabaseMode(database, mode):
+    chargePersistence()
     try:
+        changueMode(databases)
         for db in databases:
             if db["name"] == database:
                 dbCopy = db.copy()
@@ -217,31 +375,15 @@ def alterDatabaseMode(database, mode):
                 dbCopy["mod"].dropDatabase(dbCopy["name"])
                 createDatabase(dbCopy["name"], mode, dbCopy["code"])
                 for table in dbCopy["tables"]:
+                    size = len(table["tuples"][0]["register"])
+                    table["nCols"] = size
                     createTable(dbCopy["name"], table["name"], table["nCols"])
                     for reg in table["tuples"]:
                         insert(dbCopy["name"], table["name"], reg["register"])
+                persistence(databases)
                 return 0
     except:
         return 1
-
-# def alterTableMode(database, table, mode):
-#     try:
-#         for db in databases:
-#             if db["name"] == database:
-#                 for t in db["tables"]:
-#                     if table == t["name"]:
-#                         tableCopy = t.copy()
-#                         # db["tables"].remove(t)
-#                         db["mod"].truncate(db["name"], t["name"])
-#                         break
-#                 break
-#         createDatabase(f"{table}_{database}", mode, 'ASCII')
-#         createTable(f"{table}_{database}", table, tableCopy["nCols"])
-#         for reg in tableCopy["tuples"]:
-#             insert(f"{table}_{database}", table, reg["register"])
-#         return 0
-#     except:
-#         return 1
 
 # 3. ADMINISTRACION DE INDICES
 def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
@@ -250,7 +392,110 @@ def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
 def alterTableDropFK(database, table, indexName):
     pass
 
+
+def insertVerifyUnique(database, table,tupla ):
+    try:
+        tabla = uIndex[database]
+        indices = tabla[table]
+        indiceTbl = table+indices[0]
+        listaIndices = indices[1]
+        uniqueIndices = [tupla[x] for x in listaIndices]
+        if None in uniqueIndices:
+            return False
+        else:
+            for estructura in structs: 
+                    value = estructura.extractRow(database,indiceTbl,uniqueIndices)
+                    if value[0] == uniqueIndices[0]:
+                        return False
+                    else:    
+                        return True
+            
+    except: 
+        return True
+
+def Unique(database, table,  tupla):
+    try:
+        tabla = uIndex[database]
+        indices = tabla[table]
+        indiceTbl = table+indices[0]
+        listaIndices = indices[1]
+        uniqueIndices = [tupla[x] for x in listaIndices]
+        if None in uniqueIndices:
+            return True
+        else:
+            for estructura in structs: 
+                    value = estructura.insert(database,indiceTbl,uniqueIndices)
+                    if value != 2 or value != 3 or value!= 4 :
+                        return False
+                    else:    
+                        return True
+            
+    except: 
+        return True
+
+
+def alterTableaddUnique(database , table,  indexName, colums): 
+    tabla = {}
+    for item in structs: 
+        tuplas = item.extractTable(database,table)
+        if tuplas :
+            if database in list(uIndex.keys()):
+                tabla_dic = uIndex[database]
+                if table in list(tabla_dic.keys()):
+                    indice = (indexName, colums)
+                    tabla_dic[table] = indice
+                    uIndex[database] = tabla_dic
+                else:
+                    indice = (indexName , colums)
+                    tabla_dic[table] = indice
+                    uIndex[database] = tabla_dic
+            else:
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+            if item.createTable(database, table+indexName , len(colums)) != 3 and item.alterAddPK(database, table+indexName, colums)!= 4:
+                for i in tuplas: 
+                    unicos = [i[x] for x in colums]
+                    if None in unicos:
+                        return 2
+                    else:
+                        value = item.insert(database, table+indexName, unicos)
+                        if value == 2:
+                            return 2 
+                    
+            else: 
+                return 2
+
+
 # 4. ADMINISTRACION DE LA CODIFICACION
+def alterDatabaseEncoding(database,encoding):
+    chargePersistence()
+    if encoding =="ASCII" or encoding =="ISO-8859-1" or encoding =="UTF8":
+        pass
+    else:
+        return 3
+    try:
+        i=0
+        for db in databases:
+            if db["name"] == database:
+                for table in db["tables"]:
+                    for tupla in table["tuples"]:
+                        for register in tupla["register"]:
+                            if isinstance(register, str) : 
+                                codificacion = codificationValidation(encoding,register)    
+                                if codificacion == True:
+                                    pass
+                                else:
+                                    return 1     
+                break                          
+            i+=1   
+        if i==len(databases):
+            return 2
+        else:
+            return 0    
+    except:
+        return 1
+
 def codificationValidation(codification,stringlist): ##Cristian
     if codification=="ASCII":
         try:
@@ -285,18 +530,126 @@ def codificationValidation(codification,stringlist): ##Cristian
             return False
     else:
         return 3 ##Nombre de codificacion no existente
-        
+
+def getCodificationMode(database):
+    for i in databases:
+        if database == i["name"]:
+            if i["code"] == "ASCII":
+                return "ASCII"
+            elif i["code"] == "ISO-8859-1":
+                return "ISO-8859-1"       
+            elif i["code"] == "UTF8":
+                return "UTF8"       
+    return 2
+
 # 6. COMPRESION DE DATOS
 def alterDatabaseCompress(database, level):
-    for db in databases:
-        if db["name"] == database:
-            for table in db["tables"]:
-                for tupla in table["tuples"]:
-                    for register in tupla["register"]:
-                        if type(register) == str:
-                            text = bytes(register, 'utf-8')
-                            zlib.compress(text, level)
-    return 0
+    if level not in range(-1, 10):
+        return 4
+    try:
+        for db in databases:
+            if db["name"] == database:
+                for table in db["tables"]:
+                    changueMode(databases)
+                    tableCopy = table.copy()
+                    table["tuples"] = []
+                    db["mod"].truncate(db["name"], table["name"])
+                    for tupla in tableCopy["tuples"]:
+                        newRegister = []
+                        for register in tupla["register"]:
+                            if type(register) == str:
+                                text = bytes(register, db["code"])
+                                register = zlib.compress(text, level)
+                            newRegister.append(register)
+                        insert(db['name'], table["name"], newRegister)
+                    global isCompressed
+                    isCompressed = True
+        return 0
+    except:
+        return 1
+
+def alterDatabaseDecompress(database):
+    try:
+        chargePersistence()
+        for db in databases:
+            if db["name"] == database:
+                for table in db["tables"]:
+                    changueMode(databases)
+                    tableCopy = table.copy()
+                    table["tuples"] = []
+                    db["mod"].truncate(db["name"], table["name"])
+                    for tupla in tableCopy["tuples"]:
+                        newRegister = []
+                        for register in tupla["register"]:
+                            if type(register) == bytes:
+                                text = zlib.decompress(register)
+                                register = text.decode(db["code"])
+                                isCompressed = True
+                            newRegister.append(register)
+                        insert(db['name'], table["name"], newRegister)
+                return 0
+        if not isCompressed:
+            return 3
+    except:
+        return 1
+
+def alterTableCompress(database, table, level):
+    if level not in range(-1, 9):
+        return 4
+    try:
+        for db in databases:
+            if db["name"] == database:
+                for t in db["tables"]:
+                    changueMode(databases)
+                    if t["name"] == table:
+                        tableCopy = t.copy()
+                        t["tuples"] = []
+                        db["mod"].truncate(db["name"], t["name"])
+                        for tupla in tableCopy["tuples"]:
+                            newRegister = []
+                            for register in tupla["register"]:
+                                if type(register) == str:
+                                    text = bytes(register, db["code"])
+                                    register = zlib.compress(text, level)
+                                newRegister.append(register)
+                            insert(db['name'], t["name"], newRegister)
+                            isCompressed = True
+                        return 0
+                else:
+                    return 3
+            else:
+                return 2
+    except:
+        return 1
+
+def alterTableDecompress(database, table, level):
+    try:
+        isCompressed = False
+        for db in databases:
+            if db["name"] == database:
+                for table in db["tables"]:
+                    if table["name"] ==  table:
+                        tableCopy = table.copy()
+                        table["tuples"] = []
+                        db["mod"].truncate(db["name"], table["name"])
+                        for tupla in tableCopy["tuples"]:
+                            newRegister = []
+                            for register in tupla["register"]:
+                                if type(register) == bytes:
+                                    text = zlib.decompress(register)
+                                    register = text.decode(db["code"])
+                                    isCompressed = True
+                                newRegister.append(register)
+                            insert(db['name'], table["name"], newRegister)
+                    else:
+                        return 3
+            else:
+                return 2
+        if not isCompressed:
+            return 3
+        return 0
+    except:
+        return 1
 
 # 7. SEGURIDAD
 """
@@ -323,34 +676,137 @@ def encrypt(backup, password):
 def decrypt(cipherBackup, password):
     return Fernet(password).decrypt(cipherBackup.encode()).decode()
 
-# def persistence():
-#     try:
-#         if path.exists("DB"):
-#             os.remove("DB")
-#         archivo = open("DB" , "wb")
-#         pickle.dump(databases, archivo)
-#         archivo.close()
-#     except: 
-#         pass
+#generar el grafo reporte del block chain
+def generateGraphBlockChain(database, table):
+    i = 0
+    fileName = str(database)+"_"+str(table)+"BC"
+    while i < len(listBlockChain):
+        if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
+            data = listBlockChain[i].generateGraph()
+            with open(fileName+".dot", "w") as file:
+                file.write(data)
+            os.system("dot -Tpng "+fileName+".dot"+" -o "+fileName+".png")
+            break
+            
+        else:
+            print("No se encontro el Block Chain de la tabla indicada")
+        i += 1  
+    ### WORK BLOCKCHAIN ###
+"""
+    @description 
+        Activa el modo seguro para una tabla de una base de datos
+    @param
+        database: Nombre de la base de datos a utilizar
+        table: Nombre de la tabla a utilizar
+    @return 
+        0: Operación exitosa
+        1: Error en la operación
+        2: database inexistente
+        3: table inexistente
+        4: Modo seguro inexistente
+"""
+def safeModeOn(database, table):
+    try:
+        for db in databases:
+            #verifica si la base de datos existe
+            if db.get("name") == database:
+                for tb in db.get("tables"):
+                    #verifica si la tabla existe
+                    if tb.get("name") == table:
+                        #verifica si el modo seguro esta activado
+                        if tb.get("safeMode"):
+                            #Modo seguro existente
+                            return 4
+                        tb["safeMode"] = True
+                        #_________________________________________________________
+                        bc = BlockChain(str(database)+"_"+str(table))
+                        for tp in tb.get("tuples"):
+                            bc.addNode(tp.get("register"))
+                        bc.generateJsonSafeMode()
+                        listBlockChain.append(bc)
+                        #_________________________________________________________
+                #tabel inexistente
+                return 3
+        #database inexistente
+        return 2
+    except:
+        #Error en la operación
+        return 1
 
-# def chargePersistence():
-#     n = databases
-#     if path.isfile("DB") and len(n) == 0 and path.getsize("DB") > 0:
-#         archivo = open("DB" , "rb")
-#         data = pickle.load(archivo)
-#         for i in data: 
-#             databases.append(i)
-#         archivo.close()
-#         print("bases de datos cargadas")
-© 2021 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
+"""
+    @description
+        Desactiva el modo en la tabla especificada de la base de datos
+    @param
+        database: Nombre de la base de datos a utilizar
+        table: Nombre de la tabla a utilizar
+    @return 
+        0: Operación exitosa
+        1: Error en la operación
+        2: database inexistente
+        3: table inexistente
+        4: modo seguro no inexistente
+"""
+def safeModeOff(database, table):
+    try:
+        for db in databases:
+            #verifica si la base de datos existe
+            if db.get("name") == database:
+                for tb in db.get("tables"):
+                    #verifica si la tabla existe
+                    if tb.get("name") == table:
+                        #verifica si el modo seguro esta activado
+                        if tb.get("safeMode"):
+                            tb["safeMode"] = False
+                            os.remove('BlockChain\\'+str(database)+'_'+str(table)+'.json')
+                            return 0
+                        #Modo seguro no existente
+                        return 4
+                #tabel inexistente
+                return 3
+        #database inexistente
+        return 2
+    except:
+        #Error en la operación
+        return 1
+
+# PERSISTENCIA DE DATOS
+def persistence(databases):
+    try:
+        if path.exists("DB"):
+            os.remove("DB")
+        archivo = open("DB", "wb")
+        for db in databases:
+            db["mod"] = db["mode"]
+        pickle.dump(databases, archivo)
+        archivo.close()
+        del(archivo)
+    except: 
+        pass
+
+def chargePersistence():
+    n = databases
+    if path.isfile("DB") and len(n) == 0 and path.getsize("DB") > 0:
+        archivo = open("DB" , "rb")
+        data = pickle.load(archivo)
+        changueMode(data, True)
+        archivo.close()
+        # print("bases de datos cargadas")
+
+def changueMode(database, isPersistence = False):
+    for i in database:
+        if i["mod"] == 'avl':
+            i["mod"] = avl
+        elif i["mod"] == 'b':
+            i["mod"] = b
+        elif i["mod"] == 'bplus':
+            i["mod"] = bplus
+        elif i["mod"] == 'hash':
+            i["mod"] = _hash
+        elif i["mod"] == 'isam':
+            i["mod"] = isam
+        elif i["mod"] == 'dict':
+            i["mod"] = _dict
+        elif i["mod"] == 'json':
+            i["mod"] = json
+        if isPersistence:
+            databases.append(i)

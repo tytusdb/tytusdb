@@ -44,12 +44,10 @@ ___
 * Especificos
 
     * Diseñar una interfaz amigable para el usuario.
-
     * Construir el árbol de sintaxis abstracta para verificar el funcionamiento del parser.
-
     * Realizar validaciones semánticas de manera adecuada.
-
     * Almacenar de manera correcta los datos proporcionados para obtener las consultas que se realicen.
+    * Implementar código tres direcciones.
 
 ---
 
@@ -207,6 +205,262 @@ El uso de clases para cada tipo de instrucción facilitó el envió a ejecución
 De manera similar se envió cada instrucción a ejecución, dentro de cada clase se encuentra el método ejecutar o resolver según sea el caso.
 
 ---
+## Fase 2
+
+Se agrego en la gramática ascendente el manejo de índices como el lenguaje procedural (PL/pgSQL). De igual manera como en la fase 1 se manejó el mismo patrón, de crear cada clase para cada tipo de instrucción.
+
+```python
+class Index(Instruccion):
+    def __init__(self, caso, id1, id2, listaId, concatena,fila, columna):
+        self.caso = caso
+        self.id1 = id1
+        self.id2 = id2
+        self.listaId = listaId
+        self.concatena = concatena
+        self.fila = fila
+        self.columna = columna
+    
+```
+
+```python
+def p_createIndex1(t):
+    'instruccion : CREATE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA'
+    global columna
+    global concatena_index
+    t[0] = Index(1, t[3], t[5], t[7],concatena_index ,lexer.lineno, columna)
+    concatena_index.append(f"CREATE UNIQUE INDEX {t[3]} ON {t[5]}  (")
+    print("salida index")
+    print(t[8])
+    i = 1
+    for data in t[7]:
+        if i == len(t[7]):
+            concatena_index.append(data.id)
+        else:
+            concatena_index.append(f"{data.id},")
+        i = i + 1
+    concatena_index.append(f")")
+
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(1, ID, ID, listaID)')
+```
+
+```python
+class Function(Instruccion):
+    def __init__(self, caso, replace, id, parametros, tipo, E, declareInst, beginInst, linea, columna):
+        self.caso = caso
+        self.replace = replace
+        self.id = id
+        self.parametros = parametros
+        self.tipo = tipo
+        self.E = E
+        self.declareInst = declareInst
+        self.beginInst = beginInst
+        self.linea = linea
+        self.columna = columna
+```
+
+```python
+def p_createfunction1(t):
+    '''instruccion : CREATE orreplace FUNCTION ID PARIZQ parametros PARDR RETURNS tipo AS E \
+    DECLARE \
+        instrucciones \
+    BEGIN \
+        instrucciones \
+    END PTCOMA'''
+    global columna
+    t[0] = Function(1, t[2], t[4], t[6], t[9], t[11], t[13], t[15], lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE orreplace FUNCTION ID PARIZQ parametros PARDR RETURNS tipo AS E DECLARE instrucciones BEGIN instrucciones END PTCOMA')
+    varSemantico.append('asignacionvariable = Function(1, orreplace, ID, parametros, tipo, E, instrucciones, instrucciones)')
+    concatena_funciones_procedimientos.append(Function(1, t[2], t[4], t[6], t[9], t[11], t[13], t[15], lexer.lineno, columna))
+```
+
+```python
+class Procedure(Instruccion):
+    def __init__(self, caso, replace, id, parametros, languageE, asE, inst, id2, declareInst, beginInst, linea, columna):
+        self.caso = caso
+        self.replace = replace
+        self.id = id
+        self.parametros = parametros
+        self.languageE = languageE
+        self.asE = asE
+        self.inst = inst
+        self.id2 = id2
+        self.declareInst = declareInst
+        self.beginInst = beginInst
+        self.linea = linea
+        self.columna = columna
+```
+
+```python
+def p_createProcedure1(t):
+    ''' instruccion : CREATE orreplace PROCEDURE ID PARIZQ parametros PARDR \
+    LANGUAGE E \
+    AS E \
+        instrucciones \
+    ID PTCOMA
+    '''
+    global columna
+    t[0] = Procedure(1, t[2], t[4], t[6], t[9], t[11], t[12], t[13], None, None, lexer.lineno, columna)
+    concatena_funciones_procedimientos.append(t[0])
+    varGramatical.append('instruccion ::= CREATE orreplace PROCEDURE ID PARIZQ parametros PARDR LANGUAGE E AS E instrucciones ID PTCOMA')
+    varSemantico.append('instruccion = Procedure(1, orreplace, ID, parametros, E, E, instrucciones, ID, None, None)')
+```
+
+```python
+def p_callProcedure1(t):
+    '''instruccion : CALL ID PARIZQ listaExpresiones PARDR PTCOMA'''
+    global columna
+    t[0] = Call(1, t[2], t[4], lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CALL ID PARIZQ listaExpresiones PARDR PTCOMA')
+    varSemantico.append('instruccion = Call(1, ID, listaExpresiones)')
+```
+
+```python
+def p_LoopSimple(t):
+    '''instruccion : LOOP \
+    instrucciones \
+    END LOOP PTCOMA '''
+    global columna
+    t[0] = Loop(t[2], lexer.lineno, columna)
+
+def p_whileLoop(t):
+    '''instruccion : WHILE opcionNot E LOOP \
+    instrucciones \
+    END LOOP PTCOMA'''
+    global columna
+    t[0] = While(t[2], t[3], t[5], lexer.lineno, columna)
+```
+
+## Código tres direcciones
+
+Esta solo puede referenciar a solo tres direcciones de memoria al mismo tiempo, tiene como función en este proyecto el desanidar funciones a un nivel diferente de abstracción.  La manera en la que se implemento, fue que en las clases de cada instrucción existiera la función traducir la cual iba desanidando la instrucción de tal manera que el resultado fuera en tres direcciones.
+
+
+
+```python
+class Procedure(Instruccion):
+    '''en replace sube True o False
+    parametros puede ser None'''
+    def __init__(self, caso, replace, id, parametros, languageE, asE, inst, id2, declareInst, beginInst, linea, columna):
+        self.caso = caso
+        self.replace = replace
+        self.id = id
+        self.parametros = parametros
+        self.languageE = languageE
+        self.asE = asE
+        self.inst = inst
+        self.id2 = id2
+        self.declareInst = declareInst
+        self.beginInst = beginInst
+        self.linea = linea
+        self.columna = columna
+
+    def traducir(proc, ts, consola, exceptions, tv, concatena):
+        consola.append("\n@with_goto  # Decorador necesario.\n")
+        consola.append(f"def {proc.id}(")
+        params = ""
+        if proc.parametros != None and len(proc.parametros) != 0:
+            if len(proc.parametros) == 1:
+                if proc.parametros[0] != None:
+                    for param in proc.parametros:
+                        params += param.id
+            else:
+                print(proc.parametros)
+                i = 0
+                for param in proc.parametros:
+                    params += param.id
+                    if i + 1 != len(proc.parametros):
+                        params += ', '
+                    i = i + 1
+
+        consola.append(f"{params}):\n")
+        if proc.inst != None:
+            tr.traduccion(proc.inst, ts, consola, consola, exceptions, concatena, tv)
+
+        if proc.declareInst != None:
+            consola.append("\tlabel .declare\n")
+            tr.traduccion(proc.declareInst, ts, consola, consola, exceptions, concatena, tv)
+        if proc.beginInst != None:
+            consola.append("\tlabel .begin\n")
+            tr.traduccion(proc.beginInst, ts, consola, consola, exceptions, concatena, tv)
+```
+
+## Optimización
+
+Su finalidad es producir un código objeto lo mas eficiente posible optimizando el tiempo de ejecución como también el espacio de memoria utilizado.
+
+La optimización que se utilizo fue la de mirilla esta trata de estructurar de manera mas eficiente el flujo del programa, sobre todo en instrucciones de bifurcación como son las decisiones, ciclos y saltos de rutinas. 
+
+Este se implemento en el mismo método traducir.
+
+```python
+class CaseF2(Instruccion):
+    def __init__(self, E, listaWhen, elseCase, fila, columna):
+        self.E = E
+        self.listaWhen = listaWhen
+        self.elseCase = elseCase
+        self.fila = fila
+        self.columna = columna
+
+
+    def traducir(cs, ts, consola, metodos_funciones, exception, tv, concatena, regla, antes, optimizado):
+        if cs.elseCase == None:
+            condicion = Expresion.traducir(cs.E, ts, consola, exception, tv, regla, antes, optimizado, None)
+            salida = tv.Et()
+            i = 0
+            if cs.listaWhen != None and len(cs.listaWhen) != 0:
+                for c in cs.listaWhen:
+                    cond2 = Expresion.traducir(c.E, ts, consola, exception, tv, regla, antes, optimizado, None)
+                    tempCond = tv.Temp()
+                    consola.append(f'\t{tempCond} = {condicion} == {cond2}\n')
+                    siguiente = salida
+                    if len(cs.listaWhen) != i + 1:
+                        siguiente = tv.Et()
+                    consola.append(f'\tif not {tempCond}:\n\t\tgoto .{siguiente}\n')
+                    if c.instrucciones != None:
+                        tr.traduccion(c.instrucciones, ts, consola, metodos_funciones, exception, concatena, tv)
+                    #consola.append(f'\tgoto .{salida}\n') equivalente a break no es necesario
+                    consola.append(f'\tlabel .{siguiente}\n')
+
+                    i = i + 1
+
+                    regla.append('3')
+                    et = siguiente[1:]
+                    print(et)
+                    et = int(et)
+                    antes.append(f'if {tempCond}:<br> &nbsp goto .{siguiente}<br>else:<br> &nbsp goto .L{et + 1}<br>label .{siguiente}<br>#instrucciones<br>label .L{et + 1}')
+                    optimizado.append(f'if not {tempCond}:<br> &nbsp goto .{siguiente}<br>#instrucciones<br>label .{siguiente}')
+
+        else:
+            condicion = Expresion.traducir(cs.E, ts, consola, exception, tv, regla, antes, optimizado, None)
+            salida = tv.Et()
+            if cs.listaWhen != None and len(cs.listaWhen) != 0:
+                for c in cs.listaWhen:
+                    cond2 = Expresion.traducir(c.E, ts, consola, exception, tv, regla, antes, optimizado, None)
+                    tempCond = tv.Temp()
+                    consola.append(f'\t{tempCond} = {condicion} == {cond2}\n')
+                    siguiente = tv.Et()
+                    consola.append(f'\tif not {tempCond}:\n\t\tgoto .{siguiente}\n')
+                    if c.instrucciones != None:
+                        tr.traduccion(c.instrucciones, ts, consola, metodos_funciones, exception, concatena, tv)
+                    consola.append(f'\tgoto .{salida}\n') #equivalente a break, por el else lo dejare
+                    consola.append(f'\tlabel .{siguiente}\n')
+
+                    # reporte optimizacion
+                    regla.append('3')
+                    et = siguiente[1:]
+                    print(et)
+                    et = int(et)
+                    antes.append(f'if {tempCond}:<br> &nbsp goto .{siguiente}<br>else:<br> &nbsp goto .L{et + 1}<br>label .{siguiente}<br>#instrucciones<br>label .L{et + 1}')
+                    optimizado.append(f'if not {tempCond}:<br> &nbsp goto .{siguiente}<br>#instrucciones<br>label .{siguiente}')
+
+
+
+
+            tr.traduccion(cs.elseCase, ts, consola, metodos_funciones, exception, concatena, tv)
+            consola.append(f'\tlabel .{salida}\n')
+```
+
 ## Bibliografía
 
 * [Instalación PLY](https://pypi.org/project/ply/)

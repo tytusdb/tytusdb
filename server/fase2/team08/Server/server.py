@@ -19,6 +19,7 @@ import Utils.Lista as l
 import jsonMode as storage
 import Instrucciones.DML.select as select
 from Error import *
+datos = l.Lista({}, '')
 # Setting server port
 PORT = 8000
 
@@ -42,9 +43,44 @@ class MyRequestHandler(BaseHTTPRequestHandler):
             self.do_Check()
         elif self.path == "/createUser":
             self.do_createUser()
+        elif self.path == "/dataquery":
+            self.do_dataquery()
         else:
             self.send_response(400) 
             self.wfile.write(bytes("",'utf-8'))
+
+    def do_dataquery(self):
+         global datos
+         dataSize = int(self.headers['Content-Length'])
+         reqBody = self.rfile.read(dataSize)
+         reqData = json.loads(reqBody.decode("utf-8"))
+         texto = reqData["texto"]
+         instrucciones=g.parse(texto)
+         textoenviado=""
+         for instr in instrucciones['ast'] :
+    
+            if instr != None:
+                result = instr.execute(datos)
+                if isinstance(result, Error):
+                    print(str(result.desc))#imprimir en consola
+                    textoenviado=textoenviado+str(result.desc)
+                    '''self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(bytes("enviado", 'utf-8'))'''
+                    
+                    #erroresSemanticos.append(result)
+                elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
+                    textoenviado = textoenviado + str(instr.ImprimirTabla(result))  + "\n"#imprimir en consola
+                else:
+                    textoenviado = textoenviado + str(result) + "\n"#imprimir en consola
+         respuesta = { "consola": textoenviado }
+         myJsonResponse = json.dumps(respuesta)
+         self.send_response(200)
+         self.send_header('Content-type', 'application/json')
+         self.end_headers()
+         self.wfile.write(bytes(myJsonResponse,'utf-8'))
+
 
     def do_createUser(self):
         try:

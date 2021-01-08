@@ -6,6 +6,7 @@ from team29.ui.Pantalla_TS import *
 from team29.ui.Pantalla_AST import *
 from team29.ui.Pantalla_Error import *
 import tkinter.messagebox
+import math
 from team29.analizer import interpreter
 from goto import with_goto
 
@@ -174,5 +175,9 @@ def analize(entrada):
             i += 1
     text_Consola.insert(INSERT, "\n")
     tabControl.pack()
-
+    retorno = querys
+    for ret in retorno:
+        for i in range(0, len(ret)):
+            if i == len(ret) - 1:
+                return len(ret[i])
 

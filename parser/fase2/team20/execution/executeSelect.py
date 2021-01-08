@@ -65,7 +65,7 @@ def executeSelect(self,select):
                             if(type(fieldnames) is not str): x.field_names = fieldnames
                             else: 
                                 print_error("SEMANTIC ERROR",str(tb.value) + ' table does not exist')
-                                self.errors.append(Error('Semantic',str(tb.value) + ' table does not exist',0,0))
+                                #self.errors.append(Error('Semantic',str(tb.value) + ' table does not exist',0,0))
                                 continue
                             for row in res:
                                 x.add_row(row)
@@ -90,13 +90,13 @@ def executeSelect(self,select):
                                     except:
                                         bad = True
                                         print_error("SEMANTIC ERROR",'The ' + str(column) + ' field does not belong to the ' + str(tb.value) + ' table')
-                                        self.errors.append(Error('Semantic','The ' + str(column) + ' field does not belong to the ' + str(tb.value) + ' table',0,0))
+                                        #self.errors.append(Error('Semantic','The ' + str(column) + ' field does not belong to the ' + str(tb.value) + ' table',0,0))
                                         break
                                 if(bad): continue
                                 x.field_names = columns
                             else:
                                 print_error("SEMANTIC ERROR",'Table ' + str(tb.value) + ' does not exist')
-                                self.errors.append(Error('Semantic','Table ' + str(tb.value) + ' does not exist',0,0))
+                                #self.errors.append(Error('Semantic','Table ' + str(tb.value) + ' does not exist',0,0))
                                 continue
 
                             for row in res:
@@ -120,7 +120,7 @@ def executeSelect(self,select):
                             rawdata = []
                             if(type(fieldnames) is str):
                                 print_error("SEMANTIC ERROR",'Table ' + str(tb.value) + ' does not exist')
-                                self.errors.append(Error('Semantic','Table ' + str(tb.value) + ' does not exist',0,0))
+                                #self.errors.append(Error('Semantic','Table ' + str(tb.value) + ' does not exist',0,0))
                                 continue
                             for row in res:
                                 rawdata.append(row)
