@@ -31,20 +31,20 @@ class AVLTree:
         balance = self.getBalance(root)
 
         # Caso 1 - LL
-        if balance > 1 and key < root.left.val:
+        if balance > 1 and key.upper() < root.left.val.upper():
             return self.rightRotate(root)
 
         # Caso 2 - RR
-        if balance < -1 and key > root.right.val:
+        if balance < -1 and key.upper() > root.right.val.upper():
             return self.leftRotate(root)
 
         # Caso 3 - LR
-        if balance > 1 and key > root.left.val:
+        if balance > 1 and key.upper() > root.left.val.upper():
             root.left = self.leftRotate(root.left)
             return self.rightRotate(root)
 
         # Caso 4 - RL
-        if balance < -1 and key < root.right.val:
+        if balance < -1 and key.upper() < root.right.val.upper():
             root.right = self.rightRotate(root.right)
             return self.leftRotate(root)
 

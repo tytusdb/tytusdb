@@ -440,6 +440,13 @@ def extractTable(database: str, table: str) -> list:
                     res = json.extractTable(database, table)
                 elif tab[1] == 'hash':
                     res = hash.extractTable(database, table)
+                if len(res) and tab[4]!=-2:
+                    import zlib
+                    for tupla in res:
+                        for x in tupla:
+                            if type(x) == str:
+                                index = tupla.index(x)
+                                tupla[index] = zlib.decompress(bytes.fromhex(x)).decode()
                 return res
         return None
     except:
@@ -451,22 +458,31 @@ def extractRangeTable(database: str, table: str, columnNumber: int,
     try:
         data = Serializable.Read('./Data/',"Data")
         db = data.get(database)
+        dataTable = Serializable.Read('./Data/',"DataTables")
+        tab = dataTable.get(database+"_"+table)
         if db:
             res = None
-            if 'avl' in db[1] and res == None:
+            if tab[1] == 'avl':
                 res = avl.extractRangeTable(database, table, columnNumber, lower, upper)
-            if 'b' in db[1] and res == None:
+            elif tab[1] == 'b':
                 res = b.extractRangeTable(database, table, columnNumber, lower, upper)
-            if 'bplus' in db[1] and res == None:
+            elif tab[1] == 'bplus':
                 res = bplus.extractRangeTable(database, table, columnNumber, lower, upper)
-            if 'dict' in db[1] and res == None:
+            elif tab[1] == 'dict':
                 res = dict.extractRangeTable(database, table, columnNumber, lower, upper)
-            if 'isam' in db[1] and res == None:
+            elif tab[1] == 'isam':
                 res = isam.extractRangeTable(database, table, columnNumber, lower, upper)
-            if 'json' in db[1] and res == None:
+            elif tab[1] == 'json':
                 res = json.extractRangeTable(database, table, lower, upper)
-            if 'hash' in db[1] and res == None:
+            elif tab[1] == 'hash':
                 res = hash.extractRangeTable(database, table, columnNumber, lower, upper)
+            if len(res) and tab[4]!=-2:
+                    import zlib
+                    for tupla in res:
+                        for x in tupla:
+                            if type(x) == str:
+                                index = tupla.index(x)
+                                tupla[index] = zlib.decompress(bytes.fromhex(x)).decode()
             return res
         else:
             return 2
@@ -610,6 +626,8 @@ def registerRefTAbles(database, tableref, register, mode):
         res = json.insert(database, tableref, register)
     elif mode == 'hash':
         res = hash.insert(database, tableref, register)
+    if res:
+        return 1
     return res
 
 def dropRefTAbles(database, tableref, mode, index):
@@ -627,6 +645,8 @@ def dropRefTAbles(database, tableref, mode, index):
         res = json.delete(database, tableref,[index])
     elif mode == 'hash':
         res = hash.delete(database, tableref,[index])
+    if res:
+        return 1
     return res
 
 def alterTableDropFK(database: str, table: str, indexName: str) -> int:
@@ -1034,6 +1054,7 @@ def insert(database: str, table: str, register: list) -> int:
         tab = dataTable.get(database+"_"+table)
         if db:
             if tab:
+                register2 = register[:]
                 for x in register:
                     if type(x)==str:
                         x.encode(db[2], "strict")
@@ -1057,7 +1078,7 @@ def insert(database: str, table: str, register: list) -> int:
                     res = hash.insert(database, table, register)
                 if not res:
                     if os.path.isfile("./Data/security/"+database+"_"+table+".json"):
-                        block.blockchain().insert(register, database, table)
+                        block.blockchain().insert(register2, database, table)
                 return res
             return 3
         else:
@@ -1131,7 +1152,12 @@ def extractRow(database: str, table: str, columns: list) -> list:
         tab = dataTable.get(database+"_"+table)
         if db:
             if tab:
-                
+                if tab[4] != -2:
+                    import zlib
+                    for x in columns:
+                        if type(x) == str:
+                            index = columns.index(x)
+                            columns[index] = zlib.compress(x.encode(), tab[4]).hex()
                 if tab[1] == 'avl':
                     res = avl.extractRow(database, table, columns)
                 elif tab[1] == 'b':
@@ -1146,6 +1172,12 @@ def extractRow(database: str, table: str, columns: list) -> list:
                     res = json.extractRow(database, table, columns)
                 elif tab[1] == 'hash':
                     res = hash.extractRow(database, table, columns)
+                if len(res) and tab[4]!=-2:
+                    import zlib
+                    for x in res:
+                        if type(x) == str:
+                            index = res.index(x)
+                            res[index] = zlib.decompress(bytes.fromhex(x)).decode()
                 return res
             return 3
         else:
@@ -1162,35 +1194,36 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
         tab = dataTable.get(database+"_"+table)
         if db:
             if tab:
+                register2 = {}
+                register2.update(register)
+                row = extractRow(database, table, columns)
                 for x in list(register.values()):
                     if type(x)==str:
                         x.encode(db[2], "strict")
+                if tab[4] != -2:
+                    import zlib
+                    for x in register.keys():
+                        if type(register[x]) == str:
+                            register[x] = zlib.compress(register[x].encode(), tab[4]).hex()
                 if tab[1] == 'avl':
-                    row = avl.extractRow(database, table, columns)
                     res = avl.update(database, table, register, columns)
                 elif tab[1] == 'b':
-                    row = b.extractRow(database, table, columns)
                     res = b.update(database, table, register, columns)
                 elif tab[1] == 'bplus':
-                    row = bplus.extractRow(database, table, columns)
                     res = bplus.update(database, table, register, columns)
                 elif tab[1] == 'dict':
-                    row = dict.extractRow(database, table, columns)
                     res = dict.update(database, table, register, columns)
                 elif tab[1] == 'isam':
-                    row = isam.extractRow(database, table, columns)
                     res = isam.update(database, table, register, columns)
                 elif tab[1] == 'json':
-                    row = json.extractRow(database, table, columns)
                     res = json.update(database, table, register, columns)
                 elif tab[1] == 'hash':
-                    row = hash.extractRow(database, table, columns)
                     res = hash.update(database, table, register, columns)
                 if not res:
                     if os.path.isfile('./Data/security/'+database+"_"+table+".json"):
                         row2 = row[:]
-                        values = list(register.values())
-                        for x in list(register.keys()):
+                        values = list(register2.values())
+                        for x in list(register2.keys()):
                             row2[x] = values[x]
                         block.blockchain().CompararHash(row, row2, database, table)
                 return res
@@ -1209,26 +1242,20 @@ def delete(database: str, table: str, columns: list) -> int:
         tab = dataTable.get(database+"_"+table)
         if db:
             if tab:
+                row = extractRow(database, table, columns)
                 if tab[1] == 'avl':
-                    row = avl.extractRow(database, table, columns)
                     res = avl.delete(database, table, columns)
                 elif tab[1] == 'b':
-                    row = b.extractRow(database, table, columns)
                     res = b.delete(database, table, columns)
                 elif tab[1] == 'bplus':
-                    row = bplus.extractRow(database, table, columns)
                     res = bplus.delete(database, table, columns)
                 elif tab[1] == 'dict':
-                    row = dict.extractRow(database, table, columns)
                     res = dict.delete(database, table, columns)
                 elif tab[1] == 'isam':
-                    row = isam.extractRow(database, table, columns)
                     res = isam.delete(database, table, columns)
                 elif tab[1] == 'json':
-                    row = json.extractRow(database, table, columns)
                     res = json.delete(database, table, columns)
                 elif tab[1] == 'hash':
-                    row = hash.extractRow(database, table, columns)
                     res = hash.delete(database, table, columns)
                 if not res:
                     if os.path.isfile('./Data/security/'+database+"_"+table+".json"):
@@ -1533,7 +1560,7 @@ def alterTableCompress(database, table, level):
         tab = dataTable.get(database + "_" + table)
         try:
             if tab:
-                if tab[4] == -2:
+                if tab[4] != -2:
                     return 3
                 tuplas = extractTable(database, table)
                 if tuplas != None:
@@ -1628,8 +1655,7 @@ def alterTableDecompress(database, table):
                         for item in y:
                             compressed_item = item
                             if type(item) == str:
-                                compressed_item = zlib.decompress(bytes.fromhex(item))
-                                compressed_item = compressed_item.decode()
+                                compressed_item = zlib.decompress(bytes.fromhex(item)).decode()
                             compressed_data.append(compressed_item)
                         decompress_list.append(compressed_data)
                     tipado = []
@@ -1653,3 +1679,58 @@ def alterTableDecompress(database, table):
         return 0
     else:
         return 2
+
+def graphDSD(database: str) -> str:
+    checkData()
+    try:
+        nodos = []
+        data = Serializable.Read('./Data/',"Data")
+        db = data.get(database)
+        if db:
+            if not os.path.isdir("./Data/Grafos/"):
+                os.mkdir("./Data/Grafos/")
+            f= open('./Data/Grafos/'+database+'.dot', 'w',encoding='utf-8')
+            f.write("digraph dibujo{\n")
+            f.write('graph [ordering="out"];')
+            f.write('rankdir=TB;\n')
+            f.write('node [shape = box];\n')
+            mode = ExtractModeDatabase(db)
+            tablas = showTables(database)
+            for tab in tablas:
+                rows = mode.extractTable(database,"Table_REF_FK_"+tab)
+                if rows:
+                    for row in rows:
+                        if row[2] not in nodos:
+                            f.write(row[2]+' [label = '+row[2]+',  fontsize="30", shape = box ];\n')
+                            nodos.append(row[2])
+                        if row[4] not in nodos:
+                            f.write(row[4]+' [label = '+row[4]+',  fontsize="30", shape = box ];\n')
+                            nodos.append(row[4])
+                        f.write(row[4]+'->'+ row[2]+';\n')
+            f.write('}')
+            f.close()
+            os.system('dot -Tpng ./Data/Grafos/'+database+'.dot -o tupla.png')
+            os.system('tupla.png')
+        return None
+    except:
+        return None
+        
+
+def graphDF(database: str, table: str) -> str:
+    pass
+
+def ExtractModeDatabase(data):
+    if data[1][0] == 'avl':
+        return avl
+    elif data[1][0] == 'b':
+        return b
+    elif data[1][0] == 'bplus':
+        return bplus
+    elif data[1][0] == 'dict':
+        return dict
+    elif data[1][0] == 'isam':
+        return isam
+    elif data[1][0] == 'json':
+        return json
+    elif data[1][0] == 'hash':
+        return hash
