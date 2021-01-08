@@ -4,6 +4,7 @@ from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
 from analizer_pl import grammar
 
+
 class ExistsRelationalOperation(instruction.Instruction):
     def __init__(self, temp, select):
         instruction.Instruction.__init__(self, select.row, select.column)
@@ -68,7 +69,7 @@ class ExistsRelationalOperation(instruction.Instruction):
                     orderbyCl += str(o[0]) + o[1] + o[2]
                 else:
                     orderbyCl += o[0].id + o[1] + o[2]
-            out +=  "ORDER BY " + orderbyCl[2:]
+            out += "ORDER BY " + orderbyCl[2:]
 
         out += ") ;"
         out += '")\n'
@@ -87,7 +88,7 @@ class ExistsRelationalOperation(instruction.Instruction):
 
 
 class inRelationalOperation(instruction.Instruction):
-    def __init__(self, temp, colData, optNot , select):
+    def __init__(self, temp, colData, optNot, select):
         instruction.Instruction.__init__(self, select.row, select.column)
         self.distinct = select.distinct
         self.params = select.params
@@ -155,7 +156,7 @@ class inRelationalOperation(instruction.Instruction):
                     orderbyCl += str(o[0]) + o[1] + o[2]
                 else:
                     orderbyCl += o[0].id + o[1] + o[2]
-            out +=  "ORDER BY " + orderbyCl[2:]
+            out += "ORDER BY " + orderbyCl[2:]
 
         out += ") ;"
         out += '")\n'

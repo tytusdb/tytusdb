@@ -7,6 +7,7 @@ from analizer_pl.C3D.operations import block
 from analizer_pl.reports import BnfGrammar
 from analizer_pl.abstract import global_env
 import analizer_pl.grammar as grammar
+from analizer_pl.libs import File
 
 
 def traducir(input):
@@ -32,21 +33,26 @@ def traducir(input):
     f = open("test-output/c3d.py", "w+")
     f.write(c3d)
     f.close()
-    optimizacion += grammar.optimizer_.optimize()
+    # optimizacion += grammar.optimizer_.optimize()
     f = open("test-output/c3dopt.py", "w+")
     f.write(optimizacion)
     f.close()
     semanticErrors = []
     functions = functionsReport(env)
     symbols = symbolReport()
+    indexes = indexReport()
     obj = {
+        "messages": [],
+        "querys": [],
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
         "semantic": semanticErrors,
+        "postgres": [],
         "symbols": symbols,
         "functions": functions,
+        "indexes": indexes,
     }
-    # grammar.InitTree()
+    grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -90,6 +96,24 @@ def functionsReport(env):
     return rep
 
 
+def indexReport():
+    index = File.importFile("Index")
+    enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
+    filas = []
+    for (name, Index) in index.items():
+        columns = ""
+        for column in Index["Columns"]:
+            columns += (
+                ", " + column["Name"] + " " + column["Order"] + " " + column["Nulls"]
+            )
+        filas.append(
+            [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
+        )
+    enc.append(filas)
+    return enc
+
+
+# region s
 s = """ 
 
 CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
@@ -126,6 +150,9 @@ END;
 $$ LANGUAGE plpgsql;
 delete from tbbodega as tb where idbodega = 4 and idbodega = 5;
 """
+
+# endregion
+# region s2
 s2 = """
 
 CREATE FUNCTION foo(texto text, b boolean) RETURNS text AS $$
@@ -193,7 +220,9 @@ order by col ,1 ;
 
 
 """
+# endregion
 
+# region s3
 s3 = """
 select E.* from tabla;
 select departamento,count(*) CantEmpleados 
@@ -216,6 +245,9 @@ update tbbodega set bodega = 'bodega zona 9' where idbodega = 4;
 update tbbodega set bodega = DEFAULT where idbodega = 4; 
 """
 
+# endregion
+
+# region s4
 s4 = """
 
 CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
@@ -240,5 +272,185 @@ END;
 $$ LANGUAGE plpgsql;				 
 	
 """
+# endregion
 
-traducir(s4)
+# region s5
+s5 = """
+use test;
+ALTER TABLE tbusuario
+ALTER COLUMN password TYPE varchar(80);
+insert into tbusuario
+values(
+    1,
+    'Luis Fernando',
+    'Salazar Rodriguez',
+    'lsalazar',
+    MD5('paswword'),
+    now()
+  );
+insert into tbusuario
+values(
+    2,
+    'Maria Cristina',
+    'Lopez Ramirez',
+    'mlopez',
+    MD5('Diciembre'),
+    now()
+  );
+insert into tbusuario
+values(
+    3,
+    'Hugo Alberto',
+    'Huard Ordoñez',
+    'hhuard',
+    MD5('Rafael'),
+    now()
+  );
+insert into tbusuario
+values(
+    4,
+    'Pedro Peter',
+    'Parker',
+    'ppeter',
+    MD5('Donatelo'),
+    now()
+  );
+insert into tbusuario
+values(
+    5,
+    'Mariana Elizabeth',
+    'Zahabedra Lopez',
+    'melizabeth',
+    MD5('Miguel123'),
+    now()
+  );
+insert into tbusuario
+values(
+    6,
+    'Lisa Maria',
+    'Guzman',
+    'lmaria',
+    MD5('Diciembre$$2020'),
+    now()
+  );
+insert into tbusuario
+values(
+    7,
+    'Aurelio',
+    'Baldor',
+    'abaldor',
+    MD5('Algebra$*'),
+    now()
+  );
+insert into tbusuario
+values(
+    8,
+    'Elizabeth Taylor',
+    'Juarez',
+    'etaylor',
+    MD5('hilbilly'),
+    now()
+  );
+insert into tbusuario
+values(
+    9,
+    'Lois',
+    'Lane',
+    'llane',
+    MD5('smallville'),
+    now()
+  );
+select *
+from tbusuario;
+insert into tbrolxusuario
+values(1, 1);
+insert into tbrolxusuario
+values(2, 2);
+insert into tbrolxusuario
+values(2, 3);
+insert into tbrolxusuario
+values(3, 4);
+insert into tbrolxusuario
+values(3, 5);
+insert into tbrolxusuario
+values(3, 6);
+insert into tbrolxusuario
+values(2, 7);
+insert into tbrolxusuario
+values(3, 8);
+insert into tbrolxusuario
+values(2, 9);
+select *
+from tbrolxusuario;
+insert into tbrol
+values (4, 'IT');
+insert into tbrol
+values (5, 'Gerencia');
+insert into tbusuario
+values(
+    10,
+    'Duff',
+    'Mackagan',
+    'dmackagan',
+    MD5('sweetchild'),
+    now()
+  );
+insert into tbrolxusuario
+values(1, 10);
+insert into tbusuario
+values(
+    11,
+    'Carlos',
+    'Mendez Chingui',
+    'cmendez',
+    MD5('niebla@@'),
+    now()
+  );
+insert into tbusuario
+values(
+    12,
+    'Diego',
+    'Joachin',
+    'omendez',
+    MD5('raizanimal'),
+    now()
+  );
+insert into tbusuario
+values(
+    13,
+    'Carlos Mauricio',
+    'Ordoñez Toto',
+    'cordonez',
+    MD5('radioviejo'),
+    now()
+  );
+insert into tbusuario
+values(
+    14,
+    'Fernando',
+    'Gonzalez',
+    'fgonzalez',
+    MD5('1245678$net'),
+    now()
+  );
+insert into tbusuario
+values(
+    15,
+    'Walter',
+    'Reynoso Alvarado',
+    'wreynoso',
+    MD5('corona*virus'),
+    now()
+  );
+insert into tbrolxusuario
+values(1, 11);
+insert into tbrolxusuario
+values(1, 12);
+insert into tbrolxusuario
+values(1, 13);
+select *
+from tbrolxusuario;
+"""
+# endregion
+
+# traducir("SELECT 3+3;")

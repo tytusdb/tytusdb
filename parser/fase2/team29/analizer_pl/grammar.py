@@ -92,8 +92,8 @@ def p_instruction(t):
     try:
         if t[1].dot():
             listInst.append(t[1].dot())
-    except:
-        pass
+    except Exception as e:
+        print(e)
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -1985,8 +1985,8 @@ def p_boolean_2(t):
     """
     boolean : datatype R_IN S_PARIZQ selectStmt S_PARDER
     """
-    #temp, colData, optNot , select
-    t[0] = code.inRelationalOperation(newTemp(),t[1],"", t[4])
+    # temp, colData, optNot , select
+    t[0] = code.inRelationalOperation(newTemp(), t[1], "", t[4])
     repGrammar.append(t.slice)
 
 
@@ -1994,7 +1994,7 @@ def p_boolean_3(t):
     """
     boolean : datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
     """
-    t[0] = code.inRelationalOperation(newTemp(),t[1],t[2]+ " ", t[5])
+    t[0] = code.inRelationalOperation(newTemp(), t[1], t[2] + " ", t[5])
     repGrammar.append(t.slice)
 
 
@@ -2578,7 +2578,7 @@ def p_havingCl_2(t):
 
 def p_orderByCl(t):
     """orderByCl : R_ORDER R_BY orderList"""
-    t[0] =t[3]
+    t[0] = t[3]
     repGrammar.append(t.slice)
 
 
@@ -2591,7 +2591,7 @@ def p_orderByCl_n(t):
 def p_orderList(t):
     """orderList : orderList S_COMA orderByElem"""
     t[1].append(t[3])
-    t[0] = t[1] 
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
