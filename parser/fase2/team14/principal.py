@@ -1,3 +1,4 @@
+import Optimizacion.OptimizacionG as o
 import arbol.AST as a
 import gramatica2 as g
 from prueba import prueba
@@ -9,6 +10,7 @@ from Entorno.Entorno import Entorno
 from storageManager import jsonMode
 from Expresion.variablesestaticas import variables
 from graphviz import Digraph
+from Optimizacion.reporteOptimizacion import *
 
 # variables.ventana = Tk()
 variables.ventana.geometry("1200x650")
@@ -26,6 +28,10 @@ ErroresS = Digraph("reporte", node_attr={'shape': 'record'})
 ErroresS.attr(style='rounded', color='#4b8dc5')
 contenidoE: str = ""
 
+global ReporteO
+ReporteO= Digraph("reporteOp", node_attr={'shape': 'record'})
+ReporteO.attr(style='rounded', color='#4b8dc5')
+contenidoO: str = ""
 
 def send_data():
     print("Analizando Entrada:")
@@ -157,6 +163,34 @@ def gramatica():
     contenido = Tentrada.get(1.0, 'end')
     g.generaReporteBNF(contenido)
 
+def optimizar():
+    f = open('prueba.py', 'r')
+    texto = f.read()
+    f.close()
+    print(texto)
+    o.lexico(texto)
+
+def reporte_op():
+    
+    if len(repOptimizado) != 0:
+        global contenidoO
+        contenidoO += "<<TABLE border= \"2\"  cellspacing= \"-1\" color=\"#4b8dc5\">"
+        contenidoO += "<TR><TD bgcolor=\"#1ED0EC\">Tipo</TD><TD bgcolor=\"#1ED0EC\">Regla</TD>"
+        contenidoO += "<TD bgcolor=\"#1ED0EC\">Codigo Anterior</TD><TD bgcolor=\"#1ED0EC\">Codigo Optimizado</TD></TR>"
+
+        for re in repOptimizado:
+            print("conteeeeeeeeeeee",re.codigoanterior)
+            contenidoO += '<TR> <TD>' +re.tipo + '</TD><TD>' + re.regla + '</TD> <TD>' + re.codigoanterior + '</TD><TD>' + re.codigooptimizado+ '</TD></TR>'
+
+        contenidoO += '</TABLE>>'
+
+
+def mostrarimagenreop():
+    reporte_op()
+    ReporteO.node("ReporteO", label=contenidoO)
+    ReporteO.render('reporteo', view=True)  # doctest: +SKIP
+    'reporteo.pdf'
+
 
 frame1 = Frame(variables.ventana,width=60,height=10)
 frame1.pack()
@@ -213,6 +247,7 @@ menu_bar.add_cascade(label="Ejecutar", menu=ej_menu)
 ej_menu.add_command(label="Analizar Entrada", command=send_data)
 ej_menu.add_command(label="Traducir a 3d", command=traducir)
 ej_menu.add_command(label="Ejecutar codigo traducido", command=prueba)
+ej_menu.add_command(label="Optimizacion", command=optimizar)
 
 # Menu Reportes
 
@@ -222,4 +257,5 @@ reps_menu.add_command(label="Errores Lexicos y Sintacticos", command=mostrarimag
 reps_menu.add_command(label="Tabla de Simbolos", command=verSimbolos)
 reps_menu.add_command(label="AST", command=arbol_ast)
 reps_menu.add_command(label="Gramatica", command=gramatica)
+reps_menu.add_command(label="Optimizacion", command=mostrarimagenreop)
 variables.ventana.mainloop()
