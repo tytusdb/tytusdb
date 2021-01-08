@@ -1,14 +1,13 @@
+
 from re import S
 from sys import path
 from os.path import dirname as dir
 
 path.append(dir(path[0]))
-
-import analizer_pl.grammar as grammar
-from analizer_pl.abstract import global_env
-from analizer_pl.reports import BnfGrammar
 from analizer_pl.C3D.operations import block
-
+from analizer_pl.reports import BnfGrammar
+from analizer_pl.abstract import global_env
+import analizer_pl.grammar as grammar
 
 def traducir(input):
     result = grammar.parse(input)
@@ -92,6 +91,16 @@ def functionsReport(env):
 
 
 s = """ 
+
+CREATE FUNCTION myFuncion(texto text, b boolean) RETURNS text AS $$
+BEGIN
+INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(foo(texto)),1);
+SELECT 3-5>4 and -3=texto as sho, texto between symmetric 2 and 3 as alv;
+b = texto between symmetric 2 and 3;
+	RETURN texto;
+END;
+$$ LANGUAGE plpgsql;
+
 select * from tbCalificacion;
 select *
 from tbventa where ventaregistrada = false;
@@ -102,6 +111,8 @@ select *
 from tbventa V,tbempleado E
 where V.idempleado = E.idempleado
 group by primernombre,segundonombre,primerapellido;
+
+
 
 select *
 from tbventa V,tbempleado E
@@ -120,6 +131,15 @@ where V.idempleado = E.idempleado
 group by 1,2,3
 order by 1;
 """
+s2 = """
+CREATE FUNCTION myFuncion(texto text, b boolean) RETURNS text AS $$
+BEGIN
+INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(texto),1);
+SELECT 3-5>4 and -3=texto as sho, texto between symmetric 2 and 3 as alv;
+b = texto between symmetric 2 and 3;
+	RETURN texto;
+END;
+$$ LANGUAGE plpgsql;
+"""
 
-
-traducir(s)
+traducir(s2)

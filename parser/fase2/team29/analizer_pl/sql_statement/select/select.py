@@ -4,8 +4,49 @@ from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
 from analizer_pl import grammar
 
+
+class SelectParam(instruction.Instruction):
+    def __init__(self, exp, alias, row, column) -> None:
+        super().__init__(row, column)
+        self.exp = exp
+        self.alias = alias
+
+    def execute(self, environment):
+        pval = self.exp.execute(environment)
+        c3d = pval.temp
+        if self.alias != "":
+            c3d += " AS "+self.alias
+        return code.C3D(pval.value, c3d, self.row, self.column)
+
+
+class SelectOnlyParams(instruction.Instruction):
+    def __init__(self, params, row, column) -> None:
+        super().__init__(row, column)
+        self.params = params
+
+    def execute(self, environment):
+        parVal = ""
+        out = "fase1.execution(dbtemp + "
+        out += '" '
+        out += "SELECT "
+        j = 0
+        for i in range(len(self.params) - 1):
+            j = i + 1
+            pval = self.params[i].execute(environment)
+            parVal += pval.value
+            out += pval.temp + ", "
+        pval = self.params[j].execute(environment)
+        parVal += pval.value
+        out += pval.temp
+        out += ";"
+        out += '")\n'
+        if isinstance(environment, Environment):
+            out = "\t" + out
+        return code.C3D(parVal+out, "select", self.row, self.column)
+
+
 class Select(instruction.Instruction):
-    def __init__(self, distinct, params,fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column):
+    def __init__(self, distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column):
         instruction.Instruction.__init__(self, row, column)
         self.distinct = distinct
         self.params = params
@@ -14,7 +55,6 @@ class Select(instruction.Instruction):
         self.wherecl = wherecl
         self.groupbyCl = groupbyCl
         self.limitCl = limitCl
-
 
     def execute(self, environment):
         out = "fase1.execution(dbtemp + "
