@@ -5386,54 +5386,45 @@ def p_VALORFAvg(t):
     ret= Retorno(FuncionNativa(TipoFunNativa.avg,t[3].getInstruccion()), NodoAST("AVG"))
     ret.getNodo().setHijo(t[3].getNodo())
     t[0]=ret
-    ##ret = Retorno(Funcion(t[3], t[5].getInstruccion(), t[8].getInstruccion(), t[9].getInstruccion()), NodoAST("FUNCION"))
-    #ret.getNodo().setHijo(NodoAST(t[3]))
-    #ret.getNodo().setHijo(t[5].getNodo())
-    #ret.getNodo().setHijo(t[8].getNodo())
-    #ret.getNodo().setHijo(t[9].getNodo())
-    #t[0] = ret
 
-    #ret = Retorno(Operaciones_Aritmeticas(TiposOperaciones.Suma, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("+"))
-    #ret.getNodo().setHijo(t[1].getNodo())
-    #ret.getNodo().setHijo(t[3].getNodo())
-    #t[0] = ret
-    
-
-#TODO: AGREGAR DIEGO
+#TODO: AGREGAR DIEGO1
 def p_VALORFSum(t):
     'VALORF  :   SUM PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFMin(t):
     'VALORF  :   MIN PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFMax(t):
     'VALORF  :   MAX PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO11
 def p_VALORFAbs(t):
     'VALORF  :   ABS PABRE VALORF PCIERRA '
-    #! VERIFICAR SI EL CAMBIO ESTA BIEN HECHO (LNUMF POR VALORF)
     #VALOR ABSOLUTO DE UN NUMERO O VARIABLE 
     ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("ABS"))
     ret.getNodo().setHijo(t[3].getNodo())
     t[0]=ret
 
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFCbrt(t):
     'VALORF  :   CBRT PABRE LNUMF PCIERRA '
+    #RAIZ CUBICA DE UN VALOR O VARIABLE
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("ABS"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFCeil(t):
     'VALORF  :   CEIL PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFCeiling(t):
     'VALORF  :   CEILING PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFSubstring(t):
     'VALORF  :   SUBSTRING PABRE LVALOR PCIERRA '
 

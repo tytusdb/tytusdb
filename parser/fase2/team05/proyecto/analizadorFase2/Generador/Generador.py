@@ -514,7 +514,29 @@ class Generador:
     def compilarFuncionesNativas(self, instruccion):
         '''Aqui se genera el C3D de las funciones nativas '''
         #PRIMERO DETECTAR QUE TIPO DE FUNCION ES 
-        if instruccion.tipo == 1:
+        if instruccion.tipo == TipoFunNativa.avg: 
+            #FUNCION TIPO AVG 
+            #Verificar que trae como parametro (valor, variable, expresion)
+            arregloDeValores =[]
+            for param in instruccion.parametros :
+                if isinstance(param, Operaciones_Aritmeticas):
+                    retorno = self.compilarOperacionAritmetica(instruccion.parametro)
+                    #agregamos el valor del retorno al arreglo de valores 
+                    arregloDeValores.append(retorno)
+                elif isinstance(instruccion.parametro, Primitivo):
+                    retorno = self.compilarPrimitivo(instruccion.parametro)
+                    arregloDeValores.append(retorno)
+            indice = 0;
+            for indice in len(arregloDeValores): 
+                temporal=self.generarTemporal()
+                if indice+1 < len(arregloDeValores):
+                    lineaSuma= temporal + '=' + arregloDeValores[indice] + '+' + arregloDeValores[indice+1]
+                    self.codigo3d.append(lineaSuma)
+                    arregloDeValores[indice+1]=temporal
+                else: 
+                    lineaFinal=temporal + '=' + arregloDeValores[indice] + '/' + len(arregloDeValores)
+                    self.codigo3d.append(lineaFinal)
+        elif instruccion.tipo == TipoFunNativa.abs: 
             #FUNCION TIPO ABS 
             #Verificar que trae como parametro (valor, variable, expresion)
             if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
@@ -538,9 +560,6 @@ class Generador:
                 self.codigo3d.append(lineaAbs)
                 self.agregarEtiqueta(etiquetaverdadero)
                 return retorno
-        elif instruccion.tipo==1:
-            #CORRESPONDE A LA FUNCION AVG
-            pass
         elif instruccion.tipo == TipoFunNativa.seno:
             # Corresponde a función de SENO
             if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
