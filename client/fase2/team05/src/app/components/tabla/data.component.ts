@@ -48,6 +48,7 @@ const text = '{\n' +
 export class DataComponent implements OnInit, OnDestroy {
 
   message: string;
+  anuncio: string;
   subscription: Subscription;
 
   constructor(private servicio: TableDataService, private data: ShareService) { }
@@ -63,6 +64,15 @@ export class DataComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subscription = this.data.currentMessage.subscribe(message => this.message = message);
+
+    const obj = JSON.parse(text);
+    // tslint:disable-next-line:triple-equals
+    if (this.message != '***' && obj.result.querys != null){
+      this.anuncio = this.message;
+      this.fillData(obj);
+    }else{
+      this.anuncio = this.message;
+    }
   }
 
   // tslint:disable-next-line:typedef
@@ -70,16 +80,8 @@ export class DataComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  // tslint:disable-next-line:typedef
-  fillData(){
-    console.log(this.message);
-    this.servicio.create({query: this.message}).subscribe((response) => {
-      const body = response.body;
-      const msg = body.result.messages;
-      console.log(msg);
-    }, err => console.log(err));
-
-    const obj = JSON.parse(text);
+  // tslint:disable-next-line:typedef variable-name
+  fillData(obj: any){
     const arreglo = obj.result.querys;
     this.headers = arreglo[0][0];
     this.rows = arreglo[0][1];

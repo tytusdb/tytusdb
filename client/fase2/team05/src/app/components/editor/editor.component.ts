@@ -4,6 +4,7 @@ import { ThemePalette } from '@angular/material/core';
 import { FormControl } from '@angular/forms';
 import { ShareService } from 'src/app/service/share/share.service';
 import { Subscription } from 'rxjs';
+import {TableDataService} from '../../service/tableData/table-data.service';
 
 @Component({
   selector: 'app-editor',
@@ -15,7 +16,7 @@ export class EditorComponent implements OnInit, OnDestroy {
   message: string;
   subscription: Subscription;
 
-  constructor(private data: ShareService) { }
+  constructor(private data: ShareService, private servicio: TableDataService) { }
 
   contador = 5;
 
@@ -47,6 +48,13 @@ export class EditorComponent implements OnInit, OnDestroy {
 
   // tslint:disable-next-line:typedef
   newMessage() {
+    // ------------------------
+    this.servicio.create({query: this.get()}).subscribe((response) => {
+      const body = response.body;
+      const msg = body.result.messages;
+      this.message = msg;
+    }, err => console.log(err));
+    // -----------------------
     this.data.changeMessage(this.message);
   }
 
@@ -131,7 +139,6 @@ export class EditorComponent implements OnInit, OnDestroy {
         mensaje = this.content3.trim();
         break;
     }
-    this.message = mensaje;
     return mensaje;
   }
   // tslint:disable-next-line:typedef
