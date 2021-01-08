@@ -19,6 +19,7 @@ class CreateIndex(instruction.Instruction):
             self.idIndex = idIndex
 
     def execute(self, environment):
+        Struct.load()
         name = self.idIndex
         if self.existIndex(name):
             return "Error: ya existe un index con el nombre " + name
