@@ -1,117 +1,162 @@
-from InstruccionesDGA import tabla 
-from datetime import date
-from InstruccionesDGA import cont 
-from InstruccionesDGA import NombreDB
-from tablaDGA import *
-from sql import * 
-import mathtrig as mt
-#Funcion sql.execute
 
+from datetime import date
+from variables import tabla as ts
+from variables import NombreDB
+from variables import cont as ncont
+import tablaDGA as TAS
+import sql as sql
+import mathtrig as mt
+from reportTable import *
+
+cont = ncont
 pila = []
 for i in range(100):
     pila.append(i)
 
-def ejecutar(): 
-	n_db = tabla.id_db(NombreDB)
-	NuevoSimbolo = Simbolo(cont,'CALCULOS',TIPO.FUNCTION,n_db)
+
+def ejecutar():
+    global cont
+	
+	sql.execute("CREATE DATABASE local;")
+	n_db = ts.buscarIDTB(NombreDB)
+	NuevoSimbolo = TAS.Simbolo(cont,'ValidaRegistros',TAS.TIPO.FUNCTION,n_db)
+	ts.agregar(NuevoSimbolo)
+	cont+=1
+	ambitoFuncion =  ts.buscarIDF()
+	NuevoSimbolo = TAS.Simbolo(cont,'resultado',TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	ts.agregar(NuevoSimbolo)
 	cont+=1
 
-	ambitoFuncion =  buscarIDF(cont)
-	NuevoSimbolo = TAS.Simbolo(cont,'SENO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
-	tabla.agregar(NuevoSimbolo)
+	ambitoFuncion =  ts.buscarIDF()
+	NuevoSimbolo = TAS.Simbolo(cont,'retorna',TAS.TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
+	ts.agregar(NuevoSimbolo)
 	cont+=1
 
-	ambitoFuncion =  buscarIDF(cont)
-	NuevoSimbolo = TAS.Simbolo(cont,'VALOR',TIPO.INTEGER,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
-	tabla.agregar(NuevoSimbolo)
-	cont+=1
+	ts.modificar_valor('resultado', 7777.0)
+	ts.modificar_valor('retorna', 1.0)
+	ts.modificar_valor('retorna', 0.0)
+	ts.modificar_valor('resultado', 8888.0)
+	ts.modificar_valor('retorna', 1.0)
+	ts.modificar_valor('retorna', 0.0)
+	ts.modificar_valor('resultado', 9999.0)
+	ts.modificar_valor('retorna', 1.0)
+	ts.modificar_valor('retorna', 0.0)
 
+	sql.execute('3D')
 
-	ambitoFuncion =  buscarIDF(cont)
-	NuevoSimbolo = TAS.Simbolo(cont,'ABSOLUTO',TIPO.DECIMAL,ambitoFuncion,None, None, None, None, None, None, None ,None,None,None, None,False,False)
-	tabla.agregar(NuevoSimbolo)
-	cont+=1
-
-	tabla.modificar_valor(hora, t0)
-	tabla.modificar_valor(SENO, t1)
-	tabla.modificar_valor(texto, t2)
-	tabla.modificar_valor(VALOR, t3)
-	tabla.modificar_valor(VALOR, len(str(t4)))
-	tabla.modificar_valor(ABSOLUTO, abs(mt.sinh(t5)))
-	tabla.modificar_valor(ABSOLUTO, t8)
-	tabla.modificar_valor(VALOR, t12)
-	tabla.modificar_valor(VALOR, t13)
-
-	n_db = tabla.id_db(NombreDB)
-	NuevoSimbolo = Simbolo(cont,'ayuda',TIPO.FUNCTION,n_db)
-	cont+=1
-
-
-def CALCULOS():
+	graphTable(ts)
+def ValidaRegistros():
+	resultado = 0
+	retorna = 0
+	tabla = pila[0]
+	cantidad = pila[1]
+	t0 = tabla
 	
-	SENO = 0
-	VALOR = 0
+	t1 = 'tbProducto'
+	t2 = t0 == t1
 	
-	ABSOLUTO = 0
-	nombre = pila[0]
-	t0 = 999
-	hora = t0
+	if t2:
+		t3 = 7777
+		resultado = t3
+		
+		t4 = cantidad
+		
+		t5 = resultado
+		
+		t6 = t4 == t5
+		
+		if t6:
+			t7 = 1
+			retorna = t7
+			
+		else:
+			t8 = 0
+			retorna = t8
+			
+		
 	
-	t1 = 999
-	SENO = t1
+	t9 = tabla
 	
-	t2 = 'fase 2'
-	texto = t2
-	
-	t3 = 999
-	VALOR = t3
-	
-	t4 = texto
-	
-	
-	VALOR = len(str(t4))
-	
-	t5 = -1
-	
-	
-	ABSOLUTO = abs(mt.sinh(t5))
-	
-	t6 = 5
-	t7 = 225
-	
-	t8 = t6 * mt.sqrt(float(t7))
-	ABSOLUTO = t8
-	
-	t9 = VALOR
-	
-	t10 = 1
-	t11 = t9 > t10
+	t10 = 'tbProductoUp'
+	t11 = t9 == t10
 	
 	if t11:
-		t12 = 20
-		VALOR = t12
+		t12 = 8888
+		resultado = t12
 		
-	else:
-		t13 = 10
-		VALOR = t13
+		t13 = cantidad
+		
+		t14 = resultado
+		
+		t15 = t13 == t14
+		
+		if t15:
+			t16 = 1
+			retorna = t16
+			
+		else:
+			t17 = 0
+			retorna = t17
+			
 		
 	
-	t14 = VALOR
+	t18 = tabla
 	
-	pila[10] = t14
+	t19 = 'tbbodega'
+	t20 = t18 == t19
 	
-def ayuda():
+	if t20:
+		t21 = 9999
+		resultado = t21
+		
+		t22 = cantidad
+		
+		t23 = resultado
+		
+		t24 = t22 == t23
+		
+		if t24:
+			t25 = 1
+			retorna = t25
+			
+		else:
+			t26 = 0
+			retorna = t26
+			
+		
 	
-	aas = pila[0]
-	t15 = aas
+	t27 = retorna
 	
-	pila[10] = t15
-	NuevoSimbolo = Simbolo(cont,sp_validainsert,TIPO.FUNCTION,n_db)
-	cont+=1
- insert into tbbodega  values ( 1 BODEGA CENTRAL 1 ) ; insert into tbbodega idbodega bodega values ( 2 BODEGA ZONA 12 ) ; insert into tbbodega ( idbodega, bodega) estado values ( 3 BODEGA ZONA 11 1 ) ; insert into tbbodega ( idbodega, bodega) estado values ( 4 BODEGA ZONA 1 1 ) ; insert into tbbodega ( idbodega, bodega) estado values ( 5 BODEGA ZONA 10 1 ) ;def sp_validainsert():
+	pila[10] = t27
 	
-	
-	
-	
-	
-ejecutar() 
+ejecutar()
+
+    n_db = ts.buscarIDTB(NombreDB)
+    NuevoSimbolo = TAS.Simbolo(
+        cont, 'sp_validainsert', TAS.TIPO.FUNCTION, n_db)
+    ts.agregar(NuevoSimbolo)
+    cont += 1
+    sp_validainsert()
+    sql.execute('3D')
+
+    graphTable(ts)
+
+
+def sp_validainsert():
+    sql.execute(
+        '''insert into tbbodega  values ( 1.0,'BODEGA CENTRAL',1.0 ) ;''')
+
+    sql.execute(
+        '''insert into tbbodega (idbodega,bodega) values ( 2.0,'BODEGA ZONA 12' ) ;''')
+
+    sql.execute(
+        '''insert into tbbodega (idbodega,bodega,estado) values ( 3.0,'BODEGA ZONA 11',1.0 ) ;''')
+
+    sql.execute(
+        '''insert into tbbodega (idbodega,bodega,estado) values ( 4.0,'BODEGA ZONA 1',1.0 ) ;''')
+
+    sql.execute(
+        '''insert into tbbodega (idbodega,bodega,estado) values ( 5.0,'BODEGA ZONA 10',1.0 ) ;''')
+
+
+ejecutar()

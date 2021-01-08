@@ -1,0 +1,8 @@
+create procedure sp_validaupdate()
+language plpgsql
+as $$
+begin
+	update tbbodega set bodega = 'bodega zona 9' where idbodega = 4; 
+end; $$
+
+EXECUTE sp_validaupdate();

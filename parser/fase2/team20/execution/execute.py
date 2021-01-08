@@ -7,6 +7,7 @@ from .executeInstruction import executeInstruction
 from .generateASTReport import graphAST
 from .generateSymbolTableReport import printSymbolTable
 from .execute_result import *
+from .storageManager.TypeChecker import *
 from io import StringIO  # Python3
 import sys
 class Execute():
@@ -15,6 +16,7 @@ class Execute():
     messages = []
     querys = []
     ts = []
+    pila =[] # cada item es un diccionario {resultado,argumento1,argumento2,operacion}
     plcode = ""
     #intermediate = IntermediateFunctions()
     types = {
@@ -26,6 +28,7 @@ class Execute():
     }
     def __init__(self, nodes):
         self.tempcount = -1
+        self.labelcount = -1
         self.nodes = nodes
         self.errors = []
         self.messages = []
@@ -41,12 +44,14 @@ class Execute():
             archivo.write("from execution.executeSentence import executeSentence ") 
             archivo.write("\nfrom execution.AST.sentence import *")
             archivo.write("\nfrom execution.AST.expression import *")
+            archivo.write("\nfrom goto import with_goto")
+            archivo.write("\n\n@with_goto")
             archivo.write("\ndef up():")
-            archivo.write("\n\tprint(1)")
+            archivo.write("\n\tprint(1)\n")
             archivo.close()
             if(len(self.nodes)==0):
                 archivo = open("C3D.py", 'a')
-                archivo.write("\n\tprint(1)")
+                archivo.write("\n\tprint(1)\n")
                 archivo.close() 
             for node in self.nodes:
                 #pprint(vars(node))
@@ -62,12 +67,16 @@ class Execute():
                     archivo.write(val1) 
                     archivo.close()
                 else:
-                    executeInstruction(self,node)
+                    executeInstruction(self,node, 1, 0)
                 
                 #executeSentence2(self,node)
+        for storedproc in TCgetFunctions():
+            if storedproc not in self.plcode: 
+                self.plcode+=storedproc
         archivo = open("C3D.py", 'a')
         archivo.write("\n")
-        archivo.write(self.plcode) 
+        archivo.write(self.plcode)
+        archivo.write("\nup()")
         archivo.close()
         dotAST = graphAST(self)
         printSymbolTable_ = printSymbolTable(self)
@@ -80,6 +89,13 @@ class Execute():
     def getLastTemp(self):
         temp = 't'+str(self.tempcount)
         return temp
+    def generateLabel(self):
+        self.labelcount+=1
+        label = 'lbl'+str(self.labelcount)
+        return label
+    def getLastLabel(self):
+        label = 'lbl'+str(self.labelcount)
+        return label
 
 
 

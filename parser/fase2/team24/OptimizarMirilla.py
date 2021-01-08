@@ -1,4 +1,6 @@
 from graphviz import Graph
+import os
+import re
 import OptimizarObjetos as obj #Objetos utilizados en el optimizador mirilla
 
 CodigoOptimizado = [] #Se guarda el codigo optimizado resultante para el reporte
@@ -11,16 +13,24 @@ class Optimizador:
 
     def ejecutar(self):
         global CodigoOptimizado
+        global ResultadoFinal
+        CodigoOptimizado = []
+        ResultadoFinal = []
         for objeto in self.Asignaciones:
-            if self.Regla_8_9(objeto) or self.Regla_10_11(objeto):
-                "NO SE AGREGA LA INSTRUCCION AL RESULTADO"
-            elif self.Regla_12_13(objeto) or self.Regla_14_15(objeto) or self.Regla_16(objeto) or self.Regla_17_18(objeto):
-                "SE AGREGA LA OPTIMIZACION AL RESULTADO"
-                ResultadoFinal.append(CodigoOptimizado[-1].resultado)
+            if isinstance(objeto, obj.Asignacion):
+                if self.Regla_8_9(objeto) or self.Regla_10_11(objeto):
+                    "NO SE AGREGA LA INSTRUCCION AL RESULTADO"
+                elif self.Regla_12_13(objeto) or self.Regla_14_15(objeto) or self.Regla_16(objeto) or self.Regla_17_18(objeto):
+                    "SE AGREGA LA OPTIMIZACION AL RESULTADO"
+                    ResultadoFinal.append(CodigoOptimizado[-1].resultado)
+                else:
+                    "SE AGREGA LA INSTRUCCION ORIGINAL AL RESULTADO"
+                    instruccion = objeto.indice + " = " + objeto.operador1 + " " + objeto.signo + " " + objeto.operador2
+                    ResultadoFinal.append(instruccion)
             else:
-                "SE AGREGA LA INSTRUCCION ORIGINAL AL RESULTADO"
-                instruccion = objeto.indice + " = " + objeto.operador1 + " " + objeto.signo + " " + objeto.operador2
-                ResultadoFinal.append(instruccion)
+                "NO ES OBJETO ASIGNACION ASI QUE SOLO SE AGREGA AL RESULTADO"
+                ResultadoFinal.append(objeto)
+        self.GenerarReporte()
         print("-----------------------OPTIMIZACIONES--------------------------------")
         for elem in CodigoOptimizado:
             print(elem.resultado)
@@ -28,7 +38,6 @@ class Optimizador:
         for elem in ResultadoFinal:
             print(elem)
             
-
     #Metodos para realizar la optimizacion segun la regla.
     #Retornan False si no se cumple la regla de optimizacion y True si se cumple y se optimiza
     def Regla_1(self, asignacion, listaasignaciones):
@@ -189,4 +198,16 @@ class Optimizador:
             return False
 
     def GenerarReporte(self):
-        "Generar el reporte en graphviz"
+        "Generar el reporte en graphviz y el archivo de optimizacion"
+        #PARA EL ARCHIVO
+        Nombre = "Salidas/CodigoOptimizado.py"
+        texto = ""
+        for elem in ResultadoFinal:
+            texto += elem + "\n"
+        try:
+            os.makedirs(os.path.dirname(Nombre), exist_ok=True)
+            with open(Nombre, "w") as f:
+                f.write(texto)
+        except:
+            print("No se pudo generar el archivo del codigo generado")
+        #PARA REPORTE
