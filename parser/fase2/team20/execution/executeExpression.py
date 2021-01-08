@@ -853,3 +853,27 @@ def executeExpression(self, expression):
                             return s
                     except Exception as e:
                         return Error('Semantico', 'Error : ' + str(e), 0, 0) 
+
+            # DATE PARTE
+            elif isinstance(expression, DatePartFunction):
+                e = executeExpression(self,expression.expression)
+                if isinstance(e, Error):
+                    return e
+                else:
+                    try:
+                        if(expression.function.type == 3):
+                            typeTime = expression.function.value
+                            cadena = str(e.value).strip().split(' ')
+
+                            value = 0
+                            for i in cadena:
+                                if (typeTime == i) or (str(typeTime + 'S') == i): 
+                                    s.value = value
+                                    s.type = 1
+                                    return s
+                                if i.isnumeric():
+                                    value = i
+                        else:
+                            return Error('Semantico', 'Error : Error en los argumentos para sacar date_part', 0, 0) 
+                    except Exception as e:
+                        return Error('Semantico', 'Error : ' + str(e), 0, 0)

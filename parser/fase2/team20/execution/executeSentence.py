@@ -91,7 +91,12 @@ def executeSentence(self, sentence):
     elif isinstance(sentence, Delete):
         executeDelete(self, sentence)
     elif isinstance(sentence,Select):
-        executeSelect(self,sentence) 
+        try:
+            res = executeSelect(self,sentence)
+            return res
+            #print(res)
+        except:
+            executeSelect(self,sentence) 
     elif isinstance(sentence,DropTable):
         database=TCgetDatabase()
         result= executeDropTable(self,sentence)

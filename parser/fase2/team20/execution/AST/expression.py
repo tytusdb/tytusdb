@@ -506,3 +506,25 @@ class Alias(Expression):
         dot += str(hash(self)) + '[label=\"AS ' + str(self.alias) + '\"]\n'
         dot += self.expression.graphAST('',hash(self))
         return dot
+
+class DatePartFunction(Expression):
+    def __init__(self, function, expression):
+        self.function = function
+        self.expression = expression
+    def __repr__(self):
+
+        return "DatePartFunction('"+str(self.function)+"',"+str(self.expression)+")" 
+    def graphAST(self, dot, parent):
+        dot += str(parent) + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
+        dot += self.expression.graphAST('',hash(self))
+        return dot
+
+class CountFunction(Expression):
+    def __init__(self, function):
+        self.function = function
+    def graphAST(self, dot, parent):
+        dot += str(parent) + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
+        #dot += self.expression.graphAST('',hash(self))
+        return dot
