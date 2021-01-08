@@ -18,6 +18,7 @@ class CreateTable(Instruccion):
         self.tabla = tabla
         self.campos = campos
         self.herencia = herencia
+        self.copy_campos = []
     
 
     def ejecutar(self, tabla, arbol):
@@ -30,6 +31,7 @@ class CreateTable(Instruccion):
             for camp in self.campos:
                 if isinstance(camp, Tipo_Constraint):
                     tc=self.campos.pop(int(self.campos.index(camp)))
+                    self.copy_campos.append(tc)
                     if tc.tipo == Tipo_Dato_Constraint.UNIQUE or tc.tipo == Tipo_Dato_Constraint.PRIMARY_KEY or tc.tipo == Tipo_Dato_Constraint.FOREIGN_KEY:
                         for id in tc.expresion:
                             bid=False
@@ -210,6 +212,13 @@ class CreateTable(Instruccion):
                 t2 = c3d.getTemporal()
                 code.append(c3d.operacion(t2, Identificador(t0), Identificador(tLast), OP_ARITMETICO.SUMA))
                 t0 = t2
+
+        for col in self.copy_campos:
+            t1 = c3d.getTemporal()
+            code.append(c3d.operacion(t1, Identificador(t0), Valor('",\\n"', "STRING"), OP_ARITMETICO.SUMA))
+            lista = col.generar3D()
+            code += lista
+            t0 = c3d.getLastTemporal()
 
         t1 = c3d.getTemporal()
         if self.herencia != None:

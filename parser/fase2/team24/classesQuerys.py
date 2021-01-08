@@ -108,7 +108,7 @@ class select(query):
         serialaizer()
         traduccion = '\t'
         traduccion += 'sql.execute(\'SELECT * FROM temp\')\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):

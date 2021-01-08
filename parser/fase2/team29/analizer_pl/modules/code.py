@@ -12,6 +12,7 @@ from analizer_pl.C3D.operations import func_call
 from analizer_pl.C3D.operations import execute_
 from analizer_pl.C3D.operations import drop_func
 from analizer_pl.C3D.operations import datatype
+from analizer_pl.C3D.operations import relational
 from analizer_pl.sql_statement.create import create_database
 from analizer_pl.sql_statement.create import create_index
 from analizer_pl.sql_statement.create import create_table
@@ -209,3 +210,11 @@ def SelectFirstValue(temp, select):
 
 def SelectOnlyParamsFirst(temp, select):
     return select_first.SelectOnlyParamsFirst(temp, select)
+
+
+def ExistsRelationalOperation(temp, select):
+    return relational.ExistsRelationalOperation(temp, select)
+
+
+def inRelationalOperation(temp, colData, optNot, select):
+    return relational.inRelationalOperation(temp, colData, optNot, select)

@@ -213,7 +213,7 @@ class Codigo3d:
         """
         ESTE METODO GENERA UN ARCHIVO .PY PARA PODER EJECUTAR EL CODIGO 3 DIRECCIONES QUE SE ADJUNTO
         """
-        RUTA = '../analizer/'
+        RUTA = './analizer/'
         with open(F"{RUTA}SALIDA_C3D.py", "w") as archivo:
             # librerias
             archivo.write(self.getCodigo())

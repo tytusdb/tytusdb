@@ -8,6 +8,7 @@ from storage.dict import DictMode as dict
 import pickle
 import os
 import zlib
+import hashlib
 from cryptography.fernet import Fernet
 import base64
 
@@ -771,7 +772,88 @@ def Codtexto(database , texto):
             except:
                 return False
 
+            
+class bloque:
+    def __init__(self, numero, data, anterior, hashid):
+        self.id = numero
+        self.data = data
+        self.anterior = anterior
+        self.hash = hashid
 
+    def get(self):
+        return [self.id, self.data, self.anterior, self.hash]
+
+class blockchain:
+    def __init__(self):
+        self.id_bloques = 1
+        self.anterior = 0000000000
+        self.bloques = []
+
+    def insertar(self, tablas):
+        id_hash = sha256str(tablas)
+        nuevo = bloque(self.id_bloques, tablas, self.anterior, id_hash)
+        self.id_bloques +=1
+        self.bloques.append(nuevo)
+        file = open("bloques.json", "w+")
+        file.write(json.dumps([j.get() for j in self.bloques]))
+        self.anterior = id_hash
+
+    def update(self, tabla, registro):
+        file = open("bloques.json", "r")
+        lista = json.loads(file.read())
+        file.close()
+        for bloque in lista:
+            if registro == bloque[0]:
+                bloque[1] = tabla
+                bloque[3] = sha256str(tabla)
+
+        file = open("bloques.json", "w+")
+        file.write(json.dumps(lista))
+        file.close()
+
+    def retornarbloques(self):
+        return self.bloques
+
+    def graficarChain(self):
+        code = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
+        code += "node"+str(self.bloques[0].id)+" [ color=green, label = \"Hash actual: "+str(self.bloques[0].hash)+"\\nHash anterior: "+str(self.bloques[0].anterior)+"\"];\n"
+        pos = 1
+        while pos != len(self.bloques):
+            if self.bloques[pos].anterior == self.bloques[pos-1].hash:
+                code += "node"+str(self.bloques[pos].id)+" [ color=green, label = \"Hash actual: "+str(self.bloques[pos].hash)+"\\nHash anterior: "+str(self.bloques[pos].anterior)+"\"];\n"
+                code += "node"+str(self.bloques[pos-1].id)+"->"+"node"+str(self.bloques[pos].id)+"\n"
+                pos += 1
+            else:
+                code += "node"+str(self.bloques[pos].id)+" [ color=red, label = \"Hash actual: "+str(self.bloques[pos].hash)+"\\nHash anterior: "+str(self.bloques[pos].anterior)+"\"];\n"
+                code += "node"+str(self.bloques[pos-1].id)+"->"+"node"+str(self.bloques[pos].id)+"\n"
+                break
+        code += "}"
+        print(code)
+        if code != "":
+            tabGen = open("block.dot","w")
+            tabGen.write(code)
+            tabGen.close()
+            tab = open("block.cmd","w")
+            tab.write("dot -Tpng block.dot -o blockChain.png")
+            tab.close()
+        try:
+            os.system('block.cmd')
+            os.system('blockChain.png')
+        except:
+            return print("ERROR EN CORRER CMD O PNG")
+
+def safeModeOn(database , table):
+    if buscar(database) is not None:
+        lista = showTables(database)
+        for i in lista:
+            for j in extractTable(database, i):
+                if (i == table):
+                    bc.insertar("".join(j))
+                    bc.graficarChain()
+    else:
+        return None
+            
+bc = blockchain()
 os.system('cls')
 print(encrypt("este es el mensaje","llave"))
 print(decrypt("","llave"))

@@ -25,10 +25,7 @@ def checkData():
 # Checks if the name is a valid SQL Identifier
 def validateIdentifier(identifier):
     # Returns true if is valid
-    try:
-        return not re.search(r"[^a-zA-Z0-9_@#$]+|^[\s0-9@<>%$]", identifier)
-    except:
-        return False
+    return re.search("^[a-zA-Z][a-zA-Z0-9#@$_]*", identifier)
 
 
 def createDatabase(database):

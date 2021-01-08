@@ -78,7 +78,7 @@ def resetTemporalA():
     temporalA = 0
 
 def generarC3D(instrucciones, ts_global):
-    global contadorLlamadas, tablaSimbolos, ts
+    global contadorLlamadas, tablaSimbolos, ts, tf2
     global cadenaTraduccion, tf, cadenaManejador
     global cadenaFuncionIntermedia,numFuncionSQL
     cadenaTraduccion = ""
@@ -90,6 +90,7 @@ def generarC3D(instrucciones, ts_global):
     resetTemporalT()
     resetTemporalEtiqueta()
     tf = TF.TablaDeFunciones()
+    tf2 = TF.TablaDeFunciones()
 
     cadenaFuncionIntermedia += "from gramatica import parse"
     cadenaFuncionIntermedia += "\nfrom principal import * "
@@ -130,6 +131,10 @@ def generarC3D(instrucciones, ts_global):
             cadenaTraduccion += '\tgoto. end'
         elif isinstance(instruccion, Funcion):
             guardarFuncion(instruccion, ts)
+        elif isinstance(instruccion, DropFunction):
+            generarDropFunction(instruccion, ts,tf)
+        elif isinstance(instruccion, DropProcedure):
+            generarDropProcedure(instruccion, ts,tf)
         elif isinstance(instruccion, CreateDatabase):
             cadenaTraduccion += "\n\tinter.procesar_funcion"+"CreateDatabase"+str(numFuncionSQL)+"()"
             cadenaFuncionIntermedia += createDatabaseFuncion(instruccion, ts,'CreateDatabase')
@@ -187,6 +192,7 @@ def generarC3D(instrucciones, ts_global):
         elif isinstance(instruccion, CreateIndexNewNew):
             cadenaTraduccion += "\n\tinter.procesar_funcion"+"CreateIndex"+str(numFuncionSQL)+"()"
             cadenaFuncionIntermedia += createCreateIndexFuncion(instruccion, ts,'CreateIndex')
+        
             
             
         indice = indice + 1
@@ -264,9 +270,9 @@ def generarSalto(instruccion, ts):
     cadenaTraduccion += '\tgoto. '+ str(instruccion.id) + ''
 
 def agregarFunciones():
-    global tf, cadenaTraduccion
-    for funcion in tf.funciones:
-        instruccion = tf.obtener(funcion)
+    global tf, cadenaTraduccion, tf2
+    for funcion in tf2.funciones:
+        instruccion = tf2.obtener(funcion)
         tsTemp = TS.TablaDeSimbolos()
         if instruccion.parametros[0] != None:
             contador = 0
@@ -293,20 +299,66 @@ def agregarRetorno():
     cadenaTraduccion += cadenaManejador
 
 def guardarFuncion(instruccion, ts):
-    global tf
+    global cadenaTraduccion
+    global tf, tf2
     tempParametros = []
     if instruccion.parametros[0] != None:
         for parametro in instruccion.parametros:
             parametroTemp = generarTemporalA()
             tempParametros.append(parametroTemp)
 
-    funcion = TF.Funcion(instruccion.id, instruccion.tipo, instruccion.parametros, tempParametros, instruccion.instrucciones)
+    funcion = TF.Funcion(instruccion.tipo_funcion,instruccion.id, instruccion.tipo, instruccion.parametros, tempParametros, instruccion.instrucciones)
     tf.agregar(funcion)
+    tf2.agregar(funcion)
+
+    cadenaTraduccion += '\n\tprint(\'\\'+'nCREATE FUNCTION\')'
+
+def generarDropFunction(instruccion, ts,tf):
+    global cadenaTraduccion
+    if instruccion.existe:
+        funcion = tf.obtener(instruccion.id)
+        if funcion != None:
+            tf.eliminar(instruccion.id)
+            cadenaTraduccion += '\n\tprint(\'\\'+'nDROP FUNCTION\')'
+        else:
+            cadenaTraduccion += '\n\tprint(\'\\'+'nNOTICE:  function \"' +str(instruccion.id)+'\" does not exist, skipping\\'+'nDROP FUNCTION\')'
+    else:
+        funcion = tf.obtener(instruccion.id)
+        if funcion != None:
+            tf.eliminar(instruccion.id)
+            cadenaTraduccion += '\n\tprint(\'\\'+'nDROP FUNCTION\')'
+        else:
+            cadenaTraduccion += '\n\tprint(\'\\'+'nERROR:  could not find a function named \"' +str(instruccion.id)+'\"\\'+'nSQL state: 42883\')'
+    
+
+
+def generarDropProcedure(instruccion, ts,tf):
+    global cadenaTraduccion
+    funcion = tf.obtener(instruccion.id)
+    if instruccion.existe:
+        if funcion != None:
+            tf.eliminar(instruccion.id)
+            cadenaTraduccion += '\n\tprint(\'\\'+'nDROP PROCEDURE\')'
+
+
+        else:
+            cadenaTraduccion += '\n\tprint(\'\\'+'nERROR:  could not find a procedure named  \"' +str(instruccion.id)+'\"\\'+'nSQL state: 42883\')'
+    else:
+        if funcion != None:
+            tf.eliminar(instruccion.id)
+            cadenaTraduccion += '\n\tprint(\'\\'+'nDROP PROCEDURE\')'
+
+
+        else:
+            cadenaTraduccion += '\n\tprint(\'\\'+'nNOTICE:  procedure  \"' +str(instruccion.id)+'\" does not exist, skipping\\'+'nDROP PROCEDURE\')'
+
+
 
 def generarLlamadaFuncion(instruccion, ts):
+    isExistFuncion = None
     global cadenaTraduccion, contadorLlamadas, cadenaManejador, tf
-    contadorLlamadas = contadorLlamadas + 1
     if instruccion.parametros[0] is None:
+        contadorLlamadas = contadorLlamadas + 1
         cadenaTraduccion += '\t\n'
         cadenaTraduccion += '\tpos = pos + 1'
         cadenaTraduccion += '\t\n'
@@ -316,23 +368,40 @@ def generarLlamadaFuncion(instruccion, ts):
         cadenaTraduccion += '\t\n'
         cadenaTraduccion += '\tlabel. retorno' + str(contadorLlamadas)
     else:
+        contadorLlamadas = contadorLlamadas + 1
+
         funcion = tf.obtener(instruccion.id)
-        contador = 0
-        for parametro in instruccion.parametros:
-            exp = generarExpresion(parametro, ts)
+        isExistFuncion = funcion
+        if funcion != None:
+            contador = 0
+            for parametro in instruccion.parametros:
+                exp = generarExpresion(parametro, ts)
+                cadenaTraduccion += '\t\n'
+                cadenaTraduccion += '\t' + str(funcion.temporales[contador]) + ' = ' + str(exp) + ''
+                contador = contador + 1
             cadenaTraduccion += '\t\n'
-            cadenaTraduccion += '\t' + str(funcion.temporales[contador]) + ' = ' + str(exp) + ''
-            contador = contador + 1
-        cadenaTraduccion += '\t\n'
-        cadenaTraduccion += '\tpos = pos + 1'
-        cadenaTraduccion += '\t\n'
-        cadenaTraduccion += '\tarr[pos] = ' + str(contadorLlamadas) + ''
-        cadenaTraduccion += '\t\n'
-        cadenaTraduccion += '\tgoto. ' + instruccion.id + ''
-        cadenaTraduccion += '\t\n'
-        cadenaTraduccion += '\tlabel. retorno' + str(contadorLlamadas)
-    cadenaManejador += '\t\n'
-    cadenaManejador += '\tif posR == '+ str(contadorLlamadas) + ': goto. retorno' + str(contadorLlamadas) + ''
+            cadenaTraduccion += '\tpos = pos + 1'
+            cadenaTraduccion += '\t\n'
+            cadenaTraduccion += '\tarr[pos] = ' + str(contadorLlamadas) + ''
+            cadenaTraduccion += '\t\n'
+            cadenaTraduccion += '\tgoto. ' + instruccion.id + ''
+            cadenaTraduccion += '\t\n'
+            cadenaTraduccion += '\tlabel. retorno' + str(contadorLlamadas)
+        else:
+            cadenaTraduccion += '\t\n'
+            cadenaTraduccion += '\tpos = pos + 1'
+            cadenaTraduccion += '\t\n'
+            cadenaTraduccion += '\tarr[pos] = ' + str(contadorLlamadas) + ''
+            cadenaTraduccion += '\t\n'
+            cadenaTraduccion += '\n\tprint(\'\\'+'nERROR:  function ' +str(instruccion.id)+'() does not exist\\'+'nSQL state: 42883\')'
+            cadenaTraduccion += '\t\n'
+            cadenaTraduccion += '\tlabel. retorno' + str(contadorLlamadas)
+    if isExistFuncion != None:
+        cadenaManejador += '\t\n'
+        cadenaManejador += '\tif posR == '+ str(contadorLlamadas) + ': goto. retorno' + str(contadorLlamadas) + ''
+    else:
+        cadenaManejador += '\t\n'
+        cadenaManejador += '\tif posR == '+ str(contadorLlamadas) + ': goto. retorno' + str(contadorLlamadas) + ''
 
 def generarListaDeclaraciones(instruccion, ts):
     global cadenaTraduccion

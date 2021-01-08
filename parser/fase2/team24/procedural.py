@@ -657,6 +657,8 @@ class asignacion(instruccion):
         var = self.traduccion
         c3d = ''
         c3d += var[0]+ '\n'
+        obj = self.id + ' = ' + str(var[1]) + '\n'
+        objopt.append(obj)
         c3d += self.id + ' = ' + str(var[1]) + '\n'
         return c3d
 
@@ -669,6 +671,8 @@ class rtrn(instruccion):
         var = self.exp.traducir()
         c3d += var[0]
         c3d += '\n'
+        obj = 'pila[10] = ' + var[1] + '\n'
+        objopt.append(obj)
         c3d += 'pila[10] = ' + var[1] + '\n'
         return c3d
 
@@ -716,7 +720,7 @@ class searched_case(instruccion):
 
     def c3d(self):
         c3d = ''
-        for inst in instrucciones:
+        for inst in self.instrucciones:
             c3d += inst.c3d()
 
         for eli in self.elsif:
@@ -754,6 +758,8 @@ class iff(instruccion):
             
 
         c3d += 'if '+ varcon[1] +':\n'
+        obj = 'if '+ varcon[1] +':\n'
+        objopt.append(obj)
         for inst in self.instrucciones:
             c3d += '\t'+inst.traducir().replace('\n','\n\t')+'\n'
         
@@ -761,6 +767,8 @@ class iff(instruccion):
         for eli in self.elsif :
             #tengo que ejecutar y añadir los elif
             c3d += 'elif '+ aveli[contadori][1] +' :\n'
+            obj  = 'elif '+ aveli[contadori][1] +' :\n'
+            objopt.append(obj)
             for inst in eli.instrucciones:
                 c3d += '\t'+inst.traducir().replace('\n','\n\t')+'\n'
             contadori += 1
@@ -768,6 +776,7 @@ class iff(instruccion):
 
         if self.els != None:
             c3d += 'else:\n'
+            objopt.append('else:')
             for inst in self.els.instrucciones:
                 c3d += '\t'+inst.traducir().replace('\n','\n\t')+'\n'
 
@@ -1166,6 +1175,7 @@ class exp_menor_igualp(expresion):
         valor = tmp
         #res = res1 <= res2
         #True
+        res = True
         obj = oo.Asignacion(tmp,tmp1,tmp2,'<=')
         objopt.append(obj)
         #print(codigo,valor)

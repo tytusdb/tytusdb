@@ -6,7 +6,7 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter import *
 from ui.Pantalla_TS import *
-from ui.Pantalla_AST import *
+#from ui.Pantalla_AST import *
 from ui.Pantalla_Error import *
 import tkinter.messagebox
 from analizer import interpreter
@@ -244,8 +244,8 @@ class Pantalla:
         with open(path) as file:
             return json.load(file)
     def open_AST(self):  # Abre la pantalla del AST
-        os.system('cd test-output & round-table.gv.png')
-        windowTableS = Pantalla_AST(self.window)
+        os.system('cd ./test-output & round-table.gv.svg')
+
 
     def open_Reporte(self):  # Abre la pantalla de los reportes de errores
         windowTableS = Pantalla_Error(

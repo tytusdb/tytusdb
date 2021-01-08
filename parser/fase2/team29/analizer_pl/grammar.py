@@ -92,8 +92,8 @@ def p_instruction(t):
     try:
         if t[1].dot():
             listInst.append(t[1].dot())
-    except:
-        pass
+    except Exception as e:
+        print(e)
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -236,9 +236,9 @@ def p_language_function_1(t):
 
 def p_declaration_stmt(t):
     """
-    declaration_stmt : R_DECLARE global_variable_declaration
+    declaration_stmt : declaration_list
     """
-    t[0] = t[2]
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -250,23 +250,23 @@ def p_declaration_stmt_n(t):
     repGrammar.append(t.slice)
 
 
-'''
 def p_declaration_list(t):
     """
-    declaration_list : declaration_list R_DECLARE global_variable_declaration
+    declaration_list : declaration_list declare_var
     """
-    t[1].append(t[3])
-    t[0] = t[1]
-    repGrammar.append(t.slice)
-
+    t[0] = t[1]+t[2]
 
 def p_declaration_list_u(t):
     """
-    declaration_list : R_DECLARE global_variable_declaration
+    declaration_list : declare_var
     """
-    t[0] = [t[1]]
-    repGrammar.append(t.slice)
-'''
+    t[0] = t[1]
+
+def p_declare_var(t):
+    """
+    declare_var : R_DECLARE global_variable_declaration
+    """
+    t[0] = t[2]
 
 
 def p_global_variable_declaration(t):
@@ -489,10 +489,10 @@ def p_statement(t):
 
 def p_drop_func(t):
     """
-    drop_func : R_DROP R_FUNCTION ID S_PUNTOCOMA
-            | R_DROP R_PROCEDURE ID S_PUNTOCOMA
+    drop_func : R_DROP R_FUNCTION ifExists ID S_PUNTOCOMA
+            | R_DROP R_PROCEDURE ifExists ID S_PUNTOCOMA
     """
-    t[0] = code.DropFunction(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.DropFunction(t[4], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1724,7 +1724,7 @@ def p_current(t):
     current : R_CURRENT_DATE
           | R_CURRENT_TIME
     """
-
+    t[0] = expression.C3D("", t[1], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1732,6 +1732,7 @@ def p_current_1(t):
     """
     current : timeStamp
     """
+    t[0] = expression.C3D("", t[1][0].temp[1:-1]+" "+t[1][1].temp, t[1][0].row, t[1][0].column)
     repGrammar.append(t.slice)
 
 
@@ -1977,6 +1978,7 @@ def p_boolean_1(t):
     """
     boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
     """
+    # t[0] = code.ExistsRelationalOperation(newTemp(), t[3])
     repGrammar.append(t.slice)
 
 
@@ -1984,6 +1986,8 @@ def p_boolean_2(t):
     """
     boolean : datatype R_IN S_PARIZQ selectStmt S_PARDER
     """
+    # temp, colData, optNot , select
+    # t[0] = code.inRelationalOperation(newTemp(), t[1], "", t[4])
     repGrammar.append(t.slice)
 
 
@@ -1991,6 +1995,7 @@ def p_boolean_3(t):
     """
     boolean : datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
     """
+    # t[0] = code.inRelationalOperation(newTemp(), t[1], t[2] + " ", t[5])
     repGrammar.append(t.slice)
 
 
@@ -2574,25 +2579,26 @@ def p_havingCl_2(t):
 
 def p_orderByCl(t):
     """orderByCl : R_ORDER R_BY orderList"""
-    t[0] = t[1] + " " + t[2] + " " + t[3]
+    t[0] = t[3]
     repGrammar.append(t.slice)
 
 
 def p_orderByCl_n(t):
     """orderByCl : """
-    t[0] = ""
+    t[0] = None
     repGrammar.append(t.slice)
 
 
 def p_orderList(t):
     """orderList : orderList S_COMA orderByElem"""
-    t[0] = t[1] + ", " + t[3]
+    t[1].append(t[3])
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
 def p_orderList_1(t):
     """orderList : orderByElem"""
-    t[0] = t[1]
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
@@ -2601,7 +2607,7 @@ def p_orderByElem(t):
     orderByElem : columnName orderOpts orderNull
                 | INTEGER orderOpts orderNull
     """
-    t[0] = str(t[1]) + t[2] + t[3]
+    t[0] = [t[1], t[2], t[3]]
     repGrammar.append(t.slice)
 
 

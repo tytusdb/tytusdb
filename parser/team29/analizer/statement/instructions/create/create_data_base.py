@@ -19,6 +19,7 @@ class CreateDatabase(instruction.Instruction):
         self.replace = replace
 
     def execute(self, environment):
+        Struct.load()
         result = jsonMode.createDatabase(self.name)
         """
         0: insert

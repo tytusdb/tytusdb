@@ -16,6 +16,7 @@ class AlterDataBase(instruction.Instruction):
         self.newname = newname
 
     def execute(self, environment):
+        Struct.load()
         try:
             if self.option == "RENAME":
                 valor = jsonMode.alterDatabase(self.name, self.newname)
