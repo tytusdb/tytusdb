@@ -220,6 +220,25 @@ class SymbolTable:
                 self.symbols.remove(s)
                 break
 
+    def drop_function(self, name_function):
+        found = False
+        for s in self.symbols:
+            if s.type == SymbolType.FUNCTION and str(s.name).lower() == str(name_function).lower():
+                self.symbols.remove(s)
+                found = True
+                break
+        return found
+
+
+    def drop_procedure(self, name_procedure):
+        found = False
+        for s in self.symbols:
+            if s.type == SymbolType.STOREPROCEDURE and str(s.name).lower() == str(name_procedure).lower():
+                self.symbols.remove(s)
+                found = True
+                break
+        return found
+
     def report_symbols(self):
         result2 = ["NOMBRE", "TIPO", "PERTENECE A", "COLUMNAS AFECTADAS[Indices]"]
         result = []
