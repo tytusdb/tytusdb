@@ -177,11 +177,11 @@ if __name__ == "__main__":
 
 
         try:
-           reporte.hacerReporteGramatica(prueba['reporte'])
-           errores = g2.getMistakes()
-           recorrerErrores(errores)
-           reporte.Rerrores(errores, [], "Reporte_Errores_Sintactico_Lexicos.html")
-           reporte.reporteTabla(datos)
+            reporte.hacerReporteGramatica(prueba['reporte'])
+            errores = g2.getMistakes()
+            recorrerErrores(errores)
+            reporte.Rerrores(errores, [], "Reporte_Errores_Sintactico_Lexicos.html")
+            reporte.reporteTabla(datos)
         except:
            ''
 
@@ -194,6 +194,7 @@ if __name__ == "__main__":
     except:
         print("No se ha podido generar el codigo ya que existen errores sintacticos")
         escribirEnSalidaFinal("No se ha podido generar el codigo ya que existen errores sintacticos")
+
 
 try:
     l.readData(datos)
@@ -218,7 +219,7 @@ def ayuda():
     print("hola")
 
 def mistakes():
-    ruta = ".\\Reportes\\Reporte_Errores.html"
+    ruta = ".\\Reportes\\Reporte_Errores_Sintactico_Lexicos.html"
     webbrowser.open(ruta)
 
 def recorrerErrores(errores):
