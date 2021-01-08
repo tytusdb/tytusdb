@@ -95,7 +95,7 @@ class CreateTable(Instruccion):
 
 
             # creo el entorno de la tabla
-            print("Creando entorno tabla")
+            ##print("Creando entorno tabla")
             nuevo_entorno_tabla = {}
             tsTabla = TS.TablaDeSimbolos(nuevo_entorno_tabla)
             # recorrer campos y le mando el entorno de la tabla quien es el que adentro de este
@@ -115,15 +115,13 @@ class CreateTable(Instruccion):
 
                         for campito in campo.idR:
                             if entornoTablarefrencia.validar_sim(campito.id) == 1:
-                                print("todo bien")
+                                pass
                             else:
                                 banderaTodoBien = False
                                 break;
 
                         if banderaTodoBien:
-                            print("todo esta bien")
                             banderaTodoBien = Campo.ejecutar(campo, tsTabla, consola, exceptions)
-                            print(banderaTodoBien)
                             if campo.caso == 2 or campo.caso == 3 or campo.caso == 4:
                                 cantidad_columnas = cantidad_columnas - 1
                             if not banderaTodoBien:
@@ -134,7 +132,6 @@ class CreateTable(Instruccion):
 
                 else:
                     banderaTodoBien = Campo.ejecutar(campo, tsTabla, consola, exceptions)
-                    print(banderaTodoBien)
                     if campo.caso == 2 or campo.caso==3 or campo.caso==4:
                         cantidad_columnas=cantidad_columnas-1
                     if not banderaTodoBien:
@@ -143,8 +140,6 @@ class CreateTable(Instruccion):
             if banderaTodoBien:
 
                 if str(CreateTable.idInherits) != str(None):
-                    print("---------",CreateTable.idInherits)
-                    print(entornoBD.validar_sim(CreateTable.idInherits))
                     if entornoBD.validar_sim(CreateTable.idInherits) == 1:
 
 
@@ -161,14 +156,11 @@ class CreateTable(Instruccion):
                         entornoBD.agregar_sim(nueva_tabla)
                         createTable(bdactual.valor, CreateTable.id, cantidad_columnas+contador)
                         columnas = tsTabla.simbolos
-                        print("Agregando llaves primarias")
                         i = 0
                         pks = []
                         for columna in columnas:
-                            print(columnas.get(columna).id)
 
                             for data in columnas.get(columna).valor:
-                                print("     data: ", data)
                                 if 'PRIMARYKEY' in data:
                                     pks.append(i)
 
@@ -186,14 +178,11 @@ class CreateTable(Instruccion):
 
                     createTable(bdactual.valor, CreateTable.id, cantidad_columnas)
                     columnas = tsTabla.simbolos
-                    print("Agregando llaves primarias")
                     i = 0
                     pks = []
                     for columna in columnas:
-                        print(columnas.get(columna).id)
 
                         for data in columnas.get(columna).valor:
-                            print("     data: ",data)
                             if 'PRIMARYKEY' in data:
                                 pks.append(i)
 
@@ -245,8 +234,7 @@ class CreateTable(Instruccion):
             codigo_quemado3 = ') ;'
         c3d += '''    %s = "%s"
     %s = %s + %s 
-    stack[top_stack] = %s 
-    funcion_intermedia() 
+    stack[top_stack] = %s  
 ''' % (temporal3, codigo_quemado3, temporal3, temporal2, temporal3, temporal3)
         return c3d
 
