@@ -1724,6 +1724,11 @@ class update(instruccion):
             traduccion += "'" + self.cond.tipo + "'"
         elif isinstance(self.cond.tipo, bool):
             traduccion += str(self.cond.tipo )
+        elif isinstance(self.cond.tipo, llamadaF): 
+                c = self.cond.tipo.traducir()
+                traduccion += '\t'+str(c[0]).replace('\n','\n\t')
+                traduccion += '\n'
+                traduccion += "\"+"+str(c[1])+ "+\","
         else:
             try:
                 temp = self.cond.tipo.ejecutar()
