@@ -374,7 +374,7 @@ class Select(Instruccion):
                                 break;
                             for keys in columnasAceptadas:
                                 directorioTablas[keys]['fila'] = columnasAceptadas[keys][i]
-                                print(directorioTablas)
+                                #print(directorioTablas)
                             try:
                                 comprobar = nombreColumna.execute(data, directorioTablas)
                             except:

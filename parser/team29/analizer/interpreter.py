@@ -128,7 +128,7 @@ def indexReport():
     for (name, Index) in index.items():
         columns = ""
         for column in Index["Columns"]:
-            columns += ", " + column["Name"]
+            columns += ", " + column["Name"] + " "  + column["Order"] + " "  + column["Nulls"] 
         filas.append(
             [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
         )

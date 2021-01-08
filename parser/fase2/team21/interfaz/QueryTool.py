@@ -635,8 +635,9 @@ class Application(ttk.Frame):
        encabezado = "# -*- coding: latin1 -*-\nimport  math\nimport random\nimport hashlib\nimport base64\nimport time\nfrom goto import with_goto\nfrom  tytus.parser.fase2.team21.Analisis_Ascendente.ascendente import T,T3,procesar_instrucciones\nfrom tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *\nstack =[]\n@with_goto  # Decorador necesario.\ndef main():\n\tdropAll()\n"
        #self.T.insert(tk.END, encabezado)
        concatena += encabezado
+
        salida = parser.ejecutarTraduccion(texto)
-       parser.ejecutarAnalisis2(texto)
+
 
        print("temporal es: 50000",)
        f = open("salidatresdireciones.py", 'w')

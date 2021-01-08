@@ -1,4 +1,3 @@
-
 from re import S
 from sys import path
 from os.path import dirname as dir
@@ -8,6 +7,7 @@ from analizer_pl.C3D.operations import block
 from analizer_pl.reports import BnfGrammar
 from analizer_pl.abstract import global_env
 import analizer_pl.grammar as grammar
+
 
 def traducir(input):
     result = grammar.parse(input)
@@ -92,21 +92,46 @@ def functionsReport(env):
 
 s = """ 
 
-
-SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
-SELECT now();
-SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
-SELECT date_part('seconds', now());
-SELECT now();
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE 
+resultado INTEGER; 
+retorna   INTEGER;
+BEGIN
+	if tabla = 'tbProducto' then
+	    resultado := (SELECT md5('23') si, puta as sho) ;
+    	if cantidad = resultado then
+			retorna = 1;
+		else 
+			retorna = 0;
+		end if;
+	end if;
+	if tabla = 'tbProductoUp' then
+	    resultado := (SELECT COUNT(*) FROM tbProducto where estado = 2);
+    	if cantidad = resultado then
+			retorna = 1;
+		else 
+			retorna = 0;
+		end if;
+	end if;
+	if tabla = 'tbbodega' then
+	    resultado := (SELECT COUNT(*) FROM tbbodega);
+    	if cantidad = resultado then
+			retorna = 1;
+		else 
+			retorna = 0;
+		end if;
+	end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+delete from tbbodega as tb where idbodega = 4 and idbodega = 5;
 """
 s2 = """
 
 CREATE FUNCTION foo(texto text, b boolean) RETURNS text AS $$
 BEGIN
+update tbbodega set bodega = texto||"fr", id = 1 where idbodega = 4; 
+update tbbodega set bodega = "fr" where idbodega = 4; 
 return texto;
 END;
 $$ LANGUAGE plpgsql;
@@ -144,7 +169,7 @@ group by 1,2,3
 order by 1;
 
 b = texto between symmetric 2 and 3;
-	RETURN texto;
+RETURN (3+1)*-1;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -153,6 +178,67 @@ from tbventa V,tbempleado E
 where V.idempleado = E.idempleado
 group by primernombre,segundonombre,primerapellido;
 
+select (3+3)*5;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = texto
+group by 1,2,3
+order by col ,1 ;
+
+
 """
 
-traducir(s)
+s3 = """
+select E.* from tabla;
+select departamento,count(*) CantEmpleados 
+from tbempleadopuesto
+group by departamento;
+select primernombre,segundonombre,primerapellido,sum(montoventa) 
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+create table tblibrosalario
+( idempleado integer not null,
+  aniocalculo integer not null CONSTRAINT aniosalario CHECK (aniocalculo > 0),
+  mescalculo  integer not null CONSTRAINT mescalculo CHECK (mescalculo > 0),
+  salariobase  money not null,
+  comision     decimal,
+  primary key(idempleado)
+ );
+EXECUTE md5("francisco");
+update tbbodega set bodega = 'bodega zona 9' where idbodega = 4; 
+update tbbodega set bodega = DEFAULT where idbodega = 4; 
+"""
+
+s4 = """
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+	if tabla = 'tbProducto' then
+	    resultado := not ((4+4*10/3) NOT IN  (SELECT COUNT(*) FROM tbProducto)); 
+		retorna = 0;
+		
+	end if;
+	if tabla = 'tbProductoUp' then
+	    resultado := xd IN (SELECT * FROM tbProducto where estado = 2);
+    	retorna = 1;
+	end if;
+	if tabla = 'tbbodega' then
+	    resultado := EXISTS (SELECT COUNT(*) FROM tbbodega);
+    	retorna = 2;
+	end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;				 
+	
+"""
+
+traducir(s4)

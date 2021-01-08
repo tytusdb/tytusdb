@@ -1,5 +1,8 @@
-
 from enum import Enum
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
+from Optimizador.C3D import Valor as ClassValor
+from Optimizador.C3D import OP_ARITMETICO as ClassOP_ARITMETICO
+from Optimizador.C3D import Identificador as ClassIdentificador
 
 class Tipo_Dato_Constraint(Enum):
     # ENTERO
@@ -40,3 +43,31 @@ class Tipo_Constraint():
             return "constraint"
         elif self.tipo == Tipo_Dato_Constraint.CHECK:
             return "check"
+
+    def generar3D(self):
+        code = []
+        t0 = c3d.getLastTemporal()
+        t1 = c3d.getTemporal()
+        if self.id != None:
+            code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\"" + str(self.id) + " \"", "STRING"), ClassOP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+        
+        code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\"" + self.toString().replace('_', ' ') + "(\"", "STRING"), ClassOP_ARITMETICO.SUMA))
+        t0 = t1
+        t1 = c3d.getTemporal()
+
+        for cont in range(len(self.expresion)):
+            code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor('"' + self.expresion[cont] + '"', "STRING"), ClassOP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+            
+            if cont + 1 != len(self.expresion):
+                code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor('","', "STRING"), ClassOP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = c3d.getTemporal()
+        
+        code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\")\\n\"", "STRING"), ClassOP_ARITMETICO.SUMA))
+
+        return code
+    
