@@ -1,6 +1,7 @@
-var editor = document.getElementById("floatingTextarea2");
+var editor = document.getElementById("entrada2");
 var codemirror = CodeMirror.fromTextArea(editor, {
     mode: 'text/x-pgsql',
+    theme: 'oceanic-next',
     lineNumbers: true, // set number
     smartIndent: true, // smart indent
     indentUnit: 4, // Smart indent in 4 spaces
