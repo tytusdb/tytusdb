@@ -1,5 +1,5 @@
-from enum import Enum
 import optimization.abstract.optimize as opt
+import re
 
 class OptAssignment(opt.OptimizedInstruction):
     """
@@ -19,7 +19,7 @@ class OptAssignment(opt.OptimizedInstruction):
         else:
             return f'{self.id} = {self.assign}()'
 
-    def optimize(self):
+    def optimize(self, generador):
         idVal = self.id
         if self.type == opt.TEVAL.OPERATION:
             izq,operador,der = self.assign
@@ -28,52 +28,85 @@ class OptAssignment(opt.OptimizedInstruction):
                 if der == 0 or izq == 0:
                     if idVal == izq or idVal == der:
                         self.optimizable = opt.RULES.O8
-                    elif der == 0:
-                        self.optimizable = opt.RULES.O12
-                        self.assign = izq
-                        self.type = opt.TEVAL.SINGLE
-                    else:
-                        self.optimizable = opt.RULES.O12
-                        self.assign = der
-                        self.type = opt.TEVAL.SINGLE      
+                        self.toReport(generador)
+                    elif re.match(r'^(\'.*?\'|\".*?\")$', str(izq)) == None and \
+                    re.match(r'^(\'.*?\'|\".*?\")$', str(der)) == None:
+                        if der == 0:
+                            self.optimizable = opt.RULES.O12
+                            self.toReport(generador)
+                            self.assign = izq
+                            self.type = opt.TEVAL.SINGLE
+                        else:
+                            self.optimizable = opt.RULES.O12
+                            self.toReport(generador)
+                            self.assign = der
+                            self.type = opt.TEVAL.SINGLE      
             elif operador == '-':
                 if der == 0:
                     if idVal == izq:
                         self.optimizable = opt.RULES.O9
-                    else:
+                        self.toReport(generador)
+                    elif re.match(r'^(\'.*?\'|\".*?\")$', str(izq)) == None and \
+                    re.match(r'^(\'.*?\'|\".*?\")$', str(der)) == None:
                         self.optimizable = opt.RULES.O13
+                        self.toReport(generador)
                         self.assign = izq
                         self.type = opt.TEVAL.SINGLE
             elif operador == '/':
                 if idVal == izq and der == 1:
                     self.optimizable = opt.RULES.O11
-                elif izq == 0:
-                    self.optimizable = opt.RULES.O18
-                    self.assign = izq
-                    self.type = opt.TEVAL.SINGLE
-                elif der == 1:
-                    self.optimizable = opt.RULES.O15
-                    self.assign = izq
-                    self.type = opt.TEVAL.SINGLE
+                    self.toReport(generador)
+                elif re.match(r'^(\'.*?\'|\".*?\")$', str(izq)) == None and \
+                re.match(r'^(\'.*?\'|\".*?\")$', str(der)) == None:
+                    if izq == 0:
+                        self.optimizable = opt.RULES.O18
+                        self.toReport(generador)
+                        self.assign = izq
+                        self.type = opt.TEVAL.SINGLE
+                    elif der == 1:
+                        self.optimizable = opt.RULES.O15
+                        self.toReport(generador)
+                        self.assign = izq
+                        self.type = opt.TEVAL.SINGLE
 
             elif operador == '*':
                 if idVal == izq or idVal == der:
                     if der == 1 or izq == 1:
                         self.optimizable = opt.RULES.O10
+                        self.toReport(generador)
                     elif der == 2:
                         self.optimizable = opt.RULES.O16
+                        self.toReport(generador)
                         self.assign = (izq, '+', izq)
                     elif izq == 2:
                         self.optimizable = opt.RULES.O16
+                        self.toReport(generador)
                         self.assign = (der, '+', der)
-                elif der == 0 or izq == 0:
-                        self.optimizable = opt.RULES.O17
+                elif re.match(r'^(\'.*?\'|\".*?\")$', str(izq)) == None and \
+                re.match(r'^(\'.*?\'|\".*?\")$', str(der)) == None:
+                    if der == 2:
+                        self.optimizable = opt.RULES.O16
+                        self.toReport(generador)
+                        self.assign = (izq, '+', izq)
+                    elif izq == 2:
+                        self.optimizable = opt.RULES.O16
+                        self.toReport(generador)
+                        self.assign = (der, '+', der)
+                    elif der == 0 or izq == 0:
+                            self.optimizable = opt.RULES.O17
+                            self.toReport(generador)
+                            self.assign = der
+                            self.type = opt.TEVAL.SINGLE
+                    elif der == 1:
+                        self.optimizable = opt.RULES.O14
+                        self.toReport(generador)
+                        self.assign = izq
+                        self.type = opt.TEVAL.SINGLE
+                    elif izq == 1:
+                        self.optimizable = opt.RULES.O14
+                        self.toReport(generador)
                         self.assign = der
                         self.type = opt.TEVAL.SINGLE
-                elif der == 1:
-                    self.optimizable = opt.RULES.O14
-                    self.assign = izq
-                    self.type = opt.TEVAL.SINGLE
         #TIPO SINGLE
         elif self.type == opt.TEVAL.SINGLE:
             if idVal == self.assign:

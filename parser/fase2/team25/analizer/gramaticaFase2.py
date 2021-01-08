@@ -62,7 +62,7 @@ from analizer.statement.pl.asignacion import Asignacion
 from analizer.statement.pl.declaration import Declaration
 from analizer.statement.pl.procedure import Procedure, dropProc
 from analizer.statement.pl.function import Function, dropFunc
-from analizer.statement.pl.index import Index, dropIndex, alterIndex
+from analizer.statement.pl.index import Index, dropIndex, alterIndex, alterIndexChange
 from analizer.statement.pl.raise_print import Raise
 from analizer.statement.pl.f2Statement import f2Statement
 from analizer.statement.pl.f1Statement import f1Statement
@@ -190,6 +190,23 @@ def p_alter_index(t):
         alterIndex(t[3],t[5])
     repGrammar.append(t.slice)
     C3D_INSTRUCCIONES_SIN_EJECUCION(t)
+
+def p_alter_index_name(t):
+    """
+    dml_index : R_ALTER R_INDEX R_IF R_EXISTS ID R_ALTER R_COLUMN ID ID
+        | R_ALTER R_INDEX R_IF R_EXISTS ID R_ALTER ID ID
+        | R_ALTER R_INDEX ID R_ALTER R_COLUMN ID ID
+        | R_ALTER R_INDEX ID R_ALTER ID ID
+    """
+    repGrammar.append(t.slice)
+    if len(t) == 10:
+        alterIndexChange(t[5],t[8], t[9], True)
+    elif len(t) == 9:
+        alterIndexChange(t[5],t[7], t[8], True)
+    elif len(t) == 8:
+        alterIndexChange(t[3],t[6], t[7])
+    else:
+        alterIndexChange(t[3],t[5], t[6])
 
 def p_fase2_stmt(t):
     '''
@@ -491,7 +508,7 @@ def p_executeStmt(t):
     else:
         t[0] = Execute(t[2], [],t.slice[2].lineno, t.slice[2].lexpos)
 
-    t[0].generate3d(None, instancia_codigo3d)
+    #t[0].generate3d(None, instancia_codigo3d)
 
 def p_ifStmt(t):
     """
