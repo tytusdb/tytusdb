@@ -71,7 +71,7 @@ from InterpreteF2.indices.alterindex import alterindex
 from InterpreteF2.Soporte_aFun.dropfun import dropfun
 from InterpreteF2.Soporte_aFun.lappel import lappel
 
-ArbolErrores:Arbol = Arbol(None)
+ArbolErrores: Arbol = Arbol(None)
 
 
 reservadas = {
@@ -486,8 +486,11 @@ def t_COMENTARIO_MULTILINEA(t):
 def t_error(t):
     global ArbolErrores
     print("Caracter ilegal '%s'" % t.value[0])
-    Error: ErroresLexicos = ErroresLexicos("Caracter ilegal " + t.value[0], int(t.lexer.lineno), 0, 'Lexico')
+    Error: ErroresLexicos = ErroresLexicos("Caracter ilegal '%s'" % t.value[0], int(t.lexer.lineno),  int(t.lexer.lineno), 'Lexico')
     ArbolErrores.ErroresLexicos.append(Error)
+    print("Caracter ilegal ")
+
+
     t.lexer.skip(1)
 
 
@@ -518,11 +521,11 @@ precedence = (
 
 def p_init(t):
     'init : definitions'
-    #aux:Arbol = Arbol(t[1])
-    #aux.ErroresLexicos = ArbolErrores.ErroresLexicos
-    #aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
-    t[0] = Arbol(t[1])
-    #t[0] = aux
+    aux:Arbol = Arbol(t[1])
+    aux.ErroresLexicos = ArbolErrores.ErroresLexicos
+    aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
+    #t[0] = Arbol(t[1])
+    t[0] = aux
 
 def p_definitions(t):
     '''
