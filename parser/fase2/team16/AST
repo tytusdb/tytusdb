@@ -2,57 +2,2450 @@ digraph AST {
 	edge [arrowhead=none]
 	node [color="#31CEF0" shape=box]
 	Node0 [label="\"AST\""]
-	Node1 [label=FUNCION_PRODUCCION]
+	Node1 [label="CREATE DATABASE"]
 	Node0 -> Node1
-	Node2 [label=CREATE]
+	Node2 [label="Id: DBFase2"]
 	Node1 -> Node2
-	Node3 [label=FUNTION]
-	Node1 -> Node3
-	Node4 [label=myFuncion]
-	Node1 -> Node4
-	Node5 [label=PARAMETROS]
-	Node1 -> Node5
-	Node6 [label=PARAMETROS]
+	Node3 [label="CREATE TABLE"]
+	Node0 -> Node3
+	Node4 [label="Id: tbbodega"]
+	Node3 -> Node4
+	Node5 [label=CAMPO]
+	Node3 -> Node5
+	Node6 [label="Id: idbodega"]
 	Node5 -> Node6
-	Node7 [label="text texto "]
-	Node6 -> Node7
-	Node8 [label=RETURNS]
-	Node1 -> Node8
-	Node9 [label=EXPRESION_]
-	Node1 -> Node9
-	Node10 [label=CONDICION]
-	Node9 -> Node10
-	Node10 -> 11
-	Node12 [label="AS $$"]
-	Node1 -> Node12
-	Node13 [label=COMANDO_SQL]
-	Node1 -> Node13
-	Node14 [label=DECLARACIONES]
-	Node1 -> Node14
-	Node15 [label=CODIGO_]
-	Node1 -> Node15
-	Node16 [label=CUERPO_CODE]
-	Node15 -> Node16
-	Node17 [label=BEGIN]
-	Node16 -> Node17
-	Node18 [label=_CODIGO_]
-	Node16 -> Node18
-	Node19 [label=CODIGO_GENERADO]
+	Node7 [label="Tipo: integer"]
+	Node5 -> Node7
+	Node8 [label=VALIDACION]
+	Node5 -> Node8
+	Node9 [label="not null"]
+	Node8 -> Node9
+	Node10 [label=VALIDACION]
+	Node5 -> Node10
+	Node11 [label="primary key"]
+	Node10 -> Node11
+	Node12 [label=CAMPO]
+	Node3 -> Node12
+	Node13 [label="Id: bodega"]
+	Node12 -> Node13
+	Node14 [label="Tipo: varchar"]
+	Node12 -> Node14
+	Node15 [label=EXPRESION]
+	Node14 -> Node15
+	16 [label=ExpresionValor]
+	16 -> 17
+	17 [label=100]
+	Node15 -> 16
+	Node18 [label=VALIDACION]
+	Node12 -> Node18
+	Node19 [label="not null"]
 	Node18 -> Node19
-	Node20 [label=CODIGO_GENERADO]
-	Node18 -> Node20
-	Node21 [label=RETORNO__]
+	Node20 [label=CAMPO]
+	Node3 -> Node20
+	Node21 [label="Id: estado"]
 	Node20 -> Node21
-	Node22 [label=EXPRESION_]
-	Node21 -> Node22
-	Node23 [label=CONDICION]
-	Node22 -> Node23
-	24 [label=Variable]
-	24 -> 25
-	25 [label=texto]
-	Node23 -> 24
-	Node27 [label=END]
-	Node16 -> Node27
-	Node28 [label=";;"]
-	Node16 -> Node28
+	Node22 [label="Tipo: integer"]
+	Node20 -> Node22
+	Node23 [label="CREAR INDICE"]
+	Node0 -> Node23
+	Node24 [label="ID INDICE"]
+	Node23 -> Node24
+	Node25 [label=idexbodega]
+	Node24 -> Node25
+	Node26 [label="ID TABLA"]
+	Node23 -> Node26
+	Node27 [label=tbbodega]
+	Node26 -> Node27
+	Node28 [label=COLUMNAS]
+	Node23 -> Node28
+	Node29 [label=ID]
+	Node28 -> Node29
+	Node30 [label=bodega]
+	Node29 -> Node30
+	Node31 [label=PROCEDURE_PRODUCCION]
+	Node0 -> Node31
+	Node32 [label=create]
+	Node31 -> Node32
+	Node33 [label=PROCEDURE]
+	Node31 -> Node33
+	Node34 [label=sp_validainsert]
+	Node31 -> Node34
+	Node35 [label=PARAMETROS]
+	Node31 -> Node35
+	Node36 [label="()"]
+	Node35 -> Node36
+	Node37 [label="AS $$"]
+	Node31 -> Node37
+	Node38 [label=COMANDO_SQL]
+	Node31 -> Node38
+	Node39 [label=DECLARACIONES]
+	Node31 -> Node39
+	Node40 [label=CODIGO_]
+	Node31 -> Node40
+	Node41 [label=CUERPO_CODE]
+	Node40 -> Node41
+	Node42 [label=BEGIN]
+	Node41 -> Node42
+	Node43 [label=_CODIGO_]
+	Node41 -> Node43
+	Node44 [label=CODIGO_GENERADO]
+	Node43 -> Node44
+	Node45 [label=CODIGO_GENERADO]
+	Node43 -> Node45
+	Node46 [label=CODIGO_GENERADO]
+	Node43 -> Node46
+	Node47 [label=CODIGO_GENERADO]
+	Node43 -> Node47
+	Node48 [label=CODIGO_GENERADO]
+	Node43 -> Node48
+	Node49 [label=END]
+	Node41 -> Node49
+	Node50 [label=";;"]
+	Node41 -> Node50
+	Node0 -> 51
+	51 [label=EJECUCION_FUNCION]
+	Node52 [label=sp_validainsert]
+	51 -> Node52
+	Node53 [label="()"]
+	51 -> Node53
+	Node54 [label=PROCEDURE_PRODUCCION]
+	Node0 -> Node54
+	Node55 [label=create]
+	Node54 -> Node55
+	Node56 [label=PROCEDURE]
+	Node54 -> Node56
+	Node57 [label=sp_validaupdate]
+	Node54 -> Node57
+	Node58 [label=PARAMETROS]
+	Node54 -> Node58
+	Node59 [label="()"]
+	Node58 -> Node59
+	Node60 [label="AS $$"]
+	Node54 -> Node60
+	Node61 [label=COMANDO_SQL]
+	Node54 -> Node61
+	Node62 [label=DECLARACIONES]
+	Node54 -> Node62
+	Node63 [label=CODIGO_]
+	Node54 -> Node63
+	Node64 [label=CUERPO_CODE]
+	Node63 -> Node64
+	Node65 [label=BEGIN]
+	Node64 -> Node65
+	Node66 [label=_CODIGO_]
+	Node64 -> Node66
+	Node67 [label=CODIGO_GENERADO]
+	Node66 -> Node67
+	Node68 [label=END]
+	Node64 -> Node68
+	Node69 [label=";;"]
+	Node64 -> Node69
+	Node0 -> 70
+	70 [label=EJECUCION_FUNCION]
+	Node71 [label=sp_validaupdate]
+	70 -> Node71
+	Node72 [label="()"]
+	70 -> Node72
+	Node73 [label=FUNCION_PRODUCCION]
+	Node0 -> Node73
+	Node74 [label=CREATE]
+	Node73 -> Node74
+	Node75 [label=FUNTION]
+	Node73 -> Node75
+	Node76 [label=myFuncion]
+	Node73 -> Node76
+	Node77 [label=PARAMETROS]
+	Node73 -> Node77
+	Node78 [label=PARAMETROS]
+	Node77 -> Node78
+	Node79 [label="text texto "]
+	Node78 -> Node79
+	Node80 [label=RETURNS]
+	Node73 -> Node80
+	Node81 [label=EXPRESION_]
+	Node73 -> Node81
+	Node82 [label=CONDICION]
+	Node81 -> Node82
+	Node82 -> 83
+	Node84 [label="AS $$"]
+	Node73 -> Node84
+	Node85 [label=COMANDO_SQL]
+	Node73 -> Node85
+	Node86 [label=DECLARACIONES]
+	Node73 -> Node86
+	Node87 [label=CODIGO_]
+	Node73 -> Node87
+	Node88 [label=CUERPO_CODE]
+	Node87 -> Node88
+	Node89 [label=BEGIN]
+	Node88 -> Node89
+	Node90 [label=_CODIGO_]
+	Node88 -> Node90
+	Node91 [label=CODIGO_GENERADO]
+	Node90 -> Node91
+	Node92 [label=RETORNO__]
+	Node91 -> Node92
+	Node93 [label=EXPRESION_]
+	Node92 -> Node93
+	Node94 [label=CONDICION]
+	Node93 -> Node94
+	95 [label=Variable]
+	95 -> 96
+	96 [label=texto]
+	Node94 -> 95
+	Node98 [label=END]
+	Node88 -> Node98
+	Node99 [label=";;"]
+	Node88 -> Node99
+	Node100 [label="Select Expresion"]
+	Node0 -> Node100
+	Node101 [label=SELECT]
+	Node100 -> Node101
+	Node102 [label=ACCESO_CAMPO]
+	Node101 -> Node102
+	Node102 -> 103
+	103 [label=EJECUCION_FUNCION]
+	Node104 [label=myFuncion]
+	103 -> Node104
+	Node105 [label=PARAMETROS]
+	103 -> Node105
+	Node106 [label=_EXPRESION_]
+	Node105 -> Node106
+	Node107 [label=CONDICION]
+	Node106 -> Node107
+	108 [label=ExpresionValor]
+	108 -> 109
+	109 [label="INICIO CALIFICACION FASE 2"]
+	Node107 -> 108
+	Node111 [label="CREATE TABLE"]
+	Node0 -> Node111
+	Node112 [label="Id: tbProducto"]
+	Node111 -> Node112
+	Node113 [label=CAMPO]
+	Node111 -> Node113
+	Node114 [label="Id: idproducto"]
+	Node113 -> Node114
+	Node115 [label="Tipo: integer"]
+	Node113 -> Node115
+	Node116 [label=VALIDACION]
+	Node113 -> Node116
+	Node117 [label="not null"]
+	Node116 -> Node117
+	Node118 [label=VALIDACION]
+	Node113 -> Node118
+	Node119 [label="primary key"]
+	Node118 -> Node119
+	Node120 [label=CAMPO]
+	Node111 -> Node120
+	Node121 [label="Id: producto"]
+	Node120 -> Node121
+	Node122 [label="Tipo: varchar"]
+	Node120 -> Node122
+	Node123 [label=EXPRESION]
+	Node122 -> Node123
+	124 [label=ExpresionValor]
+	124 -> 125
+	125 [label=150]
+	Node123 -> 124
+	Node126 [label=VALIDACION]
+	Node120 -> Node126
+	Node127 [label="not null"]
+	Node126 -> Node127
+	Node128 [label=CAMPO]
+	Node111 -> Node128
+	Node129 [label="Id: fechacreacion"]
+	Node128 -> Node129
+	Node130 [label="Tipo: date"]
+	Node128 -> Node130
+	Node131 [label=VALIDACION]
+	Node128 -> Node131
+	Node132 [label="not null"]
+	Node131 -> Node132
+	Node133 [label=CAMPO]
+	Node111 -> Node133
+	Node134 [label="Id: estado"]
+	Node133 -> Node134
+	Node135 [label="Tipo: integer"]
+	Node133 -> Node135
+	Node136 [label="CREAR INDICE"]
+	Node0 -> Node136
+	Node137 [label=UNIQUE]
+	Node136 -> Node137
+	Node138 [label="ID INDICE"]
+	Node136 -> Node138
+	Node139 [label=idx_producto]
+	Node138 -> Node139
+	Node140 [label="ID TABLA"]
+	Node136 -> Node140
+	Node141 [label=tbProducto]
+	Node140 -> Node141
+	Node142 [label=COLUMNAS]
+	Node136 -> Node142
+	Node143 [label=ID]
+	Node142 -> Node143
+	Node144 [label=idproducto]
+	Node143 -> Node144
+	Node145 [label="CREATE TABLE"]
+	Node0 -> Node145
+	Node146 [label="Id: tbCalificacion"]
+	Node145 -> Node146
+	Node147 [label=CAMPO]
+	Node145 -> Node147
+	Node148 [label="Id: idcalifica"]
+	Node147 -> Node148
+	Node149 [label="Tipo: integer"]
+	Node147 -> Node149
+	Node150 [label=VALIDACION]
+	Node147 -> Node150
+	Node151 [label="not null"]
+	Node150 -> Node151
+	Node152 [label=VALIDACION]
+	Node147 -> Node152
+	Node153 [label="primary key"]
+	Node152 -> Node153
+	Node154 [label=CAMPO]
+	Node145 -> Node154
+	Node155 [label="Id: item"]
+	Node154 -> Node155
+	Node156 [label="Tipo: varchar"]
+	Node154 -> Node156
+	Node157 [label=EXPRESION]
+	Node156 -> Node157
+	158 [label=ExpresionValor]
+	158 -> 159
+	159 [label=100]
+	Node157 -> 158
+	Node160 [label=VALIDACION]
+	Node154 -> Node160
+	Node161 [label="not null"]
+	Node160 -> Node161
+	Node162 [label=CAMPO]
+	Node145 -> Node162
+	Node163 [label="Id: punteo"]
+	Node162 -> Node163
+	Node164 [label="Tipo: integer"]
+	Node162 -> Node164
+	Node165 [label=VALIDACION]
+	Node162 -> Node165
+	Node166 [label="not null"]
+	Node165 -> Node166
+	Node167 [label="CREAR INDICE"]
+	Node0 -> Node167
+	Node168 [label=UNIQUE]
+	Node167 -> Node168
+	Node169 [label="ID INDICE"]
+	Node167 -> Node169
+	Node170 [label=idx_califica]
+	Node169 -> Node170
+	Node171 [label="ID TABLA"]
+	Node167 -> Node171
+	Node172 [label=tbCalificacion]
+	Node171 -> Node172
+	Node173 [label=COLUMNAS]
+	Node167 -> Node173
+	Node174 [label=ID]
+	Node173 -> Node174
+	Node175 [label=idcalifica]
+	Node174 -> Node175
+	Node176 [label=INSERT]
+	Node0 -> Node176
+	Node177 [label="ID TABLA"]
+	Node176 -> Node177
+	Node178 [label=tbProducto]
+	Node177 -> Node178
+	Node179 [label="VALORES TABLA"]
+	Node176 -> Node179
+	Node180 [label="VALOR NUEVO"]
+	Node179 -> Node180
+	181 [label=ExpresionValor]
+	181 -> 182
+	182 [label=1]
+	Node180 -> 181
+	Node184 [label="VALOR NUEVO"]
+	Node179 -> Node184
+	185 [label=ExpresionValor]
+	185 -> 186
+	186 [label="Laptop Lenovo"]
+	Node184 -> 185
+	Node188 [label="VALOR NUEVO"]
+	Node179 -> Node188
+	189 [label="ExpresionFUNCION NATIVA"]
+	190 [label=NOW]
+	189 -> 190
+	Node188 -> 189
+	Node192 [label="VALOR NUEVO"]
+	Node179 -> Node192
+	193 [label=ExpresionValor]
+	193 -> 194
+	194 [label=1]
+	Node192 -> 193
+	Node196 [label=INSERT]
+	Node0 -> Node196
+	Node197 [label="ID TABLA"]
+	Node196 -> Node197
+	Node198 [label=tbProducto]
+	Node197 -> Node198
+	Node199 [label="VALORES TABLA"]
+	Node196 -> Node199
+	Node200 [label="VALOR NUEVO"]
+	Node199 -> Node200
+	201 [label=ExpresionValor]
+	201 -> 202
+	202 [label=2]
+	Node200 -> 201
+	Node204 [label="VALOR NUEVO"]
+	Node199 -> Node204
+	205 [label=ExpresionValor]
+	205 -> 206
+	206 [label="Bateria para Laptop Lenovo T420"]
+	Node204 -> 205
+	Node208 [label="VALOR NUEVO"]
+	Node199 -> Node208
+	209 [label="ExpresionFUNCION NATIVA"]
+	210 [label=NOW]
+	209 -> 210
+	Node208 -> 209
+	Node212 [label="VALOR NUEVO"]
+	Node199 -> Node212
+	213 [label=ExpresionValor]
+	213 -> 214
+	214 [label=1]
+	Node212 -> 213
+	Node216 [label=INSERT]
+	Node0 -> Node216
+	Node217 [label="ID TABLA"]
+	Node216 -> Node217
+	Node218 [label=tbProducto]
+	Node217 -> Node218
+	Node219 [label="VALORES TABLA"]
+	Node216 -> Node219
+	Node220 [label="VALOR NUEVO"]
+	Node219 -> Node220
+	221 [label=ExpresionValor]
+	221 -> 222
+	222 [label=3]
+	Node220 -> 221
+	Node224 [label="VALOR NUEVO"]
+	Node219 -> Node224
+	225 [label=ExpresionValor]
+	225 -> 226
+	226 [label="Teclado Inalambrico"]
+	Node224 -> 225
+	Node228 [label="VALOR NUEVO"]
+	Node219 -> Node228
+	229 [label="ExpresionFUNCION NATIVA"]
+	230 [label=NOW]
+	229 -> 230
+	Node228 -> 229
+	Node232 [label="VALOR NUEVO"]
+	Node219 -> Node232
+	233 [label=ExpresionValor]
+	233 -> 234
+	234 [label=1]
+	Node232 -> 233
+	Node236 [label=INSERT]
+	Node0 -> Node236
+	Node237 [label="ID TABLA"]
+	Node236 -> Node237
+	Node238 [label=tbProducto]
+	Node237 -> Node238
+	Node239 [label="VALORES TABLA"]
+	Node236 -> Node239
+	Node240 [label="VALOR NUEVO"]
+	Node239 -> Node240
+	241 [label=ExpresionValor]
+	241 -> 242
+	242 [label=4]
+	Node240 -> 241
+	Node244 [label="VALOR NUEVO"]
+	Node239 -> Node244
+	245 [label=ExpresionValor]
+	245 -> 246
+	246 [label="Mouse Inalambrico"]
+	Node244 -> 245
+	Node248 [label="VALOR NUEVO"]
+	Node239 -> Node248
+	249 [label="ExpresionFUNCION NATIVA"]
+	250 [label=NOW]
+	249 -> 250
+	Node248 -> 249
+	Node252 [label="VALOR NUEVO"]
+	Node239 -> Node252
+	253 [label=ExpresionValor]
+	253 -> 254
+	254 [label=1]
+	Node252 -> 253
+	Node256 [label=INSERT]
+	Node0 -> Node256
+	Node257 [label="ID TABLA"]
+	Node256 -> Node257
+	Node258 [label=tbProducto]
+	Node257 -> Node258
+	Node259 [label="VALORES TABLA"]
+	Node256 -> Node259
+	Node260 [label="VALOR NUEVO"]
+	Node259 -> Node260
+	261 [label=ExpresionValor]
+	261 -> 262
+	262 [label=5]
+	Node260 -> 261
+	Node264 [label="VALOR NUEVO"]
+	Node259 -> Node264
+	265 [label=ExpresionValor]
+	265 -> 266
+	266 [label="WIFI USB"]
+	Node264 -> 265
+	Node268 [label="VALOR NUEVO"]
+	Node259 -> Node268
+	269 [label="ExpresionFUNCION NATIVA"]
+	270 [label=NOW]
+	269 -> 270
+	Node268 -> 269
+	Node272 [label="VALOR NUEVO"]
+	Node259 -> Node272
+	273 [label=ExpresionValor]
+	273 -> 274
+	274 [label=1]
+	Node272 -> 273
+	Node276 [label=INSERT]
+	Node0 -> Node276
+	Node277 [label="ID TABLA"]
+	Node276 -> Node277
+	Node278 [label=tbProducto]
+	Node277 -> Node278
+	Node279 [label="VALORES TABLA"]
+	Node276 -> Node279
+	Node280 [label="VALOR NUEVO"]
+	Node279 -> Node280
+	281 [label=ExpresionValor]
+	281 -> 282
+	282 [label=6]
+	Node280 -> 281
+	Node284 [label="VALOR NUEVO"]
+	Node279 -> Node284
+	285 [label=ExpresionValor]
+	285 -> 286
+	286 [label="Laptop HP"]
+	Node284 -> 285
+	Node288 [label="VALOR NUEVO"]
+	Node279 -> Node288
+	289 [label="ExpresionFUNCION NATIVA"]
+	290 [label=NOW]
+	289 -> 290
+	Node288 -> 289
+	Node292 [label="VALOR NUEVO"]
+	Node279 -> Node292
+	293 [label=ExpresionValor]
+	293 -> 294
+	294 [label=1]
+	Node292 -> 293
+	Node296 [label=INSERT]
+	Node0 -> Node296
+	Node297 [label="ID TABLA"]
+	Node296 -> Node297
+	Node298 [label=tbProducto]
+	Node297 -> Node298
+	Node299 [label="VALORES TABLA"]
+	Node296 -> Node299
+	Node300 [label="VALOR NUEVO"]
+	Node299 -> Node300
+	301 [label=ExpresionValor]
+	301 -> 302
+	302 [label=7]
+	Node300 -> 301
+	Node304 [label="VALOR NUEVO"]
+	Node299 -> Node304
+	305 [label=ExpresionValor]
+	305 -> 306
+	306 [label="Teclado Flexible USB"]
+	Node304 -> 305
+	Node308 [label="VALOR NUEVO"]
+	Node299 -> Node308
+	309 [label="ExpresionFUNCION NATIVA"]
+	310 [label=NOW]
+	309 -> 310
+	Node308 -> 309
+	Node312 [label="VALOR NUEVO"]
+	Node299 -> Node312
+	313 [label=ExpresionValor]
+	313 -> 314
+	314 [label=1]
+	Node312 -> 313
+	Node316 [label=INSERT]
+	Node0 -> Node316
+	Node317 [label="ID TABLA"]
+	Node316 -> Node317
+	Node318 [label=tbProducto]
+	Node317 -> Node318
+	Node319 [label="VALORES TABLA"]
+	Node316 -> Node319
+	Node320 [label="VALOR NUEVO"]
+	Node319 -> Node320
+	321 [label=ExpresionValor]
+	321 -> 322
+	322 [label=8]
+	Node320 -> 321
+	Node324 [label="VALOR NUEVO"]
+	Node319 -> Node324
+	325 [label=ExpresionValor]
+	325 -> 326
+	326 [label="Laptop Samsung"]
+	Node324 -> 325
+	Node328 [label="VALOR NUEVO"]
+	Node319 -> Node328
+	329 [label=ExpresionValor]
+	329 -> 330
+	330 [label="2021-01-02"]
+	Node328 -> 329
+	Node332 [label="VALOR NUEVO"]
+	Node319 -> Node332
+	333 [label=ExpresionValor]
+	333 -> 334
+	334 [label=1]
+	Node332 -> 333
+	Node336 [label="Select Expresion"]
+	Node0 -> Node336
+	Node337 [label=SELECT]
+	Node336 -> Node337
+	Node338 [label=ACCESO_CAMPO]
+	Node337 -> Node338
+	Node338 -> 339
+	339 [label=EJECUCION_FUNCION]
+	Node340 [label=myFuncion]
+	339 -> Node340
+	Node341 [label=PARAMETROS]
+	339 -> Node341
+	Node342 [label=_EXPRESION_]
+	Node341 -> Node342
+	Node343 [label=CONDICION]
+	Node342 -> Node343
+	344 [label=ExpresionValor]
+	344 -> 345
+	345 [label="Crea Funcion"]
+	Node343 -> 344
+	Node347 [label=FUNCION_PRODUCCION]
+	Node0 -> Node347
+	Node348 [label=CREATE]
+	Node347 -> Node348
+	Node349 [label=FUNTION]
+	Node347 -> Node349
+	Node350 [label=ValidaRegistros]
+	Node347 -> Node350
+	Node351 [label=PARAMETROS]
+	Node347 -> Node351
+	Node352 [label=PARAMETROS]
+	Node351 -> Node352
+	Node353 [label="<expresiones.valorTipo object at 0x00000205EEDE9C10> tabla "]
+	Node352 -> Node353
+	Node354 [label="integer cantidad "]
+	Node352 -> Node354
+	Node355 [label=RETURNS]
+	Node347 -> Node355
+	Node356 [label=EXPRESION_]
+	Node347 -> Node356
+	Node357 [label=CONDICION]
+	Node356 -> Node357
+	Node357 -> 358
+	Node359 [label="AS $$"]
+	Node347 -> Node359
+	Node360 [label=COMANDO_SQL]
+	Node347 -> Node360
+	Node361 [label=DECLARACIONES]
+	Node347 -> Node361
+	Node362 [label=DECLARACIONES]
+	Node361 -> Node362
+	Node363 [label=CODIGO_GENERADO]
+	Node362 -> Node363
+	Node364 [label=DECLARACION]
+	Node363 -> Node364
+	Node365 [label=ID]
+	Node364 -> Node365
+	Node366 [label=resultado]
+	Node365 -> Node366
+	Node367 [label=TIPO]
+	Node364 -> Node367
+	Node368 [label=INTEGER]
+	Node367 -> Node368
+	Node369 [label="="]
+	Node364 -> Node369
+	Node364 -> 370
+	370 [label=ExpresionValor]
+	370 -> 371
+	371 [label=0]
+	Node372 [label=CODIGO_GENERADO]
+	Node362 -> Node372
+	Node373 [label=DECLARACION]
+	Node372 -> Node373
+	Node374 [label=ID]
+	Node373 -> Node374
+	Node375 [label=retorna]
+	Node374 -> Node375
+	Node376 [label=TIPO]
+	Node373 -> Node376
+	Node377 [label=INTEGER]
+	Node376 -> Node377
+	Node378 [label="="]
+	Node373 -> Node378
+	Node373 -> 379
+	379 [label=ExpresionValor]
+	379 -> 380
+	380 [label=0]
+	Node381 [label=CODIGO_]
+	Node347 -> Node381
+	Node382 [label=CUERPO_CODE]
+	Node381 -> Node382
+	Node383 [label=BEGIN]
+	Node382 -> Node383
+	Node384 [label=_CODIGO_]
+	Node382 -> Node384
+	Node385 [label=CODIGO_GENERADO]
+	Node384 -> Node385
+	Node386 [label=CODIGO_GENERADO]
+	Node384 -> Node386
+	Node387 [label=CODIGO_GENERADO]
+	Node384 -> Node387
+	Node388 [label=CODIGO_GENERADO]
+	Node384 -> Node388
+	Node389 [label=RETORNO__]
+	Node388 -> Node389
+	Node390 [label=EXPRESION_]
+	Node389 -> Node390
+	Node391 [label=CONDICION]
+	Node390 -> Node391
+	392 [label=Variable]
+	392 -> 393
+	393 [label=retorna]
+	Node391 -> 392
+	Node395 [label=END]
+	Node382 -> Node395
+	Node396 [label=";;"]
+	Node382 -> Node396
+	Node397 [label=INSERT]
+	Node0 -> Node397
+	Node398 [label="ID TABLA"]
+	Node397 -> Node398
+	Node399 [label=tbCalificacion]
+	Node398 -> Node399
+	Node400 [label="VALORES TABLA"]
+	Node397 -> Node400
+	Node401 [label="VALOR NUEVO"]
+	Node400 -> Node401
+	402 [label=ExpresionValor]
+	402 -> 403
+	403 [label=1]
+	Node401 -> 402
+	Node405 [label="VALOR NUEVO"]
+	Node400 -> Node405
+	406 [label=ExpresionValor]
+	406 -> 407
+	407 [label="Create Table and Insert"]
+	Node405 -> 406
+	Node409 [label="VALOR NUEVO"]
+	Node400 -> Node409
+	410 [label=EJECUCION_FUNCION]
+	Node411 [label=ValidaRegistros]
+	410 -> Node411
+	Node412 [label=PARAMETROS]
+	410 -> Node412
+	Node413 [label=_EXPRESION_]
+	Node412 -> Node413
+	Node414 [label=CONDICION]
+	Node413 -> Node414
+	415 [label=ExpresionValor]
+	415 -> 416
+	416 [label=tbProducto]
+	Node414 -> 415
+	Node418 [label=_EXPRESION_]
+	Node412 -> Node418
+	Node419 [label=CONDICION]
+	Node418 -> Node419
+	420 [label=ExpresionValor]
+	420 -> 421
+	421 [label=8]
+	Node419 -> 420
+	Node409 -> 410
+	Node424 [label=UPDATE]
+	Node0 -> Node424
+	Node425 [label="ID TABLA"]
+	Node424 -> Node425
+	Node426 [label=tbProducto]
+	Node425 -> Node426
+	Node427 [label=SET]
+	Node424 -> Node427
+	Node428 [label="VALOR CONDICION SET"]
+	Node427 -> Node428
+	429 [label=ExpresionRelacional]
+	430 [label=exp1]
+	429 -> 430
+	430 -> 431
+	431 [label=Variable]
+	431 -> 432
+	432 [label=estado]
+	433 [label="=="]
+	429 -> 433
+	434 [label=exp2]
+	429 -> 434
+	434 -> 435
+	435 [label=ExpresionValor]
+	435 -> 436
+	436 [label=2]
+	Node428 -> 429
+	Node438 [label=WHERE]
+	Node424 -> Node438
+	Node439 [label="VALOR CONDICION WHERE"]
+	Node438 -> Node439
+	440 [label=ExpresionRelacional]
+	441 [label=exp1]
+	440 -> 441
+	441 -> 442
+	442 [label=Variable]
+	442 -> 443
+	443 [label=estado]
+	444 [label="=="]
+	440 -> 444
+	445 [label=exp2]
+	440 -> 445
+	445 -> 446
+	446 [label=ExpresionValor]
+	446 -> 447
+	447 [label=1]
+	Node439 -> 440
+	Node449 [label=INSERT]
+	Node0 -> Node449
+	Node450 [label="ID TABLA"]
+	Node449 -> Node450
+	Node451 [label=tbCalificacion]
+	Node450 -> Node451
+	Node452 [label="VALORES TABLA"]
+	Node449 -> Node452
+	Node453 [label="VALOR NUEVO"]
+	Node452 -> Node453
+	454 [label=ExpresionValor]
+	454 -> 455
+	455 [label=2]
+	Node453 -> 454
+	Node457 [label="VALOR NUEVO"]
+	Node452 -> Node457
+	458 [label=ExpresionValor]
+	458 -> 459
+	459 [label=Update]
+	Node457 -> 458
+	Node461 [label="VALOR NUEVO"]
+	Node452 -> Node461
+	462 [label=EJECUCION_FUNCION]
+	Node463 [label=ValidaRegistros]
+	462 -> Node463
+	Node464 [label=PARAMETROS]
+	462 -> Node464
+	Node465 [label=_EXPRESION_]
+	Node464 -> Node465
+	Node466 [label=CONDICION]
+	Node465 -> Node466
+	467 [label=ExpresionValor]
+	467 -> 468
+	468 [label=tbProductoUp]
+	Node466 -> 467
+	Node470 [label=_EXPRESION_]
+	Node464 -> Node470
+	Node471 [label=CONDICION]
+	Node470 -> Node471
+	472 [label=ExpresionValor]
+	472 -> 473
+	473 [label=8]
+	Node471 -> 472
+	Node461 -> 462
+	Node476 [label=FUNCION_PRODUCCION]
+	Node0 -> Node476
+	Node477 [label=CREATE]
+	Node476 -> Node477
+	Node478 [label=FUNTION]
+	Node476 -> Node478
+	Node479 [label=CALCULOS]
+	Node476 -> Node479
+	Node480 [label=PARAMETROS]
+	Node476 -> Node480
+	Node481 [label="()"]
+	Node480 -> Node481
+	Node482 [label=RETURNS]
+	Node476 -> Node482
+	Node483 [label=EXPRESION_]
+	Node476 -> Node483
+	Node484 [label=CONDICION]
+	Node483 -> Node484
+	Node484 -> 485
+	Node486 [label="AS $$"]
+	Node476 -> Node486
+	Node487 [label=COMANDO_SQL]
+	Node476 -> Node487
+	Node488 [label=DECLARACIONES]
+	Node476 -> Node488
+	Node489 [label=DECLARACIONES]
+	Node488 -> Node489
+	Node490 [label=CODIGO_GENERADO]
+	Node489 -> Node490
+	Node491 [label=DECLARACION]
+	Node490 -> Node491
+	Node492 [label=ID]
+	Node491 -> Node492
+	Node493 [label=hora]
+	Node492 -> Node493
+	Node494 [label=TIPO]
+	Node491 -> Node494
+	Node495 [label=integer]
+	Node494 -> Node495
+	Node496 [label="="]
+	Node491 -> Node496
+	Node491 -> 497
+	497 [label=ExpresionValor]
+	497 -> 498
+	498 [label=0]
+	Node499 [label=CODIGO_GENERADO]
+	Node489 -> Node499
+	Node500 [label=DECLARACION]
+	Node499 -> Node500
+	Node501 [label=ID]
+	Node500 -> Node501
+	Node502 [label=SENO]
+	Node501 -> Node502
+	Node503 [label=TIPO]
+	Node500 -> Node503
+	Node504 [label=DECIMAL]
+	Node503 -> Node504
+	Node505 [label="="]
+	Node500 -> Node505
+	Node500 -> 506
+	506 [label=ExpresionValor]
+	506 -> 507
+	507 [label=0]
+	Node508 [label=CODIGO_GENERADO]
+	Node489 -> Node508
+	Node509 [label=DECLARACION]
+	Node508 -> Node509
+	Node510 [label=ID]
+	Node509 -> Node510
+	Node511 [label=VALOR]
+	Node510 -> Node511
+	Node512 [label=TIPO]
+	Node509 -> Node512
+	Node513 [label=INTEGER]
+	Node512 -> Node513
+	Node514 [label="="]
+	Node509 -> Node514
+	Node509 -> 515
+	515 [label=ExpresionValor]
+	515 -> 516
+	516 [label=0]
+	Node517 [label=CODIGO_GENERADO]
+	Node489 -> Node517
+	Node518 [label=DECLARACION]
+	Node517 -> Node518
+	Node519 [label=ID]
+	Node518 -> Node519
+	Node520 [label=ABSOLUTO]
+	Node519 -> Node520
+	Node521 [label=TIPO]
+	Node518 -> Node521
+	Node522 [label=DECIMAL]
+	Node521 -> Node522
+	Node523 [label="="]
+	Node518 -> Node523
+	Node518 -> 524
+	524 [label=ExpresionValor]
+	524 -> 525
+	525 [label=0]
+	Node526 [label=CODIGO_]
+	Node476 -> Node526
+	Node527 [label=CUERPO_CODE]
+	Node526 -> Node527
+	Node528 [label=BEGIN]
+	Node527 -> Node528
+	Node529 [label=_CODIGO_]
+	Node527 -> Node529
+	Node530 [label=CODIGO_GENERADO]
+	Node529 -> Node530
+	Node531 [label=ASIGNACION]
+	Node530 -> Node531
+	Node532 [label=ID]
+	Node531 -> Node532
+	Node533 [label=hora]
+	Node532 -> Node533
+	Node531 -> 534
+	534 [label=Subconsulta]
+	Node535 [label="Acceso_Subconsulta "]
+	534 -> Node535
+	Node536 [label="(  SubQuery  )"]
+	Node535 -> Node536
+	Node537 [label=CODIGO_GENERADO]
+	Node529 -> Node537
+	Node538 [label=ASIGNACION]
+	Node537 -> Node538
+	Node539 [label=ID]
+	Node538 -> Node539
+	Node540 [label=SENO]
+	Node539 -> Node540
+	Node538 -> 541
+	541 [label=Subconsulta]
+	Node542 [label="Acceso_Subconsulta "]
+	541 -> Node542
+	Node543 [label="(  SubQuery  )"]
+	Node542 -> Node543
+	Node544 [label=CODIGO_GENERADO]
+	Node529 -> Node544
+	Node545 [label=ASIGNACION]
+	Node544 -> Node545
+	Node546 [label=ID]
+	Node545 -> Node546
+	Node547 [label=VALOR]
+	Node546 -> Node547
+	Node545 -> 548
+	548 [label="ExpresionFUNCION NATIVA"]
+	549 [label=TRUNC]
+	548 -> 549
+	550 [label=exp1]
+	548 -> 550
+	550 -> 551
+	551 [label=ExpresionAritmetica]
+	552 [label=exp1]
+	551 -> 552
+	552 -> 553
+	553 [label=Variable]
+	553 -> 554
+	554 [label=SENO]
+	555 [label="*"]
+	551 -> 555
+	556 [label=exp2]
+	551 -> 556
+	556 -> 557
+	557 [label=Variable]
+	557 -> 558
+	558 [label=hora]
+	559 [label=exp2]
+	548 -> 559
+	559 -> 560
+	560 [label=ExpresionValor]
+	560 -> 561
+	561 [label=0]
+	Node562 [label=CODIGO_GENERADO]
+	Node529 -> Node562
+	Node563 [label=ASIGNACION]
+	Node562 -> Node563
+	Node564 [label=ID]
+	Node563 -> Node564
+	Node565 [label=VALOR]
+	Node564 -> Node565
+	Node563 -> 566
+	566 [label=ExpresionAritmetica]
+	567 [label=exp1]
+	566 -> 567
+	567 -> 568
+	568 [label=Variable]
+	568 -> 569
+	569 [label=VALOR]
+	570 [label="+"]
+	566 -> 570
+	571 [label=exp2]
+	566 -> 571
+	571 -> 572
+	572 [label="ExpresionFUNCION NATIVA"]
+	573 [label=LENGTH]
+	572 -> 573
+	574 [label=exp1]
+	572 -> 574
+	574 -> 575
+	575 [label="ExpresionFUNCION NATIVA"]
+	576 [label=SUBSTRING]
+	575 -> 576
+	577 [label=exp1]
+	575 -> 577
+	577 -> 578
+	578 [label=ExpresionValor]
+	578 -> 579
+	579 [label=FASE2]
+	580 [label=exp2]
+	575 -> 580
+	580 -> 581
+	581 [label=ExpresionValor]
+	581 -> 582
+	582 [label=1]
+	583 [label=exp3]
+	575 -> 583
+	583 -> 584
+	584 [label=ExpresionValor]
+	584 -> 585
+	585 [label=4]
+	586 [label=exp4]
+	575 -> 586
+	586 -> 587
+	Node587 [label=CODIGO_GENERADO]
+	Node529 -> Node587
+	Node588 [label=ASIGNACION]
+	Node587 -> Node588
+	Node589 [label=ID]
+	Node588 -> Node589
+	Node590 [label=ABSOLUTO]
+	Node589 -> Node590
+	Node588 -> 591
+	591 [label="ExpresionFUNCION NATIVA"]
+	592 [label=ABS]
+	591 -> 592
+	593 [label=exp1]
+	591 -> 593
+	593 -> 594
+	594 [label="ExpresionFUNCION NATIVA"]
+	595 [label=SINH]
+	594 -> 595
+	596 [label=exp1]
+	594 -> 596
+	596 -> 597
+	597 [label=ExpresionNegAritmetica]
+	597 -> 598
+	598 [label=ExpresionValor]
+	598 -> 599
+	599 [label=1]
+	Node600 [label=CODIGO_GENERADO]
+	Node529 -> Node600
+	Node601 [label=ASIGNACION]
+	Node600 -> Node601
+	Node602 [label=ID]
+	Node601 -> Node602
+	Node603 [label=ABSOLUTO]
+	Node602 -> Node603
+	Node601 -> 604
+	604 [label=" ( Expresion )"]
+	604 -> 605
+	605 [label=ExpresionAritmetica]
+	606 [label=exp1]
+	605 -> 606
+	606 -> 607
+	607 [label=Variable]
+	607 -> 608
+	608 [label=ABSOLUTO]
+	609 [label="*"]
+	605 -> 609
+	610 [label=exp2]
+	605 -> 610
+	610 -> 611
+	611 [label="ExpresionFUNCION NATIVA"]
+	612 [label=SQRT]
+	611 -> 612
+	613 [label=exp1]
+	611 -> 613
+	613 -> 614
+	614 [label=ExpresionValor]
+	614 -> 615
+	615 [label=225]
+	Node616 [label=CODIGO_GENERADO]
+	Node529 -> Node616
+	Node617 [label=ASIGNACION]
+	Node616 -> Node617
+	Node618 [label=ID]
+	Node617 -> Node618
+	Node619 [label=VALOR]
+	Node618 -> Node619
+	Node617 -> 620
+	620 [label=ExpresionAritmetica]
+	621 [label=exp1]
+	620 -> 621
+	621 -> 622
+	622 [label=" ( Expresion )"]
+	622 -> 623
+	623 [label=ExpresionAritmetica]
+	624 [label=exp1]
+	623 -> 624
+	624 -> 625
+	625 [label=Variable]
+	625 -> 626
+	626 [label=VALOR]
+	627 [label="+"]
+	623 -> 627
+	628 [label=exp2]
+	623 -> 628
+	628 -> 629
+	629 [label=Variable]
+	629 -> 630
+	630 [label=ABSOLUTO]
+	631 [label="/"]
+	620 -> 631
+	632 [label=exp2]
+	620 -> 632
+	632 -> 633
+	633 [label="ExpresionFUNCION NATIVA"]
+	634 [label=ACOSD]
+	633 -> 634
+	635 [label=exp1]
+	633 -> 635
+	635 -> 636
+	636 [label=ExpresionValor]
+	636 -> 637
+	637 [label=0.5]
+	Node638 [label=CODIGO_GENERADO]
+	Node529 -> Node638
+	Node639 [label=CODIGO_GENERADO]
+	Node529 -> Node639
+	Node640 [label=RETORNO__]
+	Node639 -> Node640
+	Node641 [label=EXPRESION_]
+	Node640 -> Node641
+	Node642 [label=CONDICION]
+	Node641 -> Node642
+	643 [label=Variable]
+	643 -> 644
+	644 [label=VALOR]
+	Node642 -> 643
+	Node646 [label=END]
+	Node527 -> Node646
+	Node647 [label=";;"]
+	Node527 -> Node647
+	Node648 [label=INSERT]
+	Node0 -> Node648
+	Node649 [label="ID TABLA"]
+	Node648 -> Node649
+	Node650 [label=tbCalificacion]
+	Node649 -> Node650
+	Node651 [label="VALORES TABLA"]
+	Node648 -> Node651
+	Node652 [label="VALOR NUEVO"]
+	Node651 -> Node652
+	653 [label=ExpresionValor]
+	653 -> 654
+	654 [label=3]
+	Node652 -> 653
+	Node656 [label="VALOR NUEVO"]
+	Node651 -> Node656
+	657 [label=ExpresionValor]
+	657 -> 658
+	658 [label=" Valida Funciones"]
+	Node656 -> 657
+	Node660 [label="VALOR NUEVO"]
+	Node651 -> Node660
+	661 [label=EJECUCION_FUNCION]
+	Node662 [label=CALCULOS]
+	661 -> Node662
+	Node663 [label="()"]
+	661 -> Node663
+	Node660 -> 661
+	Node665 [label="CREAR INDICE"]
+	Node0 -> Node665
+	Node666 [label="ID INDICE"]
+	Node665 -> Node666
+	Node667 [label=idx_bodega]
+	Node666 -> Node667
+	Node668 [label="ID TABLA"]
+	Node665 -> Node668
+	Node669 [label=tbbodega]
+	Node668 -> Node669
+	Node670 [label=COLUMNAS]
+	Node665 -> Node670
+	Node671 [label=ID]
+	Node670 -> Node671
+	Node672 [label=bodega]
+	Node671 -> Node672
+	Node673 [label=ID]
+	Node670 -> Node673
+	Node674 [label=estado]
+	Node673 -> Node674
+	Node675 [label=DROP_INDEX]
+	Node0 -> Node675
+	Node676 [label=" DROP INDEX "]
+	Node675 -> Node676
+	Node677 [label="idx_bodega ;  "]
+	Node675 -> Node677
+	Node678 [label="CREAR INDICE"]
+	Node0 -> Node678
+	Node679 [label="ID INDICE"]
+	Node678 -> Node679
+	Node680 [label=idx_bodega]
+	Node679 -> Node680
+	Node681 [label="ID TABLA"]
+	Node678 -> Node681
+	Node682 [label=tbbodega]
+	Node681 -> Node682
+	Node683 [label=COLUMNAS]
+	Node678 -> Node683
+	Node684 [label=ID]
+	Node683 -> Node684
+	Node685 [label=bodega]
+	Node684 -> Node685
+	Node686 [label=ID]
+	Node683 -> Node686
+	Node687 [label=estado]
+	Node686 -> Node687
+	Node688 [label=INSERT]
+	Node0 -> Node688
+	Node689 [label="ID TABLA"]
+	Node688 -> Node689
+	Node690 [label=tbCalificacion]
+	Node689 -> Node690
+	Node691 [label="VALORES TABLA"]
+	Node688 -> Node691
+	Node692 [label="VALOR NUEVO"]
+	Node691 -> Node692
+	693 [label=ExpresionValor]
+	693 -> 694
+	694 [label=4]
+	Node692 -> 693
+	Node696 [label="VALOR NUEVO"]
+	Node691 -> Node696
+	697 [label=ExpresionValor]
+	697 -> 698
+	698 [label="Valida Store Procedure"]
+	Node696 -> 697
+	Node700 [label="VALOR NUEVO"]
+	Node691 -> Node700
+	701 [label=EJECUCION_FUNCION]
+	Node702 [label=ValidaRegistros]
+	701 -> Node702
+	Node703 [label=PARAMETROS]
+	701 -> Node703
+	Node704 [label=_EXPRESION_]
+	Node703 -> Node704
+	Node705 [label=CONDICION]
+	Node704 -> Node705
+	706 [label=ExpresionValor]
+	706 -> 707
+	707 [label=tbbodega]
+	Node705 -> 706
+	Node709 [label=_EXPRESION_]
+	Node703 -> Node709
+	Node710 [label=CONDICION]
+	Node709 -> Node710
+	711 [label=ExpresionValor]
+	711 -> 712
+	712 [label=5]
+	Node710 -> 711
+	Node700 -> 701
+	Node715 [label=DELETE]
+	Node0 -> Node715
+	Node716 [label="ID TABLA"]
+	Node715 -> Node716
+	Node717 [label=tbbodega]
+	Node716 -> Node717
+	Node718 [label=WHERE]
+	Node715 -> Node718
+	Node719 [label="VALOR CONDICION"]
+	Node718 -> Node719
+	720 [label=ExpresionRelacional]
+	721 [label=exp1]
+	720 -> 721
+	721 -> 722
+	722 [label=Variable]
+	722 -> 723
+	723 [label=idbodega]
+	724 [label="=="]
+	720 -> 724
+	725 [label=exp2]
+	720 -> 725
+	725 -> 726
+	726 [label=ExpresionValor]
+	726 -> 727
+	727 [label=4]
+	Node719 -> 720
+	Node729 [label=INSERT]
+	Node0 -> Node729
+	Node730 [label="ID TABLA"]
+	Node729 -> Node730
+	Node731 [label=tbCalificacion]
+	Node730 -> Node731
+	Node732 [label="VALORES TABLA"]
+	Node729 -> Node732
+	Node733 [label="VALOR NUEVO"]
+	Node732 -> Node733
+	734 [label=ExpresionValor]
+	734 -> 735
+	735 [label=5]
+	Node733 -> 734
+	Node737 [label="VALOR NUEVO"]
+	Node732 -> Node737
+	738 [label=ExpresionValor]
+	738 -> 739
+	739 [label="Valida Delete"]
+	Node737 -> 738
+	Node741 [label="VALOR NUEVO"]
+	Node732 -> Node741
+	742 [label=EJECUCION_FUNCION]
+	Node743 [label=ValidaRegistros]
+	742 -> Node743
+	Node744 [label=PARAMETROS]
+	742 -> Node744
+	Node745 [label=_EXPRESION_]
+	Node744 -> Node745
+	Node746 [label=CONDICION]
+	Node745 -> Node746
+	747 [label=ExpresionValor]
+	747 -> 748
+	748 [label=tbbodega]
+	Node746 -> 747
+	Node750 [label=_EXPRESION_]
+	Node744 -> Node750
+	Node751 [label=CONDICION]
+	Node750 -> Node751
+	752 [label=ExpresionValor]
+	752 -> 753
+	753 [label=4]
+	Node751 -> 752
+	Node741 -> 742
+	Node756 [label=INSTRUCCION_SELECT]
+	Node0 -> Node756
+	Node757 [label=SELECT]
+	Node756 -> Node757
+	Node758 [label=LISTA_CAMPOS]
+	Node756 -> Node758
+	Node759 [label=ACCESO_CAMPO]
+	Node758 -> Node759
+	Node760 [label="*"]
+	Node759 -> Node760
+	Node761 [label=FROM]
+	Node756 -> Node761
+	Node762 [label=LISTA_TABLAS]
+	Node756 -> Node762
+	Node763 [label=Nombre_Tabla]
+	Node762 -> Node763
+	Node764 [label=tbbodega]
+	Node763 -> Node764
+	Node765 [label=Uniones]
+	Node756 -> Node765
+	Node766 [label=Final_Instruccion]
+	Node765 -> Node766
+	Node767 [label=""]
+	Node766 -> Node767
+	Node768 [label="CREAR INDICE"]
+	Node0 -> Node768
+	Node769 [label="ID INDICE"]
+	Node768 -> Node769
+	Node770 [label=idx_bodega]
+	Node769 -> Node770
+	Node771 [label="ID TABLA"]
+	Node768 -> Node771
+	Node772 [label=tbbodega]
+	Node771 -> Node772
+	Node773 [label=COLUMNAS]
+	Node768 -> Node773
+	Node774 [label=ID]
+	Node773 -> Node774
+	Node775 [label=estado]
+	Node774 -> Node775
+	Node776 [label=PROCEDURE_PRODUCCION]
+	Node0 -> Node776
+	Node777 [label=CREATE]
+	Node776 -> Node777
+	Node778 [label=PROCEDURE]
+	Node776 -> Node778
+	Node779 [label=sp_insertaproducto]
+	Node776 -> Node779
+	Node780 [label=PARAMETROS]
+	Node776 -> Node780
+	Node781 [label=PARAMETROS]
+	Node780 -> Node781
+	Node782 [label="integer llave "]
+	Node781 -> Node782
+	Node783 [label="<expresiones.valorTipo object at 0x00000205EEDE49A0> producto "]
+	Node781 -> Node783
+	Node784 [label="date fecha "]
+	Node781 -> Node784
+	Node785 [label="AS $$"]
+	Node776 -> Node785
+	Node786 [label=COMANDO_SQL]
+	Node776 -> Node786
+	Node787 [label=DECLARACIONES]
+	Node776 -> Node787
+	Node788 [label=CODIGO_]
+	Node776 -> Node788
+	Node789 [label=CUERPO_CODE]
+	Node788 -> Node789
+	Node790 [label=BEGIN]
+	Node789 -> Node790
+	Node791 [label=_CODIGO_]
+	Node789 -> Node791
+	Node792 [label=CODIGO_GENERADO]
+	Node791 -> Node792
+	Node793 [label=END]
+	Node789 -> Node793
+	Node794 [label=";;"]
+	Node789 -> Node794
+	Node0 -> 795
+	795 [label=EJECUCION_FUNCION]
+	Node796 [label=sp_insertaproducto]
+	795 -> Node796
+	Node797 [label=PARAMETROS]
+	795 -> Node797
+	Node798 [label=_EXPRESION_]
+	Node797 -> Node798
+	Node799 [label=CONDICION]
+	Node798 -> Node799
+	800 [label=ExpresionValor]
+	800 -> 801
+	801 [label=9]
+	Node799 -> 800
+	Node803 [label=_EXPRESION_]
+	Node797 -> Node803
+	Node804 [label=CONDICION]
+	Node803 -> Node804
+	805 [label=ExpresionValor]
+	805 -> 806
+	806 [label="Bocina Inalambrica"]
+	Node804 -> 805
+	Node808 [label=_EXPRESION_]
+	Node797 -> Node808
+	Node809 [label=CONDICION]
+	Node808 -> Node809
+	810 [label=ExpresionValor]
+	810 -> 811
+	811 [label="2021-01-06"]
+	Node809 -> 810
+	Node0 -> 813
+	813 [label=EJECUCION_FUNCION]
+	Node814 [label=sp_insertaproducto]
+	813 -> Node814
+	Node815 [label=PARAMETROS]
+	813 -> Node815
+	Node816 [label=_EXPRESION_]
+	Node815 -> Node816
+	Node817 [label=CONDICION]
+	Node816 -> Node817
+	818 [label=ExpresionValor]
+	818 -> 819
+	819 [label=10]
+	Node817 -> 818
+	Node821 [label=_EXPRESION_]
+	Node815 -> Node821
+	Node822 [label=CONDICION]
+	Node821 -> Node822
+	823 [label=ExpresionValor]
+	823 -> 824
+	824 [label="Audifonos con Microfono USB"]
+	Node822 -> 823
+	Node826 [label=_EXPRESION_]
+	Node815 -> Node826
+	Node827 [label=CONDICION]
+	Node826 -> Node827
+	828 [label=ExpresionValor]
+	828 -> 829
+	829 [label="2021-01-06"]
+	Node827 -> 828
+	Node0 -> 831
+	831 [label=EJECUCION_FUNCION]
+	Node832 [label=sp_insertaproducto]
+	831 -> Node832
+	Node833 [label=PARAMETROS]
+	831 -> Node833
+	Node834 [label=_EXPRESION_]
+	Node833 -> Node834
+	Node835 [label=CONDICION]
+	Node834 -> Node835
+	836 [label=ExpresionValor]
+	836 -> 837
+	837 [label=11]
+	Node835 -> 836
+	Node839 [label=_EXPRESION_]
+	Node833 -> Node839
+	Node840 [label=CONDICION]
+	Node839 -> Node840
+	841 [label=ExpresionValor]
+	841 -> 842
+	842 [label="Bocina Inalambrica"]
+	Node840 -> 841
+	Node844 [label=_EXPRESION_]
+	Node833 -> Node844
+	Node845 [label=CONDICION]
+	Node844 -> Node845
+	846 [label=ExpresionValor]
+	846 -> 847
+	847 [label="2021-01-06"]
+	Node845 -> 846
+	Node0 -> 849
+	849 [label=EJECUCION_FUNCION]
+	Node850 [label=sp_insertaproducto]
+	849 -> Node850
+	Node851 [label=PARAMETROS]
+	849 -> Node851
+	Node852 [label=_EXPRESION_]
+	Node851 -> Node852
+	Node853 [label=CONDICION]
+	Node852 -> Node853
+	854 [label=ExpresionValor]
+	854 -> 855
+	855 [label=12]
+	Node853 -> 854
+	Node857 [label=_EXPRESION_]
+	Node851 -> Node857
+	Node858 [label=CONDICION]
+	Node857 -> Node858
+	859 [label=ExpresionValor]
+	859 -> 860
+	860 [label="Monitor de 17in"]
+	Node858 -> 859
+	Node862 [label=_EXPRESION_]
+	Node851 -> Node862
+	Node863 [label=CONDICION]
+	Node862 -> Node863
+	864 [label=ExpresionValor]
+	864 -> 865
+	865 [label="2021-01-06"]
+	Node863 -> 864
+	Node867 [label=FUNCION_PRODUCCION]
+	Node0 -> Node867
+	Node868 [label=CREATE]
+	Node867 -> Node868
+	Node869 [label=FUNTION]
+	Node867 -> Node869
+	Node870 [label=fn_Mensaje]
+	Node867 -> Node870
+	Node871 [label=PARAMETROS]
+	Node867 -> Node871
+	Node872 [label=PARAMETROS]
+	Node871 -> Node872
+	Node873 [label="text texto "]
+	Node872 -> Node873
+	Node874 [label=RETURNS]
+	Node867 -> Node874
+	Node875 [label=EXPRESION_]
+	Node867 -> Node875
+	Node876 [label=CONDICION]
+	Node875 -> Node876
+	Node876 -> 877
+	Node878 [label="AS $$"]
+	Node867 -> Node878
+	Node879 [label=COMANDO_SQL]
+	Node867 -> Node879
+	Node880 [label=DECLARACIONES]
+	Node867 -> Node880
+	Node881 [label=CODIGO_]
+	Node867 -> Node881
+	Node882 [label=CUERPO_CODE]
+	Node881 -> Node882
+	Node883 [label=BEGIN]
+	Node882 -> Node883
+	Node884 [label=_CODIGO_]
+	Node882 -> Node884
+	Node885 [label=CODIGO_GENERADO]
+	Node884 -> Node885
+	Node886 [label=RETORNO__]
+	Node885 -> Node886
+	Node887 [label=EXPRESION_]
+	Node886 -> Node887
+	Node888 [label=CONDICION]
+	Node887 -> Node888
+	889 [label=Variable]
+	889 -> 890
+	890 [label=texto]
+	Node888 -> 889
+	Node892 [label=END]
+	Node882 -> Node892
+	Node893 [label=";;"]
+	Node882 -> Node893
+	Node0 -> 894
+	894 [label=EJECUCION_FUNCION]
+	Node895 [label=sp_insertaproducto]
+	894 -> Node895
+	Node896 [label=PARAMETROS]
+	894 -> Node896
+	Node897 [label=_EXPRESION_]
+	Node896 -> Node897
+	Node898 [label=CONDICION]
+	Node897 -> Node898
+	899 [label=ExpresionValor]
+	899 -> 900
+	900 [label=13]
+	Node898 -> 899
+	Node902 [label=_EXPRESION_]
+	Node896 -> Node902
+	Node903 [label=CONDICION]
+	Node902 -> Node903
+	904 [label=ExpresionValor]
+	904 -> 905
+	905 [label="Bocina Inalambrica Sony"]
+	Node903 -> 904
+	Node907 [label=_EXPRESION_]
+	Node896 -> Node907
+	Node908 [label=CONDICION]
+	Node907 -> Node908
+	909 [label=ExpresionValor]
+	909 -> 910
+	910 [label="2021-01-06"]
+	Node908 -> 909
+	Node0 -> 912
+	912 [label=EJECUCION_FUNCION]
+	Node913 [label=sp_insertaproducto]
+	912 -> Node913
+	Node914 [label=PARAMETROS]
+	912 -> Node914
+	Node915 [label=_EXPRESION_]
+	Node914 -> Node915
+	Node916 [label=CONDICION]
+	Node915 -> Node916
+	917 [label=ExpresionValor]
+	917 -> 918
+	918 [label=14]
+	Node916 -> 917
+	Node920 [label=_EXPRESION_]
+	Node914 -> Node920
+	Node921 [label=CONDICION]
+	Node920 -> Node921
+	922 [label=ExpresionValor]
+	922 -> 923
+	923 [label="Audifonos con Microfono USB Lenovo"]
+	Node921 -> 922
+	Node925 [label=_EXPRESION_]
+	Node914 -> Node925
+	Node926 [label=CONDICION]
+	Node925 -> Node926
+	927 [label=ExpresionValor]
+	927 -> 928
+	928 [label="2021-01-06"]
+	Node926 -> 927
+	Node0 -> 930
+	930 [label=EJECUCION_FUNCION]
+	Node931 [label=sp_insertaproducto]
+	930 -> Node931
+	Node932 [label=PARAMETROS]
+	930 -> Node932
+	Node933 [label=_EXPRESION_]
+	Node932 -> Node933
+	Node934 [label=CONDICION]
+	Node933 -> Node934
+	935 [label=ExpresionValor]
+	935 -> 936
+	936 [label=15]
+	Node934 -> 935
+	Node938 [label=_EXPRESION_]
+	Node932 -> Node938
+	Node939 [label=CONDICION]
+	Node938 -> Node939
+	940 [label=ExpresionValor]
+	940 -> 941
+	941 [label="Monitor de 21in"]
+	Node939 -> 940
+	Node943 [label=_EXPRESION_]
+	Node932 -> Node943
+	Node944 [label=CONDICION]
+	Node943 -> Node944
+	945 [label=ExpresionValor]
+	945 -> 946
+	946 [label="2021-01-06"]
+	Node944 -> 945
+	Node0 -> 948
+	948 [label=EJECUCION_FUNCION]
+	Node949 [label=sp_insertaproducto]
+	948 -> Node949
+	Node950 [label=PARAMETROS]
+	948 -> Node950
+	Node951 [label=_EXPRESION_]
+	Node950 -> Node951
+	Node952 [label=CONDICION]
+	Node951 -> Node952
+	953 [label=ExpresionValor]
+	953 -> 954
+	954 [label=16]
+	Node952 -> 953
+	Node956 [label=_EXPRESION_]
+	Node950 -> Node956
+	Node957 [label=CONDICION]
+	Node956 -> Node957
+	958 [label=ExpresionValor]
+	958 -> 959
+	959 [label="Monitor de 17in Lenovo"]
+	Node957 -> 958
+	Node961 [label=_EXPRESION_]
+	Node950 -> Node961
+	Node962 [label=CONDICION]
+	Node961 -> Node962
+	963 [label=ExpresionValor]
+	963 -> 964
+	964 [label="2021-01-06"]
+	Node962 -> 963
+	Node966 [label="CREATE TABLE"]
+	Node0 -> Node966
+	Node967 [label="Id: tbinventario"]
+	Node966 -> Node967
+	Node968 [label=CAMPO]
+	Node966 -> Node968
+	Node969 [label="Id: idinventario"]
+	Node968 -> Node969
+	Node970 [label="Tipo: integer"]
+	Node968 -> Node970
+	Node971 [label=VALIDACION]
+	Node968 -> Node971
+	Node972 [label="not null"]
+	Node971 -> Node972
+	Node973 [label=VALIDACION]
+	Node968 -> Node973
+	Node974 [label="primary key"]
+	Node973 -> Node974
+	Node975 [label=CAMPO]
+	Node966 -> Node975
+	Node976 [label="Id: idproducto"]
+	Node975 -> Node976
+	Node977 [label="Tipo: integer"]
+	Node975 -> Node977
+	Node978 [label=VALIDACION]
+	Node975 -> Node978
+	Node979 [label="not null"]
+	Node978 -> Node979
+	Node980 [label=CAMPO]
+	Node966 -> Node980
+	Node981 [label="Id: idbodega"]
+	Node980 -> Node981
+	Node982 [label="Tipo: integer"]
+	Node980 -> Node982
+	Node983 [label=VALIDACION]
+	Node980 -> Node983
+	Node984 [label="not null"]
+	Node983 -> Node984
+	Node985 [label=CAMPO]
+	Node966 -> Node985
+	Node986 [label="Id: cantidad"]
+	Node985 -> Node986
+	Node987 [label="Tipo: integer"]
+	Node985 -> Node987
+	Node988 [label=VALIDACION]
+	Node985 -> Node988
+	Node989 [label="not null"]
+	Node988 -> Node989
+	Node990 [label=CAMPO]
+	Node966 -> Node990
+	Node991 [label="Id: fechacarga"]
+	Node990 -> Node991
+	Node992 [label="Tipo: date"]
+	Node990 -> Node992
+	Node993 [label=VALIDACION]
+	Node990 -> Node993
+	Node994 [label="not null"]
+	Node993 -> Node994
+	Node995 [label=CAMPO]
+	Node966 -> Node995
+	Node996 [label="Id: descripcion"]
+	Node995 -> Node996
+	Node997 [label="Tipo: text"]
+	Node995 -> Node997
+	Node998 [label=FUNCION_PRODUCCION]
+	Node0 -> Node998
+	Node999 [label=CREATE]
+	Node998 -> Node999
+	Node1000 [label=FUNTION]
+	Node998 -> Node1000
+	Node1001 [label=fn_retornaproducto]
+	Node998 -> Node1001
+	Node1002 [label=PARAMETROS]
+	Node998 -> Node1002
+	Node1003 [label=PARAMETROS]
+	Node1002 -> Node1003
+	Node1004 [label="<expresiones.valorTipo object at 0x00000205EEDF35E0> Vproducto "]
+	Node1003 -> Node1004
+	Node1005 [label=RETURNS]
+	Node998 -> Node1005
+	Node1006 [label=EXPRESION_]
+	Node998 -> Node1006
+	Node1007 [label=CONDICION]
+	Node1006 -> Node1007
+	Node1007 -> 1008
+	Node1009 [label="AS $$"]
+	Node998 -> Node1009
+	Node1010 [label=COMANDO_SQL]
+	Node998 -> Node1010
+	Node1011 [label=DECLARACIONES]
+	Node998 -> Node1011
+	Node1012 [label=DECLARACIONES]
+	Node1011 -> Node1012
+	Node1013 [label=CODIGO_GENERADO]
+	Node1012 -> Node1013
+	Node1014 [label=DECLARACION]
+	Node1013 -> Node1014
+	Node1015 [label=ID]
+	Node1014 -> Node1015
+	Node1016 [label=idp]
+	Node1015 -> Node1016
+	Node1017 [label=TIPO]
+	Node1014 -> Node1017
+	Node1018 [label=integer]
+	Node1017 -> Node1018
+	Node1019 [label="="]
+	Node1014 -> Node1019
+	Node1014 -> 1020
+	1020 [label=ExpresionValor]
+	1020 -> 1021
+	1021 [label=0]
+	Node1022 [label=CODIGO_]
+	Node998 -> Node1022
+	Node1023 [label=CUERPO_CODE]
+	Node1022 -> Node1023
+	Node1024 [label=BEGIN]
+	Node1023 -> Node1024
+	Node1025 [label=_CODIGO_]
+	Node1023 -> Node1025
+	Node1026 [label=CODIGO_GENERADO]
+	Node1025 -> Node1026
+	Node1027 [label=ASIGNACION]
+	Node1026 -> Node1027
+	Node1028 [label=ID]
+	Node1027 -> Node1028
+	Node1029 [label=idp]
+	Node1028 -> Node1029
+	Node1027 -> 1030
+	1030 [label=Subconsulta]
+	Node1031 [label="Acceso_Subconsulta "]
+	1030 -> Node1031
+	Node1032 [label="(  SubQuery  )"]
+	Node1031 -> Node1032
+	Node1033 [label=INSTRUCCION_SELECT]
+	Node1032 -> Node1033
+	Node1034 [label=SELECT]
+	Node1033 -> Node1034
+	Node1035 [label=LISTA_CAMPOS]
+	Node1033 -> Node1035
+	Node1036 [label=ACCESO_CAMPO]
+	Node1035 -> Node1036
+	Node1037 [label=idproducto]
+	Node1036 -> Node1037
+	Node1038 [label=FROM]
+	Node1033 -> Node1038
+	Node1039 [label=LISTA_TABLAS]
+	Node1033 -> Node1039
+	Node1040 [label=Nombre_Tabla]
+	Node1039 -> Node1040
+	Node1041 [label=tbProducto]
+	Node1040 -> Node1041
+	Node1042 [label=CUERPO]
+	Node1033 -> Node1042
+	Node1043 [label=Cuerpo]
+	Node1042 -> Node1043
+	Node1044 [label=Where]
+	Node1043 -> Node1044
+	Node1045 [label=CONDICION]
+	Node1043 -> Node1045
+	1046 [label=ExpresionRelacional]
+	1047 [label=exp1]
+	1046 -> 1047
+	1047 -> 1048
+	1048 [label="ExpresionValor ID punto ID"]
+	1048 -> 1049
+	1049 [label="tbProducto.producto"]
+	1050 [label="=="]
+	1046 -> 1050
+	1051 [label=exp2]
+	1046 -> 1051
+	1051 -> 1052
+	1052 [label=Variable]
+	1052 -> 1053
+	1053 [label=Vproducto]
+	Node1045 -> 1046
+	Node1055 [label=CODIGO_GENERADO]
+	Node1025 -> Node1055
+	Node1056 [label=RETORNO__]
+	Node1055 -> Node1056
+	Node1057 [label=EXPRESION_]
+	Node1056 -> Node1057
+	Node1058 [label=CONDICION]
+	Node1057 -> Node1058
+	1059 [label=Variable]
+	1059 -> 1060
+	1060 [label=idp]
+	Node1058 -> 1059
+	Node1062 [label=END]
+	Node1023 -> Node1062
+	Node1063 [label=";;"]
+	Node1023 -> Node1063
+	Node1064 [label="Select Expresion"]
+	Node0 -> Node1064
+	Node1065 [label=SELECT]
+	Node1064 -> Node1065
+	Node1066 [label=ACCESO_CAMPO]
+	Node1065 -> Node1066
+	Node1066 -> 1067
+	1067 [label=EJECUCION_FUNCION]
+	Node1068 [label=fn_retornaproducto]
+	1067 -> Node1068
+	Node1069 [label=PARAMETROS]
+	1067 -> Node1069
+	Node1070 [label=_EXPRESION_]
+	Node1069 -> Node1070
+	Node1071 [label=CONDICION]
+	Node1070 -> Node1071
+	1072 [label=ExpresionValor]
+	1072 -> 1073
+	1073 [label="Bocina Inalambrica"]
+	Node1071 -> 1072
+	Node1075 [label=FUNCION_PRODUCCION]
+	Node0 -> Node1075
+	Node1076 [label=CREATE]
+	Node1075 -> Node1076
+	Node1077 [label=FUNTION]
+	Node1075 -> Node1077
+	Node1078 [label=fn_retornabodega]
+	Node1075 -> Node1078
+	Node1079 [label=PARAMETROS]
+	Node1075 -> Node1079
+	Node1080 [label=PARAMETROS]
+	Node1079 -> Node1080
+	Node1081 [label="<expresiones.valorTipo object at 0x00000205EEDF3D00> Vbodega "]
+	Node1080 -> Node1081
+	Node1082 [label=RETURNS]
+	Node1075 -> Node1082
+	Node1083 [label=EXPRESION_]
+	Node1075 -> Node1083
+	Node1084 [label=CONDICION]
+	Node1083 -> Node1084
+	Node1084 -> 1085
+	Node1086 [label="AS $$"]
+	Node1075 -> Node1086
+	Node1087 [label=COMANDO_SQL]
+	Node1075 -> Node1087
+	Node1088 [label=DECLARACIONES]
+	Node1075 -> Node1088
+	Node1089 [label=DECLARACIONES]
+	Node1088 -> Node1089
+	Node1090 [label=CODIGO_GENERADO]
+	Node1089 -> Node1090
+	Node1091 [label=DECLARACION]
+	Node1090 -> Node1091
+	Node1092 [label=ID]
+	Node1091 -> Node1092
+	Node1093 [label=idb]
+	Node1092 -> Node1093
+	Node1094 [label=TIPO]
+	Node1091 -> Node1094
+	Node1095 [label=integer]
+	Node1094 -> Node1095
+	Node1096 [label="="]
+	Node1091 -> Node1096
+	Node1091 -> 1097
+	1097 [label=ExpresionValor]
+	1097 -> 1098
+	1098 [label=0]
+	Node1099 [label=CODIGO_]
+	Node1075 -> Node1099
+	Node1100 [label=CUERPO_CODE]
+	Node1099 -> Node1100
+	Node1101 [label=BEGIN]
+	Node1100 -> Node1101
+	Node1102 [label=_CODIGO_]
+	Node1100 -> Node1102
+	Node1103 [label=CODIGO_GENERADO]
+	Node1102 -> Node1103
+	Node1104 [label=ASIGNACION]
+	Node1103 -> Node1104
+	Node1105 [label=ID]
+	Node1104 -> Node1105
+	Node1106 [label=idb]
+	Node1105 -> Node1106
+	Node1104 -> 1107
+	1107 [label=Subconsulta]
+	Node1108 [label="Acceso_Subconsulta "]
+	1107 -> Node1108
+	Node1109 [label="(  SubQuery  )"]
+	Node1108 -> Node1109
+	Node1110 [label=INSTRUCCION_SELECT]
+	Node1109 -> Node1110
+	Node1111 [label=SELECT]
+	Node1110 -> Node1111
+	Node1112 [label=LISTA_CAMPOS]
+	Node1110 -> Node1112
+	Node1113 [label=ACCESO_CAMPO]
+	Node1112 -> Node1113
+	Node1114 [label=idbodega]
+	Node1113 -> Node1114
+	Node1115 [label=FROM]
+	Node1110 -> Node1115
+	Node1116 [label=LISTA_TABLAS]
+	Node1110 -> Node1116
+	Node1117 [label=Nombre_Tabla]
+	Node1116 -> Node1117
+	Node1118 [label=tbbodega]
+	Node1117 -> Node1118
+	Node1119 [label=CUERPO]
+	Node1110 -> Node1119
+	Node1120 [label=Cuerpo]
+	Node1119 -> Node1120
+	Node1121 [label=Where]
+	Node1120 -> Node1121
+	Node1122 [label=CONDICION]
+	Node1120 -> Node1122
+	1123 [label=ExpresionRelacional]
+	1124 [label=exp1]
+	1123 -> 1124
+	1124 -> 1125
+	1125 [label="ExpresionValor ID punto ID"]
+	1125 -> 1126
+	1126 [label="tbbodega.bodega"]
+	1127 [label="=="]
+	1123 -> 1127
+	1128 [label=exp2]
+	1123 -> 1128
+	1128 -> 1129
+	1129 [label=Variable]
+	1129 -> 1130
+	1130 [label=Vbodega]
+	Node1122 -> 1123
+	Node1132 [label=CODIGO_GENERADO]
+	Node1102 -> Node1132
+	Node1133 [label=RETORNO__]
+	Node1132 -> Node1133
+	Node1134 [label=EXPRESION_]
+	Node1133 -> Node1134
+	Node1135 [label=CONDICION]
+	Node1134 -> Node1135
+	1136 [label=Variable]
+	1136 -> 1137
+	1137 [label=idb]
+	Node1135 -> 1136
+	Node1139 [label=END]
+	Node1100 -> Node1139
+	Node1140 [label=";;"]
+	Node1100 -> Node1140
+	Node1141 [label="Select Expresion"]
+	Node0 -> Node1141
+	Node1142 [label=SELECT]
+	Node1141 -> Node1142
+	Node1143 [label=ACCESO_CAMPO]
+	Node1142 -> Node1143
+	Node1143 -> 1144
+	1144 [label=EJECUCION_FUNCION]
+	Node1145 [label=fn_retornabodega]
+	1144 -> Node1145
+	Node1146 [label=PARAMETROS]
+	1144 -> Node1146
+	Node1147 [label=_EXPRESION_]
+	Node1146 -> Node1147
+	Node1148 [label=CONDICION]
+	Node1147 -> Node1148
+	1149 [label=ExpresionValor]
+	1149 -> 1150
+	1150 [label="BODEGA CENTRAL"]
+	Node1148 -> 1149
+	Node1152 [label=FUNCION_PRODUCCION]
+	Node0 -> Node1152
+	Node1153 [label=create]
+	Node1152 -> Node1153
+	Node1154 [label=FUNTION]
+	Node1152 -> Node1154
+	Node1155 [label=sp_insertainventario]
+	Node1152 -> Node1155
+	Node1156 [label=PARAMETROS]
+	Node1152 -> Node1156
+	Node1157 [label=PARAMETROS]
+	Node1156 -> Node1157
+	Node1158 [label="integer ide "]
+	Node1157 -> Node1158
+	Node1159 [label="<expresiones.valorTipo object at 0x00000205EEDE6580> Vproducto "]
+	Node1157 -> Node1159
+	Node1160 [label="<expresiones.valorTipo object at 0x00000205EEDE65E0> Vbodega "]
+	Node1157 -> Node1160
+	Node1161 [label="integer cantidad "]
+	Node1157 -> Node1161
+	Node1162 [label="<expresiones.valorTipo object at 0x00000205EEDE6B50> descripcion "]
+	Node1157 -> Node1162
+	Node1163 [label=RETURNS]
+	Node1152 -> Node1163
+	Node1164 [label=EXPRESION_]
+	Node1152 -> Node1164
+	Node1165 [label=CONDICION]
+	Node1164 -> Node1165
+	Node1165 -> 1166
+	Node1167 [label="AS $$"]
+	Node1152 -> Node1167
+	Node1168 [label=COMANDO_SQL]
+	Node1152 -> Node1168
+	Node1169 [label=DECLARACIONES]
+	Node1152 -> Node1169
+	Node1170 [label=DECLARACIONES]
+	Node1169 -> Node1170
+	Node1171 [label=CODIGO_GENERADO]
+	Node1170 -> Node1171
+	Node1172 [label=DECLARACION]
+	Node1171 -> Node1172
+	Node1173 [label=ID]
+	Node1172 -> Node1173
+	Node1174 [label=idproducto]
+	Node1173 -> Node1174
+	Node1175 [label=TIPO]
+	Node1172 -> Node1175
+	Node1176 [label=integer]
+	Node1175 -> Node1176
+	Node1177 [label="="]
+	Node1172 -> Node1177
+	Node1172 -> 1178
+	1178 [label=ExpresionValor]
+	1178 -> 1179
+	1179 [label=0]
+	Node1180 [label=CODIGO_GENERADO]
+	Node1170 -> Node1180
+	Node1181 [label=DECLARACION]
+	Node1180 -> Node1181
+	Node1182 [label=ID]
+	Node1181 -> Node1182
+	Node1183 [label=idbodega]
+	Node1182 -> Node1183
+	Node1184 [label=TIPO]
+	Node1181 -> Node1184
+	Node1185 [label=integer]
+	Node1184 -> Node1185
+	Node1186 [label="="]
+	Node1181 -> Node1186
+	Node1181 -> 1187
+	1187 [label=ExpresionValor]
+	1187 -> 1188
+	1188 [label=0]
+	Node1189 [label=CODIGO_GENERADO]
+	Node1170 -> Node1189
+	Node1190 [label=DECLARACION]
+	Node1189 -> Node1190
+	Node1191 [label=ID]
+	Node1190 -> Node1191
+	Node1192 [label=idev]
+	Node1191 -> Node1192
+	Node1193 [label=TIPO]
+	Node1190 -> Node1193
+	Node1194 [label=integer]
+	Node1193 -> Node1194
+	Node1195 [label="="]
+	Node1190 -> Node1195
+	Node1190 -> 1196
+	1196 [label=ExpresionValor]
+	1196 -> 1197
+	1197 [label=0]
+	Node1198 [label=CODIGO_]
+	Node1152 -> Node1198
+	Node1199 [label=CUERPO_CODE]
+	Node1198 -> Node1199
+	Node1200 [label=BEGIN]
+	Node1199 -> Node1200
+	Node1201 [label=_CODIGO_]
+	Node1199 -> Node1201
+	Node1202 [label=CODIGO_GENERADO]
+	Node1201 -> Node1202
+	Node1203 [label=ASIGNACION]
+	Node1202 -> Node1203
+	Node1204 [label=ID]
+	Node1203 -> Node1204
+	Node1205 [label=idev]
+	Node1204 -> Node1205
+	Node1203 -> 1206
+	1206 [label=ExpresionValor]
+	1206 -> 1207
+	1207 [label=0]
+	Node1208 [label=CODIGO_GENERADO]
+	Node1201 -> Node1208
+	Node1209 [label=CODIGO_GENERADO]
+	Node1201 -> Node1209
+	Node1210 [label=RETORNO__]
+	Node1209 -> Node1210
+	Node1211 [label=EXPRESION_]
+	Node1210 -> Node1211
+	Node1212 [label=CONDICION]
+	Node1211 -> Node1212
+	1213 [label=Variable]
+	1213 -> 1214
+	1214 [label=ide]
+	Node1212 -> 1213
+	Node1216 [label=END]
+	Node1199 -> Node1216
+	Node1217 [label=";;"]
+	Node1199 -> Node1217
+	Node1218 [label="Select Expresion"]
+	Node0 -> Node1218
+	Node1219 [label=SELECT]
+	Node1218 -> Node1219
+	Node1220 [label=ACCESO_CAMPO]
+	Node1219 -> Node1220
+	Node1220 -> 1221
+	1221 [label=EJECUCION_FUNCION]
+	Node1222 [label=sp_insertainventario]
+	1221 -> Node1222
+	Node1223 [label=PARAMETROS]
+	1221 -> Node1223
+	Node1224 [label=_EXPRESION_]
+	Node1223 -> Node1224
+	Node1225 [label=CONDICION]
+	Node1224 -> Node1225
+	1226 [label=ExpresionValor]
+	1226 -> 1227
+	1227 [label=1]
+	Node1225 -> 1226
+	Node1229 [label=_EXPRESION_]
+	Node1223 -> Node1229
+	Node1230 [label=CONDICION]
+	Node1229 -> Node1230
+	1231 [label=ExpresionValor]
+	1231 -> 1232
+	1232 [label="Laptop Lenovo"]
+	Node1230 -> 1231
+	Node1234 [label=_EXPRESION_]
+	Node1223 -> Node1234
+	Node1235 [label=CONDICION]
+	Node1234 -> Node1235
+	1236 [label=ExpresionValor]
+	1236 -> 1237
+	1237 [label="BODEGA CENTRAL"]
+	Node1235 -> 1236
+	Node1239 [label=_EXPRESION_]
+	Node1223 -> Node1239
+	Node1240 [label=CONDICION]
+	Node1239 -> Node1240
+	1241 [label=ExpresionValor]
+	1241 -> 1242
+	1242 [label=200]
+	Node1240 -> 1241
+	Node1244 [label=_EXPRESION_]
+	Node1223 -> Node1244
+	Node1245 [label=CONDICION]
+	Node1244 -> Node1245
+	1246 [label=ExpresionValor]
+	1246 -> 1247
+	1247 [label="Laptop Lenovo T420 i7 8GB"]
+	Node1245 -> 1246
+	Node1249 [label="Select Expresion"]
+	Node0 -> Node1249
+	Node1250 [label=SELECT]
+	Node1249 -> Node1250
+	Node1251 [label=ACCESO_CAMPO]
+	Node1250 -> Node1251
+	Node1251 -> 1252
+	1252 [label=EJECUCION_FUNCION]
+	Node1253 [label=sp_insertainventario]
+	1252 -> Node1253
+	Node1254 [label=PARAMETROS]
+	1252 -> Node1254
+	Node1255 [label=_EXPRESION_]
+	Node1254 -> Node1255
+	Node1256 [label=CONDICION]
+	Node1255 -> Node1256
+	1257 [label=ExpresionValor]
+	1257 -> 1258
+	1258 [label=2]
+	Node1256 -> 1257
+	Node1260 [label=_EXPRESION_]
+	Node1254 -> Node1260
+	Node1261 [label=CONDICION]
+	Node1260 -> Node1261
+	1262 [label=ExpresionValor]
+	1262 -> 1263
+	1263 [label="Teclado Inalambrico"]
+	Node1261 -> 1262
+	Node1265 [label=_EXPRESION_]
+	Node1254 -> Node1265
+	Node1266 [label=CONDICION]
+	Node1265 -> Node1266
+	1267 [label=ExpresionValor]
+	1267 -> 1268
+	1268 [label="BODEGA CENTRAL"]
+	Node1266 -> 1267
+	Node1270 [label=_EXPRESION_]
+	Node1254 -> Node1270
+	Node1271 [label=CONDICION]
+	Node1270 -> Node1271
+	1272 [label=ExpresionValor]
+	1272 -> 1273
+	1273 [label=100]
+	Node1271 -> 1272
+	Node1275 [label=_EXPRESION_]
+	Node1254 -> Node1275
+	Node1276 [label=CONDICION]
+	Node1275 -> Node1276
+	1277 [label=ExpresionValor]
+	1277 -> 1278
+	1278 [label="Teclado Inalambrico Lenovo"]
+	Node1276 -> 1277
+	Node1280 [label="Select Expresion"]
+	Node0 -> Node1280
+	Node1281 [label=SELECT]
+	Node1280 -> Node1281
+	Node1282 [label=ACCESO_CAMPO]
+	Node1281 -> Node1282
+	Node1282 -> 1283
+	1283 [label=EJECUCION_FUNCION]
+	Node1284 [label=sp_insertainventario]
+	1283 -> Node1284
+	Node1285 [label=PARAMETROS]
+	1283 -> Node1285
+	Node1286 [label=_EXPRESION_]
+	Node1285 -> Node1286
+	Node1287 [label=CONDICION]
+	Node1286 -> Node1287
+	1288 [label=ExpresionValor]
+	1288 -> 1289
+	1289 [label=3]
+	Node1287 -> 1288
+	Node1291 [label=_EXPRESION_]
+	Node1285 -> Node1291
+	Node1292 [label=CONDICION]
+	Node1291 -> Node1292
+	1293 [label=ExpresionValor]
+	1293 -> 1294
+	1294 [label="Mouse Inalambrico"]
+	Node1292 -> 1293
+	Node1296 [label=_EXPRESION_]
+	Node1285 -> Node1296
+	Node1297 [label=CONDICION]
+	Node1296 -> Node1297
+	1298 [label=ExpresionValor]
+	1298 -> 1299
+	1299 [label="BODEGA ZONA 12"]
+	Node1297 -> 1298
+	Node1301 [label=_EXPRESION_]
+	Node1285 -> Node1301
+	Node1302 [label=CONDICION]
+	Node1301 -> Node1302
+	1303 [label=ExpresionValor]
+	1303 -> 1304
+	1304 [label=50]
+	Node1302 -> 1303
+	Node1306 [label=_EXPRESION_]
+	Node1285 -> Node1306
+	Node1307 [label=CONDICION]
+	Node1306 -> Node1307
+	1308 [label=ExpresionValor]
+	1308 -> 1309
+	1309 [label=L]
+	Node1307 -> 1308
+	Node1311 [label="Select Expresion"]
+	Node0 -> Node1311
+	Node1312 [label=SELECT]
+	Node1311 -> Node1312
+	Node1313 [label=ACCESO_CAMPO]
+	Node1312 -> Node1313
+	Node1313 -> 1314
+	1314 [label=EJECUCION_FUNCION]
+	Node1315 [label=sp_insertainventario]
+	1314 -> Node1315
+	Node1316 [label=PARAMETROS]
+	1314 -> Node1316
+	Node1317 [label=_EXPRESION_]
+	Node1316 -> Node1317
+	Node1318 [label=CONDICION]
+	Node1317 -> Node1318
+	1319 [label=ExpresionValor]
+	1319 -> 1320
+	1320 [label=4]
+	Node1318 -> 1319
+	Node1322 [label=_EXPRESION_]
+	Node1316 -> Node1322
+	Node1323 [label=CONDICION]
+	Node1322 -> Node1323
+	1324 [label=ExpresionValor]
+	1324 -> 1325
+	1325 [label="Laptop HP"]
+	Node1323 -> 1324
+	Node1327 [label=_EXPRESION_]
+	Node1316 -> Node1327
+	Node1328 [label=CONDICION]
+	Node1327 -> Node1328
+	1329 [label=ExpresionValor]
+	1329 -> 1330
+	1330 [label="bodega zona 9"]
+	Node1328 -> 1329
+	Node1332 [label=_EXPRESION_]
+	Node1316 -> Node1332
+	Node1333 [label=CONDICION]
+	Node1332 -> Node1333
+	1334 [label=ExpresionValor]
+	1334 -> 1335
+	1335 [label=20]
+	Node1333 -> 1334
+	Node1337 [label=_EXPRESION_]
+	Node1316 -> Node1337
+	Node1338 [label=CONDICION]
+	Node1337 -> Node1338
+	1339 [label=ExpresionValor]
+	1339 -> 1340
+	1340 [label="Laptop HP i5 4GB RAM"]
+	Node1338 -> 1339
 }

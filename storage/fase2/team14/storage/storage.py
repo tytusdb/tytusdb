@@ -7,6 +7,7 @@ from .HashMode import HashMode as HashM
 from .AVLMode import avlMode as AVLM
 from .jsonMode import jsonMode as jsonM
 from .DictMode import DictMode as DictM
+from .encryption import _decrypt, _encrypt
 import os
 import hashlib
 import zlib
@@ -276,6 +277,16 @@ def extractTable(database: str, table: str) -> list:
         tuples = jsonM.extractTable(database, table)
     elif databasesinfo[1][database][table]['mode'] == 'hash':
         tuples = HashM.extractTable(database, table)
+    if databasesinfo[1][database][table]['Compress'] == True:
+        tabla = tuples
+        for i in range(0, len(tabla)):
+            tupla = tabla[i]
+            for j in range(0, len(tupla)):
+                # print(tupla[j])
+                if type(tupla[j]) == bytes:
+                    tupla[j] = zlib.decompress(tupla[j]).decode()
+            tabla[i] = tupla
+        tuples=tabla
     return tuples
 
 
@@ -309,6 +320,16 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
             tuples = jsonM.extractRangeTable(database, table, lower, upper)
         elif databasesinfo[1][database][table]['mode'] == 'hash':
             tuples = HashM.extractRangeTable(database, table, columnNumber, lower, upper)
+        if databasesinfo[1][database][table]['Compress'] == True:
+                tabla = tuples
+                for i in range(0, len(tabla)):
+                    tupla = tabla[i]
+                    for j in range(0, len(tupla)):
+                        # print(tupla[j])
+                        if type(tupla[j]) == bytes:
+                            tupla[j] = zlib.decompress(tupla[j]).decode()
+                    tabla[i] = tupla
+                tuples=tabla
         return tuples
     except:
         return []
@@ -596,6 +617,69 @@ def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
     except:
         return 1
     
+# vincula un indice a las columnas de una tabla
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database]:
+            result = 3
+        else:
+            if len(columns) >= 1:
+                tableColumns = databasesinfo[1][database][table]['numberColumns']
+                col1 = True
+                for values in columns:
+                    if values >= tableColumns:
+                        col1 = False
+                        break
+                if col1:
+                    res = createTable(database, table + 'Index', 2)
+                    if res == 0:
+                        res1 = insert(database, table + 'Index', [indexName, columns])
+                        if res1 == 0:
+                            dictI = {indexName: {'columns': columns}}
+                            Index = {'Index': dictI}
+                            databasesinfo[1][database][table].update(Index)
+                            commit(databasesinfo, 'databasesInfo')
+                        else:
+                            result = 1
+                    else:
+                        result = 1
+                else:
+                    result = 1
+            else:
+                result = 1
+        return result
+    except:
+        return 1
+
+# elimina el indice de una tabla
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database]:
+            result = 3
+        else:
+            if 'Index' in databasesinfo[1][database][table]:
+                if indexName in databasesinfo[1][database][table]['Index']:
+                    res = dropTable(database, table + 'Index')
+                    if res == 0:
+                        del databasesinfo[1][database][table]['Index'][indexName]
+                        commit(databasesinfo, 'databasesinfo')
+                        result = 0
+                    else:
+                        result = 1
+                else:
+                    result = 4
+            else:
+                result = 1
+        return result
+    except:
+        return 1
+    
 # cambia el nombre de una tabla      
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
     try:
@@ -796,12 +880,10 @@ def insert(database: str, table: str, register: list) -> int:
                     register[ind] = x.decode(encoding)
         except:
             return 1
-
         if databasesinfo[1][database][table]['Compress'] == True:
             for i in range(0, len(register)):
                 if type(register[i]) == str:
                     register[i] = zlib.compress(bytes(register[i].encode()))
-
         if databasesinfo[1][database][table]['mode'] == 'avl':
             result = AVLM.insert(database, table, register)
         elif databasesinfo[1][database][table]['mode'] == 'b':
@@ -866,6 +948,16 @@ def extractRow(database: str, table: str, columns: list) -> list:
             result = jsonM.extractRow(database, table, columns)
         elif databasesinfo[1][database][table]['mode'] == 'hash':
             result = HashM.extractRow(database, table, columns)
+        if databasesinfo[1][database][table]['Compress'] == True:
+            tabla = result
+            for i in range(0, len(tabla)):
+                tupla = tabla[i]
+                for j in range(0, len(tupla)):
+                    # print(tupla[j])
+                    if type(tupla[j]) == bytes:
+                        tupla[j] = zlib.decompress(tupla[j]).decode()
+                tabla[i] = tupla
+            tuples = result
         return result
     except:
         return []
@@ -1069,3 +1161,31 @@ def alterTableCompress(database: str, table: str, level: int) -> int:
         return 0
     except:
         return 1
+    
+#comprime una base de datos completa
+def alterDatabaseCompress(database: str, level: int) -> int:
+    if database not in databasesinfo[0]:
+        return 2
+    if level<-1 or level>9:
+        return 4
+    try:
+        tablas=showTables(database)
+        compreso=0
+        for tabla in tablas:
+            compreso+=alterTableCompress(database,tabla,level)
+        if compreso==0:
+            return 0
+        else:
+            return 1
+    except:
+        return 1
+    
+    
+# devuelve un text cifrado
+def encrypt(backup: str, password: str) -> str:
+    return _encrypt(backup, password)
+
+
+# devuelve un texto descifrado
+def decrypt(cipherBackup: str, password: str) -> str:
+    return _decrypt(cipherBackup, password)

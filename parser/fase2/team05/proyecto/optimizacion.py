@@ -90,6 +90,13 @@ def optimizar(pOpt):
                         reglasOpt.append("Regla 5: " + valor + '\n' + str(listaOp[indiceB]) + '. Se optimiza por: ' + str(val))
                         listaOp[indiceB] = ''
                         codOpt += val
+                else:
+                    indiceIf = indice + 1
+                    if2 = listaOp[indiceIf]
+                    if 'goto ' in if2:
+                        a = 1
+                    codOpt += valor
+
             else:
                 indiceAsig = indice + 1
                 asig2 = listaOp[indiceAsig]
@@ -99,6 +106,8 @@ def optimizar(pOpt):
                     if (str(asig[0]).strip() == str(asig2[1]).strip()) and (str(asig[1]).strip() == str(asig2[0]).strip()):
                         reglasOpt.append("Regla 1: <br>" + valor + '<br>' +str(listaOp[indiceAsig]) + '. <br> Se optimiza por: ' + valor )
                         listaOp[indiceAsig] = ''
+                        codOpt += valor
+                    else:
                         codOpt += valor
                 else:
                     codOpt += valor

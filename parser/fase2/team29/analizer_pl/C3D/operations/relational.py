@@ -4,7 +4,6 @@ from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
 from analizer_pl import grammar
 
-
 class ExistsRelationalOperation(instruction.Instruction):
     def __init__(self, temp, select):
         instruction.Instruction.__init__(self, select.row, select.column)
@@ -16,7 +15,7 @@ class ExistsRelationalOperation(instruction.Instruction):
         self.groupbyCl = select.groupbyCl
         self.limitCl = select.limitCl
         self.temp = "t" + temp
-
+	self.s = select
     def execute(self, environment):
         parVal = ""
         out = self.temp + " = "
@@ -69,7 +68,7 @@ class ExistsRelationalOperation(instruction.Instruction):
                     orderbyCl += str(o[0]) + o[1] + o[2]
                 else:
                     orderbyCl += o[0].id + o[1] + o[2]
-            out += "ORDER BY " + orderbyCl[2:]
+            out +=  "ORDER BY " + orderbyCl[2:]
 
         out += ") ;"
         out += '")\n'
@@ -86,9 +85,13 @@ class ExistsRelationalOperation(instruction.Instruction):
         """
         return code.C3D(parVal + out, self.temp, self.row, self.column)
 
+    def dot(self):
+        new = Nodo("EXISTS")
+        new.addNode(self.s.dot())
+        return new
 
 class inRelationalOperation(instruction.Instruction):
-    def __init__(self, temp, colData, optNot, select):
+    def __init__(self, temp, colData, optNot , select):
         instruction.Instruction.__init__(self, select.row, select.column)
         self.distinct = select.distinct
         self.params = select.params
@@ -100,6 +103,7 @@ class inRelationalOperation(instruction.Instruction):
         self.optNot = optNot
         self.colData = colData
         self.temp = "t" + temp
+	self.s = select
 
     def execute(self, environment):
         colData = self.colData.execute(environment)
@@ -156,7 +160,7 @@ class inRelationalOperation(instruction.Instruction):
                     orderbyCl += str(o[0]) + o[1] + o[2]
                 else:
                     orderbyCl += o[0].id + o[1] + o[2]
-            out += "ORDER BY " + orderbyCl[2:]
+            out +=  "ORDER BY " + orderbyCl[2:]
 
         out += ") ;"
         out += '")\n'
@@ -172,3 +176,14 @@ class inRelationalOperation(instruction.Instruction):
             grammar.optimizer_.addIgnoreString(out, self.row, False)
         """
         return code.C3D(colData.value + parVal + out, self.temp, self.row, self.column)
+
+    def dot(self):
+
+        if self.optNot == "":
+            new = Nodo("IN")
+        else:
+            new = Nodo("NOT_IN")
+
+        new.addNode(self.colData.dot())
+        new.addNode(self.s.dot())
+        return new

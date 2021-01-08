@@ -26,18 +26,22 @@ class CreateDatabase(Instruccion):
                 break
         if self.existe=="IF NOT EXISTS" and bandera==True:
             arbol.consola.append(f"La Base de Datos ya existe: {self.base}.")
+            print(f"LA BASE DE DATOS: {self.base} YA EXISTE.")
         elif self.existe=="IF NOT EXISTS" and bandera==False:
             arbol.consola.append(f"Se Creo la base de datos: {self.base} correctamente.")
+            print(f"SE CREO LA BASE DE DATOS: {self.base} CORRECTAMENTE.")
             createDatabase(str(self.base))
             nueva = BaseDeDatos(str(self.base))
             arbol.setListaBd(nueva)
         elif self.existe=="NULL" and bandera==True:
             error = Excepcion("42P04","Semantico",f"La Base de Datos {self.base} ya Existe.",self.linea,self.columna)
+            print(f"LA BASE DE DATOS: {self.base} YA EXISTE.")
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
         elif self.existe=="NULL" and bandera==False:
             #AVISOS
             arbol.consola.append(f"Se Creo la base de datos: {self.base} correctamente.")
+            print(f"SE CREO LA BASE DE DATOS: {self.base} CORRECTAMENTE.")
             createDatabase(str(self.base))
             nueva = BaseDeDatos(str(self.base))
             arbol.setListaBd(nueva)
@@ -106,12 +110,13 @@ class CreateDatabase(Instruccion):
         
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter_createDataBase()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo
 
 '''
 instruccion = CreateDatabase("hola mundo",None, 1,2)

@@ -137,6 +137,177 @@ def safeModeOff(database, table):
         return 4
     except:
         return 1
+
+def alterDatabaseCompress(database, level):
+    try:
+
+        if level > 9 or level < 0:
+            return 4
+
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        mode = dictionary.get(database)[0]
+
+        if value_db:
+            j = checkMode(mode)
+            tables = j.showTables(database)
+            for table in tables:
+                newTable = []
+                tableEx = j.extractTable(database, table)
+
+                for tuple in tableEx:
+                    newTuple = []
+                    for register in tuple:
+                        if isinstance(register, bytes):
+                            compressed = zlib.compress(register, level)
+                            newTuple.append(compressed)
+                        else:
+                            newTuple.append(register)
+
+                    newTable.append(newTuple)
+
+                j.truncate(database, table)
+
+                for tuple in newTable:
+                    j.insert(database, table, tuple)
+
+                save(dictionary, 'metadata')
+            return 0
+            # print(newTable)
+
+        else:
+            return 2
+    except:
+        return 1
+    
+def alterDatabaseDecompress(database):
+    try:
+
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        mode = dictionary.get(database)[0]
+
+        if value_db:
+            j = checkMode(mode)
+            tables = j.showTables(database)
+            for table in tables:
+                newTable = []
+                tableEx = j.extractTable(database, table)
+
+                if tupleIsnotCompressed(tableEx):
+                    return 3
+
+                for tuple in tableEx:
+                    newTuple = []
+                    for register in tuple:
+                        if iscompressed(register):
+                            # print("Tamaño sin comprimir %d" % len(register))
+                            decompressed = zlib.decompress(register)
+                            # print("Tamaño comprimido %d" % len(compressed))
+                            newTuple.append(decompressed)
+                        else:
+                            newTuple.append(register)
+
+                    newTable.append(newTuple)
+
+                j.truncate(database, table)
+
+                for tuple in newTable:
+                    j.insert(database, table, tuple)
+
+                save(dictionary, 'metadata')
+            return 0
+            # print(newTable)
+
+        else:
+            return 2
+    except:
+        return 1
+    
+def alterTableCompress(database, table, level):
+    try:
+
+        if level > 9 or level < 0:
+            return 4
+
+        newTable = []
+
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        mode = dictionary.get(database)[0]
+
+        if value_db:
+            j = checkMode(mode)
+            tableEx = j.extractTable(database, table)
+            for tuple in tableEx:
+                newTuple = []
+                for register in tuple:
+                    if isinstance(register, bytes):
+                        # print("Tamaño sin comprimir %d" % len(register))
+                        compressed = zlib.compress(register, level)
+                        # print("Tamaño comprimido %d" % len(compressed))
+                        newTuple.append(compressed)
+                    else:
+                        newTuple.append(register)
+
+                newTable.append(newTuple)
+
+            j.truncate(database, table)
+
+            for tuple in newTable:
+                j.insert(database, table, tuple)
+
+            save(dictionary, 'metadata')
+            return 0
+            # print(newTable)
+
+        else:
+            return 2
+    except:
+        return 1
+    
+def alterTableDecompress(database, table):
+    try:
+        newTable = []
+
+        os.path.isfile(os.getcwd() + "\\Data\\metadata.bin")
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        mode = dictionary.get(database)[0]
+
+        if value_db:
+            j = checkMode(mode)
+            tableEx = j.extractTable(database, table)
+
+            if tupleIsnotCompressed(tableEx):
+                return 3
+
+            for tuple in tableEx:
+                newTuple = []
+                for register in tuple:
+                    if iscompressed(register):
+                        # print("Tamaño sin comprimir %d" % len(register))
+                        decompressed = zlib.decompress(register)
+                        # print("Tamaño comprimido %d" % len(compressed))
+                        newTuple.append(decompressed)
+                    else:
+                        newTuple.append(register)
+
+                newTable.append(newTuple)
+
+            j.truncate(database, table)
+
+            for tuple in newTable:
+                j.insert(database, table, tuple)
+
+            save(dictionary, 'metadata')
+            return 0
+            # print(newTable)
+
+        else:
+            return 2
+    except:
+        return 1
     
     
 # ---------------------------------------------- AUXILIARY FUNCTIONS  --------------------------------------------------
@@ -182,6 +353,25 @@ def checkMode(mode):
     elif mode == 'hash':
         from storage.hash import hash_mode as j
         return j
+    
+# If tuple is compressed
+def tupleIsnotCompressed(array):
+    flag = True
+
+    for tuple in array:
+        for register in tuple:
+            if iscompressed(register):
+                return False
+
+    return flag
+
+def iscompressed(data):
+    result = True
+    try:
+        s = zlib.decompress(data)
+    except:
+        result = False
+    return result
 
 
 def insertAgain(database, mode, newMode):
@@ -378,6 +568,18 @@ def extractTable(database, table):
         j = checkMode(mode)
         value_return = j.extractTable(database, table)
         
+        # Decompress
+        for tuple in value_return:
+            newTuple = []
+            for register in tuple:
+                if iscompressed(register):
+                    decompressed = zlib.decompress(register)
+                    newTuple.append(decompressed)
+                else:
+                    newTuple.append(register)
+
+            newTable.append(newTuple)
+        
         return value_return
     except:
         return None
@@ -397,6 +599,18 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         value_return = j.extractRangeTable(database, table, int(columnNumber), lower, upper)
+        
+        # Decompress
+        for tuple in value_return:
+            newTuple = []
+            for register in tuple:
+                if iscompressed(register):
+                    decompressed = zlib.decompress(register)
+                    newTuple.append(decompressed)
+                else:
+                    newTuple.append(register)
+
+            newTable.append(newTuple)
         
         return value_return
     except:

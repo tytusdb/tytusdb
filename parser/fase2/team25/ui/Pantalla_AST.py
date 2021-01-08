@@ -1,6 +1,8 @@
 from tkinter import ttk
 import tkinter as tk
 from tkinter import *
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPM
 
 
 class Pantalla_AST:
@@ -15,7 +17,7 @@ class Pantalla_AST:
         label.config(font=("Verdana", 20, "bold"))
         label.pack(anchor=W)
         self.pw = PanedWindow(self.top, orient="vertical")
-        imagen = PhotoImage(file="/test-output/round-table.gv.png")
+        imagen = PhotoImage(file="./test-output/round-table.gv.svg")
         Label(self.pw, image=imagen, bd=0).pack()
         self.pw.pack()
         btn = Button(self.top, text="Regresar", command=self.close)

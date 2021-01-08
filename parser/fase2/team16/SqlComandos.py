@@ -2,23 +2,22 @@ from Instruccion import *
 from expresiones import *
 import interprete as Inter
 from sentencias import *
+from Temporales import *
 
 class SqlComandos:
 
-    def __init__(self, sentencia):
+    def __init__(self, sentencia, ts_global = None, t_global = None, ambitoFuncion = None):
         self.sentencia = sentencia
         self.CadenaSQL = None
-
-
-
+        self.ts_global = ts_global
+        self.t_global = t_global
+        self.ambitoFuncion = ambitoFuncion
 
     def generarCadenaSQL(self):
         i = self.sentencia
         if isinstance(i, DropTable):
             print("Si es un drop table *")
             self.CadenaSQL = self.grafoDropTable(i.id)
-
-
 
         elif isinstance(i, Select):
             print("Es Una Instruccion Select")
@@ -137,7 +136,7 @@ class SqlComandos:
 
         elif isinstance(i, SelectExpresion):
             print("Es Una Instruccion SelectCurrentType")
-            #self.grafoSelectExpresion(i.listaCampos)
+            self.CadenaSQL = self.grafoSelectExpresion(i)
 
         elif isinstance(i, Funciones_):
             print("Es Una Instruccion SelectCurrentType")
@@ -169,10 +168,11 @@ class SqlComandos:
             pass
 
         elif isinstance(i, DropIndice):
-            self.CadenaSQL =self.Grafo_DropIndex(i)
+            self.CadenaSQL = self.Grafo_DropIndex(i)
             pass
 
         else:
+            #self.CadenaSQL = self.cadena_expresion(i)
             print("Es Una Instruccion SelectCurrentType")
             return ""
 
@@ -235,7 +235,8 @@ class SqlComandos:
                     Cadenita += self.GrafoExpresionCase(j.Reservada, j.ListaExpresiones)
                 else:
                     Cadenita += self.GrafoExpresionCase(j.Reservada, j.ListaExpresiones)+","
-
+            elif  isinstance(j,ProcesoCount):
+                   Cadenita  += self.Grafo_Count(j)
             else:
                 print("No Ningun Tipo  vos ")
 
@@ -759,7 +760,7 @@ class SqlComandos:
 
     # Grafo Sub Select Con Cuerpo
     def GrafoSubSelect2(self, ListaCampos, NombresTablas, cuerpo):
-        Cadenita = "( Select " + self.RecorrerListadeCampos(ListaCampos) + "From  " + self.RecorrerListadeNombres(NombresTablas)
+        Cadenita = "( Select " + self.RecorrerListadeCampos(ListaCampos) + " From  " + self.RecorrerListadeNombres(NombresTablas)
         Cadenita += self.RecorrerListaCuerpos(cuerpo)+ ") "
 
         return Cadenita
@@ -854,7 +855,7 @@ class SqlComandos:
         return  Cadenita
 
 
-    def grafoConstraintTabla(self, contraint: constraintTabla):
+    def grafoConstraintTabla(self, contraint):
         Cadenita = ""
         '''CONSTRAINTS OPTIONS: '''
         if contraint.valor != None:
@@ -1040,7 +1041,7 @@ class SqlComandos:
 
 
 
-    def cadena_create_database(self, createDataBase: CreateDataBase):
+    def cadena_create_database(self, createDataBase):
         codigo3d = "CREATE "
 
         if createDataBase.replace == 1:
@@ -1057,7 +1058,7 @@ class SqlComandos:
 
         return codigo3d
 
-    def cadena_drop_database(self, dropDataBase: DropDataBase):
+    def cadena_drop_database(self, dropDataBase):
         codigo3d = "DROP DATABASE "
 
         if dropDataBase.existe == 1:
@@ -1088,6 +1089,17 @@ class SqlComandos:
                 return '"' + str(expresiones.val) + '"'
             return str(expresiones.val)
         elif isinstance(expresiones, Variable):
+            # Buscar variable en la tabla de simbolos
+            r = None
+            for item in self.t_global.tablaSimbolos:
+                v: tipoSimbolo = self.t_global.obtenerSimbolo(item)
+
+                if v.nombre == expresiones.id and v.ambito == self.ambitoFuncion:
+                    # print(str(v.temporal))
+                    r = str(v.temporal)
+
+            if r is not None:
+                return '""" + str(' + str(r) + ') + """'
             return expresiones.id
         elif isinstance(expresiones, UnitariaAritmetica):
             return self.getVar(expresiones.operador) + " " + str(self.cadena_expresion(expresiones.exp1))
@@ -1435,13 +1447,13 @@ class SqlComandos:
 
 
 #============================= ALTER TABLE ============================================
-    def cadena_alter_column_set_not_null(self, alterColumn: Alter_table_Alter_Column_Set):
+    def cadena_alter_column_set_not_null(self, alterColumn):
         cadena = "ALTER TABLE " + alterColumn.id_tabla + " ALTER COLUMN " + alterColumn.id_column.val
         cadena += " SET NOT NULL;"
 
         return cadena
 
-    def cadena_alter_add_column(self, alterTable: Alter_Table_AddColumn):
+    def cadena_alter_add_column(self, alterTable):
         cadena = 'ALTER TABLE ' + alterTable.id_table + " ADD COLUMN "
 
         for index, columna in enumerate(alterTable.id_columnas):
@@ -1455,7 +1467,7 @@ class SqlComandos:
 
         return cadena
 
-    def cadena_alter_drop_column(self, alterTable: Alter_Table_Drop_Column):
+    def cadena_alter_drop_column(self, alterTable):
         cadena = "ALTER TABLE " + alterTable.id_table + " DROP COLUMN "
 
         for index, id in enumerate(alterTable.columnas):
@@ -1466,17 +1478,17 @@ class SqlComandos:
 
         return cadena
 
-    def cadena_alter_rename(self, alterTable: Alter_Table_Rename_Column):
+    def cadena_alter_rename(self, alterTable):
         cadena = 'ALTER TABLE ' + alterTable.id_table + ' RENAME COLUMN ' + alterTable.old_column.val
         cadena += ' TO ' + alterTable.new_column.val + ';'
 
         return cadena
 
-    def cadena_alter_drop_constraint(self, alterTable: Alter_Table_Drop_Constraint):
+    def cadena_alter_drop_constraint(self, alterTable):
         cadena = 'ALTER TABLE ' + alterTable.id_tabla + ' DROP CONSTRAINT ' + alterTable.id_constraint.val + ";"
         return cadena
 
-    def cadena_alter_add_foreign(self, alterTable: Alter_table_Add_Foreign_Key):
+    def cadena_alter_add_foreign(self, alterTable):
         cadena = 'ALTER TABLE ' + alterTable.id_table
 
         if alterTable.idforeign is not None:
@@ -1493,12 +1505,12 @@ class SqlComandos:
 
         return cadena
 
-    def cadena_alter_add_constraint(self, alterTable: Alter_Table_Add_Constraint):
+    def cadena_alter_add_constraint(self, alterTable):
         cadena = "ALTER TABLE " + alterTable.id_table + " ADD CONSTRAINT " + alterTable.id_constraint.val
         cadena += ' UNIQUE (' + alterTable.id_column.val + ');'
 
 
-    def cadena_alter_column(self, alterTable: Alter_COLUMN):
+    def cadena_alter_column(self, alterTable):
         cadena = "ALTER TABLE " + alterTable.idtabla
 
         for index, columna in enumerate(alterTable.columnas):
@@ -1534,4 +1546,27 @@ class SqlComandos:
     def Grafo_DropIndex(self, objeto):
         ob: DropIndice = objeto
         Cadenita = " DROP INDEX " + ob.id_indice + " ;  "
+        return Cadenita
+
+    def grafoSelectExpresion(self, objeto):
+        cadena = "SELECT "
+
+
+        for campo in objeto.listaCampos:
+            if isinstance(campo, Campo_AccedidoSinLista):
+                cadena += self.cadena_expresion(campo.Columna)
+
+            elif isinstance(campo, Campo_Accedido):
+                cadena += self.cadena_expresion(campo.Columna)
+
+            if campo != objeto.listaCampos[-1]:
+                cadena += ", "
+
+        cadena += ";"
+
+        return cadena
+    def Grafo_Count(self, objeto):
+        ob: ProcesoCount = objeto
+        Cadenita = "COUNT ("+ob.Columna+")"
+
         return Cadenita

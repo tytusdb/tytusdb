@@ -37,19 +37,26 @@ def reporte_tabla(tabla):
     cadena += "<table id=\"t01\">\n"
 
     cadena += "<tr>\n"
-    cadena += "<th><center>Nombre</center></th>\n"
+    cadena += "<th><center>Base</center></th>\n"
     cadena += "<th><center>Tipo</center></th>\n"
-    cadena += "<th><center>Nombre Columnas</center></th>\n"
+    cadena += "<th><center>Nombre</center></th>\n"
+    cadena += "<th><center>Tabla</center></th>\n"
     cadena += "<th><center>Orden</center></th>\n"
-    cadena += "<th><center>Restriction</center></th>\n"
-    cadena += "<th><center>Linea</center></th>\n"
+    cadena += "<th><center>Columna</center></th>\n"
+    cadena += "<th><center>Restricciones</center></th>\n"
     cadena += "</tr>\n"
 
     # Recorrido
     for array in tabla.index:
         cadena += "<tr>\n"
         for item in array:   
-            cadena += "<td><center>" +str(item)+ "</center></td>\n"
+            cadena += "<td><center>" +item['Base']         +"</center></td>\n"
+            cadena += "<td><center>" +item['Tipo']         +"</center></td>\n"
+            cadena += "<td><center>" +item['Nombre']       +"</center></td>\n"
+            cadena += "<td><center>" +item['Tabla']        +"</center></td>\n"
+            cadena += "<td><center>" +str(item['Orden'])   +"</center></td>\n"
+            cadena += "<td><center>" +str(item['Columna']) +"</center></td>\n"
+            cadena += "<td><center>" +str(item['Restrict'])+"</center></td>\n"
         cadena += "</tr>\n"
 
     cadena += "</table>\n"

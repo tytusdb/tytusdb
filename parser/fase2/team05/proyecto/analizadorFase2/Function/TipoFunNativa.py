@@ -37,3 +37,5 @@ class TipoFunNativa(Enum):
     atan2d = 69
     cot = 70
     cotd = 71
+    degree = 72
+    factorial = 73

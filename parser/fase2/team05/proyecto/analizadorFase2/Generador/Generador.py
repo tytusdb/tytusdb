@@ -641,7 +641,7 @@ class Generador:
             #FUNCION TIPO ABS 
             #Verificar que trae como parametro (valor, variable, expresion)
             if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
-                retorno = self.compilarOperacionAritmetica(instruccion.parametro)
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
                 #Linea del if 
                 etiquetaverdadero=self.generarEtiqueta()
                 self.agregarIf(retorno.valor + '>' + str(0), etiquetaverdadero)
@@ -653,8 +653,8 @@ class Generador:
                 return ret
                 #mandar a imprimir un if para validar si el valor del temporal que sale de operacion aritmetica es menor a 0
                 #si entra al if hacer la conversion, sino entra seguir con l
-            elif isinstance(instruccion.parametro, Primitivo):
-                retorno = self.compilarPrimitivo(instruccion.parametro)
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
                 etiquetaverdadero=self.generarEtiqueta()
                 self.agregarIf(retorno.valor + '>' + str(0), etiquetaverdadero)
                 #AGREGAR UNA EXCEPCION PARA UN NUMERO NEGATIVO 
@@ -917,4 +917,44 @@ class Generador:
             linea += self.generarTab() + str(tag3) + ' = math.degrees(' + str(tag2) + ')'
             self.codigo3d.append(linea)
             ret = RetornoOp(tag2, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.degree:
+            # Corresponde a función de DEGREES
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.degrees(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.factorial:
+            # Corresponde a función de FACTORIAL
+            oper = oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            etiquetaSalida = self.generarEtiqueta()
+            etiquetaLoop = self.generarEtiqueta()
+            factorial = self.generarTemporal()
+            pivot = self.generarTemporal()
+            self.codigo3d.append(self.generarTab() + factorial + ' = ' + str(oper.valor))
+            self.codigo3d.append(self.generarTab() + pivot + ' = 1')
+
+            # IF de salida (if entrada < 0)
+            self.agregarIf(factorial + ' < 0' , etiquetaSalida)
+            # IF de salida (if entrada == 0)
+            self.agregarIf(factorial + ' == 0', etiquetaSalida)
+            # IF de salida (if entrada == 1)
+            self.agregarIf(factorial + ' == 1', etiquetaSalida)
+            self.generarGoto(etiquetaLoop)
+            self.agregarEtiqueta(etiquetaLoop)
+
+            etiquetaTrue = self.generarEtiqueta()
+
+            self.agregarIf(factorial + ' > 0', etiquetaTrue)
+            self.generarGoto(etiquetaSalida)
+
+            self.agregarEtiqueta(etiquetaTrue)
+            self.codigo3d.append(self.generarTab() + pivot + ' = ' + pivot + ' * ' + factorial)
+            self.codigo3d.append(self.generarTab() + factorial + ' = ' + factorial + ' - 1')
+            self.generarGoto(etiquetaLoop)
+
+            self.agregarEtiqueta(etiquetaSalida)
+            ret = RetornoOp(pivot, None)
             return ret

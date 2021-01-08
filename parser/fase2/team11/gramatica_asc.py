@@ -470,6 +470,8 @@ def p_lista_parametros_salida(t):
 
 def p_parametro(t):
     '''parametroinsert  : DEFAULT
+                        | NOW PARIZQ PARDER
+                        | MD5 PARIZQ cualquiercadena PARDER
                         | expresion'''
     t[0] = getParamNode(t)
 
@@ -1410,6 +1412,106 @@ def p_nowinstr(t):
     'nowinstr     :  NOW PARIZQ PARDER'
     t[0] = Nodo('NOW', '', [], t.lexer.lineno)
 
+ # ####################################### index ##################################################
+
+def p_index0(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ ID PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ ID PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('COLUMN', t[7], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n3], t.lexer.lineno, 0, gramatica)
+
+def p_index1(t):
+    'indexinstr   : CREATE INDEX ID ON ID USING HASH PARIZQ ID PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID USING HASH PARIZQ ID PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('USING HASH', '', [], t.lexer.lineno)
+    n4 = Nodo('COLUMN', t[9], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n3,n4], t.lexer.lineno, 0, gramatica)
+
+def p_index2(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ ID COMA ID PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ ID PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('ID', t[7], [], t.lexer.lineno)
+    n4 = Nodo('ID', t[9], [], t.lexer.lineno)
+    n5 = Nodo('COLUMN', '', [n3, n4], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n5], t.lexer.lineno, 0, gramatica)
+
+def p_index3(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ valororderby PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ <valororderby> PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1, n2, t[7]], t.lexer.lineno, 0,gramatica)
+
+def p_index4(t):
+    'indexinstr   : CREATE UNIQUE INDEX ID ON ID PARIZQ columnas PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE UNIQUE INDEX ID ON ID PARIZQ <columnas> PARDER PTCOMA'
+    n1 = Nodo('INDEX UNIQUE NAME', t[4], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[6], [], t.lexer.lineno)
+    n3 = Nodo('COLUMNAS', '', t[8], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1, n2, n3], t.lexer.lineno, 0, gramatica)
+
+def p_index5(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDER PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDER PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('LOWER', t[9], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1, n2, n3], t.lexer.lineno, 0, gramatica)
+
+def p_index6(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ ID PARDER whereselect PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ ID PARDER <whereselect> PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('COLUMN', t[7], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n3,t[9]], t.lexer.lineno, 0, gramatica)
+
+def p_index7(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ ID ID PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ ID PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('COLUMN', t[7], [], t.lexer.lineno)
+    n4 = Nodo('OPCLASS', t[8], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n3, n4], t.lexer.lineno, 0, gramatica)
+
+#---------------------------------------------------------------------------------------------------
+# A L T E R  I N D E X
+def p_alterindex_2(t):
+    'alterindex : ALTER INDEX IF EXISTS ID ID eoi PTCOMA'
+    g = '<alterindex> : \"ALTER\" \"INDEX\" \"IF\" \"EXISTS\" ID ID <eoi> PTCOMA'
+    n1 = Nodo('INDEX',t[5],[],t.lexer.lineno, 0, g)
+    n2 = Nodo('COLUM INDEX',t[6],[],t.lexer.lineno, 0, g)
+    t[0] = Nodo('ALTER INDEX','IF EXISTIS', [n1,n2,t[7]], t.lexer.lineno, 0, g)
+
+def p_alterindex_1(t):
+    'alterindex : ALTER INDEX ID ID eoi PTCOMA'
+    g = '<alterindex> : \"ALTER\" \"INDEX\" ID ID <eoi> PTCOMA'
+    n1 = Nodo('INDEX',t[3],[],t.lexer.lineno, 0, g)
+    n2 = Nodo('COLUM INDEX',t[4],[],t.lexer.lineno, 0, g)
+    t[0] = Nodo('ALTER INDEX','IF EXISTIS', [n1,n2,t[5]], t.lexer.lineno, 0, g)
+
+def p_enteroid_e(t):
+    '''eoi  : ENTERO'''
+    t[0] = Nodo('ENTERO',t[1],[],t.lexer.lineno, 0, '<eoi> : ENTERO')
+
+def p_enteroid_i(t):
+    '''eoi  : ID'''
+    t[0] = Nodo('ID',t[1],[],t.lexer.lineno, 0, '<eoi> : ID')
+
+#---------------------------------------------------------------------------------------------------
+# D R O P  I N D E X
+
+def p_dropindex(t):
+    'dropindex : DROP INDEX ID PTCOMA'
+    g = '<dropindex> : \"DROP\" \"INDEX\" ID PTCOMA'
+    t[0] = Nodo('DROP INDEX', t[3], [], t.lexer.lineno, 0, g)
 
 # Epsilon -------------------------------------------------------------------------------------
 def p_empty(t):

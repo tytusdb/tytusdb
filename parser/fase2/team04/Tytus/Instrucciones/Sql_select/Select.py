@@ -187,16 +187,9 @@ class Select(Instruccion):
                     if isinstance(valores, Excepcion):
                         return valores
 
-                    res.append(valores)
+                    res.append(str(valores))
             
             if esExpresion:
-                listaFinal = []
-                #print("resultado--------------->",res,type(res))
-                for i in res:
-                    listaFinal.append(i)
-                #print(listaFinal,len(listaFinal))
-                res = np.concatenate(listaFinal,axis=1)
-                #print(res)
                 return res
             else:
                 res = arr
@@ -403,10 +396,10 @@ class Select(Instruccion):
              aster  = "*"
         else:
             for item in self.lcol: 
-              columnas += f"{item.getCodigo(tabla,arbol)}{',' if self.lcol.index(item) < len(self.lcol) - 1 else ''}" 
+              columnas += f"{item.toString()}{',' if self.lcol.index(item) < len(self.lcol) - 1 else ''}" 
             
         for item2 in self.lcol2:
-              nombre += f"{item2.getCodigo(tabla,arbol)}{',' if self.lcol2.index(item2) < len(self.lcol2) -1 else ''}  "
+              nombre += f"{item2.toString()}{',' if self.lcol2.index(item2) < len(self.lcol2) -1 else ''}  "
         
         if(self.where != None):
               
@@ -440,12 +433,12 @@ class Select(Instruccion):
 
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+       #codigo += f"\t{temp_return} = pointer + 0\n"
+       # codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\t({temp_result})\n"
-        
-        arbol.consola.append(codigo)
+        #codigo += f"\t({temp_result})\n"
+        #arbol.consola.append(codigo)
+        return codigo
 
 '''
 columnas y filas

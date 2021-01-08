@@ -11,33 +11,36 @@ class ElseIfStmt(Instruction):
         self.stmts = stmt
 
     def execute(self, environment):
-        cod3d = self.p_fev()
-        self.p_if_sum()
-        boolCode = self.expBool.execute(environment)
-        cod3d += boolCode.value
-        cod3d += (
-            "\tif "
-            + str(boolCode.temp)
-            + ": goto .etiv"
-            + str(grammar.current_etiq + 1)
-            + "\n"
-        )
-        grammar.optimizer_.addIF(
-            str(boolCode.temp), str("etiv" + str(grammar.current_etiq + 1)), self.row
-        )
-        cod3d += "\tgoto .etif" + str(grammar.current_etiq + 2) + "\n"
-        grammar.optimizer_.addGoto(
-            str("etif" + str(grammar.current_etiq + 2)), self.row
-        )
-        grammar.back_fill.insert_true(grammar.current_etiq + 1)
-        grammar.back_fill.insert_false(grammar.current_etiq + 2)
-        grammar.current_etiq += 2
-        cod3d += self.p_iev()
-        for stmt in self.stmts:
-            cod3d += stmt.execute(environment).value
-        cod3d += self.p_fef()
-        self.p_if_rest()
-        return code.C3D(cod3d, "elseif", self.row, self.column)
+        try:
+            cod3d = self.p_fev()
+            self.p_if_sum()
+            boolCode = self.expBool.execute(environment)
+            cod3d += boolCode.value
+            cod3d += (
+                "\tif "
+                + str(boolCode.temp)
+                + ": goto .etiv"
+                + str(grammar.current_etiq + 1)
+                + "\n"
+            )
+            grammar.optimizer_.addIF(
+                str(boolCode.temp), str("etiv" + str(grammar.current_etiq + 1)), self.row
+            )
+            cod3d += "\tgoto .etif" + str(grammar.current_etiq + 2) + "\n"
+            grammar.optimizer_.addGoto(
+                str("etif" + str(grammar.current_etiq + 2)), self.row
+            )
+            grammar.back_fill.insert_true(grammar.current_etiq + 1)
+            grammar.back_fill.insert_false(grammar.current_etiq + 2)
+            grammar.current_etiq += 2
+            cod3d += self.p_iev()
+            for stmt in self.stmts:
+                cod3d += stmt.execute(environment).value
+            cod3d += self.p_fef()
+            self.p_if_rest()
+            return code.C3D(cod3d, "elseif", self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Else If Statement")
 
     def p_if_sum(self):
         if grammar.if_stmt != 0:

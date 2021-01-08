@@ -13,19 +13,22 @@ class AlterDataBase(instruction.Instruction):
         self.newname = newname
 
     def execute(self, environment):
-        out = "fase1.execution("
-        out += '"'
-        out += "ALTER DATABASE "
-        out += self.name + " "
-        out += self.option + " TO "
-        out += self.newname + ";"
-        out += '")\n'
-        if isinstance(environment, Environment):
-            grammar.optimizer_.addIgnoreString(out, self.row, True)
-            out = "\t" + out
-        else:
-            grammar.optimizer_.addIgnoreString(out, self.row, False)
-        return code.C3D(out, "alter_db", self.row, self.column)
+        try:
+            out = "fase1.execution("
+            out += '"'
+            out += "ALTER DATABASE "
+            out += self.name + " "
+            out += self.option + " TO "
+            out += self.newname + ";"
+            out += '")\n'
+            if isinstance(environment, Environment):
+                grammar.optimizer_.addIgnoreString(out, self.row, True)
+                out = "\t" + out
+            else:
+                grammar.optimizer_.addIgnoreString(out, self.row, False)
+            return code.C3D(out, "alter_db", self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Alter DataBase")
 
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_ALTER_DATABASEs")
