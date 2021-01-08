@@ -307,7 +307,7 @@ def guardarFuncion(instruccion, ts):
             parametroTemp = generarTemporalA()
             tempParametros.append(parametroTemp)
 
-    funcion = TF.Funcion(instruccion.id, instruccion.tipo, instruccion.parametros, tempParametros, instruccion.instrucciones)
+    funcion = TF.Funcion(instruccion.tipo_funcion,instruccion.id, instruccion.tipo, instruccion.parametros, tempParametros, instruccion.instrucciones)
     tf.agregar(funcion)
     tf2.agregar(funcion)
 

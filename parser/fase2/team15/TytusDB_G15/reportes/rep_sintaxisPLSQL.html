@@ -385,6 +385,8 @@
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
+<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
+<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
 <TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
 <TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
