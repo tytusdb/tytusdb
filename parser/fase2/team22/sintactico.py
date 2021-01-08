@@ -29,6 +29,9 @@ from Instrucciones import Relaciones
 # from Instrucciones.Imprimir import Imprimir
 from Instrucciones.index import index, DropIndex, AlterIndex
 from Instrucciones import Funcion, Declaracion,  Retorno
+from Instrucciones.Function import DropFunction
+
+from Instrucciones.Procedure import CreateProcedure, DropProcedure
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -282,42 +285,42 @@ def p_columunas_delete(t):
     strGram = "<instruccion> ::= DELETE FROM ID <instructionWhere> PUNTO_COMA"
     t[0] = DeleteTable.DeleteTable(t[3],None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-#FUNCIONES
-def p_funciones(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], [], [], t[8], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+# #FUNCIONES
+# def p_funciones(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], [], [], t[8], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones1(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[9], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones1(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[9], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones2(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[13], t[9], "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones2(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[13], t[9], "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones3(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], [], t[8], t[10], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones3(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], [], t[8], t[10], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones4(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], t[6], t[9], t[11], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones4(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], t[9], t[11], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones5(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], t[6], t[13], t[15], t[9], "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones5(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], t[13], t[15], t[9], "", t.lexer.lineno, t.lexer.lexpos)
 
 # PARAMETROS PARA LAS FUNCIONES
 def p_remplazar(t):
@@ -1991,6 +1994,12 @@ def p_instruccion_creacion_funct(t) :
     # # global lsStrGram
     # # lsStrGram = []
 
+def p_drop_function(t) :
+    '''instruccion :    DROP FUNCTION ID PUNTO_COMA'''
+    strGram = "<instruccion> ::= DROP FUNCTION ID PUNTO_COMA\n"
+    t[0] = DropFunction.DropFunction(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+
 def p_return_funct(t) :
     '''return_funct     : RETURNS tipo
                         | RETURNS ID
@@ -2402,6 +2411,11 @@ def p_asign(t) :
     strGram = "<asign> ::= <expre> DOS_PUNTOS IGUAL <expre>\n"
     agregaGram(strGram)
 
+def p_asign2(t):
+    '''asign   : expre IGUAL expre'''
+    strGram = "<asign> ::= <expre> IGUAL <expre>\n"
+    agregaGram(strGram)
+
 def p_list_exception(t) :
     '''list_exception   : list_exception except
                         | except'''
@@ -2494,13 +2508,21 @@ def p_instruccion_creacion_procedure(t):
     strGram = ""
     if len(t) > 13:
         strGram = "<instruccion> ::= CREATE PROCEDURE ID PARIZQ <list_params_funct> PARDER LANGUAGE PLPGSQL <as_def> PROC <def_procedure> PROC PUNTO_COMA\n"
+        t[0] = CreateProcedure.CreateProcedure(t[3], None, t[5], [], t[11], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
     else:
         strGram = "<instruccion> ::= CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE PLPGSQL <as_def> PROC <def_procedure> PROC PUNTO_COMA\n"
-    agregaGram(strGram)
-    strGram = obtenerGram()
-    t[0] = indexFunction.indexFunction(strGram)
-    global lsStrGram
-    lsStrGram = []
+        t[0] = CreateProcedure.CreateProcedure(t[3], None, [], [], t[10], t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
+    # agregaGram(strGram)
+    # strGram = obtenerGram()
+    # t[0] = indexFunction.indexFunction(strGram)
+    # global lsStrGram
+    # lsStrGram = []
+
+def p_drop_procedure(t) :
+    '''instruccion :    DROP PROCEDURE ID PUNTO_COMA'''
+    strGram = "<instruccion> ::= DROP PROCEDURE ID PUNTO_COMA\n"
+    t[0] = DropProcedure.DropProcedure(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_def_procedure(t) :
     '''def_procedure    : dec_def beg_def_procedure END PUNTO_COMA

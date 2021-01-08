@@ -734,14 +734,25 @@ def p_call_functions_or_procedure(p):
     if p.slice[1].type == 'EXECUTE':
         if len(p) == 5: #Tercera produccion
             p[0] = Funcion(p[2], [], [], None, False, True, noLine, noColumn)
+            p[0]._tac = f"{p[2]}()"
         else:           #Cuarta produccion
             p[0] = Funcion(p[2], p[4], [], None, False, True, noLine, noColumn)
+            string = ''
+            for index, var in enumerate(p[4]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
+            p[0]._tac = f"{p[2]}({string})"   
     else:
         if len(p) == 5: #Primera produccion
             p[0] = Funcion(p[1], p[3], [], None, False, True, noLine, noColumn)
+            string = ''
+            for index, var in enumerate(p[4]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
+            p[0]._tac = f"{p[1]}({string})" 
         else:           #Segunda produccion
             p[0] = Funcion(p[1], [], [], None, False, True, noLine, noColumn)
-
+            p[0]._tac = f"{p[1]}()"
 
 def p_option_col(p):  # TODO verificar
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
@@ -1120,6 +1131,7 @@ def p_returns_type_func(p):
                    | VOID
                    | TABLE LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS
     '''
+    p[0] = p[1]
 
 def p_list_argument(p):
     '''LIST_ARGUMENT : LIST_ARGUMENT COMMA param
@@ -1795,13 +1807,13 @@ def p_select_without_order(p):
         lista_union.append(p[4])
         p[0] = TypeQuerySelect(lista_union, p.lineno(3),
                                find_column(p.slice[3]))
-        p[0]._tac = f'{p[1]._tac} {p[2]} {p[3]} {p[4]._tac}'
+        p[0]._tac = f'({p[1]._tac}) {p[2]} {p[3]} ({p[4]._tac})'
     elif len(p) == 4:
         lista_union.append(p[1])
         lista_union.append(p[2])
         lista_union.append(p[3])
         p[0] = TypeQuerySelect(lista_union, 0, 0)
-        p[0]._tac = f'{p[1]._tac} {p[2]} {p[3]._tac}'
+        p[0]._tac = f'({p[1]._tac}) {p[2]} ({p[3]._tac})'
 
 def p_select_set(p):
     '''SELECTSET : SELECTQ 

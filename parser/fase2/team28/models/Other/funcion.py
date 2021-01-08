@@ -35,6 +35,7 @@ class Funcion(Instruction):
         self.environment = None
         self.line = line
         self.column = column
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -47,7 +48,7 @@ class Funcion(Instruction):
         temporal = None
         if self.isNew:
             self.environment = environment  # TODO verificar
-            if Procedures().saveProcedure(self.id, self, self.line, self.column):
+            if Procedures().saveProcedure(self.id, self, self.val_return, self.line, self.column):
                 var_array = self.print(environment)
                 temporal = self.setVariables(var_array, environment)
         else:
@@ -144,7 +145,7 @@ class ProcedimientoAlmacenado(Instruction):
         params = len(self.params)
         if self.isNew:
             self.environment = environment  # TODO verificar
-            if Procedures().saveProcedure(self.id, self, self.line, self.column):
+            if Procedures().saveProcedure(self.id, self, None, self.line, self.column):
                 var_array = self.print(environment)
                 self.setVariables(var_array, environment)
         else:
@@ -183,7 +184,7 @@ class ProcedimientoAlmacenado(Instruction):
         # Agregando etiqueta de salida
         ThreeAddressCode().addCode(f"label .{lbl_exit}")  
         # Imprime primera variable declarada, NO parametro
-        ThreeAddressCode().addCode(f"print(Stack[{pos}])")
+        # ThreeAddressCode().addCode(f"print(Stack[{pos}])")
 
         ThreeAddressCode().createFunction(self.id, self.params, var_array)
         return var_array
