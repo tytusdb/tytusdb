@@ -258,6 +258,296 @@ class Optimizacion:
                         r1_a = valor1
                         r1_b = valor2      
 
+                elif '+' in inst:
+                    for char in inst:
+                        if char != ' ':
+                            if char == '=':
+                                pos = 2
+                            elif char == '+':
+                                pos = 3
+                            else:
+                                if pos == 1:
+                                    valor1 += char
+                                if pos == 2:
+                                    valor2 += char
+                                if pos == 3:
+                                    valor3 += char
+                    if valor1 == valor2 and valor1 != valor3 and encontrado == False:
+                        if valor3 == '0':
+                            print("Regla 8")
+                            reporte.append(cont)
+                            reporte.append('8' )
+                            reporte.append(inst)
+                            reporte.append('Codigo Eliminado' )
+                            reporte.append(linea )
+                            cont += 1
+                            encontrado = True
+                        else:
+                            contenido.append(inst)
+                            encontrado = True
+
+                    elif valor1 != valor2 and encontrado == False:
+                        if valor3 == '0':
+                            contenido.append(valor1 + " = " + valor2)                            
+                            print("Regla 12")
+                            reporte.append(cont)
+                            reporte.append('12' )
+                            reporte.append(inst)
+                            reporte.append(valor1 + " = " + valor2)
+                            reporte.append(linea )
+                            cont += 1
+                            encontrado = True
+                        else:
+                            contenido.append(inst)
+                            encontrado = True
+                    elif encontrado == False:
+                        contenido.append(inst)
+                        encontrado = True
+                    if valor1 == valor3 and valor2 == '0' and encontrado == False:
+                            print("Regla 8")
+                            reporte.append(cont)
+                            reporte.append('8' )
+                            reporte.append(inst)
+                            reporte.append('Codigo Eliminado' )
+                            reporte.append(linea )
+                            cont += 1                            
+                            encontrado = True
+                    elif valor1 != valor3 and encontrado == False:  
+                        if valor2 == '0':
+                            contenido.append(valor1 + " = " + valor3)
+                            print("Regla 12")
+                            reporte.append(cont)
+                            reporte.append('12' )
+                            reporte.append(inst)
+                            reporte.append(valor1 + " = " + valor3)
+                            reporte.append(linea )
+                            cont += 1
+                            encontrado = True
+                        else:
+                            contenido.append(inst)
+                            encontrado = True
+                    elif encontrado == False:
+                        contenido.append(inst)
+                        encontrado = True
+                elif '-' in inst:
+                    for char in inst:
+                        if char != ' ':
+                            if char == '=':
+                                pos = 2
+                            elif char == '-':
+                                pos = 3
+                            else:
+                                if pos == 1:
+                                    valor1 += char
+                                if pos == 2:
+                                    valor2 += char
+                                if pos == 3:
+                                    valor3 += char
+                    if valor1 == valor2  and encontrado == False:
+                        encontrado = True
+                        if valor3 == '0':
+                            print("Regla 9")
+                            reporte.append(cont)
+                            reporte.append('9' )
+                            reporte.append(inst)
+                            reporte.append('Codigo Eliminado' )
+                            reporte.append(linea )
+                            cont += 1          
+                        else:
+                            contenido.append(inst)
+                    elif valor1 != valor2 and encontrado == False:
+                        encontrado = True
+                        if valor3 == '0':
+                            contenido.append(valor1 + " = " + valor2)
+                            print("Regla 13")
+                            reporte.append(cont)
+                            reporte.append('13' )
+                            reporte.append(inst)
+                            reporte.append(valor1 + " = " + valor2)
+                            reporte.append(linea )
+                            cont += 1
+                        else:
+                            contenido.append(inst)
+                    elif  encontrado == False:
+                        encontrado = True
+                        contenido.append(inst)
+                elif '*' in inst:
+                    for char in inst:
+                        if char != ' ':
+                            if char == '=':
+                                pos = 2
+                            elif char == '*':
+                                pos = 3
+                            else:
+                                if pos == 1:
+                                    valor1 += char
+                                if pos == 2:
+                                    valor2 += char
+                                if pos == 3:
+                                    valor3 += char
+                    if valor1 == valor2 and encontrado == False:
+                        encontrado = True
+                        if valor3 =='1':
+                            print("Regla 10")
+                            reporte.append(cont)
+                            reporte.append('10' )
+                            reporte.append(inst)
+                            reporte.append('Codigo eliminado')
+                            reporte.append(linea )
+                            cont += 1
+                        elif valor3 == '0':
+                            print("lo elimino porque el valor 3 es un 0")
+                        else:
+                            contenido.append(inst)
+                    elif valor1 == valor3 and encontrado == False:
+                        encontrado = True
+                        if valor2 == '1':
+                            print("Regla 10")
+                            reporte.append(cont)
+                            reporte.append('10' )
+                            reporte.append(inst)
+                            reporte.append('Codigo eliminado')
+                            reporte.append(linea )
+                            cont += 1
+                        elif valor2 == '0':
+                            print("lo elimino porque el valor 2 es un 0")
+                        else:
+                            contenido.append(inst)
+                    elif valor1 != valor2 and encontrado == False:
+                        encontrado = True
+                        if valor3 == '1':
+                            contenido.append(valor1 + " = " + valor2)                 
+                            print("Regla 14")
+                            reporte.append(cont)
+                            reporte.append('14' )
+                            reporte.append(inst)
+                            reporte.append(valor1 + " = " + valor2)
+                            reporte.append(linea )
+                            cont += 1
+                        elif valor3 == '2':
+                            contenido.append(valor1 + " = " + valor2 + " + " + valor2)
+                            print("Regla 16")
+                            reporte.append(cont)
+                            reporte.append('16' )
+                            reporte.append(inst)
+                            reporte.append( valor1 + " = " + valor2 + " + " + valor2 )
+                            reporte.append(linea )
+                            cont += 1
+                        elif valor3 == '0':
+                            contenido.append(valor1 + ' = ' + '0')                
+                            print("Regla 17")
+                            reporte.append(cont)
+                            reporte.append('17' )
+                            reporte.append(inst)
+                            reporte.append(valor1 + ' = ' + '0')
+                            reporte.append(linea )
+                            cont += 1
+                        else:
+                            contenido.append(inst)
+                    elif valor1 != valor3 and encontrado == False:
+                        encontrado = True
+                        if valor2 == '1':
+                            contenido.append(valor1 + " = " + valor3)           
+                            print("Regla 14")
+                            reporte.append(cont)
+                            reporte.append('14' )
+                            reporte.append(inst)
+                            reporte.append(valor1 + " = " + valor2)
+                            reporte.append(linea )
+                            cont += 1
+                        elif valor2 == '2':
+                            contenido.append(valor1 + " = " + valor3 + " + " + valor3)
+                            print("Regla 16")
+                            reporte.append(cont)
+                            reporte.append('16' )
+                            reporte.append(inst)
+                            reporte.append( valor1 + " = " + valor2 + " + " + valor2 )
+                            reporte.append(linea )
+                            cont += 1
+                        elif valor2 == '0':
+                            #print(valor1 + ' = ' + '0')
+                            contenido.append(valor1 + ' = ' + '0')               
+                            print("Regla 17")
+                            reporte.append(cont)
+                            reporte.append('17' )
+                            reporte.append(inst)
+                            reporte.append(valor1 + ' = ' + '0')
+                            reporte.append(linea )
+                            cont += 1
+                        else:
+                            contenido.append(inst)
+                    elif encontrado == False:
+                        encontrado = True
+                        contenido.append(inst)
+                elif '/' in inst:
+                    for char in inst:
+                        if char != ' ':
+                            if char == '=':
+                                pos = 2
+                            elif char == '/':
+                                pos = 3
+                            else:
+                                if pos == 1:
+                                    valor1 += char
+                                if pos == 2:
+                                    valor2 += char
+                                if pos == 3:
+                                    valor3 += char
+                    if valor1 == valor2 and encontrado == False:
+                        encontrado = True
+                        if valor3 == '1':
+                            print("Regla 11")
+                            reporte.append(cont)
+                            reporte.append('11' )
+                            reporte.append(inst)
+                            reporte.append('Codigo eliminado')
+                            reporte.append(linea )
+                            cont += 1
+                        elif valor3 == '0':
+                            print("tengo duda")
+                            contenido.append(valor1 + ' = ' + '0')
+                        else:
+                            contenido.append(inst)
+                    elif valor1 != valor2 and valor1 != valor3 and encontrado == False:
+                        if valor3 == '1':
+                            encontrado = True
+                            contenido.append(valor1 + " = " + valor2)               
+                            print("Regla 15")
+                            reporte.append(cont)
+                            reporte.append('15' )
+                            reporte.append(inst)
+                            reporte.append(valor1 + ' = ' + valor2)
+                            reporte.append(linea )
+                            cont += 1
+                        elif valor3 == '0':
+                            encontrado = True
+                            print("tengo duda")
+                            contenido.append(valor1 + ' = ' + '0')
+                        else:
+                            encontrado = True
+                            contenido.append(inst)
+                        if valor2 == '0' and encontrado == False:
+                            encontrado = True
+                            contenido.append(valor1 + ' = ' + '0')               
+                            print("Regla 18")
+                            reporte.append(cont)
+                            reporte.append('18' )
+                            reporte.append(inst)
+                            reporte.append(valor1 + ' = ' + '0')
+                            reporte.append(linea )
+                            cont += 1
+                        elif encontrado == False:
+                            encontrado = True
+                            contenido.append(inst)
+                    elif  encontrado == False:
+                        encontrado = True
+                        contenido.append(inst)
+                else:
+                    contenido.append(inst)
+                linea += 1
+           
+            self.reporteOptimizacion(reporte)
+
 
     def reporteOptimizacion(self, reporte):
         now = datetime.now()
