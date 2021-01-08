@@ -388,21 +388,88 @@ class AST:
             tb_name = hijos.valor
         result = jsonMode.truncate(self.usingDB, tb_name)
 
-##################---CREATE TABLE---################################
+#--------------------------------------------------------------------------------------------------
+# C R E A T E  T A B L E
     def crearTabla(self,nodo):
         tb_name = nodo.valor
+        tb_padre = ''
+        tb_parent = {}
+        if len(nodo.hijos) == 2:
+            tb_padre = nodo.hijos[1].valor
+            if not(self.usingDB in self.ts):
+                self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+                return
+            db = self.ts[self.usingDB]
+            if not(tb_padre in db.tables):
+                self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+                return
+            tb_parent = db.tables[tb_padre]
+            columnas = nodo.hijos[0]
+            count_cols = 0
+            for c in columnas.hijos:
+                if c.etiqueta == 'COLUMN':
+                    count_cols += 1
+            count_cols += len(tb_parent)
+            result = jsonMode.createTable(self.usingDB,str(nodo.valor),count_cols)
+            #Inicia la creación de Columnas
+            if result == 0:     # Operación exitosa
+                self.output.append('Creación de tabla \"'+tb_name+'\" exitosa.')
+                c = 1
+                table = {}
+                for col in columnas.hijos:
+                    if col.etiqueta == 'COLUMN':
+                        new_col = Column(col.valor,c)
+                        new_col.columnType = self.getColType(col.hijos[0])
+                        for atrib in col.hijos[1].hijos:
+                            if atrib.etiqueta == 'NOT NULL':
+                                new_col.isNull = False
+                            elif atrib.etiqueta == 'PRIMARY KEY':
+                                new_col.isPrimaryKey = True
+                            elif atrib.etiqueta == 'CONSTRAINT':
+                                cnst = Constraint(atrib.valor,atrib.hijos[0])
+                                new_col.constraint = cnst
+                            elif atrib.etiqueta == 'CHECK':
+                                new_col.constraint = Constraint('',atrib)
+                            elif atrib.etiqueta == 'UNIQUE':
+                                new_col.isUnique = True
+                        #Se añade a la tabla la nueva columna
+                        new_col.line = col.linea
+                        table[col.valor] = new_col
+                        c += 1
+                    else:
+                        col_name = col.hijos[0].valor
+                        if col_name in table:
+                            table[col_name].isPrimaryKey = True
+                # Se copian las columnas del padre al hijo
+                for name,col in tb_parent.items():
+                    table[name] = col
+                    c += 1
+                # Se añade a la Base de datos la nueva Tabla
+                db.tables[tb_name] = table
+            elif result == 1:   # Error en la operación
+                self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
+            elif result == 2:   # Base de datos inexistente
+                self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+            elif result == 3:   # Tabla existente
+                self.errors.append(Error('42P07', EType.SEMANTICO, 'duplicate_table',nodo.linea))
+            return
+        #----------------------------------------------------------------------------------------------
         columnas = nodo.hijos[0]
-        col_count = len(columnas.hijos)
+        col_count = 0
+        for h in columnas.hijos:
+            if h.etiqueta == 'COLUMN':
+                col_count += 1
+        #Verificar que la base de dato exista o se haya seleccionado una...
         if not(self.usingDB in self.ts):
             self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
             return
         database = self.ts[self.usingDB]
         table = {}
-
+        #--- Llamada a función nativa...
         result = jsonMode.createTable(self.usingDB,str(tb_name),col_count)
         if result == 0:     # Operación exitosa
             self.output.append('Creación de tabla \"'+tb_name+'\" exitosa.')
-            c = 0
+            c = 1
             for col in columnas.hijos:
                 if col.etiqueta == 'COLUMN':
                     new_col = Column(col.valor,c)
@@ -440,8 +507,7 @@ class AST:
         # Verificación del límite
         l = 0
         if len(nodo_tipo.hijos) == 1:
-            l = nodo_tipo.hijos[0].valor
-        
+            l = nodo_tipo.hijos[0].valor        
         # Verificación del tipo
         tipo = str(nodo_tipo.valor).upper()
         if tipo == 'SMALLINT':
@@ -558,13 +624,25 @@ class AST:
                         cont += check if col.isUnique else notck
                         cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(col.line)+'</font></td>\n'
                         cont += '</tr>\n'
-        # Se añade la información
+        # Tabla para mostrar los Enums
+        cont += '<h3 ALIGN=CENTER>ENUM TYPE</h3>\n'
+        cont += '<table align="center" cellpadding="20" cellspacing="0"  style="border:2px solid #1f253d">\n'
+        cont += '<tr>\n'
+        cont += '<td bgcolor="#e82a2a" width="200" style="text-align:center"><font face="Roboto" color="white" size="4">NOMBRE</font></td>\n'
+        cont += '<td bgcolor="#e82a2a" width="660" style="text-align:center"><font face="Roboto" color="white" size="4">VALORES</font></td>\n'
+        cont += '</tr>'
+        for e_name,e_vals in self.userTypes.items():
+            cont += '<tr>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+e_name+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(e_vals)+'</font></td>\n'
+            cont += '</tr>\n'
         cont += '</table>\n</body>\n</HTML>\n'
         file = open("repoteTS.html", "w")
         file.write(header)
         file.write(tbhead)
         file.write(cont)
         file.close()
+        
 #-----------------------------------------------------------------------------------------------------
     # I N S E R T  -  I N T O
 
