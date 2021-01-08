@@ -162,7 +162,7 @@ def p_sql_procedures_drop_inst_a(p):
     nodo = Node('SQL_DROP_PROCEDURE')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
-    nodo.add_Childrens(Node(p[3]))
+    nodo.add_childrens(Node(p[3]))
     nodo.add_childrens(Node(p[4]))
     nodo.add_childrens(p[5])
     nodo.add_childrens(Node(p[6]))
@@ -5481,9 +5481,9 @@ def p_mathematical_functions(p):
 
 
 def p_binary_string_functions(p):
-    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS'''
+    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SUBSTRING LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION AS DATE RIGHT_PARENTHESIS'''
     nodo = Node('Binary String Functions')
     if len(p) == 5:
         nodo.add_childrens(Node(p[1]))
@@ -5517,9 +5517,9 @@ def p_binary_string_functions(p):
 
 
 def p_binary_string_functions_TRIM(p):
-    '''BINARY_STRING_FUNCTIONS : TRIM LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | SUBSTR LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS'''
+    '''BINARY_STRING_FUNCTIONS : TRIM LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SUBSTR LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION AS INTEGER RIGHT_PARENTHESIS'''
     nodo = Node('Binary String Functions')
     if len(p) == 5:
         nodo.add_childrens(Node(p[1]))
@@ -5552,8 +5552,8 @@ def p_binary_string_functions_TRIM(p):
 
 
 def p_binary_string_functions_MD5(p):
-    '''BINARY_STRING_FUNCTIONS : MD5 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | DECODE LEFT_PARENTHESIS SQLNAME COMMA SQLNAME RIGHT_PARENTHESIS'''
+    '''BINARY_STRING_FUNCTIONS : MD5 LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | DECODE LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
     nodo = Node('Binary String Functions')
     if len(p) == 5:
         nodo.add_childrens(Node(p[1]))
@@ -5574,7 +5574,7 @@ def p_binary_string_functions_MD5(p):
 
 
 def p_binary_string_functions_SHA256(p):
-    '''BINARY_STRING_FUNCTIONS : SHA256 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS'''
+    '''BINARY_STRING_FUNCTIONS : SHA256 LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
     nodo = Node('Binary String Functions')
     nodo.add_childrens(Node(p[1]))
     nodo.add_childrens(Node(p[2]))
@@ -5582,6 +5582,7 @@ def p_binary_string_functions_SHA256(p):
     nodo.add_childrens(Node(p[4]))
     nodo.production = f"<BINARY_STRING_FUNCTIONS> ::= SHA256 LEFT_PARENTHESIS <SQLNAME> RIGHT_PARENTHESIS\n"
     p[0] = nodo
+
 
 
 def p_greatest(p):
