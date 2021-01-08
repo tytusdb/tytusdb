@@ -169,6 +169,49 @@ def alterDatabaseMode(database: str, mode: str) -> int:
         return 1
 
 
+# Metodo que modifica la codificacion que acepta la base de datos    
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    result = 0
+    coding = ['ascii', 'iso-8859-1', 'utf8']
+    if encoding not in coding:
+        return 3
+    elif database not in databasesinfo[0]:
+        return 2
+    elif encoding == databasesinfo[0][database]["encoding"]:
+        return 1
+    else:
+        try:
+            tables = []
+            tuples = []
+            copy = {}
+            tables = showTables(database)
+            for i in tables:
+                tuples = extractTable(database, i)
+                copy.update({i: tuples[:]})
+                for j in copy[i]:
+                    try:
+                        decoding = databasesinfo[0][database]['encoding']
+                        for k in j:
+                            if isinstance(k, str):
+                                ind = j.index(k)
+                                x = k.encode(decoding)
+                                j[ind] = x.decode(encoding)
+                    except:
+                        return 1
+            else:
+                databasesinfo[0][database]['encoding'] = encoding
+                for i in tables:
+                    truncate(database, i)
+                    for j in copy[i]:
+                        result = insert(database, i, j)
+                        if result != 0:
+                            return result
+                else:
+                    commit(databasesinfo, 'databasesinfo')
+                    return 0
+        except:
+            return 1    
+
 #*----------------------------------tables-------------------------------------------*
 
 
