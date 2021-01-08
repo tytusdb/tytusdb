@@ -90,7 +90,7 @@ class Blockchain:
                     block['color'] = 'red'
             handler.writeJSON(self.database, self.table, blocks)
             if rape:
-                print("Violación de seguridad")
+                print("          Ruptura de seguridad")
         except:
             print("Error en la operación")
 
@@ -109,7 +109,7 @@ class Blockchain:
                     block['color'] = 'red'
             handler.writeJSON(self.database, self.table, blocks)
             if rape:
-                print("Violación de seguridad")
+                print("          Ruptura de seguridad")
         except:
             print("Error en la operación")
 

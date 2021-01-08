@@ -6,20 +6,21 @@
 
 from ..path import *
 from .handler import Handler
+from .Complements.compress import Compression
 from .Complements.checksum import *
 from .Complements.security import Blockchain
-import zlib as zl
+
 from .tuple_module import TupleModule
 
 
 class Table:
-    def __init__(self, name: str, mode: str, numberColumns: int):
+    def __init__(self, name: str, mode: str, compress, numberColumns: int):
         self.name = name
         self.mode = mode
         self.numberColumns = numberColumns
         self.pk = []
         self.security = None
-        self.compress = False
+        self.compress = compress
 
 
 class TableModule:
@@ -40,7 +41,7 @@ class TableModule:
                     action = actionCreator(tmp.mode, 'createTable', ['database', 'table', 'numberColumns'])
                     result = eval(action)
                     if result == 0:
-                        self.dbs[index].tables.append(Table(table, tmp.mode, numberColumns))
+                        self.dbs[index].tables.append(Table(table, tmp.mode, tmp.compress, numberColumns))
                         self.handler.rootupdate(self.dbs)
                     return result
                 return 3
@@ -71,7 +72,8 @@ class TableModule:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
                     action = actionCreator(_table.mode, 'extractTable', ['database', 'table'])
-                    return eval(action)
+                    tuples = eval(action)
+                    return tuples if not _table.compress else _table.compress.decompress(tuples)
             return None
         except:
             return None
@@ -85,8 +87,10 @@ class TableModule:
             if tmp:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
+                    _lower = lower if not _table.compress else _table.compress.compressText(lower)
+                    _upper = lower if not _table.compress else _table.compress.compressText(upper)
                     action = actionCreator(_table.mode, 'extractRangeTable',
-                                           ['database', 'table', 'columnNumber', 'lower', 'upper'])
+                                           ['database', 'table', 'columnNumber', '_lower', '_upper'])
                     return eval(action)
             return None
         except:
@@ -102,7 +106,8 @@ class TableModule:
             if tmp:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
-                    action = actionCreator(_table.mode, 'alterAddPK', ['database', 'table', 'columns'])
+                    _columns = columns if not _table.compress else (_table.compress.compress([columns]))[0]
+                    action = actionCreator(_table.mode, 'alterAddPK', ['database', 'table', '_columns'])
                     result = eval(action)
                     if result == 0:
                         element = next(x for x in tmp.tables if x.name.lower() == table.lower())
@@ -173,7 +178,8 @@ class TableModule:
             if tmp:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
-                    action = actionCreator(_table.mode, 'alterAddColumn', ['database', 'table', 'default'])
+                    _default = default if not _table.compress else _table.compress.compressText(default)
+                    action = actionCreator(_table.mode, 'alterAddColumn', ['database', 'table', '_default'])
                     result = eval(action)
                     if result == 0:
                         element = next(x for x in tmp.tables if x.name.lower() == table.lower())
@@ -249,72 +255,89 @@ class TableModule:
 
     def alterTableCompress(self, database: str, table: str, level: int) -> int:
         try:
-            tp = TupleModule()
+            if not isinstance(database, str) or not isinstance(table, str):
+                raise
             if level not in [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
                 if level == 0:
                     return 0
                 return 4
-            if not isinstance(database, str) or not isinstance(table, str):
-                raise Exception()
             self.dbs = self.handler.rootinstance()
-            tmp, index = self._exist(database)
-            if tmp:
-                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
-                if _table:
-                    if _table.compress:
-                        return 0
-                    original_content = self.extractTable(database, table)
-                    tp.truncate(database, table)
-                    compressContent = self._compress(original_content, level)
-                    try:
-                        for tupla in compressContent:
-                            tp.insert(database, table, tupla)
-                        for i in range(len(tmp.tables)):
-                            if tmp.tables[i].name == table:
-                                self.dbs[index].tables[i].compress = True
-                                self.handler.rootupdate(self.dbs)
-                                break
-                        return 0
-                    except:
-                        tp.truncate(database, table)
-                        for tupla in original_content:
-                            tp.insert(database, table, tupla)
-                        return 1
+            db, index = self._exist(database)
+            if not db:
+                return 2
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            if not _table:
                 return 3
-            return 2
+            if _table.compress:
+                raise
+            _comp = Compression(level, db.encoding)
+
+            original = eval(actionCreator(_table.mode, 'extractTable', ['database', 'table']))
+            if original or original == []:
+                if len(original) != 0:
+                    if eval(actionCreator(_table.mode, 'truncate', ['database', 'table'])) != 0:
+                        raise
+                    try:
+                        compressContent = _comp.compress(original)
+                        file = 'tmp.csv'
+                        self.handler.writer('tmp', compressContent)
+                        read = eval(actionCreator(_table.mode, 'loadCSV', ['file', 'database', 'table']))
+                        self.handler.delete(file)
+                        if len(read) == 0:
+                            raise Exception()
+                    except:
+                        eval(actionCreator(_table.mode, 'truncate', ['database', 'table']))
+                        file = 'tmp.csv'
+                        self.handler.writer('tmp', original)
+                        eval(actionCreator(_table.mode, 'loadCSV', ['file', 'database', 'table']))
+                        self.handler.delete(file)
+                        return 1
+            else:
+                raise
+            _table.compress = _comp
+            self.handler.rootupdate(self.dbs)
+            return 0
         except:
             return 1
 
-
     def alterTableDecompress(self, database: str, table: str) -> int:
         try:
-            tp = TupleModule()
             if not isinstance(database, str) or not isinstance(table, str):
-                raise Exception()
+                raise
             self.dbs = self.handler.rootinstance()
-            tmp, index = self._exist(database)
-            if tmp:
-                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
-                if _table:
-                    if not _table.compress:
-                        return 3
-                    original_content = self.extractTable(database, table)
-                    tp.truncate(database, table)
-                    decompressContent = self._decompress(original_content)
+            db, index = self._exist(database)
+            if not db:
+                return 2
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            if not _table:
+                raise
+            if not _table.compress:
+                return 3
+            compressContent = eval(actionCreator(_table.mode, 'extractTable', ['database', 'table']))
+            if compressContent or compressContent == []:
+                if len(compressContent) != 0:
+                    if eval(actionCreator(_table.mode, 'truncate', ['database', 'table'])) != 0:
+                        raise
                     try:
-                        for tupla in decompressContent:
-                            tp.insert(database, table, tupla)
-                        for i in range(len(tmp.tables)):
-                            if tmp.tables[i].name == table:
-                                self.dbs[index].tables[i].compress = False
-                                self.handler.rootupdate(self.dbs)
-                                break
-                        return 0
+                        original = _table.compress.decompress(compressContent)
+                        file = 'tmp.csv'
+                        self.handler.writer('tmp', original)
+                        read = eval(actionCreator(_table.mode, 'loadCSV', ['file', 'database', 'table']))
+                        self.handler.delete(file)
+                        if len(read) == 0:
+                            raise Exception()
                     except:
-                        for tupla in original_content:
-                            tp.insert(database, table, tupla)
+                        eval(actionCreator(_table.mode, 'truncate', ['database', 'table']))
+                        file = 'tmp.csv'
+                        self.handler.writer('tmp', compressContent)
+                        eval(actionCreator(_table.mode, 'loadCSV', ['file', 'database', 'table']))
+                        self.handler.delete(file)
                         return 1
-            return 2
+            else:
+                raise
+            _table.compress = None
+            self.handler.rootupdate(self.dbs)
+            return 0
         except:
             return 1
 
@@ -378,39 +401,3 @@ class TableModule:
                 tmp = db
                 break
         return tmp, index
-
-    def _compress(self, content, level):
-        result = []
-        for tupla in content:
-            aux = []
-            for columna in tupla:
-                try:
-                    val = int(columna)
-                except:
-                    try:
-                        columna = zl.compress(columna.encode(), level)
-                    except:
-                        continue
-                finally:
-                    aux.append(columna)
-            result.append(aux)
-
-        return result
-
-    def _decompress(self, content):
-        result = []
-        for tupla in content:
-            aux = []
-            for columna in tupla:
-                try:
-                    val = int(columna)
-                except:
-                    try:
-                        columna = zl.decompress(columna).decode()
-                    except:
-                        continue
-                finally:
-                    aux.append(columna)
-            result.append(aux)
-
-        return result

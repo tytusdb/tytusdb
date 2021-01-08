@@ -4,6 +4,7 @@
 # Developers: SG#16
 
 
+from .Complements.compress import Compression
 from .handler import Handler
 from ..path import *
 
@@ -24,7 +25,8 @@ class TupleModule:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
                     [str(x).encode(tmp.encoding) for x in register]
-                    action = actionCreator(_table.mode, 'insert', ['database', 'table', 'register'])
+                    _register = register if not _table.compress else (_table.compress.compress([register]))[0]
+                    action = actionCreator(_table.mode, 'insert', ['database', 'table', '_register'])
                     result = eval(action)
                     if result == 0 and _table.security:
                         _table.security.insert(register)
@@ -59,8 +61,10 @@ class TupleModule:
             if tmp:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
-                    action = actionCreator(_table.mode, 'extractRow', ['database', 'table', 'columns'])
-                    return eval(action)
+                    _columns = columns if not _table.compress else (_table.compress.compress([columns]))[0]
+                    action = actionCreator(_table.mode, 'extractRow', ['database', 'table', '_columns'])
+                    tuples = eval(action)
+                    return tuples if not _table.compress else (_table.compress.decompress([tuples]))[0]
             return []
         except:
             return []
@@ -78,8 +82,10 @@ class TupleModule:
                     if _table.security:
                         row = self.extractRow(database, table, columns)
                         if not row:
-                            raise Exception()
-                    action = actionCreator(_table.mode, 'update', ['database', 'table', 'register', 'columns'])
+                            raise
+                    _columns = columns if not _table.compress else (_table.compress.compress([columns]))[0]
+                    _register = register if not _table.compress else _table.compress.compressDict(register)
+                    action = actionCreator(_table.mode, 'update', ['database', 'table', '_register', '_columns'])
                     result = eval(action)
                     if result == 0 and _table.security:
                         _table.security.update(register, row)
@@ -103,7 +109,8 @@ class TupleModule:
                         row = self.extractRow(database, table, columns)
                         if not row:
                             raise Exception()
-                    action = actionCreator(_table.mode, 'delete', ['database', 'table', 'columns'])
+                    _columns = columns if not _table.compress else (_table.compress.compress([columns]))[0]
+                    action = actionCreator(_table.mode, 'delete', ['database', 'table', '_columns'])
                     result = eval(action)
                     if result == 0 and _table.security:
                         _table.security.delete(row)

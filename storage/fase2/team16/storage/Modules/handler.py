@@ -34,9 +34,9 @@ class Handler:
 
     @staticmethod
     def invalid(name: str):
-        pattern = re.compile("[A-za-z_#]+")
+        pattern = re.compile("[A-za-z_#áéíóúÁÉÍÓÚ0]+")
         if pattern.fullmatch(name[0]):
-            pattern = re.compile("[A-za-z0-9_#$@]+")
+            pattern = re.compile("[A-za-záéíóúÁÉÍÓÚ0-9_#$@]+")
             if pattern.fullmatch(name[1:]):
                 return False
         return True
@@ -51,7 +51,7 @@ class Handler:
 
     @staticmethod
     def writer(name, tuples):
-        with open(name + '.csv', mode='w', newline='') as f:
+        with open(name + '.csv', mode='w', newline='', encoding="utf-8-sig") as f:
             writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerows(tuples)
 
@@ -92,7 +92,19 @@ class Handler:
 
     @staticmethod
     def readcsv(file):
-        return csv.reader(open(file, "r", encoding="utf-8-sig"), delimiter=",")
+        reader = csv.reader(open(file, "r", encoding="utf-8-sig"), delimiter=",")
+        tmp = []
+        for element in reader:
+            aux = []
+            for x in element:
+                if x.isdigit():
+                    aux.append(int(x))
+                elif x.isdecimal():
+                    aux.append(float(x))
+                else:
+                    aux.append(x)
+            tmp.append(aux)
+        return tmp
 
     @staticmethod
     def clean(mode):
