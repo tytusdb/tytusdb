@@ -6,6 +6,7 @@ from parse.errors import Error, ErrorType
 from parse.sql_dml.select import Select
 from TAC.tac_enum import *
 from TAC.quadruple import *
+from parse.expressions.expressions_base import *
 
 class InsertInto(ASTNode):
     def __init__(self, table_name, column_list, insert_list, line, column, graph_ref):
@@ -57,7 +58,7 @@ class InsertInto(ASTNode):
                 to_insert = []
                 for node in self.insert_list:
                     value = node.execute(table, tree)
-                    if isinstance(value, datetime.datetime):
+                    if isinstance(value, datetime):
                         value = value.strftime("%m/%d/%Y, %H:%M:%S")
                     to_insert.append(value)
             result = insert(table.get_current_db().name, self.table_name, to_insert)
@@ -88,16 +89,23 @@ class InsertInto(ASTNode):
         if self.column_list is not None:
             for col in self.column_list:
                 col_str = f'{col_str}{col.val},'
+        if col_str != '':
+            col_str = col_str[:-1]
 
         values = ''
         if isinstance(self.insert_list, Select):
             values = self.insert_list.generate(table, tree)
         else:
             for value in self.insert_list:
-                values = f'{values}{value.val},'
+                if isinstance(value, Numeric):
+                    values = f'{values}{value.val},'
+                else:
+                    values = f'{values}\'{value.val}\','
             values = f' VALUES({values[:-1]})'
-        return Quadruple(None, f'INSERT INTO {self.table_name}{f" ({col_str})" if col_str != "" else ""}{values};'
-                         , None, generate_tmp(), OpTAC.CALL)
+        quad = Quadruple(None, 'exec_sql', f'"INSERT INTO {self.table_name}{f" ({col_str})" if col_str != "" else ""}{values};"'
+                         , generate_tmp(), OpTAC.CALL)                                
+        tree.append(quad)
+        return quad   
 
 
 # This class probably is not going to be needed, depends on how the contents are gonna be handled

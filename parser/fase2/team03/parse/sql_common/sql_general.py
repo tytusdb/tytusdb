@@ -18,7 +18,9 @@ class ShowDatabases(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, 'SHOW DATABASES;', None, generate_tmp(), OpTAC.CALL)
+        quad = Quadruple(None,'exec_sql', 'SHOW DATABASES;', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 class UseDatabase(ASTNode):
@@ -36,7 +38,9 @@ class UseDatabase(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
 
-        return Quadruple(None, f'USE DATABASE {self.name.generate(table, tree)};', None, generate_tmp(), OpTAC.CALL)
+        quad = Quadruple(None, 'exec_sql', f'USE DATABASE {self.name.generate(table, tree)};', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 class Union(ASTNode):
@@ -61,8 +65,9 @@ class Union(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'{self.records_a.generate_pure(table, tree)} UNION {self.records_b.generate_pure(table, tree)};', None, generate_tmp(), OpTAC.CALL)
-
+        quad = Quadruple(None, 'exec_sql', f'{self.records_a.generate_pure(table, tree)} UNION {self.records_b.generate_pure(table, tree)};', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 class Intersect(ASTNode):
     def __init__(self, records_a, records_b, is_all, line, column, graph_ref):
@@ -84,7 +89,9 @@ class Intersect(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'{self.records_a.generate_pure(table, tree)} INTERSECT {self.records_b.generate_pure(table, tree)};', None, generate_tmp(), OpTAC.CALL)
+        quad = Quadruple(None, 'exec_sql', f'{self.records_a.generate_pure(table, tree)} INTERSECT {self.records_b.generate_pure(table, tree)};', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 class Except(ASTNode):
@@ -121,4 +128,6 @@ class Except(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'{self.records_a.generate_pure(table, tree)} EXCEPT {self.records_b.generate_pure(table, tree)};', None, generate_tmp(), OpTAC.CALL)
+        quad = Quadruple(None, 'exec_sql', f'{self.records_a.generate_pure(table, tree)} EXCEPT {self.records_b.generate_pure(table, tree)};', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad

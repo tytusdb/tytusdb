@@ -47,5 +47,7 @@ class Delete(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'DELETE FROM {self.table_name} {self.where.generate(table, tree) if self.where is not None else ""};'
-                         , None, generate_tmp(), OpTAC.CALL)
+        quad = Quadruple(None, 'exec_sql', f'"DELETE FROM {self.table_name} {self.where.generate(table, tree) if self.where is not None else ""};"'
+                         , generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad

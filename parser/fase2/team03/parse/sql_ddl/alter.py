@@ -30,8 +30,10 @@ class AlterDatabaseRename(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'ALTER DATABASE {self.name} RENAME TO {self.new_name};', None, generate_tmp(),
+        quad = Quadruple(None, 'exec_sql', f'ALTER DATABASE {self.name} RENAME TO {self.new_name};', generate_tmp(),
                          OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 class AlterDatabaseOwner(ASTNode):
@@ -51,8 +53,11 @@ class AlterDatabaseOwner(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'ALTER DATABASE {self.name} OWNER TO {self.owner.val};', None, generate_tmp(),
+        quad = Quadruple(None, 'exec_sql', f'ALTER DATABASE {self.name} OWNER TO {self.owner.val};', generate_tmp(),
                          OpTAC.CALL)
+        tree.append(quad)
+        return quad
+        
 
 
 class AlterTableAddColumn(ASTNode):
@@ -98,8 +103,10 @@ class AlterTableAddColumn(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         result_field_type = self.field_type.val
-        return Quadruple(None, f'ALTER TABLE {self.table_name} ADD COLUMN {self.field_name} {result_field_type};', None,
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} ADD COLUMN {self.field_name} {result_field_type};', 
                          generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 # TODO Pending to add checks
@@ -165,8 +172,10 @@ class AlterTableDropColumn(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'ALTER TABLE {self.table_name} DROP COLUMN {self.field_name};', None, generate_tmp(),
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} DROP COLUMN {self.field_name};', generate_tmp(),
                          OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 # TODO add constraint
@@ -240,9 +249,11 @@ class AlterTableNotNull(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} '
-                               f'SET {"NOT NULL" if self.allows_null is False else "NULL"};', None, generate_tmp(),
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} '
+                               f'SET {"NOT NULL" if self.allows_null is False else "NULL"};', generate_tmp(),
                          OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 # TODO drop constraint
@@ -285,8 +296,10 @@ class AlterTableRenameColumn(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'ALTER TABLE {self.table_name} RENAME COLUMN {self.old_name} TO {self.new_name};', None,
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} RENAME COLUMN {self.old_name} TO {self.new_name};',
                          generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 class AlterTableChangeColumnType(ASTNode):
@@ -314,5 +327,8 @@ class AlterTableChangeColumnType(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return Quadruple(None, f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} '
-                               f'TYPE {self.field_type.generate(table, tree)};', None, generate_tmp(), OpTAC.CALL)
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} '
+                               f'TYPE {self.field_type.generate(table, tree)};', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
+        

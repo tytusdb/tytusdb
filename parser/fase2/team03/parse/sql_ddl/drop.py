@@ -35,8 +35,10 @@ class DropDatabase(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         result_name = self.name.generate(table, tree)
-        return Quadruple(None, f'DROP DATABASE{" IF EXISTS" if self.if_exists else ""} {result_name};',
-                         None, generate_tmp(), OpTAC.CALL)
+        quad = Quadruple(None, 'exec_sql', f'DROP DATABASE{" IF EXISTS" if self.if_exists else ""} {result_name};',
+                         generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 class DropTable(ASTNode):
@@ -62,4 +64,6 @@ class DropTable(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         result_name = self.name.generate(table, tree)
-        return Quadruple(None, f'DROP TABLE {result_name};', None, generate_tmp(), OpTAC.CALL)
+        quad = Quadruple(None,'exec_sql', f'DROP TABLE {result_name};', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad

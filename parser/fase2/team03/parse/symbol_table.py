@@ -98,6 +98,15 @@ class FunctionSymbol(Symbol):
         self.number_params = number_params
         self.tac_file_name = tac_file_name
 
+class ProcedureSymbol(Symbol):
+    def __init__(self, db_id, proc_name, tac_label, number_params, tac_file_name):
+        Symbol.__init__(self, SymbolType.STOREPROCEDURE, proc_name)
+        self.db_id = db_id
+        self.proc_name = proc_name
+        self.tac_label = tac_label
+        self.number_params = number_params
+        self.tac_file_name = tac_file_name
+
 
 class IndexSymbol(Symbol):
     def __init__(self, name, table, db_id, is_unique, use_hash, applied_to, where):
