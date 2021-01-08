@@ -55,6 +55,12 @@ class ThreeAddressCode(object):
         # self.__stackCounter += 1
         return stackCounter
 
+    @property
+    def tempCounter(self):
+        tempCounter = self.__tempCounter
+        # self.__stackCounter += 1
+        return tempCounter
+
     def addStack(self, value):
         """
         Method to add to stack
