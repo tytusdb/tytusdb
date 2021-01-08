@@ -62,7 +62,10 @@ class Identificador(Instruccion):
             return columnas
 
     def devolverId(self, tabla, arbol):
-        return self.id
+        try: 
+            return self.id
+        except Exception as e:
+                 print(e)
 
     def devolverTabla(self,tabla,arbol):
         super().ejecutar(tabla,arbol)

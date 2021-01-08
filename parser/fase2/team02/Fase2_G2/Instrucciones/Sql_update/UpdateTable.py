@@ -5,6 +5,8 @@ from storageManager.jsonMode import *
 from Instrucciones.Sql_create.Tipo_Constraint import Tipo_Dato_Constraint
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato
 import numpy as np
+from Instrucciones.Identificador import Identificador
+from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional, Between
 
 class UpdateTable(Instruccion):
     def __init__(self, id, tipo, lCol, insWhere, strGram ,linea, columna):
@@ -227,7 +229,116 @@ class UpdateTable(Instruccion):
         elif (tipoColumna.tipo == Tipo_Dato.BOOLEAN) and (tipoValor.tipo == Tipo_Dato.BOOLEAN):
             return True
         return False
+
+
+    def extraer(self,tabla,arbol):
         
+        cadena = " "
+        wherecond = " "
+
+        try:          
+            tablevars=None
+            for ele in self.listaDeColumnas:
+                tablevars=ele
+
+            val = self.identificador.devolverTabla(tabla, arbol)
+            print(self.listaDeColumnas) 
+
+            cadena ="\" update  "+val+" set "
+            if isinstance(tablevars, Relacional.Relacional):
+                        signo=tablevars.operador
+                        print("operador es ",signo)
+                        print("es insta Asignacion ") 
+                        value1=tablevars.opIzq
+                        value2=tablevars.opDer
+                       # print(value2) 
+
+                        if isinstance(value1, Identificador):
+                    
+                          
+                                print("es upadt1 ")
+                                try:  
+                                        valu = value1.devolverId(tabla,arbol) 
+
+                                        print("obtuvoe el valor upadt1= ",valu)
+                                        cadena += valu+"= "
+                                except Exception as e:
+                                   print(e) 
+
+                         
+
+
+
+                        if isinstance(value2, Identificador):
+                        
+                                print("es invooommpue2 ")
+                                try:  
+                                        valu = value2.devolverId(tabla,arbol) 
+
+                                        print("obtuvoe el valor deentrada= ",valu)
+                                        cadena += valu
+                                except Exception as e:
+                                   print(e) 
+
+                        else:
+                            value2 = value2.traducir(tabla,arbol).temporalAnterior
+                            cadena += value2
+
+            if self.insWhere !=None:
+                    wherecond=self.insWhere.extraer(tabla,arbol)
+            cadena += wherecond
+            cadena += ";\""
+
+
+        except Exception as e:
+              print(e)
+
+        return cadena  
+    def analizar(self, tabla, arbol):
+        pass
+    def traducir(self, tabla, arbol):
+
+        cadena = " "
+
+        print("seguira ") 
+        try: 
+            cadena = self. extraer(tabla,arbol)
+
+        except Exception as e:
+              print(e)
+        print("cadenaiuo es",cadena) 
+
+        arbol.addComen("Asignar cadena")
+        temporal1 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal1} = { cadena }")
+
+        arbol.addComen("Entrar al ambito")
+        temporal2 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal2} = P+2")
+        temporal3 = tabla.getTemporal()
+        arbol.addComen("parametro 1")
+        arbol.addc3d(f"{temporal3} = { temporal2}+1")
+        arbol.addComen("Asignacion de parametros")
+        arbol.addc3d(f"Pila[{temporal3}] = {temporal1}")
+
+        arbol.addComen("Llamada de funcion")
+        arbol.addc3d(f"P = P+2")
+        arbol.addc3d(f"funcionintermedia()")
+        
+        arbol.addComen("obtener resultado")
+        temporalX = tabla.getTemporal()
+        arbol.addc3d(f"{temporalX} = P+2")
+        temporalR = tabla.getTemporal()
+        arbol.addc3d(f"{temporalR} = Pila[{ temporalX }]")
+
+        arbol.addComen("Salida de funcion")
+        arbol.addc3d(f"P = P-2")
+
+        print("hello")
+
+        print(arbol.get3d())
+        print("dsliio hello")
+    
         
         '''if(self.identificador != None):
             if(self.listaDeColumnas != None):
@@ -243,3 +354,4 @@ class UpdateTable(Instruccion):
 instruccion = UpdateTable("hola mundo",None, 1,2)
 instruccion.ejecutar(None,None)
 '''
+
