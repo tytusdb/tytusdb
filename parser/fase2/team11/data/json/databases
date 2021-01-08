@@ -1,1 +1,1 @@
-{"test": {"tbcalifica": {"NCOL": 3}, "tbusuario": {"NCOL": 6}, "tbrol": {"NCOL": 2}, "tbrolxusuario": {"NCOL": 2}, "tbestado": {"NCOL": 2}, "tbempleado": {"NCOL": 8}, "cities": {"NCOL": 3}, "capitals": {"NCOL": 1}, "tbidentificaciontipo": {"NCOL": 2}, "tbempleadoidentificacion": {"NCOL": 4}, "tbpuesto": {"NCOL": 4}, "tbempleadopuesto": {"NCOL": 3}, "tbfuncionesmath": {"NCOL": 3}}, "califica": {}}
+{"DBFase2": {"tbProducto": {"NCOL": 4}, "tbCalificacion": {"NCOL": 3}, "tbbodega": {"NCOL": 3}}}

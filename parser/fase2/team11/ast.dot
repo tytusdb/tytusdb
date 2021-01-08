@@ -1,3357 +1,375 @@
 digraph G {
 rankdir=TB; node[fillcolor="darkturquoise:darkslategray2", shape=record ,fontname = "Berlin Sans FB" ,style = filled]  
 edge[arrowhead=none]; 
-nodo1[label = "INSTRUCCIONES\n"];
-nodo1->nodo2
-nodo2[label = "CREATE DATABASE\n"];
+nodo2[label = "INSTRUCCIONES\n"];
 nodo2->nodo3
-nodo3[label = "IF NOT EXISTS\ntest"];
+nodo3[label = "CREATE DATABASE\nDBFase2"];
 nodo3->nodo4
-nodo4[label = "OWNER\nroot"];
-nodo4->nodo5
-nodo5[label = "MODE\n1"];
-nodo1->nodo6
-nodo6[label = "CREATE DATABASE\n"];
+nodo4[label = "\n;"];
+nodo2->nodo5
+nodo5[label = "USE\nDBFase2"];
+nodo2->nodo6
+nodo6[label = "CREATE TABLE\ntbProducto"];
 nodo6->nodo7
-nodo7[label = "IF NOT EXISTS\ncalifica"];
+nodo7[label = "COLUMNAS\n"];
 nodo7->nodo8
-nodo8[label = "OWNER\nroot"];
+nodo8[label = "COLUMN\nidproducto"];
 nodo8->nodo9
-nodo9[label = "MODE\n2"];
-nodo1->nodo10
-nodo10[label = "CREATE DATABASE\n"];
+nodo9[label = "Tipo\ninteger"];
+nodo8->nodo10
+nodo10[label = "ATRIBUTOS\n"];
 nodo10->nodo11
-nodo11[label = "IF NOT EXISTS\ncalifica2"];
-nodo11->nodo12
-nodo12[label = "OWNER\nroot"];
-nodo12->nodo13
-nodo13[label = "MODE\n3"];
-nodo1->nodo14
-nodo14[label = "USE\ntest"];
-nodo1->nodo15
-nodo15[label = "CREATE TABLE\ntbcalifica"];
-nodo15->nodo16
-nodo16[label = "COLUMNAS\n"];
+nodo11[label = "NOT NULL\n"];
+nodo10->nodo12
+nodo12[label = "PRIMARY KEY\n"];
+nodo7->nodo13
+nodo13[label = "COLUMN\nproducto"];
+nodo13->nodo14
+nodo14[label = "Tipo\nvarchar"];
+nodo14->nodo15
+nodo15[label = "Limite\n150"];
+nodo13->nodo16
+nodo16[label = "ATRIBUTOS\n"];
 nodo16->nodo17
-nodo17[label = "COLUMN\niditem"];
-nodo17->nodo18
-nodo18[label = "Tipo\ninteger"];
-nodo17->nodo19
-nodo19[label = "ATRIBUTOS\n"];
-nodo19->nodo20
-nodo20[label = "NOT NULL\n"];
-nodo19->nodo21
-nodo21[label = "PRIMARY KEY\n"];
-nodo16->nodo22
-nodo22[label = "COLUMN\nitem"];
+nodo17[label = "NOT NULL\n"];
+nodo7->nodo18
+nodo18[label = "COLUMN\nfechacreacion"];
+nodo18->nodo19
+nodo19[label = "Tipo\ndate"];
+nodo18->nodo20
+nodo20[label = "ATRIBUTOS\n"];
+nodo20->nodo21
+nodo21[label = "NOT NULL\n"];
+nodo7->nodo22
+nodo22[label = "COLUMN\nestado"];
 nodo22->nodo23
-nodo23[label = "Tipo\nvarchar"];
-nodo23->nodo24
-nodo24[label = "Limite\n150"];
-nodo22->nodo25
-nodo25[label = "ATRIBUTOS\n"];
+nodo23[label = "Tipo\ninteger"];
+nodo22->nodo24
+nodo24[label = "ATRIBUTOS\n"];
+nodo2->nodo25
+nodo25[label = "CREATE INDEX\n"];
 nodo25->nodo26
-nodo26[label = "NOT NULL\n"];
-nodo16->nodo27
-nodo27[label = "COLUMN\npuntos"];
-nodo27->nodo28
-nodo28[label = "Tipo\ndecimal"];
+nodo26[label = "INDEX UNIQUE NAME\nidx_producto"];
+nodo25->nodo27
+nodo27[label = "TABLA\ntbProducto"];
+nodo25->nodo28
+nodo28[label = "COLUMNAS\n"];
 nodo28->nodo29
-nodo29[label = "Digitos\n8"];
-nodo28->nodo30
-nodo30[label = "Cifras\n2"];
-nodo27->nodo31
-nodo31[label = "ATRIBUTOS\n"];
+nodo29[label = "Columna\nidproducto"];
+nodo2->nodo30
+nodo30[label = "CREATE TABLE\ntbCalificacion"];
+nodo30->nodo31
+nodo31[label = "COLUMNAS\n"];
 nodo31->nodo32
-nodo32[label = "NOT NULL\n"];
-nodo1->nodo33
-nodo33[label = "CREATE TABLE\ntbusuario"];
-nodo33->nodo34
-nodo34[label = "COLUMNAS\n"];
+nodo32[label = "COLUMN\nidcalifica"];
+nodo32->nodo33
+nodo33[label = "Tipo\ninteger"];
+nodo32->nodo34
+nodo34[label = "ATRIBUTOS\n"];
 nodo34->nodo35
-nodo35[label = "COLUMN\nidusuario"];
-nodo35->nodo36
-nodo36[label = "Tipo\ninteger"];
-nodo35->nodo37
-nodo37[label = "ATRIBUTOS\n"];
+nodo35[label = "NOT NULL\n"];
+nodo34->nodo36
+nodo36[label = "PRIMARY KEY\n"];
+nodo31->nodo37
+nodo37[label = "COLUMN\nitem"];
 nodo37->nodo38
-nodo38[label = "NOT NULL\n"];
-nodo37->nodo39
-nodo39[label = "PRIMARY KEY\n"];
-nodo34->nodo40
-nodo40[label = "COLUMN\nnombre"];
+nodo38[label = "Tipo\nvarchar"];
+nodo38->nodo39
+nodo39[label = "Limite\n100"];
+nodo37->nodo40
+nodo40[label = "ATRIBUTOS\n"];
 nodo40->nodo41
-nodo41[label = "Tipo\nvarchar"];
-nodo41->nodo42
-nodo42[label = "Limite\n50"];
-nodo40->nodo43
-nodo43[label = "ATRIBUTOS\n"];
-nodo34->nodo44
-nodo44[label = "COLUMN\napellido"];
+nodo41[label = "NOT NULL\n"];
+nodo31->nodo42
+nodo42[label = "COLUMN\npunteo"];
+nodo42->nodo43
+nodo43[label = "Tipo\ninteger"];
+nodo42->nodo44
+nodo44[label = "ATRIBUTOS\n"];
 nodo44->nodo45
-nodo45[label = "Tipo\nvarchar"];
-nodo45->nodo46
-nodo46[label = "Limite\n50"];
-nodo44->nodo47
-nodo47[label = "ATRIBUTOS\n"];
-nodo34->nodo48
-nodo48[label = "COLUMN\nusuario"];
-nodo48->nodo49
-nodo49[label = "Tipo\nvarchar"];
+nodo45[label = "NOT NULL\n"];
+nodo2->nodo46
+nodo46[label = "CREATE INDEX\n"];
+nodo46->nodo47
+nodo47[label = "INDEX UNIQUE NAME\nidx_califica"];
+nodo46->nodo48
+nodo48[label = "TABLA\ntbCalificacion"];
+nodo46->nodo49
+nodo49[label = "COLUMNAS\n"];
 nodo49->nodo50
-nodo50[label = "Limite\n15"];
-nodo48->nodo51
-nodo51[label = "ATRIBUTOS\n"];
+nodo50[label = "Columna\nidcalifica"];
+nodo2->nodo51
+nodo51[label = "INSERT INTO\ntbProducto"];
 nodo51->nodo52
-nodo52[label = "UNIQUE\n"];
-nodo51->nodo53
-nodo53[label = "NOT NULL\n"];
-nodo34->nodo54
-nodo54[label = "COLUMN\npassword"];
+nodo52[label = "Parametro\n"];
+nodo52->nodo53
+nodo53[label = "ENTERO\n1"];
+nodo51->nodo54
+nodo54[label = "Parametro\n"];
 nodo54->nodo55
-nodo55[label = "Tipo\nvarchar"];
-nodo55->nodo56
-nodo56[label = "Limite\n15"];
-nodo54->nodo57
-nodo57[label = "ATRIBUTOS\n"];
-nodo57->nodo58
-nodo58[label = "NOT NULL\n"];
-nodo34->nodo59
-nodo59[label = "COLUMN\nfechacreacion"];
-nodo59->nodo60
-nodo60[label = "Tipo\ndate"];
-nodo59->nodo61
-nodo61[label = "ATRIBUTOS\n"];
-nodo1->nodo62
-nodo62[label = "CREATE TABLE\ntbroles"];
-nodo62->nodo63
-nodo63[label = "COLUMNAS\n"];
+nodo55[label = "CADENA\nLaptop Lenovo"];
+nodo51->nodo56
+nodo56[label = "Parametro\n"];
+nodo56->nodo57
+nodo57[label = "NOW()\n"];
+nodo51->nodo58
+nodo58[label = "Parametro\n"];
+nodo58->nodo59
+nodo59[label = "ENTERO\n1"];
+nodo2->nodo60
+nodo60[label = "INSERT INTO\ntbProducto"];
+nodo60->nodo61
+nodo61[label = "Parametro\n"];
+nodo61->nodo62
+nodo62[label = "ENTERO\n2"];
+nodo60->nodo63
+nodo63[label = "Parametro\n"];
 nodo63->nodo64
-nodo64[label = "COLUMN\nidrol"];
-nodo64->nodo65
-nodo65[label = "Tipo\ninteger"];
-nodo64->nodo66
-nodo66[label = "ATRIBUTOS\n"];
-nodo66->nodo67
-nodo67[label = "NOT NULL\n"];
-nodo66->nodo68
-nodo68[label = "PRIMARY KEY\n"];
-nodo63->nodo69
-nodo69[label = "COLUMN\nrol"];
+nodo64[label = "CADENA\nBateria para Laptop Lenovo T420"];
+nodo60->nodo65
+nodo65[label = "Parametro\n"];
+nodo65->nodo66
+nodo66[label = "NOW()\n"];
+nodo60->nodo67
+nodo67[label = "Parametro\n"];
+nodo67->nodo68
+nodo68[label = "ENTERO\n1"];
+nodo2->nodo69
+nodo69[label = "INSERT INTO\ntbProducto"];
 nodo69->nodo70
-nodo70[label = "Tipo\nvarchar"];
+nodo70[label = "Parametro\n"];
 nodo70->nodo71
-nodo71[label = "Limite\n15"];
+nodo71[label = "ENTERO\n3"];
 nodo69->nodo72
-nodo72[label = "ATRIBUTOS\n"];
-nodo1->nodo73
-nodo73[label = "SELECT\n"];
-nodo73->nodo74
-nodo74[label = "ROWS\n"];
+nodo72[label = "Parametro\n"];
+nodo72->nodo73
+nodo73[label = "CADENA\nTeclado Inalambrico"];
+nodo69->nodo74
+nodo74[label = "Parametro\n"];
 nodo74->nodo75
-nodo75[label = "EXTRACT\n"];
-nodo75->nodo76
-nodo76[label = "YEAR\n"];
-nodo75->nodo77
-nodo77[label = "FROM TIMESTAMP\n2001-02-16 20:38:40"];
-nodo1->nodo78
-nodo78[label = "SELECT\n"];
+nodo75[label = "NOW()\n"];
+nodo69->nodo76
+nodo76[label = "Parametro\n"];
+nodo76->nodo77
+nodo77[label = "ENTERO\n1"];
+nodo2->nodo78
+nodo78[label = "INSERT INTO\ntbProducto"];
 nodo78->nodo79
-nodo79[label = "ROWS\n"];
+nodo79[label = "Parametro\n"];
 nodo79->nodo80
-nodo80[label = "DATE PART\n"];
-nodo80->nodo81
-nodo81[label = "CADENA\nhours"];
-nodo80->nodo82
-nodo82[label = "INTERVAL\n4 hours 3 minutes"];
-nodo1->nodo83
-nodo83[label = "SELECT\n"];
+nodo80[label = "ENTERO\n4"];
+nodo78->nodo81
+nodo81[label = "Parametro\n"];
+nodo81->nodo82
+nodo82[label = "CADENA\nMouse Inalambrico"];
+nodo78->nodo83
+nodo83[label = "Parametro\n"];
 nodo83->nodo84
-nodo84[label = "ROWS\n"];
-nodo84->nodo85
-nodo85[label = "NOW\n"];
-nodo1->nodo86
-nodo86[label = "SELECT\n"];
-nodo86->nodo87
-nodo87[label = "ROWS\n"];
+nodo84[label = "NOW()\n"];
+nodo78->nodo85
+nodo85[label = "Parametro\n"];
+nodo85->nodo86
+nodo86[label = "ENTERO\n1"];
+nodo2->nodo87
+nodo87[label = "INSERT INTO\ntbProducto"];
 nodo87->nodo88
-nodo88[label = "EXTRACT\n"];
+nodo88[label = "Parametro\n"];
 nodo88->nodo89
-nodo89[label = "HOUR\n"];
-nodo88->nodo90
-nodo90[label = "FROM TIMESTAMP\n2001-02-16 20:38:40"];
-nodo1->nodo91
-nodo91[label = "SELECT\n"];
-nodo91->nodo92
-nodo92[label = "ROWS\n"];
+nodo89[label = "ENTERO\n5"];
+nodo87->nodo90
+nodo90[label = "Parametro\n"];
+nodo90->nodo91
+nodo91[label = "CADENA\nWIFI USB"];
+nodo87->nodo92
+nodo92[label = "Parametro\n"];
 nodo92->nodo93
-nodo93[label = "EXTRACT\n"];
-nodo93->nodo94
-nodo94[label = "MINUTE\n"];
-nodo93->nodo95
-nodo95[label = "FROM TIMESTAMP\n2001-02-16 20:38:40"];
-nodo1->nodo96
-nodo96[label = "SELECT\n"];
+nodo93[label = "NOW()\n"];
+nodo87->nodo94
+nodo94[label = "Parametro\n"];
+nodo94->nodo95
+nodo95[label = "ENTERO\n1"];
+nodo2->nodo96
+nodo96[label = "INSERT INTO\ntbProducto"];
 nodo96->nodo97
-nodo97[label = "ROWS\n"];
+nodo97[label = "Parametro\n"];
 nodo97->nodo98
-nodo98[label = "EXTRACT\n"];
-nodo98->nodo99
-nodo99[label = "SECOND\n"];
-nodo98->nodo100
-nodo100[label = "FROM TIMESTAMP\n2001-02-16 20:38:40"];
-nodo1->nodo101
-nodo101[label = "SELECT\n"];
+nodo98[label = "ENTERO\n6"];
+nodo96->nodo99
+nodo99[label = "Parametro\n"];
+nodo99->nodo100
+nodo100[label = "CADENA\nLaptop HP"];
+nodo96->nodo101
+nodo101[label = "Parametro\n"];
 nodo101->nodo102
-nodo102[label = "ROWS\n"];
-nodo102->nodo103
-nodo103[label = "EXTRACT\n"];
+nodo102[label = "NOW()\n"];
+nodo96->nodo103
+nodo103[label = "Parametro\n"];
 nodo103->nodo104
-nodo104[label = "YEAR\n"];
-nodo103->nodo105
-nodo105[label = "FROM TIMESTAMP\n2001-02-16 20:38:40"];
-nodo1->nodo106
-nodo106[label = "SELECT\n"];
+nodo104[label = "ENTERO\n1"];
+nodo2->nodo105
+nodo105[label = "INSERT INTO\ntbProducto"];
+nodo105->nodo106
+nodo106[label = "Parametro\n"];
 nodo106->nodo107
-nodo107[label = "ROWS\n"];
-nodo107->nodo108
-nodo108[label = "EXTRACT\n"];
+nodo107[label = "ENTERO\n7"];
+nodo105->nodo108
+nodo108[label = "Parametro\n"];
 nodo108->nodo109
-nodo109[label = "MONTH\n"];
-nodo108->nodo110
-nodo110[label = "FROM TIMESTAMP\n2001-02-16 20i:38:40"];
-nodo1->nodo111
-nodo111[label = "SELECT\n"];
-nodo111->nodo112
-nodo112[label = "ROWS\n"];
+nodo109[label = "CADENA\nTeclado Flexible USB"];
+nodo105->nodo110
+nodo110[label = "Parametro\n"];
+nodo110->nodo111
+nodo111[label = "NOW()\n"];
+nodo105->nodo112
+nodo112[label = "Parametro\n"];
 nodo112->nodo113
-nodo113[label = "EXTRACT\n"];
-nodo113->nodo114
-nodo114[label = "DAY\n"];
-nodo113->nodo115
-nodo115[label = "FROM TIMESTAMP\n2001-02-16 20:38:40"];
-nodo1->nodo116
-nodo116[label = "SELECT\n"];
-nodo116->nodo117
-nodo117[label = "ROWS\n"];
+nodo113[label = "ENTERO\n1"];
+nodo2->nodo114
+nodo114[label = "INSERT INTO\ntbProducto"];
+nodo114->nodo115
+nodo115[label = "Parametro\n"];
+nodo115->nodo116
+nodo116[label = "ENTERO\n8"];
+nodo114->nodo117
+nodo117[label = "Parametro\n"];
 nodo117->nodo118
-nodo118[label = "DATE PART\n"];
-nodo118->nodo119
-nodo119[label = "CADENA\nminutes"];
-nodo118->nodo120
-nodo120[label = "INTERVAL\n4 hours 3 minutes"];
-nodo1->nodo121
-nodo121[label = "SELECT\n"];
+nodo118[label = "CADENA\nLaptop Samsung"];
+nodo114->nodo119
+nodo119[label = "Parametro\n"];
+nodo119->nodo120
+nodo120[label = "CADENA\n2021-01-02"];
+nodo114->nodo121
+nodo121[label = "Parametro\n"];
 nodo121->nodo122
-nodo122[label = "ROWS\n"];
-nodo122->nodo123
-nodo123[label = "DATE PART\n"];
+nodo122[label = "ENTERO\n1"];
+nodo2->nodo123
+nodo123[label = "SELECT\n"];
 nodo123->nodo124
-nodo124[label = "CADENA\nseconds"];
-nodo123->nodo125
-nodo125[label = "INTERVAL\n4 hours 3 minutes 15 seconds"];
-nodo1->nodo126
-nodo126[label = "SELECT\n"];
-nodo126->nodo127
-nodo127[label = "ROWS\n"];
+nodo124[label = "ROWS\n"];
+nodo124->nodo125
+nodo125[label = "Agregacion\nCOUNT"];
+nodo125->nodo126
+nodo126[label = "Asterisco\n*"];
+nodo123->nodo127
+nodo127[label = "FROM\n"];
 nodo127->nodo128
-nodo128[label = "CURRENT_DATE\n"];
-nodo1->nodo129
-nodo129[label = "SELECT\n"];
+nodo128[label = "Tabla\ntbProducto"];
+nodo2->nodo129
+nodo129[label = "INSERT INTO\ntbCalificacion"];
 nodo129->nodo130
-nodo130[label = "ROWS\n"];
+nodo130[label = "Parametro\n"];
 nodo130->nodo131
-nodo131[label = "CURRENT_TIME\n"];
-nodo1->nodo132
-nodo132[label = "SELECT\n"];
+nodo131[label = "ENTERO\n1"];
+nodo129->nodo132
+nodo132[label = "Parametro\n"];
 nodo132->nodo133
-nodo133[label = "ROWS\n"];
-nodo133->nodo134
-nodo134[label = "TIMESTAMP\nnow"];
-nodo1->nodo135
-nodo135[label = "CREATE ENUM\narea"];
-nodo135->nodo136
-nodo136[label = "CADENA\nCONTABILIDAD"];
-nodo135->nodo137
-nodo137[label = "CADENA\nADMINISTRACION"];
-nodo135->nodo138
-nodo138[label = "CADENA\nVENTAS"];
-nodo135->nodo139
-nodo139[label = "CADENA\nTECNOLOGIA"];
-nodo135->nodo140
-nodo140[label = "CADENA\nFABRICA"];
-nodo1->nodo141
-nodo141[label = "SHOW DATABASES\n"];
-nodo1->nodo142
-nodo142[label = "DROP DATABASE\ncalifica2"];
-nodo1->nodo143
-nodo143[label = "DROP TABLE\ntbroles"];
-nodo1->nodo144
-nodo144[label = "CREATE TABLE\ntbrol"];
+nodo133[label = "CADENA\nCreate Table and Insert"];
+nodo129->nodo134
+nodo134[label = "Parametro\n"];
+nodo134->nodo135
+nodo135[label = "ENTERO\n0"];
+nodo2->nodo136
+nodo136[label = "UPDATE\ntbProducto"];
+nodo136->nodo137
+nodo137[label = "Asignacion\n"];
+nodo137->nodo138
+nodo138[label = "ID\nestado"];
+nodo137->nodo139
+nodo139[label = "ENTERO\n2"];
+nodo2->nodo140
+nodo140[label = "SELECT\n"];
+nodo140->nodo141
+nodo141[label = "ROWS\n"];
+nodo141->nodo142
+nodo142[label = "Agregacion\nCOUNT"];
+nodo142->nodo143
+nodo143[label = "Asterisco\n*"];
+nodo140->nodo144
+nodo144[label = "FROM\n"];
 nodo144->nodo145
-nodo145[label = "COLUMNAS\n"];
-nodo145->nodo146
-nodo146[label = "COLUMN\nidrol"];
+nodo145[label = "Tabla\ntbProducto"];
+nodo140->nodo146
+nodo146[label = "WHERE\n"];
 nodo146->nodo147
-nodo147[label = "Tipo\ninteger"];
-nodo146->nodo148
-nodo148[label = "ATRIBUTOS\n"];
-nodo148->nodo149
-nodo149[label = "NOT NULL\n"];
-nodo148->nodo150
-nodo150[label = "PRIMARY KEY\n"];
-nodo145->nodo151
-nodo151[label = "COLUMN\nrol"];
+nodo147[label = "OPREL\n\="];
+nodo147->nodo148
+nodo148[label = "ID\nestado"];
+nodo147->nodo149
+nodo149[label = "ENTERO\n2"];
+nodo2->nodo150
+nodo150[label = "INSERT INTO\ntbCalificacion"];
+nodo150->nodo151
+nodo151[label = "Parametro\n"];
 nodo151->nodo152
-nodo152[label = "Tipo\nvarchar"];
-nodo152->nodo153
-nodo153[label = "Limite\n15"];
-nodo151->nodo154
-nodo154[label = "ATRIBUTOS\n"];
-nodo1->nodo155
-nodo155[label = "INSERT INTO\ntbcalifica"];
+nodo152[label = "ENTERO\n2"];
+nodo150->nodo153
+nodo153[label = "Parametro\n"];
+nodo153->nodo154
+nodo154[label = "CADENA\nUpdate"];
+nodo150->nodo155
+nodo155[label = "Parametro\n"];
 nodo155->nodo156
-nodo156[label = "Parametro\n"];
-nodo156->nodo157
-nodo157[label = "ENTERO\n1"];
-nodo155->nodo158
-nodo158[label = "Parametro\n"];
+nodo156[label = "ENTERO\n0"];
+nodo2->nodo157
+nodo157[label = "SELECT\n"];
+nodo157->nodo158
+nodo158[label = "ROWS\n"];
 nodo158->nodo159
-nodo159[label = "CADENA\nFuncionalidades basicas"];
-nodo155->nodo160
-nodo160[label = "Parametro\n"];
-nodo160->nodo161
-nodo161[label = "DECIMAL\n2.0"];
-nodo1->nodo162
-nodo162[label = "INSERT INTO\ntbcalifica"];
+nodo159[label = "EXTRACT\n"];
+nodo159->nodo160
+nodo160[label = "HOUR\n"];
+nodo159->nodo161
+nodo161[label = "FROM TIMESTAMP\n2001-02-16 20:38:40"];
+nodo2->nodo162
+nodo162[label = "SELECT\n"];
 nodo162->nodo163
-nodo163[label = "Parametro\n"];
+nodo163[label = "ROWS\n"];
 nodo163->nodo164
-nodo164[label = "ENTERO\n2"];
-nodo162->nodo165
-nodo165[label = "Parametro\n"];
-nodo165->nodo166
-nodo166[label = "CADENA\nFunciones Date-Extract"];
-nodo162->nodo167
+nodo164[label = "Trigonometrica\nSIN"];
+nodo164->nodo165
+nodo165[label = "ENTERO\n1"];
+nodo2->nodo166
+nodo166[label = "INSERT INTO\ntbCalificacion"];
+nodo166->nodo167
 nodo167[label = "Parametro\n"];
 nodo167->nodo168
-nodo168[label = "DECIMAL\n2.0"];
-nodo1->nodo169
-nodo169[label = "SELECT\n"];
+nodo168[label = "ENTERO\n3"];
+nodo166->nodo169
+nodo169[label = "Parametro\n"];
 nodo169->nodo170
-nodo170[label = "ASTERISCO\n*"];
-nodo169->nodo171
-nodo171[label = "FROM\n"];
+nodo170[label = "CADENA\n Valida Funciones"];
+nodo166->nodo171
+nodo171[label = "Parametro\n"];
 nodo171->nodo172
-nodo172[label = "Tabla\ntbcalifica"];
-nodo1->nodo173
-nodo173[label = "CREATE TABLE\ntbrolxusuario"];
+nodo172[label = "ENTERO\n20"];
+nodo2->nodo173
+nodo173[label = "CREATE TABLE\ntbbodega"];
 nodo173->nodo174
 nodo174[label = "COLUMNAS\n"];
 nodo174->nodo175
-nodo175[label = "COLUMN\nidrol"];
+nodo175[label = "COLUMN\nidbodega"];
 nodo175->nodo176
 nodo176[label = "Tipo\ninteger"];
 nodo175->nodo177
 nodo177[label = "ATRIBUTOS\n"];
 nodo177->nodo178
 nodo178[label = "NOT NULL\n"];
-nodo174->nodo179
-nodo179[label = "COLUMN\nidusuario"];
-nodo179->nodo180
-nodo180[label = "Tipo\ninteger"];
-nodo179->nodo181
-nodo181[label = "ATRIBUTOS\n"];
+nodo177->nodo179
+nodo179[label = "PRIMARY KEY\n"];
+nodo174->nodo180
+nodo180[label = "COLUMN\nbodega"];
+nodo180->nodo181
+nodo181[label = "Tipo\nvarchar"];
 nodo181->nodo182
-nodo182[label = "NOT NULL\n"];
-nodo1->nodo183
-nodo183[label = "ALTER TABLE\ntbrolxusuario"];
+nodo182[label = "Limite\n100"];
+nodo180->nodo183
+nodo183[label = "ATRIBUTOS\n"];
 nodo183->nodo184
-nodo184[label = "Operacion\nadd foreign key"];
-nodo184->nodo185
-nodo185[label = "Columna\nidrol"];
-nodo184->nodo186
-nodo186[label = "Referencia\nidrol"];
-nodo1->nodo187
-nodo187[label = "ALTER TABLE\ntbrolxusuario"];
-nodo187->nodo188
-nodo188[label = "Operacion\nadd foreign key"];
-nodo188->nodo189
-nodo189[label = "Columna\nidusuario"];
-nodo188->nodo190
-nodo190[label = "Referencia\nidusuario"];
-nodo1->nodo191
-nodo191[label = "INSERT INTO\ntbrol"];
-nodo191->nodo192
-nodo192[label = "Parametro\n"];
-nodo192->nodo193
-nodo193[label = "ENTERO\n1"];
-nodo191->nodo194
-nodo194[label = "Parametro\n"];
-nodo194->nodo195
-nodo195[label = "CADENA\nAdministrador"];
-nodo1->nodo196
-nodo196[label = "INSERT INTO\ntbrol"];
-nodo196->nodo197
-nodo197[label = "Parametro\n"];
-nodo197->nodo198
-nodo198[label = "ENTERO\n2"];
-nodo196->nodo199
-nodo199[label = "Parametro\n"];
-nodo199->nodo200
-nodo200[label = "CADENA\nAdmin"];
-nodo1->nodo201
-nodo201[label = "INSERT INTO\ntbrol"];
-nodo201->nodo202
-nodo202[label = "Parametro\n"];
-nodo202->nodo203
-nodo203[label = "ENTERO\n3"];
-nodo201->nodo204
-nodo204[label = "Parametro\n"];
-nodo204->nodo205
-nodo205[label = "CADENA\nVentas"];
-nodo1->nodo206
-nodo206[label = "SELECT\n"];
-nodo206->nodo207
-nodo207[label = "ASTERISCO\n*"];
-nodo206->nodo208
-nodo208[label = "FROM\n"];
-nodo208->nodo209
-nodo209[label = "Tabla\ntbrol"];
-nodo1->nodo210
-nodo210[label = "INSERT INTO\ntbcalifica"];
-nodo210->nodo211
-nodo211[label = "Parametro\n"];
-nodo211->nodo212
-nodo212[label = "ENTERO\n3"];
-nodo210->nodo213
-nodo213[label = "Parametro\n"];
-nodo213->nodo214
-nodo214[label = "CADENA\nType"];
-nodo210->nodo215
-nodo215[label = "Parametro\n"];
-nodo215->nodo216
-nodo216[label = "DECIMAL\n2.0"];
-nodo1->nodo217
-nodo217[label = "INSERT INTO\ntbcalifica"];
-nodo217->nodo218
-nodo218[label = "Parametro\n"];
-nodo218->nodo219
-nodo219[label = "ENTERO\n4"];
-nodo217->nodo220
-nodo220[label = "Parametro\n"];
-nodo220->nodo221
-nodo221[label = "CADENA\nCreate Database-replace"];
-nodo217->nodo222
-nodo222[label = "Parametro\n"];
-nodo222->nodo223
-nodo223[label = "DECIMAL\n3.0"];
-nodo1->nodo224
-nodo224[label = "INSERT INTO\ntbcalifica"];
-nodo224->nodo225
-nodo225[label = "Parametro\n"];
-nodo225->nodo226
-nodo226[label = "ENTERO\n5"];
-nodo224->nodo227
-nodo227[label = "Parametro\n"];
-nodo227->nodo228
-nodo228[label = "CADENA\nShow Database"];
-nodo224->nodo229
-nodo229[label = "Parametro\n"];
-nodo229->nodo230
-nodo230[label = "DECIMAL\n2.0"];
-nodo1->nodo231
-nodo231[label = "ALTER TABLE\ntbcalifica"];
-nodo231->nodo232
-nodo232[label = "Operacion\nadd column"];
-nodo232->nodo233
-nodo233[label = "Columna\n"];
-nodo233->nodo234
-nodo234[label = "ID\nseccion"];
-nodo233->nodo235
-nodo235[label = "Tipo\ninteger"];
-nodo1->nodo236
-nodo236[label = "UPDATE\ntbcalifica"];
-nodo236->nodo237
-nodo237[label = "Asignacion\n"];
-nodo237->nodo238
-nodo238[label = "ID\nseccion"];
-nodo237->nodo239
-nodo239[label = "ENTERO\n2"];
-nodo1->nodo240
-nodo240[label = "INSERT INTO\ntbcalifica"];
-nodo240->nodo241
-nodo241[label = "Parametro\n"];
-nodo241->nodo242
-nodo242[label = "ENTERO\n6"];
-nodo240->nodo243
-nodo243[label = "Parametro\n"];
-nodo243->nodo244
-nodo244[label = "CADENA\nDatabase-Alter,drop"];
-nodo240->nodo245
-nodo245[label = "Parametro\n"];
-nodo245->nodo246
-nodo246[label = "DECIMAL\n4.0"];
-nodo240->nodo247
-nodo247[label = "Parametro\n"];
-nodo247->nodo248
-nodo248[label = "ENTERO\n3"];
-nodo1->nodo249
-nodo249[label = "INSERT INTO\ntbcalifica"];
-nodo249->nodo250
-nodo250[label = "Parametro\n"];
-nodo250->nodo251
-nodo251[label = "ENTERO\n7"];
-nodo249->nodo252
-nodo252[label = "Parametro\n"];
-nodo252->nodo253
-nodo253[label = "CADENA\nCreate Table- Variantes"];
-nodo249->nodo254
-nodo254[label = "Parametro\n"];
-nodo254->nodo255
-nodo255[label = "DECIMAL\n4.0"];
-nodo249->nodo256
-nodo256[label = "Parametro\n"];
-nodo256->nodo257
-nodo257[label = "ENTERO\n3"];
-nodo1->nodo258
-nodo258[label = "INSERT INTO\ntbusuario"];
-nodo258->nodo259
-nodo259[label = "Parametro\n"];
-nodo259->nodo260
-nodo260[label = "ENTERO\n1"];
-nodo258->nodo261
-nodo261[label = "Parametro\n"];
-nodo261->nodo262
-nodo262[label = "CADENA\nLuis Fernando"];
-nodo258->nodo263
-nodo263[label = "Parametro\n"];
-nodo263->nodo264
-nodo264[label = "CADENA\nSalazar Rodriguez"];
-nodo258->nodo265
-nodo265[label = "Parametro\n"];
-nodo265->nodo266
-nodo266[label = "CADENA\nlsalazar"];
-nodo258->nodo267
-nodo267[label = "Parametro\n"];
-nodo267->nodo268
-nodo268[label = "CADENA\npaswword"];
-nodo258->nodo269
-nodo269[label = "Parametro\n"];
-nodo269->nodo270
-nodo270[label = "CADENA\nnow"];
-nodo1->nodo271
-nodo271[label = "ALTER TABLE\ntbusuario"];
-nodo271->nodo272
-nodo272[label = "Operacion\nALTER COLUMN"];
-nodo272->nodo273
-nodo273[label = "Columna\npassword"];
-nodo273->nodo274
-nodo274[label = "Tipo\nvarchar"];
-nodo274->nodo275
-nodo275[label = "Limite\n80"];
-nodo1->nodo276
-nodo276[label = "CREATE TABLE\ntbcalifica2"];
-nodo276->nodo277
-nodo277[label = "COLUMNAS\n"];
-nodo277->nodo278
-nodo278[label = "COLUMN\niditem"];
-nodo278->nodo279
-nodo279[label = "Tipo\ninteger"];
-nodo278->nodo280
-nodo280[label = "ATRIBUTOS\n"];
-nodo280->nodo281
-nodo281[label = "NOT NULL\n"];
-nodo280->nodo282
-nodo282[label = "PRIMARY KEY\n"];
-nodo277->nodo283
-nodo283[label = "COLUMN\nitem"];
-nodo283->nodo284
-nodo284[label = "Tipo\nvarchar"];
-nodo284->nodo285
-nodo285[label = "Limite\n150"];
-nodo283->nodo286
-nodo286[label = "ATRIBUTOS\n"];
-nodo286->nodo287
-nodo287[label = "NOT NULL\n"];
-nodo277->nodo288
-nodo288[label = "COLUMN\npuntos"];
-nodo288->nodo289
-nodo289[label = "Tipo\ndecimal"];
-nodo289->nodo290
-nodo290[label = "Digitos\n8"];
-nodo289->nodo291
-nodo291[label = "Cifras\n2"];
-nodo288->nodo292
-nodo292[label = "ATRIBUTOS\n"];
-nodo292->nodo293
-nodo293[label = "NOT NULL\n"];
-nodo1->nodo294
-nodo294[label = "DROP TABLE\ntbcalifica2"];
-nodo1->nodo295
-nodo295[label = "INSERT INTO\ntbcalifica"];
-nodo295->nodo296
-nodo296[label = "Parametro\n"];
-nodo296->nodo297
-nodo297[label = "ENTERO\n8"];
-nodo295->nodo298
-nodo298[label = "Parametro\n"];
-nodo298->nodo299
-nodo299[label = "CADENA\nDrop table"];
-nodo295->nodo300
-nodo300[label = "Parametro\n"];
-nodo300->nodo301
-nodo301[label = "DECIMAL\n2.0"];
-nodo295->nodo302
-nodo302[label = "Parametro\n"];
-nodo302->nodo303
-nodo303[label = "ENTERO\n3"];
-nodo1->nodo304
-nodo304[label = "INSERT INTO\ntbcalifica"];
-nodo304->nodo305
-nodo305[label = "Parametro\n"];
-nodo305->nodo306
-nodo306[label = "ENTERO\n9"];
-nodo304->nodo307
-nodo307[label = "Parametro\n"];
-nodo307->nodo308
-nodo308[label = "CADENA\nAlter table"];
-nodo304->nodo309
-nodo309[label = "Parametro\n"];
-nodo309->nodo310
-nodo310[label = "DECIMAL\n4.0"];
-nodo304->nodo311
-nodo311[label = "Parametro\n"];
-nodo311->nodo312
-nodo312[label = "ENTERO\n3"];
-nodo1->nodo313
-nodo313[label = "INSERT INTO\ntbusuario"];
-nodo313->nodo314
-nodo314[label = "Parametro\n"];
-nodo314->nodo315
-nodo315[label = "ENTERO\n1"];
-nodo313->nodo316
-nodo316[label = "Parametro\n"];
-nodo316->nodo317
-nodo317[label = "CADENA\nLuis Fernando"];
-nodo313->nodo318
-nodo318[label = "Parametro\n"];
-nodo318->nodo319
-nodo319[label = "CADENA\nSalazar Rodriguez"];
-nodo313->nodo320
-nodo320[label = "Parametro\n"];
-nodo320->nodo321
-nodo321[label = "CADENA\nlsalazar"];
-nodo313->nodo322
-nodo322[label = "Parametro\n"];
-nodo322->nodo323
-nodo323[label = "CADENA\npaswword"];
-nodo313->nodo324
-nodo324[label = "Parametro\n"];
-nodo324->nodo325
-nodo325[label = "CADENA\nhola"];
-nodo1->nodo326
-nodo326[label = "INSERT INTO\ntbusuario"];
-nodo326->nodo327
-nodo327[label = "Parametro\n"];
-nodo327->nodo328
-nodo328[label = "ENTERO\n1"];
-nodo326->nodo329
-nodo329[label = "Parametro\n"];
-nodo329->nodo330
-nodo330[label = "CADENA\nMaria Cristina"];
-nodo326->nodo331
-nodo331[label = "Parametro\n"];
-nodo331->nodo332
-nodo332[label = "CADENA\nLopez Ramirez"];
-nodo326->nodo333
-nodo333[label = "Parametro\n"];
-nodo333->nodo334
-nodo334[label = "CADENA\nmlopez"];
-nodo326->nodo335
-nodo335[label = "Parametro\n"];
-nodo335->nodo336
-nodo336[label = "CADENA\nDiciembre"];
-nodo326->nodo337
-nodo337[label = "Parametro\n"];
-nodo337->nodo338
-nodo338[label = "CADENA\nhola"];
-nodo1->nodo339
-nodo339[label = "INSERT INTO\ntbusuario"];
-nodo339->nodo340
-nodo340[label = "Parametro\n"];
-nodo340->nodo341
-nodo341[label = "ENTERO\n1"];
-nodo339->nodo342
-nodo342[label = "Parametro\n"];
-nodo342->nodo343
-nodo343[label = "CADENA\nHugo Alberto"];
-nodo339->nodo344
-nodo344[label = "Parametro\n"];
-nodo344->nodo345
-nodo345[label = "CADENA\nHuard Ordoñez"];
-nodo339->nodo346
-nodo346[label = "Parametro\n"];
-nodo346->nodo347
-nodo347[label = "CADENA\nhhuard"];
-nodo339->nodo348
-nodo348[label = "Parametro\n"];
-nodo348->nodo349
-nodo349[label = "CADENA\nRafael"];
-nodo339->nodo350
-nodo350[label = "Parametro\n"];
-nodo350->nodo351
-nodo351[label = "CADENA\nhola"];
-nodo1->nodo352
-nodo352[label = "INSERT INTO\ntbusuario"];
-nodo352->nodo353
-nodo353[label = "Parametro\n"];
-nodo353->nodo354
-nodo354[label = "ENTERO\n1"];
-nodo352->nodo355
-nodo355[label = "Parametro\n"];
-nodo355->nodo356
-nodo356[label = "CADENA\nLuis Fernando"];
-nodo352->nodo357
-nodo357[label = "Parametro\n"];
-nodo357->nodo358
-nodo358[label = "CADENA\nSalazar Rodriguez"];
-nodo352->nodo359
-nodo359[label = "Parametro\n"];
-nodo359->nodo360
-nodo360[label = "CADENA\nlsalazar"];
-nodo352->nodo361
-nodo361[label = "Parametro\n"];
-nodo361->nodo362
-nodo362[label = "CADENA\npaswword"];
-nodo352->nodo363
-nodo363[label = "Parametro\n"];
-nodo363->nodo364
-nodo364[label = "CADENA\nhola"];
-nodo1->nodo365
-nodo365[label = "INSERT INTO\ntbusuario"];
-nodo365->nodo366
-nodo366[label = "Parametro\n"];
-nodo366->nodo367
-nodo367[label = "ENTERO\n2"];
-nodo365->nodo368
-nodo368[label = "Parametro\n"];
-nodo368->nodo369
-nodo369[label = "CADENA\nMaria Cristina"];
-nodo365->nodo370
-nodo370[label = "Parametro\n"];
-nodo370->nodo371
-nodo371[label = "CADENA\nLopez Ramirez"];
-nodo365->nodo372
-nodo372[label = "Parametro\n"];
-nodo372->nodo373
-nodo373[label = "CADENA\nmlopez"];
-nodo365->nodo374
-nodo374[label = "Parametro\n"];
-nodo374->nodo375
-nodo375[label = "CADENA\nDiciembre"];
-nodo365->nodo376
-nodo376[label = "Parametro\n"];
-nodo376->nodo377
-nodo377[label = "CADENA\nhola"];
-nodo1->nodo378
-nodo378[label = "INSERT INTO\ntbusuario"];
-nodo378->nodo379
-nodo379[label = "Parametro\n"];
-nodo379->nodo380
-nodo380[label = "ENTERO\n3"];
-nodo378->nodo381
-nodo381[label = "Parametro\n"];
-nodo381->nodo382
-nodo382[label = "CADENA\nHugo Alberto"];
-nodo378->nodo383
-nodo383[label = "Parametro\n"];
-nodo383->nodo384
-nodo384[label = "CADENA\nHuard Ordoñez"];
-nodo378->nodo385
-nodo385[label = "Parametro\n"];
-nodo385->nodo386
-nodo386[label = "CADENA\nhhuard"];
-nodo378->nodo387
-nodo387[label = "Parametro\n"];
-nodo387->nodo388
-nodo388[label = "CADENA\nRafael"];
-nodo378->nodo389
-nodo389[label = "Parametro\n"];
-nodo389->nodo390
-nodo390[label = "CADENA\nhola"];
-nodo1->nodo391
-nodo391[label = "INSERT INTO\ntbusuario"];
-nodo391->nodo392
-nodo392[label = "Parametro\n"];
-nodo392->nodo393
-nodo393[label = "ENTERO\n3"];
-nodo391->nodo394
-nodo394[label = "Parametro\n"];
-nodo394->nodo395
-nodo395[label = "CADENA\nHugo Alberto"];
-nodo391->nodo396
-nodo396[label = "Parametro\n"];
-nodo396->nodo397
-nodo397[label = "CADENA\nHuard Ordoñez"];
-nodo391->nodo398
-nodo398[label = "Parametro\n"];
-nodo398->nodo399
-nodo399[label = "CADENA\nhhuard"];
-nodo391->nodo400
-nodo400[label = "Parametro\n"];
-nodo400->nodo401
-nodo401[label = "CADENA\nRafael"];
-nodo391->nodo402
-nodo402[label = "Parametro\n"];
-nodo402->nodo403
-nodo403[label = "CADENA\nhola"];
-nodo1->nodo404
-nodo404[label = "INSERT INTO\ntbusuario"];
-nodo404->nodo405
-nodo405[label = "Parametro\n"];
-nodo405->nodo406
-nodo406[label = "ENTERO\n4"];
-nodo404->nodo407
-nodo407[label = "Parametro\n"];
-nodo407->nodo408
-nodo408[label = "CADENA\nPedro Peter"];
-nodo404->nodo409
-nodo409[label = "Parametro\n"];
-nodo409->nodo410
-nodo410[label = "CADENA\nParker"];
-nodo404->nodo411
-nodo411[label = "Parametro\n"];
-nodo411->nodo412
-nodo412[label = "CADENA\nppeter"];
-nodo404->nodo413
-nodo413[label = "Parametro\n"];
-nodo413->nodo414
-nodo414[label = "CADENA\nDonatelo"];
-nodo404->nodo415
-nodo415[label = "Parametro\n"];
-nodo415->nodo416
-nodo416[label = "CADENA\nhola"];
-nodo1->nodo417
-nodo417[label = "INSERT INTO\ntbusuario"];
-nodo417->nodo418
-nodo418[label = "Parametro\n"];
-nodo418->nodo419
-nodo419[label = "ENTERO\n5"];
-nodo417->nodo420
-nodo420[label = "Parametro\n"];
-nodo420->nodo421
-nodo421[label = "CADENA\nMariana Elizabeth"];
-nodo417->nodo422
-nodo422[label = "Parametro\n"];
-nodo422->nodo423
-nodo423[label = "CADENA\nZahabedra Lopez"];
-nodo417->nodo424
-nodo424[label = "Parametro\n"];
-nodo424->nodo425
-nodo425[label = "CADENA\nmelizabeth"];
-nodo417->nodo426
-nodo426[label = "Parametro\n"];
-nodo426->nodo427
-nodo427[label = "CADENA\nMiguel123"];
-nodo417->nodo428
-nodo428[label = "Parametro\n"];
-nodo428->nodo429
-nodo429[label = "CADENA\nhola"];
-nodo1->nodo430
-nodo430[label = "INSERT INTO\ntbusuario"];
-nodo430->nodo431
-nodo431[label = "Parametro\n"];
-nodo431->nodo432
-nodo432[label = "ENTERO\n6"];
-nodo430->nodo433
-nodo433[label = "Parametro\n"];
-nodo433->nodo434
-nodo434[label = "CADENA\nLisa Maria"];
-nodo430->nodo435
-nodo435[label = "Parametro\n"];
-nodo435->nodo436
-nodo436[label = "CADENA\nGuzman"];
-nodo430->nodo437
-nodo437[label = "Parametro\n"];
-nodo437->nodo438
-nodo438[label = "CADENA\nlmaria"];
-nodo430->nodo439
-nodo439[label = "Parametro\n"];
-nodo439->nodo440
-nodo440[label = "CADENA\nDiciembre$$2020"];
-nodo430->nodo441
-nodo441[label = "Parametro\n"];
-nodo441->nodo442
-nodo442[label = "CADENA\nhola"];
-nodo1->nodo443
-nodo443[label = "INSERT INTO\ntbusuario"];
-nodo443->nodo444
-nodo444[label = "Parametro\n"];
-nodo444->nodo445
-nodo445[label = "ENTERO\n7"];
-nodo443->nodo446
-nodo446[label = "Parametro\n"];
-nodo446->nodo447
-nodo447[label = "CADENA\nAurelio"];
-nodo443->nodo448
-nodo448[label = "Parametro\n"];
-nodo448->nodo449
-nodo449[label = "CADENA\nBaldor"];
-nodo443->nodo450
-nodo450[label = "Parametro\n"];
-nodo450->nodo451
-nodo451[label = "CADENA\nabaldor"];
-nodo443->nodo452
-nodo452[label = "Parametro\n"];
-nodo452->nodo453
-nodo453[label = "CADENA\nAlgebra$*"];
-nodo443->nodo454
-nodo454[label = "Parametro\n"];
-nodo454->nodo455
-nodo455[label = "CADENA\nhola"];
-nodo1->nodo456
-nodo456[label = "INSERT INTO\ntbusuario"];
-nodo456->nodo457
-nodo457[label = "Parametro\n"];
-nodo457->nodo458
-nodo458[label = "ENTERO\n8"];
-nodo456->nodo459
-nodo459[label = "Parametro\n"];
-nodo459->nodo460
-nodo460[label = "CADENA\nElizabeth Taylor"];
-nodo456->nodo461
-nodo461[label = "Parametro\n"];
-nodo461->nodo462
-nodo462[label = "CADENA\nJuarez"];
-nodo456->nodo463
-nodo463[label = "Parametro\n"];
-nodo463->nodo464
-nodo464[label = "CADENA\netaylor"];
-nodo456->nodo465
-nodo465[label = "Parametro\n"];
-nodo465->nodo466
-nodo466[label = "CADENA\nhilbilly"];
-nodo456->nodo467
-nodo467[label = "Parametro\n"];
-nodo467->nodo468
-nodo468[label = "CADENA\nhola"];
-nodo1->nodo469
-nodo469[label = "INSERT INTO\ntbusuario"];
-nodo469->nodo470
-nodo470[label = "Parametro\n"];
-nodo470->nodo471
-nodo471[label = "ENTERO\n9"];
-nodo469->nodo472
-nodo472[label = "Parametro\n"];
-nodo472->nodo473
-nodo473[label = "CADENA\nLois"];
-nodo469->nodo474
-nodo474[label = "Parametro\n"];
-nodo474->nodo475
-nodo475[label = "CADENA\nLane"];
-nodo469->nodo476
-nodo476[label = "Parametro\n"];
-nodo476->nodo477
-nodo477[label = "CADENA\nllane"];
-nodo469->nodo478
-nodo478[label = "Parametro\n"];
-nodo478->nodo479
-nodo479[label = "CADENA\nsmallville"];
-nodo469->nodo480
-nodo480[label = "Parametro\n"];
-nodo480->nodo481
-nodo481[label = "CADENA\nhola"];
-nodo1->nodo482
-nodo482[label = "SELECT\n"];
-nodo482->nodo483
-nodo483[label = "ASTERISCO\n*"];
-nodo482->nodo484
-nodo484[label = "FROM\n"];
-nodo484->nodo485
-nodo485[label = "Tabla\ntbusuario"];
-nodo1->nodo486
-nodo486[label = "INSERT INTO\ntbrolxusuario"];
-nodo486->nodo487
-nodo487[label = "Parametro\n"];
-nodo487->nodo488
-nodo488[label = "ENTERO\n1"];
-nodo486->nodo489
-nodo489[label = "Parametro\n"];
-nodo489->nodo490
-nodo490[label = "ENTERO\n1"];
-nodo1->nodo491
-nodo491[label = "INSERT INTO\ntbrolxusuario"];
-nodo491->nodo492
-nodo492[label = "Parametro\n"];
-nodo492->nodo493
-nodo493[label = "ENTERO\n2"];
-nodo491->nodo494
-nodo494[label = "Parametro\n"];
-nodo494->nodo495
-nodo495[label = "ENTERO\n2"];
-nodo1->nodo496
-nodo496[label = "INSERT INTO\ntbrolxusuario"];
-nodo496->nodo497
-nodo497[label = "Parametro\n"];
-nodo497->nodo498
-nodo498[label = "ENTERO\n2"];
-nodo496->nodo499
-nodo499[label = "Parametro\n"];
-nodo499->nodo500
-nodo500[label = "ENTERO\n3"];
-nodo1->nodo501
-nodo501[label = "INSERT INTO\ntbrolxusuario"];
-nodo501->nodo502
-nodo502[label = "Parametro\n"];
-nodo502->nodo503
-nodo503[label = "ENTERO\n3"];
-nodo501->nodo504
-nodo504[label = "Parametro\n"];
-nodo504->nodo505
-nodo505[label = "ENTERO\n4"];
-nodo1->nodo506
-nodo506[label = "INSERT INTO\ntbrolxusuario"];
-nodo506->nodo507
-nodo507[label = "Parametro\n"];
-nodo507->nodo508
-nodo508[label = "ENTERO\n3"];
-nodo506->nodo509
-nodo509[label = "Parametro\n"];
-nodo509->nodo510
-nodo510[label = "ENTERO\n5"];
-nodo1->nodo511
-nodo511[label = "INSERT INTO\ntbrolxusuario"];
-nodo511->nodo512
-nodo512[label = "Parametro\n"];
-nodo512->nodo513
-nodo513[label = "ENTERO\n3"];
-nodo511->nodo514
-nodo514[label = "Parametro\n"];
-nodo514->nodo515
-nodo515[label = "ENTERO\n6"];
-nodo1->nodo516
-nodo516[label = "INSERT INTO\ntbrolxusuario"];
-nodo516->nodo517
-nodo517[label = "Parametro\n"];
-nodo517->nodo518
-nodo518[label = "ENTERO\n2"];
-nodo516->nodo519
-nodo519[label = "Parametro\n"];
-nodo519->nodo520
-nodo520[label = "ENTERO\n7"];
-nodo1->nodo521
-nodo521[label = "INSERT INTO\ntbrolxusuario"];
-nodo521->nodo522
-nodo522[label = "Parametro\n"];
-nodo522->nodo523
-nodo523[label = "ENTERO\n3"];
-nodo521->nodo524
-nodo524[label = "Parametro\n"];
-nodo524->nodo525
-nodo525[label = "ENTERO\n8"];
-nodo1->nodo526
-nodo526[label = "INSERT INTO\ntbrolxusuario"];
-nodo526->nodo527
-nodo527[label = "Parametro\n"];
-nodo527->nodo528
-nodo528[label = "ENTERO\n2"];
-nodo526->nodo529
-nodo529[label = "Parametro\n"];
-nodo529->nodo530
-nodo530[label = "ENTERO\n9"];
-nodo1->nodo531
-nodo531[label = "SELECT\n"];
-nodo531->nodo532
-nodo532[label = "ASTERISCO\n*"];
-nodo531->nodo533
-nodo533[label = "FROM\n"];
-nodo533->nodo534
-nodo534[label = "Tabla\ntbrolxusuario"];
-nodo1->nodo535
-nodo535[label = "INSERT INTO\ntbrol"];
-nodo535->nodo536
-nodo536[label = "Parametro\n"];
-nodo536->nodo537
-nodo537[label = "ENTERO\n4"];
-nodo535->nodo538
-nodo538[label = "Parametro\n"];
-nodo538->nodo539
-nodo539[label = "CADENA\nIT"];
-nodo1->nodo540
-nodo540[label = "INSERT INTO\ntbrol"];
-nodo540->nodo541
-nodo541[label = "Parametro\n"];
-nodo541->nodo542
-nodo542[label = "ENTERO\n5"];
-nodo540->nodo543
-nodo543[label = "Parametro\n"];
-nodo543->nodo544
-nodo544[label = "CADENA\nGerencia"];
-nodo1->nodo545
-nodo545[label = "INSERT INTO\ntbusuario"];
-nodo545->nodo546
-nodo546[label = "Parametro\n"];
-nodo546->nodo547
-nodo547[label = "ENTERO\n10"];
-nodo545->nodo548
-nodo548[label = "Parametro\n"];
-nodo548->nodo549
-nodo549[label = "CADENA\nDuff"];
-nodo545->nodo550
-nodo550[label = "Parametro\n"];
-nodo550->nodo551
-nodo551[label = "CADENA\nMackagan"];
-nodo545->nodo552
-nodo552[label = "Parametro\n"];
-nodo552->nodo553
-nodo553[label = "CADENA\ndmackagan"];
-nodo545->nodo554
-nodo554[label = "Parametro\n"];
-nodo554->nodo555
-nodo555[label = "CADENA\nsweetchild"];
-nodo545->nodo556
-nodo556[label = "Parametro\n"];
-nodo556->nodo557
-nodo557[label = "CADENA\nhola"];
-nodo1->nodo558
-nodo558[label = "INSERT INTO\ntbrolxusuario"];
-nodo558->nodo559
-nodo559[label = "Parametro\n"];
-nodo559->nodo560
-nodo560[label = "ENTERO\n1"];
-nodo558->nodo561
-nodo561[label = "Parametro\n"];
-nodo561->nodo562
-nodo562[label = "ENTERO\n10"];
-nodo1->nodo563
-nodo563[label = "INSERT INTO\ntbusuario"];
-nodo563->nodo564
-nodo564[label = "Parametro\n"];
-nodo564->nodo565
-nodo565[label = "ENTERO\n11"];
-nodo563->nodo566
-nodo566[label = "Parametro\n"];
-nodo566->nodo567
-nodo567[label = "CADENA\nCarlos"];
-nodo563->nodo568
-nodo568[label = "Parametro\n"];
-nodo568->nodo569
-nodo569[label = "CADENA\nMendez Chingui"];
-nodo563->nodo570
-nodo570[label = "Parametro\n"];
-nodo570->nodo571
-nodo571[label = "CADENA\ncmendez"];
-nodo563->nodo572
-nodo572[label = "Parametro\n"];
-nodo572->nodo573
-nodo573[label = "CADENA\nniebla@@"];
-nodo563->nodo574
-nodo574[label = "Parametro\n"];
-nodo574->nodo575
-nodo575[label = "CADENA\nhola"];
-nodo1->nodo576
-nodo576[label = "INSERT INTO\ntbusuario"];
-nodo576->nodo577
-nodo577[label = "Parametro\n"];
-nodo577->nodo578
-nodo578[label = "ENTERO\n12"];
-nodo576->nodo579
-nodo579[label = "Parametro\n"];
-nodo579->nodo580
-nodo580[label = "CADENA\nDiego"];
-nodo576->nodo581
-nodo581[label = "Parametro\n"];
-nodo581->nodo582
-nodo582[label = "CADENA\nJoachin"];
-nodo576->nodo583
-nodo583[label = "Parametro\n"];
-nodo583->nodo584
-nodo584[label = "CADENA\nomendez"];
-nodo576->nodo585
-nodo585[label = "Parametro\n"];
-nodo585->nodo586
-nodo586[label = "CADENA\nraizanimal"];
-nodo576->nodo587
-nodo587[label = "Parametro\n"];
-nodo587->nodo588
-nodo588[label = "CADENA\nhola"];
-nodo1->nodo589
-nodo589[label = "INSERT INTO\ntbusuario"];
-nodo589->nodo590
-nodo590[label = "Parametro\n"];
-nodo590->nodo591
-nodo591[label = "ENTERO\n13"];
-nodo589->nodo592
-nodo592[label = "Parametro\n"];
-nodo592->nodo593
-nodo593[label = "CADENA\nCarlos Mauricio"];
-nodo589->nodo594
-nodo594[label = "Parametro\n"];
-nodo594->nodo595
-nodo595[label = "CADENA\nOrdoñez Toto"];
-nodo589->nodo596
-nodo596[label = "Parametro\n"];
-nodo596->nodo597
-nodo597[label = "CADENA\ncordonez"];
-nodo589->nodo598
-nodo598[label = "Parametro\n"];
-nodo598->nodo599
-nodo599[label = "CADENA\nradioviejo"];
-nodo589->nodo600
-nodo600[label = "Parametro\n"];
-nodo600->nodo601
-nodo601[label = "CADENA\nhola"];
-nodo1->nodo602
-nodo602[label = "INSERT INTO\ntbusuario"];
-nodo602->nodo603
-nodo603[label = "Parametro\n"];
-nodo603->nodo604
-nodo604[label = "ENTERO\n14"];
-nodo602->nodo605
-nodo605[label = "Parametro\n"];
-nodo605->nodo606
-nodo606[label = "CADENA\nFernando"];
-nodo602->nodo607
-nodo607[label = "Parametro\n"];
-nodo607->nodo608
-nodo608[label = "CADENA\nGonzalez"];
-nodo602->nodo609
-nodo609[label = "Parametro\n"];
-nodo609->nodo610
-nodo610[label = "CADENA\nfgonzalez"];
-nodo602->nodo611
-nodo611[label = "Parametro\n"];
-nodo611->nodo612
-nodo612[label = "CADENA\n1245678$net"];
-nodo602->nodo613
-nodo613[label = "Parametro\n"];
-nodo613->nodo614
-nodo614[label = "CADENA\nhola"];
-nodo1->nodo615
-nodo615[label = "INSERT INTO\ntbusuario"];
-nodo615->nodo616
-nodo616[label = "Parametro\n"];
-nodo616->nodo617
-nodo617[label = "ENTERO\n15"];
-nodo615->nodo618
-nodo618[label = "Parametro\n"];
-nodo618->nodo619
-nodo619[label = "CADENA\nWalter"];
-nodo615->nodo620
-nodo620[label = "Parametro\n"];
-nodo620->nodo621
-nodo621[label = "CADENA\nReynoso Alvarado"];
-nodo615->nodo622
-nodo622[label = "Parametro\n"];
-nodo622->nodo623
-nodo623[label = "CADENA\nwreynoso"];
-nodo615->nodo624
-nodo624[label = "Parametro\n"];
-nodo624->nodo625
-nodo625[label = "CADENA\ncorona*virus"];
-nodo615->nodo626
-nodo626[label = "Parametro\n"];
-nodo626->nodo627
-nodo627[label = "CADENA\nhola"];
-nodo1->nodo628
-nodo628[label = "INSERT INTO\ntbrolxusuario"];
-nodo628->nodo629
-nodo629[label = "Parametro\n"];
-nodo629->nodo630
-nodo630[label = "ENTERO\n1"];
-nodo628->nodo631
-nodo631[label = "Parametro\n"];
-nodo631->nodo632
-nodo632[label = "ENTERO\n11"];
-nodo1->nodo633
-nodo633[label = "INSERT INTO\ntbrolxusuario"];
-nodo633->nodo634
-nodo634[label = "Parametro\n"];
-nodo634->nodo635
-nodo635[label = "ENTERO\n1"];
-nodo633->nodo636
-nodo636[label = "Parametro\n"];
-nodo636->nodo637
-nodo637[label = "ENTERO\n12"];
-nodo1->nodo638
-nodo638[label = "INSERT INTO\ntbrolxusuario"];
-nodo638->nodo639
-nodo639[label = "Parametro\n"];
-nodo639->nodo640
-nodo640[label = "ENTERO\n1"];
-nodo638->nodo641
-nodo641[label = "Parametro\n"];
-nodo641->nodo642
-nodo642[label = "ENTERO\n13"];
-nodo1->nodo643
-nodo643[label = "SELECT\n"];
-nodo643->nodo644
-nodo644[label = "ASTERISCO\n*"];
-nodo643->nodo645
-nodo645[label = "FROM\n"];
-nodo645->nodo646
-nodo646[label = "Tabla\ntbrolxusuario"];
-nodo1->nodo647
-nodo647[label = "CREATE TABLE\ntbestado"];
-nodo647->nodo648
-nodo648[label = "COLUMNAS\n"];
-nodo648->nodo649
-nodo649[label = "COLUMN\nidestado"];
-nodo649->nodo650
-nodo650[label = "Tipo\ninteger"];
-nodo649->nodo651
-nodo651[label = "ATRIBUTOS\n"];
-nodo651->nodo652
-nodo652[label = "NOT NULL\n"];
-nodo651->nodo653
-nodo653[label = "PRIMARY KEY\n"];
-nodo648->nodo654
-nodo654[label = "COLUMN\nestado"];
-nodo654->nodo655
-nodo655[label = "Tipo\nvarchar"];
-nodo655->nodo656
-nodo656[label = "Limite\n30"];
-nodo654->nodo657
-nodo657[label = "ATRIBUTOS\n"];
-nodo1->nodo658
-nodo658[label = "CREATE TABLE\ntbempleado"];
-nodo658->nodo659
-nodo659[label = "COLUMNAS\n"];
-nodo659->nodo660
-nodo660[label = "COLUMN\nidempleado"];
-nodo660->nodo661
-nodo661[label = "Tipo\ninteger"];
-nodo660->nodo662
-nodo662[label = "ATRIBUTOS\n"];
-nodo662->nodo663
-nodo663[label = "NOT NULL\n"];
-nodo662->nodo664
-nodo664[label = "UNIQUE\n"];
-nodo662->nodo665
-nodo665[label = "PRIMARY KEY\n"];
-nodo659->nodo666
-nodo666[label = "COLUMN\nprimernombre"];
-nodo666->nodo667
-nodo667[label = "Tipo\nvarchar"];
-nodo667->nodo668
-nodo668[label = "Limite\n50"];
-nodo666->nodo669
-nodo669[label = "ATRIBUTOS\n"];
-nodo669->nodo670
-nodo670[label = "NOT NULL\n"];
-nodo659->nodo671
-nodo671[label = "COLUMN\nsegundonombre"];
-nodo671->nodo672
-nodo672[label = "Tipo\nvarchar"];
-nodo672->nodo673
-nodo673[label = "Limite\n50"];
-nodo671->nodo674
-nodo674[label = "ATRIBUTOS\n"];
-nodo659->nodo675
-nodo675[label = "COLUMN\nprimerapellido"];
-nodo675->nodo676
-nodo676[label = "Tipo\nvarchar"];
-nodo676->nodo677
-nodo677[label = "Limite\n50"];
-nodo675->nodo678
-nodo678[label = "ATRIBUTOS\n"];
-nodo678->nodo679
-nodo679[label = "NOT NULL\n"];
-nodo659->nodo680
-nodo680[label = "COLUMN\nsegundoapellido"];
-nodo680->nodo681
-nodo681[label = "Tipo\nvarchar"];
-nodo681->nodo682
-nodo682[label = "Limite\n50"];
-nodo680->nodo683
-nodo683[label = "ATRIBUTOS\n"];
-nodo659->nodo684
-nodo684[label = "COLUMN\nfechadenacimiento"];
-nodo684->nodo685
-nodo685[label = "Tipo\nDATE"];
-nodo684->nodo686
-nodo686[label = "ATRIBUTOS\n"];
-nodo686->nodo687
-nodo687[label = "CONSTRAINT\nbirth_data"];
-nodo687->nodo688
-nodo688[label = "CHECK\n"];
-nodo688->nodo689
-nodo689[label = "OPREL\n\>"];
-nodo689->nodo690
-nodo690[label = "ID\nfechadenacimiento"];
-nodo689->nodo691
-nodo691[label = "CADENA\n1900-01-01"];
-nodo659->nodo692
-nodo692[label = "COLUMN\nfechacontratacion"];
-nodo692->nodo693
-nodo693[label = "Tipo\nDATE"];
-nodo692->nodo694
-nodo694[label = "ATRIBUTOS\n"];
-nodo694->nodo695
-nodo695[label = "CHECK\n"];
-nodo695->nodo696
-nodo696[label = "OPREL\n\>"];
-nodo696->nodo697
-nodo697[label = "ID\nfechacontratacion"];
-nodo696->nodo698
-nodo698[label = "ID\nfechadenacimiento"];
-nodo659->nodo699
-nodo699[label = "COLUMN\nidestado"];
-nodo699->nodo700
-nodo700[label = "Tipo\ninteger"];
-nodo699->nodo701
-nodo701[label = "ATRIBUTOS\n"];
-nodo1->nodo702
-nodo702[label = "ALTER TABLE\ntbempleado"];
-nodo702->nodo703
-nodo703[label = "Operacion\nadd foreign key"];
-nodo703->nodo704
-nodo704[label = "Columna\nidestado"];
-nodo703->nodo705
-nodo705[label = "Referencia\nidestado"];
-nodo1->nodo706
-nodo706[label = "CREATE TABLE\ncities"];
-nodo706->nodo707
-nodo707[label = "COLUMNAS\n"];
-nodo707->nodo708
-nodo708[label = "COLUMN\nname"];
-nodo708->nodo709
-nodo709[label = "Tipo\ntext"];
-nodo708->nodo710
-nodo710[label = "ATRIBUTOS\n"];
-nodo707->nodo711
-nodo711[label = "COLUMN\npopulation"];
-nodo711->nodo712
-nodo712[label = "Tipo\ndecimal"];
-nodo712->nodo713
-nodo713[label = "Digitos\n8"];
-nodo712->nodo714
-nodo714[label = "Cifras\n2"];
-nodo711->nodo715
-nodo715[label = "ATRIBUTOS\n"];
-nodo707->nodo716
-nodo716[label = "COLUMN\nelevation"];
-nodo716->nodo717
-nodo717[label = "Tipo\ninteger"];
-nodo716->nodo718
-nodo718[label = "ATRIBUTOS\n"];
-nodo1->nodo719
-nodo719[label = "CREATE TABLE\ncapitals"];
-nodo719->nodo720
-nodo720[label = "COLUMNAS\n"];
-nodo720->nodo721
-nodo721[label = "COLUMN\nstate"];
-nodo721->nodo722
-nodo722[label = "Tipo\nchar"];
-nodo722->nodo723
-nodo723[label = "Limite\n2"];
-nodo721->nodo724
-nodo724[label = "ATRIBUTOS\n"];
-nodo719->nodo725
-nodo725[label = "INHERITS\ncities"];
-nodo1->nodo726
-nodo726[label = "SELECT\n"];
-nodo726->nodo727
-nodo727[label = "ASTERISCO\n*"];
-nodo726->nodo728
-nodo728[label = "FROM\n"];
-nodo728->nodo729
-nodo729[label = "Tabla\ncapitals"];
-nodo1->nodo730
-nodo730[label = "CREATE TABLE\ntbempleadoidentificacion"];
-nodo730->nodo731
-nodo731[label = "COLUMNAS\n"];
-nodo731->nodo732
-nodo732[label = "COLUMN\nidempleado"];
-nodo732->nodo733
-nodo733[label = "Tipo\ninteger"];
-nodo732->nodo734
-nodo734[label = "ATRIBUTOS\n"];
-nodo734->nodo735
-nodo735[label = "NOT NULL\n"];
-nodo734->nodo736
-nodo736[label = "PRIMARY KEY\n"];
-nodo731->nodo737
-nodo737[label = "COLUMN\nidentificacion"];
-nodo737->nodo738
-nodo738[label = "Tipo\nvarchar"];
-nodo738->nodo739
-nodo739[label = "Limite\n25"];
-nodo737->nodo740
-nodo740[label = "ATRIBUTOS\n"];
-nodo740->nodo741
-nodo741[label = "NOT NULL\n"];
-nodo731->nodo742
-nodo742[label = "COLUMN\nididentificaciontipo"];
-nodo742->nodo743
-nodo743[label = "Tipo\ninteger"];
-nodo742->nodo744
-nodo744[label = "ATRIBUTOS\n"];
-nodo1->nodo745
-nodo745[label = "CREATE TABLE\ntbidentificaciontipo"];
-nodo745->nodo746
-nodo746[label = "COLUMNAS\n"];
-nodo746->nodo747
-nodo747[label = "COLUMN\nididentificaciontipo"];
-nodo747->nodo748
-nodo748[label = "Tipo\ninteger"];
-nodo747->nodo749
-nodo749[label = "ATRIBUTOS\n"];
-nodo749->nodo750
-nodo750[label = "NOT NULL\n"];
-nodo749->nodo751
-nodo751[label = "PRIMARY KEY\n"];
-nodo746->nodo752
-nodo752[label = "COLUMN\ntipoidentificacion"];
-nodo752->nodo753
-nodo753[label = "Tipo\nvarchar"];
-nodo753->nodo754
-nodo754[label = "Limite\n20"];
-nodo752->nodo755
-nodo755[label = "ATRIBUTOS\n"];
-nodo1->nodo756
-nodo756[label = "ALTER TABLE\ntbempleadoidentificacion"];
-nodo756->nodo757
-nodo757[label = "Operacion\nadd foreign key"];
-nodo757->nodo758
-nodo758[label = "Columna\nididentificaciontipo"];
-nodo757->nodo759
-nodo759[label = "Referencia\nididentificaciontipo"];
-nodo1->nodo760
-nodo760[label = "INSERT INTO\ntbidentificaciontipo"];
-nodo760->nodo761
-nodo761[label = "Parametro\n"];
-nodo761->nodo762
-nodo762[label = "ENTERO\n1"];
-nodo760->nodo763
-nodo763[label = "Parametro\n"];
-nodo763->nodo764
-nodo764[label = "CADENA\nDPI"];
-nodo1->nodo765
-nodo765[label = "INSERT INTO\ntbidentificaciontipo"];
-nodo765->nodo766
-nodo766[label = "Parametro\n"];
-nodo766->nodo767
-nodo767[label = "ENTERO\n2"];
-nodo765->nodo768
-nodo768[label = "Parametro\n"];
-nodo768->nodo769
-nodo769[label = "CADENA\nNit"];
-nodo1->nodo770
-nodo770[label = "INSERT INTO\ntbidentificaciontipo"];
-nodo770->nodo771
-nodo771[label = "Parametro\n"];
-nodo771->nodo772
-nodo772[label = "ENTERO\n3"];
-nodo770->nodo773
-nodo773[label = "Parametro\n"];
-nodo773->nodo774
-nodo774[label = "CADENA\nPasaporte"];
-nodo1->nodo775
-nodo775[label = "SELECT\n"];
-nodo775->nodo776
-nodo776[label = "ASTERISCO\n*"];
-nodo775->nodo777
-nodo777[label = "FROM\n"];
-nodo777->nodo778
-nodo778[label = "Tabla\ntbidentificaciontipo"];
-nodo1->nodo779
-nodo779[label = "INSERT INTO\ntbestado"];
-nodo779->nodo780
-nodo780[label = "Parametro\n"];
-nodo780->nodo781
-nodo781[label = "ENTERO\n1"];
-nodo779->nodo782
-nodo782[label = "Parametro\n"];
-nodo782->nodo783
-nodo783[label = "CADENA\nActivo"];
-nodo1->nodo784
-nodo784[label = "INSERT INTO\ntbestado"];
-nodo784->nodo785
-nodo785[label = "Parametro\n"];
-nodo785->nodo786
-nodo786[label = "ENTERO\n2"];
-nodo784->nodo787
-nodo787[label = "Parametro\n"];
-nodo787->nodo788
-nodo788[label = "CADENA\nInactivo"];
-nodo1->nodo789
-nodo789[label = "SELECT\n"];
-nodo789->nodo790
-nodo790[label = "ASTERISCO\n*"];
-nodo789->nodo791
-nodo791[label = "FROM\n"];
-nodo791->nodo792
-nodo792[label = "Tabla\ntbestado"];
-nodo1->nodo793
-nodo793[label = "INSERT INTO\ntbempleado"];
-nodo793->nodo794
-nodo794[label = "Parametro\n"];
-nodo794->nodo795
-nodo795[label = "ENTERO\n1"];
-nodo793->nodo796
-nodo796[label = "Parametro\n"];
-nodo796->nodo797
-nodo797[label = "CADENA\nThelma"];
-nodo793->nodo798
-nodo798[label = "Parametro\n"];
-nodo798->nodo799
-nodo799[label = "CADENA\nEsquit"];
-nodo793->nodo800
-nodo800[label = "Parametro\n"];
-nodo800->nodo801
-nodo801[label = "CADENA\n1981-01-25"];
-nodo793->nodo802
-nodo802[label = "Parametro\n"];
-nodo802->nodo803
-nodo803[label = "CADENA\n2014-07-06"];
-nodo793->nodo804
-nodo804[label = "Parametro\n"];
-nodo804->nodo805
-nodo805[label = "ENTERO\n1"];
-nodo1->nodo806
-nodo806[label = "INSERT INTO\ntbempleado"];
-nodo806->nodo807
-nodo807[label = "Parametro\n"];
-nodo807->nodo808
-nodo808[label = "ENTERO\n2"];
-nodo806->nodo809
-nodo809[label = "Parametro\n"];
-nodo809->nodo810
-nodo810[label = "CADENA\nMaria"];
-nodo806->nodo811
-nodo811[label = "Parametro\n"];
-nodo811->nodo812
-nodo812[label = "CADENA\nLopez"];
-nodo806->nodo813
-nodo813[label = "Parametro\n"];
-nodo813->nodo814
-nodo814[label = "CADENA\n1990-12-01"];
-nodo806->nodo815
-nodo815[label = "Parametro\n"];
-nodo815->nodo816
-nodo816[label = "CADENA\n2016-09-21"];
-nodo806->nodo817
-nodo817[label = "Parametro\n"];
-nodo817->nodo818
-nodo818[label = "ENTERO\n1"];
-nodo1->nodo819
-nodo819[label = "INSERT INTO\ntbempleado"];
-nodo819->nodo820
-nodo820[label = "Parametro\n"];
-nodo820->nodo821
-nodo821[label = "ENTERO\n3"];
-nodo819->nodo822
-nodo822[label = "Parametro\n"];
-nodo822->nodo823
-nodo823[label = "CADENA\nJulio"];
-nodo819->nodo824
-nodo824[label = "Parametro\n"];
-nodo824->nodo825
-nodo825[label = "CADENA\nRoberto"];
-nodo819->nodo826
-nodo826[label = "Parametro\n"];
-nodo826->nodo827
-nodo827[label = "CADENA\nRodriguez"];
-nodo819->nodo828
-nodo828[label = "Parametro\n"];
-nodo828->nodo829
-nodo829[label = "CADENA\n1985-06-05"];
-nodo819->nodo830
-nodo830[label = "Parametro\n"];
-nodo830->nodo831
-nodo831[label = "CADENA\n2012-01-22"];
-nodo819->nodo832
-nodo832[label = "Parametro\n"];
-nodo832->nodo833
-nodo833[label = "ENTERO\n1"];
-nodo1->nodo834
-nodo834[label = "INSERT INTO\ntbempleado"];
-nodo834->nodo835
-nodo835[label = "Parametro\n"];
-nodo835->nodo836
-nodo836[label = "ENTERO\n4"];
-nodo834->nodo837
-nodo837[label = "Parametro\n"];
-nodo837->nodo838
-nodo838[label = "CADENA\nRoberto"];
-nodo834->nodo839
-nodo839[label = "Parametro\n"];
-nodo839->nodo840
-nodo840[label = "CADENA\nBenjamin"];
-nodo834->nodo841
-nodo841[label = "Parametro\n"];
-nodo841->nodo842
-nodo842[label = "CADENA\nDuque"];
-nodo834->nodo843
-nodo843[label = "Parametro\n"];
-nodo843->nodo844
-nodo844[label = "CADENA\n1996-04-09"];
-nodo834->nodo845
-nodo845[label = "Parametro\n"];
-nodo845->nodo846
-nodo846[label = "CADENA\n2018-10-03"];
-nodo834->nodo847
-nodo847[label = "Parametro\n"];
-nodo847->nodo848
-nodo848[label = "ENTERO\n1"];
-nodo1->nodo849
-nodo849[label = "INSERT INTO\ntbempleado"];
-nodo849->nodo850
-nodo850[label = "Parametro\n"];
-nodo850->nodo851
-nodo851[label = "ENTERO\n5"];
-nodo849->nodo852
-nodo852[label = "Parametro\n"];
-nodo852->nodo853
-nodo853[label = "CADENA\nFrancisco"];
-nodo849->nodo854
-nodo854[label = "Parametro\n"];
-nodo854->nodo855
-nodo855[label = "CADENA\n"];
-nodo849->nodo856
-nodo856[label = "Parametro\n"];
-nodo856->nodo857
-nodo857[label = "CADENA\nJuarez"];
-nodo849->nodo858
-nodo858[label = "Parametro\n"];
-nodo858->nodo859
-nodo859[label = "CADENA\nPerez"];
-nodo849->nodo860
-nodo860[label = "Parametro\n"];
-nodo860->nodo861
-nodo861[label = "CADENA\n1997-10-05"];
-nodo849->nodo862
-nodo862[label = "Parametro\n"];
-nodo862->nodo863
-nodo863[label = "CADENA\n2010-03-01"];
-nodo849->nodo864
-nodo864[label = "Parametro\n"];
-nodo864->nodo865
-nodo865[label = "ENTERO\n1"];
-nodo1->nodo866
-nodo866[label = "INSERT INTO\ntbempleado"];
-nodo866->nodo867
-nodo867[label = "Parametro\n"];
-nodo867->nodo868
-nodo868[label = "ENTERO\n5"];
-nodo866->nodo869
-nodo869[label = "Parametro\n"];
-nodo869->nodo870
-nodo870[label = "CADENA\nFrancisco"];
-nodo866->nodo871
-nodo871[label = "Parametro\n"];
-nodo871->nodo872
-nodo872[label = "CADENA\n"];
-nodo866->nodo873
-nodo873[label = "Parametro\n"];
-nodo873->nodo874
-nodo874[label = "CADENA\nJuarez"];
-nodo866->nodo875
-nodo875[label = "Parametro\n"];
-nodo875->nodo876
-nodo876[label = "CADENA\nPerez"];
-nodo866->nodo877
-nodo877[label = "Parametro\n"];
-nodo877->nodo878
-nodo878[label = "CADENA\n1997-10-05"];
-nodo866->nodo879
-nodo879[label = "Parametro\n"];
-nodo879->nodo880
-nodo880[label = "CADENA\n2010-03-01"];
-nodo866->nodo881
-nodo881[label = "Parametro\n"];
-nodo881->nodo882
-nodo882[label = "ENTERO\n1"];
-nodo1->nodo883
-nodo883[label = "INSERT INTO\ntbempleado"];
-nodo883->nodo884
-nodo884[label = "Parametro\n"];
-nodo884->nodo885
-nodo885[label = "ENTERO\n6"];
-nodo883->nodo886
-nodo886[label = "Parametro\n"];
-nodo886->nodo887
-nodo887[label = "CADENA\nBryan"];
-nodo883->nodo888
-nodo888[label = "Parametro\n"];
-nodo888->nodo889
-nodo889[label = "CADENA\nJose"];
-nodo883->nodo890
-nodo890[label = "Parametro\n"];
-nodo890->nodo891
-nodo891[label = "CADENA\nRodriguez"];
-nodo883->nodo892
-nodo892[label = "Parametro\n"];
-nodo892->nodo893
-nodo893[label = "CADENA\nSantos"];
-nodo883->nodo894
-nodo894[label = "Parametro\n"];
-nodo894->nodo895
-nodo895[label = "CADENA\n1900-01-01"];
-nodo883->nodo896
-nodo896[label = "Parametro\n"];
-nodo896->nodo897
-nodo897[label = "CADENA\n2010-03-01"];
-nodo883->nodo898
-nodo898[label = "Parametro\n"];
-nodo898->nodo899
-nodo899[label = "ENTERO\n1"];
-nodo1->nodo900
-nodo900[label = "INSERT INTO\ntbempleado"];
-nodo900->nodo901
-nodo901[label = "Parametro\n"];
-nodo901->nodo902
-nodo902[label = "ENTERO\n6"];
-nodo900->nodo903
-nodo903[label = "Parametro\n"];
-nodo903->nodo904
-nodo904[label = "CADENA\nBryan"];
-nodo900->nodo905
-nodo905[label = "Parametro\n"];
-nodo905->nodo906
-nodo906[label = "CADENA\nJose"];
-nodo900->nodo907
-nodo907[label = "Parametro\n"];
-nodo907->nodo908
-nodo908[label = "CADENA\nRodriguez"];
-nodo900->nodo909
-nodo909[label = "Parametro\n"];
-nodo909->nodo910
-nodo910[label = "CADENA\nSantos"];
-nodo900->nodo911
-nodo911[label = "Parametro\n"];
-nodo911->nodo912
-nodo912[label = "CADENA\n1990-02-28"];
-nodo900->nodo913
-nodo913[label = "Parametro\n"];
-nodo913->nodo914
-nodo914[label = "CADENA\n2012-09-01"];
-nodo900->nodo915
-nodo915[label = "Parametro\n"];
-nodo915->nodo916
-nodo916[label = "ENTERO\n1"];
-nodo1->nodo917
-nodo917[label = "INSERT INTO\ntbempleado"];
-nodo917->nodo918
-nodo918[label = "Parametro\n"];
-nodo918->nodo919
-nodo919[label = "ENTERO\n7"];
-nodo917->nodo920
-nodo920[label = "Parametro\n"];
-nodo920->nodo921
-nodo921[label = "CADENA\nEstefania"];
-nodo917->nodo922
-nodo922[label = "Parametro\n"];
-nodo922->nodo923
-nodo923[label = "CADENA\nAlejandra"];
-nodo917->nodo924
-nodo924[label = "Parametro\n"];
-nodo924->nodo925
-nodo925[label = "CADENA\nSoto"];
-nodo917->nodo926
-nodo926[label = "Parametro\n"];
-nodo926->nodo927
-nodo927[label = "CADENA\nMazariegos"];
-nodo917->nodo928
-nodo928[label = "Parametro\n"];
-nodo928->nodo929
-nodo929[label = "CADENA\n2000-08-03"];
-nodo917->nodo930
-nodo930[label = "Parametro\n"];
-nodo930->nodo931
-nodo931[label = "CADENA\n1999-09-01"];
-nodo917->nodo932
-nodo932[label = "Parametro\n"];
-nodo932->nodo933
-nodo933[label = "ENTERO\n1"];
-nodo1->nodo934
-nodo934[label = "INSERT INTO\ntbempleado"];
-nodo934->nodo935
-nodo935[label = "Parametro\n"];
-nodo935->nodo936
-nodo936[label = "ENTERO\n7"];
-nodo934->nodo937
-nodo937[label = "Parametro\n"];
-nodo937->nodo938
-nodo938[label = "CADENA\nEstefania"];
-nodo934->nodo939
-nodo939[label = "Parametro\n"];
-nodo939->nodo940
-nodo940[label = "CADENA\nAlejandra"];
-nodo934->nodo941
-nodo941[label = "Parametro\n"];
-nodo941->nodo942
-nodo942[label = "CADENA\nSoto"];
-nodo934->nodo943
-nodo943[label = "Parametro\n"];
-nodo943->nodo944
-nodo944[label = "CADENA\nMazariegos"];
-nodo934->nodo945
-nodo945[label = "Parametro\n"];
-nodo945->nodo946
-nodo946[label = "CADENA\n2000-08-03"];
-nodo934->nodo947
-nodo947[label = "Parametro\n"];
-nodo947->nodo948
-nodo948[label = "CADENA\n2019-09-01"];
-nodo934->nodo949
-nodo949[label = "Parametro\n"];
-nodo949->nodo950
-nodo950[label = "ENTERO\n1"];
-nodo1->nodo951
-nodo951[label = "INSERT INTO\ntbempleado"];
-nodo951->nodo952
-nodo952[label = "Parametro\n"];
-nodo952->nodo953
-nodo953[label = "ENTERO\n8"];
-nodo951->nodo954
-nodo954[label = "Parametro\n"];
-nodo954->nodo955
-nodo955[label = "CADENA\nKatherin"];
-nodo951->nodo956
-nodo956[label = "Parametro\n"];
-nodo956->nodo957
-nodo957[label = "CADENA\n"];
-nodo951->nodo958
-nodo958[label = "Parametro\n"];
-nodo958->nodo959
-nodo959[label = "CADENA\nGonzalez"];
-nodo951->nodo960
-nodo960[label = "Parametro\n"];
-nodo960->nodo961
-nodo961[label = "CADENA\nLopez"];
-nodo951->nodo962
-nodo962[label = "Parametro\n"];
-nodo962->nodo963
-nodo963[label = "CADENA\n1997-10-09"];
-nodo951->nodo964
-nodo964[label = "Parametro\n"];
-nodo964->nodo965
-nodo965[label = "CADENA\n2018-06-09"];
-nodo951->nodo966
-nodo966[label = "Parametro\n"];
-nodo966->nodo967
-nodo967[label = "ENTERO\n1"];
-nodo1->nodo968
-nodo968[label = "SELECT\n"];
-nodo968->nodo969
-nodo969[label = "ASTERISCO\n*"];
-nodo968->nodo970
-nodo970[label = "FROM\n"];
-nodo970->nodo971
-nodo971[label = "Tabla\ntbempleado"];
-nodo1->nodo972
-nodo972[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo972->nodo973
-nodo973[label = "Parametro\n"];
-nodo973->nodo974
-nodo974[label = "ENTERO\n1"];
-nodo972->nodo975
-nodo975[label = "Parametro\n"];
-nodo975->nodo976
-nodo976[label = "CADENA\n4578-784525-6562"];
-nodo972->nodo977
-nodo977[label = "Parametro\n"];
-nodo977->nodo978
-nodo978[label = "ENTERO\n1"];
-nodo1->nodo979
-nodo979[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo979->nodo980
-nodo980[label = "Parametro\n"];
-nodo980->nodo981
-nodo981[label = "ENTERO\n1"];
-nodo979->nodo982
-nodo982[label = "Parametro\n"];
-nodo982->nodo983
-nodo983[label = "CADENA\n8874585-5"];
-nodo979->nodo984
-nodo984[label = "Parametro\n"];
-nodo984->nodo985
-nodo985[label = "ENTERO\n2"];
-nodo1->nodo986
-nodo986[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo986->nodo987
-nodo987[label = "Parametro\n"];
-nodo987->nodo988
-nodo988[label = "ENTERO\n2"];
-nodo986->nodo989
-nodo989[label = "Parametro\n"];
-nodo989->nodo990
-nodo990[label = "CADENA\n1245-488454-7854"];
-nodo986->nodo991
-nodo991[label = "Parametro\n"];
-nodo991->nodo992
-nodo992[label = "ENTERO\n1"];
-nodo1->nodo993
-nodo993[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo993->nodo994
-nodo994[label = "Parametro\n"];
-nodo994->nodo995
-nodo995[label = "ENTERO\n3"];
-nodo993->nodo996
-nodo996[label = "Parametro\n"];
-nodo996->nodo997
-nodo997[label = "CADENA\n2610-417055-0101"];
-nodo993->nodo998
-nodo998[label = "Parametro\n"];
-nodo998->nodo999
-nodo999[label = "ENTERO\n1"];
-nodo1->nodo1000
-nodo1000[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo1000->nodo1001
-nodo1001[label = "Parametro\n"];
-nodo1001->nodo1002
-nodo1002[label = "ENTERO\n8"];
-nodo1000->nodo1003
-nodo1003[label = "Parametro\n"];
-nodo1003->nodo1004
-nodo1004[label = "ENTERO\n2"];
-nodo1000->nodo1005
-nodo1005[label = "Parametro\n"];
-nodo1005->nodo1006
-nodo1006[label = "CADENA\n454878-7"];
-nodo1->nodo1007
-nodo1007[label = "DROP TABLE\ntbempleadoidentificacion"];
-nodo1->nodo1008
-nodo1008[label = "CREATE TABLE\ntbempleadoidentificacion"];
-nodo1008->nodo1009
-nodo1009[label = "COLUMNAS\n"];
-nodo1009->nodo1010
-nodo1010[label = "COLUMN\nidempleado"];
-nodo1010->nodo1011
-nodo1011[label = "Tipo\ninteger"];
-nodo1010->nodo1012
-nodo1012[label = "ATRIBUTOS\n"];
-nodo1012->nodo1013
-nodo1013[label = "NOT NULL\n"];
-nodo1009->nodo1014
-nodo1014[label = "COLUMN\nididentificaciontipo"];
-nodo1014->nodo1015
-nodo1015[label = "Tipo\ninteger"];
-nodo1014->nodo1016
-nodo1016[label = "ATRIBUTOS\n"];
-nodo1016->nodo1017
-nodo1017[label = "NOT NULL\n"];
-nodo1009->nodo1018
-nodo1018[label = "COLUMN\nidentificacion"];
-nodo1018->nodo1019
-nodo1019[label = "Tipo\nvarchar"];
-nodo1019->nodo1020
-nodo1020[label = "Limite\n25"];
-nodo1018->nodo1021
-nodo1021[label = "ATRIBUTOS\n"];
-nodo1021->nodo1022
-nodo1022[label = "NOT NULL\n"];
-nodo1009->nodo1023
-nodo1023[label = "PRIMARY KEY\n"];
-nodo1023->nodo1024
-nodo1024[label = "ID\nidempleado"];
-nodo1023->nodo1025
-nodo1025[label = "ID\nididentificaciontipo"];
-nodo1->nodo1026
-nodo1026[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo1026->nodo1027
-nodo1027[label = "Parametro\n"];
-nodo1027->nodo1028
-nodo1028[label = "ENTERO\n1"];
-nodo1026->nodo1029
-nodo1029[label = "Parametro\n"];
-nodo1029->nodo1030
-nodo1030[label = "ENTERO\n1"];
-nodo1026->nodo1031
-nodo1031[label = "Parametro\n"];
-nodo1031->nodo1032
-nodo1032[label = "CADENA\n4578-784525-6562"];
-nodo1->nodo1033
-nodo1033[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo1033->nodo1034
-nodo1034[label = "Parametro\n"];
-nodo1034->nodo1035
-nodo1035[label = "ENTERO\n1"];
-nodo1033->nodo1036
-nodo1036[label = "Parametro\n"];
-nodo1036->nodo1037
-nodo1037[label = "ENTERO\n2"];
-nodo1033->nodo1038
-nodo1038[label = "Parametro\n"];
-nodo1038->nodo1039
-nodo1039[label = "CADENA\n8874585-5"];
-nodo1->nodo1040
-nodo1040[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo1040->nodo1041
-nodo1041[label = "Parametro\n"];
-nodo1041->nodo1042
-nodo1042[label = "ENTERO\n2"];
-nodo1040->nodo1043
-nodo1043[label = "Parametro\n"];
-nodo1043->nodo1044
-nodo1044[label = "ENTERO\n1"];
-nodo1040->nodo1045
-nodo1045[label = "Parametro\n"];
-nodo1045->nodo1046
-nodo1046[label = "CADENA\n1245-488454-7854"];
-nodo1->nodo1047
-nodo1047[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo1047->nodo1048
-nodo1048[label = "Parametro\n"];
-nodo1048->nodo1049
-nodo1049[label = "ENTERO\n3"];
-nodo1047->nodo1050
-nodo1050[label = "Parametro\n"];
-nodo1050->nodo1051
-nodo1051[label = "ENTERO\n1"];
-nodo1047->nodo1052
-nodo1052[label = "Parametro\n"];
-nodo1052->nodo1053
-nodo1053[label = "CADENA\n2610-417055-0101"];
-nodo1->nodo1054
-nodo1054[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo1054->nodo1055
-nodo1055[label = "Parametro\n"];
-nodo1055->nodo1056
-nodo1056[label = "ENTERO\n8"];
-nodo1054->nodo1057
-nodo1057[label = "Parametro\n"];
-nodo1057->nodo1058
-nodo1058[label = "ENTERO\n2"];
-nodo1054->nodo1059
-nodo1059[label = "Parametro\n"];
-nodo1059->nodo1060
-nodo1060[label = "CADENA\n454878-7"];
-nodo1->nodo1061
-nodo1061[label = "INSERT INTO\ntbempleadoidentificacion"];
-nodo1061->nodo1062
-nodo1062[label = "Parametro\n"];
-nodo1062->nodo1063
-nodo1063[label = "ENTERO\n8"];
-nodo1061->nodo1064
-nodo1064[label = "Parametro\n"];
-nodo1064->nodo1065
-nodo1065[label = "CADENA\n12456-1997-0101"];
-nodo1061->nodo1066
-nodo1066[label = "Parametro\n"];
-nodo1066->nodo1067
-nodo1067[label = "ENTERO\n1"];
-nodo1->nodo1068
-nodo1068[label = "SELECT\n"];
-nodo1068->nodo1069
-nodo1069[label = "ASTERISCO\n*"];
-nodo1068->nodo1070
-nodo1070[label = "FROM\n"];
-nodo1070->nodo1071
-nodo1071[label = "Tabla\ntbempleadoidentificacion"];
-nodo1->nodo1072
-nodo1072[label = "CREATE TABLE\ntbpuesto"];
-nodo1072->nodo1073
-nodo1073[label = "COLUMNAS\n"];
-nodo1073->nodo1074
-nodo1074[label = "COLUMN\nidpuesto"];
-nodo1074->nodo1075
-nodo1075[label = "Tipo\nsmallint"];
-nodo1074->nodo1076
-nodo1076[label = "ATRIBUTOS\n"];
-nodo1076->nodo1077
-nodo1077[label = "NOT NULL\n"];
-nodo1073->nodo1078
-nodo1078[label = "COLUMN\npuesto"];
-nodo1078->nodo1079
-nodo1079[label = "Tipo\ncharacter"];
-nodo1079->nodo1080
-nodo1080[label = "Limite\n25"];
-nodo1078->nodo1081
-nodo1081[label = "ATRIBUTOS\n"];
-nodo1073->nodo1082
-nodo1082[label = "COLUMN\nsalariobase"];
-nodo1082->nodo1083
-nodo1083[label = "Tipo\nmoney"];
-nodo1082->nodo1084
-nodo1084[label = "ATRIBUTOS\n"];
-nodo1073->nodo1085
-nodo1085[label = "PRIMARY KEY\n"];
-nodo1085->nodo1086
-nodo1086[label = "ID\nidpuesto"];
-nodo1->nodo1087
-nodo1087[label = "INSERT INTO\ntbpuesto"];
-nodo1087->nodo1088
-nodo1088[label = "Parametro\n"];
-nodo1088->nodo1089
-nodo1089[label = "ENTERO\n1"];
-nodo1087->nodo1090
-nodo1090[label = "Parametro\n"];
-nodo1090->nodo1091
-nodo1091[label = "CADENA\nRecepcionista"];
-nodo1087->nodo1092
-nodo1092[label = "Parametro\n"];
-nodo1092->nodo1093
-nodo1093[label = "CADENA\n4,000"];
-nodo1->nodo1094
-nodo1094[label = "ALTER TABLE\ntbpuesto"];
-nodo1094->nodo1095
-nodo1095[label = "Operacion\nadd column"];
-nodo1095->nodo1096
-nodo1096[label = "Columna\n"];
-nodo1096->nodo1097
-nodo1097[label = "ID\ntinecomision"];
-nodo1096->nodo1098
-nodo1098[label = "Tipo\nboolean"];
-nodo1->nodo1099
-nodo1099[label = "INSERT INTO\ntbpuesto"];
-nodo1099->nodo1100
-nodo1100[label = "Parametro\n"];
-nodo1100->nodo1101
-nodo1101[label = "ENTERO\n2"];
-nodo1099->nodo1102
-nodo1102[label = "Parametro\n"];
-nodo1102->nodo1103
-nodo1103[label = "CADENA\nAsistente Contable"];
-nodo1099->nodo1104
-nodo1104[label = "Parametro\n"];
-nodo1104->nodo1105
-nodo1105[label = "CADENA\n4,500"];
-nodo1099->nodo1106
-nodo1106[label = "Parametro\n"];
-nodo1106->nodo1107
-nodo1107[label = "LOGICO\nfalse"];
-nodo1->nodo1108
-nodo1108[label = "INSERT INTO\ntbpuesto"];
-nodo1108->nodo1109
-nodo1109[label = "Parametro\n"];
-nodo1109->nodo1110
-nodo1110[label = "ENTERO\n3"];
-nodo1108->nodo1111
-nodo1111[label = "Parametro\n"];
-nodo1111->nodo1112
-nodo1112[label = "CADENA\nContador General"];
-nodo1108->nodo1113
-nodo1113[label = "Parametro\n"];
-nodo1113->nodo1114
-nodo1114[label = "CADENA\n9000"];
-nodo1108->nodo1115
-nodo1115[label = "Parametro\n"];
-nodo1115->nodo1116
-nodo1116[label = "LOGICO\nfalse"];
-nodo1->nodo1117
-nodo1117[label = "INSERT INTO\ntbpuesto"];
-nodo1117->nodo1118
-nodo1118[label = "Parametro\n"];
-nodo1118->nodo1119
-nodo1119[label = "ENTERO\n4"];
-nodo1117->nodo1120
-nodo1120[label = "Parametro\n"];
-nodo1120->nodo1121
-nodo1121[label = "CADENA\nAsistente de RRHH"];
-nodo1117->nodo1122
-nodo1122[label = "Parametro\n"];
-nodo1122->nodo1123
-nodo1123[label = "CADENA\n4000"];
-nodo1117->nodo1124
-nodo1124[label = "Parametro\n"];
-nodo1124->nodo1125
-nodo1125[label = "LOGICO\nfalse"];
-nodo1->nodo1126
-nodo1126[label = "INSERT INTO\ntbpuesto"];
-nodo1126->nodo1127
-nodo1127[label = "Parametro\n"];
-nodo1127->nodo1128
-nodo1128[label = "ENTERO\n5"];
-nodo1126->nodo1129
-nodo1129[label = "Parametro\n"];
-nodo1129->nodo1130
-nodo1130[label = "CADENA\nRecepcionista Gerencia"];
-nodo1126->nodo1131
-nodo1131[label = "Parametro\n"];
-nodo1131->nodo1132
-nodo1132[label = "CADENA\n5000"];
-nodo1126->nodo1133
-nodo1133[label = "Parametro\n"];
-nodo1133->nodo1134
-nodo1134[label = "LOGICO\nfalse"];
-nodo1->nodo1135
-nodo1135[label = "INSERT INTO\ntbpuesto"];
-nodo1135->nodo1136
-nodo1136[label = "Parametro\n"];
-nodo1136->nodo1137
-nodo1137[label = "ENTERO\n6"];
-nodo1135->nodo1138
-nodo1138[label = "Parametro\n"];
-nodo1138->nodo1139
-nodo1139[label = "CADENA\nVendedor 1"];
-nodo1135->nodo1140
-nodo1140[label = "Parametro\n"];
-nodo1140->nodo1141
-nodo1141[label = "CADENA\n2500"];
-nodo1135->nodo1142
-nodo1142[label = "Parametro\n"];
-nodo1142->nodo1143
-nodo1143[label = "LOGICO\ntrue"];
-nodo1->nodo1144
-nodo1144[label = "INSERT INTO\ntbpuesto"];
-nodo1144->nodo1145
-nodo1145[label = "Parametro\n"];
-nodo1145->nodo1146
-nodo1146[label = "ENTERO\n7"];
-nodo1144->nodo1147
-nodo1147[label = "Parametro\n"];
-nodo1147->nodo1148
-nodo1148[label = "CADENA\nVendedor 2"];
-nodo1144->nodo1149
-nodo1149[label = "Parametro\n"];
-nodo1149->nodo1150
-nodo1150[label = "CADENA\n2750"];
-nodo1144->nodo1151
-nodo1151[label = "Parametro\n"];
-nodo1151->nodo1152
-nodo1152[label = "LOGICO\ntrue"];
-nodo1->nodo1153
-nodo1153[label = "INSERT INTO\ntbpuesto"];
-nodo1153->nodo1154
-nodo1154[label = "Parametro\n"];
-nodo1154->nodo1155
-nodo1155[label = "ENTERO\n8"];
-nodo1153->nodo1156
-nodo1156[label = "Parametro\n"];
-nodo1156->nodo1157
-nodo1157[label = "CADENA\nVendedor 3"];
-nodo1153->nodo1158
-nodo1158[label = "Parametro\n"];
-nodo1158->nodo1159
-nodo1159[label = "CADENA\n3000"];
-nodo1153->nodo1160
-nodo1160[label = "Parametro\n"];
-nodo1160->nodo1161
-nodo1161[label = "LOGICO\ntrue"];
-nodo1->nodo1162
-nodo1162[label = "INSERT INTO\ntbpuesto"];
-nodo1162->nodo1163
-nodo1163[label = "Parametro\n"];
-nodo1163->nodo1164
-nodo1164[label = "ENTERO\n9"];
-nodo1162->nodo1165
-nodo1165[label = "Parametro\n"];
-nodo1165->nodo1166
-nodo1166[label = "CADENA\nJefe de Ventas"];
-nodo1162->nodo1167
-nodo1167[label = "Parametro\n"];
-nodo1167->nodo1168
-nodo1168[label = "CADENA\n4000"];
-nodo1162->nodo1169
-nodo1169[label = "Parametro\n"];
-nodo1169->nodo1170
-nodo1170[label = "LOGICO\ntrue"];
-nodo1->nodo1171
-nodo1171[label = "INSERT INTO\ntbpuesto"];
-nodo1171->nodo1172
-nodo1172[label = "Parametro\n"];
-nodo1172->nodo1173
-nodo1173[label = "ENTERO\n10"];
-nodo1171->nodo1174
-nodo1174[label = "Parametro\n"];
-nodo1174->nodo1175
-nodo1175[label = "CADENA\nJefe de Ventas Regional"];
-nodo1171->nodo1176
-nodo1176[label = "Parametro\n"];
-nodo1176->nodo1177
-nodo1177[label = "CADENA\n2500"];
-nodo1171->nodo1178
-nodo1178[label = "Parametro\n"];
-nodo1178->nodo1179
-nodo1179[label = "LOGICO\ntrue"];
-nodo1->nodo1180
-nodo1180[label = "CREATE TABLE\ntbempleadopuesto"];
-nodo1180->nodo1181
-nodo1181[label = "COLUMNAS\n"];
-nodo1181->nodo1182
-nodo1182[label = "COLUMN\nidempleado"];
-nodo1182->nodo1183
-nodo1183[label = "Tipo\ninteger"];
-nodo1182->nodo1184
-nodo1184[label = "ATRIBUTOS\n"];
-nodo1184->nodo1185
-nodo1185[label = "NOT NULL\n"];
-nodo1181->nodo1186
-nodo1186[label = "COLUMN\nidpuesto"];
-nodo1186->nodo1187
-nodo1187[label = "Tipo\ninteger"];
-nodo1186->nodo1188
-nodo1188[label = "ATRIBUTOS\n"];
-nodo1188->nodo1189
-nodo1189[label = "NOT NULL\n"];
-nodo1181->nodo1190
-nodo1190[label = "COLUMN\ndepartamento"];
-nodo1190->nodo1191
-nodo1191[label = "Tipo\narea"];
-nodo1190->nodo1192
-nodo1192[label = "ATRIBUTOS\n"];
-nodo1->nodo1193
-nodo1193[label = "ALTER TABLE\ntbempleadopuesto"];
-nodo1193->nodo1194
-nodo1194[label = "Operacion\nadd foreign key"];
-nodo1194->nodo1195
-nodo1195[label = "Columna\nidempleado"];
-nodo1194->nodo1196
-nodo1196[label = "Referencia\nidempleado"];
-nodo1->nodo1197
-nodo1197[label = "ALTER TABLE\ntbempleadopuesto"];
-nodo1197->nodo1198
-nodo1198[label = "Operacion\nadd foreign key"];
-nodo1198->nodo1199
-nodo1199[label = "Columna\nidempleado"];
-nodo1198->nodo1200
-nodo1200[label = "Referencia\nidempleado"];
-nodo1->nodo1201
-nodo1201[label = "INSERT INTO\ntbempleadopuesto"];
-nodo1201->nodo1202
-nodo1202[label = "Parametro\n"];
-nodo1202->nodo1203
-nodo1203[label = "ENTERO\n1"];
-nodo1201->nodo1204
-nodo1204[label = "Parametro\n"];
-nodo1204->nodo1205
-nodo1205[label = "ENTERO\n1"];
-nodo1201->nodo1206
-nodo1206[label = "Parametro\n"];
-nodo1206->nodo1207
-nodo1207[label = "CADENA\nADMINISTRACION"];
-nodo1->nodo1208
-nodo1208[label = "INSERT INTO\ntbempleadopuesto"];
-nodo1208->nodo1209
-nodo1209[label = "Parametro\n"];
-nodo1209->nodo1210
-nodo1210[label = "ENTERO\n2"];
-nodo1208->nodo1211
-nodo1211[label = "Parametro\n"];
-nodo1211->nodo1212
-nodo1212[label = "ENTERO\n1"];
-nodo1208->nodo1213
-nodo1213[label = "Parametro\n"];
-nodo1213->nodo1214
-nodo1214[label = "CADENA\nCONTABILIDAD"];
-nodo1->nodo1215
-nodo1215[label = "INSERT INTO\ntbempleadopuesto"];
-nodo1215->nodo1216
-nodo1216[label = "Parametro\n"];
-nodo1216->nodo1217
-nodo1217[label = "ENTERO\n3"];
-nodo1215->nodo1218
-nodo1218[label = "Parametro\n"];
-nodo1218->nodo1219
-nodo1219[label = "ENTERO\n3"];
-nodo1215->nodo1220
-nodo1220[label = "Parametro\n"];
-nodo1220->nodo1221
-nodo1221[label = "CADENA\nCONTABILIDAD"];
-nodo1->nodo1222
-nodo1222[label = "INSERT INTO\ntbempleadopuesto"];
-nodo1222->nodo1223
-nodo1223[label = "Parametro\n"];
-nodo1223->nodo1224
-nodo1224[label = "ENTERO\n4"];
-nodo1222->nodo1225
-nodo1225[label = "Parametro\n"];
-nodo1225->nodo1226
-nodo1226[label = "ENTERO\n6"];
-nodo1222->nodo1227
-nodo1227[label = "Parametro\n"];
-nodo1227->nodo1228
-nodo1228[label = "CADENA\nVENTAS"];
-nodo1->nodo1229
-nodo1229[label = "INSERT INTO\ntbempleadopuesto"];
-nodo1229->nodo1230
-nodo1230[label = "Parametro\n"];
-nodo1230->nodo1231
-nodo1231[label = "ENTERO\n5"];
-nodo1229->nodo1232
-nodo1232[label = "Parametro\n"];
-nodo1232->nodo1233
-nodo1233[label = "ENTERO\n6"];
-nodo1229->nodo1234
-nodo1234[label = "Parametro\n"];
-nodo1234->nodo1235
-nodo1235[label = "CADENA\nVENTAS"];
-nodo1->nodo1236
-nodo1236[label = "SELECT\n"];
-nodo1236->nodo1237
-nodo1237[label = "ASTERISCO\n*"];
-nodo1236->nodo1238
-nodo1238[label = "FROM\n"];
-nodo1238->nodo1239
-nodo1239[label = "Tabla\ntbusuario"];
-nodo1239->nodo1240
-nodo1240[label = "Alias\nUS"];
-nodo1236->nodo1241
-nodo1241[label = "WHERE\n"];
-nodo1241->nodo1242
-nodo1242[label = "NOT EXISTS\n"];
-nodo1242->nodo1243
-nodo1243[label = "SELECT\n"];
-nodo1243->nodo1244
-nodo1244[label = "ASTERISCO\n*"];
-nodo1243->nodo1245
-nodo1245[label = "FROM\n"];
-nodo1245->nodo1246
-nodo1246[label = "Tabla\ntbrolxusuario"];
-nodo1246->nodo1247
-nodo1247[label = "Alias\nRU"];
-nodo1243->nodo1248
-nodo1248[label = "WHERE\n"];
-nodo1248->nodo1249
-nodo1249[label = "OPREL\n\="];
-nodo1249->nodo1250
-nodo1250[label = "AliasTabla\nRU"];
-nodo1250->nodo1251
-nodo1251[label = "ID\nidusuario"];
-nodo1249->nodo1252
-nodo1252[label = "AliasTabla\nUS"];
-nodo1252->nodo1253
-nodo1253[label = "ID\nidusuario"];
-nodo1->nodo1254
-nodo1254[label = "SELECT\n"];
-nodo1254->nodo1255
-nodo1255[label = "ASTERISCO\n*"];
-nodo1254->nodo1256
-nodo1256[label = "FROM\n"];
-nodo1256->nodo1257
-nodo1257[label = "Tabla\ntbrolxusuario"];
-nodo1->nodo1258
-nodo1258[label = "DELETE\ntbrolxusuario"];
-nodo1258->nodo1259
-nodo1259[label = "OPLOG\nand"];
-nodo1259->nodo1260
-nodo1260[label = "OPREL\n\="];
-nodo1260->nodo1261
-nodo1261[label = "ID\nidrol"];
-nodo1260->nodo1262
-nodo1262[label = "ENTERO\n2"];
-nodo1259->nodo1263
-nodo1263[label = "OPREL\n\="];
-nodo1263->nodo1264
-nodo1264[label = "ID\nidusuario"];
-nodo1263->nodo1265
-nodo1265[label = "ENTERO\n9"];
-nodo1->nodo1266
-nodo1266[label = "INSERT INTO\ntbrolxusuario"];
-nodo1266->nodo1267
-nodo1267[label = "Parametro\n"];
-nodo1267->nodo1268
-nodo1268[label = "ENTERO\n2"];
-nodo1266->nodo1269
-nodo1269[label = "Parametro\n"];
-nodo1269->nodo1270
-nodo1270[label = "ENTERO\n9"];
-nodo1->nodo1271
-nodo1271[label = "SELECT\n"];
-nodo1271->nodo1272
-nodo1272[label = "ASTERISCO\n*"];
-nodo1271->nodo1273
-nodo1273[label = "FROM\n"];
-nodo1273->nodo1274
-nodo1274[label = "Tabla\ntbrolxusaurio"];
-nodo1->nodo1275
-nodo1275[label = "SELECT\n"];
-nodo1275->nodo1276
-nodo1276[label = "ASTERISCO\n*"];
-nodo1275->nodo1277
-nodo1277[label = "FROM\n"];
-nodo1277->nodo1278
-nodo1278[label = "Tabla\ntbrol"];
-nodo1278->nodo1279
-nodo1279[label = "Alias\nR"];
-nodo1275->nodo1280
-nodo1280[label = "WHERE\n"];
-nodo1280->nodo1281
-nodo1281[label = "NOT IN\n"];
-nodo1281->nodo1282
-nodo1282[label = "ID\nidrol"];
-nodo1281->nodo1283
-nodo1283[label = "SELECT\n"];
-nodo1283->nodo1284
-nodo1284[label = "ROWS\n"];
-nodo1284->nodo1285
-nodo1285[label = "ID\nidrol"];
-nodo1283->nodo1286
-nodo1286[label = "FROM\n"];
-nodo1286->nodo1287
-nodo1287[label = "Tabla\ntbrolxusuario"];
-nodo1->nodo1288
-nodo1288[label = "SELECT\n"];
-nodo1288->nodo1289
-nodo1289[label = "ASTERISCO\n*"];
-nodo1288->nodo1290
-nodo1290[label = "FROM\n"];
-nodo1290->nodo1291
-nodo1291[label = "Tabla\ntbrol"];
-nodo1291->nodo1292
-nodo1292[label = "Alias\nR"];
-nodo1288->nodo1293
-nodo1293[label = "WHERE\n"];
-nodo1293->nodo1294
-nodo1294[label = "NOT EXISTS\n"];
-nodo1294->nodo1295
-nodo1295[label = "SELECT\n"];
-nodo1295->nodo1296
-nodo1296[label = "ROWS\n"];
-nodo1296->nodo1297
-nodo1297[label = "ID\nidrol"];
-nodo1295->nodo1298
-nodo1298[label = "FROM\n"];
-nodo1298->nodo1299
-nodo1299[label = "Tabla\ntbrolxusuario"];
-nodo1299->nodo1300
-nodo1300[label = "Alias\nRU"];
-nodo1295->nodo1301
-nodo1301[label = "WHERE\n"];
-nodo1301->nodo1302
-nodo1302[label = "OPREL\n\="];
-nodo1302->nodo1303
-nodo1303[label = "AliasTabla\nRU"];
-nodo1303->nodo1304
-nodo1304[label = "ID\nidrol"];
-nodo1302->nodo1305
-nodo1305[label = "AliasTabla\nR"];
-nodo1305->nodo1306
-nodo1306[label = "ID\nidrol"];
-nodo1->nodo1307
-nodo1307[label = "SELECT\n"];
-nodo1307->nodo1308
-nodo1308[label = "ROWS\n"];
-nodo1308->nodo1309
-nodo1309[label = "AliasTabla\nE"];
-nodo1309->nodo1310
-nodo1310[label = "All\n.*"];
-nodo1308->nodo1311
-nodo1311[label = "ID\nestado"];
-nodo1308->nodo1312
-nodo1312[label = "AliasTabla\nI"];
-nodo1312->nodo1313
-nodo1313[label = "ID\nidentificacion"];
-nodo1308->nodo1314
-nodo1314[label = "ID\ntipoidentificacion"];
-nodo1307->nodo1315
-nodo1315[label = "FROM\n"];
-nodo1315->nodo1316
-nodo1316[label = "Tabla\ntbempleado"];
-nodo1316->nodo1317
-nodo1317[label = "Alias\nE"];
-nodo1315->nodo1318
-nodo1318[label = "Tabla\ntbestado"];
-nodo1318->nodo1319
-nodo1319[label = "Alias\nES"];
-nodo1315->nodo1320
-nodo1320[label = "Tabla\ntbempleadoidentificacion"];
-nodo1320->nodo1321
-nodo1321[label = "Alias\nI"];
-nodo1315->nodo1322
-nodo1322[label = "Tabla\ntbidentificaciontipo"];
-nodo1322->nodo1323
-nodo1323[label = "Alias\nIT"];
-nodo1307->nodo1324
-nodo1324[label = "WHERE\n"];
-nodo1324->nodo1325
-nodo1325[label = "OPLOG\nand"];
-nodo1325->nodo1326
-nodo1326[label = "OPLOG\nand"];
-nodo1326->nodo1327
-nodo1327[label = "OPREL\n\="];
-nodo1327->nodo1328
-nodo1328[label = "AliasTabla\nES"];
-nodo1328->nodo1329
-nodo1329[label = "ID\nidestado"];
-nodo1327->nodo1330
-nodo1330[label = "AliasTabla\nE"];
-nodo1330->nodo1331
-nodo1331[label = "ID\nidestado"];
-nodo1326->nodo1332
-nodo1332[label = "OPREL\n\="];
-nodo1332->nodo1333
-nodo1333[label = "AliasTabla\nI"];
-nodo1333->nodo1334
-nodo1334[label = "ID\nidempleado"];
-nodo1332->nodo1335
-nodo1335[label = "AliasTabla\nE"];
-nodo1335->nodo1336
-nodo1336[label = "ID\nidempleado"];
-nodo1325->nodo1337
-nodo1337[label = "OPREL\n\="];
-nodo1337->nodo1338
-nodo1338[label = "AliasTabla\nIT"];
-nodo1338->nodo1339
-nodo1339[label = "ID\nididentificaciontipo"];
-nodo1337->nodo1340
-nodo1340[label = "AliasTabla\nI"];
-nodo1340->nodo1341
-nodo1341[label = "ID\nididentificaciontipo"];
-nodo1->nodo1342
-nodo1342[label = "SELECT\n"];
-nodo1342->nodo1343
-nodo1343[label = "ROWS\n"];
-nodo1343->nodo1344
-nodo1344[label = "AliasTabla\nE"];
-nodo1344->nodo1345
-nodo1345[label = "All\n.*"];
-nodo1343->nodo1346
-nodo1346[label = "ID\nestado"];
-nodo1343->nodo1347
-nodo1347[label = "AliasTabla\nI"];
-nodo1347->nodo1348
-nodo1348[label = "ID\nidentificacion"];
-nodo1343->nodo1349
-nodo1349[label = "ID\ntipoidentificacion"];
-nodo1342->nodo1350
-nodo1350[label = "FROM\n"];
-nodo1350->nodo1351
-nodo1351[label = "Tabla\ntbempleado"];
-nodo1351->nodo1352
-nodo1352[label = "Alias\nE"];
-nodo1350->nodo1353
-nodo1353[label = "Tabla\ntbestado"];
-nodo1353->nodo1354
-nodo1354[label = "Alias\nES"];
-nodo1350->nodo1355
-nodo1355[label = "Tabla\ntbempleadoidentificacion"];
-nodo1355->nodo1356
-nodo1356[label = "Alias\nI"];
-nodo1350->nodo1357
-nodo1357[label = "Tabla\ntbidentificaciontipo"];
-nodo1357->nodo1358
-nodo1358[label = "Alias\nIT"];
-nodo1342->nodo1359
-nodo1359[label = "WHERE\n"];
-nodo1359->nodo1360
-nodo1360[label = "OPLOG\nand"];
-nodo1360->nodo1361
-nodo1361[label = "OPLOG\nand"];
-nodo1361->nodo1362
-nodo1362[label = "OPREL\n\="];
-nodo1362->nodo1363
-nodo1363[label = "AliasTabla\nES"];
-nodo1363->nodo1364
-nodo1364[label = "ID\nidestado"];
-nodo1362->nodo1365
-nodo1365[label = "AliasTabla\nE"];
-nodo1365->nodo1366
-nodo1366[label = "ID\nidestado"];
-nodo1361->nodo1367
-nodo1367[label = "OPREL\n\="];
-nodo1367->nodo1368
-nodo1368[label = "AliasTabla\nI"];
-nodo1368->nodo1369
-nodo1369[label = "ID\nidempleado"];
-nodo1367->nodo1370
-nodo1370[label = "AliasTabla\nE"];
-nodo1370->nodo1371
-nodo1371[label = "ID\nidempleado"];
-nodo1360->nodo1372
-nodo1372[label = "OPREL\n\="];
-nodo1372->nodo1373
-nodo1373[label = "AliasTabla\nIT"];
-nodo1373->nodo1374
-nodo1374[label = "ID\nididentificaciontipo"];
-nodo1372->nodo1375
-nodo1375[label = "AliasTabla\nI"];
-nodo1375->nodo1376
-nodo1376[label = "ID\nididentificaciontipo"];
-nodo1->nodo1377
-nodo1377[label = "SELECT\n"];
-nodo1377->nodo1378
-nodo1378[label = "ROWS\n"];
-nodo1378->nodo1379
-nodo1379[label = "AliasTabla\nE"];
-nodo1379->nodo1380
-nodo1380[label = "All\n.*"];
-nodo1378->nodo1381
-nodo1381[label = "ID\nestado"];
-nodo1378->nodo1382
-nodo1382[label = "AliasTabla\nI"];
-nodo1382->nodo1383
-nodo1383[label = "ID\nidentificacion"];
-nodo1378->nodo1384
-nodo1384[label = "ID\ntipoidentificacion"];
-nodo1377->nodo1385
-nodo1385[label = "FROM\n"];
-nodo1385->nodo1386
-nodo1386[label = "Tabla\ntbempleado"];
-nodo1386->nodo1387
-nodo1387[label = "Alias\nE"];
-nodo1385->nodo1388
-nodo1388[label = "Tabla\ntbestado"];
-nodo1388->nodo1389
-nodo1389[label = "Alias\nES"];
-nodo1385->nodo1390
-nodo1390[label = "Tabla\ntbempleadoidentificacion"];
-nodo1390->nodo1391
-nodo1391[label = "Alias\nI"];
-nodo1385->nodo1392
-nodo1392[label = "Tabla\ntbidentificaciontipo"];
-nodo1392->nodo1393
-nodo1393[label = "Alias\nIT"];
-nodo1377->nodo1394
-nodo1394[label = "WHERE\n"];
-nodo1394->nodo1395
-nodo1395[label = "OPLOG\nand"];
-nodo1395->nodo1396
-nodo1396[label = "OPLOG\nand"];
-nodo1396->nodo1397
-nodo1397[label = "OPREL\n\="];
-nodo1397->nodo1398
-nodo1398[label = "AliasTabla\nES"];
-nodo1398->nodo1399
-nodo1399[label = "ID\nidestado"];
-nodo1397->nodo1400
-nodo1400[label = "AliasTabla\nE"];
-nodo1400->nodo1401
-nodo1401[label = "ID\nidestado"];
-nodo1396->nodo1402
-nodo1402[label = "OPREL\n\="];
-nodo1402->nodo1403
-nodo1403[label = "AliasTabla\nI"];
-nodo1403->nodo1404
-nodo1404[label = "ID\nidempleado"];
-nodo1402->nodo1405
-nodo1405[label = "AliasTabla\nE"];
-nodo1405->nodo1406
-nodo1406[label = "ID\nidempleado"];
-nodo1395->nodo1407
-nodo1407[label = "OPREL\n\="];
-nodo1407->nodo1408
-nodo1408[label = "AliasTabla\nIT"];
-nodo1408->nodo1409
-nodo1409[label = "ID\nididentificaciontipo"];
-nodo1407->nodo1410
-nodo1410[label = "AliasTabla\nI"];
-nodo1410->nodo1411
-nodo1411[label = "ID\nididentificaciontipo"];
-nodo1->nodo1412
-nodo1412[label = "SELECT\n"];
-nodo1412->nodo1413
-nodo1413[label = "DISTINC\n"];
-nodo1412->nodo1414
-nodo1414[label = "ROWS\n"];
-nodo1414->nodo1415
-nodo1415[label = "AliasTabla\nE"];
-nodo1415->nodo1416
-nodo1416[label = "ID\nprimernombre"];
-nodo1414->nodo1417
-nodo1417[label = "ID\nprimerapellido"];
-nodo1414->nodo1418
-nodo1418[label = "ID\nfechadenacimiento"];
-nodo1414->nodo1419
-nodo1419[label = "ID\nestado"];
-nodo1412->nodo1420
-nodo1420[label = "FROM\n"];
-nodo1420->nodo1421
-nodo1421[label = "Tabla\ntbempleado"];
-nodo1421->nodo1422
-nodo1422[label = "Alias\nE"];
-nodo1420->nodo1423
-nodo1423[label = "Tabla\ntbestado"];
-nodo1423->nodo1424
-nodo1424[label = "Alias\nES"];
-nodo1420->nodo1425
-nodo1425[label = "Tabla\ntbempleadoidentificacion"];
-nodo1425->nodo1426
-nodo1426[label = "Alias\nI"];
-nodo1420->nodo1427
-nodo1427[label = "Tabla\ntbidentificaciontipo"];
-nodo1427->nodo1428
-nodo1428[label = "Alias\nIT"];
-nodo1412->nodo1429
-nodo1429[label = "WHERE\n"];
-nodo1429->nodo1430
-nodo1430[label = "OPLOG\nand"];
-nodo1430->nodo1431
-nodo1431[label = "OPLOG\nand"];
-nodo1431->nodo1432
-nodo1432[label = "OPREL\n\="];
-nodo1432->nodo1433
-nodo1433[label = "AliasTabla\nES"];
-nodo1433->nodo1434
-nodo1434[label = "ID\nidestado"];
-nodo1432->nodo1435
-nodo1435[label = "AliasTabla\nE"];
-nodo1435->nodo1436
-nodo1436[label = "ID\nidestado"];
-nodo1431->nodo1437
-nodo1437[label = "OPREL\n\="];
-nodo1437->nodo1438
-nodo1438[label = "AliasTabla\nI"];
-nodo1438->nodo1439
-nodo1439[label = "ID\nidempleado"];
-nodo1437->nodo1440
-nodo1440[label = "AliasTabla\nE"];
-nodo1440->nodo1441
-nodo1441[label = "ID\nidempleado"];
-nodo1430->nodo1442
-nodo1442[label = "OPREL\n\="];
-nodo1442->nodo1443
-nodo1443[label = "AliasTabla\nIT"];
-nodo1443->nodo1444
-nodo1444[label = "ID\nididentificaciontipo"];
-nodo1442->nodo1445
-nodo1445[label = "AliasTabla\nI"];
-nodo1445->nodo1446
-nodo1446[label = "ID\nididentificaciontipo"];
-nodo1->nodo1447
-nodo1447[label = "SELECT\n"];
-nodo1447->nodo1448
-nodo1448[label = "ROWS\n"];
-nodo1448->nodo1449
-nodo1449[label = "ID\nidempleado"];
-nodo1448->nodo1450
-nodo1450[label = "Matematica\nabs"];
-nodo1450->nodo1451
-nodo1451[label = "NEGATIVO\n-"];
-nodo1451->nodo1452
-nodo1452[label = "ENTERO\n45"];
-nodo1448->nodo1453
-nodo1453[label = "Matematica\ncbrt"];
-nodo1453->nodo1454
-nodo1454[label = "ENTERO\n13"];
-nodo1448->nodo1455
-nodo1455[label = "Matematica\nDIV"];
-nodo1455->nodo1456
-nodo1456[label = "ENTERO\n325"];
-nodo1455->nodo1457
-nodo1457[label = "ENTERO\n5"];
-nodo1->nodo1458
-nodo1458[label = "SELECT\n"];
-nodo1458->nodo1459
-nodo1459[label = "ROWS\n"];
-nodo1459->nodo1460
-nodo1460[label = "Matematica\nfactorial"];
-nodo1460->nodo1461
-nodo1461[label = "ENTERO\n17"];
-nodo1460->nodo1462
-nodo1462[label = "Alias\nfactorial1"];
-nodo1459->nodo1463
-nodo1463[label = "Matematica\nEXP"];
-nodo1463->nodo1464
-nodo1464[label = "DECIMAL\n2.0"];
-nodo1463->nodo1465
-nodo1465[label = "Alias\nExponencial"];
-nodo1459->nodo1466
-nodo1466[label = "Matematica\nLN"];
-nodo1466->nodo1467
-nodo1467[label = "DECIMAL\n5.0"];
-nodo1466->nodo1468
-nodo1468[label = "Alias\nLogaritmo Natural"];
-nodo1459->nodo1469
-nodo1469[label = "PI\n"];
-nodo1459->nodo1470
-nodo1470[label = "Matematica\nPOWER"];
-nodo1470->nodo1471
-nodo1471[label = "ENTERO\n5"];
-nodo1470->nodo1472
-nodo1472[label = "ENTERO\n2"];
-nodo1->nodo1473
-nodo1473[label = "SELECT\n"];
-nodo1473->nodo1474
-nodo1474[label = "ROWS\n"];
-nodo1474->nodo1475
-nodo1475[label = "Matematica\nwidth_bucket"];
-nodo1475->nodo1476
-nodo1476[label = "VALORES\n"];
-nodo1476->nodo1477
-nodo1477[label = "ENTERO\n3"];
-nodo1476->nodo1478
-nodo1478[label = "ENTERO\n1"];
-nodo1476->nodo1479
-nodo1479[label = "ENTERO\n12"];
-nodo1476->nodo1480
-nodo1480[label = "ENTERO\n3"];
-nodo1475->nodo1481
-nodo1481[label = "Alias\nuno"];
-nodo1474->nodo1482
-nodo1482[label = "Matematica\nwidth_bucket"];
-nodo1482->nodo1483
-nodo1483[label = "VALORES\n"];
-nodo1483->nodo1484
-nodo1484[label = "ENTERO\n5"];
-nodo1483->nodo1485
-nodo1485[label = "ENTERO\n1"];
-nodo1483->nodo1486
-nodo1486[label = "ENTERO\n12"];
-nodo1483->nodo1487
-nodo1487[label = "ENTERO\n3"];
-nodo1482->nodo1488
-nodo1488[label = "Alias\ndos"];
-nodo1474->nodo1489
-nodo1489[label = "Matematica\nwidth_bucket"];
-nodo1489->nodo1490
-nodo1490[label = "VALORES\n"];
-nodo1490->nodo1491
-nodo1491[label = "ENTERO\n9"];
-nodo1490->nodo1492
-nodo1492[label = "ENTERO\n1"];
-nodo1490->nodo1493
-nodo1493[label = "ENTERO\n12"];
-nodo1490->nodo1494
-nodo1494[label = "ENTERO\n3"];
-nodo1489->nodo1495
-nodo1495[label = "Alias\ntres"];
-nodo1->nodo1496
-nodo1496[label = "CREATE TABLE\ntbfuncionesmath"];
-nodo1496->nodo1497
-nodo1497[label = "COLUMNAS\n"];
-nodo1497->nodo1498
-nodo1498[label = "COLUMN\nidfuncion"];
-nodo1498->nodo1499
-nodo1499[label = "Tipo\ninteger"];
-nodo1498->nodo1500
-nodo1500[label = "ATRIBUTOS\n"];
-nodo1500->nodo1501
-nodo1501[label = "NOT NULL\n"];
-nodo1500->nodo1502
-nodo1502[label = "PRIMARY KEY\n"];
-nodo1497->nodo1503
-nodo1503[label = "COLUMN\nseno"];
-nodo1503->nodo1504
-nodo1504[label = "Tipo\ndecimal"];
-nodo1504->nodo1505
-nodo1505[label = "Digitos\n10"];
-nodo1504->nodo1506
-nodo1506[label = "Cifras\n2"];
-nodo1503->nodo1507
-nodo1507[label = "ATRIBUTOS\n"];
-nodo1497->nodo1508
-nodo1508[label = "COLUMN\ncoseno"];
-nodo1508->nodo1509
-nodo1509[label = "Tipo\ndecimal"];
-nodo1509->nodo1510
-nodo1510[label = "Digitos\n10"];
-nodo1509->nodo1511
-nodo1511[label = "Cifras\n2"];
-nodo1508->nodo1512
-nodo1512[label = "ATRIBUTOS\n"];
-nodo1->nodo1513
-nodo1513[label = "INSERT INTO\ntbfuncionesmath"];
-nodo1513->nodo1514
-nodo1514[label = "Parametro\n"];
-nodo1514->nodo1515
-nodo1515[label = "ENTERO\n1"];
-nodo1513->nodo1516
-nodo1516[label = "Parametro\n"];
-nodo1516->nodo1517
-nodo1517[label = "ENTERO\n0"];
-nodo1513->nodo1518
-nodo1518[label = "Parametro\n"];
-nodo1518->nodo1519
-nodo1519[label = "ENTERO\n0"];
-nodo1->nodo1520
-nodo1520[label = "INSERT INTO\ntbfuncionesmath"];
-nodo1520->nodo1521
-nodo1521[label = "Parametro\n"];
-nodo1521->nodo1522
-nodo1522[label = "ENTERO\n2"];
-nodo1520->nodo1523
-nodo1523[label = "Parametro\n"];
-nodo1523->nodo1524
-nodo1524[label = "ENTERO\n0"];
-nodo1520->nodo1525
-nodo1525[label = "Parametro\n"];
-nodo1525->nodo1526
-nodo1526[label = "ENTERO\n0"];
-nodo1->nodo1527
-nodo1527[label = "INSERT INTO\ntbfuncionesmath"];
-nodo1527->nodo1528
-nodo1528[label = "Parametro\n"];
-nodo1528->nodo1529
-nodo1529[label = "ENTERO\n3"];
-nodo1527->nodo1530
-nodo1530[label = "Parametro\n"];
-nodo1530->nodo1531
-nodo1531[label = "ENTERO\n0"];
-nodo1527->nodo1532
-nodo1532[label = "Parametro\n"];
-nodo1532->nodo1533
-nodo1533[label = "ENTERO\n0"];
-nodo1->nodo1534
-nodo1534[label = "INSERT INTO\ntbfuncionesmath"];
-nodo1534->nodo1535
-nodo1535[label = "Parametro\n"];
-nodo1535->nodo1536
-nodo1536[label = "ENTERO\n4"];
-nodo1534->nodo1537
-nodo1537[label = "Parametro\n"];
-nodo1537->nodo1538
-nodo1538[label = "ENTERO\n0"];
-nodo1534->nodo1539
-nodo1539[label = "Parametro\n"];
-nodo1539->nodo1540
-nodo1540[label = "ENTERO\n0"];
-nodo1->nodo1541
-nodo1541[label = "DELETE\ntbfuncionesmath"];
-nodo1541->nodo1542
-nodo1542[label = "OPREL\n\="];
-nodo1542->nodo1543
-nodo1543[label = "ID\nidfuncion"];
-nodo1542->nodo1544
-nodo1544[label = "ENTERO\n1"];
-nodo1->nodo1545
-nodo1545[label = "SELECT\n"];
-nodo1545->nodo1546
-nodo1546[label = "ASTERISCO\n*"];
-nodo1545->nodo1547
-nodo1547[label = "FROM\n"];
-nodo1547->nodo1548
-nodo1548[label = "Tabla\ntbfuncionesmath"];
-nodo1->nodo1549
-nodo1549[label = "SELECT\n"];
-nodo1549->nodo1550
-nodo1550[label = "ROWS\n"];
-nodo1550->nodo1551
-nodo1551[label = "Matematica\nSQRT"];
-nodo1551->nodo1552
-nodo1552[label = "ENTERO\n225"];
-nodo1551->nodo1553
-nodo1553[label = "Alias\nSQRT1"];
-nodo1550->nodo1554
-nodo1554[label = "Matematica\nSIGN"];
-nodo1554->nodo1555
-nodo1555[label = "DECIMAL\n14.321"];
-nodo1554->nodo1556
-nodo1556[label = "Alias\nSING"];
-nodo1550->nodo1557
-nodo1557[label = "PI\n"];
-nodo1550->nodo1558
-nodo1558[label = "Matematica\nTRUNC"];
-nodo1558->nodo1559
-nodo1559[label = "DECIMAL\n67.456"];
-nodo1558->nodo1560
-nodo1560[label = "Alias\nTRUNC1"];
-nodo1550->nodo1561
-nodo1561[label = "PI\n"];
-nodo1561->nodo1562
-nodo1562[label = "Alias\nRANDOM1"];
-nodo1550->nodo1563
-nodo1563[label = "Matematica\nRADIANS"];
-nodo1563->nodo1564
-nodo1564[label = "DECIMAL\n15.0"];
-nodo1563->nodo1565
-nodo1565[label = "Alias\nRADIANS1"];
-nodo1550->nodo1566
-nodo1566[label = "Matematica\nROUND"];
-nodo1566->nodo1567
-nodo1567[label = "DECIMAL\n67.456"];
-nodo1566->nodo1568
-nodo1568[label = "Alias\nROUND1"];
-nodo1550->nodo1569
-nodo1569[label = "Matematica\nPOWER"];
-nodo1569->nodo1570
-nodo1570[label = "DECIMAL\n7.0"];
-nodo1569->nodo1571
-nodo1571[label = "ENTERO\n3"];
-nodo1550->nodo1572
-nodo1572[label = "Matematica\nMOD"];
-nodo1572->nodo1573
-nodo1573[label = "NEGATIVO\n-"];
-nodo1573->nodo1574
-nodo1574[label = "ENTERO\n38"];
-nodo1572->nodo1575
-nodo1575[label = "ENTERO\n5"];
-nodo1550->nodo1576
-nodo1576[label = "Matematica\nLOG"];
-nodo1576->nodo1577
-nodo1577[label = "DECIMAL\n200.0"];
-nodo1576->nodo1578
-nodo1578[label = "Alias\nLOGARITMO"];
-nodo1550->nodo1579
-nodo1579[label = "Matematica\nLN"];
-nodo1579->nodo1580
-nodo1580[label = "DECIMAL\n3.0"];
-nodo1579->nodo1581
-nodo1581[label = "Alias\nLOGARITMONATURAL"];
-nodo1550->nodo1582
-nodo1582[label = "Matematica\nFLOOR"];
-nodo1582->nodo1583
-nodo1583[label = "DECIMAL\n53.6"];
-nodo1582->nodo1584
-nodo1584[label = "Alias\nFLOOR1"];
-nodo1550->nodo1585
-nodo1585[label = "Matematica\nFACTORIAL"];
-nodo1585->nodo1586
-nodo1586[label = "ENTERO\n4"];
-nodo1550->nodo1587
-nodo1587[label = "Matematica\nEXP"];
-nodo1587->nodo1588
-nodo1588[label = "DECIMAL\n2.0"];
-nodo1587->nodo1589
-nodo1589[label = "Alias\nEXPONENCIAL"];
-nodo1550->nodo1590
-nodo1590[label = "Matematica\nDIV"];
-nodo1590->nodo1591
-nodo1591[label = "ENTERO\n19"];
-nodo1590->nodo1592
-nodo1592[label = "ENTERO\n3"];
-nodo1->nodo1593
-nodo1593[label = "SELECT\n"];
-nodo1593->nodo1594
-nodo1594[label = "ROWS\n"];
-nodo1594->nodo1595
-nodo1595[label = "Trigonometrica\nATAN"];
-nodo1595->nodo1596
-nodo1596[label = "ENTERO\n1"];
-nodo1594->nodo1597
-nodo1597[label = "Trigonometrica\nASIN"];
-nodo1597->nodo1598
-nodo1598[label = "ENTERO\n1"];
-nodo1594->nodo1599
-nodo1599[label = "Trigonometrica\nACOS"];
-nodo1599->nodo1600
-nodo1600[label = "ENTERO\n1"];
-nodo1594->nodo1601
-nodo1601[label = "Trigonometrica\nCOS"];
-nodo1601->nodo1602
-nodo1602[label = "ENTERO\n0"];
-nodo1594->nodo1603
-nodo1603[label = "Trigonometrica\nTAN"];
-nodo1603->nodo1604
-nodo1604[label = "ENTERO\n0"];
-nodo1594->nodo1605
-nodo1605[label = "Trigonometrica\nSINH"];
-nodo1605->nodo1606
-nodo1606[label = "ENTERO\n2"];
-nodo1594->nodo1607
-nodo1607[label = "Trigonometrica\nACOSH"];
-nodo1607->nodo1608
-nodo1608[label = "ENTERO\n2"];
-nodo1594->nodo1609
-nodo1609[label = "Trigonometrica\nATANH"];
-nodo1609->nodo1610
-nodo1610[label = "ENTERO\n0"];
-nodo1594->nodo1611
-nodo1611[label = "Trigonometrica\nTANH"];
-nodo1611->nodo1612
-nodo1612[label = "ENTERO\n1"];
-nodo1->nodo1613
-nodo1613[label = "SELECT\n"];
-nodo1613->nodo1614
-nodo1614[label = "ROWS\n"];
-nodo1614->nodo1615
-nodo1615[label = "FUNCION STR\nLENGTH"];
-nodo1614->nodo1616
-nodo1616[label = "FUNCION STR\nsubstring"];
-nodo1616->nodo1617
-nodo1617[label = "ID\nprimerapellido"];
-nodo1616->nodo1618
-nodo1618[label = "ENTERO\n1"];
-nodo1616->nodo1619
-nodo1619[label = "ENTERO\n5"];
-nodo1614->nodo1620
-nodo1620[label = "FUNCION STR\nsubstr"];
-nodo1620->nodo1621
-nodo1621[label = "ID\nprimerapellido"];
-nodo1620->nodo1622
-nodo1622[label = "ENTERO\n1"];
-nodo1620->nodo1623
-nodo1623[label = "ENTERO\n5"];
-nodo1613->nodo1624
-nodo1624[label = "FROM\n"];
-nodo1624->nodo1625
-nodo1625[label = "Tabla\ntbempleado"];
-nodo1->nodo1626
-nodo1626[label = "SELECT\n"];
-nodo1626->nodo1627
-nodo1627[label = "ASTERISCO\n*"];
-nodo1626->nodo1628
-nodo1628[label = "FROM\n"];
-nodo1628->nodo1629
-nodo1629[label = "Tabla\ntbempleado"];
-nodo1626->nodo1630
-nodo1630[label = "WHERE\n"];
-nodo1630->nodo1631
-nodo1631[label = "OPREL\n\="];
-nodo1631->nodo1632
-nodo1632[label = "ID\nprimernombre"];
-nodo1631->nodo1633
-nodo1633[label = "CADENA\nJul"];
-nodo1->nodo1634
-nodo1634[label = "SELECT\n"];
-nodo1634->nodo1635
-nodo1635[label = "ASTERISCO\n*"];
-nodo1634->nodo1636
-nodo1636[label = "FROM\n"];
-nodo1636->nodo1637
-nodo1637[label = "Tabla\ntbempleado"];
-nodo1634->nodo1638
-nodo1638[label = "WHERE\n"];
-nodo1638->nodo1639
-nodo1639[label = "OPREL\n\="];
-nodo1639->nodo1640
-nodo1640[label = "ID\nprimernombre"];
-nodo1639->nodo1641
-nodo1641[label = "CADENA\nJul"];
-nodo1->nodo1642
-nodo1642[label = "INSERT INTO\ntbcalifica"];
-nodo1642->nodo1643
-nodo1643[label = "Parametro\n"];
-nodo1643->nodo1644
-nodo1644[label = "ENTERO\n15"];
-nodo1642->nodo1645
-nodo1645[label = "Parametro\n"];
-nodo1645->nodo1646
-nodo1646[label = "CADENA\nFunciones Matematicas"];
-nodo1642->nodo1647
-nodo1647[label = "Parametro\n"];
-nodo1647->nodo1648
-nodo1648[label = "DECIMAL\n3.0"];
-nodo1642->nodo1649
-nodo1649[label = "Parametro\n"];
-nodo1649->nodo1650
-nodo1650[label = "ENTERO\n5"];
-nodo1->nodo1651
-nodo1651[label = "INSERT INTO\ntbcalifica"];
-nodo1651->nodo1652
-nodo1652[label = "Parametro\n"];
-nodo1652->nodo1653
-nodo1653[label = "ENTERO\n16"];
-nodo1651->nodo1654
-nodo1654[label = "Parametro\n"];
-nodo1654->nodo1655
-nodo1655[label = "CADENA\nFunciones Trigonometricas"];
-nodo1651->nodo1656
-nodo1656[label = "Parametro\n"];
-nodo1656->nodo1657
-nodo1657[label = "DECIMAL\n3.0"];
-nodo1651->nodo1658
-nodo1658[label = "Parametro\n"];
-nodo1658->nodo1659
-nodo1659[label = "ENTERO\n5"];
-nodo1->nodo1660
-nodo1660[label = "INSERT INTO\ntbcalifica"];
-nodo1660->nodo1661
-nodo1661[label = "Parametro\n"];
-nodo1661->nodo1662
-nodo1662[label = "ENTERO\n17"];
-nodo1660->nodo1663
-nodo1663[label = "Parametro\n"];
-nodo1663->nodo1664
-nodo1664[label = "CADENA\nFunciones String"];
-nodo1660->nodo1665
-nodo1665[label = "Parametro\n"];
-nodo1665->nodo1666
-nodo1666[label = "DECIMAL\n3.0"];
-nodo1660->nodo1667
-nodo1667[label = "Parametro\n"];
-nodo1667->nodo1668
-nodo1668[label = "ENTERO\n5"];
-nodo1->nodo1669
-nodo1669[label = "INSERT INTO\ntbcalifica"];
-nodo1669->nodo1670
-nodo1670[label = "Parametro\n"];
-nodo1670->nodo1671
-nodo1671[label = "ENTERO\n18"];
-nodo1669->nodo1672
-nodo1672[label = "Parametro\n"];
-nodo1672->nodo1673
-nodo1673[label = "CADENA\nBinarios"];
-nodo1669->nodo1674
-nodo1674[label = "Parametro\n"];
-nodo1674->nodo1675
-nodo1675[label = "DECIMAL\n1.0"];
-nodo1669->nodo1676
-nodo1676[label = "Parametro\n"];
-nodo1676->nodo1677
-nodo1677[label = "ENTERO\n5"];
+nodo184[label = "NOT NULL\n"];
+nodo174->nodo185
+nodo185[label = "COLUMN\nestado"];
+nodo185->nodo186
+nodo186[label = "Tipo\ninteger"];
+nodo185->nodo187
+nodo187[label = "ATRIBUTOS\n"];
 }

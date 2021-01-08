@@ -97,6 +97,7 @@ class Funciones2:
         archivo += '\tast.erroresHTML()\n'
         archivo += '\tast.graficarAST(raiz)\n'
         archivo += '\tcrearReporte(raiz)\n'
+        archivo += '\tpila = [5]\n'
 
         archivo += '\n############################# CODIGO EN 3DIRECCIONES ############################## \n\n'
         archivo += 'def main(): \n'
