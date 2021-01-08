@@ -321,16 +321,19 @@ class Expresion(Nodo):
 
                     # Generando Etiqueta 3
                     e3 = instanceLabel.getLabel()
-
                     self.cod = cod1 + cod2 + 'if ' + exp.dir + ' <= ' + exp2.dir + ' :\n'
                     self.cod += '\tgoto ' + e1 + '\n'
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -355,10 +358,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -383,10 +390,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
                 
@@ -423,10 +434,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -451,10 +466,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -479,10 +498,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
                 
@@ -519,10 +542,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod +=  self.dir + ' = 1\n'
+                    self.cod +=  'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod +=  self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -547,10 +574,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -575,10 +606,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
                 
@@ -615,10 +650,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod +='goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod +=self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -643,10 +682,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -671,10 +714,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod +=  self.dir + ' = 1\n'
+                    self.cod +=  'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod +=  self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
                 
@@ -711,10 +758,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod +=  self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
+                    self.cod += 'label '+ e2 + '\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -739,10 +790,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -767,10 +822,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
                 
@@ -807,10 +866,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -835,10 +898,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
 
@@ -863,10 +930,14 @@ class Expresion(Nodo):
                     self.cod += 'goto ' + e2
                     self.cod += '\n'
                     self.cod +=  'label ' + e1 + '\n'
-                    self.cod += '\t' + self.dir + ' = 1\n'
-                    self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 1\n'
+                    #self.cod += '\t' + 'goto ' + e3 + '\n'
+                    #self.cod += 'label ' + e2 + '\n'
+                    #self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 1\n'
+                    self.cod += 'goto ' + e3 + '\n'
                     self.cod += 'label ' + e2 + '\n'
-                    self.cod += '\t' + self.dir + ' = 0\n'
+                    self.cod += self.dir + ' = 0\n'
                     self.cod += 'label ' + e3 + '\n'
                     return self.cod
                 

@@ -1862,21 +1862,21 @@ def p_declaraciones_procedure(t):
 
 def p_cuerpo_procedure(t):
     '''cuerpo_procedure :  BEGIN instrucciones_procedure'''
-    t[0] = Start("CUERPO_PROCEDURE")
+    t[0] = Bloque("CUERPO_PROCEDURE")
     for hijo in t[2].hijos:
-        t[0].addChild(hijo)
+        t[0].hijos.append(hijo)
 
 def p_instrucciones_procedure_1(t):
     '''instrucciones_procedure : instrucciones_procedure instruccion_procedure PUNTOYCOMA'''
-    t[0] = Start("INSTRUCCIONES_PROCEDURE")
+    t[0] = Bloque("INSTRUCCIONES_PROCEDURE")
     for hijo in t[1].hijos:
-        t[0].addChild(hijo)
-    t[0].addChild(t[2])
+        t[0].hijos.append(hijo)
+    t[0].hijos.append(t[2])
 
 def p_instrucciones_procedure_2(t):
     '''instrucciones_procedure : instruccion_procedure PUNTOYCOMA'''
-    t[0] = Start("INSTRUCCIONES_PROCEDURE")
-    t[0].addChild(t[1])
+    t[0] = Bloque("INSTRUCCIONES_PROCEDURE_BLOQUE")
+    t[0].hijos.append(t[1])
     
 def p_instruccion_procedure_3(t):
     '''instruccion_procedure : sent_insertar

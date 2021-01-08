@@ -61,7 +61,7 @@ class Bloque(Nodo):
 
     def compile(self, enviroment):
 
-        textoCompile = ''
+        textoCompile = []
 
         for hijo in self.hijos:
 
@@ -76,6 +76,7 @@ class Bloque(Nodo):
             
             elif hijo.nombreNodo == 'SENTENCIA_SELECT':
                 textoCompile += hijo.compile(enviroment)
+                textoCompile.append("execute()")
             
             elif hijo.nombreNodo == 'SENTENCIA_UNION':
                 nuevoUnion = Union()
@@ -98,7 +99,6 @@ class Bloque(Nodo):
             
             elif hijo.nombreNodo == 'SENTENCIA_IF':
                 textoCompile += hijo.compile(enviroment)
-
         return textoCompile
 
     def getText(self):

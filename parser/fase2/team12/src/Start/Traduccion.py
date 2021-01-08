@@ -67,7 +67,7 @@ def traduccionSelect(nodoRaiz):
         tablasTraducir = nodoRaiz.hijos[1]
         tercerNodo = nodoRaiz.hijos[2]
     
-    stringRetornar += ";\n"
+    stringRetornar += ";"
     return stringRetornar
 
 
@@ -145,6 +145,7 @@ def traduccion_index(nodoRaiz):
         if len(nodoRaiz.hijos)  == 4:
             opc_where = ' WHERE ' + nodoRaiz.hijos[3].getText()          
         return f'CREATE INDEX {id1} ON {id2} {sentences} {opc_where};'
+
 
 
 

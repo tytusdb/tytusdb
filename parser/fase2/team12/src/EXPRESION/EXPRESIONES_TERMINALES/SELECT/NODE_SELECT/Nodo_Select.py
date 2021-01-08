@@ -89,12 +89,11 @@ class Select_Expresion(Expresion):
 
     def compile(self, enviroment):
         temporalAsignado = instanceTemporal.getTemporal()
-        codigo3D = temporalAsignado
-        codigo3D += ' = \'' + traduccionSelect(self) + '\' \n'
-        codigo3D += 'display[p] = ' + temporalAsignado + '\n'
-        codigo3D += 'p = p + 1\n'
-        print(codigo3D)
-        return codigo3D
+        retornoMatriz = []
+        retornoMatriz.append(temporalAsignado + ' = \'' + traduccionSelect(self) + '\'')
+        retornoMatriz.append('display[p] = ' + temporalAsignado)
+        retornoMatriz.append('p = p + 1')
+        return retornoMatriz
 
     def getText(self):
         return traduccionSelect(self)

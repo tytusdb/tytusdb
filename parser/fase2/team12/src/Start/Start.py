@@ -23,6 +23,8 @@ from Libraries import Except
 from Libraries import UpdateTable
 from Libraries import AlterTable
 from Libraries import Index
+from Libraries import Procedure
+from Libraries import Execute
 from Traduccion import *
 from Label import *
 from Temporal import *
@@ -152,8 +154,6 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
                 else:
                     self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
-            elif hijo.nombreNodo == 'EXECUTE':
-                print(hijo.nombreNodo)
             elif hijo.nombreNodo == 'CREATE_INDEX' or hijo.nombreNodo == 'CREATE_UNIQUE_INDEX':
                 nuevoIndex = Index()
                 resp = nuevoIndex.execute(hijo)
@@ -163,12 +163,27 @@ class Start(Nodo):
     def compile(self,enviroment = None):
 
         pilaInstrucciones = []
+        pilaEncabezados = []
+        pilaProcedimientos = []
         instanceLabel.labelActual = 1
         instanceTemporal.temporalActual = 1
         entornoGlobal = Entorno(None)
         entornoGlobal.Global = entornoGlobal
         entornoGlobal.nombreEntorno = 'Global'
-
+        pilaEncabezados.append("import sys, os.path")
+        pilaEncabezados.append("import sys, os.path")
+        pilaEncabezados.append("gramaticaDir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))")
+        pilaEncabezados.append("print(gramaticaDir)")
+        pilaEncabezados.append("sys.path.append(gramaticaDir)")
+        #sys.path.append(gramaticaDir)
+        pilaEncabezados.append("# Seccion de Imports")
+        pilaEncabezados.append("")
+        pilaEncabezados.append("from goto import with_goto")
+        pilaEncabezados.append("from gramatica import run_method")
+        pilaEncabezados.append("")
+        pilaEncabezados.append("display = {}")
+        pilaEncabezados.append("listaParams = []")
+        pilaEncabezados.append("p = 0")
         for hijo in self.hijos:
             if hijo.nombreNodo == 'CREATE_DATABASE':
                 nuevaDB = Database()
@@ -187,16 +202,25 @@ class Start(Nodo):
                 print(cod)
             elif hijo.nombreNodo == 'SENTENCIA_PROCEDURE':
                 nuevoProcedure = Procedure()
-                nuevoProcedure.compile(hijo)
+                nuevoProcedure.compile(hijo, entornoGlobal)
+                pilaInstrucciones = nuevoProcedure.cuerpoResult
             elif hijo.nombreNodo == 'SENTENCIA_SELECT' or hijo.nombreNodo == 'SENTENCIA_SELECT_DISTINCT':
                 respuesta = hijo.compile(enviroment)
             elif hijo.nombreNodo == 'SENTENCIA_IF':
                 print(hijo.compile(entornoGlobal))
+            elif hijo.nombreNodo == 'EXECUTE':
+                nuevoExecute = Execute()
+                nuevoExecute.compile(hijo)
+                if nuevoExecute.procedimiento != None:
+                    pilaProcedimientos+=nuevoExecute.codigo3Dimensiones
+                    pilaInstrucciones.append(nuevoExecute.procedimiento)
         
         
-
+        pilaFinal = pilaEncabezados
+        pilaFinal += pilaProcedimientos
+        pilaFinal += pilaInstrucciones
         archivo = open('src/C3D/CompileFile.py',"w")
-        for line in pilaInstrucciones:
+        for line in pilaFinal:
             archivo.write(line)
             archivo.write("\n")
         archivo.close()
@@ -214,7 +238,7 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'CREATE_DATABASE':
                 textoEntrada += traduccionCreate_database(hijo) 
             elif hijo.nombreNodo == 'CREATE_TABLE':
-                textoEntrada += traduccion_create_table(hijo)
+                textoEntrada += traduccion_create_table(hijo)                                                           
             elif hijo.nombreNodo == 'CREATE_INDEX':
                 textoEntrada += traduccion_index(hijo) 
             elif hijo.nombreNodo == 'CREATE_UNIQUE_INDEX':

@@ -117,12 +117,13 @@ class Sentencia_If(Nodo):
             return None
 
     def compile(self, enviroment):
-        stringIf = ''
+        stringIf = []
+
         condicional = self.hijos[0]
         codigoCondicional = condicional.compile(enviroment)
 
         if condicional.tipo.data_type == Data_Type.boolean :
-
+            listaCondicional = codigoCondicional.splitlines()
             entornoLocal = Entorno(enviroment)
             entornoLocal.nombreEntorno = ' if ' + enviroment.nombreEntorno
             entornoLocal.Global = enviroment.Global
@@ -139,17 +140,16 @@ class Sentencia_If(Nodo):
 
             # Generando Etiqueta Salida
             e3 = instanceLabel.getLabel()
-
-            stringIf += codigoCondicional
-            stringIf += 'if ' + condicional.dir + ' == 1 :\n'
-            stringIf += '\tgoto '+ e1 + '\n'
-            stringIf += 'goto ' + e2 + '\n'
-            stringIf += 'label ' + e1 + '\n'
-            stringIf += bloque.compile(entornoLocal)+'\n'
-            stringIf += 'goto ' + e3 + '\n'
+            stringIf+=listaCondicional
+            stringIf.append('if ' + condicional.dir + ' == 1 :')
+            stringIf.append('\tgoto '+ e1)
+            stringIf.append('goto ' + e2)
+            stringIf.append('label ' + e1)
+            stringIf += bloque.compile(entornoLocal)
+            stringIf.append('goto ' + e3)
 
             # Etiquetas falsas
-            stringIf += 'label ' + e2 + '\n'
+            stringIf.append('label ' + e2 )
 
             cantidadHijos = len(self.hijos)
 
@@ -158,7 +158,7 @@ class Sentencia_If(Nodo):
                 nodo = self.hijos[2]
                 if nodo.nombreNodo == 'SENTENCIA_ELSE':
 
-                    stringIf += nodo.compile(enviroment) + '\n'
+                    stringIf += nodo.compile(enviroment)
 
                 else:
 
@@ -186,15 +186,15 @@ class Sentencia_If(Nodo):
                             bloque = sentenciaElif.hijos[1]
 
                             stringIf += valueCondicionalElif
-                            stringIf += 'if ' + condicionalElif.dir + ' == 1 :\n'
-                            stringIf += '\tgoto '+ e1 + '\n'
-                            stringIf += 'goto ' + e2 + '\n'
-                            stringIf += 'label ' + e1 + '\n'
-                            stringIf += bloque.compile(entornoLocal)+'\n'
-                            stringIf += 'goto ' + e3 + '\n'
+                            stringIf.append('if ' + condicionalElif.dir + ' == 1 :')
+                            stringIf.append('\tgoto '+ e1)
+                            stringIf.append('goto ' + e2)
+                            stringIf.append('label ' + e1)
+                            stringIf += bloque.compile(entornoLocal)
+                            stringIf.append('goto ' + e3)
 
                             # Etiquetas falsas
-                            stringIf += 'label ' + e2 + '\n'
+                            stringIf.append('label ' + e2)
 
                         else:
                             print('Error')
@@ -228,15 +228,15 @@ class Sentencia_If(Nodo):
                         bloque = sentenciaElif.hijos[1]
 
                         stringIf += valueCondicionalElif
-                        stringIf += 'if ' + condicionalElif.dir + ' == 1 :\n'
-                        stringIf += '\tgoto '+ e1 + '\n'
-                        stringIf += 'goto ' + e2 + '\n'
-                        stringIf += 'label ' + e1 + '\n'
-                        stringIf += bloque.compile(entornoLocal)+'\n'
-                        stringIf += 'goto ' + e3 + '\n'
+                        stringIf.append('if ' + condicionalElif.dir + ' == 1 :')
+                        stringIf.append('\tgoto '+ e1)
+                        stringIf.append('goto ' + e2)
+                        stringIf.append('label ' + e1)
+                        stringIf += bloque.compile(entornoLocal)
+                        stringIf.append('goto ' + e3)
 
                         # Etiquetas falsas
-                        stringIf += 'label ' + e2 + '\n'
+                        stringIf.append('label ' + e2)
 
                     else:
                         string += ''
@@ -247,7 +247,7 @@ class Sentencia_If(Nodo):
 
                 pass
             # Etiqueta Salida
-            stringIf += ' label ' + e3 + '\n'
+            stringIf.append('label ' + e3)
             return stringIf
         else :
 

@@ -46,3 +46,4 @@ from AlterTable import AlterTable
 from Procedure import Procedure
 from Procedure import Procedure
 from Index import Index
+from Execute import Execute
