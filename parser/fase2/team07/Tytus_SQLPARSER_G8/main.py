@@ -21,6 +21,7 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from storageManager.jsonMode import *
 
 from Codigo_3D import FuncionesPara3D
+from Codigo_3D import Optimizacion
 
 
 import sintactico
@@ -186,6 +187,12 @@ class interfaz():
         self.txtsalida[self.tab.index("current")].insert(INSERT,Codigo3D.Codigo3D.mensaje)
         pass
 
+    def optimizarc3d_click(self):
+        op = Optimizacion.Optimizacion()
+        op.Optimizar()
+        op.GenerarReporte()
+        pass
+
     def abrir_click(self):
         try:
             self.file = filedialog.askopenfilename(initialdir= os.path.dirname(__file__))
@@ -226,8 +233,7 @@ class interfaz():
         global arbol
         global tablaSym
         
-        #rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)
-        rs.crear_tabla(arbol, tablaSym)  
+        rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)  
         arbol = None         
 
     def ast_click(self):
