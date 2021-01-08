@@ -49,7 +49,8 @@ class Caso(Instruccion):
         self.sentencias = sentencias
 
 class Funcion(Instruccion):
-    def __init__(self, tipo, id, parametros, instrucciones):
+    def __init__(self, tipo_funcion, tipo, id, parametros, instrucciones):
+        self.tipo_funcion = tipo_funcion
         self.tipo = tipo
         self.id = id
         self. parametros = parametros
@@ -142,4 +143,13 @@ class CreateIndexNewNew(Instruccion):
     def __init__(self, cadena):
         self.cadena = cadena
 
+class DropFunction(Instruccion):
+    def __init__(self,id,existe):
+        self.id = id
+        self.existe = existe
+
+class DropProcedure(Instruccion):
+    def __init__(self,id,existe):
+        self.id = id
+        self.existe = existe
 

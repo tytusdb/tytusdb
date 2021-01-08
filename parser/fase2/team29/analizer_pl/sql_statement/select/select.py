@@ -41,7 +41,10 @@ class SelectOnlyParams(instruction.Instruction):
         out += ";"
         out += '")\n'
         if isinstance(environment, Environment):
+            grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
+        else:
+            grammar.optimizer_.addIgnoreString(out, self.row, False)
         return code.C3D(parVal + out, "select", self.row, self.column)
 
 
@@ -112,19 +115,15 @@ class Select(instruction.Instruction):
                     orderbyCl += str(o[0]) + o[1] + o[2]
                 else:
                     orderbyCl += o[0].id + o[1] + o[2]
-            out +=  "ORDER BY " + orderbyCl[2:]
+            out += "ORDER BY " + orderbyCl[2:]
         out = out.rstrip() + ";"
         out += '")\n'
-        if isinstance(environment, Environment):
-            out = "\t" + out
         # TODO: optimizacion
-        """
         if isinstance(environment, Environment):
             grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
         else:
             grammar.optimizer_.addIgnoreString(out, self.row, False)
-        """
         return code.C3D(parVal + out, "select", self.row, self.column)
 
     def dot(self):

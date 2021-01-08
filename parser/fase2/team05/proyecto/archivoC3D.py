@@ -1,3 +1,6 @@
+from os import replace
+
+
 def crearArchivo(input, instfuncion):
     archivo = ''
     f = open("team29/ui/codigo3D.py", "w")
@@ -15,11 +18,16 @@ def crearArchivo(input, instfuncion):
     archivo += 'def main3d(): \n'
     archivo += '\tglobal lista \n'
     for a in input:
-        if a.find("del ") != -1:
-            archivo += '\t' + a + '\n'
+        if a is None:
+            continue
+        if a.find("nativa_") != -1:
+            archivo += a + '\n'
             continue
         if a.find("C3D_") != -1:
-            archivo += a
+            archivo += a + '\n'
+            continue
+        if a.find("#LLAMADA") != -1:
+            archivo += a.replace("#LLAMADA", "") + "\n"
             continue
         archivo += '\t'+ a + '\n'
         subA = a.split("=")
@@ -28,6 +36,15 @@ def crearArchivo(input, instfuncion):
 
     archivo += "\n"
     for inst in instfuncion:
+        if inst.find("nativa_") != -1:
+            archivo += inst + '\n'
+            continue
+        if inst.find("C3D_") != -1:
+            archivo += inst + '\n'
+            continue
+        if inst.find("#LLAMADA") != -1:
+            archivo += inst.replace("#LLAMADA", "") + "\n"
+            continue
         archivo += inst + "\n"
 
     archivo += '\n\nif __name__ == "__main__": \n'

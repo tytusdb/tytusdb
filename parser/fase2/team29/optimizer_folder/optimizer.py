@@ -165,6 +165,7 @@ class Optimizer:
                         actual.resultado.id + "=" + actual.Elem1.id + " -> Eliminacion"
                     )
                     del self.fuente[i]
+                    i -= 1
             i += 1
 
     def arithmetic_optimization(self):
@@ -522,6 +523,7 @@ class Optimizer:
                         self.registro.append(str(actual))
                         self.registro.append("-> " + str(actual))
                         del self.fuente[i]
+                        i -= 1
             i += 1
 
     def optimization_if_jump(self):
@@ -545,10 +547,7 @@ class Optimizer:
                 self.registro.append("->" + str(pivote))
                 del self.fuente[i + 1]
                 del self.fuente[i + 1]
-
-            i += 1
-
-            i += 1
+            i += 2
 
     def optimize(self):
         self.arithmetic_optimization()
@@ -558,7 +557,11 @@ class Optimizer:
         self.optimization_if_jump()
         self.optimization_by_jump_label()
         self.optimization_by_jump_goto()
-        return self.generatedOutput()
+        temp = self.generatedOutput()
+        self.fuente.clear()
+        self.sumidero.clear()
+        self.registro.clear()
+        return temp
 
     def generatedOutput(self):
         iterator = iter(self.fuente)

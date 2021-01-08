@@ -15,6 +15,7 @@ class CreateTable(instruction.Instruction):
         self.inherits = inherits
 
     def execute(self, environment):
+        Struct.load()
         # insert = [posiblesErrores,noColumnas]
         insert = Struct.insertTable(
             instruction.dbtemp, self.name, self.columns, self.inherits
