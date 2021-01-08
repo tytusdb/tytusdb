@@ -12,8 +12,10 @@ from Utils.fila import fila
 from Error import *
 import Instrucciones.DML.select as select
 import json
-#from select import *
-
+from select import *
+import reporteIndexGen as repIndex
+from imports import *
+#import optimizacion.optimizador as optimizador
 ##########################################################################
 
 storage.dropAll()
@@ -64,7 +66,7 @@ def analisis():
         datos.reInsertarValores(json.loads(text))
         #print(str(datos))
     except:
-        print('error')
+        print('error bloque utils tabla')
     for instr in instrucciones['ast'] :
 
             if instr != None:
@@ -92,7 +94,7 @@ def analisis():
     Rerrores(errores, erroresSemanticos)
     errores.clear()
     erroresSemanticos.clear()
-
+    repIndex.reporteTablaIndices(datos)
     reporteTabla()
     del instrucciones
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
@@ -146,6 +148,12 @@ def mistakes():
     ruta = ".\\Reportes\\Reporte_Errores.html"
     webbrowser.open(ruta)
 
+#Reporte de funciones y procedimientos
+def funcsyprocs():
+    ReporteFuns_y_Procs()
+    ruta = ".\\Reportes\\Reporte_fyP.html"
+    webbrowser.open(ruta)
+
 def recorrerErrores(errores):
     salidaE = ""
     for error in errores:
@@ -177,98 +185,6 @@ def hacerReporteLexicoProcesado(gramatica):
 
 
 def reporteTabla():
-
-    #if(datos.tablaSimbolos['IndicesTS'] is not None):
-    if('IndicesTS' in datos.tablaSimbolos):
-        g = open("./Reportes/Reporte_TablaSimbolosIndices.html", "w")
-        g.write("<!DOCTYPE html>\n")
-        g.write("<html>\n")
-        g.write("   <head>\n")
-        g.write('       <meta charset="UTF-8">\n')
-        g.write('       <meta name="viewport" content="width=device-width, initial-scale=1.0">')
-        g.write("       <title>Reporte de tabla simbolos</title>\n")
-        g.write('      <link rel="stylesheet" href="style.css">\n')
-        g.write("   </head>\n")
-        g.write("   <body>\n")
-        g.write("       <p><b>Reporte Tabla de Simbolos Indices<b></p>\n")
-        g.write("       <div>\n")
-
-        for column in range(0,len(datos.tablaSimbolos['IndicesTS'])):
-            namecom = datos.tablaSimbolos['IndicesTS']['namecom']#'Nombre'#cc
-            nombreindice = datos.tablaSimbolos['IndicesTS']['nombreindice']#'Nombre'#cc
-            tablaname = datos.tablaSimbolos['IndicesTS']['tablaname']#'Nombre'#cc
-            unique = datos.tablaSimbolos['IndicesTS']['unique']#'Nombre'#cc
-            colname = datos.tablaSimbolos['IndicesTS']['colname']#'Nombre'#cc
-            tipoAscDes = datos.tablaSimbolos['IndicesTS']['tipoAscDes']#'Nombre'#cc
-            specs = datos.tablaSimbolos['IndicesTS']['specs']#'Nombre'#cc
-            tipoindice = datos.tablaSimbolos['IndicesTS']['tipoindice']#'Nombre'#cc
-           #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
-
-        if(namecom is None):
-            namecom = ''
-
-        if(nombreindice is None):
-            nombreindice = ''
-
-        if(tablaname is None):
-            tablaname = ''
-
-        if(unique is None):
-            unique = ''
-
-        if(colname is None):
-            colname = ''
-        
-        if(tipoAscDes is None):
-            tipoAscDes = ''    
-        
-        if(specs is None):
-            specs = ''      
-        
-        if(tipoindice is None):
-            tipoindice = ''           
-
-                                                       
-
-        g.write("<p class='tabla'>Tabla: ")
-        # f.write(table)
-        # f.write("</p>")
-        g.write("               <table>\n")
-        g.write("                   <tr class='titulo'><td><b>Instruccion </b></td><td><b>Nombre Indice </b></td><td><b>Tabla  </b></td><td><b>Unique</b></td><td><b>Columna</b></td><td><b>Tipo Asc-Desc</b></td><td><b>Order</b></td><td><b>TipoIndice</b></td> </tr>\n")
-                                                                  #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
-        #for col in columnas:
-        g.write("               <tr><td>")
-        g.write(namecom)                    
-        g.write("</td>")
-        g.write("               <td>")
-        g.write(nombreindice)                    
-        g.write("</td>")
-        g.write("               <td>")
-        g.write(tablaname)                    
-        g.write("</td>")
-        g.write("               <td>")
-        g.write(unique)                    
-        g.write("</td>")
-        g.write("               <td>")
-        g.write(str(colname))                    
-        g.write("</td>")
-        g.write("               <td>")
-        g.write(str(tipoAscDes))                    
-        g.write("</td>")
-        g.write("               <td>")
-        g.write(str(specs))                    
-        g.write("</td>")     
-        g.write("               <td>")
-        g.write(str(tipoindice))                    
-        g.write("</td>")        
-        g.write("</tr>\n")
-        g.write("               </table>\n")
-        g.write("           </div>\n")
-        g.write("         </div>\n")
-        g.write("   </body>\n")
-        g.write("</html>\n")
-        g.close()
-
     f = open("./Reportes/Reporte_TablaSimbolos.html", "w")
     f.write("<!DOCTYPE html>\n")
     f.write("<html>\n")
@@ -434,12 +350,146 @@ def reporteTabla():
     f.write("</html>\n")
     f.close()
 
+def ReporteFuns_y_Procs():
+    dic=[]
+    cad=""
+    #Recorremos la lista de funciones creadas
+    for i in pl_funciones.funciones: 
+        nombre=""
+        param1=""
+        tip="" 
+        #Recorremos las tablas de simbolos con la clave de cada funcion
+        for key, value in datos.tablaSimbolos.items():
+            #sacando nombre
+            nombre=datos.tablaSimbolos[i]['nombre']
+            #para sacar los parametros
+            for p in range(0,len(datos.tablaSimbolos[i]['parametros'])):
+                #recorro la lista de parametros hago esplit por coma 
+                param=str(datos.tablaSimbolos[i]['parametros'][p]).split(",")
+                #dependiendo el numero de parametros recorremos la clave
+                param1+=","+str(param[0][9:])    
+            #para sacar el tipo    
+            t=str(datos.tablaSimbolos[i]['tipo'])[1 : -1].split(",")
+            #Clave tipo split por coma y hagarro el primero y le quito 7 caracteres 'type':
+            tip=str(t[0][7:])
+            cad=nombre+":"+param1+":"+tip  
+            param1="" 
+        dic.append(cad)
+        cad=""  
+    print(dic)
+    f = open("./Reportes/Reporte_fyP.html", "w")
+    f.write('<!DOCTYPE HTML5>\n')
+    f.write('<html>\n')
+    f.write('<head>\n')
+    f.write('<title>FUNCIONES Y PROCEDIMIENTOS</title>\n')
+    f.write('<style type="text/css">\n')
+    f.write('.styled-table {\n')
+    f.write('border-collapse: collapse;\n')
+    f.write('margin:0 auto;\n')
+    f.write('font-size: 0.9em;\n')
+    f.write('font-family: sans-serif;\n')
+    f.write('min-width: 400px;\n')
+    f.write('box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);}\n')
+    f.write('.styled-table thead tr {\n')
+    f.write('background-color: #009879;\n')
+    f.write('color: #ffffff;\n')
+    f.write('text-align: left;}\n')
+    f.write('.styled-table th,\n')
+    f.write('.styled-table td {\n')
+    f.write('padding: 12px 15px;}\n')
+    f.write('.styled-table tbody tr {\n')
+    f.write('border-bottom: 1px solid #dddddd;}\n')
+    f.write('.styled-table tbody tr:nth-of-type(even) {\n')
+    f.write('background-color: #f3f3f3;}\n')
+    f.write('.styled-table tbody tr:last-of-type {\n')
+    f.write('border-bottom:4px solid #009879;}\n')
+    f.write('.styled-table tbody tr.active-row {\n')
+    f.write('font-weight: bold;\n')
+    f.write('color: black;}\n')
+    f.write('H2 { text-align: center}\n')
+    f.write('</style>\n')    
+    f.write('</head>\n')
+    f.write('<body style="background-color:grey;">\n')
+    f.write('<h2>Funciones en la Tabla de simbolos</h2>\n')
+    f.write('<div style="text-align:center;">\n')
+    f.write('<table class="styled-table">\n')
+    f.write('<thead>\n')
+    f.write('<tr>\n')
+    f.write('<th>Nombre</th>\n')
+    f.write('<th>Tipo</th>\n')
+    f.write('<th>Parametros</th>\n')
+    f.write('</tr>\n')
+    f.write('</thead>\n')
+    f.write('<tbody>\n')    
+    #Recorro la lista de funciones
+    p=0
+    for j in dic:
+        p+=1
+        c=str(j).split(":")
+        if p%2==0:
+            f.write('<tr>\n')
+            f.write('<td>'+c[0]+'</td>\n')
+            f.write('<td>'+c[2]+'</td>\n')
+            f.write('<td>'+c[1][1:]+'</td>\n')
+            f.write('</tr>\n')  
+        else:
+            f.write('<tr class="active-row">\n')
+            f.write('<td>'+c[0]+'</td>\n')
+            f.write('<td>'+c[2]+'</td>\n')
+            f.write('<td>'+c[1][1:]+'</td>\n')
+            f.write('</tr>\n') 
+    f.write('</tbody>\n')  
+    f.write('</table>\n')
+    f.write('</div>\n')
+    #para procedimientos    
+    f.write('<br>\n')
+    f.write('<br>\n')
+    f.write('<h2>Procedimientos en la Tabla de simbolos</h2>\n')
+    f.write('<div style="text-align:center;">\n')
+    f.write('<table class="styled-table">\n')
+    f.write('<thead>\n')
+    f.write('<tr>\n')
+    f.write('<th>Nombre</th>\n')
+    f.write('<th>Tipo</th>\n')
+    f.write('</tr>\n')
+    f.write('</thead>\n')
+    f.write('<tbody>\n')    
+    #Recorro la lista de funciones
+    p1=0
+    for i in pl_procedimientos.procedimientos:
+        if p1%2==0:
+            f.write('<tr>\n')
+            f.write('<td>'+str( datos.tablaSimbolos[i]['nombre'])+'</td>\n')
+            f.write('<td>Void</td>\n')
+            f.write('</tr>\n')  
+        else:
+            f.write('<tr class="active-row">\n')
+            f.write('<td>'+str( datos.tablaSimbolos[i]['nombre'])+'</td>\n')
+            f.write('<td>Void</td>\n')
+            f.write('</tr>\n') 
+    f.write('</tbody>\n')  
+    f.write('</table>\n')
+    f.write('</div>\n')     
+    #Termina procedimiento
+    f.write('</body>\n')
+    f.write('</html> \n')         
+    f.close()
+
 def escribirEnSalidaInicio(texto): #borra lo que hay y escribe al inicio
     salida.insert("1.0", texto)
 
 def escribirEnSalidaFinal(texto): # no borra y escribe al final de lo que ya estaACTIVE
     text = texto + "\n"
     salida.insert("end", text)
+
+
+
+def optimizadorcodigo():
+    optimizador.reporteOptimizador()
+
+
+
+
 #root
 ################################Configuracion#################################
 root = Tk()
@@ -466,6 +516,8 @@ reporteMenu.add_command(label="Tabla de simbolos", command=tabla)
 reporteMenu.add_command(label="Reporte AST", command=ast)
 reporteMenu.add_command(label="Reporte Gramatical", command=gramatica)
 reporteMenu.add_command(label="Tabla Simbolos Indices", command=tablaindices)
+reporteMenu.add_command(label="Funciones y Procedimientos", command=funcsyprocs)
+reporteMenu.add_command(label="Optimizar Código", command=optimizadorcodigo)
 barra.add_cascade(label="Reportes", menu=reporteMenu)
 
 ayudaMenu=Menu(barra, tearoff=0)

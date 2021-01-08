@@ -10,9 +10,9 @@ class Ins_if(Instruccion):
     
     def toString(self,tab):
         if isinstance(self.params,Asignacion):
-            return '\t'*tab +self.ins + ' ' + self.params.toString() + ':\n' + '\t'*(tab+1) + 'goto .' + self.goto
+            return '\t'*tab + 'if ' + self.params.toString() + ':\n' + '\t'*(tab+1) + 'goto .' + self.goto
         else:
-            return '\t'*tab +self.ins + ' ' + self.params+ ':\n' + '\t'*(tab+1) + 'goto .' + self.goto  
+            return '\t'*tab + 'if ' + self.params+ ':\n' + '\t'*(tab+1) + 'goto .' + self.goto  
 
     def setGoto(self,goto):
         self.goto = goto

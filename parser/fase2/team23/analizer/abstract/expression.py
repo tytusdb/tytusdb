@@ -146,6 +146,7 @@ class Identifiers(Expression):
     def c3d(self, environment):
         return self
 
+
 class TableAll(Expression):
     """
     Esta clase representa una tabla.*
@@ -1738,9 +1739,9 @@ class FunctionCall(Expression):
                 value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             else:
                 # TODO: Agregar un error de funcion desconocida
-                func_ = environment.getVar(self.function)
+                func_ = environment.getVar(self.function)                
 
-                if func_ != None:
+                if func_ != None:                    
                     rango_param = range(len(self.params))
                     for n in rango_param:
                         valor_param = self.params[n].execute(environment)                        
@@ -1758,7 +1759,7 @@ class FunctionCall(Expression):
                         )
                         environment.addSymbol(func_.params_func[n][0], new_sym)
                 
-                value = "Prueba_DSPL"
+                value = "ERROR"
                 Lista_Ejecutar = []
                 try:
                     if "PROCEDURE" == environment.variables[self.function].type:
@@ -1770,11 +1771,19 @@ class FunctionCall(Expression):
                 for v in Lista_Ejecutar:
                     value = v.execute(environment)
 
+                # BORRAR PARAMETROS CREADOS
+                rango_param = range(len(self.params))
+                for n in rango_param:
+                    # print("vamo a borra el parametro" + str(func_.params_func[n][0]))
+                    environment.dropSymbol(func_.params_func[n][0])
+
             if isinstance(value, list):
                 if len(value) <= 1:
                     value = value[0]
                 else:
                     value = pd.Series(value)
+
+
 
             return Primitive(type_, value, self.temp, self.row, self.column)
         except TypeError:

@@ -18,6 +18,7 @@ class OP_RELACIONAL(Enum) :
     DIFERENTE = 6
 
 aritmetico = {'SUMA': '+', 'RESTA': '-', 'MULTIPLICACION': '*', 'DIVISION': '/', 'MODULO': '%', 'POTENCIA': '^'}
+relacional = {'MAYOR_QUE': '>', 'MAYOR_IGUAL_QUE': '>=', 'MENOR_QUE': '<', 'MENOR_IGUAL_QUE': '<=', 'IGUAL': '==', 'DIFERENTE': '!='}
 
 class Identificador:
     def __init__(self, nombre):
@@ -124,6 +125,9 @@ class Condicion:
         Condicion(Valor(1, int), Valor(0, float), OP_RELACIONAL.IGUALs)
         2 != y
         '''
+
+    def __str__(self):
+        return str(self.Op1) + " " + relacional[self.Operador.name] + " " + str(self.Op2)
 
 class Asignacion:
     def __init__(self, asignado, valor):

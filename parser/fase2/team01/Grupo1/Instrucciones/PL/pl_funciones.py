@@ -9,10 +9,11 @@ from TablaSimbolos import *
 from Primitivo import *
 from Error import *
 from jsonMode import *
+from c3dGen import *
 import sys
 sys.path.append('../Grupo1/Instrucciones')
 
-funciones={}
+funciones=list()
 class pl_Funcion(Instruccion):
 
     def __init__(self,arg0,arg1,arg2,arg3, nombre,parametros, tipo, cuerpof):
@@ -26,10 +27,22 @@ class pl_Funcion(Instruccion):
         self.cuerpof = cuerpof                      
         
     def execute(self, data):
-        data.tablaSimbolos['FuncionesTS'] = {'nombre' : self.nombre, 'parametros' : self.parametros, 'tipo':self.tipo, 'cuerpo':self.cuerpof}
-        funciones['func']=self.nombre    
-        print("self")
-        return 'tabla de simbolos de funciones procesada.'
+        cad=""
+        def ExisteFunc(key, dicObj):
+            if key in dicObj:
+                cad = "La funcion: "+str(self.nombre)+" Ya Existe!!"
+                return  cad
+            else:
+                print("self")
+                createFunctionC3D(data.databaseSeleccionada,self.nombre,self.arg0,self.parametros,self.arg2,self.arg3, self.cuerpof)
+                funciones.append(self.nombre)
+                data.tablaSimbolos[self.nombre] = {'nombre' : self.nombre, 'parametros' : self.parametros, 'tipo':self.tipo,'cuerpo':self.cuerpof} 
+                cad= "Se creo la funcion: "+str(self.nombre)
+                return cad
+                
+        a=ExisteFunc(self.nombre,data.tablaSimbolos)   
+        return a        
+
 
     def __repr__(self):
         return str(self.__dict__)
@@ -72,6 +85,9 @@ class pl_callFuncion(Instruccion):
         self.arg1 = arg1
 
     def execute(self, data):
+        self.argumentos
+        select_functionC3D(self.nombre,self.argumentos)
+        
         return 'se ejecuto la funcion: '+str(self.nombre)
 
     def __repr__(self):
@@ -87,16 +103,23 @@ class pl_dropFuncion(Instruccion):
         self.arg1 = arg1
         
     def execute(self, data):        
-        if 'FuncionesTS' in data.tablaSimbolos:
-            elemento=data.tablaSimbolos['FuncionesTS']
-            for key, value in list(data.tablaSimbolos.items()):
-                if (value == elemento and data.tablaSimbolos['FuncionesTS']['nombre']==self.nombre):
-                    del data.tablaSimbolos[key]
-                    return "La funcion: "+self.nombre+" se elimino" 
-        else:
-            return "No existe la funcion :"+self.nombre
+        cad=""
+        def ExisteFunc(key, dicObj):
+            if key in dicObj:
+                for i in funciones:
+                    funciones.remove(str(key))
+                    
+                del data.tablaSimbolos[key]
+                cad = "Se elimino la funcion: "+str(self.nombre)
+                return  cad
+            else:
+                cad= "Not existe la funcion: "+str(self.nombre)
+                return cad
+                
+        a=ExisteFunc(self.nombre,data.tablaSimbolos)   
+        return a
+ 
      
-
     def __repr__(self):
         return str(self.__dict__)		
 		

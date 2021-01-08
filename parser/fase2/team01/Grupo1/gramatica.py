@@ -229,7 +229,7 @@ reservadas = {
     'brin':'BRIN',
     'sp': 'SP',
     'tree' :'TREE',
-    'b' : 'B',
+    #'b-tree' : 'B-TREE',
 }
 
 tokens = [
@@ -265,6 +265,7 @@ tokens = [
     'NUMERAL',
     'VIRGULILLA',
     'DOLAR',
+    'BINDEX',
 ] + list(reservadas.values())
 
 #tokens
@@ -297,6 +298,8 @@ t_PORCENTAJE    = r'%'
 t_POTENCIA      = r'\^'
 t_DOLAR         = r'\$'
 
+
+
 def t_DECIMAL(t):
     r'\d+\.\d+'
     try:
@@ -327,6 +330,12 @@ def t_FECHA(t):
 def t_CADENA(t):
     r'\'.*?\''
     t.value = t.value[1:-1] # remuevo las comillas
+    return t
+
+def t_BINDEX(t):
+    r"""(B-TREE|b-tree)"""
+    if t.value in reservadas:
+        t.type = reservadas[ t.value ]
     return t
 
 def t_COMENTARIO_MULTILINEA(t):
@@ -458,6 +467,14 @@ def p_instruccionError(t):
     t[0] = {'ast' : None, 'graph' : grafo.index, 'reporte': reporte, 'visita': ''}
 
 
+# def p_instruccion_notice(t) :
+#     '''instruccion     : pl_insert'''
+#     visita = str(t[1]['visita'])
+#     reporte = "<instruccion> ::= <pl_notice>\n" +t[1]['reporte']
+#     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
+
+
+
 #**********************************************************************
 #**********************************************************************
 #***********************   LLAMADO A INSTRUCCIONES INDEX, PL **********
@@ -576,31 +593,31 @@ def p_instruccion_pl_execute(t) :
 
 def p_instruccion_createindex(t) :
     '''instruccion      : createindex'''
-    visita = '"bloque":"createindex","cadena":"'+ ''#str(t[1]['visita']) +'"'
+    visita = '"bloque":"createindex","cadena":"'+ str(t[1]['visita']) +'"'
     reporte = "<instruccion> ::= <createindex>\n" +t[1]['reporte']
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_instruccion_create_unique_index(t) :
     '''instruccion      : create_unique_index'''
-    visita = '"bloque":"create_unique_index","cadena":"'+ ''#str(t[1]['visita']) +'"'
+    visita = '"bloque":"create_unique_index","cadena":"'+ str(t[1]['visita']) +'"'
     reporte = "<instruccion> ::= <create_unique_index>\n" +t[1]['reporte']
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_instruccion_create_lower_index(t) :
     '''instruccion      : create_lower_index'''
-    visita = '"bloque":"createindex","cadena":"'+ ''#str(t[1]['visita']) +'"'    
+    visita = '"bloque":"createindex","cadena":"'+ str(t[1]['visita']) +'"'    
     reporte = "<instruccion> ::= <create_lower_index>\n" +t[1]['reporte']
-    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}    
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}    
 
 def p_instruccion_drop_index(t) :
     '''instruccion      : drop_index'''
-    visita = '"bloque":"create_lower","cadena":"'+ ''#str(t[1]['visita']) +'"'
+    visita = '"bloque":"create_lower","cadena":"'+ str(t[1]['visita']) +'"'
     reporte = "<instruccion> ::= <drop_index>\n" +t[1]['reporte']
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_instruccion_alter_index(t) :
     '''instruccion      : alterindex'''
-    visita = '"bloque":"alter_index","cadena":"'+ ''#str(t[1]['visita']) +'"'    
+    visita = '"bloque":"alter_index","cadena":"'+ str(t[1]['visita']) +'"'    
     reporte = "<instruccion> ::= <alterindex>\n" +t[1]['reporte']
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
@@ -693,7 +710,7 @@ def p_select(t):
 def p_select_err(t):
     'select : problem'
     reporte = "<select> ::= <problem>"
-    t[0] = { 'reporte': reporte, 'ast': None, 'graph': grafo.index}
+    t[0] = { 'reporte': reporte, 'ast': None, 'graph': grafo.index,'visita': ''}
 
 def p_from_opcional(t):
     'fromopcional     :  FROM parametrosfrom whereopcional orderby'
@@ -1655,7 +1672,7 @@ def p_create_instruccion(t) :
 def p_create_instruccion_err(t):
     "create : problem"
     reporte = "<create> ::= <problem>\n" + t[1]['reporte']
-    t[0] = {'reporte': reporte, 'graph': "error", "ast": None}
+    t[0] = {'reporte': reporte, 'graph': "error", "ast": None,'visita': ''}
 
 def p_createenum(t):
     'createenum : ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA'
@@ -2298,7 +2315,7 @@ def p_show(t):
 def p_showw(t):
     '''show   :  problem'''
     reporte = "<show> ::= <problem>\n"
-    t[0] = {'reporte': reporte, 'graph': grafo.index, 'ast': None }
+    t[0] = {'reporte': reporte, 'graph': grafo.index, 'ast': None ,'visita': ''}
 
 def p_likeopcional(t):
     '''likeopcional   :   LIKE CADENA PTCOMA
@@ -2334,7 +2351,7 @@ def p_drop(t):
 def p_drop_e(t):
     '''drop : problem'''
     reporte = "<drop> ::= <problem>\n"+ t[1]['reporte']
-    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index}
+    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index,'visita': ''}
 
 def p_dropdb(t):
     '''dropdb   : IF EXISTS ID
@@ -2375,7 +2392,7 @@ def p_alterp(t):
 def p_alterp_err(t):
     "alter : problem"
     reporte = "<alter> ::= <problem>\n" + t[1]['reporte']
-    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index}
+    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index,'visita': ''}
 
 def p_alterdbsr(t):
     'alterdbs   : alterdbs COMA alterdb'
@@ -2610,7 +2627,7 @@ def p_instrucciones_delete(t) :
 def p_instruccionesdelete_e(t):
     '''delete : problem'''
     reporte = "<delete> ::= <problem>\n" + t[1]['reporte']
-    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index}
+    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index,'visita': ''}
 #-------------------------------------------------------INSERT------------------------------------------
 def p_instrucciones_insert(t):
     '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
@@ -2626,7 +2643,23 @@ def p_instrucciones_insert(t):
 def p_instrucciones_insert_err(t):
     "insert : problem"
     reporte = "<insert> ::= <problem>\n" + t[1]['reporte']
-    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index}
+    t[0] = {'reporte': reporte, 'ast': None, 'graph': grafo.index, 'visita':''}
+
+
+
+
+# def p_pl_instrucciones_insert(t):
+#     '''pl_insert    : INSERT INTO ID VALUES PARENIZQ argumentos PARENDER PTCOMA'''
+#     visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4]) + ' ' +str(t[5]['visita']) + ' '  +str(t[6]) + ' '+str(t[7]['visita'])+ ' '+str(t[8])
+#     grafo.newnode('INSERT')
+#     grafo.newchildrenE(t[2])
+#     grafo.newchildrenF(grafo.index, t[5]['graph'])
+#     reporte = "<insert> ::= "
+#     if t[1].lower() == "into":
+#         reporte += "INTO " + t[2].upper() + " VALUES PARENIZQ <values> PARENDER PTCOMA\n" + t[5]['reporte']
+#     t[0] = {'ast' : insert.Insert('PL_INSERT',visita,t[2], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
+
+
 
 def p_values_rec(t):
     '''values   : values COMA value'''
@@ -2637,6 +2670,8 @@ def p_values_rec(t):
     reporte = "<values> ::= <values> COMA <value>\n" + t[1]['reporte'] + t[3]['reporte']
     t[1]['ast'].append(t[3]['ast'])
     t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
+
+
 
 def p_values(t):
     '''values   : value'''
@@ -2737,6 +2772,16 @@ def p_pl_values_func(t):
     t[0] = {'ast' : insert.Insert(None,None,t[1], t[3]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}    
 
 
+def p_valueid(t):
+    '''value   : ID'''
+    visita = str(t[1])
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1])
+    reporte = "<value> ::="+t[1].upper()+"\n"
+    t[0] = {'ast' : primi.Primitive('id', t[1]), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
+
+
+
 #-------------------------------------------------------UPDATE-------------------------------------------
 def p_instrucciones_update(t):
     '''update    : ID SET asignaciones condicionesops PTCOMA'''
@@ -2752,7 +2797,7 @@ def p_instrucciones_update(t):
 def p_instruccions_update_e(t):
     '''update : problem'''
     reporte = "<update> ::= <problem>\n"+ t[1]['reporte']
-    t[0] = {'reporte': reporte, 'ast':None, 'graph': grafo.index}
+    t[0] = {'reporte': reporte, 'ast':None, 'graph': grafo.index,'visita': ''}
 
 def p_asignaciones_rec(t):
     '''asignaciones     : asignaciones COMA ID IGUAL argument'''
@@ -3236,7 +3281,7 @@ def p_createindex(t):
                    | CREATE INDEX ID ON ID PARENIZQ listacols PARENDER condicionesops PTCOMA
     '''    
     if (len(t) == 10):
-        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]['visita']) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10])
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]['visita']) + ' ' +str(t[8]) + ' ' +str(t[9])
         grafo.newnode('CREATEINDEX')
         grafo.newchildrenE(t[3])
         grafo.newchildrenE(t[5])
@@ -3246,7 +3291,7 @@ def p_createindex(t):
         t[0] = {'ast' : index_create.index_create('CREATEINDEX',visita,t[1], t[3],t[5], None, t[7]['ast'], None, None, None), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice  
     elif (len(t) == 12):
-        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]['visita']) + ' ' +str(t[8]) + ' ' +str(t[9]['visita'])+ ' ' +str(t[10]) + ' ' +str(t[11])
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9]['visita'])+ ' ' +str(t[10]) + ' ' +str(t[11])
         grafo.newnode('CREATEINDEX_USING_HASH')
         grafo.newchildrenE(t[3])
         grafo.newchildrenE(t[5])
@@ -3265,7 +3310,7 @@ def p_createindex(t):
         grafo.newchildrenF(grafo.index, t[9]['graph'])
         #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
         reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " PARENIZQ <listacols> PARENDER WHERE <condicionesops> PTCOMA\n"
-        t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[7]['ast'], None, "where", None), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
+        t[0] = {'ast' : index_create.index_create('CREATE_INDEX',visita,t[1], t[3],t[5], None, t[7]['ast'], None, "where", None), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice 
 
 def p_createtypendex(t):
@@ -3273,61 +3318,78 @@ def p_createtypendex(t):
                    | CREATE INDEX ID ON ID USING GIST PARENIZQ listacols PARENDER PTCOMA
                    | CREATE INDEX ID ON ID USING BRIN PARENIZQ listacols PARENDER PTCOMA
                    | CREATE INDEX ID ON ID USING SP GUION GIST PARENIZQ listacols PARENDER PTCOMA
-                   | CREATE INDEX ID ON ID USING B GUION TREE PARENIZQ listacols PARENDER PTCOMA
+                   | CREATE INDEX ID ON ID USING BINDEX PARENIZQ listacols PARENDER PTCOMA
     '''    
    # if (len(t) == 12):
     if (t[7] == "GIN"):
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9]['visita'])+ ' ' +str(t[10])+ ' ' +str(t[11])
         grafo.newnode('CREATEINDEX_USING_GIN')
         grafo.newchildrenE(t[3])
         grafo.newchildrenE(t[5])
         grafo.newchildrenF(grafo.index, t[9]['graph'])
         #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
         reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " USING GIN PARENIZQ <listacols> PARENDER PTCOMA\n"
-        t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[9]['ast'], None, None, t[7]), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : index_create.index_create('CREATEINDEX_USING_GIN',visita,t[1], t[3],t[5], None, t[9]['ast'], None, None, t[7]), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
     elif (t[7] == "GIST"):
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9]['visita'])+ ' ' +str(t[10])+ ' ' +str(t[11])        
         grafo.newnode('CREATEINDEX_USING_GIST')
         grafo.newchildrenE(t[3])
         grafo.newchildrenE(t[5])
         grafo.newchildrenF(grafo.index, t[9]['graph'])
         #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
         reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " USING GIST PARENIZQ <listacols> PARENDER PTCOMA\n"
-        t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[9]['ast'], None, None, t[7]), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : index_create.index_create('CREATEINDEX_USING_GIST',visita,t[1], t[3],t[5], None, t[9]['ast'], None, None, t[7]), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice            
 
     elif (t[7] == "BRIN"):
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9]['visita'])+ ' ' +str(t[10])+ ' ' +str(t[11])                
         grafo.newnode('CREATEINDEX_USING_BRIN')
         grafo.newchildrenE(t[3])
         grafo.newchildrenE(t[5])
         grafo.newchildrenF(grafo.index, t[9]['graph'])
         #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
         reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " USING BRIN PARENIZQ <listacols> PARENDER PTCOMA\n"
-        t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[9]['ast'], None, None, t[7]), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : index_create.index_create('CREATEINDEX_USING_BRIN',visita,t[1], t[3],t[5], None, t[9]['ast'], None, None, t[7]), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice         
 
     elif (t[7] == "SP"):
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10])+ ' ' +str(t[11]['visita']) + ' ' +str(t[12])+ ' ' +str(t[13]) 
         grafo.newnode('CREATEINDEX_USING_SP-GIST')
         grafo.newchildrenE(t[3])
         grafo.newchildrenE(t[5])
         grafo.newchildrenF(grafo.index, t[11]['graph'])
         #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
         reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " USING SP-GIST PARENIZQ <listacols> PARENDER PTCOMA\n"
-        t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[11]['ast'], None, None, "SP-GIST"), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : index_create.index_create('CREATEINDEX_USING_SP',visita,t[1], t[3],t[5], None, t[11]['ast'], None, None, "SP-GIST"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
-    elif (t[7] == "B"):
+    # elif (t[7] == "B"):
+    #     visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10])+ ' ' +str(t[11]['visita']) + ' ' +str(t[12])+ ' ' +str(t[13])         
+    #     grafo.newnode('CREATEINDEX_USING_B-TREE')
+    #     grafo.newchildrenE(t[3])
+    #     grafo.newchildrenE(t[5])
+    #     grafo.newchildrenF(grafo.index, t[11]['graph'])
+    #     #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
+    #     reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " USING B-TREE PARENIZQ <listacols> PARENDER PTCOMA\n"
+    #     t[0] = {'ast' : index_create.index_create('CREATEINDEX_USING_B',visita,t[1], t[3],t[5], None, t[11]['ast'], None, None, "B-TREE"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
+    #                                            #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
+    elif (t[7] == "BINDEX"):
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8])+ ' ' +str(t[9]['visita']) + ' ' +str(t[10])+ ' ' +str(t[11])         
         grafo.newnode('CREATEINDEX_USING_B-TREE')
         grafo.newchildrenE(t[3])
         grafo.newchildrenE(t[5])
-        grafo.newchildrenF(grafo.index, t[11]['graph'])
+        grafo.newchildrenF(grafo.index, t[9]['graph'])
         #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
         reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " USING B-TREE PARENIZQ <listacols> PARENDER PTCOMA\n"
-        t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[11]['ast'], None, None, "B-TREE"), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : index_create.index_create('CREATEINDEX_USING_B',visita,t[1], t[3],t[5], None, t[9]['ast'], None, None, "B-TREE"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
+    
     
 
 def p_createindexDesc(t):
     '''createindex : CREATE INDEX ID ON ID PARENIZQ ID DESC PARENDER PTCOMA
     '''    
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10])
     grafo.newnode('CREATEINDEX DESC')
     grafo.newchildrenE(t[3])
     grafo.newchildrenE(t[5])
@@ -3338,13 +3400,14 @@ def p_createindexDesc(t):
     #t[0] = {'ast': { "id": t[3], "id": t[5], "id": t[7],"id": t[8] }, 'graph' : grafo.index, 'reporte': reporte}        
     nombreind = "DESC"
    # t[0] = {'ast' : index_create.index_create(None, t[3], t[5],None, None, t[7],nombreind), 'graph' : grafo.index, 'reporte': reporte}
-    t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[7], nombreind, None, "B-tree"), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : index_create.index_create('CREATEINDEX_DESC',visita,t[1], t[3],t[5], None, t[7], nombreind, None, "B-tree"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                            #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice            
     
 
 def p_createindexAsc(t):
     '''createindex : CREATE INDEX ID ON ID PARENIZQ ID ASC PARENDER PTCOMA
     '''    
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10])
     grafo.newnode('CREATEINDEX - ASC')
     grafo.newchildrenE(t[3])
     grafo.newchildrenE(t[5])
@@ -3355,12 +3418,13 @@ def p_createindexAsc(t):
     #t[0] = {'ast': { "id": t[3], "id": t[5], "id": t[7],"id": t[8] }, 'graph' : grafo.index, 'reporte': reporte}     
     nombreind = "ASC"
     #t[0] = {'ast' : index_create.index_create(None, t[3], t[5],None, None, t[7],nombreind), 'graph' : grafo.index, 'reporte': reporte}
-    t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[7], nombreind, None, "B-tree"), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : index_create.index_create('CREATEINDEX_ASC',visita,t[1], t[3],t[5], None, t[7], nombreind, None, "B-tree"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                            #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice       
     
 def p_createindex_firstnull(t):
     '''createindex : CREATE INDEX ID ON ID PARENIZQ ID NULLS FIRST PARENDER PTCOMA
     '''    
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10]) + ' ' +str(t[11]) 
     grafo.newnode('CREATEINDEX NULLS FIRST')
     grafo.newchildrenE(t[3])
     grafo.newchildrenE(t[5])
@@ -3370,7 +3434,7 @@ def p_createindex_firstnull(t):
     reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " PARENIZQ  " + t[7].upper() + " NULLS FIRST PARENDER PTCOMA\n"
     #t[0] = {'ast': { "id": t[3], "id": t[5], "id": t[7],"id": t[8] }, 'graph' : grafo.index, 'reporte': reporte} 
     nombreind = "Nulls First"
-    t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[7], None, nombreind, "B-tree"), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : index_create.index_create('CREATEINDEX_NULLS_FIRST',visita,t[1], t[3],t[5], None, t[7], None, nombreind, "B-tree"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                            #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice         
 
 def p_createindex_lastnull(t):
@@ -3379,6 +3443,7 @@ def p_createindex_lastnull(t):
                    | CREATE INDEX ID ON ID PARENIZQ ID ASC NULLS LAST PARENDER PTCOMA
     '''    
     if (len(t) == 12):
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10])+ ' ' +str(t[11]) 
         grafo.newnode('CREATEINDEX NULLS LAST')
         grafo.newchildrenE(t[3])
         grafo.newchildrenE(t[5])
@@ -3388,10 +3453,11 @@ def p_createindex_lastnull(t):
         reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " PARENIZQ  " + t[7].upper() + " NULLS LAST PARENDER PTCOMA\n"
         #t[0] = {'ast': { "id": t[3], "id": t[5], "id": t[7],"id": t[8] }, 'graph' : grafo.index, 'reporte': reporte}          
         nombreind = "Nulls Last"
-        t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[7], None, nombreind, "B-tree"), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : index_create.index_create('CREATEINDEX_NULLS_LAST',visita,t[1], t[3],t[5], None, t[7], None, nombreind, "B-tree"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice         
     elif (len(t) == 13):
         if t[8] == "DESC":
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10])+ ' ' +str(t[11]) + ' ' +str(t[12]) 
             grafo.newnode('CREATEINDEX -DESC NULLS LAST')
             grafo.newchildrenE(t[3])
             grafo.newchildrenE(t[5])
@@ -3401,9 +3467,10 @@ def p_createindex_lastnull(t):
             reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " PARENIZQ  " + t[7].upper() + " DESC NULLS LAST PARENDER PTCOMA\n"
             #t[0] = {'ast': { "id": t[3], "id": t[5], "id": t[7],"id": t[8] }, 'graph' : grafo.index, 'reporte': reporte}          
             nombreind = "Nulls Last"
-            t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[7], "Desc", nombreind, "B-tree"), 'graph' : grafo.index, 'reporte': reporte}
+            t[0] = {'ast' : index_create.index_create('CREATEINDEX_DESC_NULLS_LAST',visita,t[1], t[3],t[5], None, t[7], "Desc", nombreind, "B-tree"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                    #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice            
         else:
+            visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10])+ ' ' +str(t[11]) + ' ' +str(t[12]) 
             grafo.newnode('CREATEINDEX -ASC NULLS LAST')
             grafo.newchildrenE(t[3])
             grafo.newchildrenE(t[5])
@@ -3413,13 +3480,14 @@ def p_createindex_lastnull(t):
             reporte = "<createindex> ::= CREATE INDEX " + t[3].upper() + " ON " + t[5].upper() + " PARENIZQ  " + t[7].upper() + " ASC NULLS LAST PARENDER PTCOMA\n"
              #t[0] = {'ast': { "id": t[3], "id": t[5], "id": t[7],"id": t[8] }, 'graph' : grafo.index, 'reporte': reporte}          
             nombreind = "Nulls Last"
-            t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],t[5], None, t[7], "ASC", nombreind, "B-tree"), 'graph' : grafo.index, 'reporte': reporte}
+            t[0] = {'ast' : index_create.index_create('CREATEINDEX_ASC_NULLS_LAST',visita,t[1], t[3],t[5], None, t[7], "ASC", nombreind, "B-tree"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                     #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice             
  
 
 
 def p_create_Uindex(t):
     'create_unique_index : CREATE UNIQUE INDEX ID ON ID PARENIZQ listacols PARENDER PTCOMA'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]['visita']) + ' ' +str(t[9])+ ' ' +str(t[10])
     grafo.newnode('CREATE_UNIQUE_INDEX')
     grafo.newchildrenE(t[4])
     grafo.newchildrenE(t[6])
@@ -3427,7 +3495,7 @@ def p_create_Uindex(t):
     #grafo.newchildrenE(t[8])#F(grafo.index, t[5])
     reporte = "<create_unique_index> ::= CREATE UNIQUE INDEX " + t[4].upper() + " ON " + t[6].upper() + " PARENIZQ <listacols> PARENDER PTCOMA\n"
     #t[0] = {'ast': { "id": t[4], "id": t[6], "list": t[8] }, 'graph' : grafo.index, 'reporte': reporte} #1,3,5
-    t[0] = {'ast' : index_create.index_create('1','1',t[1], t[4],t[6], t[2], t[8]['ast'], None, None, "B-tree"), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : index_create.index_create('CREATE_UNIQUE_INDEX',visita,t[1], t[4],t[6], t[2], t[8]['ast'], None, None, "B-tree"), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
     
 
@@ -3455,51 +3523,58 @@ def p_listacols(t):
 def p_create_index_low(t):
     '''create_lower_index : CREATE INDEX ON ID PARENIZQ LOWER PARENIZQ ID PARENDER PARENDER PTCOMA                  
     '''    
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])+ ' ' +str(t[10])+ ' ' +str(t[11])
     grafo.newnode('CREATEINDEX-LOWER')
     grafo.newchildrenE(t[4])
     grafo.newchildrenE(t[8])
    # grafo.newchildrenF(grafo.index, t[7]['graph'])
     reporte = "<create_lower_index> ::= CREATE INDEX ON " + t[4].upper() + " PARENIZQ LOWER PARENIZQ " + t[8].upper() + " PARENDER PARENDER PTCOMA\n"
     #t[0] = {'ast': { "id": t[3], "id": t[5], "list": t[7] }, 'graph' : grafo.index, 'reporte': reporte}
-    t[0] = {'ast' : index_create.index_create('1','1',t[1], None, t[4], None, t[8], None, "lower", None), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : index_create.index_create('CREATEINDEX_LOWER',visita,t[1], None, t[4], None, t[8], None, "lower", None), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
 # CREATE INDEX ON tbbodega ((lower(bodega)));
 def p_dropindex(t):
     'drop_index : DROP INDEX ID PTCOMA'
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])
     grafo.newnode('DROP INDEX')
     grafo.newchildrenE(t[3])
     reporte = "<drop_index> ::= DROP INDEX " + t[3].upper() + " PTCOMA\n"
     #t[0] = {'ast': { "id": t[4], "id": t[6], "list": t[8] }, 'graph' : grafo.index, 'reporte': reporte} #1,3,5
-    t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],None, None, None, None, None, None), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'ast' : index_create.index_create('DROP_INDEX',visita,t[1], t[3],None, None, None, None, None, None), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
     
     
 def p_alterindex(t):
-    '''alterindex : ALTER INDEX ID ALTER PARENIZQ ID PARENDER PTCOMA
-                  | ALTER INDEX IF EXISTS ID ALTER PARENIZQ ID PARENDER PTCOMA
+    '''alterindex : ALTER INDEX ID ALTER ID ID PTCOMA
+                  | ALTER INDEX IF EXISTS ID ALTER ID ID PTCOMA
     '''    
-    if (len(t) == 9):
+    if (len(t) == 8):
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7])
         grafo.newnode('ALTER_INDEX')
         grafo.newchildrenE(t[3])
+        grafo.newchildrenE(t[5])
         grafo.newchildrenE(t[6])
         #grafo.newchildrenF(grafo.index, t[7]['graph'])
         #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
-        reporte = "<alterindex> ::= ALTER INDEX " + t[3].upper() + " ALTER  PARENIZQ " + t[6].upper() + "  PARENDER PTCOMA\n"
+        reporte = "<alterindex> ::= ALTER INDEX " + t[3].upper() + " ALTER " + t[5].upper() + " " +t[6].upper() + " PTCOMA\n"
         #t[0] = {'ast': { "id": t[3], "id": t[5], "list": t[7] }, 'graph' : grafo.index, 'reporte': reporte}
-        t[0] = {'ast' : index_create.index_create('1','1',t[1], t[3],None, None, t[6], None, None, None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : index_create.alter_index('ALTER_INDEX_ID',visita,t[3], t[5],t[6]), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
+                                                            #t[3]                        #t[5] t[6]   
         
-    elif (len(t) == 11):
+    elif (len(t) == 10):
+        visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5])  + ' ' +str(t[6]) + ' ' +str(t[7]) + ' ' +str(t[8]) + ' ' +str(t[9])
         grafo.newnode('ALTER_INDEX IF EXISTS')
         grafo.newchildrenE(t[5])
+        grafo.newchildrenE(t[7])
         grafo.newchildrenE(t[8])
         #grafo.newchildrenF(grafo.index, t[7]['graph'])
         #grafo.newchildrenE(t[7])#F(grafo.index, t[5])
-        reporte = "<alterindex> ::= ALTER INDEX IF EXISTS " + t[5].upper() + " ALTER  PARENIZQ " + t[8].upper() + "  PARENDER PTCOMA\n"
+        reporte = "<alterindex> ::= ALTER INDEX IF EXISTS " + t[5].upper() + " ALTER  " + t[7].upper() + " "+ t[8].upper()+ "   PTCOMA\n"
         #t[0] = {'ast': { "id": t[3], "id": t[5], "list": t[7] }, 'graph' : grafo.index, 'reporte': reporte}
-        t[0] = {'ast' : index_create.index_create('1','1',t[1], t[5],None, None, t[8], None, "If_exists", None), 'graph' : grafo.index, 'reporte': reporte}
+        t[0] = {'ast' : index_create.alter_index('ALTER_INDEX_IF_EXIST',visita,t[5], t[7],t[8]), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
                                                #namecom, nombreindice, tablaname,unique, colname, tipoAscDes, specs, tipoindice
-
+               
 
 #**********************************************************************
 #**********************************************************************
@@ -3660,7 +3735,21 @@ def p_pl_procedimiento(t):
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[11]['graph'])
     reporte = "<pl_procedure> ::= " + t[1].upper() + " PROCEDURE ID"+" <cuerpop>\n" +t[11]['reporte']
-    t[0] = {'ast' : pl_procedimientos.pl_Procedimiento('CREATE_PROCEDURE',visita,t[3],t[11]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
+    t[0] = {'ast' : pl_procedimientos.pl_Procedimiento('CREATE_PROCEDURE',visita,t[3],None,t[11]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
+
+
+#Creando Procedimientos con parametros
+def p_pl_procedimiento2(t):
+    '''pl_procedimiento : CREATE PROCEDURE ID PARENIZQ  parametrosf PARENDER LANGUAGE PLPGSQL AS DOLAR DOLAR pl_cuerpop DOLAR DOLAR'''
+    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4])+ ' ' +str(t[5]['visita'])+ ' ' +str(t[6])+ ' ' +str(t[7])+ ' ' +str(t[8])+ ' ' +str(t[9])+ ' ' +str(t[10])+ ' ' +str(t[12]['visita'])+ ' ' +str(t[12])+ ' ' +str(t[13])+' ' +str(t[14])
+    grafo.newnode('pl_procedure')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[2])
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    grafo.newchildrenF(grafo.index, t[12]['graph'])
+    reporte = "<pl_procedure> ::= " + t[1].upper() + " PROCEDURE ID"+" <parametros>\n" +t[5]['reporte']+" <cuerpop>\n" +t[12]['reporte']
+    t[0] = {'ast' : pl_procedimientos.pl_Procedimiento('CREATE_PROCEDURE',visita,t[3],t[5]['ast'],t[12]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita': visita}
 
 def p_pl_cuerpo_procedimiento(t):
     '''pl_cuerpop : BEGIN instrucciones END PTCOMA '''
@@ -3859,7 +3948,7 @@ def p_pl_perform2(t):
 def p_pl_perform_err(t):
     'perform : problem'
     reporte = "<perform> ::= <problem>"
-    t[0] = { 'reporte': reporte, 'ast': None, 'graph': grafo.index}
+    t[0] = { 'reporte': reporte, 'ast': None, 'graph': grafo.index,'visita': ''}
 
 
 #**********************************************************************
@@ -4333,16 +4422,16 @@ def p_pl_else_case_null(t):
 #**********************************************************************
 
 
-def p_pl_instrucciones_insert(t):
-    '''pl_insert    : INSERT INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
-    visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4]) + ' ' +str(t[5]['visita']) + ' '  +str(t[6]) + ' '+str(t[7]['visita'])+ ' '+str(t[8])
-    grafo.newnode('INSERT')
-    grafo.newchildrenE(t[2])
-    grafo.newchildrenF(grafo.index, t[5]['graph'])
-    reporte = "<insert> ::= "
-    if t[1].lower() == "into":
-        reporte += "INTO " + t[2].upper() + " VALUES PARENIZQ <values> PARENDER PTCOMA\n" + t[5]['reporte']
-    t[0] = {'ast' : insert.Insert('PL_INSERT',visita,t[2], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
+# def p_pl_instrucciones_insert(t):
+#     '''pl_insert    : INSERT INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
+#     visita = str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3]) + ' ' +str(t[4]) + ' ' +str(t[5]['visita']) + ' '  +str(t[6]) + ' '+str(t[7]['visita'])+ ' '+str(t[8])
+#     grafo.newnode('INSERT')
+#     grafo.newchildrenE(t[2])
+#     grafo.newchildrenF(grafo.index, t[5]['graph'])
+#     reporte = "<insert> ::= "
+#     if t[1].lower() == "into":
+#         reporte += "INTO " + t[2].upper() + " VALUES PARENIZQ <values> PARENDER PTCOMA\n" + t[5]['reporte']
+#     t[0] = {'ast' : insert.Insert('PL_INSERT',visita,t[2], t[5]['ast']), 'graph' : grafo.index, 'reporte': reporte, 'visita' : visita}
 
 
 

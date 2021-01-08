@@ -18,8 +18,13 @@ def p_init(t):
     'init   : instrucciones'
     primeraPasada = OptMirilla(t[1], [])
     segundaPasada = OptMirilla(primeraPasada.ListaOptimizada, primeraPasada.reporteOptimizado)
+    lensegunda = len(segundaPasada.reporteOptimizado)
+    for l in range(0, lensegunda):
+        primeraPasada = OptMirilla(segundaPasada.ListaOptimizada, segundaPasada.reporteOptimizado)
+        segundaPasada = OptMirilla(primeraPasada.ListaOptimizada, primeraPasada.reporteOptimizado)
+        lensegunda = len(segundaPasada.reporteOptimizado)
     segundaPasada.generarReporte()
-    segundaPasada.GenerarCodigo3D(segundaPasada.ListaOptimizada)
+    t[0] = segundaPasada.GenerarCodigo3D(segundaPasada.ListaOptimizada)
 
 def p_instrucciones(t):
     'instrucciones  : instrucciones instruccion'

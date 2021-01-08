@@ -48,18 +48,22 @@ class Length(Expression):
     def compile(self, environment):
         try:
             temp = ThreeAddressCode().newTemp()
-            dataTemp = None
-            val = self.value.compile(environment)
-            if isinstance(val, PrimitiveData):
-                val = val.value
+            val = self.value.compile(environment).value
+            dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
                 dataTemp = f"{temp} = '{val}'"
-            else: #ES UN TEMPORAL
-                dataTemp = f"{temp} = {val}"
 
             ThreeAddressCode().addCode(dataTemp)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(f"{temporal} = len({temp})")
-            return temporal
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -116,6 +120,16 @@ class Substring(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             tempi = ThreeAddressCode().newTemp()
             tempj = ThreeAddressCode().newTemp()
             dataTempi = f"{tempi} = {i}"
@@ -125,7 +139,7 @@ class Substring(Expression):
             ThreeAddressCode().addCode(dataTempj)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(f"{temporal} = {temp}[{tempi}:{tempj}]")
-            return temporal
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -182,6 +196,16 @@ class Substr(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             tempi = ThreeAddressCode().newTemp()
             tempj = ThreeAddressCode().newTemp()
             dataTempi = f"{tempi} = {i}"
@@ -191,7 +215,7 @@ class Substr(Expression):
             ThreeAddressCode().addCode(dataTempj)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(f"{temporal} = {temp}[{tempi}:{tempj}]")
-            return temporal
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -240,10 +264,20 @@ class Trim(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             ThreeAddressCode().addCode(dataTemp)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(f"{temporal} = {temp}.strip()")
-            return temporal
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -293,11 +327,21 @@ class MD5(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             ThreeAddressCode().addCode(dataTemp)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
                 f"{temporal} = md5({temp}.encode()).hexdigest()")
-            return temporal
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -347,11 +391,21 @@ class SHA256(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             ThreeAddressCode().addCode(dataTemp)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
                 f"{temporal} = sha256({temp}.encode()).hexdigest()")
-            return temporal
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -403,12 +457,22 @@ class GetByte(Expression):
             tempPos = ThreeAddressCode().newTemp()
             index = self.pos.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             dataPos = f'{tempPos} = {index}'
             ThreeAddressCode().addCode(dataTemp)
             ThreeAddressCode().addCode(dataPos)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(f"{temporal} = ord({temp}[{tempPos}])")
-            return temporal
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
@@ -516,11 +580,21 @@ class Convert(Expression):
                 temp = ThreeAddressCode().newTemp()
                 val = self.value.compile(environment).value
                 dataTemp = f"{temp} = '{val}'"
+
+                cambio = False
+                if val[0] == 't':
+                    sub = val[1:]
+                    if sub.isnumeric():  # ES UN TEMPORAL
+                        dataTemp = f"{temp} = {val}"
+                        cambio = True
+                if cambio is False:
+                    dataTemp = f"{temp} = '{val}'"
+
                 ThreeAddressCode().addCode(dataTemp)
                 temporal = ThreeAddressCode().newTemp()
                 ThreeAddressCode().addCode(
                     f"{temporal} = int({temp})")
-                return temporal
+                return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
             else:
                 temp = ThreeAddressCode().newTemp()
                 val = self.value.compile(environment).value
@@ -529,7 +603,7 @@ class Convert(Expression):
                 temporal = ThreeAddressCode().newTemp()
                 ThreeAddressCode().addCode(
                     f"{temporal} = {temp}")
-                return temporal
+                return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
