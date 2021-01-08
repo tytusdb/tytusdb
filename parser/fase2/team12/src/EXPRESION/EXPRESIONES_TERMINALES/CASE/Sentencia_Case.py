@@ -27,7 +27,6 @@ class Sentencia_Case(Expresion):
         self.tipo = Type_Expresion(Data_Type.non)
     
     def execute(self, environment):
-        
         if len(self.hijos) == 2 :
 
             #print("Case 2")
@@ -151,4 +150,17 @@ class Sentencia_Case(Expresion):
         return self.cod
 
     def getText(self):
-        pass
+
+        cantidad_hijos = len(self.hijos)
+        if cantidad_hijos == 1:
+            #CASE SIMPLE
+            return f'CASE {self.resolver_lista_exp(self.hijos[0].hijos)} END;'
+        else:
+            #CASE-ELSE
+            return f'CASE {self.resolver_lista_exp(self.hijos[0].hijos)} ELSE {self.hijos[1].hijos[0].getText()} END;'  
+    def resolver_lista_exp(self,lista):
+        string_=''
+        for elemento in lista:
+            string_ += f' WHEN {elemento.hijos[0].getText()} THEN {elemento.hijos[1].getText()}'
+        return string_
+
