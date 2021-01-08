@@ -24,6 +24,7 @@ def funcionIntermedia():
 	ast.erroresHTML()
 	ast.graficarAST(raiz)
 	crearReporte(raiz)
+	pila = [5]
 
 ############################# CODIGO EN 3DIRECCIONES ############################## 
 
