@@ -78,7 +78,7 @@ reservadas = (
     # PRUEBA
     'PRINT',
     # Begin
-    'FUNCTION', 'BEGIN', 'END', 'RETURNS', 'RETURN', 'PROCEDURE', 'LANGUAGE',
+    'FUNCTION', 'BEGIN', 'END', 'RETURNS', 'RETURN', 'PROCEDURE', 'LANGUAGE', 'PLPGSQL',
     'DECLARE',
     'CONSTANT',
     'PERFORM','EXECUTE',
@@ -121,6 +121,7 @@ tokens = reservadas + (
     'COMENTARIO_SIMPLE',
     'ARROBA',
     'DOS_PUNTOS',
+    'DOLLAR',
 )
 
 # EXPRESIONES REGULARES BASICAS
@@ -147,6 +148,7 @@ t_MENORQ = r'\<'
 t_MAYOR_IGUALQ = r'\>\='
 t_MENOR_IGUALQ = r'\<\='
 t_DOS_PUNTOS = r':'
+t_DOLLAR = r'\$\$'
 # SEGUNDA FASE
 #t_DOS_PUNTOS_IGUAL = r':\='
 
