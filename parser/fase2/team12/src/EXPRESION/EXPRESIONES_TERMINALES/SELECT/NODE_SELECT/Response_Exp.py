@@ -4,3 +4,5 @@ class Response():
         self.encabezados = []
         self.data = []
         self.tipos = []
+        self.tipoUnico = None
+        self.valorUnico = None

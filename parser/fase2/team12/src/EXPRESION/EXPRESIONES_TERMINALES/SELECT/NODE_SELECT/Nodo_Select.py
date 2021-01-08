@@ -33,7 +33,7 @@ class Select_Expresion(Expresion):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)
         self.tipo = Type_Expresion(Data_Type.non)
     
-    def execute(self, eviroment):
+    def execute(self, eviroment, eviroment2 = None):
         
         dataSelect = Response()
         nodoSelect = Select_Expresion("SENTENCIA_SELECT",self.fila,self.columna,self.valor)
@@ -44,6 +44,7 @@ class Select_Expresion(Expresion):
 
             lista_Exp = self.hijos[0]
             l = []
+            tipoVariable = None
             for exp in lista_Exp.hijos :
 
                 value = exp.execute(eviroment)
@@ -58,13 +59,35 @@ class Select_Expresion(Expresion):
                         dataSelect.encabezados.append('?column?')
                     
                     l.append(value)
-            dataSelect.data.append(l)    
+                    self.tipo = exp.tipo
+                    self.valorExpresion = value
+
+            dataSelect.data.append(l)
+
+            if len(l) == 1 :
+                if self.tipo.data_type == Data_Type.error or self.tipo.data_type == Data_Type.non :
+
+                    self.tipo = Type_Expresion(Data_Type.error)
+                    self.valorExpresion = None
+                    self.dataResult = dataSelect
+                    return dataSelect
+
+                else:
+
+                    self.dataResult = dataSelect
+                    return self.valorExpresion
+
+            else:
+
+                self.tipo = Type_Expresion(Data_Type.listaDatos)
+                self.isLista = True
+                    
             return dataSelect
                 
         else :
             #SENTENCIA_SELECT_DISTINCT
             functionSelect = Select()
-            result = functionSelect.execute(nodoSelect)
+            result = functionSelect.execute(nodoSelect, eviroment)
             responseSelect = Response()
 
 
@@ -85,6 +108,11 @@ class Select_Expresion(Expresion):
             responseSelect.encabezados = encabezados 
             responseSelect.data = result.data
             responseSelect.tipos = tipos
+            responseSelect.tipoUnico = result.tipoUnico
+            responseSelect.valorUnico = result.valorUnico
+
+            self.dataResult = responseSelect
+            self.tipo = Type_Expresion(Data_Type.listaDatos)
             return responseSelect
 
     def compile(self, enviroment):

@@ -1898,6 +1898,12 @@ def p_asignacion_procedure(t):
     t[0].hijos.append(identificador)
     t[0].hijos.append(t[4])
 
+def p_asignacion_procedure_2(t):
+    '''sentencia_asignacion : IDENTIFICADOR DOSPUNTOS IGUAL sentencia_select'''
+    t[0] = Sentencia_Asignacion("SENTENCIA_ASIGNACION")
+    identificador = Identificator_Expresion('Identificador',t.lineno(1),t.lexpos(1)+1,t[1])
+    t[0].hijos.append(identificador)
+    t[0].hijos.append(t[4])
 
 #--------------------------------------PROCEDURE--------------------------------------------
 

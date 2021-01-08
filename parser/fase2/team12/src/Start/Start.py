@@ -98,7 +98,8 @@ class Start(Nodo):
                 nuevoEnum = Type()
                 nuevoEnum.execute(hijo)
             elif hijo.nombreNodo == 'SENTENCIA_SELECT' or hijo.nombreNodo == 'SENTENCIA_SELECT_DISTINCT':
-                respuesta = hijo.execute(entornoGlobal)
+                hijo.execute(entornoGlobal)
+                respuesta = hijo.dataResult
                 if respuesta.data != None:
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(respuesta.encabezados, respuesta.data)})
             elif hijo.nombreNodo == 'E':
@@ -159,6 +160,8 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'CREATE_INDEX' or hijo.nombreNodo == 'CREATE_UNIQUE_INDEX':
                 nuevoIndex = Index()
                 resp = nuevoIndex.execute(hijo)
+            
+            entornoGlobal.recorrerEntorno()
 
 
             

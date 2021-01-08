@@ -30,6 +30,8 @@ from Cartesiano import Cartesiano
 class TableResult():
     def __init__(self):
         self.nombre = None
+        self.tipoUnico = None
+        self.valorUnico = None
         self.alias = None
         self.columnas = []
         self.noColumnas = 0
@@ -58,6 +60,7 @@ class Select():
         self.listaTablasExpresion = []
         self.seLlenaEncabezado = True
         self.listaColumnasWhere = []
+        self.enviroment = None
         
 
     #region Llenado de variables iniciales
@@ -188,7 +191,7 @@ class Select():
         
         resultado = []
         for i in range(0,len(self.listaTablas)):
-            for j in range(0,len(self.listaTablas[i].data)):
+            for j in range(0,len(self.listaTablas[i].data[0])):
                 nomTabla = self.listaTablas[i].nombre.upper()
                 nomColumna = self.listaTablas[i].listaEncabezados[j].nombre.upper()
                 valColumna = self.listaTablas[i].data[fila[i+1]][j]
@@ -222,6 +225,7 @@ class Select():
     def execute(self, parent, enviroment = None):
         global selectAgregate
         selectAgregate.clear()
+        self.enviroment = enviroment
         # Se verifican las variables, si esta seleccionada la base de datos 
         self.dbUse = self.verificarDBActiva()
         if self.dbUse == None:
@@ -255,6 +259,15 @@ class Select():
         
         
         self.ejecutarSelect(parent.hijos[0])
+        numeroFilas = len(self.tablaRetorno)
+        numeroColumnas = len(self.encabezadoRetorno)
+        tipoUnico = None
+        valorUnico = None
+
+        if numeroFilas == 1 and numeroColumnas == 1 :
+            tipoUnico = self.encabezadoRetorno[0].tipo
+            valorUnico = self.tablaRetorno[0][0]
+                
         
         
 
@@ -299,7 +312,8 @@ class Select():
         tablaResultado.data = dataTemporalGlobal
         tablaResultado.noFilas = len(dataTemporalGlobal)
         tablaResultado.listaEncabezados = self.encabezadoRetorno
-        
+        tablaResultado.valorUnico = valorUnico
+        tablaResultado.tipoUnico = tipoUnico
         return tablaResultado
 
 
