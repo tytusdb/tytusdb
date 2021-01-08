@@ -13,23 +13,23 @@ class Return(Instruction):
     def execute(self, environment):
         tab = ""
         cd = ""
-        tab1=False
+        tab1 = False
         if isinstance(environment, Environment):
             tab += "\t"
-            tab1=True
+            tab1 = True
         if self.exp:
             e = self.exp.execute(environment)
             cd += tab + "stack.append(" + e.temp + ")\n"
             grammar.optimizer_.addIgnoreString(
-                str("stack.append(" + e.temp + ")"), self.row,tab1
+                str("stack.append(" + e.temp + ")"), self.row, tab1
             )
             cd += tab + "goto .endLabel\n"
-            grammar.optimizer_.addGoto(str("endLabel"), self.row,tab1)
+            grammar.optimizer_.addGoto(str("endLabel"), self.row, tab1)
             return code.C3D(e.value + cd, "return", self.row, self.column)
         cd = tab + "stack.append(None)\n"
-        grammar.optimizer_.addIgnoreString(str("stack.append(None)"), self.row,tab1)
+        grammar.optimizer_.addIgnoreString(str("stack.append(None)"), self.row, tab1)
         cd += tab + "goto .endLabel\n"
-        grammar.optimizer_.addGoto(str("endLabel"), self.row,tab1)
+        grammar.optimizer_.addGoto(str("endLabel"), self.row, tab1)
         return code.C3D(cd, "return", self.row, self.column)
 
     def dot(self):

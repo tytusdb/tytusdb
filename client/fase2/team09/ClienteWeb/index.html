@@ -8,6 +8,7 @@
         <meta name = "viewport" content="width=device-width, initial-scale=1">
         
         <link rel = "stylesheet" type = "text/css" href = "layout/index.css"/>
+        <link rel = "stylesheet" type = "text/css" href = "layout/modal.css"/>
         <script src = "layout/index.js"></script>
 
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
@@ -44,12 +45,13 @@
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Object
+                            Base de datos
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/inicio" onclick="createDatabase()">Create Database</a>         
-                            <a class="dropdown-item" href="/inicio" onclick="deleteDatabase()">Delete Database</a>         
-                            <a class="dropdown-item" href="/inicio" onclick="drop()">Drop</a>         
+                            <a class="dropdown-item" onclick="createDatabase()">Create Database</a>
+                            <a class="dropdown-item" onclick="alterDatabase()">Alter Database</a>   
+                            <a class="dropdown-item" onclick = "base('show')">Show Databases</a>       
+                            <a class="dropdown-item" onclick="dropDatabase()">Drop Database</a>         
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -98,10 +100,7 @@
             });
         </script>
         </div>
-
-
         <div class="barra">
-            
             <button style="width: 70px; height: 30px; color: black" onclick="ejecutar()">ejecutar</button>
         </div>
         <div id = "contenedor" class = "contenedorQuery">
@@ -142,6 +141,55 @@
                     $('#contenedorSalida').height(height);
                 });
             </script>
+        </div>
+                
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Nombre de la base</label>
+                      <input type="email" class="form-control" id="nameBase">
+                    </div>
+                    <button type="button" class="btn btn-primary" onClick = "base('create')">Submit</button>
+                  </form>
+            </div>
+        </div>
+
+        <!-- The Modal -->
+        <div id = "myModal1" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class = "close1">&times;</span>
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Nombre antiguo de la base</label>
+                        <input type="email" class="form-control" id="nameBaseAntiguo">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Nombre nuevo de la base</label>
+                        <input type="email" class="form-control" id="nameBaseNuevo">
+                    </div>
+                        <button type="button" class="btn btn-primary" onClick = "base('alter')">Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- The Modal -->
+        <div id = "myModal2" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class = "close2">&times;</span>
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Nombre de la base</label>
+                            <input type="email" class="form-control" id="nameBaseDrop">
+                        </div>
+                        <button type="button" class="btn btn-primary" onClick = "base('drop')">Submit</button>
+                    </form>
+            </div>
         </div>
     </body>  
 </html>

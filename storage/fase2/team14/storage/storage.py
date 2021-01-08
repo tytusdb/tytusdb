@@ -885,7 +885,7 @@ def checksumDatabase(database: str, mode: str) -> str:
     except:
         return None
     
-#gener el checksum de una tabla especifica
+#genera el checksum de una tabla especifica
 def checksumTable(database: str, table: str, mode: str) -> str:
     try:
         if database in databasesinfo[0]:
@@ -913,3 +913,35 @@ def checksumTable(database: str, table: str, mode: str) -> str:
     except:
         return None
      
+        
+        
+#comprime una tabla    
+def alterTableCompress(database: str, table: str, level: int) -> int:
+    if database not in databasesinfo[0]:
+        return 2
+    if level<-1 or level>9:
+        return 4
+    if databasesinfo[1][database][table]['mode'] == 'json':
+        return 1
+    tablas = showTables(database)
+    if table not in tablas:
+        return 2
+    try:
+        tabla=extractTable(database,table)
+        for i in range(0,len(tabla)):
+            tupla=tabla[i]
+            for j in range(0,len(tupla)):
+                if type(tupla[j])==str:
+                    #------------------------------------aqui es donde se comprime----------------------------
+                    tupla[j]=zlib.compress(bytes(tupla[j].encode()),level)
+                elif type(tupla[j])==bytes:
+                    tupla[j] = zlib.compress(tupla[j], level)
+            tabla[i]=tupla
+        databasesinfo[1][database][table]['Compress'] = True
+        commit(databasesinfo, 'databasesinfo')
+        truncate(database,table)
+        for tupla in tabla:
+            insert(database,table,tupla)
+        return 0
+    except:
+        return 1

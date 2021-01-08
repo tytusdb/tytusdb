@@ -2,10 +2,6 @@ digraph AST {
 	node1 [label=INIT]
 	node2 [label=INSTRUCCIONES]
 	node1 -> node2
-	node3 [label="Select Table"]
+	node3 [label=SELECT]
 	node2 -> node3
-	node4 [label="*"]
-	node3 -> node4
-	node5 [label=tbbodega]
-	node3 -> node5
 }
