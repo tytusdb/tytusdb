@@ -58,14 +58,10 @@ def p_import_instr(p):
 def p_definition_instr(p):
     '''definition_instr : DEF ID LEFT_PARENTHESIS RIGHT_PARENTHESIS COLON
                         | GLOBAL LIST_ID
-                        | PRINT LEFT_PARENTHESIS ID LEFT_CORCH EXPRESSION RIGHT_CORCH  RIGHT_PARENTHESIS
-                        | PRINT LEFT_PARENTHESIS EXPRESSION RIGHT_PARENTHESIS
-                        | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
-                        | ID LEFT_CORCH EXPRESSION RIGHT_CORCH EQUALS comparasion
+                        | PRINT LEFT_PARENTHESIS EXPRESSION  RIGHT_PARENTHESIS
                         | ID EQUALS comparasion
-                        | ID EQUALS ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
-                        | ID EQUALS ID LEFT_PARENTHESIS EXPRESSION RIGHT_PARENTHESIS
-                        | ID EQUALS ID LEFT_CORCH EXPRESSION RIGHT_CORCH'''
+                        | ID LEFT_CORCH EXPRESSION RIGHT_CORCH EQUALS comparasion
+                        | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS'''
     if len(p) == 4:
         if p.slice[2].type == "EQUALS":
             p[0] = AsignacionID(p[1], p[3])
@@ -80,6 +76,14 @@ def p_list_id(p):
 def p_list_dot(p):
     '''LIST_DOT :  LIST_DOT DOT ID
                 |  ID'''
+
+# def p_list_dot_asignacion(p):
+#     '''LIST_DOT_ASIGNACION : LIST_DOT_ASIGNACION DOT ID LEFT_PARENTHESIS ID EXPRESSION  RIGHT_PARENTHESIS
+#                            | LIST_DOT_ASIGNACION DOT ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS
+#                            | LIST_DOT_ASIGNACION DOT ID LEFT_PARENTHESIS LIST_DOT_ASIGNACION  RIGHT_PARENTHESIS
+#                            | ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS
+#                            | ID LEFT_PARENTHESIS ID EXPRESSION RIGHT_PARENTHESIS'''
+
 
 def p_goto_instr(p):
     ''' goto_instr : GOTO DOT ID'''
@@ -97,7 +101,7 @@ def p_ifInstr(p):
 
 def p_comparasion(p):
     ''' comparasion : EXPRESSION RELOP EXPRESSION
-                    | EXPRESSION '''
+                    | EXPRESSION'''
     if len(p) == 4:
         p[0] = Relop(p[1], p[2], p[3])
     else:
@@ -110,6 +114,7 @@ def p_expression(p):
                   | EXPRESSION DIVISION EXPRESSION
                   | EXPRESSION EXPONENT EXPRESSION
                   | EXPRESSION MODULAR EXPRESSION
+                  | EXPRESSION DOT EXPRESSION 
                   | REST EXPRESSION %prec UREST
                   | PLUS EXPRESSION %prec UPLUS
                   | EXPRESSION BITWISE_SHIFT_RIGHT EXPRESSION
@@ -118,7 +123,10 @@ def p_expression(p):
                   | EXPRESSION BITWISE_OR EXPRESSION
                   | EXPRESSION BITWISE_XOR EXPRESSION
                   | BITWISE_NOT EXPRESSION %prec UREST
-                  | LEFT_CORCH EXPRESSION RIGHT_CORCH
+                  | LEFT_CORCH comparasion RIGHT_CORCH
+                  | ID LEFT_PARENTHESIS EXPRESSION RIGHT_PARENTHESIS
+                  | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
+                  | ID LEFT_CORCH comparasion RIGHT_CORCH
                   | STRING_CADENAS
                   | INTEGER_NUMBERS'''
                   # Si ya estas ahora xd ponete vivo x2
