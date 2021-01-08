@@ -56,3 +56,60 @@ def p_lista_def(t):
         t[0] = t[1]
     else:
         t[0] = [t[1]]
+ 
+def p_asignacion(t):
+    '''
+    asignacion :  expresion IGUAL expresion
+    '''
+    t[0] = Asignacion(t[1],t[3],t.lexer.lineno)
+    
+def p_definicion_funcion(t):
+    '''
+    _def : WITH_GOTO DEF ID PARIZQ PARDER DPUNTOS instrucciones
+         | DEF ID PARIZQ PARDER DPUNTOS instrucciones
+    '''
+    t[0] = Def(t[1], t[3], t[7], t.lexer.lineno) if len(t) == 8 else Def(None, t[2], t[6], t.lexer.lineno)
+
+def p_definicion_etiqueta(t):
+    '''
+    definicion_etiqueta : LABEL PUNTO ID
+    '''
+    t[0] = Label(t[3], t.lexer.lineno)
+
+def p_goto_etiqueta(t):
+    '''
+    goto_etiqueta : GOTO PUNTO ID
+    '''
+    t[0] = Goto(t[3], t.lexer.lineno)
+
+def p_if(t):
+    '''
+     _if : IF expresion DPUNTOS GOTO PUNTO ID
+    '''
+    t[0] = _If(t[2], t[6], t.lexer.lineno)
+
+def p_importar(t):
+    '_from : FROM idlist IMPORT ID'
+    t[0] = _From(t[2],t[4], t.lexer.lineno)
+    
+def p_importar2(t):
+    '_import : IMPORT ID'
+    t[0] = _Import(t[2], t.lexer.lineno)
+    
+def p_lubicacion(t):
+    '''idlist : idlist PUNTO ID
+              | idlist PUNTO GOTO
+    '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lubicacion2(t):
+    '''idlist : ID
+              | GOTO
+    '''
+    t[0] = ['goto'] if t[1] == 'GOTO' else [t[1]]
+
+def p_pglobal(t):
+    '_global : GLOBAL ID'
+    t[0] = Global(t[2], t.lexer.lineno)
+    
