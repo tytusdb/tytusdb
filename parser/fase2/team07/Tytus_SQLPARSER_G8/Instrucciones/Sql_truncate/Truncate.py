@@ -1,8 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from storageManager.jsonMode import *
 class Truncate(Instruccion):
-    def __init__(self, id, tipo, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = id
 
     def ejecutar(self, tabla, arbol):
@@ -24,6 +24,12 @@ class Truncate(Instruccion):
                 error = Exception('XX000',"Semantico","La tabla no existe",self.linea,self.columna)
                 arbol.excepciones.append(error)
                 arbol.consola.append(error.toString())
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 
 '''
 instruccion = DropDatabase("hola mundo",None, 1,2)

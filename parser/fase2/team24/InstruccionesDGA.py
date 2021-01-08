@@ -1657,7 +1657,7 @@ class fun_now2(funciongen):
         # dd/mm/YY
         today = date.today()
         d1 = today.strftime("%Y-%m-%d %H:%M:%S")
-        return d1
+        return '\''+str(d1)+'\''
 
 def VerificarTipo(TipoColumna,ValorColumna):
     """try:

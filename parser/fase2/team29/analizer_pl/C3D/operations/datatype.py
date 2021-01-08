@@ -21,7 +21,7 @@ class Identifier(Expression):
             if environment.getVar(self.id):
                 return C3D("", '"+str(' + self.id + ')+"', self.row, self.column)
             else:
-                grammar.PL_errors.append("Error P0000: La variable "+self.id+" no esta declarada")
+                pass
         return C3D("", self.id, self.row, self.column)
 
     def dot(self):
@@ -72,6 +72,7 @@ class TernaryExpression(Expression):
         new.addNode(n2)
         new.addNode(n3)
         return new
+
 
 class BinaryExpression(Expression):
     def __init__(self, temp, exp1, exp2, operator, isBlock, row, column):

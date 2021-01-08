@@ -32,7 +32,8 @@ class Use(Instruccion):
 
 
     def analizar(self, tabla, arbol):
-        print("hola")
+        #print("hola")
+        pass
 
     def traducir(self, tabla, arbol):
         cadena = "\""+"use "

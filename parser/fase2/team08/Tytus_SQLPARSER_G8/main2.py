@@ -21,6 +21,7 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from storageManager.jsonMode import *
 
 import sintactico
+from optimizacion import sintacticoC3D
 
 global arbol
 arbol = None
@@ -110,6 +111,19 @@ class interfaz():
 
         #Objeto que almacena el Archivo
         self.file=""
+        lista = [0,1,2,3,4,5,6,7,8,9]
+        salida = 0
+        y = 0
+        for x in range(0, len(lista)):
+            print(lista[y])
+            
+            if x == 7:
+                lista.pop(y)
+                y -= 1
+
+            print(lista[y])
+            y += 1
+           
 
         self.window.mainloop()
 
@@ -194,8 +208,12 @@ class interfaz():
         #print(self.txtentrada[self.tab.index("current")].get(1.0,END))
         input=self.txtentrada[self.tab.index("current")].get(1.0,END)
         tablaGlobal = Tabla(None)
-        inst = sintactico.ejecutar_analisis(input)
+        # solo para probar el C3D
+        inst = sintacticoC3D.ejecutar_analisis(input)
+        
+        '''inst = sintactico.ejecutar_analisis(input)
         arbol = Arbol(inst)
+
 
         if len(sintactico.lista_lexicos)>0:
             messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
@@ -220,7 +238,7 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
-       
+       '''
 
     def btnejecutar_click(self):
         print("se va ejecutar el archivo")

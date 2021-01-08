@@ -3,11 +3,12 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select.Select import Select
 from Instrucciones.Tablas.Tablas import Tablas
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 
 
 class SelectLista(Instruccion):
-    def __init__(self, lista, strGram, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.QUERY),linea,columna,strGram)
+    def __init__(self, lista, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.QUERY),linea,columna,strGram,strSent)
         self.lista = lista
 
     def ejecutar(self, tabla, arbol):
@@ -57,10 +58,19 @@ class SelectLista(Instruccion):
                 n.lista_de_campos = columnas
                 n.data = valores
                 return n
+    
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal1 = arbol.generaTemporal()
+        codigo = "\t" + temporal1 + " = " + "\"" + self.strSent + "\"\n"
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = FuncionesPara3D.ejecutarsentecia(" + temporal1 + ")\n\n"
+        return Simbolo3d(Tipo("",Tipo_Dato.INTEGER), temporal, codigo, None, None)
+
 
 
 class Alias():
-    def __init__(self, id, expresion):
+    def __init__(self, id, expresion, strSent):
         self.id = id
         self.expresion = expresion
         self.tipo = None
+        self.strSent = strSent

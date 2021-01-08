@@ -18,6 +18,9 @@ class Arbol():
         self.comprobacionCreate = False
         self.columnaCheck = None
         self.order = None
+        self.numeroTemporal = 0
+        self.numeroEtiqueta = 0
+        self.valoresActuales = []
 
     def setEnum(self, nuevo):
         self.lEnum.append(nuevo)
@@ -171,6 +174,7 @@ class Arbol():
             cad += '+---'+'-'*lf[s]
         cad += '+\n'
         self.consola.append(cad)
+        self.valoresActuales = tuplas
 
     def setColumnasActual(self, valor):
         self.columnasActual = valor
@@ -218,4 +222,174 @@ class Arbol():
     
     def getOrder(self):
         return self.order
+
+    def generaEtiqueta(self):
+        self.numeroEtiqueta = self.numeroEtiqueta + 1
+        etiqueta = "L" + str(self.numeroEtiqueta)
+        return etiqueta
     
+    def generaTemporal(self):
+        self.numeroTemporal = self.numeroTemporal + 1
+        temporal = "t" + str(self.numeroTemporal)
+        return temporal
+
+    def setInstrucciones(self, instrucciones):
+        self.instrucciones = instrucciones
+
+    def esFuncionNativa(self,funcion):
+        #Funciones de agregacion
+        if "AVG(" in funcion:
+            return True
+        elif "COUNT(" in funcion:
+            return True
+        elif "GREATEST(" in funcion:
+            return True
+        elif "LEAST(" in funcion:
+            return True
+        elif "MAX(" in funcion:
+            return True
+        elif "MIN(" in funcion:
+            return True
+        elif "SUM(" in funcion:
+            return True
+        elif "TOP(" in funcion:
+            return True
+        
+        #Funciones Matematicas
+        elif "ABS(" in funcion:
+            return True
+        elif "CBRT(" in funcion:
+            return True
+        elif "CEIL(" in funcion:
+            return True
+        elif "CEILING(" in funcion:
+            return True
+        elif "DEGREES(" in funcion:
+            return True
+        elif "DIV(" in funcion:
+            return True
+        elif "EXP(" in funcion:
+            return True
+        elif "FACTORIAL(" in funcion:
+            return True
+        elif "FLOOR(" in funcion:
+            return True
+        elif "GCD(" in funcion:
+            return True
+        elif "LCM(" in funcion:
+            return True
+        elif "LN(" in funcion:
+            return True
+        elif "LOG(" in funcion:
+            return True
+        elif "LOG10(" in funcion:
+            return True
+        elif "MIN_SCALE(" in funcion:
+            return True
+        elif "MOD(" in funcion:
+            return True
+        elif "PI(" in funcion:
+            return True
+        elif "POWER(" in funcion:
+            return True
+        elif "RADIANS(" in funcion:
+            return True
+        elif "RANDOM(" in funcion:
+            return True
+        elif "ROUND(" in funcion:
+            return True
+        elif "SCALE(" in funcion:
+            return True
+        elif "SETSEED(" in funcion:
+            return True
+        elif "SIGN(" in funcion:
+            return True
+        elif "SQRT(" in funcion:
+            return True
+        elif "TRIM_SCALE(" in funcion:
+            return True
+        elif "TRUNC(" in funcion:
+            return True
+        elif "WIDTH_BUCKET(" in funcion:
+            return True
+        
+        #Funciones de string
+        elif "CONVERT(" in funcion:
+            return True
+        elif "DECODE(" in funcion:
+            return True
+        elif "ENCODE(" in funcion:
+            return True
+        elif "GET_BYTE(" in funcion:
+            return True
+        elif "LENGTH(" in funcion:
+            return True
+        elif "MD5(" in funcion:
+            return True
+        elif "SET_BYTE(" in funcion:
+            return True
+        elif "SHA256(" in funcion:
+            return True
+        elif "SUBSTR(" in funcion:
+            return True
+        elif "SUBSTRING(" in funcion:
+            return True
+        elif "TRIM(" in funcion:
+            return True
+
+        #Funciones trigonometricas
+        elif "ACOS(" in funcion:
+            return True
+        elif "ACOSD(" in funcion:
+            return True
+        elif "ACOSH(" in funcion:
+            return True
+        elif "ASIN(" in funcion:
+            return True
+        elif "ASIND(" in funcion:
+            return True
+        elif "ASINH(" in funcion:
+            return True
+        elif "ATAN(" in funcion:
+            return True
+        elif "ATAN2(" in funcion:
+            return True
+        elif "ATAN2D(" in funcion:
+            return True
+        elif "ATAND(" in funcion:
+            return True
+        elif "ATANH(" in funcion:
+            return True
+        elif "COS(" in funcion:
+            return True
+        elif "COSD(" in funcion:
+            return True
+        elif "COSH(" in funcion:
+            return True
+        elif "COT(" in funcion:
+            return True
+        elif "COTD(" in funcion:
+            return True
+        elif "SIN(" in funcion:
+            return True
+        elif "SIND(" in funcion:
+            return True
+        elif "SINH(" in funcion:
+            return True
+        elif "TAN(" in funcion:
+            return True
+        elif "TAND(" in funcion:
+            return True
+        elif "TANH(" in funcion:
+            return True
+        
+        #Funciones TIME
+        elif "NOW(" in funcion:
+            return True
+        elif "EXTRACT(" in funcion:
+            return True
+        elif "DATE_PART(" in funcion:
+            return True
+        
+        else:
+            return False

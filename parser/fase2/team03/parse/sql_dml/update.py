@@ -2,6 +2,9 @@ from parse.ast_node import ASTNode
 from util import *
 from jsonMode import *
 from parse.errors import Error, ErrorType
+from parse.symbol_table import *
+from TAC.tac_enum import *
+from TAC.quadruple import *
 
 
 class Update(ASTNode):
@@ -40,13 +43,13 @@ class Update(ASTNode):
         for index in to_update:
             result = update(table.get_current_db().name, self.table_name, reg, [index])
             if result == 1:
-                raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
             elif result == 2:
-                raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
             elif result == 3:
-                raise Error(0, 0, ErrorType.RUNTIME, '42P07: table_does_not_exists')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '42P07: table_does_not_exists')
             elif result == 4:
-                raise Error(0, 0, ErrorType.RUNTIME, '42P10: PK_does_not_exists')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '42P10: PK_does_not_exists')
         return f'Update in {self.table_name}'
 
     def generate(self, table, tree):
@@ -55,9 +58,11 @@ class Update(ASTNode):
         for update in self.update_list:
             updates_str = f'{updates_str}{update.generate(table, tree)},'
 
-        return f'UPDATE {self.table_name} SET {updates_str[:-1]} ' \
-               f'{self.where.generate(table, tree) if self.where is not None else ""};'
-
+        quad = Quadruple(None,'exec_sql', f'"UPDATE {self.table_name} SET {updates_str[:-1]} '
+                               f'{self.where.generate(table, tree) if self.where is not None else ""};"'
+                         , generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 class UpdateItem(ASTNode):
     def __init__(self, column_name, exp, line, column, graph_ref):

@@ -1,10 +1,12 @@
 from Instrucciones.Sql_create.Tipo_Constraint import Tipo_Constraint, Tipo_Dato_Constraint
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.Identificador import Identificador
 from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.PL.Llamada import Llamada
 import numpy as np
 from storageManager.jsonMode import *
 
@@ -368,22 +370,23 @@ class insertTable(Instruccion):
         return False
 
     def analizar(self, tabla, arbol):
-        print("hola")
+        #print("hola")
+        pass
 
     def traducir(self, tabla, arbol):
         # valor -----> nombre de la tabla
         # lcol ------> lista con el nombre de las columnas
         # lexpre ----> lista de expresiones a insertar
 
-        cadena = "\""+"insert into "
+        cadena = "f\""+"insert into "
         cadena += self.valor 
-        '''
+
         if(self.lcol != None):
             cadena += " ( "
             for x in range(0,len(self.lcol)):
                 if(x > 0):
                     cadena += ", "
-                cadena += self.lcol[x].traducir(tabla,arbol)
+                cadena += self.lcol[x]
             cadena += " )"
 
         if(self.lexpre != None):
@@ -391,9 +394,25 @@ class insertTable(Instruccion):
             for x in range(0,len(self.lexpre)):
                 if(x > 0):
                     cadena += ", "
-                cadena += self.lexpre[x].traducir(tabla,arbol)
+                primi = self.lexpre[x].traducir(tabla,arbol)
+                
+                if(isinstance(self.lexpre[x],Primitivo)):
+                    #print("INSERT",self.lexpre[x].tipo.tipo)
+                    if self.lexpre[x].tipo.tipo == Tipo_Dato.BOOLEAN:
+                        cadena += str(self.lexpre[x].valor)
+                    elif self.lexpre[x].tipo.tipo == Tipo_Dato.CHAR or self.lexpre[x].tipo.tipo == Tipo_Dato.TEXT:
+                        cadena += f"\'{self.lexpre[x].valor}\'"
+                    else:
+                        cadena += primi.temporalAnterior
+                elif(isinstance(self.lexpre[x],Llamada)):
+                    cadena += "\"" + "+ str(" +primi.temporalAnterior +") + \" "
+                elif(isinstance(self.lexpre[x], Identificador)):
+                    tempIdentificador = self.lexpre[x].traducir(tabla,arbol)
+                    cadena += "{str("+tempIdentificador.temporalAnterior+")}"
+                else:
+                    cadena += primi
             cadena += " )"
-        '''
+
         cadena += ";\""
         arbol.addComen("Asignar cadena")
         temporal1 = tabla.getTemporal()

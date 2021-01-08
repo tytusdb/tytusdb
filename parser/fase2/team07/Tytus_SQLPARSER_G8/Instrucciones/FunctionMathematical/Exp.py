@@ -2,10 +2,11 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 import math
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 
 class Exp(Instruccion):
-    def __init__(self, valor, tipo, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna, strGram)
+    def __init__(self, valor, tipo, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna, strGram, strSent)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
@@ -22,9 +23,19 @@ class Exp(Instruccion):
             arbol.consola.append(error.toString())
             return error
         if isinstance(resultado,int):
-            self.tipo = Tipo(Tipo_Dato.DOUBLE_PRECISION)
+            self.tipo = Tipo("",Tipo_Dato.DOUBLE_PRECISION)
             return math.exp(resultado)
         else:
-            self.tipo = Tipo(Tipo_Dato.NUMERIC)
+            self.tipo = Tipo("",Tipo_Dato.NUMERIC)
             return math.exp(resultado)
+
+    def traducir(self, tabla, arbol, cadenaTraducida):
+        resultado = self.ejecutar(tabla, arbol)
+        if isinstance(resultado,Excepcion):
+            return resultado        
+        codigo = ""
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = " + str(resultado) + "\n"
+        nuevo = Simbolo3d(self.tipo, temporal, codigo, None, None)
+        return nuevo
         

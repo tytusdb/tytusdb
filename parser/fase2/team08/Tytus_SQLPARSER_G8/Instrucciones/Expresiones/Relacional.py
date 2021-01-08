@@ -1,11 +1,15 @@
+from Instrucciones.PL.Llamada import Llamada
 from typing import List
-from Instrucciones.Sql_select.SelectLista import SelectLista, Alias
+from webbrowser import Elinks
+#from Instrucciones.Sql_select.SelectLista2 import SelectLista2, Alias
+from Instrucciones.Sql_select.SelectLista import SelectLista2
+from Instrucciones.Sql_select.Alias import Alias
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
-from Instrucciones.Sql_select.SelectLista import Alias
 from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
 from Instrucciones.Identificador import Identificador
+
 import time
 import numpy as np
 
@@ -364,7 +368,7 @@ class Relacional(Instruccion):
                 #aqui va un comparador para update como en update el igual es para asignacion
                 if(self.opIzq.tipo.tipo == Tipo_Dato.ID and (not self.opDer.tipo.tipo == Tipo_Dato.ID)):
                     # aqui va el procedimiento para devolver un id con su valor
-                    a = Alias(resultadoIzq, resultadoDer)
+                    a = Alias(resultadoIzq, resultadoDer, None)
                     a.tipo = self.opDer.tipo
                     return a
                 else:
@@ -849,21 +853,27 @@ class Relacional(Instruccion):
             resultadoIzq = self.opIzq.concatenar(tabla, arbol)
         else:
             resultadoIzq = self.opIzq.traducir(tabla, arbol)
-        if isinstance(self.opDer,SelectLista):
+#        if isinstance(self.opDer,SelectLista):
+#            resultadoDer = self.opDer.traducir2(tabla,arbol)
+        if isinstance(self.opDer, SelectLista2):
             resultadoDer = self.opDer.traducir2(tabla,arbol)
+        elif isinstance(self.opDer, Llamada):
+            #print("ENTRO A LLAMADA")
+            resultadoDer = self.opDer.concatenar(tabla, arbol)
         else:
             if isinstance(self.opDer, Identificador):
                 resultadoDer = self.opDer.concatenar(tabla, arbol)
             else:
                 resultadoDer = self.opDer.traducir(tabla, arbol)
-        print("RESULTADO", resultadoIzq," *** ", resultadoDer)
-        print("RESULTADO2", type(resultadoIzq), " *** ", type(resultadoDer))
         if(isinstance(self.opIzq,Identificador) or isinstance(resultadoIzq, str)):
             cadena = resultadoIzq + " "
             cadena += self.operador + " "
             if (isinstance(resultadoDer, Nodo3D)):
+                
                 cadena += resultadoDer.temporalAnterior
+                #print(cadena)
             else:
+                
                 cadena+= resultadoDer
                 
             return cadena

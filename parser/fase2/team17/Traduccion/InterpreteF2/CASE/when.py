@@ -18,8 +18,8 @@ class When(NodoArbol):
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol:Arbol):
         # Se genera la etiqueta de inicio, final y la variable de expresion si la hay
-        startlabel = arbol.getLabel()
-        finallabel = arbol.getLabel()
+        startlabel = '.' + str(arbol.getLabel())
+        finallabel = '.' + str(arbol.getLabel())
         var_add = " "
         # Si el case trae una expresion
         if self.expression is not None:
@@ -27,12 +27,12 @@ class When(NodoArbol):
             var_add = " " + self.expression.traducir(entorno, arbol) + " = "
         arbol.addC3D("if" + var_add + self.condition.traducir(entorno, arbol) + " goto " + str(startlabel))
         arbol.addC3D("goto " + finallabel)
-        arbol.addC3D(startlabel + ":")
+        arbol.addC3D('label ' + startlabel)
         arbol.addIdentacion()
         for instruction in self.instructions:
             instruction.traducir(entorno, arbol)
         arbol.popIdentacion()
-        arbol.addC3D(finallabel + ":")
+        arbol.addC3D('label ' + finallabel)
 
 
 

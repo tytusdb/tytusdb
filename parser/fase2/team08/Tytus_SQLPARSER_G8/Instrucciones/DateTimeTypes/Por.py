@@ -2,7 +2,7 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo 
 
 class Por(Instruccion):
-    def __init__(self, id, operacion, id2, linea, columna):
+    def __init__(self, id, operacion, id2, strGram, linea, columna):
         Instruccion.__init__(self,None,linea,columna,strGram)
         self.identificador = id
         self.valor = id2
@@ -15,8 +15,8 @@ class Por(Instruccion):
         ts.setVariable(exp)
         print("imprimir_declaracion")
 
-'''
-instruccion = Declare("hola mundo",None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+    
+    def traducir(self, tabla, arbol):
+        return super().traducir(tabla, arbol)

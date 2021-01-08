@@ -3,8 +3,8 @@ from storageManager.jsonMode import *
 from Instrucciones.Excepcion import Excepcion
 
 class DeleteTable(Instruccion):
-    def __init__(self, valor, tipo, insWhere, strGram ,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, insWhere, strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
         self.insWhere = insWhere
 
@@ -66,3 +66,9 @@ class DeleteTable(Instruccion):
         
         nuevo = set(res)
         return nuevo
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo

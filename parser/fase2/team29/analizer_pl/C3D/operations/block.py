@@ -34,8 +34,12 @@ class Block(Instruction):
                 for b in self.blocks:
                     if isinstance(b, return_.Return):
                         if b.exp:
-                            grammar.PL_errors.append("Error P0000: Procedure no acepta return")
-                            grammar.semantic_errors.append(["Procedure no acepta return",self.row])
+                            grammar.PL_errors.append(
+                                "Error P0000: Procedure no acepta return"
+                            )
+                            grammar.semantic_errors.append(
+                                ["Procedure no acepta return", self.row]
+                            )
                             # TODO: Error no puede venir return en procedure
                             pass
                         else:
@@ -45,10 +49,16 @@ class Block(Instruction):
             else:
                 for b in self.blocks:
                     bl += b.execute(newEnv).value
-            grammar.optimizer_.addIgnoreString(str("stack.append(None)"), self.row, True)
+            grammar.optimizer_.addIgnoreString(
+                str("stack.append(None)"), self.row, True
+            )
             grammar.optimizer_.addLabel(str("endLabel"), self.row, True)
             return code.C3D(
-                defFunc + decl + bl + "\tstack.append(None)\n" + "\tlabel .endLabel\n\n",
+                defFunc
+                + decl
+                + bl
+                + "\tstack.append(None)\n"
+                + "\tlabel .endLabel\n\n",
                 "block",
                 self.row,
                 self.column,

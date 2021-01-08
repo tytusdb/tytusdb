@@ -21,7 +21,9 @@ class Execute(Instruction):
             grammar.optimizer_.addIgnoreString(str(temp), self.row, False)
             return code.C3D(cd, "execute", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Execute Function")
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Execute Function"
+            )
 
     def dot(self):
         new = Nodo("EXECUTE")

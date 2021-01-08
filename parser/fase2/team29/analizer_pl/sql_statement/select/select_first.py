@@ -35,6 +35,7 @@ class SelectOnlyParamsFirst(instruction.Instruction):
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_SELECT")
 
+
 class SelectFirstValue(instruction.Instruction):
     def __init__(self, temp, select):
         instruction.Instruction.__init__(self, select.row, select.column)

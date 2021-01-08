@@ -27,7 +27,6 @@ class Select(instruction.Instruction):
             out += "(" + select2.strip() + ");"
             out += '")\n'
 
-            
             if isinstance(environment, Environment):
                 grammar.optimizer_.addIgnoreString(out, self.row, True)
                 out = "\t" + out
@@ -35,6 +34,9 @@ class Select(instruction.Instruction):
                 grammar.optimizer_.addIgnoreString(out, self.row, False)
             return code.C3D(out, "select", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Union")
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Union"
+            )
+
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_SELECT")
