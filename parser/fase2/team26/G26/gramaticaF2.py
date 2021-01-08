@@ -232,7 +232,8 @@ reservadas = {
     'alias': 'ALIAS',
     'for': 'FOR',
     'raise' : 'RAISE',
-    'procedure' : 'PROCEDURE'
+    'procedure' : 'PROCEDURE',
+    'order' : 'ORDER'
 }
 
 tokens = [
@@ -760,13 +761,14 @@ def p_select_err(t):
     t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_from_opcional(t):
-    'fromopcional     :  FROM parametrosfrom whereopcional '
-    text = " FROM "+ t[2]['text'] + t[3]['text']
+    'fromopcional     :  FROM parametrosfrom whereopcional orderby'
+    text = " FROM "+ t[2]['text'] + t[3]['text']+t[4]['text']
     c3d = t[3]['c3d']
     grafo.newnode('FROM')
     grafo.newchildrenF(grafo.index,t[2]['graph'])
     grafo.newchildrenF(grafo.index,t[3]['graph'])
-    reporte = "<fromopcional> ::= FROM <parametrosfrom> <whereopcional>\n" + t[2]['reporte'] + t[3]['reporte']
+    grafo.newchildrenF(grafo.index,t[4]['graph'])
+    reporte = "<fromopcional> ::= FROM <parametrosfrom> <whereopcional>\n" + t[2]['reporte'] + t[3]['reporte'] + t[4]['reporte']
     t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_from_opcional_1(t):
@@ -882,7 +884,7 @@ def p_listanumeros(t):
 def p_group_by_opcional_null(t):
     'groupbyopcional  : '
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': ''}
 
 def p_parametros_from(t):
     'parametrosfrom : parametrosfrom COMA parametrosfromr asopcional'
@@ -3159,8 +3161,14 @@ def p_tipodedrop(t):
 #------------------------------------------------------------DELETE----------------------------------------------------
 def p_instrucciones_delete(t) :
     '''delete    : FROM ID condicionesops PTCOMA'''
+
+    grafo.newnode('DELETE')
+    grafo.newchildrenE(t[2])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<delete> ::= FROM " + t[2].upper() + " <condicionesops> PTCOMA\n"
+
     text = "FROM " + t[2] + " "+ t[3]['text']+ ";"
-    t[0] =  {'text': text, 'c3d' : t[3]['c3d'] }
+    t[0] =  {'text': text, 'c3d' : t[3]['c3d'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionesdelete_e(t):
     '''delete : problem'''
@@ -3169,123 +3177,224 @@ def p_instruccionesdelete_e(t):
 #-------------------------------------------------------INSERT------------------------------------------
 def p_instrucciones_insert(t):
     '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
+    grafo.newnode('INSERT')
+    grafo.newchildrenE(t[2])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    reporte = "<insert> ::= INTO " + t[2].upper() + " VALUES PARENIZQ <values> PARENDER PTCOMA\n" + t[5]['reporte']
+
     text = "INTO "+t[2] + " VALUES ( " +t[5]['text']+ " ) ;"
     c3d = t[5]['c3d']
-    t[0] =  {'text': text, 'c3d' : c3d }
+    t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instrucciones_insert_err(t):
     "insert : problem"
     text = "\n"
-    t[0] =  {'text': text, 'c3d' : '' }
+    reporte = "<insert> ::= <problem>\n" + t[1]['reporte']
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_values_rec(t):
     '''values   : values COMA value'''
+
+    grafo.newnode('VALUES')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<values> ::= <values> COMA <value>\n" + t[1]['reporte'] + t[3]['reporte']
+
     text = str(t[1]['text']) + " , " +str(t[3]['text'])
     select = ''
     if 'select' in t[3]:
         select = t[3]['select']
 
     c3d = t[1]['c3d'] + select
-    t[0] =  {'text': text, 'c3d' : c3d }
+    t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte }
 
 def p_values(t):
     '''values   : value'''
+
+    grafo.newnode('VALUES')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<values> ::= <value>\n" + t[1]['reporte']
+
     select = ''
     if 'select' in t[1]:
         select = t[1]['select']
-    t[0] = {'text':t[1]['text'], 'c3d':'', 'select':select}
+    t[0] = {'text':t[1]['text'], 'c3d':'', 'select':select, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_value_funcion(t):
     'value : funcionesLlamada'
-    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'], 'select':t[1]['c3d'] }
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1]['graph'])
+    reporte = "<value> ::= ENTERO\n"
+
+    t[0] =  {'text': t[1]['text'], 'c3d' : t[1]['c3d'], 'select':t[1]['c3d'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_value(t):
     '''value   : ENTERO'''
-    t[0] =  {'text': t[1], 'c3d' : str(t[1]) }
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1])
+    reporte = "<value> ::= ENTERO\n"
+
+    t[0] =  {'text': t[1], 'c3d' : str(t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_valuef(t):
     '''value   : DECIMAL'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1])
+    reporte = "<value> ::= DECIMAL\n"
+
     text = t[1]
-    t[0] =  {'text': text, 'c3d' : str(t[1]) }
+    t[0] =  {'text': text, 'c3d' : str(t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_valuec(t):
     '''value   : CADENA'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1])
+    reporte = "<value> ::= CADENA\n"
+
     text = ' \\\'' + t[1] + '\\\''
-    t[0] =  {'text': text, 'c3d' : ' \'' + t[1] + '\'' }
+    t[0] =  {'text': text, 'c3d' : ' \'' + t[1] + '\'', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_valueb(t):
     '''value   : boleano'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<value> ::= <boleano>\n" + t[1]['reporte']
+
     text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : t[1]['tflag'] }
+    t[0] =  {'text': text, 'c3d' : t[1]['tflag'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_value_md(t):
     'value : MD5 PARENIZQ argument PARENDER'
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index,t[3]['graph'])
+    reporte = "<value> ::= MD5 PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
+
     text = "MD5 ("+t[3]['text']+" )"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_value_now(t):
     '''value   : NOW PARENIZQ PARENDER'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1])
+    reporte = "<value> ::= NOW PARENIZQ PARENDER\n"
+
     text = "NOW () "
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_value_trim(t):
     '''value   : TRIM PARENIZQ argument PARENDER'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<value> ::= TRIM PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
+
     text = "TRIM ("+t[3]['text']+" )"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_value_substring(t):
     '''value   :  SUBSTRING PARENIZQ argument COMA ENTERO COMA ENTERO PARENDER'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenE(t[5])
+    grafo.newchildrenE(t[7])
+    reporte = "<value> ::= SUBSTRING PARENIZQ <argument> COMA ENTERO COMA ENTERO PARENDER\n" + t[3]['reporte']
+
     text = "SUBSTRING ("+t[3]['text']+" , "+ t[5]+" , "+t[7]+")"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte }
 
 def p_value_substr(t):
     '''value   :  SUBSTR PARENIZQ argument COMA ENTERO COMA ENTERO PARENDER'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenE(t[5])
+    grafo.newchildrenE(t[7])
+    reporte = "<value> ::= SUBSTR PARENIZQ <argument> COMA ENTERO COMA ENTERO PARENDER\n" + t[3]['reporte']
+
     text = "SUBSTR ("+t[3]['text']+" , "+ t[5]+" , "+t[7]+")"
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 
 #-------------------------------------------------UPDATE-----------------------------------------------
 def p_instrucciones_update(t):
     '''update    : ID SET asignaciones condicionesops PTCOMA'''
+    grafo.newnode('UPDATE')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    grafo.newchildrenF(grafo.index, t[4]['graph'])
+    reporte = " <update> ::= " + t[1].upper() + " SET <asignaciones> <condiciones> PTCOMA\n" + t[3]['reporte'] + t[4]['reporte']
+
     text=""
     c3d = t[3]['c3d'] + t[4]['c3d']
-    if t[2].lower() == "set":
-        text = t[1] + " SET "+t[3]['text']+t[4]['text']+";"
-    t[0] =  {'text': text, 'c3d' : c3d }
+    text = t[1] + " SET "+t[3]['text']+t[4]['text']+";"
+    t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccions_update_e(t):
     '''update : problem'''
+    reporte = "<update> ::= <problem>\n"+ t[1]['reporte']
+
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_asignaciones_rec(t):
     '''asignaciones     : asignaciones COMA ID IGUAL argument'''
+    grafo.newnode('ASIGNACIONES')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenE(t[3])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    t[1]['ast'].append(update.AsignacionUpdate(ident.Identificador(None, t[3]), t[5]['ast']))
+    reporte = "<asignacioens> ::= <asignaciones> COMA " + t[3].upper() + " IGUAL <argument>\n" + t[1]['reporte'] + t[5]['reporte']
+    
     text =t[1]['text']+" , "+ t[3]+" = "+ t[5]['text']
-    t[0] =  {'text': text, 'c3d' : t[5]['select'] }
+    t[0] =  {'text': text, 'c3d' : t[5]['select'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_asignaciones(t):
     '''asignaciones : ID IGUAL argument'''
+    grafo.newnode('ASIGNACIONES')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<asignaciones> ::= " + t[1].upper() + " IGUAL <argument>\n" + t[3]['reporte']
+
     text = t[1]+ " = " + t[3]['text']
     try:
         c3d = t[3]['select']
     except:
         c3d = ''
-    t[0] =  {'text': text, 'c3d' : c3d }
+    t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instrucciones_update_condsops(t):
     'condicionesops    : WHERE condiciones'
+    grafo.newnode('CONDSOPS')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<condicionesops> ::= WHERE <condiciones>\n" + t[2]['reporte']
+
     text = " WHERE "+ t[2]['text']
-    t[0] =  {'text': text, 'c3d' : t[2]['select'] }
+    t[0] =  {'text': text, 'c3d' : t[2]['select'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instrucciones_update_condsopsE(t):
     'condicionesops    : '
+    grafo.newnode('CONDSOPS')
+    reporte = "<condicionesops> ::= EPSILON\n"
+
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 #----------------------------------------NUEVO---------------------------------------------------------
 #------------------------------------------------------------PROCEDURE--------------------------------------------------------------------
 def p_createprocedure(t):
     'createprocedure : orreplaceopcional PROCEDURE ID PARENIZQ argumentosp PARENDER LANGUAGE ID AS DOLARS bodystrcpr DOLARS '
+
+    grafo.newnode('CREATEPROCEDURE')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenE(t[2].upper() + ' ' + t[3])
+    grafo.newchildrenF(grafo.index, t[5]['graph'])
+    grafo.newchildrenF(grafo.index, t[11]['graph'])
+    grafo.newchildrenE(t[1])
+    reporte = "<createprocedure> ::= <orreplaceopcional> PROCEDURE ID PARENIZQ <argumentosp> PARENDER LANGUAGE ID AS DOLARS <bodystrcpr> DOLARS\n"
+    reporte += t[5]['reporte'] + t[11]['reporte']
+
     ftext = '@with_goto\n' + 'def ' + t[3] + '():\n'
     ftext += t[5]['text']
     ftext += t[11]['text']
@@ -3316,7 +3425,7 @@ def p_createprocedure(t):
             printList = 'La funcion ' + t[3] + ' ya esta creada.\n'
 
         l.writeData(datos)
-    t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList}
+    t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_orreplaceopcional(t):
     '''orreplaceopcional :  OR REPLACE'''
@@ -3328,57 +3437,105 @@ def p_orreplaceopcionalE(t):
 
 def p_body_strcpr(t):
     '''bodystrcpr : cuerpodeclare BEGIN statementspr END  PTCOMA'''
+
+    grafo.newnode('bodystrcpr')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
+    reporte = "<bodystrcpr> ::= <cuerpodeclare> BEGIN <statementspr> END  PTCOMA\n"
+    reporte += t[1]['reporte'] + t[3]['reporte']
+
     text = t[1]['text'] + '\n' + t[3]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_body_strcBpr(t):
     '''bodystrcpr : BEGIN statementspr END  PTCOMA'''
+    grafo.newnode('bodystrcpr')
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<bodystrcpr> ::= BEGIN <statementspr> END  PTCOMA\n"
+    reporte += t[2]['reporte']
+
     text = t[2]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_statements_cpr(t):
     'statementspr : statementspr statementpr'
+    grafo.newnode('statementspr')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<statementspr> ::= <statementspr> <statementpr>\n"
+    reporte += t[1]['reporte'] + t[2]['reporte']
+
     text = t[1]['text']
     text += t[2]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_statements_cpr_a(t):
     'statementspr : statementpr'
+    grafo.newnode('statementspr')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<statementspr> ::= <statementpr>\n"
+    reporte += t[1]['reporte']
+
     text = t[1]['text']  + '\n'
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_stament_cpro(t):
     '''statementpr : CASE case PTCOMA'''
+    grafo.newnode('statementpr')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
+    reporte = "<statementpr> ::= CASE <case> PTCOMA\n"
+    reporte += t[2]['reporte']
+
     c3d = ''
     text = t[2]['c3d']
     #print(text)
-    t[0] =  {'text': text, 'c3d' : c3d}
+    t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_stament_ifpr(t):
     'statementpr : if'
+    grafo.newnode('statementpr')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<statementpr> ::= <if> \n"
+    reporte += t[1]['reporte']
+
     c3d = ''
     text = t[1]['c3d']
-    t[0] =  {'text': text, 'c3d' : c3d}
+    t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_stament_asignpr(t):
     '''statementpr : asigment'''
+    grafo.newnode('statementpr')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<statementpr> ::= <asigment> \n"
+    reporte += t[1]['reporte']
+
     text = t[1]['text']
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_stament_caspr(t):
     '''statementpr : '''
+    grafo.newnode('statementpr')
+    reporte = "<statementpr> ::= \n"
+
     text = ""
-    t[0] =  {'text': text, 'c3d' : '' }
+    t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
 def p_statement_pr(t):
     'statementpr : instruccion'
+    grafo.newnode('statementpr')
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    reporte = "<statementpr> ::= <instruccion> \n"
+    reporte += t[1]['reporte']
+
     text = ''
     if 'valSelectPrint' in t[1]:
         text += '    valSelectPrint = 1\n'
 
     text += t[1]['text']
 
-    t[0] = {'text': text, 'c3d': ''}
+    t[0] = {'text': text, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
 #--------------------------------------------------------------------FUNCIONES--------------------------------------------------------------
 def p_createfunction(t):
