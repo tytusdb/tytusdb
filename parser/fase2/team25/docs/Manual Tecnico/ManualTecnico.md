@@ -25,6 +25,9 @@ Se utilizó la herramienta PLY para realizar el análisis léxico y sintáctico,
 
 ## Análisis Semántico
 Para cada acción semántica, se creó un objeto de una clase. Existe una clase para cada sentencia de pl. Todas las clases se adjuntaron en un módulo llamado pl.
+
+
+
 ![alt text](img/modulo.jpg)
 
 Cada clase cuenta con lo siguiente:
