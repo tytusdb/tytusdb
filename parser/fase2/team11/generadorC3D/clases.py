@@ -499,3 +499,551 @@ def p_valdate1(t):
                  | SECOND
                  | MONTH
                  | DAY'''
+
+def p_datepart(t):
+    'datepart_instr    :  DATE_PART PARIZQ CADENASIMPLE COMA INTERVAL CADENASIMPLE PARDER'
+
+def p_current(t):
+    '''current     :  CURRENT_DATE
+                   | CURRENT_TIME'''
+
+def p_timestamp(t):
+    'timestampnow     :  TIMESTAMP CADENASIMPLE'
+
+def p_nowinstr(t):
+    'nowinstr     :  NOW PARIZQ PARDER'
+
+# ####################################### PL/psSQL ################################################
+
+# ----- llamadas a procedimientos y funciones 
+
+def p_llamasProcedimientos(t):
+    'llamadaprocedimiento  : EXECUTE ID PARIZQ PARDER PTCOMA'
+    g = '<llamadaprocedimiento>  : EXECUTE ID PARIZQ PARDER PTCOMA'
+    t[0] = Nodo('EXECUTE', t[2], [], t.lexer.lineno, 0, g)
+
+def p_llamasProcedimientos1(t):
+    'llamadaprocedimiento  : EXECUTE ID PARIZQ listaexpresiones PARDER PTCOMA'
+    g = '<llamadaprocedimiento>  : EXECUTE ID PARIZQ <listaexpresiones> PARDER PTCOMA'
+    t[0] = Nodo('EXECUTE', t[2], t[4], t.lexer.lineno, 0, g)
+
+def p_llamasFuncion(t):
+    'llamadafunciones   : SELECT ID PARIZQ PARDER PTCOMA'
+    g = '<llamadafunciones> : SELECT ID PARIZQ PARDER PTCOMA'
+    t[0] = Nodo('SELECT FUNC', t[2], [], t.lexer.lineno, 0, g)
+
+def p_llamasFuncion1(t):
+    'llamadafunciones   : SELECT ID PARIZQ listaexpresiones PARDER PTCOMA'
+    g = '<llamadafunciones> : SELECT ID PARIZQ <listaexpresiones> PARDER PTCOMA'
+    t[0] = Nodo('SELECT FUNC', t[2], t[4], t.lexer.lineno, 0, g)
+
+
+# ------- creacion de procedimientos y funciones 
+
+def p_funciones_procedimientos(t):
+    'plsql_instr   : CREATE procedfunct ID PARIZQ parametrosfunc PARDER tiporetorno cuerpofuncion'
+    t[0] = getfuncion_procedimiento(t)
+
+def p_procedurefunction(t):
+    '''procedfunct  : PROCEDURE 
+                    | FUNCTION'''
+    t[0] = t[1]
+
+def p_retornafuncion(t):
+    '''tiporetorno  : RETURNS type_column1 AS
+                    | LANGUAGE PLPGSQL AS
+                    | AS
+                    | empty'''
+    t[0] = getretornofuncion(t)
+
+def p_parametrosfunc(t):
+    '''parametrosfunc  : listaparametrosfunc
+                       | empty'''
+    t[0] = t[1]
+
+def p_listaparametrosfunc(t):
+    '''listaparametrosfunc : listaparametrosfunc COMA parfunc
+                            | parfunc'''
+    t[0] = getparametrosfunc(t)
+
+def p_parfunc(t):
+    '''parfunc    : OUT ID type_column1
+                  | INOUT ID type_column1
+                  | ID type_column1
+                  | type_column1'''
+    t[0] = getparfunc(t)
+
+def p_cuerpofuncion(t):
+    'cuerpofuncion  : CADDOLAR declaraciones cuerpo CADDOLAR LANGUAGE PLPGSQL PTCOMA'
+    t[0] = getCuerpoFuncion(t)
+
+def p_cuerpofuncion1(t):
+    'cuerpofuncion  : CADDOLAR declaraciones cuerpo CADDOLAR PTCOMA'
+    t[0] = getCuerpoFuncion(t)
+
+def p_declaraciones(t):
+    'declaraciones   : DECLARE listadeclaraciones'
+    g = '<declaraciones>   : DECLARE <listadeclaraciones>'
+    t[0] = Nodo('DECLARE', '', t[2], t.lexer.lineno, 0, g)
+
+def p_declaraciones1(t):
+    'declaraciones   :  empty'
+    t[0] = None
+
+def p_listadeclaraciones(t):
+    '''listadeclaraciones : listadeclaraciones declaracion
+                          | declaracion'''
+    t[0] = getlistadeclaraciones(t)
+
+def p_declaracion(t):
+    '''declaracion : ID constantintr type_column1 notnullinst asignavalor PTCOMA'''
+    t[0] = getdeclaraciones(t)
+
+def p_declaracion1(t):
+    '''declaracion : ID ALIAS1 FOR DOLAR ENTERO PTCOMA
+                   | ID ALIAS1 FOR ID PTCOMA'''
+    t[0] = getdeclaraciones1(t)
+
+def p_declaracion2(t):
+    '''declaracion : ID cualquieridentificador MODULO TYPE PTCOMA'''
+    t[0] = getdeclaraciones2(t)
+
+def p_declaracion3(t):
+    '''declaracion : ID cualquieridentificador MODULO ROWTYPE PTCOMA'''
+    t[0] = getdeclaraciones2(t)
+
+def p_constantintr(t):
+    '''constantintr : CONSTANT
+                    | empty'''
+    t[0] = getconstant(t)
+
+def p_notnullinst(t):
+    '''notnullinst  : NOT NULL
+                    | empty'''
+    t[0] = getnotnull(t)
+
+def p_asignavalor(t):
+    '''asignavalor      : DEFAULT expresion
+                        | PTIGUAL expresion
+                        | IGUAL expresion
+                        | empty'''
+    t[0] = getasignavalor(t)
+
+def p_cuerpo(t):
+    'cuerpo     : BEGIN instrlistabloque END PTCOMA'
+    t[0] = getcuerpo(t)
+
+def p_insrtlistabloque(t):
+    '''instrlistabloque : listabloque
+                        | empty'''
+    t[0] = getinstlistabloque(t)
+
+def p_listabloque(t):
+    '''listabloque : listabloque bloque
+                   | bloque'''
+    t[0] = getlistabloque(t)
+
+def p_bloque(t):
+    '''bloque       : raisenotice
+                    | asignacionbloque
+                    | subbloque
+                    | returnbloque
+                    | instrexecute
+                    | getdiagnostic
+                    | instrnull
+                    | instrif
+                    | instrcase
+                    | commitinstr
+                    | rollbackinstr
+                    | insert_instr
+                    | update_instr
+                    | alter_instr
+                    | drop_table   
+                    | delete_instr
+                    | truncate_instr
+                    | indexinstr'''
+    t[0] = t[1]
+
+def p_commit(t):
+    'commitinstr : COMMIT PTCOMA'
+    t[0] = Nodo('COMMIT', '', [], t.lexer.lineno)
+
+def p_rollback(t):
+    'rollbackinstr : ROLLBACK PTCOMA'
+    t[0] = Nodo('ROLLBACK', '', [], t.lexer.lineno)
+
+def p_raisenotice(t):
+    '''raisenotice   : RAISE NOTICE CADENASIMPLE COMA ID PTCOMA
+                     | RAISE NOTICE CADENASIMPLE PTCOMA'''
+    t[0] = getraisenotice(t)
+
+def p_asignacionbloque(t):
+    'asignacionbloque : ID IGUAL expresion PTCOMA'
+    t[0] = getasignacionbloque(t)
+
+def p_asignacionbloque1(t):
+    'asignacionbloque : ID PTIGUAL expresion PTCOMA'
+    t[0] = getasignacionbloque(t)
+
+def p_return(t):
+    'returnbloque : RETURN condicion PTCOMA'
+    g = '<returnbloque> : RETURN <condicion> PTCOMA'
+    t[0] = Nodo('RETURN', '', [t[2]], t.lexer.lineno, 0, g)
+
+def p_return2(t):
+    'returnbloque : RETURN QUERY select_instr PTCOMA'
+    g = '<returnbloque> : RETURN QUERY <select_instr> PTCOMA'
+    t[0] = Nodo('RETURN QUERY', '', [t[3]], t.lexer.lineno, 0, g)
+
+def p_return3(t):
+    'returnbloque : RETURN QUERY instrexecute PTCOMA'
+    t[0] = Nodo('RETURN QUERY', '', [t[3]], t.lexer.lineno)
+
+def p_return4(t):
+    'returnbloque : RETURN PTCOMA'
+    g = '<returnbloque> : RETURN PTCOMA'
+    t[0] = Nodo('RETURN', '', [], t.lexer.lineno, 0, g)
+
+def p_subloque(t):
+    'subbloque : declaraciones cuerposub'
+    t[0] = getsubbloque(t)
+
+def p_cuerposub(t):
+    'cuerposub : BEGIN listasubbloque END PTCOMA'
+    t[0] = getcuerposubbloque(t)
+
+def p_cuerposub1(t):
+    'cuerposub : BEGIN empty END PTCOMA'
+    t[0] = getcuerposubbloque(t)
+
+def p_listasubbloque(t):
+    '''listasubbloque : listasubbloque subbloque1
+                      | subbloque1'''
+    t[0] = getlistasubbloque(t)
+
+def p_bloque1(t):
+    '''subbloque1   : raisenotice1
+                    | asignacionbloque'''
+    t[0] = t[1]
+
+def p_raisenotice1(t):
+    '''raisenotice1  : RAISE NOTICE CADENASIMPLE COMA ID PTCOMA
+                     | RAISE NOTICE CADENASIMPLE COMA OUTERBLOCK PUNTO ID PTCOMA
+                     | RAISE NOTICE CADENASIMPLE PTCOMA'''
+    t[0] = getraisenoticesubbloque(t)
+
+def p_type_column1(t):
+    '''type_column1   : SMALLINT
+                      | INTEGER
+                      | BIGINT
+                      | RDECIMAL
+                      | RDECIMAL PARIZQ ENTERO COMA ENTERO PARDER
+                      | NUMERIC
+                      | NUMERIC PARIZQ ENTERO PARDER
+                      | REAL
+                      | FLOAT
+                      | INT
+                      | DOUBLE
+                      | MONEY
+                      | VARCHAR
+                      | VARCHAR PARIZQ ENTERO PARDER
+                      | CHARACTER VARYING PARIZQ ENTERO PARDER
+                      | CHARACTER PARIZQ ENTERO PARDER
+                      | CHAR 
+                      | CHAR PARIZQ ENTERO PARDER
+                      | TEXT
+                      | TIMESTAMP 
+                      | TIMESTAMP PARIZQ ENTERO PARDER
+                      | DATE
+                      | TIME
+                      | BOOLEAN
+                      | ID
+                      | TIME PARIZQ ENTERO PARDER
+                      | RECORD
+                      | TABLE PARIZQ parametrosfunc PARDER'''
+    t[0] = gettypecolumn(t)
+
+# INSTRUCCION
+def p_instrexecute(t):
+    'instrexecute    : EXECUTE CSIMPLE select_instr CSIMPLE intotarget usingexpresion'
+    t[0] = getinstrexecute(t)
+
+def p_instrexecute1(t):
+    'instrexecute    : EXECUTE FORMAT PARIZQ CSIMPLE select_instr CSIMPLE PARDER intotarget usingexpresion'
+    t[0] = getinstrexecute1(t)
+
+def p_intotarget(t):
+    '''intotarget    : INTO ID
+                    | empty'''
+    t[0] = getintotarget(t)
+
+def p_usingexpresion(t):
+    '''usingexpresion  : USING listaexpresiones
+                       | empty'''
+    t[0] = getusingexpresion(t)
+
+def p_listaexpresiones(t):
+    '''listaexpresiones : listaexpresiones COMA expresion
+                        | expresion'''
+    t[0] = getlistexpresiones(t)
+
+# INSTRUCCION 
+def p_getdiagnostic(t):
+    'getdiagnostic : GET DIAGNOSTICS ID IGUAL ID'
+    n1 = Nodo('ID', t[3], [], t.lexer.lineno)
+    n2 = Nodo('ID', t[5], [], t.lexer.lineno)
+    t[0] = Nodo('GET DIAGNOSTICS', t[4], [n1, n2], t.lexer.lineno)
+
+def p_getdiagnostic1(t):
+    'getdiagnostic : GET DIAGNOSTICS ID PTIGUAL ID'
+    n1 = Nodo('ID', t[3], [], t.lexer.lineno)
+    n2 = Nodo('ID', t[5], [], t.lexer.lineno)
+    t[0] = Nodo('GET DIAGNOSTICS', t[4], [n1, n2], t.lexer.lineno)
+
+# INSTRUCCION 
+def p_instrnull(t):
+    'instrnull    : NULL PTCOMA'
+    t[0] = Nodo('NULL', '', [], t.lexer.lineno)
+
+# INSTRUCCION 
+def p_instrif(t):
+    'instrif    : IF condiciones THEN instrlistabloque END IF PTCOMA'
+    t[0] = getinstrif(t)
+
+def p_instrif1(t):
+    'instrif    : IF condiciones THEN instrlistabloque ELSE instrlistabloque END IF PTCOMA'
+    t[0] = getinstrif1(t)
+
+def p_instrif2(t):
+    'instrif    : IF condiciones THEN instrlistabloque instrelseif END IF PTCOMA'
+    t[0] = getinstrif2(t)
+
+def p_instrif3(t):
+    'instrif    : IF condiciones THEN instrlistabloque instrelseif ELSE instrlistabloque END IF PTCOMA'
+    t[0] = getinstrif3(t)
+
+def p_elseif(t):
+    '''instrelseif : instrelseif in_elseif
+                    | in_elseif'''
+    t[0] = getinstrelseif(t)
+
+def p_inelseif(t):
+    'in_elseif : ELSIF condiciones THEN instrlistabloque'
+    g = '<in_elseif> : ELSIF <condiciones> THEN <instrlistabloque>'
+    childs = [Nodo('CONDICIONES', '', [t[2]], t.lexer.lineno)]
+    if t[4] != None:
+       childs.append(Nodo('THEN', '', t[4], t.lexer.lineno))
+    t[0] =  Nodo('ELSIF', '', childs, t.lexer.lineno, 0, g)
+
+
+# INSTRUCCION 
+def p_instrcase(t):
+    'instrcase : CASE expresion listawhen1 elsecase END CASE PTCOMA'
+    t[0] = getinstrcase(t)
+
+def p_elsecase(t):
+    'elsecase : ELSE instrlistabloque'
+    t[0] = Nodo('ELSE', '', t[2], t.lexer.lineno)
+
+def p_elsecase1(t):
+    'elsecase : empty'
+
+def p_listawhen1(t):
+    '''listawhen1  : listawhen1 when1
+                   | when1'''
+    t[0] = getlistawhen1(t)
+
+def p_when1(t):
+    'when1  : WHEN listaexpresiones THEN instrlistabloque'
+    t[0] = getwhen1(t)
+
+# INSTRUCCION 
+def p_instrcase2(t):
+    'instrcase : CASE listawhen2 elsecase END CASE PTCOMA'
+    t[0] = getinstrcase2(t)
+
+def p_listawhen2(t):
+    '''listawhen2  : listawhen2 when2
+                   | when2'''
+    t[0] = getlistawhen1(t)
+
+def p_when2(t):
+    'when2  : WHEN ID BETWEEN ENTERO AND ENTERO THEN instrlistabloque'
+    t[0] = getwhen21(t)
+
+def p_when3(t):
+    'when2  : WHEN condiciones THEN instrlistabloque'
+    t[0] = getwhen22(t)
+
+# Epsilon -------------------------------------------------------------------------------------
+def p_empty(t):
+    'empty            : '
+    pass
+
+def p_error(t):
+    print(t)
+    print("Error sintáctico en '%s'" % t.value)
+    Errores.append(Error('42601', EType.SINTACTICO, 'syntax_error', t.lexer.lineno))
+
+
+
+## ################## Se genera AST de procedimiento y se traduce a 3d #########################
+parser = yacc.yacc()
+def parse(input) :
+
+    entradaPL = obtenerSentenciasPL_SQL(input)
+    if entradaPL != '':
+        raiz = parser.parse(entradaPL)
+        graficarAST(raiz)
+        global C3Direcciones, contadorTemp
+        gen3d = TraducirProcedimientos(raiz, C3Direcciones, contadorTemp)
+        gen3d.traducir()
+        gen3d.generateProYFunc()
+        gen3d.crearReporte()
+
+
+## #######################    Se separan sentencia SQL y PL/SQL    ############################
+def obtenerSentenciasPL_SQL(input):
+    global C3Direcciones
+    input = input.strip()
+    input = input.replace('\n', ' ')
+    input = input.replace('\t', ' ')
+    input = input[:-1]
+
+    instrucciones = input.split(";")
+    bandera = 0
+    codigoPL = ''
+
+    for instr in instrucciones:
+        if bandera == 0:
+            if 'create function' in instr.lower() or 'create procedure' in instr.lower():
+                bandera = 1
+                obtenerNombreFuncion(instr)
+                instr = reestructurarPL(instr)
+                codigoPL += instr + ';'
+            elif 'drop function' in instr.lower() or 'drop procedure' in instr.lower():
+                codigoPL += instr + ';'
+                valores = instr.split()
+                i = len(valores) -1
+                cd3 ='\tglobals()[\''+ valores[i] + '\'] = 0'
+                C3Direcciones.append(cd3)
+            else:
+                if 'execute' in instr.lower() or 'select1' in instr.lower():
+                    guardarEn3dLlamada(instr)
+                else: 
+                    guardarEn3dSQL(instr)
+        else:
+            if instr.endswith("plpgsql") or instr.endswith("$$"):
+                bandera = 0
+            instr = reestructurarPL(instr)
+            codigoPL += instr + ';'
+    return codigoPL
+
+def guardarEn3dSQL(instr):
+    instr = instr.strip()
+    #instr = instr.replace('\'', '\\\'')
+    instr = buscarFuncionENSQL(instr)
+    cd3 ='\tt'+str(contadorTemp) +' = \"' + instr +';\"'
+    C3Direcciones.append(cd3) 
+    cd3 = '\tpila = [t'+str(contadorTemp)+']'
+    C3Direcciones.append(cd3) 
+    cd3 = '\tfuncionIntermedia()'
+    C3Direcciones.append(cd3) 
+    incremetarTemp()
+
+def guardarEn3dLlamada(instr):
+    tipo = instr
+    instr = instr.strip()
+    instr = instr[8:]
+    cd3 = '\t'+instr
+    if 'select1' in tipo.lower():
+        cd3 = '\tprint('+instr+')'
+    C3Direcciones.append(cd3)
+
+def reestructurarPL(instr):
+    if 'insert ' in instr.lower():
+        c = re.split('insert into|INSERT INTO', instr)
+        c[0] += 'insert \"insert into '+ c[1] + ';\"'
+        instr = c[0]
+    elif 'update ' in instr.lower(): 
+        c = re.split('update|UPDATE', instr)
+        c[0] += 'update \"update '+ c[1] + ';\"'
+        instr = c[0]
+    elif 'delete ' in instr.lower():
+        c = re.split('delete|DELETE', instr)
+        c[0] += 'delete \"delete '+ c[1] + ';\"'
+        instr = c[0]
+    elif 'select ' in instr.lower():
+        c = re.split('select|SELECT', instr)
+        c[0] = c[0][:-1]
+        c[0] += 'select \"select '+ c[1] 
+        instr = c[0]
+        instr = instr[:-1]
+        instr = instr + ';\"'
+    elif 'alter ' in instr.lower():
+        c = re.split('alter|ALTER', instr)
+        c[0] += 'alter \"alter '+ c[1] + ';\"'
+        instr = c[0]
+    elif 'create index ' in instr.lower():
+        c = re.split('create index|CREATE INDEX', instr)
+        c[0] += 'create index \"create index '+ c[1] + ';\"'
+        instr = c[0]
+    elif 'create unique index ' in instr.lower():
+        c = re.split('create unique index|CREATE UNIQUE INDEX', instr)
+        c[0] += 'create index \"create unique index '+ c[1] + ';\"'
+        instr = c[0]
+    return instr
+
+def obtenerNombreFuncion(instr):
+    cadena = instr
+    cadena = cadena.split('(')
+    cadena = cadena[0].split()
+    procedimientos.append(cadena[2])
+
+def buscarFuncionENSQL(instr):
+    for name in procedimientos:
+        if name in instr:
+            inicio = instr.index(name)
+            n = ''
+            for i in range(inicio, len(instr)):
+                n += instr[i]
+                if instr[i] == ')':
+                    break
+            instr = instr.replace(n, '\"+str('+n+')+\"')
+            break
+    return instr
+
+## ######################## metodo para incremtar indice de temporales #######################
+def incremetarTemp():
+    global contadorTemp
+    contadorTemp += 1
+    return contadorTemp
+
+
+
+# ######################## GRAFICA UNICAMENTE EL AST DE FUNCIONES Y PROCEDIMIENTOS ############
+c = 0
+def recorrerNodos(nodo):
+    global c
+    c += 1
+    codigo = ""
+    padre = 'nodo'+str(c)
+    codigo = padre + '[label = \"' + nodo.etiqueta + '\\n' + nodo.valor + '\"];\n'
+    for hijo in nodo.hijos: 
+        codigo += padre + '->' + 'nodo' + str(c+1) + '\n'
+        codigo += recorrerNodos(hijo)
+    return codigo
+
+def graficarAST(raiz):
+
+    file = open("astPL.dot", "w")
+    file.write(
+            'digraph G {\n'
+            + 'rankdir=TB; '
+            + 'node[fillcolor=\"darkturquoise:darkslategray2\", shape=record ,fontname = \"Berlin Sans FB\" ,style = filled]  \n'
+            + 'edge[arrowhead=none]; \n'
+        )
+    file.write(recorrerNodos(raiz))
+    file.write('}\n')
+    file.close()
+    render('dot','svg','astPL.dot')
