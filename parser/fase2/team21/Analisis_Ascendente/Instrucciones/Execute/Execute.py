@@ -22,7 +22,7 @@ class Execute(Instruccion):
             i = 0
             params = ""
             for te in temporales:
-                params += te
+                params += str(te)
                 if i + 1 != len(temporales):
                     params += ', '
                 i = i + 1

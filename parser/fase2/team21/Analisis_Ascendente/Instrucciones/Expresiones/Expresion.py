@@ -161,7 +161,15 @@ class Expresion(Exp):
             else:
                 return str(expre.valor)
         elif isinstance(expre, Id):
-            return str(expre.id) #por el momento
+                return str(expre.id) #por el momento
+        elif isinstance(expre, Llamada):
+                concatena = ""
+                if  len(expre.listaE) == 0:
+                    concatena += Llamada.obtenerCadena(expre,2)
+                else:
+                    concatena += Llamada.obtenerCadena(expre,1)
+
+                return str(f"{concatena}")
         elif isinstance(expre, Expresion):
             expre1 = Expresion.traducir(expre.iz, ts, consola, exception, tv, regla, antes, optimizado, ID)
             expre2 = Expresion.traducir(expre.dr, ts, consola, exception, tv, regla, antes, optimizado, ID)

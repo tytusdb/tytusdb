@@ -251,6 +251,8 @@ class Selectp4(Instruccion):
         info = ""  # info contiene toda el string a mandar como parametros
         #print("concatena \n")
         #print(Select.concatena)
+
+
         for data in Select.concatena:
             info += " " + data
 
