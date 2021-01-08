@@ -20,6 +20,7 @@ class DropDatabase(ASTNode):
         result = 0
         if self.if_exists:
             dropDatabase(result_name)
+            table.drop_data_base(result_name)
             return "Database " + str(result_name) + " has been dropped"
         else:
             result = dropDatabase(result_name)
