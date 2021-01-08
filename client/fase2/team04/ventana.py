@@ -334,7 +334,7 @@ def CrearVentana():
     textos[a].text.bind("<KeyRelease>",Spellcheck)
     textos[a].text.bind("<Key>", Spellcheck)
     # initialize the spell checking dictionary. YMMV.
-    _words=open("/home/josselyn/Escritorio/clave").read().split("\n")
+    _words=open("clave").read().split("\n")
     raiz.mainloop()
 
 
