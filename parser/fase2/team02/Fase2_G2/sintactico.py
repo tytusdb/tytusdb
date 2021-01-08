@@ -2051,5 +2051,3 @@ def ejecutar_analisis(texto):
     #se obtiene la acción de analisis sintactico
     print("inicio")
     return parser.parse(texto)
-
-
