@@ -206,6 +206,7 @@ reservedwords = (
     'WHEN',
     'PROCEDURE',
     'EXECUTE',
+    'DATE_PART',
 )
 
 symbols = (
@@ -1334,9 +1335,13 @@ def p_expression_aggfunctions(t):
     '''expression : COUNT BRACKET_OPEN expression BRACKET_CLOSE
                   | AVG BRACKET_OPEN expression BRACKET_CLOSE
                   | SUM BRACKET_OPEN expression BRACKET_CLOSE'''
-    t[0] = AggFunction(t[1],t[3])
     global grammarreport
-    grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = AggFunction('"+t[1]+"',expression.val) }\n" + grammarreport
+    if(t[1]=='COUNT'):
+        t[0] = CountFunction(t[1])
+        grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = CountFunction('"+t[1]+"') }\n" + grammarreport
+    else:
+        t[0] = AggFunction(t[1],t[3])
+        grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = AggFunction('"+t[1]+"',expression.val) }\n" + grammarreport
 
 #EXTRACT
 def p_expression_extractfunctions(t):
@@ -1350,6 +1355,15 @@ def p_expression_extractfunctions(t):
     t[0] = ExtractFunction(t[3],t[6])
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = ExtractFunction('"+t[3]+"',expression.val) }\n" + grammarreport
+
+#DATE PART
+def p_expression_datepartfunctions(t):
+    '''expression : DATE_PART BRACKET_OPEN expression COMMA INTERVAL expression BRACKET_CLOSE 
+                  '''
+    t[0] = DatePartFunction(t[3],t[6])
+    global grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = DatePartFunction(expression.val,expression.val) }\n" + grammarreport
+
 
 #CREATED FUNCTIONS
 def p_expression_createdfunctions(t):

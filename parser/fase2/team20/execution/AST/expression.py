@@ -19,7 +19,8 @@ class Value(Expression):
         self.type = type
         self.value = value
     def __repr__(self):
-        v="'"+str(self.value)+"'"
+        v=str(self.value)
+        if self.type == 3:v="'"+str(self.value)+"'"
         if self.type==1:
             v=int(str(self.value))
         elif self.type==2:
@@ -39,6 +40,7 @@ class Value(Expression):
         # diccionario = {'resultado':opts.generateTemp(),'argumento1':str(self.value),'argumento2':None,'operacion':None}
         # opts.pila.append(diccionario)
         # return (indent*"\t")+diccionario['resultado']+"="+str(self.value)+"\n"
+        if self.type == 3: self.value = "'"+self.value+"'"
         return self
 
 class Arithmetic(Expression):
@@ -505,4 +507,26 @@ class Alias(Expression):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"AS ' + str(self.alias) + '\"]\n'
         dot += self.expression.graphAST('',hash(self))
+        return dot
+
+class DatePartFunction(Expression):
+    def __init__(self, function, expression):
+        self.function = function
+        self.expression = expression
+    def __repr__(self):
+
+        return "DatePartFunction('"+str(self.function)+"',"+str(self.expression)+")" 
+    def graphAST(self, dot, parent):
+        dot += str(parent) + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
+        dot += self.expression.graphAST('',hash(self))
+        return dot
+
+class CountFunction(Expression):
+    def __init__(self, function):
+        self.function = function
+    def graphAST(self, dot, parent):
+        dot += str(parent) + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'
+        #dot += self.expression.graphAST('',hash(self))
         return dot

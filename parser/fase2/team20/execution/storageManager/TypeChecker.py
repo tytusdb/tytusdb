@@ -305,11 +305,11 @@ def TCcreateFunction(function:str,code:str,replace:bool)->int:
             new = {'FUNCTIONS':{}}
             data[database].update(new)
         if not function in data[database]['FUNCTIONS']:
-            data[database]['FUNCTIONS'].update({function:{'CODE':str(code).replace("\"", "\\\"")}})
+            data[database]['FUNCTIONS'].update({function:{'CODE':code}})
             dump = True 
         else:   
             if replace :
-                data[database]['FUNCTIONS'].update({function:{'CODE':str(code).replace("\"", "\\\"")}})
+                data[database]['FUNCTIONS'].update({function:{'CODE':code}})
                 dump = True
                 mandar=False
             else:
@@ -483,10 +483,10 @@ def TCcreateType(database: str, typeEnum: str, Values:None) -> int:
             if typeEnum in data[database]['TYPES']:
                 return 3
             else:
-                print(str(Values).replace("\"", "\\\""))
+                print(Values)
                 new = {typeEnum:{}}
                 data[database]['TYPES'].update(new)
-                data[database]['TYPES'][typeEnum].update(str(Values).replace("\"", "\\\""))
+                data[database]['TYPES'][typeEnum].update(Values)
                 dump = True
     if dump:
         with open('data/json/TypeChecker', 'w') as file:

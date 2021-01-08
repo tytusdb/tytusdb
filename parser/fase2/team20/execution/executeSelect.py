@@ -21,12 +21,13 @@ def executeSelect(self,select):
         columnsNames = []
         columnsValues = []
 
+        contador = 0
         for column in select.columns:
             print(column)
             #Nombre columna
             if isinstance(column, Alias):
-                columnsNames.append(column.alias)
-                print(column.alias)
+                columnsNames.append(column.alias+'('+str(contador)+')')
+                #print(column.alias)
 
                 #Valor
                 res=executeExpression(self,column.expression)
@@ -38,11 +39,14 @@ def executeSelect(self,select):
                 #Valor
                 res=executeExpression(self,column)
                 if(not isinstance(res,Error)):
-                    columnsNames.append(column.function)
+                    try:
+                        columnsNames.append(column.function+'('+str(contador)+')')
+                    except:
+                        columnsNames.append('column('+str(contador)+')')
                     columnsValues.append(res.value)
                 else:
                     print_error("SEMANTIC ERROR",res.toString(),2)
-            
+            contador += 1
 
         x.field_names = columnsNames
         x.add_row(columnsValues) 
@@ -50,12 +54,11 @@ def executeSelect(self,select):
         print_success("QUERY","Query carried out successfully",2)
         print_table("QUERY TABLE",x.get_string(),2)
     else:
-        for column in select.columns:
-            columns.append(executeExpression(self,column).value)
         if(select.options==None):
-            if(len(columns) == 1 and columns[0]=="*"):#SELECT ALL NO OPTIONS
+            if isinstance(select.columns[0], CountFunction):#--------------COUNT
+                columnsNames = []
+                columnsValues = []
                 if(mode==1):
-                    print("s all no opt")
                     for table in select.tables:
                         tb = executeExpression(self,table)
                         if(not isinstance(table,Error)):
@@ -67,46 +70,77 @@ def executeSelect(self,select):
                                 print_error("SEMANTIC ERROR",str(tb.value) + ' table does not exist',2)
                                 #self.errors.append(Error('Semantic',str(tb.value) + ' table does not exist',0,0))
                                 continue
-                            for row in res:
-                                x.add_row(row)
-                            print(x)
+                            #for row in res:
+                                #x.add_row(row)
+                            y = PrettyTable()
+                            columnsNames.append('count')
+                            y.field_names = columnsNames
+                            columnsValues.append(str(len(res)))
+                            y.add_row(columnsValues) 
+                            print(y)
                             print_success("QUERY","Query carried out successfully",2)
-                            print_table("QUERY TABLE",x.get_string(),2)
-            else: #SELECT SOME NO OPTIONS
-                print("s some no opt")
-                if(mode==1):
-                    for table in select.tables:
-                        tb = executeExpression(self,table)
-                        if(not isinstance(table,Error)):
-                            res = extractTable(db,tb.value)
-                            x = PrettyTable()
-                            fieldnames = TCgetTableColumns(db,tb.value)
-                            selectcolumns = []
-                            if(type(fieldnames) is not str): 
-                                bad = False
-                                for column in columns: 
-                                    try:
-                                        selectcolumns.append(fieldnames.index(column))
-                                    except:
-                                        bad = True
-                                        print_error("SEMANTIC ERROR",'The ' + str(column) + ' field does not belong to the ' + str(tb.value) + ' table',2)
-                                        #self.errors.append(Error('Semantic','The ' + str(column) + ' field does not belong to the ' + str(tb.value) + ' table',0,0))
-                                        break
-                                if(bad): continue
-                                x.field_names = columns
-                            else:
-                                print_error("SEMANTIC ERROR",'Table ' + str(tb.value) + ' does not exist',2)
-                                #self.errors.append(Error('Semantic','Table ' + str(tb.value) + ' does not exist',0,0))
-                                continue
+                            print_table("QUERY TABLE",y.get_string(),2)
+                            cantidad = len(res)
+                            return cantidad
+            else:
+                for column in select.columns:
+                    columns.append(executeExpression(self,column).value)
+                if(len(columns) == 1 and columns[0]=="*"):#SELECT ALL NO OPTIONS
+                    if(mode==1):
+                        print("s all no opt")
+                        for table in select.tables:
+                            tb = executeExpression(self,table)
+                            if(not isinstance(table,Error)):
+                                res = extractTable(db,tb.value)
+                                x = PrettyTable()
+                                fieldnames = TCgetTableColumns(db,tb.value)
+                                if(type(fieldnames) is not str): x.field_names = fieldnames
+                                else: 
+                                    print_error("SEMANTIC ERROR",str(tb.value) + ' table does not exist',2)
+                                    #self.errors.append(Error('Semantic',str(tb.value) + ' table does not exist',0,0))
+                                    continue
+                                for row in res:
+                                    x.add_row(row)
+                                print(x)
+                                print_success("QUERY","Query carried out successfully",2)
+                                print_table("QUERY TABLE",x.get_string(),2)
+                else: #SELECT SOME NO OPTIONS
+                    print("s some no opt")
+                    if(mode==1):
+                        for table in select.tables:
+                            tb = executeExpression(self,table)
+                            if(not isinstance(table,Error)):
+                                res = extractTable(db,tb.value)
+                                x = PrettyTable()
+                                fieldnames = TCgetTableColumns(db,tb.value)
+                                selectcolumns = []
+                                if(type(fieldnames) is not str): 
+                                    bad = False
+                                    for column in columns: 
+                                        try:
+                                            selectcolumns.append(fieldnames.index(column))
+                                        except:
+                                            bad = True
+                                            print_error("SEMANTIC ERROR",'The ' + str(column) + ' field does not belong to the ' + str(tb.value) + ' table',2)
+                                            #self.errors.append(Error('Semantic','The ' + str(column) + ' field does not belong to the ' + str(tb.value) + ' table',0,0))
+                                            break
+                                    if(bad): continue
+                                    x.field_names = columns
+                                else:
+                                    print_error("SEMANTIC ERROR",'Table ' + str(tb.value) + ' does not exist',2)
+                                    #self.errors.append(Error('Semantic','Table ' + str(tb.value) + ' does not exist',0,0))
+                                    continue
 
-                            for row in res:
-                                selectrow = []
-                                for index in selectcolumns: selectrow.append(row[index])
-                                x.add_row(selectrow)
-                            print(x)
-                            print_success("QUERY","Query carried out successfully",2)
-                            print_table("QUERY TABLE",x.get_string(),2)
+                                for row in res:
+                                    selectrow = []
+                                    for index in selectcolumns: selectrow.append(row[index])
+                                    x.add_row(selectrow)
+                                print(x)
+                                print_success("QUERY","Query carried out successfully",2)
+                                print_table("QUERY TABLE",x.get_string(),2)
         else:
+            for column in select.columns:
+                columns.append(executeExpression(self,column).value)
             if(len(columns) == 1 and columns[0]=="*"):
                 if(mode==1):
                     print("s all opt")
@@ -201,7 +235,6 @@ def executeSelect(self,select):
                         print(x)
                         print_success("QUERY","Query carried out successfully",2)
                         print_table("QUERY TABLE",x.get_string(),2)
-
             else:
                 print("Select some with options")
     # elif(select.options!=None): #SELECT ALL WITH OPTIONS

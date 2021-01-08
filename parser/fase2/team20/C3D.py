@@ -9,17 +9,30 @@ import math
 def up():
 	print(1)
 
-	executeSentence(CreateDatabase,CreateDatabase('DBFASE2',False,False,[None, None]))
-	executeSentence(Use,Use('DBFASE2'))
+	executeSentence(CreateDatabase,CreateDatabase('PRUEBAINCERSION',False,True,[None, None]))
+	executeSentence(Use,Use('PRUEBAINCERSION'))
 	executeSentence(CreateTable,CreateTable('TBPRODUCTO',[ColumnId('IDPRODUCTO',['INTEGER'],{'null': False, 'primary': True}), ColumnId('PRODUCTO',['VARCHAR', 150],{'null': False}), ColumnId('FECHACREACION',['DATE'],{'null': False}), ColumnId('ESTADO',['INTEGER'],None)],None))
-	executeSentence(CreateIndex,CreateIndex('IDX_PRODUCTO','TBPRODUCTO',[['IDPRODUCTO']]))
-	executeSentence(CreateTable,CreateTable('TBBODEGA',[ColumnId('IDBODEGA',['INTEGER'],{'null': False, 'primary': True}), ColumnId('BODEGA',['VARCHAR', 100],{'null': False}), ColumnId('ESTADO',['INTEGER'],None)],None))
-	executeSentence(CreateIndex,CreateIndex('IDX_VDGA','TBBODEGA',[['BODEGA']]))
-	executeSentence(CreateIndex,CreateIndex('IDX_BODEGA','TBBODEGA',[['BODEGA'], ['ESTADO']]))
-	executeSentence(DropIndex,DropIndex('IDX_VDGA',False))
-	executeSentence(AlterIndex,AlterIndex('IDX_BODEGA','ESTADO','IDBODEGA'))
+	createFunction('SP_INSERTAPRODUCTO','''
+@with_goto
+def SP_INSERTAPRODUCTO(LLAVE: int, PRODUCTO: str, FECHA):
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(4,LLAVE), Value(4,PRODUCTO), Value(4,FECHA), Value(1,1)]))
+''',False)
 
-up()
 
+	print(SP_INSERTAPRODUCTO(9, 'BOCINA INALAMBRICA', '2021-01-06'))
+
+
+	print(SP_INSERTAPRODUCTO(10, 'AUDIFONOS CON MICROFONO USB', '2021-01-06'))
+
+
+	print(SP_INSERTAPRODUCTO(11, 'BOCINA INALAMBRICA', '2021-01-06'))
+
+
+	print(SP_INSERTAPRODUCTO(12, 'MONITOR DE 17"', '2021-01-06'))
+
+
+@with_goto
+def SP_INSERTAPRODUCTO(LLAVE: int, PRODUCTO: str, FECHA):
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(4,LLAVE), Value(4,PRODUCTO), Value(4,FECHA), Value(1,1)]))
 
 up()
