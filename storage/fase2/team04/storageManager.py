@@ -435,6 +435,221 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
             break
     return result
 
+# Descripción:
+#      Inserta un registro en la estructura de datos asociada a la tabla y la base de datos
+# Parámetros:
+#      database:str - El nombre de la base de datos a utilizar
+#      table:str - El nombre de la tabla a utilizar
+#      register:list - Es una lista de elementos que represent un registro
+# Valores de retorno:
+#      0 - Operación exitosa
+#      1 - Error en la operación
+#      2 - database no existente
+#      3 - table no existente
+#      4 - Llave primaria duplicada
+#      5 - Columnas fuera de límites
+def insert(database: str, table: str, register: list):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    for db in dbs:
+        if db.mode == "avl":
+            result = avlMode.insert(database, table, register)
+        elif db.mode == "b":
+            result = BMode.insert(database, table, register)
+        elif db.mode == "bplus":
+            result = BPlusMode.insert(database, table, register)
+        elif db.mode == "dict":
+            result = DictMode.insert(database, table, register)
+        elif db.mode == "isam":
+            result = ISAMMode.insert(database, table, register)
+        elif db.mode == "json":
+            result = jsonMode.insert(database, table, register)
+        elif db.mode == "hash":
+            result = HashMode.insert(database, table, register)
+        if result != 3:
+            break
+    return result
+
+# Descripción:
+#      Inserta un registro en la estructura de datos asociada a la tabla y la base de datos con el modo indicado
+# Parámetros:
+#      database:str - El nombre de la base de datos a utilizar
+#      table:str - El nombre de la tabla a utilizar
+#      register:list - Es una lista de elementos que represent un registro
+#      mode:str - El modo de la base de datos en la que se desea insertar
+# Valores de retorno:
+#      0 - Operación exitosa
+#      1 - Error en la operación
+#      2 - database no existente
+#      3 - table no existente
+#      4 - Llave primaria duplicada
+#      5 - Columnas fuera de límites
+#      6 - Modo incorrecto
+def __insert_sp(database: str, table: str, register: list, mode: str):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb = databases.find_table(database, table)
+    if tb == None:
+        return 3
+    if len(register) != tb.columns:
+        return 5
+    if mode not in MODES:
+        return 6
+    for db in dbs:
+        if db.mode != mode:
+            continue
+        if db.mode == "avl":
+            result = avlMode.insert(database, table, register)
+        elif db.mode == "b":
+            result = BMode.insert(database, table, register)
+        elif db.mode == "bplus":
+            result = BPlusMode.insert(database, table, register)
+        elif db.mode == "dict":
+            result = DictMode.insert(database, table, register)
+        elif db.mode == "isam":
+            result = ISAMMode.insert(database, table, register)
+        elif db.mode == "json":
+            result = jsonMode.insert(database, table, register)
+        elif db.mode == "hash":
+            result = HashMode.insert(database, table, register)
+        else:
+            continue
+        if result != 3:
+            break
+    return result
+
+# Descripción:
+#     Carga un archivo CSV de una ruta especificada indicando la base de datos y tabla donde será almacenado
+# Parámetros:
+#     file:str - Ruta del archivo CSV a utilizar
+#     database:str - El nombre de la base de datos a utilizar
+#     table:str - El nombre de la tabla a utilizar
+# Valores de retorno:
+#     Lista con los valores enteros que devuelve el insert por cada fila del CSV
+#     Si ocurrió un error o el archivo CSV no tiene filas devuelve una lista vacía
+def loadCSV(file: str, database: str, table: str) -> list:
+    try:
+        result = []
+        dbs = databases.find_all(database)
+        for db in dbs:
+            tb = db.tables.search(table)
+            if tb == None:
+                continue
+            if db.mode == "avl":
+                result = avlMode.loadCSV(file, database, table)
+            elif db.mode == "b":
+                result = BMode.loadCSV(file, database, table)
+            elif db.mode == "bplus":
+                result = BPlusMode.loadCSV(file, database, table)
+            elif db.mode == "dict":
+                result = DictMode.loadCSV(file, database, table)
+            elif db.mode == "isam":
+                result = ISAMMode.loadCSV(file, database, table)
+            elif db.mode == "json":
+                result = jsonMode.loadCSV(file, database, table)
+            elif db.mode == "hash":
+                result = HashMode.loadCSV(file, database, table)
+        return result
+    except:
+        return []
+
+# Descripción:
+#     Devuelve una lista con las rutas de todos los archivos binarios relacionados a la base
+#     de datos indicada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+# Valores de retorno:
+#     Si existen binarios para la base de datos, un lista con todas las rutas
+#     Si no existe ningún binario relacionado a la base de datos, una lista vacía
+def get_routes(database: str) -> list:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return []
+    routes = []
+    for db in dbs:
+        if db.mode == "bplus":
+            routes.append(".\\data\\BPlusMode\\{0}\\{1}.bin".format(db.name, db.name))
+
+        tables = []
+        aux = db.tables.first
+        while aux != None:
+            tables.append(aux)
+            aux = aux.next
+        
+        if db.mode == "avl":
+            for table in tables:
+                route = ".\\data\\avlMode\\{0}_{1}.tbl".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "b":
+            for table in tables:
+                route = ".\\data\\b\\{0}-{1}-b.bin".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "bplus":
+            for table in tables:
+                route = ".\\data\\BPlusMode\\{0}\\{1}\\{2}.bin".format(db.name, table.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "dict":
+            for table in tables:
+                route = ".\\data\\{0}\\{1}.bin".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "isam":
+            for table in tables:
+                route = ".\\data\\ISAMMode\\tables\\{0}{1}.bin".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "json":
+            for table in tables:
+                route = ".\\data\\json\\{0}-{1}".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "hash":
+            for table in tables:
+                route = ".\\data\\hash\\{0}\\{1}.bin".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+    return routes
+
+# Descripción:
+#     Devuelve una lista con la ruta del archivo binario correspondiente a la tabla indicada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+#     table:str - El nombre de la tabla
+# Valores de retorno:
+#     str - La ruta del archivo binario de la tabla
+#     None - Si no existe archivo binario para la tabla
+def get_route_table(database: str, table: str) -> list:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return None
+    route = None
+    for db in dbs:
+        tb = db.tables.search(table)
+        if tb == None:
+            continue
+        if db.mode == "avl":
+            route = ".\\data\\avlMode\\{0}_{1}.tbl".format(db.name, tb.name)
+        elif db.mode == "b":
+            route = ".\\data\\b\\{0}-{1}-b.bin".format(db.name, tb.name)
+        elif db.mode == "bplus":
+            route = ".\\data\\BPlusMode\\{0}\\{1}\\{2}.bin".format(db.name, tb.name, tb.name)
+        elif db.mode == "dict":
+            route = ".\\data\\{0}\\{1}.bin".format(db.name, tb.name)
+        elif db.mode == "isam":
+            route = ".\\data\\ISAMMode\\tables\\{0}{1}.bin".format(db.name, tb.name)
+        elif db.mode == "json":
+            route = ".\\data\\json\\{0}-{1}".format(db.name, tb.name)
+        elif db.mode == "hash":
+            route = ".\\data\\hash\\{0}\\{1}.bin".format(db.name, tb.name)
+    if route != None and os.path.exists(route):
+        return route
+    return None
+
 def delete(database: str, table: str, columns: list):
     db = databases.search(database)
     if db == None:
@@ -557,145 +772,6 @@ def dropTable(database,table):
         if result != 3:
             if result == 0:
                 db.tables.delete(table)
-                for x in range(5):
-                    try:
-                        Serializable.commit(databases, "lista_bases_de_datos")
-                        return result
-                    except:
-                        break
-                return 1
-            break
-    return result
-
-# Descripción:
-#     Elimina una tabla especificada en una base de datos con el nombre y modo especificados.
-# Parámetros:
-#     database:str - El nombre de la base de datos que se va a utilizar
-#     table:str - El nombre de la tabla que se desea eliminar
-#     mode:str - El modo que debe tener la base de datos que se va a utilizar
-# Valores de retorno:
-#     0 - Operación exitosa
-#     1 - Error durante la operación
-#     2 - database no existe
-#     3 - table no existe
-def __drop_table_sp(database, table, mode):
-    dbs = databases.find_all(database)
-    if dbs == []:
-        return 2
-    if databases.find_table(database, table) == None:
-        return 3
-    for db in dbs:
-        if db.mode == mode == "avl":
-            result = avlMode.dropTable(database, table)
-        elif db.mode == mode == "b":
-            result = BMode.dropTable(database, table)
-        elif db.mode == mode == "bplus":
-            result = BPlusMode.dropTable(database, table)
-        elif db.mode == mode == "dict":
-            result = DictMode.dropTable(database, table)
-        elif db.mode == mode == "isam":
-            result = ISAMMode.dropTable(database, table)
-        elif db.mode == mode == "json":
-            result = jsonMode.dropTable(database, table)
-        elif db.mode == mode == "hash":
-            result = HashMode.dropTable(database, table)
-        else:
-            continue
-        if result != 3:
-            if result == 0:
-                db.tables.delete(table)
-                for x in range(5):
-                    try:
-                        Serializable.commit(databases, "lista_bases_de_datos")
-                        return result
-                    except:
-                        break
-                return 1
-            break
-    return result
-
-def extractRow(database, table, columns):
-    db = databases.search(database)
-    if    db == None:
-        return 2
-    if db.mode == "avl":
-        result = avlMode.extractRow(database, table, columns)
-    elif db.mode == "b":
-        result = BMode.extractRow(database, table, columns)
-    elif db.mode == "bplus":
-        result = BPlusMode.extractRow(database, table, columns)
-    elif db.mode == "dict":
-        result = DictMode.extractRow(database, table, columns)
-    elif db.mode == "isam":
-        result = ISAMMode.extractRow(database, table, columns)
-    elif db.mode == "json":
-        result = jsonMode.extractRow(database, table, columns)
-    elif db.mode == "hash":
-        result = HashMode.extractRow(database, table, columns)
-    return result
-
-def update(database, table, register, columns):
-    db = databases.search(database)
-    if db == None:
-        return 2
-    if db.mode == "avl":
-        result = avlMode.update(database, table, register, columns)
-    elif db.mode == "b":
-        result = BMode.update(database, table, register, columns)
-    elif db.mode == "bplus":
-        result = BPlusMode.update(database, table, register, columns)
-    elif db.mode == "dict":
-        result = DictMode.update(database, table, register, columns)
-    elif db.mode == "isam":
-        result = ISAMMode.update(database, table, register, columns)
-    elif db.mode == "json":
-        result = jsonMode.update(database, table, register, columns)
-    elif db.mode == "hash":
-        result = HashMode.update(database, table, register, columns)
-    return result
-
-def truncate(database, table):
-    db = databases.search(database)
-    if db == None:
-        return 2
-    if db.mode == "avl":
-        result = avlMode.truncate(database, table)
-    elif db.mode == "b":
-        result = BMode.truncate(database, table)
-    elif db.mode == "bplus":
-        result = BPlusMode.truncate(database, table)
-    elif db.mode == "dict":
-        result = DictMode.truncate(database, table)
-    elif db.mode == "isam":
-        result = ISAMMode.truncate(database, table)
-    elif db.mode == "json":
-        result = jsonMode.truncate(database, table)
-    elif db.mode == "hash":
-        result = HashMode.truncate(database, table)
-    return result
-
-def alterAddPK(database, table, columns):
-    dbs = databases.find_all(database)
-    if dbs == []:
-        return 2
-    for db in dbs:
-        if db.mode == "avl":
-            result = avlMode.alterAddPK(database, table, columns)
-        elif db.mode == "b":
-            result = BMode.alterAddPK(database, table, columns)
-        elif db.mode == "bplus":
-            result = BPlusMode.alterAddPK(database, table, columns)
-        elif db.mode == "dict":
-            result = DictMode.alterAddPK(database, table, columns)
-        elif db.mode == "isam":
-            result = ISAMMode.alterAddPK(database, table, columns)
-        elif db.mode == "json":
-            result = jsonMode.alterAddPK(database, table, columns)
-        elif db.mode == "hash":
-            result = HashMode.alterAddPK(database, table, columns)
-        if result != 3:
-            if result == 0:
-                db.tables.search(table).pk += columns
                 for x in range(5):
                     try:
                         Serializable.commit(databases, "lista_bases_de_datos")
