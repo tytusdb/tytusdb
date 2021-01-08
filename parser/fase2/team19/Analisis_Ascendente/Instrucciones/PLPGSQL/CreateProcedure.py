@@ -3,7 +3,7 @@ import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 import C3D.GeneradorTemporales as GeneradorTemporales
 import Analisis_Ascendente.reportes.Reportes as Reportes
 import C3D.GeneradorFileC3D as GeneradorFileC3D
-from Analisis_Ascendente.Instrucciones.Insert.insert import InsertInto
+import Analisis_Ascendente.Instrucciones.Insert.insert as InsertInto
 
 class Parametro():
     def __init__(self,id,tipo):
@@ -109,7 +109,7 @@ class CreateProcedure(Instruccion):
 
         sentencias_funcion = ''
         for sentencia in self.sentencias:
-            if isinstance(sentencia, InsertInto):
+            if isinstance(sentencia, InsertInto.InsertInto):
                 sentencias_funcion += '''%s    funcion_intermedia()\n''' % sentencia.getC3D(lista_optimizaciones_C3D)
             else:
                 sentencias_funcion += sentencia.getC3D(lista_optimizaciones_C3D)
@@ -138,11 +138,16 @@ def %s ( %s ):
     %s = %s + %s
     %s = %s
 ''' % (temporal2, declare_quemado, temporal2, temporal1, temporal2, temporal1, temporal2)
+        sentencias_quemados = ''
+        for sentencia in self.sentencias:
+            sentencias_quemados += sentencia.get_quemado() + ';\n'
         temporal3 = GeneradorTemporales.nuevo_temporal()
-        c3d += '''    %s = "BEGIN return 'quemado'; end; $$\\n"
+        c3d += '''    %s = \'\'\'BEGIN 
+    %s 
+    end; $$\\n\'\'\'
     %s = %s + %s
     stack[top_stack] = %s
-''' % (temporal3, temporal3, temporal1, temporal3, temporal3)
+''' % (temporal3, sentencias_quemados, temporal3, temporal1, temporal3, temporal3)
 
         GeneradorFileC3D.funciones_extra += c3d_funcion
         return c3d

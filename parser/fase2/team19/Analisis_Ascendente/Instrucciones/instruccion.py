@@ -1,4 +1,5 @@
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import C3D.GeneradorTemporales as GeneradorTemporales
 class Instruccion:
     'clase abstracta'
 
@@ -57,13 +58,13 @@ class Show(Instruccion):
         consola.append("--------------END SHOW DATABASE--------------")
 
     def getC3D(self, lista_optimizaciones_C3D):
+        temporal = GeneradorTemporales.nuevo_temporal()
         c3d = '''
     # ----------SHOW DATABASES-----------
     top_stack = top_stack + 1
-    t1 = "show databases;"
-    stack[top_stack] = t1
-    funcion_intermedia()
-'''
+    %s = "show databases;"
+    stack[top_stack] = %s
+''' % (temporal, temporal)
         return c3d
 
 #UPDATE

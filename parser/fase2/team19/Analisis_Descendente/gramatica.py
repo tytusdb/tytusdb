@@ -3,7 +3,7 @@ from graphviz import Digraph
 import ply.lex as lex
 import ply.yacc as yacc
 import re
-import tytus.parser.team21.Analisis_Descendente.ReporteGramatical as ReporteGramatical
+import Analisis_Descendente.ReporteGramatical as ReporteGramatical
 
 # Analisis lexico
 lista = []
@@ -113,7 +113,7 @@ def t_ID(t):
 
     if (t.value.upper()) in palabras_reservadas:
         t.type = t.value.upper()
-        print(t.type)
+        #print(t.type)
     else:
         t.type = 'IDENTIFICADOR'
     return t
@@ -123,11 +123,11 @@ def t_ID(t):
 def t_NODECIMAL(t):
     r'(\d+\.\d+)|(\.\d+)'
     try:
-        print("numero decimal : ", t.value, " - ", float(t.value))
-        print("tipo: ", t.type)
+        #print("numero decimal : ", t.value, " - ", float(t.value))
+        #print("tipo: ", t.type)
         t.value = float(t.value)
     except ValueError:
-        print("Floaat value too large %d", t.value)
+        #print("Floaat value too large %d", t.value)
         t.value = 0
     return t
 
@@ -138,7 +138,7 @@ def t_NOENTERO(t):
     try:
         t.value = int(t.value)
     except ValueError:
-        print("Integer value too large %d", t.value)
+        #print("Integer value too large %d", t.value)
         t.value = 0
     return t
 
@@ -181,7 +181,7 @@ def t_newline(t):
 
 
 def t_error(t):
-    print("error lexico '%s'" % t.value)
+    #print("error lexico '%s'" % t.value)
     t.lexer.skip(1)
 
 
@@ -217,7 +217,7 @@ def p_inicio(t):
     '''
     s : instrucciones
     '''
-    print("Analisis sintactico exitoso")
+    #print("Analisis sintactico exitoso")
     gramatica = 's::= instrucciones'
     lista.append(gramatica)
 
@@ -377,14 +377,14 @@ def p_drop_triprima(t):
 
 def p_dropprima(t):
     '''dropp :   IF EXISTS'''
-    # print('-->'+str(t[1]))
+    # #print('-->'+str(t[1]))
     gramatica = 'dropp ::= \'IF\' \'EXISTS\''
     lista.append(gramatica)
 
 
 def p_dropprima1(t):
     '''dropp : '''
-    # print('-->'+str(t[1]))
+    # #print('-->'+str(t[1]))
     gramatica = 'dropp ::= epsilon'
     lista.append(gramatica)
 
@@ -601,7 +601,7 @@ def p_tipo_datos1(t):
             | REAL
             | CARACTER_O_CADENA
     '''
-    print("varchar print")
+    #print("varchar print")
     gramatica = 'tipo ::= \''+str(t[1])+'\''
     lista.append(gramatica)
     t[0] = t[1]
@@ -610,7 +610,7 @@ def p_tipo_datos1(t):
 def p_tipo_datos2(t):
     '''tipo : DOUBLE PRECISION
     '''
-    print("varchar print")
+    #print("varchar print")
     gramatica = 'tipo ::= \''+str(t[1])+'\' \''+str(t[2])+'\''
     lista.append(gramatica)
     t[0] = t[1]
@@ -622,7 +622,7 @@ def p_tipo_datos3(t):
             | CHECK PARIZQ expresion PARDER
             | CHARACTER PARIZQ NOENTERO PARDER
     '''
-    print("varchar print")
+    #print("varchar print")
     gramatica = 'tipo ::= \''+t[1]+'\' \'' + \
         t[2]+'\' \''+str(t[3])+'\' \''+t[4]+'\''
     lista.append(gramatica)
@@ -632,7 +632,7 @@ def p_tipo_datos3(t):
 def p_tipo_datos4(t):
     '''tipo : CHARACTER VARYING PARIZQ NOENTERO PARDER
     '''
-    print("varchar print")
+    #print("varchar print")
     gramatica = 'tipo ::= \''+t[1]+'\' \''+t[2] + \
         '\' \''+t[3]+'\' \''+str(t[4])+'\' \''+t[5]+'\''
     lista.append(gramatica)
@@ -728,14 +728,14 @@ def p_opcional2_1(t):
 def p_opcional3(t):
     '''opcional3 : LIKE CARACTER_O_CADENA
     '''
-    print(t[2])
+    #print(t[2])
     gramatica = 'opcional3 ::= \'LIKE\' \''+t[2]+'\''
     lista.append(gramatica)
 
 
 def p_opcional3_1(t):
     '''opcional3 : '''
-    print(t[2])
+    #print(t[2])
     gramatica = 'opcional3 ::= epsilon'
     lista.append(gramatica)
 
@@ -917,15 +917,15 @@ def p_expresion5(t):
         lista.append(gramatica)
 
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value)
+    #print("Error sintáctico en '%s'" % t.value)
 
 
 def ejecutar_analisis(entrada):
     lexer = lex.lex(reflags=re.IGNORECASE)
     parser = yacc.yacc()
-    print(entrada)
+    #print(entrada)
     parser.parse(entrada)
-    print("Se interpreto todo")
+    #print("Se interpreto todo")
 
     ReporteGramatical.ReporteGramatical.generarReporte(listado(1, None))
 

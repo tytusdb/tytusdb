@@ -50,7 +50,7 @@ class DropProcedure(Instruccion):
         salida = salida + '\\n'
     ''' % (etiqueta, instruccion_quemada, etiqueta, self.id, temporal2, self.id, temporal2)
 
-        optimizacion1 = Reportes.ListaOptimizacion("c3d original", "c3d que entra", Reportes.TipoOptimizacion.REGLA1)
-        lista_optimizaciones_C3D.append(optimizacion1)
+        '''optimizacion1 = Reportes.ListaOptimizacion("c3d original", "c3d que entra", Reportes.TipoOptimizacion.REGLA1)
+        lista_optimizaciones_C3D.append(optimizacion1)'''
 
         return c3d

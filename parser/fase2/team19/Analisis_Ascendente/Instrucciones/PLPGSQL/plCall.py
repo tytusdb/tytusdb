@@ -72,7 +72,7 @@ class plCall(Instruccion):
         salida = salida + '\\n'
     ''' % (self.id, parametros, temporal, self.id, temporal)
 
-        optimizacion1 = Reportes.ListaOptimizacion("c3d original", "c3d que entra", Reportes.TipoOptimizacion.REGLA1)
-        lista_optimizaciones_C3D.append(optimizacion1)
+        '''optimizacion1 = Reportes.ListaOptimizacion("c3d original", "c3d que entra", Reportes.TipoOptimizacion.REGLA1)
+        lista_optimizaciones_C3D.append(optimizacion1)'''
 
         return c3d
