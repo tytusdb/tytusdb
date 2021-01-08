@@ -252,11 +252,13 @@ def p_instruccion_show_database1(t):
     t[0] = crear_nodo_general("SHOW DATABASES","",t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_show_database2(t):
-    '''instruccion : SHOW DATABASES LIKE CARACTER PUNTO_COMA
+    '''instruccion : SHOW DATABASES LIKE cadena_o_caracter PUNTO_COMA
     '''
     nodo = crear_nodo_general("SHOW DATABASES","",t.lexer.lineno, t.lexer.lexpos)
-    nodoL = crear_nodo_general("LIKE",t[4],t.lexer.lineno, t.lexer.lexpos)
+    nodoL = crear_nodo_general("LIKE","",t.lexer.lineno, t.lexer.lexpos)
+    nodoC = t[4]
     nodo.hijos.append(nodoL)
+    nodo.hijos.append(nodoC)
     t[0] = nodo
 
 def p_instruccion_create_enumerated_type(t):
@@ -1477,13 +1479,20 @@ def p_operadores_trigonometricas(t):
         nodo.hijos.append(t[5])
         t[0] = nodo
             
+def p_cadena_o_caracter(t):
+    '''
+    cadena_o_caracter : CADENA
+                      | CARACTER
+    '''
+
+
 def p_operadores_otros(t):
-    ''' expre : EXTRACT PARIZQ tiempo FROM TIMESTAMP CARACTER PARDER
+    ''' expre : EXTRACT PARIZQ tiempo FROM TIMESTAMP cadena_o_caracter PARDER
             | NOW PARIZQ PARDER
-            | DATE_PART PARIZQ CARACTER COMA INTERVAL CARACTER PARDER
+            | DATE_PART PARIZQ cadena_o_caracter COMA INTERVAL cadena_o_caracter PARDER
             | CURRENT_DATE
             | CURRENT_TIME
-            | TIMESTAMP CARACTER
+            | TIMESTAMP cadena_o_caracter
             | CASE lcase END 
     '''
     nodo = crear_nodo_general("expre","",t.lexer.lineno, t.lexer.lexpos)
@@ -1491,15 +1500,15 @@ def p_operadores_otros(t):
         nodo.hijos.append(crear_nodo_general("EXTRACT",t[1],t.lexer.lineno, t.lexer.lexpos))
         nodo.hijos.append(t[3])
         nodo.hijos.append(crear_nodo_general("FROM TIMESTAMP","",t.lexer.lineno, t.lexer.lexpos))
-        nodo.hijos.append(crear_nodo_general("CARACTER",t[6]))
+        nodo.hijos.append(T[6])
         t[0] = nodo
     elif t[1] == 'NOW':
         nodo.hijos.append(crear_nodo_general("NOW",t[1],t.lexer.lineno, t.lexer.lexpos))
         t[0] = nodo
     elif t[1] == 'DATE_PART':
         nodo.hijos.append(crear_nodo_general("DATE_PART",t[1],t.lexer.lineno, t.lexer.lexpos))
-        nodo.hijos.append(crear_nodo_general("CARACTER",t[3]))
-        nodo.hijos.append(crear_nodo_general("CARACTER",t[6]))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(t[6])
         t[0] = nodo
     elif t[1] == 'CURRENT_DATE':
         nodo.hijos.append(crear_nodo_general("CURRENT_DATE",t[1],t.lexer.lineno, t.lexer.lexpos))
@@ -1509,7 +1518,7 @@ def p_operadores_otros(t):
         t[0] = nodo
     elif t[1] == 'TIMESTAMP':
         nodo.hijos.append(crear_nodo_general("TIMESTAMP",t[1],t.lexer.lineno, t.lexer.lexpos))
-        nodo.hijos.append(crear_nodo_general("CARACTER",t[2]))
+        nodo.hijos.append(t[2])
         t[0] = nodo
     elif t[1] == 'CASE':
         nodo.hijos.append(crear_nodo_general("CASE","",t.lexer.lineno, t.lexer.lexpos))
