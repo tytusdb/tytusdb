@@ -601,3 +601,27 @@ class LENGTH_(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         return f'LENGTH({self.exp.generate(table, tree)})'
+
+
+class LOWER_(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        try:
+            if type(exp) == str:
+                
+                r = exp.lower()
+                return r 
+            else:
+                raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'LOWER() function argument error'))
+        except:
+            raise (Error(self.line, self.column, ErrorType.SEMANTIC, 'LOWER() function argument error'))
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'LOWER({self.exp.generate(table, tree)})'

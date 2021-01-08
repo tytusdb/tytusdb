@@ -246,6 +246,7 @@ reserved = {
     'extension' : 'EXTENSION',
     'reset' : 'RESET',
     'statistics' : 'STATISTICS',
+    'lower' : 'LOWER',
     
 }
 
@@ -1569,10 +1570,12 @@ def p_stm_drop_function(t):
 
 def p_stm_drop_procedure(t):
     '''stm_drop_procedure   : DROP PROCEDURE if_exists_opt ID mode_drop_function_opt '''
+    tokenID = t.slice[4]
     childsProduction  = addNotNoneChild(t,[3, 5])
     graph_ref = graph_node(str("stm_drop_procedure"), [t[1],t[2],t[3],t[4],t[5]],  childsProduction )
     addCad("**\<STM_DROP_PROCEDURE** ::= tDrop tProcedure [\<IF_EXISTS_OPT>] tIdentifier [\<MODE_DROP_FUNCTION_OPT>]")
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    name_proc = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos, None)
+    t[0] = DropProcedure(name_proc,(True if t[3] else False), t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
         
 def p_name_list(t):
@@ -3353,6 +3356,7 @@ def p_aritmetic(t):
                     | MD5 PARA expression PARC
                     | SUBSTRING PARA expression COMA expression COMA expression PARC
                     | LENGTH PARA expression PARC
+                    | LOWER PARA expression PARC
                 '''
     token = t.slice[1]
     if token.type == "ABS":
@@ -3513,6 +3517,11 @@ def p_aritmetic(t):
         graph_ref = graph_node(str("exp"), [t[1], t[2], t[3], t[4]], childsProduction)
         addCad("**\<EXP>** ::=   tLength '(' \<EXP> ')'      ")
         t[0] = LENGTH_(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == "LOWER":
+        childsProduction = addNotNoneChild(t, [3])
+        graph_ref = graph_node(str("exp"), [t[1], t[2], t[3], t[4]], childsProduction)
+        addCad("**\<EXP>** ::=   tLower '(' \<EXP> ')'      ")
+        t[0] = LOWER_(t[3], token.lineno, token.lexpos, graph_ref)
 
 
 
