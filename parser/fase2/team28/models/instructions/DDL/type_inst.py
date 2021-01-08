@@ -27,4 +27,12 @@ class CreateType(Instruction):
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+
+    def optimizate(self, instrucction):
+        temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")

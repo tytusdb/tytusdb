@@ -1,5 +1,6 @@
 import copy
 
+from views.data_window import DataWindow
 from utils.decorators import singleton
 from controllers.symbol_table import SymbolTable
 from controllers.error_controller import ErrorController
@@ -33,7 +34,13 @@ class Procedures(object):
         :return: Returns nothing
         """
         db = SymbolTable().useDatabase
-        key = f"{name}{db}"
+        # if not db:
+        #    desc = f": Database not selected"
+        #    ErrorController().add(4, 'Execution', desc,
+        #                          line, column)
+        #    return
+
+        key = f"{name}"
         if self.__searchProcedure(key):
             desc = f": Function {name} already exists"
             ErrorController().add(38, 'Execution', desc, line, column)
@@ -50,17 +57,24 @@ class Procedures(object):
         }
         return True
 
-        # print('PROCEDIMIENTOS Y FUNCIONES ALMACENADAS----------------------')
-        # print(self.__storedProcedure)
-        # print('------------------------------------------------------------')
-
-    def getProcedure(self, name):
+    def getProcedure(self, name, params, line, column):
         db = SymbolTable().useDatabase
-        key = f"{name}{db}"
+        # if not db:
+        #    desc = f": Database not selected"
+        #    ErrorController().add(4, 'Execution', desc,
+        #                          line, column)
+        #    return
 
+        # key = f"{name}{db}"
+        key = f"{name}"
         if key in self.__storedProcedure:
-            sp = copy.deepcopy(self.__storedProcedure[key]['tac'])
-            return sp.print(sp.environment)
+            if params == len(self.__storedProcedure[key]['tac'].params):
+                sp = copy.deepcopy(self.__storedProcedure[key]['tac'])
+                return sp.print(sp.environment)
+
+        desc = f": Function {name} does not exist"
+        ErrorController().add(39, 'Execution', desc, line, column)
+        return None
 
     def getParams(self, name):
         db = SymbolTable().useDatabase
@@ -70,3 +84,20 @@ class Procedures(object):
             return self.__storedProcedure[key]['tac'].params
 
         return []
+
+    def dropProcedure(self, name, line, column):
+        # db = SymbolTable().useDatabase
+        # if not db:
+        #    desc = f": Database not selected"
+        #    ErrorController().add(4, 'Execution', desc,
+        #                          line, column)
+        #    return
+
+        # key = f"{name}{db}"
+        key = f"{name}"
+        if key in self.__storedProcedure:
+            DataWindow().consoleText('Query returned successfully: Function deleted')
+            return self.__storedProcedure.pop(key)
+
+        desc = f": Function {name} does not exist"
+        ErrorController().add(39, 'Execution', desc, line, column)

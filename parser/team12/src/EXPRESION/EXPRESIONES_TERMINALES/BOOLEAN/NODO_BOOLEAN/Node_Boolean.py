@@ -25,3 +25,17 @@ class Boolean_Expresion(Expresion):
             self.valorExpresion = False
         
         return self.valorExpresion
+
+    def compile(self, enviroment):
+        self.tipo = Type_Expresion(Data_Type.boolean)
+        self.cod = ''
+
+        if self.valor.lower() == 'true':
+            self.dir = str(1)
+            return self.cod
+        else:
+            self.dir = str(0)
+            return self.cod
+    
+    def getText(self):
+        return str(self.valor.lower())

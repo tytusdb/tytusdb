@@ -1,4 +1,5 @@
 from utils.decorators import singleton
+import copy
 #from utils.analyzers.syntactic import parse
 
 
@@ -16,22 +17,22 @@ class ThreeAddressCode(object):
         self.__stackCounter = 0
 
         self.__function = ''
-        self.__instructionList = ''
-        self.__isCode = True
-        self.__functions = []
+        self.__isCode = {}
+        self.__functions = {}
 
     def destroy(self):
         self.__content = ''
         self.__code = ''
+
         self.__tempCounter = 0
+        self.__tempLabel = 0
 
         self.__stack = []
         self.__stackCounter = 0
 
         self.__function = ''
-        self.__instructionList = ''
-        self.__isCode = True
-        self.__functions = []
+        self.__isCode = {}
+        self.__functions = {}
 
     def newTemp(self):
         tmp = f"t{self.__tempCounter}"
@@ -83,10 +84,10 @@ class ThreeAddressCode(object):
         :param data: Code or temp 
         :return: Returns nothing
         """
-        if self.__isCode:
+        if len(self.__isCode) == 0:
             self.__code += f"\n\t{data}"
         else:
-            self.__instructionList += f"\n\t{data}"
+            self.__isCode[list(self.__isCode)[-1]] += f"\n\t{data}"
 
     def getCode(self):
         """
@@ -95,16 +96,17 @@ class ThreeAddressCode(object):
         :return: Returns nothing
         """
         self.__content = 'from goto import with_goto'
-        self.__content += '\nfrom controllers.three_address_code import ThreeAddressCode'
-        self.__content += '\nStack = [None]*10000\n'
+        self.__content += '\nfrom math import *'
+        self.__content += '\nfrom models.procedural.intermedia import parse'
+        self.__content += '\n\nStack = [None]*10000\nP = 0'
 
         self.__content += '\n\n@with_goto'
         self.__content += '\ndef main():'
-        self.__content += '\n\tglobal Stack'
+        self.__content += '\n\tglobal Stack, P'
         self.__content += self.__code
 
-        for functions in self.__functions:
-            self.__content += functions
+        for function in self.__functions:
+            self.__content += self.__functions[function]['function']
 
         self.__content += '\n\nmain()'
         return self.__content
@@ -134,7 +136,7 @@ class ThreeAddressCode(object):
             print('Error: File does not appear to exist.')
     # END---------------------- Report -------------------------
 
-    def createFunction(self, name, params):
+    def createFunction(self, name, params, variables):
         listParameters = ''
 
         for i, item in enumerate(params):
@@ -144,11 +146,17 @@ class ThreeAddressCode(object):
 
         self.__function = '\n\n@with_goto'
         self.__function += f"\ndef {name}():"
-        self.__content += '\n\tglobal Stack'
-        self.__function += self.__instructionList
+        self.__function += '\n\tglobal Stack, P'
+        self.__function += self.__isCode[name]
 
-        self.__functions.append(self.__function)
-        self.__isCode = True
+        self.__functions[name] = {'function': self.__function,
+                                  'variables': copy.deepcopy(variables)}
+        self.__isCode.pop(name)
 
-    def newFunction(self):
-        self.__isCode = False
+    def newFunction(self, name):
+        self.__isCode[name] = ''
+
+    def searchFunction(self, name):
+        if name in self.__functions:
+            return self.__functions[name]
+        return None

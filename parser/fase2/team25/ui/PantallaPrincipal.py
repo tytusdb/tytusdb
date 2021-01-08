@@ -6,7 +6,7 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter import *
 from ui.Pantalla_TS import *
-from ui.Pantalla_AST import *
+#from ui.Pantalla_AST import *
 from ui.Pantalla_Error import *
 import tkinter.messagebox
 from analizer import interpreter
@@ -64,8 +64,7 @@ class Pantalla:
         frame_btn.pack()
         # Creacion del notebook
         self.tabControl = ttk.Notebook(self.window, width=650, height=300)
-        console_frame = Frame(self.tabControl, height=20,
-                              width=150, bg="#d3d3d3")
+        console_frame = Frame(self.tabControl, height=20,width=150, bg="#d3d3d3")
         self.text_Consola = tk.Text(console_frame, height=20, width=150)
         self.text_Consola.pack(fill=BOTH)
         console_frame.pack(fill=BOTH)
@@ -79,8 +78,7 @@ class Pantalla:
             for consult in consults:
                 i += 1
                 if consult != None:
-                    frame = Frame(self.tabControl, height=300,
-                                  width=450, bg="#d3d3d3")
+                    frame = Frame(self.tabControl, height=300,width=450, bg="#d3d3d3")
                     # Creacion del scrollbar
                     table_scroll = Scrollbar(frame, orient="vertical")
                     table_scrollX = Scrollbar(frame, orient="horizontal")
@@ -174,12 +172,12 @@ class Pantalla:
         res = interpreter.generar_codigo_3d(entrada)
         self.lexicalErrors = res["err_lexicos"]
         self.syntacticErrors = res["err_sintacticos"]
-        #self.semanticErrors = res["semantic"]
+        self.semanticErrors = res["semantic"]
         self.ts = res["symbols"]
         if (
             len(self.lexicalErrors)
             + len(self.syntacticErrors)
-           # + len(self.semanticErrors)
+           + len(self.semanticErrors)
            # + len(self.postgreSQL)
             > 0
            ):
@@ -242,8 +240,8 @@ class Pantalla:
         with open(path) as file:
             return json.load(file)
     def open_AST(self):  # Abre la pantalla del AST
-        os.system('cd test-output & round-table.gv.png')
-        windowTableS = Pantalla_AST(self.window)
+        os.system('cd test-output & round-table.gv.svg')
+        #windowTableS = Pantalla_AST(self.window)
 
     def open_Reporte(self):  # Abre la pantalla de los reportes de errores
         windowTableS = Pantalla_Error(

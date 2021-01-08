@@ -17,7 +17,9 @@ consola = None
 raiz = None
 tools = None
 loginOn = False
-
+jsonTree = None
+jsonDB = None
+myQuery = ""
 
 #Variables para simular credenciales
 ActiveUsername = ""
@@ -44,6 +46,30 @@ def myGET():
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\nHa ocurrido un error.")
         consola.config(state=DISABLED)
+    myConnection.close()
+
+#Metodo GET para leer json con bases de datos existentes
+def getDatabases():
+
+    global jsonTree
+    global jsonDB
+
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+    headers = {
+        "Content-type": "application/json"
+    }
+
+    myConnection.request("GET", "/getDatabases", "", headers)
+    response = myConnection.getresponse()
+    print("GET: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()
+        resData = json.loads(data.decode("utf-8"))
+        #Variable global jsonTree tiene el contenido (string) del json en tabla.txt
+        jsonTree = resData["jsonText"]
+        #Variable global jsonDB tiene el contenido (string) del json databases
+        jsonDB = resData["databases"]   
     myConnection.close()
 
 #Metodo POST para crear usuarios
@@ -84,6 +110,49 @@ def crearUsuario():
             myConnection.close()
         else:
             MessageBox.showerror("Error", "Es necesario llenar ambos campos!")
+
+#Metodo POST para enviar un query!
+def enviarQuery():
+
+    global myQuery
+    global notebook
+    global textos
+    global jsonTree
+    global jsonDB
+
+    idx = 0
+    if notebook.select():
+        idx = notebook.index('current')
+
+    myQuery = textos[idx].text.get(1.0, END)
+    myQuery = myQuery[:-1]
+
+    jsonData = { "text": myQuery }
+    myJson = json.dumps(jsonData)
+
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+    headers = {
+        "Content-type": "application/json"
+    }
+
+    myConnection.request("POST", "/runQuery", myJson, headers)
+    response = myConnection.getresponse()
+    print("POST: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()
+        resData = json.loads(data.decode("utf-8"))
+        result = resData["consola"]
+        jsonTree = resData["jsonText"]
+        jsonDB = resData["databases"]
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\n{}".format(result))
+        consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
+    myConnection.close()
 
 def changeToLogout():
     global tools
@@ -227,6 +296,7 @@ def abrir():
         textos[control-1].text.insert(tk.INSERT, content)
         entrada.close()
         notebook.select(control-1)
+
 def guardarArchivo():
     global archivo
     idx = 0
@@ -241,6 +311,7 @@ def guardarArchivo():
 
 def guardarComo():
     global archivo
+    global notebook
     idx = 0
     if notebook.select():
         idx = notebook.index('current')
@@ -267,7 +338,7 @@ def CrearVentana():
     #Se llama a la clase Arbol
     Arbol(FrameIzquiero)
     #Boton para realizar consulta
-    Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray').pack(side="top",fill="both")
+    Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray', command = enviarQuery).pack(side="top",fill="both")
     #Consola de Salida
     global consola
     consola = Text(raiz,bg='gray7',fg='white',selectbackground="gray21")

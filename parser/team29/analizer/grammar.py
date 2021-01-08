@@ -79,7 +79,11 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
-    listInst.append(t[1].dot())
+    try:
+        if t[1].dot():
+            listInst.append(t[1].dot())
+    except:
+        pass
     try:
         t[0] = t[1]
     except:
@@ -133,9 +137,26 @@ def p_createopts_db(t):
 
 def p_createopts_index(t):
     """
-    createOpts : indexUnique R_INDEX ID R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
+    createOpts : indexUnique R_INDEX indexName R_ON ID usingMethod S_PARIZQ indexList S_PARDER whereCl
     """
     t[0] = instruction2.CreateIndex(t[1], t[3], t[5], t[6], t[10], t[8])
+    repGrammar.append(t.slice)
+
+
+def p_indexName(t):
+    """
+    indexName : ID
+    """
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_indexName_n(t):
+    """
+    indexName :
+    """
+    t[0] = None
+    repGrammar.append(t.slice)
 
 
 def p_indexList(t):
@@ -144,6 +165,7 @@ def p_indexList(t):
     """
     t[1].append(t[3])
     t[0] = t[1]
+    repGrammar.append(t.slice)
 
 
 def p_indexList2(t):
@@ -151,6 +173,7 @@ def p_indexList2(t):
     indexList : columnIndex
     """
     t[0] = [t[1]]
+    repGrammar.append(t.slice)
 
 
 def p_columnIndex(t):
@@ -158,6 +181,7 @@ def p_columnIndex(t):
     columnIndex : columnOpt indexOrder indexNull
     """
     t[0] = [t[1], t[2], t[3]]
+    repGrammar.append(t.slice)
 
 
 def p_index_columnOpt(t):
@@ -165,6 +189,7 @@ def p_index_columnOpt(t):
     columnOpt : ID
     """
     t[0] = t[1]
+    repGrammar.append(t.slice)
 
 
 def p_index_functionIndex(t):
@@ -172,6 +197,15 @@ def p_index_functionIndex(t):
     columnOpt : ID S_PARIZQ ID S_PARDER
     """
     t[0] = t[1] + t[2] + t[3] + t[4]
+    repGrammar.append(t.slice)
+
+
+def p_index_agrupacion(t):
+    """
+    columnOpt : S_PARIZQ columnOpt S_PARDER
+    """
+    t[0] = t[2]
+    repGrammar.append(t.slice)
 
 
 def p_usingMethod(t):
@@ -184,6 +218,7 @@ def p_usingMethod(t):
     | R_USING R_BRIN
     """
     t[0] = t[2]
+    repGrammar.append(t.slice)
 
 
 def p_usingMethod_none(t):
@@ -191,6 +226,7 @@ def p_usingMethod_none(t):
     usingMethod :
     """
     t[0] = "BTREE"
+    repGrammar.append(t.slice)
 
 
 def p_indexOrder(t):
@@ -199,11 +235,11 @@ def p_indexOrder(t):
     | R_ASC
     |
     """
-
     if len(t) == 1:
         t[0] = "ASC"
     else:
         t[0] = t[1]
+    repGrammar.append(t.slice)
 
 
 def p_indexNull(t):
@@ -215,6 +251,7 @@ def p_indexNull(t):
         t[0] = None
     else:
         t[0] = [True, t[2]]
+    repGrammar.append(t.slice)
 
 
 def p_indexFirstLast(t):
@@ -227,6 +264,7 @@ def p_indexFirstLast(t):
         t[0] = None
     else:
         t[0] = t[1]
+    repGrammar.append(t.slice)
 
 
 def p_createindex_unique(t):
@@ -234,11 +272,11 @@ def p_createindex_unique(t):
     indexUnique : R_UNIQUE
     |
     """
-
     if len(t) == 1:
         t[0] = False
     else:
         t[0] = True
+    repGrammar.append(t.slice)
 
 
 def p_replace_true(t):
@@ -678,7 +716,6 @@ def p_extract_1(t):
     t[0] = expression.ExtractDate(
         t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
     )
-
     repGrammar.append(t.slice)
 
 
@@ -831,6 +868,7 @@ def p_datatype_case_when(t):
     """
     datatype : R_CASE caseList optElse R_END
     """
+    repGrammar.append(t.slice)
 
 
 def p_case_list(t):
@@ -838,16 +876,19 @@ def p_case_list(t):
     caseList : caseList caseWhen
             | caseWhen
     """
+    repGrammar.append(t.slice)
 
 
 def p_caseWhen(t):
     """caseWhen : R_WHEN expBool R_THEN literal"""
+    repGrammar.append(t.slice)
 
 
 def p_caseWhen_2(t):
     """optElse : R_ELSE literal
     |
     """
+    repGrammar.append(t.slice)
 
 
 def p_datatype_operadores_unarios(t):
@@ -1157,13 +1198,40 @@ def p_idOrLiteral(t):
 def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE idOrString alterDb
     | R_ALTER R_TABLE idOrString alterTableList
+    | R_ALTER R_INDEX ifExists idOrString R_RENAME R_TO idOrString
+    | R_ALTER R_INDEX ifExists idOrString R_ALTER column idOrString idOrNumber
     """
     if t[2] == "DATABASE":
         t[0] = instruction2.AlterDataBase(
             t[4][0], t[3], t[4][1], t.slice[1].lineno, t.slice[1].lexpos
         )
-    else:
+    elif t[2] == "TABLE":
         t[0] = instruction2.AlterTable(t[3], t.slice[1].lineno, t.slice[1].lexpos, t[4])
+    else:
+        if t[5] == "RENAME":
+
+            t[0] = instruction2.AlterIndex(
+                t[4], t[3], t[7], t.slice[1].lineno, t.slice[1].lexpos
+            )
+        else:
+            t[0] = instruction2.AlterIndex(
+                t[4], t[3], t[7], t.slice[1].lineno, t.slice[1].lexpos, t[8]
+            )
+    repGrammar.append(t.slice)
+
+
+def p_column(t):
+    """column : R_COLUMN
+    |
+    """
+    repGrammar.append(t.slice)
+
+
+def p_idOrNumber(t):
+    """idOrNumber : ID
+    | INTEGER
+    """
+    t[0] = t.slice[1].value
     repGrammar.append(t.slice)
 
 
@@ -1172,7 +1240,6 @@ def p_alterDb(t):
     | R_OWNER R_TO ownerOPts
     """
     t[0] = [t[1], t[3]]
-
     repGrammar.append(t.slice)
 
 
@@ -1289,11 +1356,23 @@ def p_dropStmt(t):
     repGrammar.append(t.slice)
 
 
-def p_ifExists(t):
-    """ifExists : R_IF R_EXISTS
-    |
+def p_dropStmt_index(t):
     """
+    dropStmt : R_DROP R_INDEX ifExists idList
+    """
+    t[0] = instruction2.DropIndex(t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos)
+    repGrammar.append(t.slice)
 
+
+def p_ifExists(t):
+    """ifExists : R_IF R_EXISTS"""
+    t[0] = True
+    repGrammar.append(t.slice)
+
+
+def p_ifExists_none(t):
+    """ifExists :"""
+    t[0] = False
     repGrammar.append(t.slice)
 
 
@@ -1645,7 +1724,6 @@ def p_offsetLimit_n(t):
 
 def p_insertStmt(t):
     """insertStmt : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER"""
-
     t[0] = instruction2.InsertInto(
         t[3], t[4], t[7], t.slice[1].lineno, t.slice[1].lexpos
     )
@@ -1737,7 +1815,6 @@ def p_tableOpt(t):
 
 def p_showStmt(t):
     """showStmt : R_SHOW R_DATABASES likeOpt"""
-
     t[0] = instruction2.showDataBases(t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 

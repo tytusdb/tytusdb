@@ -81,15 +81,15 @@ class ExtractDate(Expression):
                 raise Exception
             return Primitive(TYPE.NUMBER, int(val), self.temp, self.row, self.column)
         except TypeError:
-            raise expression.list_errors.append(
+            expression.list_errors.append(
                 "Error: 42804: discrepancia de tipo de datos "
             )
         except ValueError:  # cuando no tiene el valor INTERVAL
-            raise expression.list_errors.append(
+            expression.list_errors.append(
                 "Error: 22007:sintaxis de entrada no válida para el tipo 'interval' "
             )
         except:
-            raise expression.list_errors.append(
+            expression.list_errors.append(
                 "Error: 22007: Formato de fecha invalido " + str(self.str)
             )
 

@@ -60,14 +60,14 @@ class Asignacion(Instruccion):
 
         arbol.addComenfunc("Asignar variable")
         temporal0 = tabla.getTemporal()
-        arbol.addfunciones3d(f"{temporal0} = { cadena }")#resultado final a obtener
+        arbol.addfunciones3d(f"{temporal0} = { cadena }",typ)#resultado final a obtener
        #asignar temporal
-        self.val=temporal0
+        self.val=cadena
        
         arbol.addComenfunc("se coloca el dato en la posicion de la pila")
         temporal1 = tabla.getTemporal()
         pos="0"
-        arbol.addfunciones3d(f"{temporal1} = {pos }")
+        arbol.addfunciones3d(f"{temporal1} = {pos }",typ)
         arbol.addComenfunc("Asignacion de parametros a la posicion de parametro")
-        arbol.addfunciones3d(f"Pila[{temporal1}] = {temporal0}")
+        arbol.addfunciones3d(f"Pila[{temporal1}] = {temporal0}",typ)
        

@@ -1,4 +1,6 @@
 from graphviz import Graph
+import os
+import re
 import OptimizarObjetos as obj #Objetos utilizados en el optimizador mirilla
 
 CodigoOptimizado = [] #Se guarda el codigo optimizado resultante para el reporte
@@ -9,10 +11,46 @@ class Optimizador:
         #Asignaciones = Pila de instrucciones del codigo de tres direcciones
         self.Asignaciones = Asignaciones
 
+    def ejecutar(self):
+        global CodigoOptimizado
+        global ResultadoFinal
+        CodigoOptimizado = []
+        ResultadoFinal = []
+        for objeto in self.Asignaciones:
+            if isinstance(objeto, obj.Asignacion):
+                if self.Regla_8_9(objeto) or self.Regla_10_11(objeto):
+                    "NO SE AGREGA LA INSTRUCCION AL RESULTADO"
+                elif self.Regla_12_13(objeto) or self.Regla_14_15(objeto) or self.Regla_16(objeto) or self.Regla_17_18(objeto):
+                    "SE AGREGA LA OPTIMIZACION AL RESULTADO"
+                    ResultadoFinal.append(CodigoOptimizado[-1].resultado)
+                else:
+                    "SE AGREGA LA INSTRUCCION ORIGINAL AL RESULTADO"
+                    instruccion = objeto.indice + " = " + objeto.operador1 + " " + objeto.signo + " " + objeto.operador2
+                    ResultadoFinal.append(instruccion)
+            else:
+                "NO ES OBJETO ASIGNACION ASI QUE SOLO SE AGREGA AL RESULTADO"
+                ResultadoFinal.append(objeto)
+        self.GenerarReporte()
+        print("-----------------------OPTIMIZACIONES--------------------------------")
+        for elem in CodigoOptimizado:
+            print(elem.resultado)
+        print("-----------------------RESULTADO OPTIMIZACION------------------------")
+        for elem in ResultadoFinal:
+            print(elem)
+            
     #Metodos para realizar la optimizacion segun la regla.
     #Retornan False si no se cumple la regla de optimizacion y True si se cumple y se optimiza
-    def Regla_1(self):
+    def Regla_1(self, asignacion, listaasignaciones):
         "Regla 1"
+        global CodigoOptimizado
+        indice = asignacion.indice
+        op1 = asignacion.operador1
+        op2 = asignacion.operador2
+        signo = asignacion.signo
+        for elem in listaasignaciones:
+            if elem.indice == op1 and elem.operador1 == indice:
+                "SE REALIZA EL CAMBIO"
+                
         return False
        
     def Regla_2(self):
@@ -43,40 +81,133 @@ class Optimizador:
         "(+)Regla 8 y (-)Regla 9 - Eliminacion de codigo"
         global CodigoOptimizado
         indice = asignacion.indice
-        op1 = asignacion.operador2
+        op1 = asignacion.operador1
         op2 = asignacion.operador2
         signo = asignacion.signo
-        if (indice == op1 and op2 == '0' and (signo == '+' or signo == '-')) or (indice == op2 and op1 == '0' and (signo == '+' or signo == '-')):
-            if signo == '+':
-                NuevoObjeto = obj.Optimizado("Regla 8", indice + " = " + op1 + " " + signo + " " + op2, "Se elimino la instruccion")
-                CodigoOptimizado.append(NuevoObjeto)
-                return True
-            elif signo == "-":
-                NuevoObjeto = obj.Optimizado("Regla 9", indice + " = " + op1 + " " + signo + " " + op2, "Se elimino la instruccion")
-                CodigoOptimizado.append(NuevoObjeto)
-                return True
+        if (indice == op1 and op2 == '0' and signo == '+') or (indice == op2 and op1 == '0' and signo == '+'):
+            NuevoObjeto = obj.Optimizado("Regla 8", indice + " = " + op1 + " " + signo + " " + op2, "Se elimina la instruccion")
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        elif indice == op1 and op2 == '0' and signo == '-':
+            NuevoObjeto = obj.Optimizado("Regla 9", indice + " = " + op1 + " " + signo + " " + op2, "Se elimina la instruccion")
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
         else:
             return False
 
-    def Regla_10_11(self):
+    def Regla_10_11(self, asignacion):
         "(*)Regla 10 y (/)Regla 11"
-        return False
+        global CodigoOptimizado
+        indice = asignacion.indice
+        op1 = asignacion.operador1
+        op2 = asignacion.operador2
+        signo = asignacion.signo
+        if (indice == op1 and op2 == '1' and signo == '*') or (indice == op2 and op1 == '1' and signo == '*'):
+            NuevoObjeto = obj.Optimizado("Regla 10", indice + " = " + op1 + " " + signo + " " + op2, "Se elimina la instruccion")
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        elif indice == op1 and op2 == '1' and signo == '/':
+            NuevoObjeto = obj.Optimizado("Regla 11", indice + " = " + op1 + " " + signo + " " + op2, "Se elimina la instruccion")
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        else:
+            return False
         
-    def Regla_12_13(self):
+    def Regla_12_13(self, asignacion):
         "(+)Regla 12 y (-)Regla 13"
-        return False
+        global CodigoOptimizado
+        indice = asignacion.indice
+        op1 = asignacion.operador1
+        op2 = asignacion.operador2
+        signo = asignacion.signo
+        if op1 == '0' and op2 != '0' and signo == '+' and op2 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 12", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op2)
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        elif op2 == '0' and op1 != '0' and signo == '+' and op1 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 12", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op1)
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        elif op1 != '0' and op2 == '0' and signo == '-' and op1 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 13", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op1)
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        else:
+            return False
 
-    def Regla_14_15(self):
+    def Regla_14_15(self, asignacion):
         "(*)Regla 14 y (/)Regla 15"
-        return False
+        global CodigoOptimizado
+        indice = asignacion.indice
+        op1 = asignacion.operador1
+        op2 = asignacion.operador2
+        signo = asignacion.signo
+        if op1 == '1' and op2 != '1' and signo == '*' and op2 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 14", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op2)
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        elif op2 == '1' and op1 != '1' and signo == '*' and op1 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 14", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op1)
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        elif op1 != '1' and op2 == '1' and signo == '/' and op1 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 15", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op1)
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        else:
+            return False
 
-    def Regla_16(self):
+    def Regla_16(self, asignacion):
         "Regla 16"
-        return False
+        global CodigoOptimizado
+        indice = asignacion.indice
+        op1 = asignacion.operador1
+        op2 = asignacion.operador2
+        signo = asignacion.signo
+        if op1 == '2' and not isinstance(op2, int) and signo == '*' and op2 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 16", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op2 + " " + "+" + " " + op2)
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        elif op2 == '2' and not isinstance(op1, int) and signo == '*' and op1 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 16", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op1 + " " + "+" + " " + op1)
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        else:
+            return False
 
-    def Regla_17_18(self):
+    def Regla_17_18(self, asignacion):
         "(*)Regla 17 y (/)Regla18"
-        return False
+        global CodigoOptimizado
+        indice = asignacion.indice
+        op1 = asignacion.operador1
+        op2 = asignacion.operador2
+        signo = asignacion.signo
+        if op1 == '0' and signo == '*' and op2 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 17", indice + " = " + op1 + " " + signo + " " + op2, indice + " = 0")
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        elif op2 == '0' and signo == '*' and op1 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 17", indice + " = " + op1 + " " + signo + " " + op2, indice + " = 0")
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        elif op1 == '0' and signo == '/' and op2 != indice:
+            NuevoObjeto = obj.Optimizado("Regla 18", indice + " = " + op1 + " " + signo + " " + op2, indice + " = 0")
+            CodigoOptimizado.append(NuevoObjeto)
+            return True
+        else:
+            return False
 
     def GenerarReporte(self):
-        "Generar el reporte en graphviz"
+        "Generar el reporte en graphviz y el archivo de optimizacion"
+        #PARA EL ARCHIVO
+        Nombre = "Salidas/CodigoOptimizado.py"
+        texto = ""
+        for elem in ResultadoFinal:
+            texto += elem + "\n"
+        try:
+            os.makedirs(os.path.dirname(Nombre), exist_ok=True)
+            with open(Nombre, "w") as f:
+                f.write(texto)
+        except:
+            print("No se pudo generar el archivo del codigo generado")
+        #PARA REPORTE

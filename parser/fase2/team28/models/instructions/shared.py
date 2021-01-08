@@ -30,7 +30,7 @@ class From(Instruction):
             self.alias = None
         else:
             self.alias = f'{self.tables[0].alias}'  
-    
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
 
@@ -89,7 +89,7 @@ class TableReference(Instruction):
         self.option_join = option_join
         self.line = line
         self.column = column
-    
+        self._tac = ''
     def __repr__(self):
         return str(vars(self))
 
@@ -108,7 +108,8 @@ class Where(Instruction):
     '''
     def __init__(self,  condition) :
         self.condition = condition
-    
+        self._tac = ''
+
     def __repr__(self):
         return str(vars(self))
     
@@ -238,6 +239,7 @@ class LikeClause(Instruction):
         self.line = line
         self.alias = f'{valor.alias} {arr_list.alias}'
         self.column = column
+        self._tac = ''
     def __repr__(self):
         return str(vars(self))
     
@@ -272,6 +274,7 @@ class GroupBy(Instruction):
     def __init__(self,  column_names, having_expression) :
         self.column_names = column_names
         self.having_expression = having_expression
+        self._tac = ""
         # self.alias = f'{column_names.alias}'
     
     def __repr__(self):
@@ -343,6 +346,10 @@ class Using(Instruction):
     '''
         USING recibe un array con ids
     '''
+    def __init__(self, value):
+        self.value = value
+        self._tac = ''
+
     def __repr__(self):
         return str(vars(self))
 
@@ -355,6 +362,7 @@ class Returning(Instruction):
     '''
     def __init__(self,  value):
         self.value = value
+        self._tac = ''
     
     def __repr__(self):
         return str(vars(self))
@@ -376,6 +384,7 @@ class Between(Instruction):
         self.line = line
         self.column = column
         self.alias = f'{self.value1} {self.value2}'
+        self._tac = ''
     
     def __repr__(self):
         return str(vars(self))
@@ -436,6 +445,7 @@ class isClause(Instruction):
         self.arr_list = arr_list
         self.line = line
         self.column = column
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
     
@@ -535,6 +545,7 @@ class ExistsClause(Instruction):
         self.subquery = subquery
         self.line = line
         self.column = column
+        self._tac = ""
         
     def __repr__(self):
         return str(vars(self))
@@ -563,6 +574,7 @@ class ObjectReference(Instruction):
         self.opt_asterisk = opt_asterisk
         self.alias = reference_column.alias
         self.opt_table = opt_table
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -583,11 +595,12 @@ class ObjectReference(Instruction):
         val = self.reference_column.compile(environment)
         if isinstance(val, PrimitiveData):
             return val
-        
+
+        temp_val = val
         val = environment.getVar(val)
 
         if val is None: 
-            print("VARIABLE NO DECLARADA")
+            ErrorController().add(33, 'Execution', f"VARIABLE {temp_val} NO DECLARADA", 0, 0)
             return None
             
         position = val.position

@@ -28,8 +28,11 @@ from reporteTS import *
 import webbrowser
 from Graficar import Graficar
 from archivoC3D import *
+from optimizacion import *
 from analizadorFase2.Generador.Generador import Generador
-
+from analizadorFase2.Instrucciones.Funcion import Funcion
+from analizadorFase2.Instrucciones.Parametro import Parametro
+GC3D = []
 
 # MAIN CLASS
 class Main(tk.Tk):
@@ -440,10 +443,10 @@ class Main(tk.Tk):
         g.graficar_arbol(self.raiz_ast)
 
     def help_user_manual(self):
-        webbrowser.open('file://' + os.path.realpath("documents/Manual de Usuario.pdf"))
+        webbrowser.open('file://' + os.path.realpath("documents/Manual de Usuario/Manual de Usuario.pdf"))
 
     def help_technical_manual(self):
-        webbrowser.open('file://' + os.path.realpath("documents/Manual Técnico.pdf"))
+        webbrowser.open('file://' + os.path.realpath("documents/Manual Técnico/Manual Técnico.pdf"))
 
     # About it section
     def help_about_it(self):
@@ -518,10 +521,24 @@ class Main(tk.Tk):
             print(event.keysym)
 
     def tytus_optimizado(self):
-        pass
+        global GC3D
+        C3D_opt = []
+        f = open("team29/ui/codigo3D.py", 'r')
+        Lines = f.readlines()
+        optimizarDesde = Lines.index(str(GC3D[0]) + '\n')
+        while optimizarDesde < len(Lines):
+            porOptimizar = Lines[optimizarDesde]
+            C3D_opt.append(porOptimizar)
+            optimizarDesde += 1
+        optimizar(C3D_opt)
+        print('*************************************')
+        print(retornoOpt())
+        reporteOptimizacion(reglasOpt)
+
 
     # Ejecución de Parser
     def tytus_ejecutar(self):
+        global GC3D
         # Getting widget
         index = self.ta_input.index(self.ta_input.select())
         ta_input = self.array_tabs[index]
@@ -544,12 +561,15 @@ class Main(tk.Tk):
 
             # Start parser
             ins = g.parse(tytus)
+            #g.gramaticaBNF(tytus)
+            #Contador de temporales utilizados
             temp = g.contador
             gen = Generador(temp, 0, ins.getInstruccion())
             gen.ejecutar()
+            GC3D = gen.codigo3d
+            #reporteOptimizacion(reglasOpt)
             C3D = g.codigo_3D
-            crearArchivo(C3D)
-           ##g.analizar(tytus)
+            crearArchivo(C3D, gen.codigo3d)
             st_global = st.SymbolTable()
             es_global = es.ListaErroresSemanticos()
             ct_global = ct.crearTabla()
@@ -558,8 +578,9 @@ class Main(tk.Tk):
             if not ins:
                 messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
             else:
-                #self.do_body(ins.getInstruccion(), st_global, es_global, ct_global)
+                self.do_body(ins.getInstruccion(), st_global, es_global, ct_global)
                 self.raiz_ast = ins.getNodo()
+                self.new_output("--- SE HA GENERADO EL ARCHIVO ÉXITOSAMENTE ---")
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
@@ -571,24 +592,24 @@ class Main(tk.Tk):
             return
 
         for inst in p_instruccion:
-            if isinstance(inst, UseDatabase):
-                self.do_use(inst, p_st, es_global)
-            elif isinstance(inst, IfExist1):
-                self.do_drop_db(inst, p_st, es_global)
+            if isinstance(inst, IfExist1):
+                self.do_drop_db(inst, p_st, es_global,st.SymbolTable())
             elif isinstance(inst, CreateDatabase):
                 self.do_create_database(inst, p_st, es_global)
             elif isinstance(inst, Insert):
                 self.do_insert_tb(inst, p_st, es_global)
             elif isinstance(inst, DropT):
-                self.do_drop_tb(inst, p_st, es_global)
+                self.do_drop_tb(inst, p_st, es_global,st.SymbolTable())
             elif isinstance(inst, CreateTable):
                 self.do_create_tb(inst, p_st, es_global, ct_global)
-            elif isinstance(inst, AlterDB):
-                self.do_alter_db(inst,p_st,es_global)
-            elif isinstance(inst, Select3):
-                self.do_select(inst, p_st, es_global, ct_global)
-            elif isinstance(inst, Show):
-                self.do_show(inst, p_st, es_global, ct_global)
+            elif isinstance(inst, Index) or isinstance(inst, IndexMM) or isinstance(inst,IndexW) or isinstance(inst, IndexOrden):
+                self.do_index(inst, p_st, es_global)
+            elif isinstance(inst,Funcion):
+                self.do_funcion(inst,p_st,es_global)
+            elif isinstance(inst,DropIndex):
+                self.do_dropIndex(inst,p_st,es_global,st.SymbolTable())
+            elif isinstance(inst,AlterRenameIn):
+                self.do_AlterRIndex(inst,p_st,es_global,st.SymbolTable())
             else:
                 print(inst)
 
@@ -601,7 +622,7 @@ class Main(tk.Tk):
         if existe:
             newDB = p_inst.operacion.cadena
             key = 'ADB_' + p_inst.nombreDB
-            simbolo = st.Symbol(key, p_inst.nombreDB, 'Alter database', newDB)
+            simbolo = st.Symbol(key, p_inst.nombreDB, 'Alter database', newDB,'','')
             p_st.add(simbolo)
             alterDatabase(p_inst.nombreDB, newDB)
 
@@ -616,7 +637,7 @@ class Main(tk.Tk):
         sKey = 'CBD_' + p_inst.nombre
         existe = p_st.get(sKey)
         if existe:
-            simbolo = st.Symbol('UDB_' + p_inst.nombre, p_inst.nombre, 'use', '')
+            simbolo = st.Symbol('UDB_' + p_inst.nombre, p_inst.nombre, 'use', '','')
             p_st.add(simbolo)
             self.new_output("SE USARÁ LA BASE DE DATOS \'" + p_inst.nombre + "\'")
             self.use_db = p_inst.nombre
@@ -628,138 +649,149 @@ class Main(tk.Tk):
     # CREACIÓN DE BASE DE DATOS
     def do_create_database(self, p_inst, p_st, p_es):
         key = 'CBD_' + p_inst.idData
-        simbolo = st.Symbol(key, p_inst.idData, 'create', '')
+        simbolo = st.Symbol(key, p_inst.idData, 'create', '','','')
         existe = p_st.get(key)
         if existe and p_inst.Replace:
             p_st.add(simbolo)
-            createDatabase(p_inst.idData)
-            self.new_output("BASE DE DATOS \'" + p_inst.idData + "\' HA SIDO CREADA EXITOSAMENTE.")
         elif existe and p_inst.IfNot:
             p_st.add(simbolo)
-            createDatabase(p_inst.idData)
-            self.new_output("BASE DE DATOS \'" + p_inst.idData + "\' HA SIDO CREADA EXITOSAMENTE.")
         elif not existe:
             p_st.add(simbolo)
-            createDatabase(p_inst.idData)
-            self.new_output("BASE DE DATOS \'" + p_inst.idData + "\' HA SIDO CREADA EXITOSAMENTE.")
-        else:
-            error = es.errorSemantico(key, 'La base de datos ' + p_inst.idData + ' ya existe')
-            p_es.agregar(error)
-            self.new_output(error.tipo)
 
     # ELIMINACIÓN DE BASE DE DATOS
-    def do_drop_db(self, p_inst, p_st, p_es):
+    def do_drop_db(self, p_inst, p_st, p_es,tSimbolo):
         sKey = 'CBD_' + p_inst.nombre
         existe = p_st.get(sKey)
 
         if existe:
-            simbolo = st.Symbol('DDB_' + p_inst.nombre, p_inst.nombre, 'drop', '')
-            p_st.add(simbolo)
-            dropDatabase(p_inst.nombre)
-            self.new_output("BASE DE DATOS \'" + p_inst.nombre + "\' HA SIDO ELIMINADA EXITOSAMENTE.")
-        elif not existe and not p_inst.exist:
-            error = es.errorSemantico('DDB_' + p_inst.nombre, 'La base de datos ' + p_inst.nombre + ' no existe')
-            p_es.agregar(error)
-            self.new_output(error.tipo)
+            for key, v in tSimbolo.symbols.items():
+                if p_inst.nombre == v.id and v.type == "create":
+                    v.id = ""
+                    v.type = ""
+                    v.value = ""
+                    v.p_Orden = ""
 
     # CREACIÓN DE LISTADO DE TIPOS
     def do_create_type(self, p_inst, p_st):
-        print('CREACIÓN DE LISTADO DE TIPOS')
-        print('Nombre: ' + p_inst.nombre)
-        print('Items: ' + str(p_inst.listado))
-        print()
+        key = 'CTP_' + p_inst.idtype
+        simbolo = st.Symbol(key, p_inst.idtype, 'Type', p_inst.valores,'','')
+        existe = p_st.get(key)
+        if not existe:
+            p_st.add(simbolo)
+
+    def do_index(self, p_inst, p_st, p_es):
+        key = 'CI_' + p_inst.name
+        if isinstance(p_inst, Index):
+            if p_inst.Unique == True:
+                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Index tipo: '+'Unique','')
+            elif p_inst.Using == True:
+                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'Metodo: '+'Using Hash','')
+            else:
+                simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'','')
+        elif isinstance(p_inst,IndexW):
+            simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.Lindex,'','')
+        elif isinstance(p_inst, IndexMM):
+            simbolo = st.Symbol(key, p_inst.name, 'INDEX', str(p_inst.major)+ ',' + str(p_inst.minor),'','')
+        elif isinstance(p_inst, IndexOrden):
+            if p_inst.Orden == 'ANF':
+                p_inst.Orden = 'ASC NULLS FIRST'
+            elif p_inst.Orden == 'ANL':
+                p_inst.Orden = 'ASC NULLS LAST'
+            elif p_inst.Orden == 'DNF':
+                p_inst.Orden = 'DESC NULLS FIRST'
+            elif p_inst.Orden == 'DNL':
+                p_inst.Orden = 'DESC NULLS LAST'
+            elif p_inst.Orden == 'NF':
+                p_inst.Orden = 'NULLS FIRST'
+            elif p_inst.Orden == 'NL':
+                p_inst.Orden = 'NULLS LAST'
+
+            simbolo = st.Symbol(key, p_inst.name, 'INDEX', p_inst.valor,'Orden: '+p_inst.Orden,'')
+
+        existe = p_st.get(key)
+        if not existe:
+            p_st.add(simbolo)
+
+    def do_dropIndex(self, p_inst, p_st, p_es,tSimbolo):
+        sKey = 'CI_' + p_inst.idI
+        existe = p_st.get(sKey)
+
+        if existe:
+            for key, v in tSimbolo.symbols.items():
+                if p_inst.idI == v.id and v.type == "INDEX":
+                    v.id = ""
+                    v.type = ""
+                    v.value = ""
+                    v.p_Orden = ""
+
+    def do_AlterRIndex(self, p_inst, p_st, p_es,tSimbolo):
+        sKey = 'CI_' + p_inst.nombreIn
+        existe = p_st.get(sKey)
+
+        if existe:
+            for key, v in tSimbolo.symbols.items():
+                if p_inst.nombreIn == v.id:
+                    v.id = p_inst.nuevoNom
+
+    def do_funcion(self, p_inst, p_st, p_es):
+        key = 'CFUN_'+p_inst.id
+        existe = p_st.get(key)
+        parametros = ""
+        declaraciones = ""
+
+        if p_inst.parametros != None:
+            for parametro in p_inst.parametros:
+                parametros += parametro.id + ' Tipo: ' + str(parametro.tipo._instruccion) +'<br>'
+            if not existe:
+                if p_inst.declaraciones != None:
+                    for declaracion in p_inst.declaraciones:
+                        declaraciones += declaracion.id + ' Tipo: ' +declaracion.tipo + '<br>'
+                    simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',parametros,'',declaraciones)
+                    p_st.add(simbolo)
+                else:
+                    simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',parametros,'',p_inst.declaraciones)
+                    p_st.add(simbolo)
+        
+        else:
+            if not existe:
+                if p_inst.declaraciones != None:
+                    for declaracion in p_inst.declaraciones:
+                        declaraciones += declaracion.id + ' Tipo: ' +declaracion.tipo + '<br>'
+                    simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',None,'',declaraciones)
+                    p_st.add(simbolo)
+                else:
+                    simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',None,'',p_inst.declaraciones)
+                    p_st.add(simbolo)
+            
+
 
     # CREACIÓN DE TABLAS EN BASE DE DATOS
     def do_create_tb(self, p_inst, p_st, p_es, p_ct):
-        list = []
-        valor = 0
-        for keys, value in p_st.symbols.items():
-            if value.type == 'use':
-                valor = 1
-                list.append(value.id)
-
-        if valor == 0:
-            error = es.errorSemantico('CTB_' + p_inst.nombreTabla, 'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.nombreTabla)
-            p_es.agregar(error)
-            self.new_output(error.tipo)
-        else:
-            BDD = list.pop()
-            cantCol = len(p_inst.atributos)
-            nTB = p_inst.nombreTabla
-
-        key = 'CTB_'+p_inst.nombreTabla+'_'+BDD
-
+        key = 'CTB_'+p_inst.nombreTabla+'_'
         existe = p_st.get(key)
-        if existe:
-            error = es.errorSemantico(key, 'La tabla ' + p_inst.nombreTabla + ' ya existe')
-            p_es.agregar(error)
-            self.new_output(error.tipo)
-        else:
-            simbolo = st.Symbol(key, p_inst.nombreTabla, 'create table', BDD)
+        if not existe:
+            simbolo = st.Symbol(key, p_inst.nombreTabla, 'create table',p_inst.atributos,'','')
             p_st.add(simbolo)
-            createTable(BDD, nTB, cantCol)
-            self.new_output("SE HA CREADO LA TABLA \'" + p_inst.nombreTabla + "\' EN BASE DE DATOS \'" + BDD + "\'.")
 
     # INSERTAR DATOS A TABLA EN BASE DE DATOS
     def do_insert_tb(self, p_inst, p_st, p_es):
-        valor2 = 0
-        list = []
-        listI = []
-        for keys, value in p_st.symbols.items():
-            if value.id == p_inst.tabla:
-                BDD = value.value
-
-        for keys, value in p_st.symbols.items():
-            if value.type == 'use':
-                valor2 = 1
-                list.append(value.id)
-
-        if valor2 == 0:
-            error = es.errorSemantico('ITB_' + p_inst.tabla, 'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.tabla)
-            p_es.agregar(error)
-        else:
-            BDDU = list.pop()
-            if BDDU == BDD:
-                key = 'ITB_'+p_inst.tabla
-                simbolo = st.Symbol(key, p_inst.tabla, 'insert table', BDD)
-                p_st.add(simbolo)
-                for val in p_inst.valores:
-                    if isinstance(val,Numero) or isinstance(val,Decimal) or isinstance(val,bool) or isinstance(val,Cadena):
-                        listI.append(val.valor)
-                insert(BDD, p_inst.tabla,listI)
-            else:
-                error = es.errorSemantico('ITB_' + p_inst.tabla, 'La tabla ' + p_inst.tabla + ' no existe')
-                p_es.agregar(error)
+        key = 'ITB_'+p_inst.tabla
+        simbolo = st.Symbol(key, p_inst.tabla, 'insert table', str(p_inst.valores).replace('\'',' '),'','')
+        p_st.add(simbolo)
 
     # DROP A TABLAS EN BASE DE DATOS
-    def do_drop_tb(self, p_inst, p_st, p_es):
-        valor2 = 0
-        list = []
-        listI = []
-        for keys, value in p_st.symbols.items():
-            if value.id == p_inst.nombre:
-                BDD = value.value
+    def do_drop_tb(self, p_inst, p_st, p_es,tSimbolo):
+        key = 'CTB_'+p_inst.nombre+'_'
+        existe = p_st.get(key)
 
-        for keys, value in p_st.symbols.items():
-            if value.type == 'use':
-                valor2 = 1
-                list.append(value.id)
-        if valor2 == 0:
-            error = es.errorSemantico('DTB_' + p_inst.nombre, 'No se ha seleccionado ninguna base de datos para crear la tabla ' + p_inst.nombre)
-            p_es.agregar(error)
-            self.new_output(error.tipo)
-        else:
-            BDDU = list.pop()
-            if BDDU == BDD:
-                key = 'DTB_'+p_inst.nombre
-                simbolo = st.Symbol(key, p_inst.nombre, 'drop table', BDD)
-                p_st.add(simbolo)
-                dropTable(BDD, p_inst.nombre)
-                self.new_output("SE LA ELIMINADO LA TABLA \'" + p_inst.nombre + "\' EN LA BASE DE DATOS \'" + BDD + "\'.")
-            else:
-                error = es.errorSemantico('DTB_' + p_inst.tabla, 'La tabla ' + p_inst.tabla + ' no existe')
-                p_es.agregar(error)
-                self.new_output(error.tipo)
+        if existe:
+            for key, v in tSimbolo.symbols.items():
+                print(v.id)
+                if p_inst.nombre == v.id and v.type == "create table":
+                    v.id = ""
+                    v.type = ""
+                    v.value = ""
+                    v.p_Orden = ""
 
     # SHOW DATABASES
     def do_show(self, p_inst, p_st, es_global, ct_global):

@@ -7,6 +7,7 @@ from team29.ui.Pantalla_AST import *
 from team29.ui.Pantalla_Error import *
 import tkinter.messagebox
 from team29.analizer import interpreter
+from goto import with_goto
 
 # VARIABLES GLOBALES
 window = Tk()
@@ -18,7 +19,7 @@ semanticErrors = list()
 postgreSQL = list()
 ts = list()
 lista = []
-
+simulador_pila = [None]*100
 
 def main():
     global window, tabControl, text_Consola, lexicalErrors, syntacticErrors, semanticErrors, postgreSQL, ts
@@ -173,5 +174,9 @@ def analize(entrada):
             i += 1
     text_Consola.insert(INSERT, "\n")
     tabControl.pack()
-
+    retorno = querys
+    for ret in retorno:
+        for i in range(0, len(ret)):
+            if i == len(ret) - 1:
+                return len(ret[i])
 

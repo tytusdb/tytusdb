@@ -14,6 +14,8 @@ from Utils.fila import fila
 from Error import *
 import Instrucciones.DML.select as select
 import json
+
+import optimizar as opt
 #from select import *
 
 ##########################################################################
@@ -31,7 +33,7 @@ def openFile():
         return
     editor.delete("1.0", TK.END)
     with open(route, "r") as input_file:
-        text = input_file.read()    
+        text = input_file.read()
         editor.insert(TK.END, text)
     root.title(f"TYTUSDB_Parser - {route}")
 
@@ -43,7 +45,117 @@ def analisis():
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
 
+    #g2.tempos.restartTemp() #reinicia el contador de temporales.
+    prueba = g2.parse(texto)
     try:
+        escribirEnSalidaFinal(prueba['printList'])
+    except:
+        ''
+    #print(prueba['text'])
+
+    exepy = '''
+#imports
+import sys
+sys.path.append('../G26/Librerias/goto')
+
+from goto import *
+import gramatica as g
+import Utils.Lista as l
+import Librerias.storageManager.jsonMode as storage
+import Instrucciones.DML.select as select
+from Error import *
+
+#storage.dropAll()
+
+heap = []
+semerrors = []
+
+datos = l.Lista({}, '')
+l.readData(datos)
+'''
+    exepy += '''
+#funcion intermedia
+def mediador(value):
+    global heap
+    global semerrors
+   # Analisis sintactico
+    instrucciones = g.parse(heap.pop())
+    for instr in instrucciones['ast'] :
+
+        try:
+            val = instr.execute(datos)
+        except:
+            val = (instr.execute(datos, {}))
+
+        if isinstance(val, Error):
+            'error semántico'
+            print(val)
+            semerrors.append(val)
+        elif isinstance(instr, select.Select) :
+            
+            if value == 0:
+                try:
+                    print(val)
+                    if len(val.keys()) > 1 :
+                        print('El numero de columnas retornadas es mayor a 1')
+                        return 0
+                    for key in val:
+                        if len(val[key]['columnas']) > 1 :
+                            print('El numero de filas retornadas es mayor a 1')
+                        else :
+                            return val[key]['columnas'][0][0]
+                        break
+                except:
+                    return 0
+            else:
+                print(instr.ImprimirTabla(val))
+        else :
+            try:
+                return val.val
+            except:
+                print(val)
+
+    l.writeData(datos)
+'''
+
+    exepy += '''
+#funciones de plg-sql
+
+
+'''
+    l.readData(datos)
+    optt = ""
+    for val in datos.tablaSimbolos.keys():
+        if val == 'funciones_':
+            for func in datos.tablaSimbolos[val]:
+                try:
+                    f = open("./Funciones/" + func['name'] + ".py", "r")
+                    pruebaaa = f.read()
+                    optt = opt.optimizar(pruebaaa)
+                    exepy += optt
+                    f.close()
+                except:
+                    exepy += '#Se cambio el nombre del archivo que guarda la funcion. Funcion no encontrada'
+    exepy += '''
+#main
+@with_goto
+def main():
+    global heap
+'''
+
+    exepy += str(prueba['text'])
+
+    exepy += '''
+#Ejecucion del main
+if __name__ == "__main__":
+    main()
+'''
+
+    f = open("./c3d.py", "w")
+    f.write(exepy)
+    f.close()
+
+    '''try:
         f = open("./Utils/tabla.txt", "r")
         text = f.read()
         f.close()
@@ -54,58 +166,6 @@ def analisis():
         datos.reInsertarValores(json.loads(text))
     except:
         print('error')
-    
-    #g2.tempos.restartTemp() #reinicia el contador de temporales.
-    prueba = g2.parse(texto)
-    #print(prueba['text'])
-
-    exepy = '''
-#imports
-from goto import with_goto
-import gramatica as g
-import Utils.Lista as l
-import Librerias.storageManager.jsonMode as storage
-
-storage.dropAll()
-
-heap = []
-
-datos = l.Lista({}, '') 
-'''
-    exepy += '''
-#funcion intermedia    
-def mediador():
-    global heap
-    # Analisis sintactico
-    instrucciones = g.parse(heap.pop())
-    for instr in instrucciones['ast'] :
-        print(instr.execute(datos))
-'''
-
-    exepy += '''
-#funciones de plg-sql   
-
-
-'''
-
-    exepy += '''
-#main
-#@with_goto
-def main():
-    global heap
-'''
-
-    exepy += str(prueba['text'])
-
-    exepy += '''
-#Ejecucion del main
-if __name__ == "__main__":
-    main()    
-'''
-
-    f = open("./c3d.py", "w")
-    f.write(exepy)
-    f.close()
 
     instrucciones = g.parse(texto)
     erroresSemanticos = []
@@ -115,19 +175,6 @@ if __name__ == "__main__":
     except:
         print("")
 
-    '''try:
-        f = open("./Utils/tabla.txt", "r")
-        text = f.read()
-        text = text.replace('\'','"')
-        text = text.replace('False','"False"')
-        text = text.replace('None','""')
-        text = text.replace('True','"True"')
-
-        print(text)
-        datos.reInsertarValores(json.loads(text))
-        print(str(datos))
-    except:
-        print('error')'''
     for instr in instrucciones['ast'] :
 
             if instr != None:
@@ -145,16 +192,25 @@ if __name__ == "__main__":
     f.write(str(datos))
     f.close()
 
-    errores = g.getMistakes()
-    recorrerErrores(errores)
-    Rerrores(errores, erroresSemanticos)
-    errores.clear()
-    erroresSemanticos.clear()
+    '''
+    try:
+        errores = g.getMistakes()
+        recorrerErrores(errores)
+    #Rerrores(errores, erroresSemanticos)
+        errores.clear()
+    #erroresSemanticos.clear()
+        reporteTabla()
+        del prueba
+    except:
+        ''
 
-    reporteTabla()
-    del instrucciones
+    escribirEnSalidaFinal('Se ha generado el codigo en 3 direcciones.')
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
-
+    reptOpti = prueba['opt']
+    fro = open("./Reportes/ReporteOptimizacion.txt", "w")
+    fro.write(reptOpti)
+    fro.close()
+    
 def Rerrores(errores, semanticos):
     f = open("./Reportes/Reporte_Errores.html", "w")
     f.write("<!DOCTYPE html>\n")
