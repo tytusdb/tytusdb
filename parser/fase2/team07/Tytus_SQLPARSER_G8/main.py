@@ -26,6 +26,8 @@ from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 
 
 import sintactico
+import graficarArbol
+import sintacticoGraph
 
 global arbol
 arbol = None
@@ -126,8 +128,6 @@ class interfaz():
 
         self.window.mainloop()
     
-    def optimizarc3d_click():
-        pass
 
     def ejecutar(self):
         print("Hello World!")
@@ -245,6 +245,13 @@ class interfaz():
         arbol = None         
 
     def ast_click(self):
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
+        inst = sintacticoGraph.ejecutar_analisis(input)
+        if len(sintactico.lista_lexicos)>0:
+            messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico.lista_lexicos)
+        grafica = graficarArbol.GraphArbol(inst)
+        grafica.crearArbol()
         print("ast")   
     
     def repDin_click(self):
