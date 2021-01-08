@@ -253,24 +253,18 @@ def executeAlterTableDropColumn(self, AlterTableDropColumn_):
         print_error("UNKNOWN ERROR", "instruction not executed",2)
 
 def executeAlterIndex(self,AlterIndex):
-    #database=TCgetDatabase()
-
+    database=TCgetDatabase()
     #print(TCcreateFunction('funcion3','fun3codigo3d',False))
-    print(TCgetFunctions())
-    print(TCdeleteFunction('funcion2'))
-    print(TCgetFunctions())
-    print(TCdeleteFunction('funcion1'))
-    print(TCgetFunctions())
-    '''res=TCSearchDatabase(database)
+    res=TCSearchDatabase(database)
     if res==1:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
     elif res==2:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
     elif res==3:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
     elif res==4:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
-    elif res==8:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
+    elif res==5:
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
     else:
-        print_error("SEMANTIC ERROR","Mode between 1-5")'''
+        print_error("SEMANTIC ERROR","Mode between 1-5")

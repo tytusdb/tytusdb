@@ -804,18 +804,27 @@ def p_instruction_create_index_unique(t):
     t[0] = CreateIndex(t[4],t[6],t[7])
 
 def p_instruction_createindexoption(t):
-    '''createIndexOption : USING HASH BRACKET_OPEN createIndexColumn BRACKET_CLOSE
-                         | BRACKET_OPEN createIndexColumn BRACKET_CLOSE
-                         | USING HASH BRACKET_OPEN createIndexColumn BRACKET_CLOSE WHERE expression
-                         | BRACKET_OPEN createIndexColumn BRACKET_CLOSE WHERE expression'''
+    '''createIndexOption : USING HASH BRACKET_OPEN listCreateIndexColumn BRACKET_CLOSE
+                         | BRACKET_OPEN listCreateIndexColumn BRACKET_CLOSE
+                         | USING HASH BRACKET_OPEN listCreateIndexColumn BRACKET_CLOSE WHERE expression
+                         | BRACKET_OPEN listCreateIndexColumn BRACKET_CLOSE WHERE expression'''
     if(t[3]=='(' ):
         t[0]=t[4]
     else:
         t[0]=t[2]
+    
+def p_instruction_createindex_listcolumn(t):
+    '''listCreateIndexColumn : listCreateIndexColumn COMMA createIndexColumn'''
+    t[1].append(t[3])
+    t[0]=t[1]
+
+def p_instruction_createindex_listcolumn_single(t):
+    '''listCreateIndexColumn : createIndexColumn'''
+    t[0]=[t[1]]
 
 def p_instruction_createindex_column(t):
-    '''createIndexColumn : idList
-                         | LOWER BRACKET_OPEN idList BRACKET_CLOSE
+    '''createIndexColumn : LOWER BRACKET_OPEN ID BRACKET_CLOSE
+                         | ID
                          | ID ascDesc
                          | ID ascDesc NULLS firstLast
                          | ID NULLS firstLast'''
@@ -826,10 +835,10 @@ def p_instruction_createindex_column(t):
         elif(t[2]=='NULLS'):
             t[0]==[]
         elif(t[1]=='LOWER'):
-            t[0]=[]
+            t[0]=[t[3]]
     except Exception as e:
         print(e)
-        t[0]= t[1]
+        t[0]= [t[1]]
         #grammarreport = "<selectInstruction> ::= SELECT DISTINCT <expressionList> FROM <expressionList> { selectInstruction.val=Select(expressionList.val,True,expressionList.val,None) }\n" + grammarreport
     
 
@@ -920,37 +929,22 @@ def p_instruction_alterdatabase_owner(t):
     global grammarreport
     grammarreport = "<alterDatabase> ::= ALTER DATABASE ID OWNER TO ID { ID1.val='"+t[3]+"'; ID2.val='"+t[6]+"'; alterDatabase.val=AlterDatabaseOwner(ID1.val,ID2.val) }\n" + grammarreport
 
-def p_instruction_alterindexnum(t):
-    '''alterIndex : ALTER INDEX ID ALTER ID INT
-                  | ALTER INDEX ID ALTER INT '''
-    try:
-        t[0]=AlterIndex(t[3],t[6],False,True)
-    except Exception as e:
-        t[0]=AlterIndex(t[3],t[5],False,True)
-
-def p_instruction_alterindexnum_ifexists(t):
-    '''alterIndex : ALTER INDEX IF EXISTS ID ALTER ID INT
-                  | ALTER INDEX IF EXISTS ID ALTER INT '''
-    try:
-        t[0]=AlterIndex(t[5],t[6],True,True)
-    except Exception as e:
-        t[0]=AlterIndex(t[5],t[6],True,True)
 
 def p_instruction_alterindexid(t):
     '''alterIndex : ALTER INDEX ID ALTER ID ID
                   | ALTER INDEX ID ALTER ID '''
     try:
-        t[0]=AlterIndex(t[3],t[6],False,False)
+        t[0]=AlterIndex(t[3],t[5],t[6])
     except Exception as e:
-        t[0]=AlterIndex(t[3],t[5],False,False)
+        t[0]=AlterIndex(t[3],t[5],t[5])
 
 def p_instruction_alterindexid_ifexists(t):
     '''alterIndex : ALTER INDEX IF EXISTS ID ALTER ID ID
                   | ALTER INDEX IF EXISTS ID ALTER ID '''
     try:
-        t[0]=AlterIndex(t[5],t[8],True,False)
+        t[0]=AlterIndex(t[5],t[7],t[8])
     except Exception as e:
-        t[0]=AlterIndex(t[5],t[7],True,False)
+        t[0]=AlterIndex(t[5],t[7],t[7])
 
 def p_instruction_altertable_drop(t):
     '''alterTable : ALTER TABLE ID DROP COLUMN ID'''
@@ -1147,11 +1141,15 @@ def p_instruction_idlist_list(t):
     t[0]  = t[1]
     global grammarreport
     grammarreport = "<idList> ::= <idList> ',' ID { ID.val='"+t[3]+"'; idList.val = idList1.val.append(ID.val) }\n" + grammarreport
+
+
+
 def p_instruction_idlist_single(t):
     '''idList : ID'''
     t[0] = [t[1]]
     global grammarreport
     grammarreport = "<idList> ::= ID { ID.val='"+t[1]+"'; idList.val = [ID.val] }\n" + grammarreport
+
 
 def p_instruction_sortexpressionlist_list(t):
     '''sortExpressionList : sortExpressionList COMMA expression
