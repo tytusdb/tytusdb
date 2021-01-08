@@ -10,5 +10,5 @@ class Parser(object):
   def parse(self,input):
     obj = execution(input)
     print(obj['messages'])
-    return obj['querys']
+    return obj['value']
     
