@@ -17,7 +17,8 @@ Los requisitos del sistema son basados en el hardware y software sobre el cual f
 #### SOFTWARE
 ---
 * Windows 10 
-* Python
+* Python 3.6
+* Python 3.9
 
 ### LIBRERIAS UTILIZADAS PARA EL DESARROLLO
 
@@ -30,6 +31,7 @@ datetime
 random
 decimal
 math
+goto
 ```
 
 ### INSTRUCTIVO DE USO
