@@ -32,9 +32,12 @@ class pl_raise(Instruccion):
         return str(self.__dict__)
 
 class pl_raiseexception(Instruccion):
-    def __init__(self, cadena, valor ):
-        self.cadena = cadena
-        self.valor = valor
+    def __init__(self, arg0,arg1,tipo,argumento):
+        self.tipo = tipo
+        self.argumento = argumento
+        self.arg0 = arg0
+        self.arg1 = arg1
+
 
     def __repr__(self):
         return str(self.__dict__)
