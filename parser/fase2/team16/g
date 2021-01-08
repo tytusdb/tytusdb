@@ -1,146 +1,431 @@
 graph g {
 	node [height=.1 shape=plaintext]
-	table [label=<<TABLE border="1" cellpadding="0" cellspacing="0"   >
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>DATOS</B> </TD>
-                            </TR>
-                            <TR bgcolor="#BEF781">
-                                <TD bgcolor="#BEF781">BASE DATOS</TD>
-                                <TD bgcolor="#BEF781">TABLA</TD>
-                                <TD bgcolor="#BEF781">COLUMNA</TD>
-                                <TD bgcolor="#BEF781">VALOR </TD>
-                                <TD bgcolor="#BEF781">FILA</TD>
-                                <TD bgcolor="#BEF781"></TD>
-                            </TR>
-                             <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>VALIDACIONES</B> </TD>
-                            </TR>
-                            <TR bgcolor="#BEF781">
-                                <TD bgcolor="#BEF781">TABLA</TD>
-                                <TD bgcolor="#BEF781">CAMPO</TD>
-                                <TD bgcolor="#BEF781">TIPO</TD>
-                                <TD bgcolor="#BEF781">ID</TD>
-                                <TD bgcolor="#BEF781"> </TD>
-                                <TD bgcolor="#BEF781"> </TD>
-                            </TR>
-                            <TR><TD>tbProducto</TD><TD>idproducto</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>idproducto</TD><TD>primary</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>producto</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>fechacreacion</TD><TD>not</TD><TD>auto</TD><TD></TD><TD> </TD></TR> <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"><B> TABLAS</B> </TD>
-                            </TR>
-                            <TR bgcolor="#BEF781">
-                                <TD bgcolor="#BEF781">ID TABLA</TD>
-                                <TD bgcolor="#BEF781">ID COLUMNA</TD>
-                                <TD bgcolor="#BEF781">TIPO COLUMNA</TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                            </TR><TR><TD COLSPAN="6" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbProducto</TD><TD>idproducto</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>producto</TD><TD>varchar(150)</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>fechacreacion</TD><TD>date</TD><TD></TD><TD></TD><TD> </TD></TR><TR><TD>tbProducto</TD><TD>estado</TD><TD>integer</TD><TD></TD><TD></TD><TD> </TD></TR> <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>TIPOS </B></TD>
-                            </TR>
-                            <TR bgcolor="#BEF781">
-                                <TD bgcolor="#BEF781">BASE DE DATOS</TD>
-                                <TD bgcolor="#BEF781"> TIPO </TD>
-                                <TD bgcolor="#BEF781">VALOR</TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                                <TD bgcolor="#BEF781">  </TD>
-                            </TR> <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>BASES DE DATOS</B> </TD>
-                            </TR>
-                            <TR>
-                                <TD bgcolor="#BEF781">ID BASE DE DATOS</TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                            </TR><TR><TD>DBFase2</TD><TD></TD><TD></TD><TD></TD><TD></TD><TD> </TD></TR>
-                            <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>FUNCIONES O PROCEDIMIENTOS</B> </TD>
-                            </TR>
-                            <TR>
-                                <TD bgcolor="#BEF781">NOMBRE</TD>
-                                <TD bgcolor="#BEF781"> TIPO </TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                            </TR>
-                            <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>INDICES</B> </TD>
-                            </TR>
-                            <TR>
-                                <TD bgcolor="#BEF781">ID INDICE</TD>
-                                <TD bgcolor="#BEF781">ID TABLA</TD>
-                                <TD bgcolor="#BEF781">UNIQUE</TD>
-                                <TD bgcolor="#BEF781">HASH</TD>
-                                <TD bgcolor="#BEF781"></TD>
-                                <TD bgcolor="#BEF781"></TD>
-                            </TR><TR><TD>idx_producto</TD><TD>tbProducto</TD><TD>True</TD><TD>False</TD><TD></TD><TD> </TD></TR><TR><TD>nombre</TD><TD>tbProducto</TD><TD>True</TD><TD>False</TD><TD></TD><TD> </TD></TR>
-                            <TR>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                                <TD></TD>
-                            </TR>
-                            <TR>
-                                <TD COLSPAN="6" bgcolor="#FA8258"> <B>COLUMNAS INDICE</B> </TD>
-                            </TR>
-                            <TR>
-                                <TD bgcolor="#BEF781">ID COLUMNA</TD>
-                                <TD bgcolor="#BEF781">ORDEN</TD>
-                                <TD bgcolor="#BEF781">NULLS</TD>
-                                <TD bgcolor="#BEF781">STATISTICS</TD>
-                                <TD bgcolor="#BEF781">ID TABLA </TD>
-                                <TD bgcolor="#BEF781">ID INDICE </TD>
-                            </TR><TR><TD>producto</TD><TD>None</TD><TD>None</TD><TD>producto</TD><TD>tbProducto</TD><TD>idx_producto</TD></TR><TR><TD>idproducto</TD><TD>None</TD><TD>None</TD><TD>None</TD><TD>tbProducto</TD><TD>nombre</TD></TR><TR><TD>estado</TD><TD>None</TD><TD>None</TD><TD>estado</TD><TD>tbProducto</TD><TD>nombre</TD></TR><TR><TD>fechacreacion</TD><TD>None</TD><TD>None</TD><TD>None</TD><TD>tbProducto</TD><TD>nombre</TD></TR></TABLE>>]
+	table [label=<<TABLE><TR><TD>PRODUCCION</TD><TD>REGLAS SEMANTICAS</TD></TR>
+ <TR><TD> REPLACE_OP →   </TD><TD> t[0] = 0 </TD></TR>
+ <TR><TD> IF_NOT_EXISTIS →   </TD><TD> t[0] = 0 </TD></TR>
+ <TR><TD> OWNER_DATABASE →   </TD><TD> t[0] = 0 </TD></TR>
+ <TR><TD> MODE_DATABASE →    </TD><TD> t[0] = 0 </TD></TR>
+ <TR><TD> CREATE_DATABASE → CREATE REPLACE_OP DATABASE IF_NOT_EXISTIS ID OWNER_DATABASE MODE_DATABASE PUNTOCOMA  </TD><TD> t[0] = CreateDataBase(t[2], t[4], t[5], t[6], t[7])  </TD></TR>
+ <TR><TD> DDL_COMANDOS → OPERACION DDL_COMANDOS   </TD><TD> t[0] = t[1]  </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> DQL_COMANDOS → USE ID PUNTOCOMA </TD><TD> DQL_COMANDOS=t[2] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → idbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   primarykey   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →  LISTA3  VALIDACION_CAMPO_CREATE   </TD><TD>  t[1].append(t[2])  t[0] = t[1] </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →     LISTA2 </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → bodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> TIPO_CAMPO →   TIPO TEXTO PARIZQ expresion_aritmetica PARDER  </TD><TD>  t[0] = valorTipo(t[1], t[3]) </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → estado    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE_VACIO    </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE   </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPO_CREATE_TABLE →   LISTA_DE_COLUMNAS </TD><TD> t[0] = t[1] </TD></TR>
+ <TR><TD> DML_COMANDOS →   CREATE TABLE ID PARIZQ  CUERPO_CREATE_TABLE PARDER PUNTOCOMA </TD><TD> t[0] = CreateTable(t[3], t[5], None)  </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
+ <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion_aritmetica → ID    </TD><TD>  t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPO →    expresion    </TD><TD> t[0] = t[1] </TD></TR>
+ <TR><TD> CAMPOSN →    CAMPO    </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID    </TD><TD>  t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> DML_COMANDOS →      UPDATE   LISTA_DE_IDS SET CAMPOSN WHERE expresion PUNTOCOMA    </TD><TD> t[0] = Update_Datos(t[2], t[4], t[6]) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPOS →   expresion  </TD><TD>  t[0] = str(t[1]) </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → idproducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   primarykey   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →  LISTA3  VALIDACION_CAMPO_CREATE   </TD><TD>  t[1].append(t[2])  t[0] = t[1] </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →     LISTA2 </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → producto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> TIPO_CAMPO →   TIPO TEXTO PARIZQ expresion_aritmetica PARDER  </TD><TD>  t[0] = valorTipo(t[1], t[3]) </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → fechacreacion    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   date  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → estado    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE_VACIO    </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE   </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPO_CREATE_TABLE →   LISTA_DE_COLUMNAS </TD><TD> t[0] = t[1] </TD></TR>
+ <TR><TD> DML_COMANDOS →   CREATE TABLE ID PARIZQ  CUERPO_CREATE_TABLE PARDER PUNTOCOMA </TD><TD> t[0] = CreateTable(t[3], t[5], None)  </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → idcalifica    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   primarykey   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →  LISTA3  VALIDACION_CAMPO_CREATE   </TD><TD>  t[1].append(t[2])  t[0] = t[1] </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →     LISTA2 </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → item    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> TIPO_CAMPO →   TIPO TEXTO PARIZQ expresion_aritmetica PARDER  </TD><TD>  t[0] = valorTipo(t[1], t[3]) </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → punteo    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE   </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPO_CREATE_TABLE →   LISTA_DE_COLUMNAS </TD><TD> t[0] = t[1] </TD></TR>
+ <TR><TD> DML_COMANDOS →   CREATE TABLE ID PARIZQ  CUERPO_CREATE_TABLE PARDER PUNTOCOMA </TD><TD> t[0] = CreateTable(t[3], t[5], None)  </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPOS →   expresion  </TD><TD>  t[0] = str(t[1]) </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
+ <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion_aritmetica → ID    </TD><TD>  t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPO →    expresion    </TD><TD> t[0] = t[1] </TD></TR>
+ <TR><TD> CAMPOSN →    CAMPO    </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID    </TD><TD>  t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> DML_COMANDOS →      UPDATE   LISTA_DE_IDS SET CAMPOSN WHERE expresion PUNTOCOMA    </TD><TD> t[0] = Update_Datos(t[2], t[4], t[6]) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTA_ID_ →   ID  </TD><TD>   t[0] = ExpresionValor(t[1])  </TD></TR>
+ <TR><TD> LISTA_DE_IDS →  LISTA_DE_IDS LISTA_ID_ </TD><TD>   t[1].append(t[2]) t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion_aritmetica → ID    </TD><TD>  t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → ENTERO   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> DML_COMANDOS →    DELETE FROM LISTA_DE_IDS WHERE expresion PUNTOCOMA   </TD><TD> t[0] = Delete_Datos(t[3], t[5])</TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> CAMPOS →   ASTERISCO  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS FROM  NOMBRES_TABLAS     </TD><TD> t[0]= Select(t[5],t[2],t[4]) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → idinventario    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   primarykey   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →  LISTA3  VALIDACION_CAMPO_CREATE   </TD><TD>  t[1].append(t[2])  t[0] = t[1] </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →     LISTA2 </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → idproducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → idbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → cantidad    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   integer  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → fechacarga    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   date  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> VALIDACION_CAMPO_CREATE →   notnull   </TD><TD>  t[0] = CampoValidacion(t[1], t[2]) </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE   </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE COMA  </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> NOMBRE_T → descripcion    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TIPO_CAMPO →   text  </TD><TD>   t[0] = t[1]  </TD></TR>
+ <TR><TD> LISTA3 →    VALIDACION_CAMPO_CREATE_VACIO    </TD><TD>  t[0] = [t[1]]  </TD></TR>
+ <TR><TD> VALIDACIONES_CREATE_TABLE →  LISTA3  </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTA2 →     NOMBRE_T TIPO_CAMPO VALIDACIONES_CREATE_TABLE   </TD><TD> t[0] = CampoTabla(t[1], t[2], t[3]) </TD></TR>
+ <TR><TD> LISTA_DE_COLUMNAS →   LISTA_DE_COLUMNAS  LISTA2 </TD><TD> t[1].append(t[2])    t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPO_CREATE_TABLE →   LISTA_DE_COLUMNAS </TD><TD> t[0] = t[1] </TD></TR>
+ <TR><TD> DML_COMANDOS →   CREATE TABLE ID PARIZQ  CUERPO_CREATE_TABLE PARDER PUNTOCOMA </TD><TD> t[0] = CreateTable(t[3], t[5], None)  </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idproducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbProducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPOS →   expresion  </TD><TD>  t[0] = str(t[1]) </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPOS →   expresion  </TD><TD>  t[0] = str(t[1]) </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idproducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbProducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPOS →   expresion  </TD><TD>  t[0] = str(t[1]) </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idproducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbProducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPOS →   expresion  </TD><TD>  t[0] = str(t[1]) </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idproducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbProducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPOS →   expresion  </TD><TD>  t[0] = str(t[1]) </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idproducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbProducto    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> LISTAA → idbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> NOMBRE_T → tbbodega    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> TABLA →   NOMBRE_T   </TD><TD>  t[0] = AccesoTablaSinLista(t[1]) </TD></TR>
+ <TR><TD> NOMBRES_TABLAS →  TABLA   </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> expresion_aritmetica → ID PUNTO ID    </TD><TD>   t[0] = CAMPO_TABLA_ID_PUNTO_ID(t[1],t[3], TIPO_VARIABLE.TEMPORAL) </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion_relacional →  expresion_aritmetica = expresion_aritmetica  </TD><TD> t[0] = ExpresionAritmetica(t[1], t[3], OPERACION_RELACIONAL.OPERACION) </TD></TR>
+ <TR><TD> expresion_logica →    expresion_relacional   </TD><TD>t[0] = t[1]  </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> WHERER →   WHERE expresion    </TD><TD> t[0] = Cuerpo_TipoWhere(t[2])  </TD></TR>
+ <TR><TD> CUERPO →   WHERER    </TD><TD>  t[0] = t[1] </TD></TR>
+ <TR><TD> CUERPOS →   CUERPO    </TD><TD>  t[0] = [t[1]] </TD></TR>
+ <TR><TD> UNIONN →   PUNTOCOMA  </TD><TD> t[0] = CamposUnions(t[1],,False) </TD></TR>
+ <TR><TD> UNIONS →   UNIONN  </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> DQL_COMANDOS → SELECT LISTA_CAMPOS from  NOMBRES_TABLAS  CUERPOS   </TD><TD> t[0] = Select2(t[6],t[5],t[2],t[4])) </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR>
+ <TR><TD> expresion_aritmetica → CADENAS   </TD><TD>  t[0] = ExpresionValor(t[1]) </TD></TR>
+ <TR><TD> expresion →  expresion_aritmetica -OR-  expresion_logica  </TD><TD> t[0] = t[1]</TD></TR>
+ <TR><TD> CAMPOS →   expresion  </TD><TD>  t[0] = str(t[1]) </TD></TR>
+ <TR><TD> LISTAA →  CAMPOS   </TD><TD> t[0] = Campo_AccedidoSinLista("",t[1]) </TD></TR>
+ <TR><TD> LISTA_CAMPOS →   LISTAA     </TD><TD> t[0] = [t[1]] </TD></TR>
+ <TR><TD> INSTRUCCIONES → INSTRUCCION </TD><TD> INSTRUCCIONES=t[1] </TD></TR></TABLE>>]
 }

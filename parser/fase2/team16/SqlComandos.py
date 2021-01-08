@@ -2,15 +2,16 @@ from Instruccion import *
 from expresiones import *
 import interprete as Inter
 from sentencias import *
+from Temporales import *
 
 class SqlComandos:
 
-    def __init__(self, sentencia):
+    def __init__(self, sentencia, ts_global = None, t_global = None, ambitoFuncion = None):
         self.sentencia = sentencia
         self.CadenaSQL = None
-
-
-
+        self.ts_global = ts_global
+        self.t_global = t_global
+        self.ambitoFuncion = ambitoFuncion
 
     def generarCadenaSQL(self):
         i = self.sentencia
@@ -137,7 +138,7 @@ class SqlComandos:
 
         elif isinstance(i, SelectExpresion):
             print("Es Una Instruccion SelectCurrentType")
-            #self.grafoSelectExpresion(i.listaCampos)
+            self.CadenaSQL = self.grafoSelectExpresion(i)
 
         elif isinstance(i, Funciones_):
             print("Es Una Instruccion SelectCurrentType")
@@ -759,7 +760,7 @@ class SqlComandos:
 
     # Grafo Sub Select Con Cuerpo
     def GrafoSubSelect2(self, ListaCampos, NombresTablas, cuerpo):
-        Cadenita = "( Select " + self.RecorrerListadeCampos(ListaCampos) + "From  " + self.RecorrerListadeNombres(NombresTablas)
+        Cadenita = "( Select " + self.RecorrerListadeCampos(ListaCampos) + " From  " + self.RecorrerListadeNombres(NombresTablas)
         Cadenita += self.RecorrerListaCuerpos(cuerpo)+ ") "
 
         return Cadenita
@@ -1088,6 +1089,17 @@ class SqlComandos:
                 return '"' + str(expresiones.val) + '"'
             return str(expresiones.val)
         elif isinstance(expresiones, Variable):
+            # Buscar variable en la tabla de simbolos
+            r = None
+            for item in self.t_global.tablaSimbolos:
+                v: tipoSimbolo = self.t_global.obtenerSimbolo(item)
+
+                if v.nombre == expresiones.id and v.ambito == self.ambitoFuncion:
+                    # print(str(v.temporal))
+                    r = str(v.temporal)
+
+            if r is not None:
+                return '""" + str(' + str(r) + ') + """'
             return expresiones.id
         elif isinstance(expresiones, UnitariaAritmetica):
             return self.getVar(expresiones.operador) + " " + str(self.cadena_expresion(expresiones.exp1))
@@ -1535,3 +1547,21 @@ class SqlComandos:
         ob: DropIndice = objeto
         Cadenita = " DROP INDEX " + ob.id_indice + " ;  "
         return Cadenita
+
+    def grafoSelectExpresion(self, objeto: SelectExpresion):
+        cadena = "SELECT "
+
+
+        for campo in objeto.listaCampos:
+            if isinstance(campo, Campo_AccedidoSinLista):
+                cadena += self.cadena_expresion(campo.Columna)
+
+            elif isinstance(campo, Campo_Accedido):
+                cadena += self.cadena_expresion(campo.Columna)
+
+            if campo != objeto.listaCampos[-1]:
+                cadena += ", "
+
+        cadena += ";"
+
+        return cadena

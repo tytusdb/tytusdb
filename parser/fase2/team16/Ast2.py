@@ -3093,7 +3093,7 @@ class Ast2:
             for ele in Parametros:
                 if(isinstance(ele,Parametros_)):
                     self.inc()
-                    dot.node('Node' + str(self.i), ele.Tipo + " " +  ele.Nombre + " "+ ele.Valor)
+                    dot.node('Node' + str(self.i), str(ele.Tipo) + " " +  str(ele.Nombre) + " "+ str(ele.Valor))
                     dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
 
 

@@ -77,7 +77,7 @@ class Codigo3d:
     def Traducir(self, instrucciones):
         global ts_global, cadena, cadenaFuncion
         for i in instrucciones:
-            if isinstance(i,Funciones_):
+            if isinstance(i, Funciones_):
                 cadenaFuncion += self.t_Funciones_(i)
             elif isinstance(i, ss.EjecucionFuncion):
                 cadena += self.t_llamadaFuncion(i)
@@ -91,7 +91,13 @@ class Codigo3d:
                 cadena += self.t_Insert(i)
             elif isinstance(i, SelectExpresion):
                 if isinstance(i.listaCampos[0].Columna, ss.EjecucionFuncion):
-                    cadena += self.t_llamadaFuncion(i.listaCampos[0].Columna)
+                    v, cad = self.procesar_ejecucion_funcion(i.listaCampos[0].Columna, None)
+                    cadena += cad + "\n"
+                    aux = '"SELECT \'" + str(' + v + ') + "\';"\n'
+                    cadena += "\t" + str(v) + " = " + aux
+                    cadena += "\theap.append(" + str(v) + ")\n"
+                    cadena += "\tF3D.ejecutarSQL()\n"
+
                 else:
                     aux = SQL(i)
                     aux.generarCadenaSQL()
@@ -102,7 +108,7 @@ class Codigo3d:
                     else:
                         print("NO TRADUCE....")
             else:
-                aux = SQL(i)
+                aux = SQL(i, ts_global, t_global, ambitoFuncion)
                 aux.generarCadenaSQL()
                 if aux.CadenaSQL is not None:
                     print("PRODUCE SENTENCIA SQL-----------------------------------===")
@@ -139,7 +145,7 @@ class Codigo3d:
             elif isinstance(i, Insert_Datos):
                 cadenaT += self.t_Insert(i)
             else:
-                aux = SQL(i)
+                aux = SQL(i, ts_global, t_global, ambitoFuncion)
                 aux.generarCadenaSQL()
                 if aux.CadenaSQL is not None:
                     print("PRODUCE SENTENCIA SQL-----------------------------------===2")
@@ -206,19 +212,19 @@ class Codigo3d:
 
         original = "if " + str(condicion) + ": goto ."+verdadero+" else: goto."+falso
         # OPTIMIZACION REGLA 4 y 5
-        #if isinstance(instancia.condicion.exp1, ExpresionValor) and instancia(instancia.condicion.exp2, ExpresionValor):
-        if instancia.condicion.operador == OPERACION_RELACIONAL.IGUALQUE:
-            if instancia.condicion.exp1.val == instancia.condicion.exp2.val:
-                co = "goto ."+verdadero + "- Regla: 4"
-                o = Optimizacion(original, co)
-                listaOpt.append(o)
+        if isinstance(instancia.condicion.exp1, ExpresionValor) and instancia(instancia.condicion.exp2, ExpresionValor):
+            if instancia.condicion.operador == OPERACION_RELACIONAL.IGUALQUE:
+                if instancia.condicion.exp1.val == instancia.condicion.exp2.val:
+                    co = "goto ."+verdadero + "- Regla: 4"
+                    o = Optimizacion(original, co)
+                    listaOpt.append(o)
 
-        original2 = "if " + str(condicion) + ": goto ."+verdadero+" else: goto."+falso
-        if instancia.condicion.operador == OPERACION_RELACIONAL.IGUALQUE:
-            if instancia.condicion.exp1.val != instancia.condicion.exp2.val:
-                co = "goto ."+falso + "- Regla: 5"
-                o = Optimizacion(original2, co)
-                listaOpt.append(o)
+            original2 = "if " + str(condicion) + ": goto ."+verdadero+" else: goto."+falso
+            if instancia.condicion.operador == OPERACION_RELACIONAL.IGUALQUE:
+                if instancia.condicion.exp1.val != instancia.condicion.exp2.val:
+                    co = "goto ."+falso + "- Regla: 5"
+                    o = Optimizacion(original2, co)
+                    listaOpt.append(o)
 
         return cadenaIf
 
@@ -759,6 +765,10 @@ class Codigo3d:
             return procesar_constante(expresiones, ts)
         elif isinstance(expresiones, SelectExpresion):
             return self.procesar_select_expresion(expresiones, ts)
+        elif isinstance(expresiones, SubSelect2):
+            v, c = self.procesar_select2(expresiones, ts)
+            cadenaExpresion += c
+            return v, cadenaExpresion
         elif isinstance(expresiones, AccesoSubConsultas):
             return self.procesar_expresion(expresiones.Query, ts)
         elif isinstance(expresiones, EjecucionFuncion):
@@ -962,6 +972,20 @@ class Codigo3d:
         print(expresion)
         exp = expresion.listaCampos[0].Columna
         return self.procesar_expresion(exp, ts)
+
+    def procesar_select2(self, expresion: SubSelect2, ts):
+        global ts_global, t_global, ambitoFuncion
+        cadena = ""
+        aux = SQL(expresion, ts_global, t_global, ambitoFuncion)
+        aux.CadenaSQL = aux.GrafoSubSelect2(expresion.Lista_Campos, expresion.Nombres_Tablas, expresion.Cuerpo)
+        if aux.CadenaSQL is not None:
+            print("PRODUCE SENTENCIA SQL-----------------------------------===")
+            # print(str(aux.CadenaSQL))
+            cadena += "\n" + self.t_sentenciaSQL(aux)
+            return "heap[-1]", cadena
+        else:
+            print("NO TRADUCE....")
+        return "", ""
 
     def procesar_ejecucion_funcion(self, expresion: EjecucionFuncion, ts):
         global t_global, cadena, cadenaFuncion, ambitoFuncion, cadenaExpresion, listaAsignaciones, listaOpt

@@ -6,10 +6,9 @@ from six import string_types
 from errores import *
 from random import *
 from expresiones import *
-
 from prettytable import PrettyTable
 
-
+heap = []
 LisErr = TablaError([])
 ts_global = TS.TablaDeSimbolos()
 Lista = []
@@ -23,7 +22,6 @@ listaGeneralSubQuery = []
 
 #Lista los datos retornados pode cada una de las posibles condiciones
 Modificaciones={}
-
 
 
 Lista.append(Ejecucion)
@@ -67,6 +65,7 @@ def mostrarConsulta(resultado):
         tabla.add_column(key, val)
 
     imprir(str(tabla))
+    listaGeneral.clear()
 
 
 #Ingresan campos y tablas
@@ -2764,7 +2763,7 @@ class Select2(Instruccion) :
 
     def Ejecutar(self):
 
-        global ts_global, baseActual
+        global ts_global, baseActual, heap
         global LisErr
         listaConsultados = []
         contadorCol = 0
@@ -4071,6 +4070,18 @@ class Select2(Instruccion) :
                         LisErr.agregar(er)
 
         listaling = AlinearDatos(listaGeneral)
+        resultSelect = None
+
+        for element in listaling:
+            for ele in listaling[element]:
+                resultSelect = ele
+                break
+            break
+
+        if resultSelect is not None:
+            heap.append(resultSelect)
+        else:
+            heap.append(0)
         #print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
         #print(listaling)
 
@@ -6583,9 +6594,9 @@ class SelectExpresion(Instruccion):
                     numero += 1
 
 
+        listaAux = AlinearDatos(listaGeneral)
 
-
-        mostrarConsulta(listaGeneral)
+        mostrarConsulta(listaAux)
         listaGeneral.clear()
 
 
@@ -6923,7 +6934,7 @@ class Insert_Datos(Instruccion):
                                 elif str(temporal[index].tipo).upper() == 'BOOLEAN'and (str(cc.val).upper() == 'TRUE' or str(cc.val).upper() == 'FALSE'):
                                     imprir("INSERT BD: Parametros correctos, insertar")
                                     banderaInsert = True
-                                elif int(resultado) > 0 and (str(temporal[index].tipo).upper() == 'SMALLINT' or str(temporal[index].tipo).upper() == 'INTEGER' or str(temporal[index].tipo).upper() == 'INT' or str(temporal[index].tipo).upper() == 'BIGINT' or str(temporal[index].tipo).upper() == 'DECIMAL' or str(temporal[index].tipo).upper() == 'REAL' or str(temporal[index].tipo).upper() == 'FLOAT' or str(temporal[index].tipo).upper() == 'MONEY'):
+                                elif int(str(resultado)) >= -9999999999 and (str(temporal[index].tipo).upper() == 'SMALLINT' or str(temporal[index].tipo).upper() == 'INTEGER' or str(temporal[index].tipo).upper() == 'INT' or str(temporal[index].tipo).upper() == 'BIGINT' or str(temporal[index].tipo).upper() == 'DECIMAL' or str(temporal[index].tipo).upper() == 'REAL' or str(temporal[index].tipo).upper() == 'FLOAT' or str(temporal[index].tipo).upper() == 'MONEY'):
                                     #print(" >>> Parametros correctos, insertar")
                                     banderaInsert = True
                                 else:

@@ -157,6 +157,10 @@ class Aplicacion:
     def Ejecucion(self):
         Gram.Ejecucion()
 
+        if len(Lista) > 0:
+            self.consola.insert('insert', Lista[0])
+        else:
+            return
 
 
     def graficaTabla(self):
