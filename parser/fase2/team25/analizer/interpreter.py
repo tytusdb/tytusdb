@@ -149,5 +149,5 @@ def generar_codigo_3d(entrada):
         "semantic": semanticErrors,
         "symbols": symbols,
     }
-    #BnfGrammar.grammarReport2() # ! DESCOMENTAR EN EL COMMIT FINAL :v
+    BnfGrammar.grammarReport2() # ! DESCOMENTAR EN EL COMMIT FINAL :v
     return obj
