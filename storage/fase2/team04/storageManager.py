@@ -16,6 +16,16 @@ import re
 import codificar
 from random import randint
 
+#Para la password
+import base64
+import os
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+#para encriptar y desencriptar
+from cryptography.fernet import Fernet
+
 MODES = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
 HEX_SYMBOLS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]
 VALID_ENCODING = ["utf8", "iso-8859-1", "ascii"]
@@ -781,3 +791,253 @@ def dropTable(database,table):
                 return 1
             break
     return result
+
+# Descripción:
+#     Elimina una tabla especificada en una base de datos con el nombre y modo especificados.
+# Parámetros:
+#     database:str - El nombre de la base de datos que se va a utilizar
+#     table:str - El nombre de la tabla que se desea eliminar
+#     mode:str - El modo que debe tener la base de datos que se va a utilizar
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error durante la operación
+#     2 - database no existe
+#     3 - table no existe
+def __drop_table_sp(database, table, mode):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    if databases.find_table(database, table) == None:
+        return 3
+    for db in dbs:
+        if db.mode == mode == "avl":
+            result = avlMode.dropTable(database, table)
+        elif db.mode == mode == "b":
+            result = BMode.dropTable(database, table)
+        elif db.mode == mode == "bplus":
+            result = BPlusMode.dropTable(database, table)
+        elif db.mode == mode == "dict":
+            result = DictMode.dropTable(database, table)
+        elif db.mode == mode == "isam":
+            result = ISAMMode.dropTable(database, table)
+        elif db.mode == mode == "json":
+            result = jsonMode.dropTable(database, table)
+        elif db.mode == mode == "hash":
+            result = HashMode.dropTable(database, table)
+        else:
+            continue
+        if result != 3:
+            if result == 0:
+                db.tables.delete(table)
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        return result
+                    except:
+                        break
+                return 1
+            break
+    return result
+
+def extractRow(database, table, columns):
+    db = databases.search(database)
+    if    db == None:
+        return 2
+    if db.mode == "avl":
+        result = avlMode.extractRow(database, table, columns)
+    elif db.mode == "b":
+        result = BMode.extractRow(database, table, columns)
+    elif db.mode == "bplus":
+        result = BPlusMode.extractRow(database, table, columns)
+    elif db.mode == "dict":
+        result = DictMode.extractRow(database, table, columns)
+    elif db.mode == "isam":
+        result = ISAMMode.extractRow(database, table, columns)
+    elif db.mode == "json":
+        result = jsonMode.extractRow(database, table, columns)
+    elif db.mode == "hash":
+        result = HashMode.extractRow(database, table, columns)
+    return result
+
+def update(database, table, register, columns):
+    db = databases.search(database)
+    if db == None:
+        return 2
+    if db.mode == "avl":
+        result = avlMode.update(database, table, register, columns)
+    elif db.mode == "b":
+        result = BMode.update(database, table, register, columns)
+    elif db.mode == "bplus":
+        result = BPlusMode.update(database, table, register, columns)
+    elif db.mode == "dict":
+        result = DictMode.update(database, table, register, columns)
+    elif db.mode == "isam":
+        result = ISAMMode.update(database, table, register, columns)
+    elif db.mode == "json":
+        result = jsonMode.update(database, table, register, columns)
+    elif db.mode == "hash":
+        result = HashMode.update(database, table, register, columns)
+    return result
+
+def truncate(database, table):
+    db = databases.search(database)
+    if db == None:
+        return 2
+    if db.mode == "avl":
+        result = avlMode.truncate(database, table)
+    elif db.mode == "b":
+        result = BMode.truncate(database, table)
+    elif db.mode == "bplus":
+        result = BPlusMode.truncate(database, table)
+    elif db.mode == "dict":
+        result = DictMode.truncate(database, table)
+    elif db.mode == "isam":
+        result = ISAMMode.truncate(database, table)
+    elif db.mode == "json":
+        result = jsonMode.truncate(database, table)
+    elif db.mode == "hash":
+        result = HashMode.truncate(database, table)
+    return result
+
+def alterAddPK(database, table, columns):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    for db in dbs:
+        if db.mode == "avl":
+            result = avlMode.alterAddPK(database, table, columns)
+        elif db.mode == "b":
+            result = BMode.alterAddPK(database, table, columns)
+        elif db.mode == "bplus":
+            result = BPlusMode.alterAddPK(database, table, columns)
+        elif db.mode == "dict":
+            result = DictMode.alterAddPK(database, table, columns)
+        elif db.mode == "isam":
+            result = ISAMMode.alterAddPK(database, table, columns)
+        elif db.mode == "json":
+            result = jsonMode.alterAddPK(database, table, columns)
+        elif db.mode == "hash":
+            result = HashMode.alterAddPK(database, table, columns)
+        if result != 3:
+            if result == 0:
+                db.tables.search(table).pk += columns
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        return result
+                    except:
+                        break
+                return 1
+            break
+    return result
+
+#Descripcion:
+#	Crifra el texto backup con la llave password y devuelve el criptograma. Se puede utilizar cualquier método y biblioteca. (UPDATE)
+#Parámetro
+#	backup: es el nombre de la base de datos a utilizar.
+#Valor de retorno:
+#	0 operación exitosa
+#	1 error en la operación.
+def encrypt(backup: str, password: str):
+	try:
+		if type(backup) == bytes:
+			print(type(backup))
+			print(backup)
+			#Generar una llave con el password ingresado
+			password_provided = password
+			passwordB = password_provided.encode() #convertido a byte
+
+			salt = b"\x1c(\xe8\xe0J^\xd9\x81~f\n\xc9\xe3'\xdb\xf3" # este salt = os.urandom(16)
+			print(salt)
+
+			kdf = PBKDF2HMAC(
+				algorithm=hashes.SHA256(),
+				length=32,
+				salt=salt,
+				iterations=100000,
+				backend=default_backend()
+			)
+
+			#Llave generada
+			key = base64.urlsafe_b64encode(kdf.derive(passwordB))#solo se puede usar kdf una vez
+			print(key)
+
+			#Cifrar el mensaje
+			f = Fernet(key)
+			encrip = f.encrypt(backup)
+			print("msg cifrado:",encrip)
+			return encrip
+
+		#Conversion backup a str
+		elif type(backup) == str:
+
+			#nueva Llave
+			new_backup = bytes(backup, encoding="utf-8")
+			print(type(new_backup))
+			#Generar una llave con el password ingresado
+			password_provided = password
+			passwordB = password_provided.encode() #convertido a byte
+			salt = b"\x1c(\xe8\xe0J^\xd9\x81~f\n\xc9\xe3'\xdb\xf3" # este salt = os.urandom(16)
+			print(salt)
+
+			kdf = PBKDF2HMAC(
+				algorithm=hashes.SHA256(),
+				length=32,
+				salt=salt,
+				iterations=100000,
+				backend=default_backend()
+			)
+			#Llave generada
+			key = base64.urlsafe_b64encode(kdf.derive(passwordB))#solo se puede usar kdf una vez
+			print(key)
+
+			#Cifrar el mensaje
+			f = Fernet(key)
+			encrip = f.encrypt(new_backup)
+			print("msg cifrado:",encrip)
+			return encrip
+		else:
+			print("error tipo backup")
+			return 1 #error
+	except:
+		return 1 #error
+
+# Descripcion:
+# 	Descrifra el texto cipherBackup con la llave password y devuelve el texto plano. Se puede utilizar cualquier método y biblioteca. (UPDATE)
+# Parámetros:
+# 	cipherBackup: es el nombre de la base de datos a utilizar.
+# Valor de retorno:
+#	0 operación exitosa
+#	1 error en la operación.
+def decrypt(cipherBackup: str, password: str):
+	print("\n")
+	try:
+		#Generar una llave con el password ingresado
+		password_provided = password
+		passwordB = password_provided.encode() #convertido a byte
+
+		salt = b"\x1c(\xe8\xe0J^\xd9\x81~f\n\xc9\xe3'\xdb\xf3" # este salt = os.urandom(16)
+		print(salt)
+
+		kdf = PBKDF2HMAC(
+			algorithm=hashes.SHA256(),
+			length=32,
+			salt=salt,
+			iterations=100000,
+			backend=default_backend()
+		)
+
+		#Llave generada
+		key = base64.urlsafe_b64encode(kdf.derive(passwordB))#solo se puede usar kdf una vez
+		print(key)
+
+		#Desencriptar el mensaje
+		f2 = Fernet(key)
+		desen = f2.decrypt(cipherBackup)
+		print(desen)
+		#desen_str = desen.decode()
+		#print("Mensaje Desencriptado:\n",desen_str)
+		return desen
+
+	except:
+		return 1 #error
