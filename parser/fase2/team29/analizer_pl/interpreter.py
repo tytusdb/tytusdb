@@ -47,7 +47,7 @@ def traducir(input):
         "symbols": symbols,
         "functions": functions,
     }
-    #grammar.InitTree()
+    # grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -92,61 +92,33 @@ def functionsReport(env):
 
 
 s = """ 
-CREATE function foo(i integer) RETURNS integer AS $$
-declare 
-	j integer := -i + 5;
-    texto text := now();
-BEGIN
-	case 
-        when i > -10 then
-            RETURN k;
-        when i < 10 then
-            RETURN texto;
-        else 
-            RETURN k;
-    end case;
-END;
-$$ LANGUAGE plpgsql;
+select * from tbCalificacion;
+select *
+from tbventa where ventaregistrada = false;
+select *
+from tbempleadopuesto
+group by departamento;
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
 
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido,fechaventa
+limit 1;
 
-CREATE DATABASE DBFase2;
-
-USE DBFase2;
-
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
-BEGIN
-INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(foo(texto)),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',foo(md5(texto)),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',foo(md5('texto')),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(texto),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',md5('texto'),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',foo('texto'),1);
-	RETURN texto;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TABLE tbProducto (idproducto integer not null primary key,
-  						 producto varchar(150) not null,
-  						 fechacreacion date not null,
-						 estado integer);
-
-CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
-
-CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
-							 item varchar(100) not null,
-							 punteo integer not null);
-
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-
-INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
-INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
-INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
-INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
-INSERT INTO tbProducto values(5,'WIFI USB',now(),1);
-INSERT INTO tbProducto values(6,'Laptop HP',now(),1);
-INSERT INTO tbProducto values(7,'Teclado Flexible USB',now(),1);
-INSERT INTO tbProducto values(8,'Laptop Samsung','2021-01-02',1);
-
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by 1,2,3
+order by 1;
 """
 
 

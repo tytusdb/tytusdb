@@ -245,6 +245,7 @@ class CreateTable(Instruccion):
         arbol.addc3d(f"{temporal3} = { temporal2}+1")
         arbol.addComen("Asignacion de parametros")
         arbol.addc3d(f"Pila[{temporal3}] = {temporal1}")
+        #  arbol.addc3d(f"Pila[{temporal3}] =\" hellohouse\"")
 
         arbol.addComen("Llamada de funcion")
         arbol.addc3d(f"P = P+2")

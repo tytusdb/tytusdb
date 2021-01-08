@@ -443,7 +443,7 @@ def p_instprocedural(t):
             |   createtbp
             |   droptbp
             |   altertbp
-            |   insertp
+            |   insertpp
             |   updatep
             |   deletep
             |   querypp
@@ -452,7 +452,7 @@ def p_instprocedural(t):
             |   alterindp
             
     """
-    t[0] = t[1]
+    t[0] = inst_procedural(t[1])
 
 #ALTER INDICE DUPLICADO-----------------------------------------------*
 def p_alterindp(p):
@@ -493,15 +493,16 @@ def p_parametrosindp11(p):
     "parametrosindp  :   id id"
     p[0] = p[1] + " " + p[2]
 
-def p_parindp(p):
+def p_parindp(t):
     "parindp :   parindp COMA idind"
-    p[1].append(p[3])
-    for element in p[1]:
-        p[0] += element + ","
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
 
 def p_parindp1(p):
     "parindp :   idind"
-    p[0] = [p[1]]
+    p[0] = p[1]
 
 def p_ownedbyindp(p):
     "ownedbyindp :   OWNED BY parindp"
@@ -516,15 +517,16 @@ def p_dropindp(p):
     "dropindp    :   DROP INDEX concind ifexistsind listaidindp cascrestind PUNTOCOMA"
     p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + p[7]
 
-def p_listaidindp(p):
+def p_listaidindp(t):
     "listaidindp :   listaidindp COMA id"
-    p[1].append(p[3])
-    for element in p[1]:
-        p[0] += element + ","
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
 
 def p_listaidindp1(p):
     "listaidindp :   id"
-    p[0] = [p[1]]
+    p[0] = p[1]
 
 #CREATE INDICE DUPLICADO--------------------------------------------------------------------------------*
 def p_createindp(p):
@@ -543,15 +545,16 @@ def p_createind3p(p):
     "createind3p :   PARA listacolindp PARC indwherep PUNTOCOMA" 
     p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + p[5]
 
-def p_listacolindp(p):
+def p_listacolindp(t):
     "listacolindp    :   listacolindp COMA columnaindp"
-    p[1].append(p[3])
-    for element in p[1]:
-        p[0] += element + ","
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
 
 def p_listacolindp1(p):
     "listacolindp    :   columnaindp"
-    p[0] = [p[1]]
+    p[0] = p[1]
 
 def p_columnaindp(p):
     """
@@ -588,15 +591,16 @@ def p_indnotp1(p):
     "indnotp :   "
     p[0] = ""
 
-def p_notcondp(p):
+def p_notcondp(t):
     "notcondp    :   notcondp AND notvalp"
-    p[1].append(p[3])
-    for element in p[1]:
-        p[0] += element + ","
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
 
 def p_notcondp1(p):
     "notcondp    :   notvalp"
-    p[0] = [p[1]]
+    p[0] = p[1]
 
 def p_notvalp(p):
     "notvalp :   id signo id valortipo"
@@ -615,7 +619,7 @@ def p_indwherecondp1(p):
 def p_querypp(t):
     'querypp : queryp com PUNTOCOMA'
     #por el momento 
-    t[0] = t[1]
+    t[0] = ''
     insertProduction(t.slice, len(t.slice))
 
 
@@ -654,64 +658,65 @@ def p_condp(p):
     p[0] = p[1] + " " + p[2] + " " + p[3]
 
 #INSERT DUPLICADO--------------------------------------------------------------------------------------------
-def p_insertp(p):
-    "insertp :   INSERT INTO id colkeyp VALUES PARA valoresp PARC PUNTOCOMA"
+def p_insertpp(p):
+    'insertpp :   INSERT INTO ID colkeypz VALUES PARA lvaloresp PARC PUNTOCOMA'
     p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7] + " " + p[8] + " " + p[9]
 
-def p_colkeyp(p):
-    "colkeyp :   PARA colkey2p PARC"
-    p[0] = p[1] + p[2] + p[3]
+def p_colkeypz(t):
+    'colkeypz : PARA colkey2pz PARC'
+    t[0] = t[1] + t[2] + t[3]
 
-def p_colkeyp1(p):
-    "colkeyp :   "
-    p[0] = ""
+def p_colkeypzEmpty(t):
+    'colkeypz : empty'
+    t[0] = ''
 
-def p_colkeyp2(p):
-    "colkey2p    :   colkey2p COMA id"
-    p[1].append(p[3])
-    for element in p[1]:
-        p[0] += element + ","
+def p_colkey2pz(t):
+    'colkey2pz : colkey2pz COMA ID'
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
 
-def p_colkey2p1(p):
-    "colkey2p    :   id"
-    p[0] = [p[1]]
+def p_colkey2pzSingle(t):
+    'colkey2pz : ID'
+    t[0] = t[1]
 
-def p_valoresp(p):
-    "valoresp    :   valoresp COMA valortipo"
-    p[1].append(p[3])
-    for element in p[1]:
-        p[0] += element + ","
+def p_lvaloresp(t):
+    'lvaloresp : lvaloresp COMA valortipo '
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
 
-def p_valoresp1(p):
-    """
-    valoresp    :   valortipo
-    """
-    p[0] = [p[1]]
+def p_lvalorespSingle(t):
+    'lvaloresp : valortipo'
+    t[0] = t[1]
 
 #ALTER TABLE DUPLICADO------------------------------------------------------------------------------------------------
 def p_altertbp(p):
     "altertbp   :   ALTER TABLE id altertb2p PUNTOCOMA"
     p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5]
 
-def p_altertb2p(p):
+def p_altertb2p(t):
     "altertb2p   :   altertb2p alteracionp"
-    p[1].append(p[2])
-    for element in p[1]:
-        p[0] += element + " "
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
 
 def p_altertb2p1(p):
     "altertb2p   :   alteracionp"
-    p[0] = [p[1]]
+    p[0] = p[1]
 
 def p_alteracionp11111(p):
     """
-    alteracionp  :   FOREIGN KEY colkeyp
-                |   REFERENCES id colkeyp 
+    alteracionp  :   FOREIGN KEY colkeypz
+                |   REFERENCES id colkeypz
     """
     p[0] = p[1] + " " + p[2] + " " + p[3]
 
 def p_alteracionp111(p):
-    "alteracionp :   UNIQUE colkeyp"
+    "alteracionp :   UNIQUE colkeypz"
     p[0] = p[1] + " " + p[2]
 
 def p_alteracionp1111(p):
@@ -729,15 +734,16 @@ def p_alteracionp1(p):
     """
     p[0] = p[1] + " " + p[2] + " " + p[3]
 
-def p_altcolp(p):
+def p_altcolp(t):
     "altcolp :   altcolp COMA alterp"
-    p[1].append(p[3])
-    for element in p[1]:
-        p[0] += element + ","
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
     
 def p_altcolp1(p):
     "altcolp :   alterp"
-    p[0] = [p[1]]
+    p[0] = p[1]
 
 def p_alterp(p):
     "alterp  :   ALTER COLUMN id propaltcolp"
@@ -773,8 +779,8 @@ def p_notnullp1(p):
 def p_keyp(p):
     """
     keyp :   SERIAL PRIMARY KEY
-        |   PRIMARY KEY colkeyp
-        |   FOREIGN KEY colkeyp
+        |   PRIMARY KEY colkeypz
+        |   FOREIGN KEY colkeypz
     """
     p[0] = p[1] + " " + p[2] + " " + p[3]
 
@@ -836,15 +842,16 @@ def p_createtbp(p):
     "createtbp   :   CREATE TABLE id PARA coltbp PARC inheritsp PUNTOCOMA"
     p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7] + " " + p[8]
 
-def p_coltbp(p):
+def p_coltbp(t):
     "coltbp  :   coltbp COMA columnap"
-    p[1].append(p[3])
-    for element in p[1]:
-        p[0] += element + ","
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
 
 def p_coltbp1(p):
     "coltbp  :   columnap"
-    p[0] = [p[1]]
+    p[0] = p[1]
 
 def p_inheritsp(p):
     "inheritsp   :   INHERITS PARA id PARC"
@@ -943,6 +950,7 @@ def p_valortipo(p):
                 |   ID
                 |   DEC
                 |   TEXTO
+                |   VARCHAR
                 |   FALSE
                 |   TRUE
                 |  callfunc
@@ -951,7 +959,17 @@ def p_valortipo(p):
     if isinstance(p[1],llamadaF):
         p[0] = p[1]
     else:
-        p[0] = str(p[1])
+        try :
+            t = float(p[1])
+            p[0] = str(t)
+        except:
+            ''''''
+        if p[0] is None :
+            if p[1].lower() == 'true' or p[1].lower() == 'false':
+                p[0] = p[1].upper()
+            else:
+                p[0] = '\''+str(p[1])+'\''
+
     insertProduction(p.slice, len(p.slice))
 
 def p_valornume(p):

@@ -53,7 +53,7 @@ class Case(Instruction):
                 grammar.optimizer_.addIF_CASE(
                     str(cdtemp.temp),
                     str("labelCase" + str(contLabel) + str(self.ambito)),
-                    self.row
+                    self.row,
                 )
                 contLabel += 1
                 c3d += "\tgoto .labelCase" + str(contLabel) + str(self.ambito) + "\n"
@@ -75,7 +75,7 @@ class Case(Instruction):
             + " \n"
         )
         grammar.optimizer_.addGoto_CASE(
-            str("labelCaseEnd" + str(self.ambito)), self.row,True
+            str("labelCaseEnd" + str(self.ambito)), self.row, True
         )  # contenido del primer case
         if self.elseCase != None:
             for ec2 in self.elseCase:
@@ -111,7 +111,9 @@ class Case(Instruction):
         )
         # contenido del else
         c3d += "\tlabel .labelCaseEnd" + str(self.ambito) + "\n"  # etiqueta final
-        grammar.optimizer_.addLabel_CASE(str("labelCaseEnd" + str(self.ambito)), self.row)
+        grammar.optimizer_.addLabel_CASE(
+            str("labelCaseEnd" + str(self.ambito)), self.row
+        )
         self.codigo = c3d
         return code.C3D(c3d, "case", self.row, self.column)
 

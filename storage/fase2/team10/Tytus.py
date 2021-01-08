@@ -1,10 +1,11 @@
-  
 import os
+import json as Json
 import pickle
 import zlib
 import binascii
 import sys
 from cryptography.fernet import Fernet
+from BlockChain.BlockChain import BlockChain
 
 # 1. UNIFICACION DE INDICES
 from storage.AVLMode import avlMode as avl
@@ -104,7 +105,7 @@ def createTable(database, table, nCols):
         if value != 2:
             for i in databases:
                 if database == i["name"]:
-                    t = {"name": table, "nCols": nCols, "tuples": [], 
+                    t = {"name": table, "nCols": nCols, "tuples": [], "safeMode": False,
                         "fk": None, "iu": None, "io": None}
                     i["tables"].append(t)
                     persistence(databases)
@@ -114,8 +115,8 @@ def createTable(database, table, nCols):
 def showTables(database):
     chargePersistence()
     tables = []
-    for item in structs:
-        value = item.showTables(database)
+    for item in databases:
+        value = item["mod"].showTables(database)
         if value:
             tables.append(value)
             break
@@ -123,7 +124,7 @@ def showTables(database):
 
 def extractTable(database, table):
     chargePersistence()
-    # alterDatabaseDecompress(database)
+    alterDatabaseDecompress(database)
     for item in structs:
         value = item.extractTable(database, table)
         if value is not None:
@@ -214,6 +215,14 @@ def insert(database, table, register):
                             if table == t["name"]:
                                 tupla = {"register": register} 
                                 t["tuples"].append(tupla)
+                                #START BlockChain
+                                i = 0
+                                while i<len(listBlockChain):
+                                    if(listBlockChain[i].getName() == (str(database)+"_"+str(table))):
+                                        listBlockChain[i].addNodeNoSecure(register)
+                                        listBlockChain[i].generateJsonSafeMode()
+                                    i += 1
+                                #END BlockChain
                                 persistence(databases)
                                 return value
         else:
@@ -236,19 +245,42 @@ def loadCSV(fileCSV, db, table):
             return value
     return value
 
-def update(database, table,  register, columns):
+def update(database, table, register, columns):
     for item in structs:
         value = item.update(database, table, register, columns)
+        # START BlockChain
+        i = 0
+        while i<len(listBlockChain):
+            if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
+                j = 0
+                tuplesBlockChain = listBlockChain[i].getListValues()
+                tuples = extractTable("ventas", "producto")
+                while j < len(tuplesBlockChain):
+                    k = 0
+                    newValue = ""
+                    while k < len(tuples):
+                        if tuples[k] not in tuplesBlockChain:
+                            newValue = tuples[k]
+                        k += 1
+
+                    if tuplesBlockChain[j] not in tuples:#.getValue()
+                        listBlockChain[i].alterValueNode(newValue, j)
+                        listBlockChain[i].generateJsonSafeMode()
+                    j += 1
+                break    
+            i += 1
+        # END BlockChain
         if value != 2:
             for i in databases:
                 if database == i["name"]:
                     for t in i["tables"]:
                         if table == t["name"]:
                             for tup in t["tuples"]:
-                                index = 0
-                                for key in register:
-                                    index = key
-                                tup["register"][index] = register[1]
+                                if tup["register"][0] == columns[0]:
+                                    index = 0
+                                    for key in register:
+                                        index = key
+                                    tup["register"][index] = register[index]
                         persistence(databases)
                         return value
     return 2
@@ -391,6 +423,7 @@ def alterDatabaseCompress(database, level):
         for db in databases:
             if db["name"] == database:
                 for table in db["tables"]:
+                    changueMode(databases)
                     tableCopy = table.copy()
                     table["tuples"] = []
                     db["mod"].truncate(db["name"], table["name"])
@@ -402,8 +435,6 @@ def alterDatabaseCompress(database, level):
                                 register = zlib.compress(text, level)
                             newRegister.append(register)
                         insert(db['name'], table["name"], newRegister)
-            else:
-                return 2
         return 0
     except:
         return 1
@@ -414,6 +445,7 @@ def alterDatabaseDecompress(database):
         for db in databases:
             if db["name"] == database:
                 for table in db["tables"]:
+                    changueMode(databases)
                     tableCopy = table.copy()
                     table["tuples"] = []
                     db["mod"].truncate(db["name"], table["name"])
@@ -426,8 +458,6 @@ def alterDatabaseDecompress(database):
                                 isCompressed = True
                             newRegister.append(register)
                         insert(db['name'], table["name"], newRegister)
-            else:
-                return 2
         if not isCompressed:
             return 3
         return 0
@@ -441,6 +471,7 @@ def alterTableCompress(database, table, level):
         for db in databases:
             if db["name"] == database:
                 for t in db["tables"]:
+                    changueMode(databases)
                     if t["name"] == table:
                         tableCopy = t.copy()
                         t["tuples"] = []
@@ -555,3 +586,97 @@ def changueMode(database, isPersistence = False):
             i["mod"] = json
         if isPersistence:
             databases.append(i)
+            
+#generar el grafo reporte del block chain
+def generateGraphBlockChain(database, table):
+    i = 0
+    fileName = str(database)+"_"+str(table)+"BC"
+    while i < len(listBlockChain):
+        if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
+            data = listBlockChain[i].generateGraph()
+            with open(fileName+".dot", "w") as file:
+                file.write(data)
+            os.system("dot -Tpng "+fileName+".dot"+" -o "+fileName+".png")
+            break
+            
+        else:
+            print("No se encontro el Block Chain de la tabla indicada")
+        i += 1  
+      
+    ### WORK BLOCKCHAIN ###
+"""
+    @description 
+        Activa el modo seguro para una tabla de una base de datos
+    @param
+        database: Nombre de la base de datos a utilizar
+        table: Nombre de la tabla a utilizar
+    @return 
+        0: Operación exitosa
+        1: Error en la operación
+        2: database inexistente
+        3: table inexistente
+        4: Modo seguro inexistente
+"""
+def safeModeOn(database, table):
+    try:
+        for db in databases:
+            #verifica si la base de datos existe
+            if db.get("name") == database:
+                for tb in db.get("tables"):
+                    #verifica si la tabla existe
+                    if tb.get("name") == table:
+                        #verifica si el modo seguro esta activado
+                        if tb.get("safeMode"):
+                            #Modo seguro existente
+                            return 4
+                        tb["safeMode"] = True
+                        #_________________________________________________________
+                        bc = BlockChain(str(database)+"_"+str(table))
+                        for tp in tb.get("tuples"):
+                            bc.addNode(tp.get("register"))
+                        bc.generateJsonSafeMode()
+                        listBlockChain.append(bc)
+                        #_________________________________________________________
+                #tabel inexistente
+                return 3
+        #database inexistente
+        return 2
+    except:
+        #Error en la operación
+        return 1
+
+"""
+    @description
+        Desactiva el modo en la tabla especificada de la base de datos
+    @param
+        database: Nombre de la base de datos a utilizar
+        table: Nombre de la tabla a utilizar
+    @return 
+        0: Operación exitosa
+        1: Error en la operación
+        2: database inexistente
+        3: table inexistente
+        4: modo seguro no inexistente
+"""
+def safeModeOff(database, table):
+    try:
+        for db in databases:
+            #verifica si la base de datos existe
+            if db.get("name") == database:
+                for tb in db.get("tables"):
+                    #verifica si la tabla existe
+                    if tb.get("name") == table:
+                        #verifica si el modo seguro esta activado
+                        if tb.get("safeMode"):
+                            tb["safeMode"] = False
+                            os.remove('BlockChain\\'+str(database)+'_'+str(table)+'.json')
+                            return 0
+                        #Modo seguro no existente
+                        return 4
+                #tabel inexistente
+                return 3
+        #database inexistente
+        return 2
+    except:
+        #Error en la operación
+        return 1

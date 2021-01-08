@@ -14,7 +14,7 @@ class Quadruple:
     T_LABEL_CASE = 10
     T_GOTO_CASE = 11
 
-    def constructor_1(self, Elem1, Elem2, Elem3, op, type, l,tab):
+    def constructor_1(self, Elem1, Elem2, Elem3, op, type, l, tab):
         self.Elem1 = Elem1
         self.Elem2 = Elem2
         self.resultado = Elem3
@@ -33,7 +33,7 @@ class Quadruple:
             "+": 11,
             "and": 12,
             "or": 13,
-            "= not":14,
+            "= not": 14,
             "": -1,
         }
         self.tab = tab
@@ -60,7 +60,13 @@ class Quadruple:
         elem3 = Element()
         elem1.copy(Quadruple.resultado)
         self.constructor_1(
-            elem1, elem2, elem3, Quadruple.operador, Quadruple.type, Quadruple.line,Quadruple.tab
+            elem1,
+            elem2,
+            elem3,
+            Quadruple.operador,
+            Quadruple.type,
+            Quadruple.line,
+            Quadruple.tab,
         )
         self.typeOpt = Quadruple.typeOpt
 
@@ -87,7 +93,7 @@ class Quadruple:
 
         signo = switcher.get(self.operador, "?")
         switcher_type = {
-            1:str(self.resultado)
+            1: str(self.resultado)
             + " = "
             + str(self.Elem1)
             + " "
@@ -99,12 +105,12 @@ class Quadruple:
             4: "if " + str(self.Elem1) + ": goto ." + str(self.resultado),
             5: str(self.Elem1),
             6: str(self.resultado) + " = " + str(self.Elem1),
-            9: "if "+str(self.Elem1) + ": goto ." + str(self.resultado),
+            9: "if " + str(self.Elem1) + ": goto ." + str(self.resultado),
             10: "label ." + str(self.resultado),
-            11: "goto ." + str(self.resultado),       
+            11: "goto ." + str(self.resultado),
         }
-        
+
         ret = switcher_type.get(self.type, "//--")
         if self.tab:
-            ret = "\t"+ret
+            ret = "\t" + ret
         return ret

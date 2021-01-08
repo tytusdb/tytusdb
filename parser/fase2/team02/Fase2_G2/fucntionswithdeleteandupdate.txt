@@ -1,0 +1,39 @@
+CREATE TABLE tbProducto (idproducto integer not null primary key,
+  						 producto varchar(150) not null,
+  						 fechacreacion date not null,
+						 estado integer);
+
+INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
+INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
+INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
+INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
+INSERT INTO tbProducto values(5,'WIFI USB',now(),1);
+INSERT INTO tbProducto values(6,'Laptop HP',now(),1);
+INSERT INTO tbProducto values(7,'Teclado Flexible USB',now(),1);
+INSERT INTO tbProducto values(8,'Laptop Samsung','2021-01-02',1);
+
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+
+delete from tbProducto where producto = 'WIFI USB';
+END;
+$$ LANGUAGE plpgsql;
+
+ 
+CREATE FUNCTION ValidaRegistros2(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+
+	update tbProducto set estado = 4 where idproducto = 4; 
+select*from tbProducto;
+
+END;
+$$ LANGUAGE plpgsql;
+
+execute ValidaRegistros('tbProducto',3) ;
+execute ValidaRegistros2('tbProducto',3) ;
+
