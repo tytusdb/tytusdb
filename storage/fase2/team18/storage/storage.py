@@ -995,6 +995,20 @@ def truncate(database: str, table: str) -> int:
     except:
         return 1
 
+def encrypt(backup:str, password: str):
+    checkData()
+    try:
+        return crypt.encrypt(backup, password, password)
+    except:
+        return None
+
+def decrypt(backup:str, password: str):
+    checkData()
+    try:
+        return crypt.decrypt(backup, password, password)
+    except:
+        return None
+    
 #----------------Compress-------------------#
 
 def alterDatabaseCompress(database, level):
