@@ -3,6 +3,7 @@ from analizer.typechecker.Metadata import File
 from analizer.typechecker.Metadata import Struct
 from analizer.reports.Nodo import Nodo
 
+
 class AlterIndex(instruction.Instruction):
     def __init__(self, name, exists, newName, row, column, idOrNumber=None):
         instruction.Instruction.__init__(self, row, column)
@@ -12,6 +13,7 @@ class AlterIndex(instruction.Instruction):
         self.id = idOrNumber
 
     def execute(self, environment):
+        Struct.load()
         Index = File.importFile("Index")
         exists = Index.get(self.name)
         result = []
