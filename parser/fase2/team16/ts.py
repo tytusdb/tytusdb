@@ -233,57 +233,118 @@ class TablaDeSimbolos():
             ob: CrearIndice = self.obtenerIndice(id_indice)
 
 
+            if (isinstance(no_col,int)):
+                # buscamos la columna con el numero asociado
+                for l in ob.columnas:
 
-            # buscamos la columna con el numero asociado
-            for l in ob.columnas:
+                    if (Contador == no_col):
 
-                if (Contador == no_col):
+                        print("Este editaremos")
+                        self.Indices[id_indice].columnas[Contador].statistics = Tipo
+                        print("Se cambia el dato de la columna por el nuevo")
 
-                    print("Este editaremos")
-                    self.Indices[id_indice].columnas[Contador].statistics = Tipo
-                    print("Se cambia el dato de la columna por el nuevo")
+                        # buscar la tabla que contiene indice
+                        nombret = self.Indices[id_indice].id_tabla
+                        tabla: CreateTable = self.obtenerTabla(nombret)
 
+                        if nombret is not None:
+                            Contador2 = 0
+                            # Recorrer la lista columnas  Segun indice
 
-                    #buscar la tabla que contiene indice
-                    nombret = self.Indices[id_indice].id_tabla
-                    tabla:CreateTable = self.obtenerTabla(nombret)
+                            if (isinstance(Tipo, int)):
+                                for col in tabla.cuerpo:
+                                    if Contador2 == Tipo:
+                                        nuevacol = col.id
+                                        self.Indices[id_indice].columnas[no_col].id_columna = str(nuevacol)
+                                        print("Este cambio hisee  INT <<<<<<<<<<<<")
+                                        print(str(nuevacol))
+                                        print("Este cambio hisee  INT <<<<<<<<<<<< 2")
+                                        print(str(self.Indices[id_indice].columnas[no_col].id_columna))
 
-                    if nombret is not None:
-                        Contador2=0
-                        #Recorrer la lista columnas  Segun indice
+                                    Contador2 += 1
+                                # buscar el indice que nos mandan
 
-                        if(isinstance(Tipo,int)):
-                            for col in tabla.cuerpo:
-                                if Contador2 == Tipo:
-                                    nuevacol = col.id
-                                    self.Indices[id_indice].columnas[no_col].id_columna = str(nuevacol)
-                                    print("Este cambio hisee  INT <<<<<<<<<<<<")
-                                    print(str(nuevacol))
-                                    print("Este cambio hisee  INT <<<<<<<<<<<< 2")
-                                    print(str(self.Indices[id_indice].columnas[no_col].id_columna))
-
-                                Contador2 += 1
-                            # buscar el indice que nos mandan
-
-                        elif(isinstance(Tipo,string_types )):
-                            for col in tabla.cuerpo:
-                                if Tipo == col.id:
-                                    nuevacol = col.id
-                                    self.Indices[id_indice].columnas[no_col].id_columna = str(nuevacol)
-                                Contador2+=1
-                            # buscar el indice que nos mandan
+                            elif (isinstance(Tipo, string_types)):
+                                for col in tabla.cuerpo:
+                                    if Tipo == col.id:
+                                        nuevacol = col.id
+                                        self.Indices[id_indice].columnas[no_col].id_columna = str(nuevacol)
+                                    Contador2 += 1
+                                # buscar el indice que nos mandan
+                            else:
+                                print("No se que error")
                         else:
-                            print("No se que error")
-                    else:
-                        print("Tabla no existe")
+                            print("Tabla no existe")
+
+                    Contador += 1
 
 
+            elif(isinstance(no_col,string_types)):
+
+                # buscamos la columna con el numero asociado
+                for l in ob.columnas:
+
+                    if (l.id_columna == no_col):
+
+                        print("Este editaremos")
+                        self.Indices[id_indice].columnas[Contador].statistics = Tipo
+                        print("Se cambia el dato de la columna por el nuevo")
+
+                        # buscar la tabla que contiene indice
+                        nombret = self.Indices[id_indice].id_tabla
+                        tabla: CreateTable = self.obtenerTabla(nombret)
+
+                        if nombret is not None:
+                            Contador2 = 0
+                            # Recorrer la lista columnas  Segun indice
+
+                            if (isinstance(Tipo, int)):
+                                for col in tabla.cuerpo:
+                                    if Contador2 == Tipo:
+                                        nuevacol = col.id
+
+                                        #recorremos para encontrar el dato enviado en el indice
+
+                                        Conta=0
+                                        for dai in self.Indices[id_indice].columnas:
+                                            if(dai.id_columna == no_col):
+                                                #si encuentra el dato
+                                                self.Indices[id_indice].columnas[Conta].id_columna = str(nuevacol)
+                                                print("Este cambio hisee  INT <<<<<<<<<<<<")
+                                                print(str(nuevacol))
+                                                print("Este cambio hisee  INT <<<<<<<<<<<< 2")
+                                                print(str(self.Indices[id_indice].columnas[Conta].id_columna))
+                                            Conta+=1
+
+                                    Contador2 += 1
+                                # buscar el indice que nos mandan
+
+                            elif (isinstance(Tipo, string_types)):
+                                for col in tabla.cuerpo:
+                                    if Tipo == col.id:
+                                        nuevacol = col.id
+                                        #Recorremos para ver si es la columna
+                                        Conta=0
+                                        for dai in self.Indices[id_indice].columnas:
+                                            if(dai.id_columna == no_col):
+                                                #si encuentra el dato
+                                                self.Indices[id_indice].columnas[Conta].id_columna = str(nuevacol)
+                                                print("Este cambio hisee  STRING <<<<<<<<<<<<")
+                                                print(str(nuevacol))
+                                                print("Este cambio hisee  STRING <<<<<<<<<<<< 2")
+                                                print(str(self.Indices[id_indice].columnas[Conta].id_columna))
+                                            Conta+=1
+                                    Contador2 += 1
+                                # buscar el indice que nos mandan
+                            else:
+                                print("No se que error")
+                        else:
+                            print("Tabla no existe")
+                    Contador += 1
+            else:
+                print("Es otro tipo de dato.. ")
 
 
-
-
-
-                Contador += 1
 
 
 
