@@ -58,10 +58,11 @@ class Update(ASTNode):
         for update in self.update_list:
             updates_str = f'{updates_str}{update.generate(table, tree)},'
 
-        return Quadruple(None, f'UPDATE {self.table_name} SET {updates_str[:-1]} '
-                               f'{self.where.generate(table, tree) if self.where is not None else ""};'
-                         , None, generate_tmp(), OpTAC.CALL)
-
+        quad = Quadruple(None,'exec_sql', f'"UPDATE {self.table_name} SET {updates_str[:-1]} '
+                               f'{self.where.generate(table, tree) if self.where is not None else ""};"'
+                         , generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 class UpdateItem(ASTNode):
     def __init__(self, column_name, exp, line, column, graph_ref):

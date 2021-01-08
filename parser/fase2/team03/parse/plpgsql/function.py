@@ -10,14 +10,17 @@ class Function(ASTNode):
         ASTNode.__init__(self, line, column)
         self.name = name
         self.parameters = parameters
-        self.returntype = returntype
+        self.returntype = returntype #if is None this instance repreents a Store Procedure
         self.body = body
         self.graph_ref = graph_ref
 
     def execute(self, table, tree):# this execute must return tac list
         super().execute(table, tree)
         self.generate(table, tree)
-        return f'Function {self.name} created.'
+        if self.returntype is None:
+            return f'Store Procedure -{self.name}- created.'
+        else:            
+            return f'Function -{self.name}- created.'
     #for this test tree will contains the thre address code list
     #pay atention in the order to call genrate function for each childnode because it will affect the TAC list (order of eleents)
     def generate(self, table, tree):  
@@ -48,13 +51,21 @@ class Function(ASTNode):
         #add this functi on to ST
         currDB = table.get_current_db()
         #TODO: set params
-        tac_file_name = f'{currDB.name}_func_{self.name}'
-        sym = FunctionSymbol(currDB.id, self.name, labelname, paramCounter, tac_file_name )
+        tac_file_name = ''
+        sym = None
+        if self.returntype is None:
+            tac_file_name = f'{currDB.name}_proc_{self.name}'
+            sym = ProcedureSymbol(currDB.id, self.name, labelname, paramCounter, tac_file_name )
+        else:
+            tac_file_name = f'{currDB.name}_func_{self.name}'
+            sym = FunctionSymbol(currDB.id, self.name, labelname, paramCounter, tac_file_name )
         table.add(sym)        
         #write File.py
         Save_TAC_obj(tac_file_name, tree)
-        
-        return f'Function -{self.name}- created.'
+        if self.returntype is None:
+            return f'Store Procedure -{self.name}- created.'
+        else:
+            return f'Function -{self.name}- created.'
 
 
 class FunctionBody(ASTNode):    
@@ -159,13 +170,14 @@ class Return(ASTNode):
 
 
 class FuncCall(ASTNode):
-    def __init__(self, func_name, param_list, line, column, graph_ref):
+    def __init__(self, func_name, param_list, is_fun_proc: SymbolType, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.func_name = func_name
         self.param_list = param_list     
         self.graph_ref = graph_ref
         self.qlist = None
         self.tempTSymbol = None
+        self.is_fun_proc = is_fun_proc
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -174,18 +186,19 @@ class FuncCall(ASTNode):
         #Execute file
         #return value
         if isinstance(table,SymbolType):
-            funcObj = table.get(self.func_name, SymbolType.FUNCTION)
+            funcObj = table.get(self.func_name, self.is_fun_proc)
         else:
             from grammarReview import ST
-            funcObj = ST.get(self.func_name, SymbolType.FUNCTION)
+            funcObj = ST.get(self.func_name, self.is_fun_proc)
         tac_modue = __import__(funcObj.tac_file_name)
         
         #set parms to pseudo tack? ore heap? i don't now how is it
-        #TODO maybe some type validation ?¿
-        if len(self.param_list) != funcObj.number_params:
-            raise Error(self.line, self.column, ErrorType.SEMANTIC,f'La cantidad de parametros propocionada no coincide con la cantidad de parametros definidos en la función ({funcObj.number_params})')
+        #TODO maybe some type validation ?¿        
 
         if isinstance(self.param_list, list):
+            if len(self.param_list) != funcObj.number_params:
+                raise Error(self.line, self.column, ErrorType.SEMANTIC,f'La cantidad de parametros propocionada no coincide con la cantidad de parametros definidos en ({funcObj.number_params})')
+            
             #revert the order             
             self.param_list.reverse()
             for p in self.param_list:

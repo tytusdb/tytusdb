@@ -976,6 +976,8 @@ def p_stm_execute(t):
                     |  EXECUTE    ID PARA  TEXTO  TEXTO COMA column_list PARC  USING  group_list                     
                     |  EXECUTE    ID PARA  TEXTO  COMA  column_list  PARC  
                     |  EXECUTE    expression
+                    |  EXECUTE    ID PARA exp_list PARC
+                    |  EXECUTE    ID PARA PARC
                          '''
 
     token = t.slice[1]
@@ -1040,7 +1042,15 @@ def p_stm_execute(t):
         graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2]],childsProduction )
         addCad("**\<STM_EXECUTE>** ::=  tExecute  \<EXPRESSION>     ")
         t[0] = upNodo("token", 0, 0, graph_ref)
-
+    elif len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[4])
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2], t[3], t[5]]) 
+        addCad("**\<STM_EXECUTE>** ::=  tExecute  tIdentifier ‘(’ \<EXP_LIST> ‘)’     ")
+        t[0] = FuncCall(t[2], t[4], SymbolType.STOREPROCEDURE, t.slice[1].lineno, t.slice[1].lexpos)
+    elif len(t) == 5:        
+        graph_ref = graph_node(str("STM_EXECUTE"), [t[1], t[2] ,t[3], t[4]])
+        addCad("**\<STM_EXECUTE>** ::=  tExecute  tIdentifier ‘(’ ‘)’     ")
+        t[0] = FuncCall(t[2], None, SymbolType.STOREPROCEDURE, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 
 def p_stm_get(t):
@@ -1559,6 +1569,7 @@ def p_mode_drop_function_opt(t):
         t[0]=None
 
 ##########   >>>>>>>>>>>>>>>>  CREATE PROCEDURE  <<<<<<<<<<<<<<<<<<<<<<
+#TODO: check graph ref
 def p_stm_create_procedure(t):
     '''stm_create_procedure : CREATE PROCEDURE ID PARA list_param_function_opt PARC LANGUAGE PLPGSQL AS DOLLAR DOLLAR stm_begin PUNTOCOMA DOLLAR DOLLAR'''
     childsProduction  = addNotNoneChild(t,[12])
@@ -1566,9 +1577,10 @@ def p_stm_create_procedure(t):
     if t[5] != None:
         lista = t[5][0]
         childsProduction.append(lista.graph_ref) 
+    srt_report = "**\<STM_CREATE_PROCEDURE>** ::= tCreate tProcedure tIdentifier '(' [\<LIST_PARAM_FUNCTION_OPT>] ')' tLanguage tPlpgsql tAs \<STM_BEGIN> ';' '$$'"
     graph_ref = graph_node(str("stm_create_procedure"), [t[1],t[2],t[3],t[4], lista,t[6],t[7],t[8],t[9],str(t[10]) + str(t[11]),t[12],t[13], str(t[14]) + str(t[15])],  childsProduction )
-    addCad("**\<STM_CREATE_PROCEDURE>** ::= P E N D I E N T E")
-    t[0] = upNodo(True, 0, 0, graph_ref)
+    addCad(srt_report)
+    t[0] = Function(t[3], t[5], None, t[12], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 
 
@@ -3491,7 +3503,7 @@ def p_exp_call_function(t):
         childsProduction.append(lista.graph_ref)
     graph_ref = graph_node(str("stm_call_function"), [t[1],t[2],t[4]],  childsProduction )
     addCad("**\<EXPRESSION>** ::= tIdentifier '(' [\<LIST_PARAM_FUNCTION_OPT>] ')' ")
-    t[0] = FuncCall(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+    t[0] = FuncCall(t[1], t[3], SymbolType.FUNCTION, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 def p_list_param_function_opt2(t):
     '''list_param_function_opt2  : expression_list 
