@@ -1898,34 +1898,43 @@ def p_for3(t):
 def p_create_index1(t):
     '''instruccion : CREATE INDEX ID ON ID PARIZQ lcol PARDER indexWhere PUNTO_COMA
     '''
-    strGram = "<instruccion> ::= INDEX ID ON ID PARIZQ  <lcol> PARDER  <indexWhere> PUNTO_COMA"
+    strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ  <lcol> PARDER  <indexWhere> PUNTO_COMA"
 
-    t[0] = Index.Index(t[3],t[5],t[7],t[9],strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Index.Index(t[3],"Indice",t[7],t[9],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 
 def p_create_index2(t):
     '''
     instruccion : CREATE UNIQUE INDEX ID ON ID PARIZQ lcol PARDER indexWhere PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= CREATE UNIQUE INDEX ID ON ID PARIZQ  <lcol> PARDER  <indexWhere> PUNTO_COMA"
     
+    t[0] = Index.Index(t[4],t[6],t[8],t[10],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_create_index3(t):
     '''
     instruccion : CREATE INDEX ID ON ID USING HASH PARIZQ ID PARDER indexWhere PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= CREATE INDEX ID ON ID USING HASH PARIZQ ID PARDER  <indexWhere> PUNTO_COMA"
     
+    t[0] = Index.Index(t[3],t[5],t[9],t[12],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_create_index4(t):
     '''
     instruccion : CREATE INDEX ID ON ID PARIZQ ID NULLS FIRST PARDER indexWhere PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ ID NULLS FIRST PARDER PARDER  <indexWhere> PUNTO_COMA"
     
+    t[0] = Index.Index(t[3],t[5],t[7],t[13],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_create_index5(t):
     '''
     instruccion : CREATE INDEX ID ON ID PARIZQ ID DESC NULLS LAST PARDER indexWhere PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ ID DESC NULLS LAST PARDER  <indexWhere> PUNTO_COMA"
     
+    t[0] = Index.Index(t[3],t[5],t[7],t[13],strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_index_where(t):
     '''
@@ -2051,3 +2060,5 @@ def ejecutar_analisis(texto):
     #se obtiene la acción de analisis sintactico
     print("inicio")
     return parser.parse(texto)
+
+
