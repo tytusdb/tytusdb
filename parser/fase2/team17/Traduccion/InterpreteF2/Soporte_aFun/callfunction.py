@@ -57,8 +57,10 @@ class callfunction(NodoArbol):
                 arbol.addC3D(temp + ' = ' + str(self.identificador) + '(' + argumentos + ')')
             return temp
         except:
+            temp = arbol.getTemp()
             temporal = self.getString(entorno, arbol)
-            return temporal
+            arbol.addC3D(temp + ' = ' + temporal)
+            return temp
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         pass

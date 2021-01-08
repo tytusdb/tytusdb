@@ -24,6 +24,11 @@ class funexecute(NodoArbol):
 
         # codigo soporte para TS
         if arbol.existFun(str(self.header.getID())):
+
+            if arbol.lFun_isINACTIVE(str(self.header.getID())):
+                arbol.covertInactivaeTOactivate(str(self.header.getID()))
+                return
+
             nota = 'Funcion ' + str(self.header.getID()) + ' ya existe, no soporte a sobrecarga'
             reportero = ErroresSemanticos(nota, self.linea, self.columna, 'funexecute')
             arbol.ErroresSemanticos.append(reportero)
@@ -50,9 +55,12 @@ class funexecute(NodoArbol):
             for item in self.stmt_declare:
                 item.traducir(entorno, arbol)
 
-        for item in self.stmt_body:
-            item.traducir(entorno, arbol)
-
+        if self.stmt_body == None:
+            pass
+        else:
+            for item in self.stmt_body:
+                item.traducir(entorno, arbol)
+        arbol.addC3D('pass')
         arbol.resetIdentacion_funciones()
         arbol.switchC3Dmain()
 

@@ -120,3 +120,10 @@ class Arbol:
                 if str(i.estado) == 'INACTIVO':
                     return True
         return False
+
+    def covertInactivaeTOactivate(self, id):
+        for i in self.ReporteTS_Funciones:
+            if str(i.nombre) == str(id):
+                i.estado = 'ACTIVO'
+                return
+        return
