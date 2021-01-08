@@ -9,6 +9,7 @@ from analizadorFase2.Abstractas.Expresion import Tipos
 from analizadorFase2.Abstractas.Primitivo import Primitivo
 from analizadorFase2.Instrucciones.Funcion import Funcion
 from analizadorFase2.Function.FuncionNativa import FuncionNativa
+from analizadorFase2.Function.TipoFunNativa import TipoFunNativa
 from analizadorFase2.Instrucciones.Asignacion import Asignacion
 from analizadorFase2.Operaciones.Operaciones_Aritmeticcas import Operaciones_Aritmeticas
 from analizadorFase2.Operaciones.TiposOperacionesA import TiposOperaciones
@@ -507,7 +508,29 @@ class Generador:
     def compilarFuncionesNativas(self, instruccion):
         '''Aqui se genera el C3D de las funciones nativas '''
         #PRIMERO DETECTAR QUE TIPO DE FUNCION ES 
-        if instruccion.TipoFunNativa == 4: 
+        if instruccion.tipo == TipoFunNativa.avg: 
+            #FUNCION TIPO AVG 
+            #Verificar que trae como parametro (valor, variable, expresion)
+            arregloDeValores =[]
+            for param in instruccion.parametros :
+                if isinstance(param, Operaciones_Aritmeticas):
+                    retorno = self.compilarOperacionAritmetica(instruccion.parametro)
+                    #agregamos el valor del retorno al arreglo de valores 
+                    arregloDeValores.append(retorno)
+                elif isinstance(instruccion.parametro, Primitivo):
+                    retorno = self.compilarPrimitivo(instruccion.parametro)
+                    arregloDeValores.append(retorno)
+            indice = 0;
+            for indice in len(arregloDeValores): 
+                temporal=self.generarTemporal()
+                if indice+1 < len(arregloDeValores):
+                    lineaSuma= temporal + '=' + arregloDeValores[indice] + '+' + arregloDeValores[indice+1]
+                    self.codigo3d.append(lineaSuma)
+                    arregloDeValores[indice+1]=temporal
+                else: 
+                    lineaFinal=temporal + '=' + arregloDeValores[indice] + '/' + len(arregloDeValores)
+                    self.codigo3d.append(lineaFinal)
+        elif instruccion.tipo == TipoFunNativa.abs: 
             #FUNCION TIPO ABS 
             #Verificar que trae como parametro (valor, variable, expresion)
             if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
