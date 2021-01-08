@@ -1,172 +1,207 @@
-# MANUAL TÉCNICO
-
-### EXPLICACIÓN DEL PROYECTO
----
-Se realizó en conjunto con 3 cursos del área de ingenieria en sistemas, un sistema de bases de datos, de la cuál este manual es sobre el parser. Dicho proyecto tiene por nombre TYTUS, desarrollado en python y basado en POSTGRESQL.
-
-### REQUISITOS DEL SISTEMA
----
-Los requisitos del sistema son basados en el hardware y software sobre el cual fueron programados.
-
-#### HARDWARE
----
-* Core I3 3220 or AMD Ryzen 5
-* 8 GB RAM
-* 800 MB Espacio almacenamiento
-
-#### SOFTWARE
----
-* Windows 10 
-* Python 3.6
-* Python 3.9
-
-### LIBRERIAS UTILIZADAS PARA EL DESARROLLO
-
-```sh
-ply
-Enum
-tkinter
-prettytable
-datetime
-random
-decimal
-math
-goto
-```
-
-### INSTRUCTIVO DE USO
----
-
-Dicha aplicación se encuentra en desarrollo actualemente, así que no se dispone de un ejecutable, pero si deseas realizar pruebas de TYTUS, debes descargar el repositorio en tu computadora, para poder ejecutar este programa debes disponer de [python](https://www.python.org/downloads/) en tu computadora, también debes realizar la instalación de ciertas librerias, mostradas anteriormente. 
-
-Después de tener todas las herramientas instaladas, puedes utilizar la consola de windows o un editor de texto como VSCode, y ejecutar el siguiente comando:
-
-```sh
-& [RUTA DEL EJECUTABLE DE PYTHON] "[RUTA DONDE SE ENCUENTRA EL ARCHIVO INTERFACE]"
-
-# Ejemplo:
-
-& C:/Python/python.exe "e:/CursosUSAC/COMPI 2/OLC2-FASE1/expresion/interface.py"
- ```
-
- Y listo puedes probar las funcionalidades de Python.
-
-### FLUJO DE LA APLICACIÓN
----
-Es una aplicación de escritorio, con las funciones principales de un editor de texto, dicha aplicación incluye las funciones como Guardar, Guardar Como, Abrir, Buscar, Reemplazar; puedes editar el código entre diferentes tabs, y ejecutar dicho código SQL y codigo  pl/SQL, mostrando el codigo traducido en 3 direcciones de cada instrucción en su consola. Para luego en un archivo de python, poder ejecutar ese codigo generado, usando la version de Python 3.6.
-
-La aplicación también tiene la opción de mostrar los reportes Gramaticales de la entrada, los errores léxicos, sintácticos y semánticos que surgen en tiempo de ejecución, la tabla de simbolos y el AST, en formato PDF.
-
-Se pueden ejecutar diferente tipos de operaciones en dicha aplicación tales como:
-
-```sh
-# MANEJO DE BASES DE DATOS
-
-CREATE DATABASE base;
-DROP DATABASE base;
-USE DATABASE base;
-
-# MANEJO DE TABLAS
-
-CREATE TABLE usuarios(
-    id INTEGER PRIMARY KEY,
-    nombre VARCHAR(75) NOT NULL
-);
-ALTER TABLE ...;
-DROP TABLE usuarios;
-
-# SELECTS
-SELECT * FROM usuarios;
-SELECT nombre FROM usuarios WHERE id > 10;
-
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
-BEGIN
-	RETURN texto;
-END;
-$$ LANGUAGE plpgsql;
-
-create procedure sp_validaupdate()
-language plpgsql
-as $$
-begin
-	update tbbodega set bodega = 'bodega zona 9' where idbodega = 4; 
-end; $$
-
-```
-Que traducido a C3D seria :
-
-```sh
-from goto import with_goto 
-import C3D 
-
-@with_goto  # Decorador necesario
-def myfuncion():
-	# SEGMENTO BEGIN
-	# RETURN
-	t1 = texto
-	# SEGMENTO END
-
-def main():
- C3D.pila = 0
- C3D.ejecutar() #Crear Base de datos
-
- C3D.pila = 1
- C3D.ejecutar() #Usar Base de datos
-
- C3D.pila = 2
- C3D.ejecutar() #Llamada
-
- C3D.pila = 3
- C3D.ejecutar() #Creando select con parametros
-
-main()
-
-```
-Como se mencionó anteriormente, la aplicación es de escritorio para el sistema operativo Windows, así también la aplicación posee una consola de salida, para mostrar todos los valores retornados por las funciones explicadas anteriormente. Para más información de las funciones disponibles en TYTUS puedes consultar la documentación de [SQL](https://www.postgresql.org/docs/13/sql.html).
-
-### CLASES IMPORTANTES
----
-
-    interface.py 
-
-La clase interface, como su nombre lo dice, es la parte gráfica de nuestro proyecto, en este caso el QueryTool, donde puedes aplicar las diferentes funciones desarrolladas.
-
-    grammar_sql.py
-
-El archivo grammar_sql.py es código para PLY, es el archivo que genera el analizado léxico y sintactico de nuestra aplicación.
-
-    expression.py, instruccion.py, retorno.py
-
-Son clases abstractas que sirven para generalizar las clases, dependiendo su funcionalidad y el valor que pueden retornar.
-
-    tabla_tipos.py
-
-Dicha clase es muy importante, ya que nos sirve para validar el tipo de dato que se manipula, además de contener un enum para almacenar todos los tipos de datos que se manejan, así también una matriz para validar 2 tipos de datos y determinar el tipo de dato dominante.
-
-    tabla_simbolos.py
-
-En esta clase se almacenan en dict (diccionarios de python) los diferentes simbolos que se pueden encontrar en nuestra aplicación, tales como bases de datos, tablas y columnas.
+Universidad de San Carlos de Guatemala
 
 
-### GRAMÁTICA SQL REALIZADA
----
+Ingeniería en Ciencias y Sistemas
 
-La gramática desarrollada la puede consultar en: [Gramática SQL](https://github.com/tytusdb/tytus/blob/main/parser/team23/grammar/Gramatica_Ascendente_BNF.md)
 
-### DOCUMENTACIÓN CONSULTADA
----
+Organización de Lenguajes y Compiladores 2
 
-* [Índice Documentación POSTGRESQL](https://www.postgresql.org/docs/13/index.html)
-* [Errores POSTGRESQL](https://www.postgresql.org/docs/10/errcodes-appendix.html)
-* [PLY](https://www.dabeaz.com/ply/ply.html)
-* [Prettytable](https://pypi.org/project/prettytable/)
-* [Tkinter](https://docs.python.org/3/library/tkinter.html)
 
-### DESARROLLADO POR:
----
-| NOMBRE                              | CARNET        |
-|                                 --- |           --- |
-| Pedro Rolando Ordoñez Carrillo      |   201701187   |
-| Steven Aaron Sis Hernandez          |   201706357   |
-| Davis Francisco Edward Enriquez     |   201700972   |
-| Luis Fernando Arana Arias           |   201700988   |
+Ing. Luis Espino
+
+
+Aux. Juan Carlos Maeda 
+
+
+
+#Manual Tecnico SQL Parser
+
+
+
+Grupo 29
+
+
+Quetzaltenango, diciembre 2020
+
+##Introducción
+
+
+El siguiente manual muestra una descripción clara y precisa de los procesos y herramientas que se utilizaron al momento de desarrollar el componente SQL parser de Tytus, un proyecto Open Source para desarrollar un administrador de bases de datos , así como también las funciones que tiene dicha aplicación, realizando un análisis, el cual recopila todos los requerimientos necesarios para su correcta funcionalidad.
+
+
+Además se incluye una descripción y explicación del analisis lexico, sintactico y semantico el cual fue utilizado para la correcta manipulación de la información (inserción, actualización, eliminación,visualización), de esta forma se presenta un documento más completo para que facilite al programador su comprensión y futuro mantenimiento.
+
+
+El objetivo del desarrollo de SQL parser, es interpretar sentencias SQL para manipular de manera correcta y eficaz la información.
+
+##Objetivos
+
+El objetivo del presente manual es entregar herramientas apropiadas para el futuro mantenimiento y mejoramiento de SQL parser
+
+###Objetivos de SQL Parser
+- Interpretar sentencias SQL
+
+###Objetivos específicos de SQL Parser
+- Invocar las funciones proporcionadas por el administrador de almacenamiento, para realizar operaciones sobre la base de datos.
+- Manipular el resultado de las funciones para restringir y mostrar los resultados indicados por la/las consulta/s.
+- Retornar información detallada de la consulta al servidor.
+
+###Dirigido a
+Personas que darán un futuro mantenimiento  a la aplicación, o personas que desean comprender el funcionamiento básico del mismo al momento de la ejecución.
+
+##Herramientas utilizadas para el desarrollo
+
+### Python 
+
+Python es un lenguaje de programación interpretado cuya filosofía hace hincapié en la legibilidad de su código.​ Se trata de un lenguaje de programación multiparadigma, ya que soporta orientación a objetos, programación imperativa y, en menor medida, programación funcional.
+
+### Visual Studio Code
+
+Visual Studio Code es un editor de código fuente desarrollado por Microsoft para Windows, Linux y macOS. Incluye soporte para la depuración, control integrado de Git, resaltado de sintaxis, finalización inteligente de código, fragmentos y refactorización de código.
+
+### Ply
+
+PLY es una herramienta de análisis escrita exclusivamente en Python. Es, en esencia, una reimplementación de Lex y Yacc originalmente en lenguaje C. Fue escrito por David M. Beazley. PLY utiliza la misma técnica de análisis LALR que Lex y Yacc.  
+
+
+### GitHub
+
+GitHub es una plataforma de desarrollo colaborativo de software para alojar proyectos utilizando el sistema de control de versiones Git. GitHub aloja un repositorio de código y brinda herramientas muy útiles para el trabajo en equipo, dentro de un proyecto. Además de eso, se puede contribuir a mejorar el software de los demás contribuidores. Para poder alcanzar esta meta, GitHub provee de funcionalidades para hacer un fork y solicitar pulls. Realizar un fork es simplemente clonar un repositorio ajeno (genera una copia en tu cuenta), para eliminar algún bug o modificar cosas de él. Una vez realizadas las modificaciones se puede enviar un pull al dueño del proyecto. Éste podrá analizar los cambios que se ha realizado fácilmente, y si considera interesante la contribución, adjuntarlo con el repositorio original. 
+
+##Descripción
+SQL Parser al ser un componente de Tytus, proporciona la servidor una función la cual se encarga de interpretar sentencias del subconjunto del lenguaje SQL especificado en la documentación especificada en el siguiente [enlace][tytus]
+
+[tytus]: https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax
+
+SQL parser está compuesto por 3 subcomponentes:
+- Query Tool: es una herramienta gráfica en la cual se ingresan las consultas y se muestran los resultados, además de proporcionar mensajes de error si las consultas lo poseen.
+	**Nota: La consulta abarca todo el contenido ingresado en el área de texto. (Ver figura 4)**
+
+- Type Checker: Este subcomponente es un apoyo a SQL parser para la comprobación de tipos.
+- SQL Parser: este subcomponente es el intérprete de las sentencias y consultas SQL y el que se conectara con el componente de administración de datos.
+
+![Figura 1. Descripción de la relación entre componentes](./img/Relacion.png)
+
+Figura 1. Descripción de la relación entre componentes
+
+##Gramática 
+Para el desarrollo de SQL parser se crearon 2 gramaticas una [descendente][des]  y una  [ascendente][asc].Se realizó un análisis de cada una verificando sus ventajas y desventajas de cada una, donde se llegó a la conclusión que la ascendente es la opción más viable debido a lo siguiente:
+
+- Según la documentación de [PLY][ply] esta librería realiza un parseo LR, por lo que solo es compatible con gramáticas ascendentes.
+- La gramática ascendente tiene menos producciones que la descendente, esto tiene como consecuencia:
+	- Un tiempo de implementación más corto.
+	- Un tiempo de parseo menor.
+	- Menos nodos del AST, lo cual se traduce en menos espacio de memoria ocupado por el programa y un menor tiempo de ejecución.	
+	- Menor probabilidad de errores en la implementación.
+- La gramática ascendente presenta un menor nivel de complejidad, al no tener que acceder a la pila.
+- La mayoría de los integrantes del grupo, poseen más experiencia implementando gramáticas ascendentes que descendentes. 
+
+
+[des]: https://github.com/tytusdb/tytus/blob/main/parser/team29/docs/Gram%C3%A1ticas/gramaticaDESC.bnf
+
+[ply]: https://www.dabeaz.com/ply/
+
+[asc]: https://github.com/tytusdb/tytus/blob/main/parser/team29/docs/Gram%C3%A1ticas/gramaticaASC.bnf
+
+
+
+##Diagramas de Modelamiento
+###Diagrama de paquetes
+SQL Parser posee los paquetes de UI, este posee un conjunto de ventanas las cuales sirven para recibir las consultas y mostrar la información procesada, y el paquete Analizador el cual recibe las consultas enviadas por el paquete UI, las procesa y ejecuta funciones  proporcionadas por la  interrelación con el administrador de almacenamiento, este  proporcionará los datos que se deberán manipular y ya manipulados serán mostrados por el paquete UI.
+
+![Figura 2. Diagramas de paquetes](./img/DiagramaPaquetes.png)
+
+Figura 2. Diagramas de paquetes
+
+###Diagrama de clases
+El diagrama de clases está compuesto de las entidades y atributos que se crearon para el procesamiento de consultas y la manipulación de la información.
+
+![Figura 3. Diagramas de clases](./img/DiagramaClases.png)
+
+Figura 3. Diagramas de clases
+
+
+####Analizador
+
+- Gramática
+- Tokens
+
+####Funciones
+
+- Funciones Agregadas
+- Funciones Matemáticas
+- Funciones Trigonométricas
+- Funciones De Cadena
+
+####Reporte
+
+- AST
+- Nodo
+- Gramática BNF
+
+####Clases Abstractas
+
+- Expresión
+- Instrucción
+
+####Verificador de tipo
+- Checker
+- Tipos
+	- Validaciones
+		- Carácter
+		- Número
+		- Fecha
+
+##Diseño  de reportes y pantallas
+###Pantalla Principal
+La pantalla principal cuenta con 3 secciones las cuales son:
+- Barra de menús
+- Área de Consultas
+- Área de Visualización de Resultados y Errores
+
+**Barra de menús**
+
+
+Esta sección contiene 3 menús:
+- Tabla de Símbolos: Se redirigirá a la pantalla de Tabla de símbolos
+- AST: Se mostrará el AST generado
+- Reporte de errores: Se mostrará la pantalla con los errores léxicos, sintácticos y semánticos
+
+**Area de Consultas y Visualización de Resultados y Errores**
+
+
+Contiene un panel de entrada en la cual se ingresa la consulta, y con el botón consultar se enviará la consulta al Analizador para que este posteriormente envíe los resultados y estos se visualizarán en el área de visualización de resultados y errores.
+
+
+![Figura 4. Pantalla principal](./img/PantallaPrincipal.png)
+
+Figura 4. Pantalla principal
+
+**Pantalla de Reporte de Errores**
+
+
+Los errores léxicos, semánticos y sintácticos se mostrarán en 3 tablas diferentes con una breve descripción y la línea en donde fueron encontrados
+
+![Figura 5. Pantalla de Reporte de Errores](./img/PantallaReporteErrores.png)
+
+Figura 5. Pantalla de Reporte de Errores
+
+**Pantalla de Tabla de Símbolos**
+
+
+En esta pantalla se muestran los datos de identificador, tipo, dimensión, ámbito de declaración y la referencia de las variables, funciones y procedimientos.
+
+![Figura 6. Pantalla de Tabla de Símbolos](./img/PantallaTS.png)
+
+
+Figura 6. Pantalla de Tabla de Símbolos
+
+**Pantalla AST**
+
+
+En esta pantalla se muestra una imagen del árbol de sintaxis abstracta, realizado mediante la herramienta de Graphviz
+
+![Figura 7. Pantalla AST](./img/PantallaAST.png)
+
+
+Figura 7. Pantalla AST
