@@ -6,7 +6,7 @@ sys.path.append('.')
 sys.path.append('../')
 from Parser.Ascendente.gramatica import parse as AnaParse
 #from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
-#from Parser.Reportes.gramatica1 import parse as ReportParse
+from Parser.Reportes.gramatica1 import parseo as ReportParse
 from InterpreteF2.Tabla_de_simbolos import Tabla_de_simbolos
 from InterpreteF2.Arbol import Arbol
 from InterpreteF2.Reporteria.ErroresSemanticos import ErroresSemanticos
@@ -210,18 +210,24 @@ def Seleccionar():
 
 def ReporteSelect():
     global dotString
-    #cadena = my_text.get(SEL_FIRST, SEL_LAST)
-    #result: Nodo = ReportParse(cadena)
-    #tour:TourTree = TourTree()
-    #dotString = tour.getDot(result)
-    #graph = Source(dotString)
-    ##graph.render(view=True, format='svg')
 
-    #try:
-    #    graph.render(format='svg')
-    #    print('Reporte Generado Con exito')
-    #except:
-    #    print('No se genero el reporte:w')
+    try:
+        cadena = my_text.get(SEL_FIRST, SEL_LAST)
+        result: Nodo = ReportParse(cadena)
+        print('sintactico realizado con exito')
+        tour: TourTree = TourTree()
+        dotString = tour.getDot(result)
+        graph = Source(dotString)
+        # graph.render(view=True, format='svg')
+
+        try:
+            graph.render(format='svg')
+            print('Reporte Generado Con exito')
+        except:
+            print('No se genero el reporte:w')
+    except EXCEPTION as e:
+        print(e)
+
 
 
 def Reporte():

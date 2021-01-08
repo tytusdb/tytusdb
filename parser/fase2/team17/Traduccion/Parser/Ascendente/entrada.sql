@@ -18,12 +18,15 @@ BEGIN
 if 'uno' == 'dos' then
 raise notice 'hola';
 end if;
-    update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into var1;
-    update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into strict var1;
-    delete from tbfuncionesmath where idfuncion = 1 RETURNING col1,col2 into var1;
 
 END;
 
+
+CREATE FUNCTION Fun2 (n integer, m integer)
+declare ide1 integer = 'primer ide';
+BEGIN
+raise notice 'hola';
+END;
 
 
 CREATE FUNCTION Fun2 (n integer, m integer)
@@ -32,24 +35,21 @@ BEGIN
 if 'uno' == 'dos' then
 raise notice 'hola';
 end if;
-    update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into var1;
-    update tbventa set ventaregistrada = true where idempleado = 4 and fechaventa between '2020-10-01' and '2020-10-31'RETURNING col1,col2 into strict var1;
-    delete from tbfuncionesmath where idfuncion = 1 RETURNING col1,col2 into var1;
-
 END;
-
-
-ALTER INDEX mytable_cat_1 RENAME TO index1;
-
-ALTER INDEX distributors SET (fillfactor = 75);
-ALTER INDEX coord_idx ALTER COLUMN 3 SET STATISTICS 1000;
-ALTER INDEX distributors RENAME TO suppliers;
-
 
 CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
 CREATE INDEX ON tbbodega ( ( lower(bodega) ) );
 CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
 
+
+ALTER INDEX mytable_cat_1 RENAME TO index1;
+ALTER INDEX distributors SET (fillfactor = 75);
+ALTER INDEX coord_idx ALTER COLUMN 3 SET STATISTICS 1000;
+ALTER INDEX distributors RENAME TO suppliers;
+
+DROP INDEX title_idx;
+DROP INDEX [ CONCURRENTLY ] [ IF EXISTS ] name [, ...] [ CASCADE | RESTRICT ]
+DROP INDEX  CONCURRENTLY   IF EXISTS  lol,lio  CASCADE ;
 
 -- =================== ARCHIVO ENTRADA MAEDA ====================
 CREATE DATABASE DBFase2;
