@@ -2,7 +2,8 @@ from analizer_pl.abstract import instruction
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
-from analizer_pl import grammar                                     
+from analizer_pl import grammar
+
 
 class InsertInto(instruction.Instruction):
     def __init__(self, tabla, columns, parametros, row, column):
@@ -20,7 +21,7 @@ class InsertInto(instruction.Instruction):
         out += "VALUES ("
         parVal = ""
         j = 0
-        for i in range(len(self.parametros)-1):
+        for i in range(len(self.parametros) - 1):
             j = i + 1
             pval = self.parametros[i].execute(environment)
             parVal += pval.value
@@ -31,13 +32,13 @@ class InsertInto(instruction.Instruction):
         out += ");"
         out += '")\n'
         cod = out
+        if isinstance(environment, Environment):
+            out = "\t" + out
         out = parVal + out
         if isinstance(environment, Environment):
-            grammar.optimizer_.addIgnoreString(cod,self.row,True)
-            out = "\t"+out        
+            grammar.optimizer_.addIgnoreString(cod, self.row, True)
         else:
-            grammar.optimizer_.addIgnoreString(cod,self.row,False)       
-        
+            grammar.optimizer_.addIgnoreString(cod, self.row, False)
         return code.C3D(out, "insert", self.row, self.column)
 
     def dot(self):

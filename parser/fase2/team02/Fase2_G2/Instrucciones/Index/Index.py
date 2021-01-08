@@ -24,18 +24,21 @@ class Index(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         val = self.idTabla.devolverTabla(tabla, arbol)
-        
+        print("El wkkkkkkene vacio")
+
         if(val == 0):
             error = Excepcion("42P01", "Semantico", "La tabla " + str(self.identificador.devolverId(tabla, arbol)) + " no existe", self.linea, self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             print('Error tabla no existe')
             return error
+        print("Eiiiiiiiviene vacio")
 
         tablaIndex = extractTable(arbol.getBaseDatos(), val)
         arbol.setTablaActual(tablaIndex)
         columnas = arbol.devolverColumnasTabla(val)
-        
+        print("El jjjjjjjjene vacio")
+
         data = np.array((tablaIndex))
         res = []
         # vamos a mostrar todos
@@ -47,6 +50,7 @@ class Index(Instruccion):
 
         ## solo me quedaria buscar entre las columnas si existe la columnas 
         print(res)  
+        print("El wheracio")
 
         if self.where:
             print("El where no viene vacio")
