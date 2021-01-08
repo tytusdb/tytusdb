@@ -32,7 +32,7 @@ class Drop(instruction.Instruction):
         if self.exists:
             ifex = Nodo("IF_EXISTS")
             new.addNode(ifex)
-        
+
         for n in self.names:
             idn = Nodo(str(n))
             new.addNode(idn)
