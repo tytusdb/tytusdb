@@ -22,8 +22,6 @@ from prettytable import PrettyTable
 from execution.executeOptimization import *
 from execution.executeOptimization_result import *
 
-from C3D import up
-
 def update_line_and_column(text_: tk.Text):
     line, column = text_.index("insert").split(".") # Row starts at 1 and column starts at 0
     message.set("Line: " + str(line) + " Column: " + str(int(column)+1))
@@ -305,16 +303,19 @@ def compile_C3D():
 def compile_C3D_aux(c3d_optimized):
     global path_c3d
     try:
-        up()
-        #exec(compile(c3d_optimized, path_c3d, 'exec'))
+        exec(compile(c3d_optimized, path_c3d, 'exec'))
     except Exception as e:
-        print_error("UNKNOWN ERROR", "Error running optimized c3d "+str(e),2)
+        print_error("UNKNOWN ERROR", "Error running optimized c3d",2)
         #print(e)
 
 
 # Root configuration
 root = Tk()
 root.title("Tytus")
+try:
+    root.iconbitmap("Tytus.ico")
+except Exception as e:
+    i=0#print(e)
 
 # Superior menu
 menubar = Menu(root)
@@ -339,7 +340,7 @@ filemenu.add_command(label="Generate Grammar Report", command=lambda:generate_re
 menubar.add_cascade(menu=filemenu, label="Reports")
 
 width_text = 50
-height_text = 20
+height_text = 14
 
 #Labels
 frame_labels = tk.Frame(root)
@@ -362,57 +363,87 @@ label_text_c3d_optimized.config(bd=0, padx=6, pady=4, font=("consolas",12))
 frame_1 = tk.Frame(root)
 frame_1.pack(ipadx=10, ipady=10, expand=True, side="top", fill="both")
 
-text = scrolledtext.ScrolledText(frame_1, width=width_text, height=height_text)
+frame_11 = tk.Frame(frame_1)
+frame_11.pack(ipadx=10, ipady=10, expand=True, side="left", fill="both")
+text_xscrollbar = Scrollbar(frame_11, orient=HORIZONTAL)
+text_xscrollbar.pack(side=BOTTOM, fill=X)
+text = scrolledtext.ScrolledText(frame_11, width=width_text, height=height_text, wrap=NONE, xscrollcommand=text_xscrollbar.set)
 text.pack(fill="both", expand=1)
 text.configure(bg="#000000", fg="#FFFFFF", insertbackground='#FFFFFF')
-text.config(bd=0, padx=6, pady=4, font=("consolas",10))
+text.config(bd=0, padx=6, pady=4, font=("consolas",12))
 text.pack(side ="left")
 text.bindtags(('Text','post-class-bindings_text', '.', 'all'))
 text.bind_class("post-class-bindings_text", "<KeyPress>", lambda e: update_line_and_column(text))
 text.bind_class("post-class-bindings_text", "<Button-1>", lambda e: update_line_and_column(text))
+text_xscrollbar.config(command=text.xview)
 
-text_c3d = scrolledtext.ScrolledText(frame_1, width=width_text, height=height_text)
+frame_12 = tk.Frame(frame_1)
+frame_12.pack(ipadx=10, ipady=10, expand=True, side="left", fill="both")
+text_c3d_xscrollbar = Scrollbar(frame_12, orient=HORIZONTAL)
+text_c3d_xscrollbar.pack(side=BOTTOM, fill=X)
+text_c3d = scrolledtext.ScrolledText(frame_12, width=width_text, height=height_text, wrap=NONE, xscrollcommand=text_c3d_xscrollbar.set)
 text_c3d.pack(fill="both", expand=1)
 text_c3d.configure(bg="#000000", fg="#FFFFFF", insertbackground='#FFFFFF')
-text_c3d.config(bd=0, padx=6, pady=4, font=("consolas",10))
+text_c3d.config(bd=0, padx=6, pady=4, font=("consolas",12))
 text_c3d.pack(side ="left")
 text_c3d.bindtags(('Text','post-class-bindings_text_c3d', '.', 'all'))
 text_c3d.bind_class("post-class-bindings_text_c3d", "<KeyPress>", lambda e: update_line_and_column(text_c3d))
 text_c3d.bind_class("post-class-bindings_text_c3d", "<Button-1>", lambda e: update_line_and_column(text_c3d))
+text_c3d_xscrollbar.config(command=text_c3d.xview)
 
-text_c3d_optimized = scrolledtext.ScrolledText(frame_1, width=width_text, height=height_text)
+frame_13 = tk.Frame(frame_1)
+frame_13.pack(ipadx=10, ipady=10, expand=True, side="left", fill="both")
+text_c3d_optimized_xscrollbar = Scrollbar(frame_13, orient=HORIZONTAL)
+text_c3d_optimized_xscrollbar.pack(side=BOTTOM, fill=X)
+text_c3d_optimized = scrolledtext.ScrolledText(frame_13, width=width_text, height=height_text, wrap=NONE, xscrollcommand=text_c3d_optimized_xscrollbar.set)
 text_c3d_optimized.pack(fill="both", expand=1)
 text_c3d_optimized.configure(bg="#000000", fg="#FFFFFF", insertbackground='#FFFFFF')
-text_c3d_optimized.config(bd=0, padx=6, pady=4, font=("consolas",10))
+text_c3d_optimized.config(bd=0, padx=6, pady=4, font=("consolas",12))
 text_c3d_optimized.pack(side ="left")
 text_c3d_optimized.bindtags(('Text','post-class-bindings_text_c3d_optimized', '.', 'all'))
 text_c3d_optimized.bind_class("post-class-bindings_text_c3d_optimized", "<KeyPress>", lambda e: update_line_and_column(text_c3d_optimized))
 text_c3d_optimized.bind_class("post-class-bindings_text_c3d_optimized", "<Button-1>", lambda e: update_line_and_column(text_c3d_optimized))
+text_c3d_optimized_xscrollbar.config(command=text_c3d_optimized.xview)
 
 #Consoles
 frame_2 = tk.Frame(root)
 frame_2.pack(ipadx=10, ipady=10, expand=True, side="top", fill="both")
 
-console = scrolledtext.ScrolledText(frame_2, width=width_text, height=height_text)
+frame_21 = tk.Frame(frame_2)
+frame_21.pack(ipadx=10, ipady=10, expand=True, side="left", fill="both")
+console_xscrollbar = Scrollbar(frame_21, orient=HORIZONTAL)
+console_xscrollbar.pack(side=BOTTOM, fill=X)
+console = scrolledtext.ScrolledText(frame_21, width=width_text, height=height_text, wrap=NONE, xscrollcommand=console_xscrollbar.set)
 console.pack(fill="both", expand=1)
 console.configure(bg="#434B4D", fg="#FFFFFF", insertbackground='#FFFFFF')
-console.config(bd=0, padx=6, pady=4, font=("consolas",10))
+console.config(bd=0, padx=6, pady=4, font=("consolas",12))
 console.configure(state="disabled")
 console.pack(side ="left")
+console_xscrollbar.config(command=console.xview)
 
-console_c3d = scrolledtext.ScrolledText(frame_2, width=width_text, height=height_text)
+frame_22 = tk.Frame(frame_2)
+frame_22.pack(ipadx=10, ipady=10, expand=True, side="left", fill="both")
+console_c3d_xscrollbar = Scrollbar(frame_22, orient=HORIZONTAL)
+console_c3d_xscrollbar.pack(side=BOTTOM, fill=X)
+console_c3d = scrolledtext.ScrolledText(frame_22, width=width_text, height=height_text, wrap=NONE, xscrollcommand=console_c3d_xscrollbar.set)
 console_c3d.pack(fill="both", expand=1)
 console_c3d.configure(bg="#434B4D", fg="#FFFFFF", insertbackground='#FFFFFF')
-console_c3d.config(bd=0, padx=6, pady=4, font=("consolas",10))
+console_c3d.config(bd=0, padx=6, pady=4, font=("consolas",12))
 console_c3d.configure(state="disabled")
 console_c3d.pack(side ="left")
+console_c3d_xscrollbar.config(command=console_c3d.xview)
 
-console_c3d_optimized = scrolledtext.ScrolledText(frame_2, width=width_text, height=height_text)
+frame_23 = tk.Frame(frame_2)
+frame_23.pack(ipadx=10, ipady=10, expand=True, side="left", fill="both")
+console_c3d_optimized_xscrollbar = Scrollbar(frame_23, orient=HORIZONTAL)
+console_c3d_optimized_xscrollbar.pack(side=BOTTOM, fill=X)
+console_c3d_optimized = scrolledtext.ScrolledText(frame_23, width=width_text, height=height_text, wrap=NONE, xscrollcommand=console_c3d_optimized_xscrollbar.set)
 console_c3d_optimized.pack(fill="both", expand=1)
 console_c3d_optimized.configure(bg="#434B4D", fg="#FFFFFF", insertbackground='#FFFFFF')
-console_c3d_optimized.config(bd=0, padx=6, pady=4, font=("consolas",10))
+console_c3d_optimized.config(bd=0, padx=6, pady=4, font=("consolas",12))
 console_c3d_optimized.configure(state="disabled")
 console_c3d_optimized.pack(side ="left")
+console_c3d_optimized_xscrollbar.config(command=console_c3d_optimized.xview)
 
 # Lower monitor
 message = StringVar()
