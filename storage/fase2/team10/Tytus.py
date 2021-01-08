@@ -386,6 +386,73 @@ def alterDatabaseMode(database, mode):
         return 1
 
 # 3. ADMINISTRACION DE INDICES
+
+
+def insertVerifyFK(database, table , tupla):
+    try: 
+        tabla = fkIndex[database]
+        indices = []
+        lista_verificadora = []
+        for i in list(tabla.keys()):
+            if table == i[0] :
+                tablaReferenciada = i[1]
+                informacion_referencia = tabla[(table, tablaReferenciada)]
+                nombre_fk = informacion_referencia[0]
+                table_auxiliar =table+tablaReferenciada+nombre_fk
+                indices_con_referencia = informacion_referencia[1]
+                indices_referenciados = informacion_referencia[2]
+                datos_para_verificar = [tupla[x] for x in indices_con_referencia]
+                if None in datos_para_verificar:
+                    lista_verificadora.append(False)
+                values = []
+                for estructura in structs:
+                    values = estructura.extractTable(database,table_auxiliar)
+                    if values != None:
+                        if datos_para_verificar in  values: 
+                            lista_verificadora.append(True)
+                        elif values == []:
+                            lista_verificadora.append(False)
+                        else:
+                            lista_verificadora.append(False)
+            else: 
+                return True
+        if False in lista_verificadora:
+            return False
+        else: 
+            return True
+    except : 
+        return True
+
+def foreingKey(database, table, tupla):
+    try:
+        tabla = fkIndex[database]
+        indices =[]
+        lista_verificadora = []
+        for i in list(tabla.keys()):
+            if table == i[1]:
+                tabla_con_FK = i[0]
+                informacion_referencia = tabla[(tabla_con_FK,table)]
+                nombre_fk = informacion_referencia[0]
+                table_auxiliar = tabla_con_FK + table + nombre_fk
+                indices_referenciados = informacion_referencia[2]
+                datos_para_verificar = [tupla[x] for x in indices_referenciados]
+                for estructura in structs: 
+                    value = estructura.insert(database,table_auxiliar,datos_para_verificar)
+                    if value == 0 or value == 4:
+                        lista_verificadora.append(True)
+                    else: 
+                        lista_verificadora.append(False)
+            else:
+                return True
+        if False in lista_verificadora:
+            return False
+        else: 
+            return True
+
+    except:
+        return True
+
+
 def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
     tabla = {}
     indicePK = []
