@@ -2878,7 +2878,7 @@ def p_Function_1(t):
     salida=""
     for x in range(0,len(j)):
         salida+="   "+str(j[x])+"\n"
-    salida+="\n"
+    salida+="\n#fin\n"
     print("entra a la funcion 1")
     a+=salida
     print(a)
@@ -2919,7 +2919,7 @@ def p_Function_2(t):
     salida=""
     for x in range(0,len(j)):
         salida+="   "+str(j[x])+"\n"
-    salida+="\n"
+    salida+="\n#fin\n"
     print("entra a la funcion 1")
     a+=salida
 
@@ -2934,7 +2934,12 @@ def p_Function_3(t):
     a+= 'salida=analizador.agregarVariableaTS("'+t[9]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
     a+="@with_goto\n"
     a += "def "+t[5]+" ():\n"
-    a +='   print("REPLACE FUNCTION")'
+    j=t[14].splitlines()
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n#fin\n"
+    a+=salida
     t[0] = a
 
 
@@ -2996,7 +3001,7 @@ def p_Procedure_1(t):
     salida=""
     for x in range(0,len(j)):
         salida+="   "+str(j[x])+"\n"
-    salida+="\n"
+    salida+="\n#fin\n"
     a+=salida
     t[0] = a
 
@@ -3032,7 +3037,7 @@ def p_Procedure_2(t):
     salida=""
     for x in range(0,len(j)):
         salida+="   "+str(j[x])+"\n"
-    salida+="\n"
+    salida+="\n#fin\n"
     a+=salida
     t[0] = a
 
@@ -3047,7 +3052,7 @@ def p_Procedure_3(t):
     salida=""
     for x in range(0,len(j)):
         salida+="   "+str(j[x])+"\n"
-    salida+="\n"
+    salida+="\n#fin\n"
     a+=salida
     t[0] = a
 
@@ -3086,15 +3091,18 @@ def p_Procedure_4(t):
     salida=""
     for x in range(0,len(j)):
         salida+="   "+str(j[x])+"\n"
-    salida+="\n"
+    salida+="\n#fin\n"
     a+=salida
     t[0] = a
 
 
 def p_dropfunction(t):
-    'dropFunction               : DROP FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA'
+    '''dropFunction               : DROP FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA
+                                  | DROP PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA
+    '''
     a='salida = analizador.procesar_dropFunction(h.bd_enuso,"'+t[3]+'")'
     t[0]=a
+
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                               DECLARATIONS
@@ -3778,6 +3786,10 @@ def p_error(t):
      
 import ply.yacc as yacc
 parser = yacc.yacc()
+
+
+
+
 
 def parse(input) :
     global caden
