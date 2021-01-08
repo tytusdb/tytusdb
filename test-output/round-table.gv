@@ -1,0 +1,18 @@
+// AST
+digraph {
+	8 [label=INSTRUCTION_LIST]
+	9 [label=USE_DATABASE]
+	10 [label=dbpruebafinal]
+	11 [label=INST]
+	12 [label=CREATE_DATABASE]
+	13 [label=EXISTS]
+	14 [label=dbpruebafinal]
+	15 [label=INST]
+	8 -> 9
+	9 -> 10
+	8 -> 11
+	11 -> 12
+	12 -> 13
+	12 -> 14
+	11 -> 15
+}
