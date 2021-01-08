@@ -39,9 +39,13 @@ class Power(Instruccion):
             arbol.consola.append(error.toString())
             return error
 
+    
     def traducir(self, tabla, arbol, cadenaTraducida):
+        resultado = self.ejecutar(tabla, arbol)
+        if isinstance(resultado,Excepcion):
+            return resultado        
         codigo = ""
         temporal = arbol.generaTemporal()
-        codigo += "\t\t" + temporal + " = " + str(self.ejecutar(tabla, arbol)) + "\n"
-        nuevo = Simbolo3d(Tipo("",Tipo_Dato.INTEGER), temporal, codigo, None, None)
+        codigo += "\t" + temporal + " = " + str(resultado) + "\n"
+        nuevo = Simbolo3d(self.tipo, temporal, codigo, None, None)
         return nuevo

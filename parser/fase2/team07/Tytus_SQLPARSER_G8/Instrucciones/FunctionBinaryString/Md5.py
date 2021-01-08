@@ -4,6 +4,8 @@ from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
 import hashlib 
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
+
 class Md5(Instruccion):
     def __init__(self, valor, tipo, strGram, linea, columna, strSent):
         Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
@@ -23,6 +25,17 @@ class Md5(Instruccion):
         arbol.consola.append("HINT: Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos.")
         arbol.consola.append(error.toString())
         return error
+
+    
+    def traducir(self, tabla, arbol, cadenaTraducida):
+        resultado = self.ejecutar(tabla, arbol)
+        if isinstance(resultado,Excepcion):
+            return resultado        
+        codigo = ""
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = " + str(resultado) + "\n"
+        nuevo = Simbolo3d(self.tipo, temporal, codigo, None, None)
+        return nuevo
 '''
 instruccion = Md5("hola mundo",None, 1,2)
 instruccion.ejecutar(None,None)

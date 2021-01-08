@@ -2,6 +2,8 @@ import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
+
 
 class Acosh(Instruccion):
     def __init__(self, valor, strGram, linea, columna,strSent):
@@ -25,6 +27,16 @@ class Acosh(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
+    
+    def traducir(self, tabla, arbol, cadenaTraducida):
+        resultado = self.ejecutar(tabla, arbol)
+        if isinstance(resultado,Excepcion):
+            return resultado        
+        codigo = ""
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = " + str(resultado) + "\n"
+        nuevo = Simbolo3d(self.tipo, temporal, codigo, None, None)
+        return nuevo
         
 
 '''
