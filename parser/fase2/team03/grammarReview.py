@@ -3497,7 +3497,7 @@ def p_aritmetic(t):
         graph_ref = graph_node(str("exp"), [t[1], t[2], t[3], t[4]], childsProduction)
         addCad("**\<EXP>** ::=  tSetseed '(' \<EXP> ')'       ")
         t[0] = SetSeed(t[3], token.lineno, token.lexpos, graph_ref)
-    elif token.type == "TRUC":
+    elif token.type == "TRUNC":
         childsProduction = addNotNoneChild(t, [3])
         graph_ref = graph_node(str("exp"), [t[1], t[2], t[3], t[4]], childsProduction)
         addCad("**\<EXP>** ::=   tTruc '(' \<EXP> ')'      ")

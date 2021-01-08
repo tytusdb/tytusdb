@@ -118,11 +118,11 @@ class DateAST(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return self.option + ' ' + str(self.result)
+        return self.result
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'EXTRACT ({self.option.generate(table, tree)} {self.val})'
+        return f"EXTRACT ({self.option} FROM TIMESTAMP \\\'{self.val}\\\')"
 
 
 class DateAST_2(ASTNode):
