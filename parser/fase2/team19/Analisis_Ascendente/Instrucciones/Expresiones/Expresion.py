@@ -97,7 +97,8 @@ class Expresion(Exp):
                 return boole
         elif isinstance(expr,Id):
             if ts.validar_sim(expr.id) == 1:
-                return expr.id
+                simbolo = ts.buscar_sim(expr.id)
+                return simbolo.valor
             else:
                 return 'holamundo'
         elif isinstance(expr, Primitivo):

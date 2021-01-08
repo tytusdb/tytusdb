@@ -11,10 +11,10 @@ from optimizer_folder.optimizer import Optimizer
 from analizer_pl.tokens import *
 import ply.lex as lex
 import ply.yacc as yacc
-
 from analizer_pl.C3D.operations.BackFill import BackFill
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.reports import AST
+from analizer_pl.sql_statement.select import select
 
 ast = AST.AST()
 
@@ -124,6 +124,8 @@ def p_isblock_f(t):
     isBlock = False
 
 
+# endregion
+
 # region function
 
 
@@ -228,7 +230,6 @@ def p_language_function_1(t):
 
 
 # endregion
-
 
 # region declaration
 
@@ -420,7 +421,6 @@ def p_typesvar(t):
 
 # endregion
 
-
 # region block stmts
 
 
@@ -530,7 +530,6 @@ def p_elseif_stmts_opt(t):
     elseif_stmts_opt : elseif_stmts
     """
     t[0] = t[1]
-
     repGrammar.append(t.slice)
 
 
@@ -764,7 +763,7 @@ def p_deleteStmt_single_row(t):
     repGrammar.append(t.slice)
 
 
-# region select
+# select
 
 
 def p_selectStmt_single_row_1(t):
@@ -808,12 +807,14 @@ def p_selectstmt_only_params_single_row(t):
 
 # endregion
 
-# perform
+# region perform
 
 
 def p_perform(t):
     """perform : R_PERFORM STRING """
 
+
+# endregion
 
 # region GET
 
@@ -832,8 +833,6 @@ def p_current_g(t):
 def p_item(t):
     """item : R_ROW_COUNT"""
 
-
-# endregion
 
 # endregion
 
@@ -1568,6 +1567,10 @@ def p_expresion_(t):
     """
     expresion : S_PARIZQ selectStmt S_PARDER
     """
+    if isinstance(t[2], select.Select):
+        t[0] = code.SelectFirstValue(newTemp(), t[2])
+    else:
+        t[0] = code.SelectOnlyParamsFirst(newTemp(), t[2])
     repGrammar.append(t.slice)
 
 
@@ -1600,10 +1603,28 @@ def p_funcCall_2(t):
 def p_funcCall_3(t):
     """
     funcCall : R_COUNT S_PARIZQ datatype S_PARDER
-            | R_COUNT S_PARIZQ O_PRODUCTO S_PARDER
             | R_SUM S_PARIZQ datatype S_PARDER
             | R_PROM S_PARIZQ datatype S_PARDER
     """
+    t[0] = code.FunctionCall(
+        t.slice[1].value.lower(),
+        [t[3]],
+        isBlock,
+        newTemp(),
+        t.slice[1].lineno,
+        t.slice[1].lexpos,
+    )
+    repGrammar.append(t.slice)
+
+
+def p_funcCall_3_count(t):
+    """
+    funcCall : R_COUNT S_PARIZQ O_PRODUCTO S_PARDER
+    """
+    prod = expression.C3D("", "*", t.slice[3].lineno, t.slice[3].lexpos)
+    t[0] = code.FunctionCall(
+        "count", [prod], isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -2052,7 +2073,6 @@ def p_columnName_id(t):
     """
     global isBlock
     t[0] = code.Identifier(t[1], isBlock, t.slice[1].lineno, t.slice[1].lexpos)
-
     repGrammar.append(t.slice)
 
 
@@ -2109,14 +2129,21 @@ def p_booleanCheck_3(t):
 def p_idOrLiteral(t):
     """
     idOrLiteral : ID
-    | INTEGER
     | STRING
-    | DECIMAL
     | CHARACTER
     | R_TRUE
     | R_FALSE
     """
     t[0] = t.slice[1].value
+    repGrammar.append(t.slice)
+
+
+def p_idOrLiteral_1(t):
+    """
+    idOrLiteral : INTEGER
+    | DECIMAL
+    """
+    t[0] = str(t.slice[1].value)
     repGrammar.append(t.slice)
 
 
@@ -2388,7 +2415,7 @@ def p_selectstmt_only_params(t):
 
 def p_allOpt(t):
     """allOpt : R_ALL"""
-    t[0] = t[1]
+    t[0] = " " + t[1]
     repGrammar.append(t.slice)
 
 
@@ -2414,7 +2441,7 @@ def p_selectparams_params(t):
 # En caso de errores cambiar selectListParams -> expresion
 def p_selectList_list(t):
     """selectList : selectList S_COMA selectListParams optAlias"""
-    param = code.SelecctParam(t[3], t[4], t[3].row, t[3].column)
+    param = code.SelectParam(t[3], t[4], t[3].row, t[3].column)
     t[1].append(param)
     t[0] = t[1]
     repGrammar.append(t.slice)
@@ -2423,7 +2450,7 @@ def p_selectList_list(t):
 # En caso de errores cambiar selectListParams -> expresion
 def p_selectList_u(t):
     """selectList : selectListParams optAlias"""
-    param = code.SelecctParam(t[1], t[2], t[1].row, t[1].column)
+    param = code.SelectParam(t[1], t[2], t[1].row, t[1].column)
     t[0] = [param]
     repGrammar.append(t.slice)
 
@@ -2436,7 +2463,7 @@ def p_selectListParams_1(t):
 
 def p_selectListParams_2(t):
     """selectListParams : ID S_PUNTO O_PRODUCTO"""
-    expression.C3D("", t[1] + ".*", t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.C3D("", t[1] + ".* ", t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -2444,7 +2471,7 @@ def p_optalias_as(t):
     """
     optAlias : R_AS idOrString
     """
-    t[0] = t[2]
+    t[0] = " AS " + t[2]
     repGrammar.append(t.slice)
 
 
@@ -2452,7 +2479,7 @@ def p_optalias_id(t):
     """
     optAlias : idOrString
     """
-    t[0] = t[1]
+    t[0] = " " + t[1]
     repGrammar.append(t.slice)
 
 
@@ -2476,7 +2503,7 @@ def p_tableexp_u(t):
 
 def p_fromBody(t):
     """fromBody : ID optAlias"""
-    t[0] = t[1] + " AS " + t[2]
+    t[0] = t[1] + t[2]
     repGrammar.append(t.slice)
 
 
@@ -2666,28 +2693,38 @@ def p_paramsColumn_none(t):
 
 def p_updateStmt(t):
     """updateStmt : R_UPDATE isblock_f fromBody R_SET updateCols whereCl"""
+    t[0] = code.Update(t[3], t[5], t[6], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_updateCols_list(t):
     """updateCols : updateCols S_COMA updateVals"""
+    t[1].append(t[3])
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
 def p_updateCols_u(t):
     """updateCols : updateVals """
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
 def p_updateVals(t):
     """updateVals : ID S_IGUAL updateExp"""
+    t[0] = [t[1], t[3]]
     repGrammar.append(t.slice)
 
 
 def p_updateExp(t):
-    """updateExp : datatype
-    | R_DEFAULT
-    """
+    """updateExp : datatype"""
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_updateExp_Default(t):
+    """updateExp : R_DEFAULT"""
+    t[0] = expression.C3D("", t[1], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -2700,6 +2737,7 @@ def p_updateExp(t):
 
 def p_deleteStmt(t):
     """deleteStmt : R_DELETE isblock_f fromCl whereCl"""
+    t[0] = code.Delete(t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 

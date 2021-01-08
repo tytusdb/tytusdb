@@ -54,6 +54,19 @@
                             <a class="dropdown-item" onclick="dropDatabase()">Drop Database</a>         
                         </div>
                     </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Tablas
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" onclick="createTable()">createTable</a>
+                            <a class="dropdown-item" onclick = "Table('show')">showTables</a>       
+                            <a class="dropdown-item" onclick="extractTable('extract')">extractTable</a>                           
+                                 
+                        </div>
+                    </li>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="/inicio" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Tools
@@ -191,5 +204,45 @@
                     </form>
             </div>
         </div>
+
+
+
+
+        <!-- ------------------------modales de tablas ------------------------------------ -->
+         <!-- The Modal create -->
+         <div id="myModalT1" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="closeT1">&times;</span>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Nombre de la Tabla</label>
+                      <input type="text" class="form-control" id="nameTableCreate">
+                    </div>
+                      <div class="form-group">
+                      <label for="exampleInputEmail1">Atributos</label>
+                      <input type="text" class="form-control" id="atributosTabla">
+                    </div>
+                    <button type="button" class="btn btn-primary" onClick = "Table('create')">Submit</button>
+                  </form>
+            </div>
+        </div>
+
+           <!-- The Modal show -->
+           <div id="myModalT2" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="closeT2">&times;</span>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Nombre de la Tabla</label>
+                      <input type="text" class="form-control" id="nameTableExtract">
+                    </div>
+                     
+                    <button type="button" class="btn btn-primary" onClick = "Table('extract')">Submit</button>
+                  </form>
+            </div>
+        </div>
+
     </body>  
 </html>

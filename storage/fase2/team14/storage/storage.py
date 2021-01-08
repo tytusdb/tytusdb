@@ -145,6 +145,72 @@ def dropDatabase(database: str) -> int:
         commit(databasesinfo, 'databasesinfo')
     return result
 
+# cambia el modo de una base de datos completa
+def alterDatabaseMode(database: str, mode: str) -> int:
+    modes = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
+    try:
+        if database not in databasesinfo[0]:
+            return 2
+        elif mode not in modes:
+            return 4
+        else:
+            createDatabase('temporal_name', mode, 'utf8')
+            for key in databasesinfo[1][database].keys():
+                createTable('temporal_name', key, databasesinfo[1][database][key]['numberColumns'])
+                if databasesinfo[1][database][key]['PK'] is not None:
+                    alterAddPK('temporal_name', key, databasesinfo[1][database][key]['PK'])
+                registers = extractTable(database, key)
+                for register in registers:
+                    insert('temporal_name', key, register)
+            dropDatabase(database)
+            alterDatabase('temporal_name', database)
+            return 0
+    except:
+        return 1
+
+
+# Metodo que modifica la codificacion que acepta la base de datos    
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    result = 0
+    coding = ['ascii', 'iso-8859-1', 'utf8']
+    if encoding not in coding:
+        return 3
+    elif database not in databasesinfo[0]:
+        return 2
+    elif encoding == databasesinfo[0][database]["encoding"]:
+        return 1
+    else:
+        try:
+            tables = []
+            tuples = []
+            copy = {}
+            tables = showTables(database)
+            for i in tables:
+                tuples = extractTable(database, i)
+                copy.update({i: tuples[:]})
+                for j in copy[i]:
+                    try:
+                        decoding = databasesinfo[0][database]['encoding']
+                        for k in j:
+                            if isinstance(k, str):
+                                ind = j.index(k)
+                                x = k.encode(decoding)
+                                j[ind] = x.decode(encoding)
+                    except:
+                        return 1
+            else:
+                databasesinfo[0][database]['encoding'] = encoding
+                for i in tables:
+                    truncate(database, i)
+                    for j in copy[i]:
+                        result = insert(database, i, j)
+                        if result != 0:
+                            return result
+                else:
+                    commit(databasesinfo, 'databasesinfo')
+                    return 0
+        except:
+            return 1    
 
 #*----------------------------------tables-------------------------------------------*
 
@@ -559,6 +625,64 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
             del databasesinfo[1][database][tableOld]
             commit(databasesinfo, 'databasesinfo')
         return result
+    except:
+        return 1
+    
+
+# modifica el modo de una tabla en especifico
+def alterTableMode(database: str, table: str, mode: str) -> int:
+    modes = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
+    try:
+        if database not in databasesinfo[0]:
+            return 2
+        elif table not in databasesinfo[1][database]:
+            return 3
+        elif mode not in modes:
+            return 4
+        else:
+            if databasesinfo[1][database][table]['mode'] == mode:
+                return 1
+            else:
+                registers = extractTable(database, table)
+                numberColumns = databasesinfo[1][database][table]['numberColumns']
+                PK = None
+                if databasesinfo[1][database][table]['PK'] is not None:
+                    PK = databasesinfo[1][database][table]['PK']
+                dropTable(database, table)
+                if mode == 'avl':
+                    AVLM.createDatabase(database)
+                    AVLM.createTable(database, table, numberColumns)
+                elif mode == 'b':
+                    BM.createDatabase(database)
+                    BM.createTable(database, table, numberColumns)
+                elif mode == 'bplus':
+                    BPlusM.createDatabase(database)
+                    BPlusM.createTable(database, table, numberColumns)
+                elif mode == 'dict':
+                    DictM.createDatabase(database)
+                    DictM.createTable(database, table, numberColumns)
+                elif mode == 'isam':
+                    ISAMM.createDatabase(database)
+                    ISAMM.createTable(database, table, numberColumns)
+                elif mode == 'json':
+                    jsonM.createDatabase(database)
+                    jsonM.createTable(database, table, numberColumns)
+                elif mode == 'hash':
+                    HashM.createDatabase(database)
+                    HashM.createTable(database, table, numberColumns)
+                databasesinfo[1][database].update(
+                    {table: {'mode': mode, 'numberColumns': numberColumns, 'PK': None, 'safeMode': False, 'Compress': False}})
+                commit(databasesinfo, 'databasesinfo')
+                if PK is not None:
+                    alterAddPK(database, table, PK)
+                for register in registers:
+                    insert(database, table, register)
+                databasesinfo[2].update({database: []})
+                if len(databasesinfo[2][database]) == 0:
+                    databasesinfo[2][database].append(databasesinfo[0][database]['mode'])
+                if mode not in databasesinfo[2][database]:
+                    databasesinfo[2][database].append(mode)
+                return 0
     except:
         return 1
 

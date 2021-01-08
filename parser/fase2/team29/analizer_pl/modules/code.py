@@ -24,10 +24,13 @@ from analizer_pl.sql_statement.drop import drop_table
 from analizer_pl.sql_statement.drop import drop_index
 from analizer_pl.sql_statement.select import select
 from analizer_pl.sql_statement.select import union
+from analizer_pl.sql_statement.select import select_first
 from analizer_pl.sql_statement import use_
 from analizer_pl.sql_statement import show_
 from analizer_pl.sql_statement import truncate_
 from analizer_pl.sql_statement import insert_
+from analizer_pl.sql_statement import delete_
+from analizer_pl.sql_statement import update_
 
 
 def TernaryOperation(temp, exp1, exp2, exp3, operator, row, column):
@@ -178,7 +181,7 @@ def SelectOnlyParams(params, row, column):
     return select.SelectOnlyParams(params, row, column)
 
 
-def SelecctParam(exp, alias, row, column):
+def SelectParam(exp, alias, row, column):
     return select.SelectParam(exp, alias, row, column)
 
 
@@ -190,3 +193,19 @@ def TernaryExpression(temp, exp1, exp2, exp3, operator, isBlock, row, column):
 
 def Aggrupation(exp, isBlock, row, column):
     return datatype.Aggrupation(exp, isBlock, row, column)
+
+
+def Delete(fromcl, wherecl, row, column):
+    return delete_.Delete(fromcl, wherecl, row, column)
+
+
+def Update(fromcl, values, wherecl, row, column):
+    return update_.Update(fromcl, values, wherecl, row, column)
+
+
+def SelectFirstValue(temp, select):
+    return select_first.SelectFirstValue(temp, select)
+
+
+def SelectOnlyParamsFirst(temp, select):
+    return select_first.SelectOnlyParamsFirst(temp, select)
