@@ -2551,7 +2551,7 @@ def p_tipo_2(t):
 # -------------------------------------------------------------------------------------------------------------- 
 def p_tipo_3(t):
     'tipo               : DECIMAL PARENTESISIZQUIERDA ENTERO COMA ENTERO PARENTESISDERECHA '
-    t[0] = " DECIMAL ( " + str(t[3]) + " , " + str(t[5]) +" )"
+    t[0] = " DECIMAL(" + str(t[3]) + "," + str(t[5]) +")"
 
 
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
@@ -2889,13 +2889,17 @@ def p_Function_2(t):
     'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR bloqueFuncion'
     a = 'salida=analizador.agregarFuncionaTS("'+t[3]+'",h.bd_enuso)\n'
 
-    vartip = t[5].split(',')
-    conttemp1 = 0
+    parametro = ""
+    for param in t[5]:
+       parametro+=param+","
+    param = parametro[:-1]
+    
+    
+    vartip = param.split(',')
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[3]+'")\n'
-        conttemp1+=1
+    
     a+= 'salida=analizador.agregarVariableaTS("'+t[8]+'",None,h.bd_enuso,"'+t[3]+'")\n\n'
     a+="@with_goto\n"
     a += "def "+t[3]+" ( "
@@ -2908,7 +2912,7 @@ def p_Function_2(t):
         
         if conttemp2 < len(vartip):
             a+=", "
-        conttemp2+=1
+
     a +=" ):\n"
     #a +='   print("FUNCTION")\n'
     j=t[12].splitlines()
@@ -2936,17 +2940,20 @@ def p_Function_3(t):
 
 def p_Function_4(t):
     'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR bloqueFuncion'
-    vartip = t[7].split(',')
+    #vartip = t[7].split(',')
     
     a = 'salida=analizador.agregarFuncionaTS("'+t[5]+'",h.bd_enuso)\n'
 
-    vartip = t[7].split(',')
-    conttemp1 = 0
+    parametro = ""
+    for param in t[7]:
+       parametro+=param+","
+    param = parametro[:-1]
+    
+    vartip = param.split(',')
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[5]+'")\n'
-        conttemp1+=1
+
     a += 'salida=analizador.agregarVariableaTS("'+t[10]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
     a+="@with_goto\n"
     a += "def "+t[5]+" ( "
@@ -2957,7 +2964,7 @@ def p_Function_4(t):
         conttemp+=1
         if conttemp < len(vartip):
             a+=", "
-        conttemp+=1
+
     a +=" ):\n"
     #a +='   print("REPLACE FUNCTION")\n'
     j=t[14].splitlines()
@@ -2999,13 +3006,16 @@ def p_Procedure_2(t):
     
     a = 'salida=analizador.agregarProcedureaTS("'+t[3]+'",h.bd_enuso)\n'
 
-    vartip = t[5].split(',')
-    conttemp1 = 0
+    parametro = ""
+    for param in t[5]:
+       parametro+=param+","
+    param = parametro[:-1]
+    print('---------',param)
+
+    vartip = param.split(',')
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[3]+'")\n'
-        conttemp1+=1
     
     a += "def "+t[3]+" ( "
     conttemp = 0
@@ -3015,7 +3025,7 @@ def p_Procedure_2(t):
         conttemp+=1
         if conttemp < len(vartip):
             a+=", "
-        conttemp+=1
+
     a +=" ):\n"
     #a +='   print("PROCEDURE")\n'
     j=t[12].splitlines()
@@ -3048,13 +3058,17 @@ def p_Procedure_4(t):
     
     a = 'salida=analizador.agregarProcedureaTS("'+t[5]+'",h.bd_enuso)\n'
 
-    vartip = t[7].split(',')
+    parametro = ""
+    for param in t[7]:
+       parametro+=param+","
+    param = parametro[:-1]
+
+    vartip = param.split(',')
     conttemp1 = 0
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[5]+'")\n'
-        conttemp1+=1
+
     a += 'salida=analizador.agregarVariableaTS("'+t[10]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
     
     a += "def "+t[5]+" ( "
@@ -3065,7 +3079,7 @@ def p_Procedure_4(t):
         conttemp+=1
         if conttemp < len(vartip):
             a+=", "
-        conttemp+=1
+
     a +=" ):\n"
     #a += '   print("REPLACE PROCEDURE")\n'
     j=t[14].splitlines()
@@ -3198,11 +3212,12 @@ def p_declaraciones_7(t):
 
 def p_parametroproc_1(t):
     'parametroproc              : parametroproc COMA paramproc'
-    t[0] = t[1] +","+ t[3]
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_parametroproc_2(t):
     'parametroproc              : paramproc'
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 def p_paramproc_1(t):
     'paramproc                  : ID tipo'
