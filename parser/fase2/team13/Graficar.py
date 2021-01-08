@@ -4254,7 +4254,7 @@ def p_CALL(p):
     global cont
     p[0]  = Node("E","",cont,0,0)
     cont  = cont+1
-    p[0].AddHijos(t[1])
+    p[0].AddHijos(p[1])
     lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 

@@ -20,9 +20,11 @@ from graphviz import Digraph
 import cod3d as c3ddddd
 import sentencias as senttt
 
+
 import shutil
 
 pathFile=''
+entradaG=""
 
 #################################### CLASE TextLineNumbers ####################################
 class TextLineNumbers(tk.Canvas):
@@ -212,7 +214,7 @@ if __name__ == "__main__":
         imprimir_consola(principal.consola)
         
 
-    def __funcion_Hacer_3D():
+    def __funcion_Hacer_3D():   
 
         g.errores_lexicos.clear()
         g.errores_sintacticos.clear()
@@ -239,9 +241,6 @@ if __name__ == "__main__":
                 archivo.close()
                 MessageBox.showinfo("Archivo generado","El archivo se guardo exitosamente")      
                 #append_consola(tablaSimbolos.mostrar_tabla())
-                #raiz = graficando.analizador(entrada)
-                #graficando.GraficarAST(raiz)
-                #graficando.ReporteGramatical()
             else:
 
                 imprimir_consola('Se detectaron algunos errores sintácticos')
@@ -345,12 +344,16 @@ if __name__ == "__main__":
     # FUNCIÓN PRIVADA PARA REALIZAR EL REPORTE DE ERRORES SINTÁCTICOS
     def __funcion_GramaticalEstatico():
             os.startfile('gramaticaEstatico.txt') 
-            os.startfile('GramaticaEstaticoDescendente.txt') 
+            #os.startfile('GramaticaEstaticoDescendente.txt') 
     def __funcion_GramaticalDinamico():
             os.startfile('gramaticaDinamico.txt') 
    
 
     def __funcion_AST():
+            entrada = my_editor.text.get('1.0', END)
+            raiz = graficando.analizador(entrada)
+            graficando.GraficarAST(raiz)
+            graficando.ReporteGramatical()
             os.startfile('arbol.jpg') 
 
     

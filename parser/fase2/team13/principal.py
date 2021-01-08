@@ -17,6 +17,7 @@ import itertools
 from graphviz import Digraph
 from Error import item3D
 import cod3d as c3ddddd
+import shutil
 
 tablaSimbolos =TS.Entorno(None)
 consola = ""
@@ -100,7 +101,7 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 stack.append(nodo)
                 Eti ="t"+str(contadoresT)
                 contadoresT+=1
-                texttraduccion += identacion+Eti+"= p3.updateBaseEx(stack["+str(puntero)+"],p3.tablaSimbolos\")\n"
+                texttraduccion += identacion+Eti+"= p3.updateBaseEx(stack["+str(puntero)+"],p3.tablaSimbolos)\n"
                 #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
                 puntero += 1
                                                     
@@ -243,8 +244,8 @@ def interpretar_sentencias(arbol,ejecutar3D):
         texttraduccion+=identacion+"print(p3.consola) \n"
         for nodo in arbol:
             if isinstance(nodo,SCreateFunction):
-                texttraduccion+="def "+nodo.id
-                textoptimizado+="def "+nodo.id
+                texttraduccion+="@with_goto\ndef "+nodo.id
+                textoptimizado+="@with_goto\ndef "+nodo.id
                 CrearFuncion(nodo,tablaSimbolos)
 
     else:    
@@ -894,7 +895,7 @@ def CrearFuncion(nodo,tablaSimbolos):
         if base.crearF(nodo.id,auxNodo):
             consola+="Se creó la funcion/procedimiento "+ nodo.id +" con exito \n"
     else:
-        texttraduccion+=" (): \n"
+        texttraduccion+=" (stack=[]): \n"
         auxNodo=TS.SimboloFuncion(nodo.id,False,nodo.tipo,nodo.retorno,"global")
         base=tablaSimbolos.get(useActual)
         texttraduccion+=identacion +"global stackk\n"
@@ -915,6 +916,7 @@ def parametros(lista,tablaSimbolos):
         else:
             texttraduccion+=","+param.id
         contador+=1
+    texttraduccion += ",stack=[]"
 
 
 def Declara(nodo,funcion,tablaSimbolos):
@@ -961,10 +963,16 @@ def Declara(nodo,funcion,tablaSimbolos):
                 aux.opt =cadenaopt
                 aux.regla ="Regla 11"
                 arr_optimizacion.append(aux) 
-             
-        nodo.tipo=valor.tipo
-        auxvar = TS.SimboloVariable(nodo.id,valor.tipo,valor.valor,"Local")
-        funcion.crearVariable(nodo.id,auxvar)
+
+        if hasattr(valor,"tipo"):
+            nodo.tipo=valor.tipo
+            auxvar = TS.SimboloVariable(nodo.id,valor.tipo,valor.valor,"Local")
+            funcion.crearVariable(nodo.id,auxvar)
+        else:
+            nodo.tipo=Expresion.BOOLEAN
+            auxvar = TS.SimboloVariable(nodo.id,Expresion.BOOLEAN,valor,"Local")
+            funcion.crearVariable(nodo.id,auxvar)
+       
     else:
         texttraduccion+=identacion+nodo.id+"= None \n"
 
@@ -1203,9 +1211,32 @@ def TraducirBloque(nodo,funcion,tablaSimbolos):
 
 
 def TraducirExecute(nodo):
-    global texttraduccion
-    if nodo.params==False:
-        texttraduccion+=identacion+nodo.id+"()"+"\n"
+    global texttraduccion,tablaSimbolos,useActual
+    base= tablaSimbolos.get(useActual)
+    f = base.getFuncion(nodo.id)
+    if f != None:
+        if nodo.params==False:
+            texttraduccion+=identacion+nodo.id+"(stack)\n"
+        else: 
+            texttraduccion += identacion+nodo.id+"("
+            cont =0 
+            for e in nodo.params:
+                if cont==0:
+                    if e.tipo!=Expresion.CADENA:
+                        texttraduccion+=e.valor
+                    else:
+                        texttraduccion+="\'"+e.valor+"\'"
+
+                else: 
+                    if e.tipo!=Expresion.CADENA:
+                        texttraduccion+=","+e.valor
+                    else:
+                        texttraduccion+=",\'"+e.valor+"\'"
+            cont += 1
+            texttraduccion += ",stack)\n"
+    else: 
+        listaSemanticos.append(Error.ErrorS("Error semantico", "No se encontró la función "+ nodo.id))
+        
 
 
 def TraducirRetorno(nodo,funcion,tablaSimbolos):
@@ -1246,7 +1277,9 @@ def TraducirCase(nodo,funcion,tablaSimbolos):
         print(tempo2)
         if ctcasos>0:
             texttraduccion+=identacion+"label "+tempo2+"\n"
-        tempo=".L"+str(contadoresEtiqueta)
+        tempo=".L"+str(
+            
+        )
         contadoresEtiqueta+=1
         texttraduccion+=identacion+"if "+str(condicion2.valor)+"!="+str(condicion.valor)+": goto "+tempo+"\n"
         TraducirBloque(bcase.bloque,funcion,tablaSimbolos)
@@ -1857,7 +1890,17 @@ def queryEx(nodo,tablaSimbolos,banderita):
             pT = PrettyTable()
             if Qselect!=False and Qffrom==False and Qwhere == False and Qgroupby ==False and Qhaving ==False and Qorderby ==False and Qlimit ==False :
                 e = Qselect
-                ejecutaLlamadaQ(e,base)
+                print("???????????????????????????2222??")
+                print(e)
+                for xz in e.cols:
+                    if isinstance(xz,SSelectLlamadaQuery):
+                        ejecutaLlamadaQ(e,base)
+                    else: 
+                        B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT,banderita,tablaSimbolos)
+                        if B!=0:
+                            consola += str(pT) + "\n"
+                        return B
+                    
             else:
                 B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT,banderita,tablaSimbolos)
                 if B!=0:
@@ -1881,7 +1924,17 @@ def queryEx(nodo,tablaSimbolos,banderita):
             pT = PrettyTable()
             if Qselect!=False and Qffrom==False and Qwhere == False and Qgroupby ==False and Qhaving ==False and Qorderby ==False and Qlimit ==False :
                 e = Qselect
-                ejecutaLlamadaQ(e,base)
+                print("?????????????????????????????")
+                print(e)
+                for xz in e.cols:
+                    if isinstance(xz,SSelectLlamadaQuery):
+                        ejecutaLlamadaQ(e,base)
+                    else: 
+                        B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT,banderita,tablaSimbolos)
+                        if B!=0:
+                            consola += str(pT) + "\n"
+                        return B
+                   
             else:
                 B= hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT,banderita,tablaSimbolos)
                 if B!=0:
@@ -1902,35 +1955,40 @@ def ejecutaLlamadaQ(valor,base):
     print("AQUI ESTA NUESTRA EJECUCION XD")
     global stack,consola
     for e in valor.cols:
+        #print("ESTE ES EL ID")
+        #print(e)
         print(e.id.valor.id)
         nombreFuncion=e.id.valor.id
         cadenaEjecutarb = "c3ddddd."+nombreFuncion+"("
         contador=0
-        for x in e.id.valor.params:
-            #print(x.valor)
-            param=x.valor
-            if contador == 0:
-                if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
-                    cadenaEjecutarb+=str(param)
-                elif x.tipo == Expresion.BOOLEAN:
-                    cadenaEjecutarb+=str(param)
-                elif x.tipo == Expresion.ID:
-                    cadenaEjecutarb+=str(param)
+        if e.id.valor.params!= False:
+            for x in e.id.valor.params:
+                #print(x.valor)
+                param=x.valor
+                if contador == 0:
+                    if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
+                        cadenaEjecutarb+=str(param)
+                    elif x.tipo == Expresion.BOOLEAN:
+                        cadenaEjecutarb+=str(param)
+                    elif x.tipo == Expresion.ID:
+                        cadenaEjecutarb+=str(param)
+                    else:
+                        cadenaEjecutarb+="\'"+str(param)+"\'"
+                    
                 else:
-                    cadenaEjecutarb+="\'"+str(param)+"\'"
-               
-            else:
-                if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
-                    cadenaEjecutarb+=","+str(param)
-                elif x.tipo == Expresion.BOOLEAN:
-                    cadenaEjecutarb+=","+str(param)
-                elif x.tipo == Expresion.ID:
-                    cadenaEjecutarb+=","+str(param)
-                else:
-                    cadenaEjecutarb+=",\'"+str(param)+"\'"
-            contador += 1
-
-        cadenaEjecutarb += ")"
+                    if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
+                        cadenaEjecutarb+=","+str(param)
+                    elif x.tipo == Expresion.BOOLEAN:
+                        cadenaEjecutarb+=","+str(param)
+                    elif x.tipo == Expresion.ID:
+                        cadenaEjecutarb+=","+str(param)
+                    else:
+                        cadenaEjecutarb+=",\'"+str(param)+"\'"
+                contador += 1
+        if contador == 0:
+            cadenaEjecutarb += "stack)"
+        else:
+            cadenaEjecutarb += ",stack)"
         resultado = eval(cadenaEjecutarb)
         consola += str(resultado)+"\n"
         print("RESULTADO->"+str(resultado))
@@ -2489,7 +2547,7 @@ def InsertTable(nodo, tablaSimbolos,cod3D):
        texttraduccion += identacion + "if ( "+temp2+" == "+"1 ):\n"     
        Etiqueta += ".L"+ str(contadoresEtiqueta)
        contadoresEtiqueta +=1 
-       Etiqueta1 += ".L"+ str(contadoresEtiqueta)
+       #Etiqueta1 += ".L"+ str(contadoresEtiqueta)
        texttraduccion += identacion+identacion+"goto " + Etiqueta + " \n"
        texttraduccion +=identacion+"goto " + Etiqueta1 + " \n"
        texttraduccion +=identacion+"label " + Etiqueta + " \n"
@@ -3214,16 +3272,16 @@ def validarTiposChar(dato, expresion):
 
 def validarTiposFecha(dato, expresion):
     if dato == "date":
-        if expresion.tipo == Expresion.FECHA:
+        if expresion.tipo == Expresion.FECHA or expresion.tipo == Expresion.CADENA:
             return True
     elif dato == "timestamp":
-        if expresion.tipo == Expresion.FECHA or expresion.tipo == Expresion.FECHA_HORA:
+        if expresion.tipo == Expresion.FECHA or expresion.tipo == Expresion.FECHA_HORA  or expresion.tipo == Expresion.CADENA:
             return True
     elif dato == "time":
-        if expresion.tipo == Expresion.HORA:
+        if expresion.tipo == Expresion.HORA  or expresion.tipo == Expresion.CADENA:
             return True
     elif dato == "interval":
-        if expresion.tipo == Expresion.INTERVALO:
+        if expresion.tipo == Expresion.INTERVALO  or expresion.tipo == Expresion.CADENA:
             return True
 
     if expresion.tipo == Expresion.NULL:
@@ -3424,7 +3482,24 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             if cod3D:
                 Etiqueta = ".L" + str(contadoresEtiqueta)
                 contadoresEtiqueta += 1
-                texttraduccion += identacion+"if(" + str(opIzq.valor) + "==" + str(opDer.valor) + "): "
+                texttraduccion += identacion+"if(" 
+                if str(opIzq.valor).isnumeric():
+                    texttraduccion+= str(opIzq.valor)+"=="
+                else:
+                    if opIzq.tipo == Expresion.CADENA:
+                        texttraduccion+= "\'"+str(opIzq.valor)+"\'=="
+                    else:
+                        texttraduccion+=str(opIzq.valor)+"=="
+                        
+                
+                if str(opDer.valor).isnumeric():
+                     texttraduccion+= str(opDer.valor)+"): "
+                else:
+                    if opDer.tipo == Expresion.CADENA:
+                        texttraduccion+= "\'"+str(opDer.valor)+"\'): "
+                    else:
+                        texttraduccion+=str(opDer.valor)+"): "
+
                 Etiqueta2 = ".L" + str(contadoresEtiqueta)+"\n"
                 contadoresEtiqueta += 1
                 ropt=0
@@ -4048,31 +4123,32 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
             print(tipo)
 
             if bande:
-                for x in expresion.valor.params:
-                    #print(x.valor)
-                    x=Interpreta_Expresion(x,tablaSimbolos,tabla,cod3D)
-                    param=x.valor
-                    if contador == 0:
-                        if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
-                            cadenaEjecutarb+=str(param)
-                        elif x.tipo == Expresion.BOOLEAN:
-                            cadenaEjecutarb+=str(param)
-                        elif x.tipo == Expresion.ID:
-                            cadenaEjecutarb+=str(param)
+                if expresion.valor.params != False: 
+                    for x in expresion.valor.params:
+                        #print(x.valor)
+                        x=Interpreta_Expresion(x,tablaSimbolos,tabla,cod3D)
+                        param=x.valor
+                        if contador == 0:
+                            if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
+                                cadenaEjecutarb+=str(param)
+                            elif x.tipo == Expresion.BOOLEAN:
+                                cadenaEjecutarb+=str(param)
+                            elif x.tipo == Expresion.ID:
+                                cadenaEjecutarb+=str(param)
+                            else:
+                                cadenaEjecutarb+="\'"+str(param)+"\'"
+                        
                         else:
-                            cadenaEjecutarb+="\'"+str(param)+"\'"
-                    
-                    else:
-                        if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
-                            cadenaEjecutarb+=","+str(param)
-                        elif x.tipo == Expresion.BOOLEAN:
-                            cadenaEjecutarb+=","+str(param)
-                        elif x.tipo == Expresion.ID:
-                            cadenaEjecutarb+=","+str(param)
-                        else:
-                            cadenaEjecutarb+=",\'"+str(param)+"\'"
-                    contador += 1
-
+                            if x.tipo == Expresion.ENTERO or x.tipo == Expresion.DECIMAL:
+                                cadenaEjecutarb+=","+str(param)
+                            elif x.tipo == Expresion.BOOLEAN:
+                                cadenaEjecutarb+=","+str(param)
+                            elif x.tipo == Expresion.ID:
+                                cadenaEjecutarb+=","+str(param)
+                            else:
+                                cadenaEjecutarb+=",\'"+str(param)+"\'"
+                        contador += 1
+   
                 cadenaEjecutarb += ")"
                 resultado = eval(cadenaEjecutarb)
                 print("RESULTADO->"+str(resultado))
@@ -4107,13 +4183,13 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
                         return SExpresion(tablaSimbolos[simbolo].valor,tablaSimbolos[simbolo].tipo)
         elif expresion.tipo == Expresion.FECHA:
 
-            valor = datetime.strptime(str(expresion.valor),'%Y-%m-%d').date()
+            valor = datetime.strptime(str(expresion.valor),'%d/%m/%Y %H:%M:%S').date()
             return SExpresion(valor, expresion.tipo)
 
 
         elif expresion.tipo == Expresion.FECHA_HORA:
 
-            valor = datetime.strptime(expresion.valor,'%Y-%m-%d %H:%M:%S')
+            valor = datetime.strptime(expresion.valor,'%Y/%m/%d %H:%M:%S')
             return SExpresion(valor, expresion.tipo)
 
         elif expresion.tipo == Expresion.HORA:
@@ -4418,7 +4494,6 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
 
 
     elif isinstance(expresion,SSubstring):
-
         cadena = Interpreta_Expresion(expresion.cadena,tablaSimbolos,tabla, cod3D)
         inicio = Interpreta_Expresion(expresion.inicio,tablaSimbolos,tabla, cod3D)
         tamanio = Interpreta_Expresion(expresion.tamanio,tablaSimbolos,tabla, cod3D)
@@ -4428,11 +4503,26 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla, cod3D):
 
         return SExpresion(res,Expresion.BOOLEAN)
     
+
+    elif isinstance(expresion,SColumnasSubstr):
+        print("entro al instance")
+        global d1,d2
+        dato = expresion.cols
+        val1 = str(dato.valor)
+        inicio = int(d1)
+        fin = int(d2)
+        val = val1[inicio:fin]
+        return SExpresion(val,Expresion.CADENA)
+
     
     if cod3D:
         if isinstance(expresion,SOperacion):
             print(expresion.opDer)
-        return Etiquetas(expresion.valor,expresion.tipo,False,False,False,0)
+        print("################################")
+        if hasattr(expresion,"valor"):
+            return Etiquetas(expresion.valor,expresion.tipo,False,False,False,0)
+        else:
+            return Etiquetas(expresion,Expresion.BOOLEAN,False,False,False,0)
     else:
         return expresion
 
@@ -4512,6 +4602,9 @@ def truncatebase(nodo, tablaSimbolos):
 # METODOS QUERIES
 
 def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, base, pT, subConsulta,tablaSimbolos):
+    print("ENTRO A CONSULTA XD ORALE EDI ")
+    print(Qselect)
+    print(Qwhere)
     global consola
     global useActual
     global d1,d2
@@ -4553,6 +4646,8 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                 vIndice= ""
                 vNodo=""
                 vcTipo=""
+                print("LA COLUMNA ES")
+
                 if isinstance(col, SColumnasSubstr):
                     print("Funcion Substr:")
                     tipoSubstr = True
@@ -4561,12 +4656,20 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                     vIndice = contador
                     d1= col.cols2.valor
                     d2 =col.cols3.valor
+                    vNodo = col
                     if isinstance(col.cols, SExpresion):
                         vParam = col.cols
                         vTabla = False
                     else:
                         vNombre = col.cols.opDer.valor
                         vTabla = col.cols.opIzq.valor
+                
+                elif isinstance(col, SSelectLlamadaQuery):
+                    vNombre = col.id
+                    vTipo = 20
+                    vIndice=contador
+                    vTabla = False
+                    vNodo = col
 
                 elif isinstance(col.cols, SExpresion):
                     vNombre = col.cols.valor
@@ -4877,6 +4980,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
             else:
                 # TODAS LAS COLS SIN WHERE
                 if todasCols:
+                    print("t de todas")
                     t2 = base.getTabla(tablaConsulta)
                     nombreCols = []
                     for e in t2.columnas.keys():
@@ -4893,12 +4997,15 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                     print("ESPECIFICAS")
 
                     if tipoAgregacion:
+                        print("ENTRO AQUI MIRA HEIDY MENDOZA3")
                         agregacionSinWhere(arrCols, base, tablasColumna, pT, subConsulta,groupBy)
                     elif tipoAsterisco:
+                        print("ENTRO AQUI MIRA HEIDY MENDOZA2")
                         puntoAsterisco(arrcast, base, tablasColumna, pT, groupBy, tablaSimbolos)
-                        multcolumns(arrCols, base, tablasColumna, pT, subConsulta, groupBy)
+                        multcolumns(arrCols, base, tablasColumna, pT, groupBy, subConsulta)
                     else:
-                        un_temporal = multcolumns(arrCols, base, tablasColumna, pT, False, True)
+                        print("ENTRO AQUI MIRA HEIDY MENDOZA")
+                        un_temporal = multcolumns(arrCols, base, tablasColumna, pT, False, subConsulta)
 
 
                         for r in un_temporal:
@@ -4919,7 +5026,10 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
         # Consulta simple
 
         else:
-            if isinstance(col.cols, SExtract2):
+            print("aqui we")
+            if isinstance(col,SSelectLlamadaQuery):
+                print("entro aquixd")
+            elif isinstance(col.cols, SExtract2):
                 #print("Funcion Extract:") #len 17
                 if isinstance(col.cols.field, STipoDato):
                     extraer = str(col.cols.field.dato)
@@ -4947,7 +5057,14 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                     elif extraer.lower() == "second":
                         val = second
                     #print(val)
-                    pT.add_column(str(extraer), val)
+                    if subConsulta == False:
+                        pT.add_column(str(extraer), val)
+                    else:
+                        arr1=[]
+                        arr2=[]
+                        arr1.append(str(val))
+                        arr2.append(arr1)
+                        return arr2
             elif isinstance(col.cols, SDatePart):
                 #print("Funcion DatePart:")
                 if isinstance(col.cols.param, SExpresion):
@@ -4977,7 +5094,8 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                     elif extraer == "seconds":
                         pT.add_column(str(extraer), secs)
             else:
-                consultaSimple(arrCols,pT,groupBy)
+                b = consultaSimple(arrCols,pT,subConsulta)
+                return b
 
 
     else:
@@ -5039,7 +5157,6 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
             for ind in range(len(columnas)) :
 
                 for q_cols in Qselect.cols:
-
                     if isinstance(q_cols.cols,SFuncAgregacion):
                         
                         if q_cols.cols.param == "*":
@@ -5154,6 +5271,8 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
 def multcolumns(arrCols, base, tablasColumna, pT, subConsulta,groupBy):
     global consola
     retorno = []
+    print("Gby")
+    print(groupBy)
     if not subConsulta:
         for e in arrCols:
             tabla = ""
@@ -5305,7 +5424,11 @@ def consultaSimple(arrCols, pT,groupby):
                 arr1.append(val)
                 arrGlobal.append(arr1)
             else:
+                print("hasta aqui")
+                print(e.nodo)
+                print("hasta aqui2")
                 val = Interpreta_Expresion(e.nodo, None, None,False)
+                print(val)
                 arrGlobal.append([str(val.valor)])
 
     # x = PrettyTable()
@@ -6289,6 +6412,8 @@ def agregacionSinWhere(arrCols, base, tablasColumna, pT,subconsulta,groupBy):
             pT.add_column(arrCols[n].alias + "(" + arrCols[n].param + ")", xd)
             n += 1
         # consola += str(x)+"\n"
+        
+        return [arrGlobal]
 
     else:
         if groupBy !=None:
