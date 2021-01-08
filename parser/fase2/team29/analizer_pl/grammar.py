@@ -256,13 +256,15 @@ def p_declaration_list(t):
     """
     declaration_list : declaration_list declare_var
     """
-    t[0] = t[1]+t[2]
+    t[0] = t[1] + t[2]
+
 
 def p_declaration_list_u(t):
     """
     declaration_list : declare_var
     """
     t[0] = t[1]
+
 
 def p_declare_var(t):
     """
@@ -1734,7 +1736,9 @@ def p_current_1(t):
     """
     current : timeStamp
     """
-    t[0] = expression.C3D("", t[1][0].temp[1:-1]+" "+t[1][1].temp, t[1][0].row, t[1][0].column)
+    t[0] = expression.C3D(
+        "", t[1][0].temp[1:-1] + " " + t[1][1].temp, t[1][0].row, t[1][0].column
+    )
     repGrammar.append(t.slice)
 
 
@@ -2833,17 +2837,20 @@ def returnSyntacticErrors():
     global syntax_errors
     return syntax_errors
 
+
 def returnPLErrors():
     global PL_errors
     temp = PL_errors
     PL_errors = list()
     return temp
 
+
 def returnSemanticErrors():
     global semantic_errors
     temp = semantic_errors
     semantic_errors = list()
     return temp
+
 
 def parse(input):
     try:

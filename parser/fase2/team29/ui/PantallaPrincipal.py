@@ -111,6 +111,10 @@ class Pantalla:
                 while i < len(self.postgreSQL):
                     self.text_Consola.insert(INSERT, self.postgreSQL[i] + "\n")
                     i += 1
+        else:
+            tkinter.messagebox.showinfo(
+                title="Info", message="Generacion de codigo 3 direcciones completada."
+            )
         messages = result["messages"]
         if len(messages) > 0:
             i = 0

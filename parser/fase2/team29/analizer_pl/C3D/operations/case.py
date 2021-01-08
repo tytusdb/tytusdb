@@ -33,10 +33,14 @@ class Case(Instruction):
                 str(var.temp), str("labelCase0" + str(self.ambito)), self.row
             )
             c3d += "\tgoto .labelCase1" + str(self.ambito) + "\n"
-            grammar.optimizer_.addGoto_CASE(str("labelCase1" + str(self.ambito)), self.row)
+            grammar.optimizer_.addGoto_CASE(
+                str("labelCase1" + str(self.ambito)), self.row
+            )
             if self.elseCase != None:
                 for ec in self.elseCase:
-                    c3d += "\tlabel .labelCase" + str(contLabel) + str(self.ambito) + "\n"
+                    c3d += (
+                        "\tlabel .labelCase" + str(contLabel) + str(self.ambito) + "\n"
+                    )
                     grammar.optimizer_.addLabel_CASE(
                         str("labelCase" + str(contLabel) + str(self.ambito)), self.row
                     )
@@ -57,13 +61,17 @@ class Case(Instruction):
                         self.row,
                     )
                     contLabel += 1
-                    c3d += "\tgoto .labelCase" + str(contLabel) + str(self.ambito) + "\n"
+                    c3d += (
+                        "\tgoto .labelCase" + str(contLabel) + str(self.ambito) + "\n"
+                    )
                     grammar.optimizer_.addGoto_CASE(
                         str("labelCase" + str(contLabel) + str(self.ambito)), self.row
                     )
                 contLabel = 0
             blockCad = ""
-            grammar.optimizer_.addLabel_CASE(str("labelCase0" + str(self.ambito)), self.row)
+            grammar.optimizer_.addLabel_CASE(
+                str("labelCase0" + str(self.ambito)), self.row
+            )
             for bs in self.blockStmt:
                 blockCad += bs.execute(environment).value
             c3d += (
@@ -118,7 +126,9 @@ class Case(Instruction):
             self.codigo = c3d
             return code.C3D(c3d, "case", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error Hint ---> Instruccion Case")
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error Hint ---> Instruccion Case"
+            )
 
     def dot(self):
         new = Nodo("CASE")

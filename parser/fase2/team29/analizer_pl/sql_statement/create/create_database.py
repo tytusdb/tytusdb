@@ -38,7 +38,9 @@ class CreateDatabase(instruction.Instruction):
                 grammar.optimizer_.addIgnoreString(out, self.row, False)
             return code.C3D(out, "create_db", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Create DataBase")
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Create DataBase"
+            )
 
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_CREATE_DATABASE")
