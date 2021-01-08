@@ -8,6 +8,7 @@ class Arbol:
         self.ErroresSintacticos: list = []
         self.ReporteTS: list = []
         self.ReporteTS_Funciones: list = []
+        self.ReporteTS_Indices: list = []
         self.ReporteOptimizacion: list = []
 
         # Soporte de temporales
