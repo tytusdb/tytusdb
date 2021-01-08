@@ -105,3 +105,4 @@ def decrypt_file(database, table, mode, password):
         dire = './Data/hash/'+database+"/"+table+".bin"
         file = open(dire,"rb").read()
     return f.decrypt(file)
+    
