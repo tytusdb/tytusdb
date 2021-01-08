@@ -404,6 +404,23 @@ def main():
 	heap.append(t63)
 	F3D.ejecutarSQL()
 
+
+
+
+
+	heap.append(56)
+	t64 = F3D.funcionNativa()
+
+
+	heap.append("")
+	heap.append(t64)
+	heap.append(-1)
+	heap.append(-1)
+	heap.append(-1)
+	heap.append(-1)
+	heap.append(6)
+	heap.append('tbinventario')
+	F3D.insert()
 	#Llamada a funcion o procedimiento.
 	p9=1
 	p10="Laptop Lenovo"
@@ -413,10 +430,10 @@ def main():
 	stack.append("F32")
 	goto .F29
 	label .F32
-	t71 = r9
+	t73 = r9
 
-	t71 = "SELECT '" + str(t71) + "';"
-	heap.append(t71)
+	t73 = "SELECT '" + str(t73) + "';"
+	heap.append(t73)
 	F3D.ejecutarSQL()
 
 	#Llamada a funcion o procedimiento.
@@ -428,10 +445,10 @@ def main():
 	stack.append("F33")
 	goto .F29
 	label .F33
-	t72 = r9
+	t74 = r9
 
-	t72 = "SELECT '" + str(t72) + "';"
-	heap.append(t72)
+	t74 = "SELECT '" + str(t74) + "';"
+	heap.append(t74)
 	F3D.ejecutarSQL()
 
 	#Llamada a funcion o procedimiento.
@@ -443,10 +460,10 @@ def main():
 	stack.append("F34")
 	goto .F29
 	label .F34
-	t73 = r9
+	t75 = r9
 
-	t73 = "SELECT '" + str(t73) + "';"
-	heap.append(t73)
+	t75 = "SELECT '" + str(t75) + "';"
+	heap.append(t75)
 	F3D.ejecutarSQL()
 
 	#Llamada a funcion o procedimiento.
@@ -458,10 +475,10 @@ def main():
 	stack.append("F35")
 	goto .F29
 	label .F35
-	t74 = r9
+	t76 = r9
 
-	t74 = "SELECT '" + str(t74) + "';"
-	heap.append(t74)
+	t76 = "SELECT '" + str(t76) + "';"
+	heap.append(t76)
 	F3D.ejecutarSQL()
 
 
@@ -932,16 +949,20 @@ def main():
 	r9= 0
 
 	# Declaraciones 
-	t64 = 0
 	t65 = 0
 	t66 = 0
+	t67 = 0
 	#Fin declaraciones
 
-	t66 = 0
+
+	t68 = """Select COUNT (*) From  tbinventario Where  tbinventario.idinventario = """ + str(p9) + """; """
+	heap.append(t68)
+	F3D.ejecutarSQL()
+	t67 = heap[-1]
 
 	# ------ If ------- 
-	t67 = t66 == 0
-	if t67: 
+	t69 = t67 == 0
+	if t69: 
 		goto .L21
 	else: 
 		goto .L22
@@ -953,8 +974,8 @@ def main():
 	stack.append("F30")
 	goto .F25
 	label .F30
-	t68 = r7
-	t64 = t68
+	t70 = r7
+	t65 = t70
 
 
 	#Llamada a funcion o procedimiento.
@@ -962,8 +983,8 @@ def main():
 	stack.append("F31")
 	goto .F27
 	label .F31
-	t69 = r8
-	t65 = t69
+	t71 = r8
+	t66 = t71
 
 
 
@@ -971,18 +992,19 @@ def main():
 
 
 	heap.append(56)
-	t70 = F3D.funcionNativa()
+	t72 = F3D.funcionNativa()
 
 
 	heap.append(p13)
-	heap.append(t70)
+	heap.append(t72)
 	heap.append(p12)
+	heap.append(t66)
 	heap.append(t65)
-	heap.append(t64)
 	heap.append(p9)
 	heap.append(6)
 	heap.append('tbinventario')
 	F3D.insert()
+
 	goto .L23
 
 	label .L22

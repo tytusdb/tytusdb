@@ -221,13 +221,15 @@ $$ LANGUAGE plpgsql;
 
 select fn_retornabodega('BODEGA CENTRAL');
 
+insert into tbinventario values(-1,-1,-1,-1,NOW(),"");
+
 create FUNCTION sp_insertainventario (ide integer,Vproducto varchar(100),Vbodega varchar(100),cantidad integer,descripcion varchar(200)) RETURNS integer AS $$
 declare 
  idproducto integer = 0;
  idbodega integer = 0; 
  idev integer = 0;
 BEGIN
-	idev := 0;
+	idev := (select count(*) from tbinventario where tbinventario.idinventario = ide);
 	if idev = 0 then
 		idproducto := (select fn_retornaproducto(Vproducto));
 		idbodega   := (select fn_retornabodega(Vbodega));
@@ -241,6 +243,10 @@ select sp_insertainventario (1,'Laptop Lenovo','BODEGA CENTRAL',200,'Laptop Leno
 select sp_insertainventario (2,'Teclado Inalambrico','BODEGA CENTRAL',100,'Teclado Inalambrico Lenovo');
 select sp_insertainventario (3,'Mouse Inalambrico','BODEGA ZONA 12',50,'L');
 select sp_insertainventario (4,'Laptop HP','bodega zona 9',20,'Laptop HP i5 4GB RAM');
+
+
+
+
 
 
 

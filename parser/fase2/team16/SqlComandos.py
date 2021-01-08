@@ -1548,7 +1548,7 @@ class SqlComandos:
         Cadenita = " DROP INDEX " + ob.id_indice + " ;  "
         return Cadenita
 
-    def grafoSelectExpresion(self, objeto: SelectExpresion):
+    def grafoSelectExpresion(self, objeto):
         cadena = "SELECT "
 
 

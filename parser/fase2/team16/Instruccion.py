@@ -6,7 +6,7 @@ from six import string_types
 from errores import *
 from random import *
 from expresiones import *
-from SqlComandos import SqlComandos as sq
+from CadenaExpresion import CadenaExpresion as sq
 
 from prettytable import PrettyTable
 
@@ -1379,7 +1379,11 @@ def AlinearDatos(listaGeneral):
         for jo in listaGeneral.get(data):
             maxi+=1
         listaling.append(maxi)
-    dataa = max(listaling)
+
+    dataa = 0
+    if len(listaling) > 0:
+        dataa = max(listaling)
+
 
 #Rellenamos si no tiene la norma General
     for date in listaGeneral:
