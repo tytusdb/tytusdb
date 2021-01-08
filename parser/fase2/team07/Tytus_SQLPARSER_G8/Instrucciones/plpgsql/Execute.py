@@ -12,11 +12,14 @@ class Execute(Instruccion):
         pass
 
     def traducir(self,tabla,arbol,cadenaTraducida):
-        codigo = "\t" + self.id + "("
+        temporal = arbol.generaTemporal()
+
+        codigo = "\t" + temporal + " = " + self.id + "("
         if self.parametros is not None:
             for col in self.parametros:
-                strSent = strSent + col.strSent + ","
-            strSent = strSent[:-1]
+                codigo = codigo + col.strSent + ","
+            codigo = codigo[:-1]
         
-        codigo += ")"
+        codigo += ")\n"
+        codigo += "\tFuncionesPara3D.setMensajeConsola(" + temporal + ")\n"
         return codigo

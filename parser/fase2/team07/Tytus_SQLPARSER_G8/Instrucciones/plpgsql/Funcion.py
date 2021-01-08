@@ -44,6 +44,7 @@ class Funcion(Instruccion):
 
         #Se agrega todo el contenido de las instrucciones traducido a 3D
         for ins in self.instrucciones:
-            codigo += ins.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
+            temp = ins.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
+            codigo += temp.replace("\t\t\t\t", "\t\t\t")
 
         return codigo

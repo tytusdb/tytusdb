@@ -31,10 +31,11 @@ class FuncionesPara3D():
         f = open(nombre_archivo, "a+")
 
         #Se escriben codigo quemado como los imports
-        cont = "from Codigo_3D.FuncionesPara3D import FuncionesPara3D\n\n"
+        cont = "from Codigo_3D.FuncionesPara3D import FuncionesPara3D\n"
+        cont += "from goto import with_goto\n"
+        cont += "@with_goto\n\n"
         
         cont += "class Codigo3D():\n\n"
-        cont += "\tmensaje = \"\"\n"
 
         #Se esribe el codigo traducido
         cont += codigo
@@ -79,3 +80,7 @@ class FuncionesPara3D():
             return valores[0][0]
         else:
             return mensaje
+
+    def setMensajeConsola(mensaje):
+        global arbol
+        arbol.consola.append(mensaje)

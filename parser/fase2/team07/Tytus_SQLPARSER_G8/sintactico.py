@@ -2072,7 +2072,7 @@ def p_tipo_datos2(t):
 
 def p_exect_func_pro(t):
     '''
-    instruccion     :   EXECUTE ID PARDER l_expresiones PARIZQ PUNTO_COMA
+    instruccion     :   EXECUTE ID PARIZQ l_expresiones PARDER PUNTO_COMA 
     '''
     t[0] = Execute.Execute(t[2], t[4],"", t.lexer.lineno, t.lexer.lexpos, "")
 

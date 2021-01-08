@@ -60,10 +60,10 @@ class SelectLista(Instruccion):
                 return n
     
     def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal1 = arbol.generaTemporal()
+        codigo = "\t" + temporal1 + " = " + "\"" + self.strSent + "\"\n"
         temporal = arbol.generaTemporal()
-        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
-        temporal = arbol.generaTemporal()
-        codigo += "\t" + temporal + " = FuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        codigo += "\t" + temporal + " = FuncionesPara3D.ejecutarsentecia(" + temporal1 + ")\n\n"
         return Simbolo3d(Tipo("",Tipo_Dato.INTEGER), temporal, codigo, None, None)
 
 
