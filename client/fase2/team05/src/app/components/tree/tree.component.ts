@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { faSync } from '@fortawesome/free-solid-svg-icons';
+import { ServiceTreeService}   from 'src/app/service/service-tree/service-tree.service'
 
 @Component({
   selector: 'app-tree',
@@ -11,7 +12,7 @@ export class TreeComponent implements OnInit {
   json: String = "";
   faSync = faSync
 
-  constructor() {
+  constructor(private ServiceTreeService:ServiceTreeService) {
   }
 
   ngOnInit(): void {
@@ -29,6 +30,8 @@ export class TreeComponent implements OnInit {
   }
 
   refresh() {
+    alert("este es un texto")
+    /*
     alert("def showDatabases()")                  //funcion a la que se invocara en siguiente fase
     let item_db = document.getElementById("db")
     item_db.innerHTML = ""                        //limpiando los datos almacenados 
@@ -56,7 +59,7 @@ export class TreeComponent implements OnInit {
         item_tabla.innerHTML += '<li><i class="fa fa-table"></i> ' + respuesta[i] + '</li>'
       }
     }
-    this.funcion1()
+    this.funcion1()*/
   }
 
   parser(data) {
