@@ -5886,6 +5886,9 @@ def p_IdFuncionDegreesVF(t):
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionDivVF(t):
     'VALORF  :   DIV PABRE LNUMF PCIERRA'
+    ret = Retorno(FuncionNativa(TipoFunNativa.div, t[3].getInstruccion()), NodoAST("DIV"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionExpVF(t):
@@ -5908,11 +5911,17 @@ def p_IdFuncionGcdVF(t):
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionLnVF(t):
-    'VALORF  :   LN PABRE LNUMF PCIERRA  '
+    'VALORF  :   LN PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.ln, t[3].getInstruccion()), NodoAST("LN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionLogVF(t):
-    'VALORF  :   LOG PABRE LNUMF PCIERRA  '
+    'VALORF  :   LOG PABRE LNUMF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.log, t[3].getInstruccion()), NodoAST("LOG"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionModVF(t):

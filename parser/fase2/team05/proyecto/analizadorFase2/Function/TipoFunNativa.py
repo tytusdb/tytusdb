@@ -39,3 +39,6 @@ class TipoFunNativa(Enum):
     cotd = 71
     degree = 72
     factorial = 73
+    div = 74
+    ln = 75
+    log = 76

@@ -954,3 +954,37 @@ class Generador:
             self.agregarEtiqueta(etiquetaSalida)
             ret = RetornoOp(pivot, None)
             return ret
+        elif instruccion.tipo == TipoFunNativa.div:
+            # Corresponde a función de DIV
+            if instruccion.numparametros == 2:
+                oper1 = self.compilarOperacionAritmetica(instruccion.parametros[0])
+                oper2 = self.compilarOperacionAritmetica(instruccion.parametros[1])
+                tag = self.generarTemporal()
+                linea = self.generarTab() + str(tag) + ' = ' + str(oper1.valor) + ' / ' + str(oper2.valor)
+                self.codigo3d.append(linea)
+                ret = RetornoOp(tag, None)
+                return ret
+        elif instruccion.tipo == TipoFunNativa.ln:
+            # Corresponde a función de LN
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.ln(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.log:
+            if instruccion.numparametros == 1:
+                oper = self.compilarOperacionAritmetica(instruccion.parametros[0])
+                tag = self.generarTemporal()
+                linea = self.generarTab() + str(tag) + ' = math.log(' + str(oper.valor) + ')'
+                self.codigo3d.append(linea)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif instruccion.numparametros == 2:
+                oper1 = self.compilarOperacionAritmetica(instruccion.parametros[0])
+                oper2 = self.compilarOperacionAritmetica(instruccion.parametros[1])
+                tag = self.generarTemporal()
+                linea = self.generarTab() + str(tag) + ' = math.log(' + str(oper1.valor) + ', ' + str(oper2.valor) + ')'
+                self.codigo3d.append(linea)
+                ret = RetornoOp(tag, None)
+                return ret
