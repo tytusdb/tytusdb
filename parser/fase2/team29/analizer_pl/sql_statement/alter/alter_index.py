@@ -4,6 +4,7 @@ from analizer_pl.abstract.environment import Environment
 from analizer_pl import grammar
 from analizer_pl.reports.Nodo import Nodo
 
+
 class AlterIndex(instruction.Instruction):
     def __init__(self, exists, idIndex, columnIndex, row, column, idOrNumber):
         super().__init__(row, column)

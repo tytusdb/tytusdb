@@ -44,11 +44,11 @@ class Simbolo():
 
 
     def __init__(self, categoria,id, tipo, valor,Entorno):
-        self.categoria = categoria              #function
-        self.id = id            #nombre de la funcion
-        self.tipo = tipo        #tipo que retorna la funcion
-        self.valor = valor      #None
-        self.Entorno = Entorno  #DECLARE = [Objetos decla,], BEGIN = [instruccion,instruccion]
+        self.categoria = categoria
+        self.id = id
+        self.tipo = tipo
+        self.valor = valor
+        self.Entorno = Entorno
 
 
 #Aqui se define la tabla de simbolos , cada tabla define un nuevo entorno
@@ -60,13 +60,13 @@ class TablaDeSimbolos():
 
     def agregar_sim(self, simbolo):
         if id in self.simbolos:
-            print('Error: el identificador ', simbolo.id, ' ya esta definido.')
+            #print('Error: el identificador ', simbolo.id, ' ya esta definido.')
             return
         self.simbolos[simbolo.id] = simbolo
 
     def buscar_sim(self, id):
         if not id in self.simbolos:
-            print('Error: el identificador ', id, ' no esta definido.')
+            #print('Error: el identificador ', id, ' no esta definido.')
             return None
         return self.simbolos[id]
 
@@ -78,13 +78,13 @@ class TablaDeSimbolos():
 
     def actualizar_sim(self, simbolo):
         if not simbolo.id in self.simbolos:
-            print('Error: el identificador ', id, ' no esta definido.')
+            pass#print('Error: el identificador ', id, ' no esta definido.')
         else:
             self.simbolos[simbolo.id] = simbolo
 
     def eliminar_sim(self, id):
         if not id in self.simbolos:
-            print("No se encontro el objeto a eliminar")
+            pass#print("No se encontro el objeto a eliminar")
         else:
             del self.simbolos[id]
 
