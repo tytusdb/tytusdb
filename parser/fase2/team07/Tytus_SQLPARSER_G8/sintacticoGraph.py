@@ -2242,6 +2242,7 @@ def p_list_dec_var_funcion2(t):
     '''
     nodo = crear_nodo_general("list_dec_var_funcion","",t.lexer.lineno, t.lexer.lexpos)
     nodo.hijos.append(t[1])
+    t[0] = nodo
 
 def p_dec_var_funcion(t):
     '''
