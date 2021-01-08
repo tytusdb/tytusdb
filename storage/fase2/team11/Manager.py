@@ -323,108 +323,55 @@ def createTable(database, name_table, number_columns):
 
 
 def showTables(database):
-    ModeDB, indexDB = exist_Alter(database)
-
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.showTables(database)
-        elif mode.lower().strip() == "b":
-            return b.showTables(database)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.showTables(database)
-        elif mode.lower().strip() == "dict":
-            return diccionario.showTables(database)
-        elif mode.lower().strip() == "hash":
-            return hash.showTables(database)
-        elif mode.lower().strip() == "isam":
-            return isam.showTables(database)
-        elif mode.lower().strip() == "json":
-            return json.showTables(database)
+    metadata_db, index_md_db = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.showTables(database)
+        return status
+    return 1
 
 
 def extractTable(database, name_table):
-    ModeDB, indexDB = exist_Alter(database)
-
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.extractTable(database, name_table)
-        elif mode.lower().strip() == "b":
-            return b.extractTable(database, name_table)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.extractTable(database, name_table)
-        elif mode.lower().strip() == "dict":
-            return diccionario.extractTable(database, name_table)
-        elif mode.lower().strip() == "hash":
-            return hash.extractTable(database, name_table)
-        elif mode.lower().strip() == "isam":
-            return isam.extractTable(database, name_table)
-        elif mode.lower().strip() == "json":
-            return json.extractTable(database, name_table)
+    metadata_db, index_md_db = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.extractTable(database, name_table)
+        return status
+    return 1
 
 
 def extractRangeTable(database, name_table, number_column, lower, upper):
-    ModeDB, indexDB = exist_Alter(database)
-
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.extractRangeTable(database, name_table, number_column, lower, upper)
-        elif mode.lower().strip() == "b":
-            return b.extractRangeTable(database, name_table, number_column, lower, upper)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.extractRangeTable(database, name_table, number_column, lower, upper)
-        elif mode.lower().strip() == "dict":
-            return diccionario.extractRangeTable(database, name_table, number_column, lower, upper)
-        elif mode.lower().strip() == "hash":
-            return hash.extractRangeTable(database, name_table, number_column, lower, upper)
-        elif mode.lower().strip() == "isam":
-            return isam.extractRangeTable(database, name_table, number_column, lower, upper)
-        elif mode.lower().strip() == "json":
-            return json.extractRangeTable(database, name_table, lower, upper)
+    metadata_db, index_md_db = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.extractRangeTable(database, name_table, number_column, lower, upper)
+        return status
+    return 1
 
 
 def alterAddPK(database, name_table, columns):
-    ModeDB, indexDB = exist_Alter(database)
-
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.alterAddPK(database, name_table, columns)
-        elif mode.lower().strip() == "b":
-            return b.alterAddPK(database, name_table, columns)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.alterAddPK(database, name_table, columns)
-        elif mode.lower().strip() == "dict":
-            return diccionario.alterAddPK(database, name_table, columns)
-        elif mode.lower().strip() == "hash":
-            return hash.alterAddPK(database, name_table, columns)
-        elif mode.lower().strip() == "isam":
-            return isam.alterAddPK(database, name_table, columns)
-        elif mode.lower().strip() == "json":
-            return json.alterAddPK(database, name_table, columns)
+    metadata_db: Database
+    metadata_db, index_md_db = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.alterAddPK(database, name_table, columns)
+        if status == 0:
+            tabla: Table = metadata_db.get_table(name_table)
+            tabla.add_pk_list(columns)
+        return status
+    return 1
 
 
 def alterDropPK(database, name_table):
-    ModeDB, indexDB = exist_Alter(database)
-
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.alterDropPK(database, name_table)
-        elif mode.lower().strip() == "b":
-            return b.alterDropPK(database, name_table)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.alterDropPK(database, name_table)
-        elif mode.lower().strip() == "dict":
-            return diccionario.alterDropPK(database, name_table)
-        elif mode.lower().strip() == "hash":
-            return hash.alterDropPK(database, name_table)
-        elif mode.lower().strip() == "isam":
-            return isam.alterDropPK(database, name_table)
-        elif mode.lower().strip() == "json":
-            return json.alterDropPK(database, name_table)
+    metadata_db, index_md_db = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.alterDropPK(database, name_table)
+        if status == 0:
+            tabla: Table = metadata_db.get_table(name_table)
+            tabla.add_pk_list([])
+        return status
+    return 1
 
 
 def alterTable(database, old_table, new_table):

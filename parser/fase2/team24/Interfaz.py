@@ -172,7 +172,7 @@ def escribir3D(entrada):
     input = entrada
 
     raiz = g.parse(input)
-
+    print(raiz)
     results = []
     res =''
     #executeGraphTree(raiz)
