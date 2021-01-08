@@ -475,6 +475,8 @@ class Generador:
                 return ret
         elif isinstance(instruccion, Primitivo):
             return self.compilarPrimitivo(instruccion)
+        elif isinstance(instruccion, FuncionNativa):
+            return  self.compilarFuncionesNativas(instruccion)
 
     def compilarPrimitivo(self, instruccion):
         if isinstance(instruccion, Primitivo):
@@ -539,11 +541,11 @@ class Generador:
             arregloDeValores =[]
             for param in instruccion.parametros :
                 if isinstance(param, Operaciones_Aritmeticas):
-                    retorno = self.compilarOperacionAritmetica(instruccion.parametro)
+                    retorno = self.compilarOperacionAritmetica(instruccion.parametros)
                     #agregamos el valor del retorno al arreglo de valores 
                     arregloDeValores.append(retorno)
-                elif isinstance(instruccion.parametro, Primitivo):
-                    retorno = self.compilarPrimitivo(instruccion.parametro)
+                elif isinstance(instruccion.parametros, Primitivo):
+                    retorno = self.compilarPrimitivo(instruccion.parametros)
                     arregloDeValores.append(retorno)
             indice = 0;
             for indice in len(arregloDeValores): 
@@ -561,11 +563,11 @@ class Generador:
             arregloDeValores =[]
             for param in instruccion.parametros :
                 if isinstance(param, Operaciones_Aritmeticas):
-                    retorno = self.compilarOperacionAritmetica(instruccion.parametro)
+                    retorno = self.compilarOperacionAritmetica(instruccion.parametros)
                     #agregamos el valor del retorno al arreglo de valores 
                     arregloDeValores.append(retorno)
-                elif isinstance(instruccion.parametro, Primitivo):
-                    retorno = self.compilarPrimitivo(instruccion.parametro)
+                elif isinstance(instruccion.parametros, Primitivo):
+                    retorno = self.compilarPrimitivo(instruccion.parametros)
                     arregloDeValores.append(retorno)
             indice = 0;
             for indice in len(arregloDeValores): 
@@ -583,11 +585,11 @@ class Generador:
             arregloDeValores =[]
             for param in instruccion.parametros :
                 if isinstance(param, Operaciones_Aritmeticas):
-                    retorno = self.compilarOperacionAritmetica(instruccion.parametro)
+                    retorno = self.compilarOperacionAritmetica(instruccion.parametros)
                     #agregamos el valor del retorno al arreglo de valores 
                     arregloDeValores.append(retorno)
-                elif isinstance(instruccion.parametro, Primitivo):
-                    retorno = self.compilarPrimitivo(instruccion.parametro)
+                elif isinstance(instruccion.parametros, Primitivo):
+                    retorno = self.compilarPrimitivo(instruccion.parametros)
                     arregloDeValores.append(retorno)
             indice = 0;
             for indice in len(arregloDeValores): 
@@ -612,11 +614,11 @@ class Generador:
             arregloDeValores =[]
             for param in instruccion.parametros :
                 if isinstance(param, Operaciones_Aritmeticas):
-                    retorno = self.compilarOperacionAritmetica(instruccion.parametro)
+                    retorno = self.compilarOperacionAritmetica(instruccion.parametros)
                     #agregamos el valor del retorno al arreglo de valores 
                     arregloDeValores.append(retorno)
-                elif isinstance(instruccion.parametro, Primitivo):
-                    retorno = self.compilarPrimitivo(instruccion.parametro)
+                elif isinstance(instruccion.parametros, Primitivo):
+                    retorno = self.compilarPrimitivo(instruccion.parametros)
                     arregloDeValores.append(retorno)
             indice = 0;
             for indice in len(arregloDeValores): 
@@ -640,7 +642,7 @@ class Generador:
         elif instruccion.tipo == TipoFunNativa.abs: 
             #FUNCION TIPO ABS 
             #Verificar que trae como parametro (valor, variable, expresion)
-            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas) or isinstance(instruccion.parametros, OperacionesUnarias):
                 retorno = self.compilarOperacionAritmetica(instruccion.parametros)
                 #Linea del if 
                 etiquetaverdadero=self.generarEtiqueta()
@@ -659,6 +661,16 @@ class Generador:
                 self.agregarIf(retorno.valor + '>' + str(0), etiquetaverdadero)
                 #AGREGAR UNA EXCEPCION PARA UN NUMERO NEGATIVO 
                 lineaAbs=retorno.valor + '=' + retorno.valor + '*-1'
+                self.codigo3d.append(lineaAbs)
+                self.agregarEtiqueta(etiquetaverdadero)
+                ret = RetornoOp(retorno.valor, None)
+                return ret
+            elif isinstance(instruccion.parametros, FuncionNativa):
+                retorno = self.compilarFuncionesNativas(instruccion.parametros)
+                etiquetaverdadero = self.generarEtiqueta()
+                self.agregarIf(retorno.valor + '>' + str(0), etiquetaverdadero)
+                # AGREGAR UNA EXCEPCION PARA UN NUMERO NEGATIVO
+                lineaAbs = self.generarTab() + retorno.valor + '=' + retorno.valor + '*-1'
                 self.codigo3d.append(lineaAbs)
                 self.agregarEtiqueta(etiquetaverdadero)
                 ret = RetornoOp(retorno.valor, None)
