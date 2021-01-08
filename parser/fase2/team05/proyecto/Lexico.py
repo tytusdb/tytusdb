@@ -5926,6 +5926,9 @@ def p_IdFuncionLogVF(t):
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionModVF(t):
     'VALORF  :   MOD PABRE LNUMF PCIERRA  '
+    ret = Retorno(FuncionNativa(TipoFunNativa.mod, t[3].getInstruccion()), NodoAST("MOD"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionPowerVF(t):
