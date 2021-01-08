@@ -17,13 +17,14 @@ contador = -1
 jsonObject = None
 
 def execute(script: str):
-
+    global Listaselects
     global ts
     if 'SELECT * FROM temp' in script:
         try:
-            cargar()
+            Listaselects = cargar()
             s = Listaselects.pop()
-            s.ejecutar()
+            print('Se debe hacer un select')
+            x = s.ejecutar()
             serialaizer()
         except:
             '''Error'''
