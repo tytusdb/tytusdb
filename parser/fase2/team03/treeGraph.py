@@ -144,4 +144,4 @@ class upNodo:
         pass
 
     def generate(self, table, tree):
-        pass
+        raise Exception('¡¡¡You are trying to generate TAC for an Non value AS node!!!') 
