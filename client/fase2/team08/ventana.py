@@ -10,6 +10,7 @@ from PIL import ImageTk, Image
 import http.client
 import json
 from PIL.ImagePalette import load
+from tkinter import messagebox
 
 formularios=[]
 textos=[]
@@ -277,7 +278,7 @@ def CrearVentana():
     #Se llama a la clase Arbol
     Arbol(FrameIzquiero)
     #Boton para realizar consulta
-    Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray').pack(side="top",fill="both")
+    Button(raiz, text="Enviar Consulta",bg='#1BA1FD',fg='white',activebackground='slate gray').pack(side="top",fill="both")
     #Consola de Salida
     global consola
     consola = Text(raiz,bg='gray7',fg='white',selectbackground="gray21")
@@ -292,7 +293,9 @@ def CrearVentana():
     style = ttk.Style()
     style.theme_use("classic")
     style.configure("TNotebook.Tab", background="gray21", font="helvetica 14",foreground='white')
-    style.map("TNotebook.Tab", background = [("selected", "slate gray")])
+    style.map("TNotebook.Tab", background = [("selected", "#0854A9"), ("active", "#0876F1")],
+    foreground=[("selected", "#ffffff"),("active", "#000000")]
+    )
     notebook=ttk.Notebook(raiz)
     notebook.pack(side="right", fill="both", expand=True)
     añadir('Nuevo')
@@ -327,6 +330,7 @@ def cerrarPestaña():
 
 def cerrarVentana():
     global raiz
+    messagebox.showinfo(message="Gracias por utilizar este programa! :v", title="TytusDB")
     raiz.destroy()
 
 def main():
