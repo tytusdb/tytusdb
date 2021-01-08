@@ -19,7 +19,7 @@ from os import path
 
 structs = [avl, b, bplus, _hash, isam, _dict]
 databases = []
-
+uIndex = {}
 def dropAll():
     avl.dropAll()
     bplus.dropAll()
@@ -207,24 +207,25 @@ def insert(database, table, register):
     for item in structs:
         codificacion = codificationValidation(getCodificationMode(database),register)
         if codificacion == True:
-            value = item.insert(database, table, register) ###AQUI CREO QUE TENGO QUE HACER ESA VALIDACION PAPUA
-            if value != 2:
-                for i in databases:
-                    if database == i["name"]:
-                        for t in i["tables"]:
-                            if table == t["name"]:
-                                tupla = {"register": register} 
-                                t["tuples"].append(tupla)
-                                #START BlockChain
-                                i = 0
-                                while i<len(listBlockChain):
-                                    if(listBlockChain[i].getName() == (str(database)+"_"+str(table))):
-                                        listBlockChain[i].addNodeNoSecure(register)
-                                        listBlockChain[i].generateJsonSafeMode()
-                                    i += 1
-                                #END BlockChain
-                                persistence(databases)
-                                return value
+            if insertVerifyUnique(database, table, register ):   #verifica si la tabla tiene indices unicos y si el indice unico viene en null
+                value = item.insert(database, table, register)
+                Unique(database,table,register)if value != 2:
+                    for i in databases:
+                        if database == i["name"]:
+                            for t in i["tables"]:
+                                if table == t["name"]:
+                                    tupla = {"register": register} 
+                                    t["tuples"].append(tupla)
+                                    #START BlockChain
+                                    i = 0
+                                    while i<len(listBlockChain):
+                                        if(listBlockChain[i].getName() == (str(database)+"_"+str(table))):
+                                            listBlockChain[i].addNodeNoSecure(register)
+                                            listBlockChain[i].generateJsonSafeMode()
+                                        i += 1
+                                    #END BlockChain
+                                    persistence(databases)
+                                    return value
         else:
             return 1                        
     return 2
@@ -239,11 +240,18 @@ def extractRow(database, table, columns):
 
 def loadCSV(fileCSV, db, table):
     for item in structs:
-        value = item.loadCSV(fileCSV, db, table)
-        if value != [] and value[0] != 2:
-            # persistence()
-            return value
-    return value
+        # value = item.loadCSV(fileCSV, db, table)
+        import csv
+        try:
+            with open(fileCSV, 'r') as fileCsv:
+                lector = csv.reader(fileCsv, delimiter = ',')
+                listaResultado = []
+                for f in lector:
+                    listaResultado.append(insert(db, table, f))
+                return listaResultado
+                # print("Operación Exitosa")
+        except:
+            raise
 
 def update(database, table, register, columns):
     for item in structs:
@@ -340,6 +348,183 @@ def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
 
 def alterTableDropFK(database, table, indexName):
     pass
+
+
+def insertVerifyUnique(database, table,tupla ):
+    try:
+        tabla = uIndex[database]
+        indices = tabla[table]
+        indiceTbl = table+indices[0]
+        listaIndices = indices[1]
+        uniqueIndices = [tupla[x] for x in listaIndices]
+        if None in uniqueIndices:
+            return False
+        else:
+            for estructura in structs: 
+                    value = estructura.extractRow(database,indiceTbl,uniqueIndices)
+                    if value ==uniqueIndices :
+                        return False
+                    else:    
+                        return True
+            
+    except: 
+        return True
+
+def Unique(database, table,  tupla):
+    try:
+        tabla = uIndex[database]
+        indices = tabla[table]
+        indiceTbl = table+indices[0]
+        listaIndices = indices[1]
+        uniqueIndices = [tupla[x] for x in listaIndices]
+        if None in uniqueIndices:
+            return True
+        else:
+            for estructura in structs: 
+                    value = estructura.insert(database,indiceTbl,uniqueIndices)
+                    if value != 2 or value != 3 or value!= 4 :
+                        return False
+                    else:    
+                        return True
+            
+    except: 
+        return True
+
+
+def alterTableaddUnique(database , table,  indexName, colums): 
+    tabla = {}
+    for item in structs: 
+        tuplas = item.extractTable(database,table)
+        if tuplas !=2:
+            if item.tipoEDD() == 'avl':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if avl.createTable(database, table+indexName , len(colums)) != 2 and avl.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+            elif item.tipoEDD() == 'bplus':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if bplus.createTable(database, table+indexName , len(colums)) != 2 and bplus.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+            elif item.tipoEDD() == 'b':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if b.createTable(database, table+indexName , len(colums)) != 2 and b.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+
+
+            elif item.tipoEDD() == 'hash':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if _hash.createTable(database, table+indexName , len(colums)) != 2 and _hash.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+
+            elif item.tipoEDD() == 'isam':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if isam.createTable(database, table+indexName , len(colums)) != 2 and isam.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+            elif item.tipoEDD() == 'dict':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if _dict.createTable(database, table+indexName , len(colums)) != 2 and _dict.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+
+            elif item.tipoEDD() == 'json':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if _hash.createTable(database, table+indexName , len(colums)) != 2 and _hash.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+
+            else:
+                return 3
+
+
+
+
+
+
+
+
+
+
 
 # 4. ADMINISTRACION DE LA CODIFICACION
 def alterDatabaseEncoding(database,encoding):

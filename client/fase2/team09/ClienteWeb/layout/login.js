@@ -4,8 +4,7 @@ function login(){
     ruta = 'http://localhost:8888/login/' + user + "-" + pass
     fetch(ruta)
     .then(response => response.json())
-    .then(data => validar(data));  
-   
+    .then(data => validar(data));
 }
 
 

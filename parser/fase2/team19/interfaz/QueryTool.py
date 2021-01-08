@@ -7,6 +7,8 @@ import Analisis_Ascendente.ascendente as parser
 import Analisis_Ascendente.storageManager.jsonMode as jm
 import webbrowser as wb
 import C3D.GeneradorFileC3D as c3d_generador
+import C3D.GeneradorTemporales as GeneradorTemporales
+import C3D.GeneradorEtiquetas as GeneradorEtiquetas
 # from PIL import Image,ImageTk
 # vscode://vscode.github-authentication/did-authenticate?wi0ndowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c
 
@@ -219,7 +221,7 @@ class Application(ttk.Frame):
         self.Copiado = ""
         ventana.title("Query Tool")
         # anchoxAlto
-        ventana.geometry("1200x700")
+        ventana.geometry("1100x700")
         # width, height
         ventana.resizable(False, False)
         ventana.iconbitmap("./Images/icono.ico")
@@ -242,9 +244,7 @@ class Application(ttk.Frame):
         new_item3.add_command(label="Ejecutar", command=self.f_correr)
         new_item3.add_separator()
         new_item3.add_command(label="Generar Codigo 3D", command=self.f_correr2)
-        new_item3.add_command(label="Ejecutar Codigo 3D", command=self.f_correr)
-        new_item3.add_separator()
-        new_item3.add_command(label="Optimizar Codigo 3D", command=self.f_correr)
+        new_item3.add_command(label="Ejecutar Codigo 3D", command=self.f_correr3D)
         menu.add_cascade(label='Ejecucion', menu=new_item3)
 
         new_item4 = tk.Menu(menu, tearoff=0)
@@ -254,12 +254,16 @@ class Application(ttk.Frame):
         new_item4.add_separator()
         new_item4.add_command(label="AST", command=self.f_abrirAST)
         new_item4.add_command(label="Tabla de Simbolos", command=self.f_abrirtablaSimbolos)
+        new_item4.add_command(label="Reporte Gramatical", command=self.f_abrir_reporte_gamatical)
         new_item4.add_separator()
         new_item4.add_command(label="Reporte optimizacion", command=self.f_abriroptimizaciones)
         menu.add_cascade(label='Reportes', menu=new_item4)
 
         new_item5 = tk.Menu(menu, tearoff=0)
-        new_item5.add_command(label="Acerca")
+        new_item5.add_command(label="Acerca", command=self.f_mostrar_acerca)
+        new_item5.add_separator()
+        new_item5.add_command(label="Manual usuario", command=self.f_abrir_manual_usario)
+        new_item5.add_command(label="Manual técnico", command=self.f_abrir_manual_tecnico)
         menu.add_cascade(label='Ayuda', menu=new_item5)
 
         # PESTAniAS ----------------------------------------------------------------------------
@@ -310,6 +314,9 @@ class Application(ttk.Frame):
         ventana.config(menu=menu)
         ventana.mainloop()
 
+    def f_correr3D(self):
+        os.system('python c3d.py')
+
     def f_cerrarPestania(self):
 
         # if(tab_control.tab(tab_control.select(), "text")) == "Nuevo":
@@ -326,7 +333,7 @@ class Application(ttk.Frame):
                 # guardar
                 self.f_guardar()
                 self.tab_control.forget(self.tab_control.select())
-                #print("debemos guardarlo")
+                ##print("debemos guardarlo")
 
     def f_nuevaPestania(self):
         tab1 = ttk.Frame(self.tab_control, name="f_"+str(self.contadorN), )
@@ -384,7 +391,7 @@ class Application(ttk.Frame):
         idtab = self.tab_control.index("end")-1
         self.tab_control.select(idtab)
         return self.contadorN-1
-        # print(str(self.tab_control.index(tk.END)))
+        # #print(str(self.tab_control.index(tk.END)))
 
     def f_guardarcomo(self):
         filename = filedialog.asksaveasfilename(
@@ -435,9 +442,8 @@ class Application(ttk.Frame):
                 idtab = self.tab_control.index("end")-1
                 self.tab_control.select(idtab)
 
-               # print(tabs)
-                print(
-                    self.tab_control.children["f_"+str(tabs)].winfo_children()[2])
+               # #print(tabs)
+                #print(self.tab_control.children["f_"+str(tabs)].winfo_children()[2])
 
                 # insertar texto
                 self.tab_control.children["f_"+str(tabs)].winfo_children()[2].insert(
@@ -461,7 +467,8 @@ class Application(ttk.Frame):
                 "((/\*(.|\n)*?\*/)|(--.*\n))", "green", regexp=True)
 
         except:
-            print("no hacer nada")
+            pass
+            #print("no hacer nada")
 
     def WriteFile(self, filename, Content):
         try:
@@ -472,7 +479,7 @@ class Application(ttk.Frame):
             file.close()
 
     def f_CerrarTodo(self):
-        #print(self.tab_control.index("end"))
+        ##print(self.tab_control.index("end"))
         while self.tab_control.index("end") > 0:
             self.tab_control.select(0)
             self.f_cerrarPestania()
@@ -520,10 +527,19 @@ class Application(ttk.Frame):
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
+    def f_mostrar_acerca(self):
+        messagebox.showwarning('Grupo 19', "TytusDB")
+
+    def f_abrir_reporte_gamatical(self):
+        try:
+            wb.open_new(r'reporteGramatica.gv.pdf')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
     def f_abrirtablaSemanticos(self):
         try:
 
-            print('abriendo')
+            ##print('abriendo')
             wb.open_new(r'ErroresSemanticos.html')
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
@@ -531,8 +547,20 @@ class Application(ttk.Frame):
     def f_abriroptimizaciones(self):
         try:
 
-            print('abriendo')
+            ##print('abriendo')
             wb.open_new(r'ReporteOptimizacion.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrir_manual_usario(self):
+        try:
+            wb.open_new(r'ManualUsuario.pdf')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrir_manual_tecnico(self):
+        try:
+            wb.open_new(r'ManualTecnico.pdf')
         except:
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
@@ -547,7 +575,9 @@ class Application(ttk.Frame):
         self.T.delete(1.0, tk.END)
         salida = parser.crear_Codido3D(texto)
         c3d_generador.GeneradorFileC3D().escribir_archivo(salida)
-        self.T.insert(tk.END, "\n >>> " + salida)
+        GeneradorEtiquetas.resetar_numero_etiqueta()
+        GeneradorTemporales.resetar_numero_temporal()
+        self.T.insert(tk.END, "\n" + salida)
 
     def f_correr2(self):
         lista = []

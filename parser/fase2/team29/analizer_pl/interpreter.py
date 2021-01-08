@@ -1,14 +1,13 @@
+
 from re import S
 from sys import path
 from os.path import dirname as dir
 
 path.append(dir(path[0]))
-
-import analizer_pl.grammar as grammar
-from analizer_pl.abstract import global_env
-from analizer_pl.reports import BnfGrammar
 from analizer_pl.C3D.operations import block
-
+from analizer_pl.reports import BnfGrammar
+from analizer_pl.abstract import global_env
+import analizer_pl.grammar as grammar
 
 def traducir(input):
     result = grammar.parse(input)
@@ -92,18 +91,42 @@ def functionsReport(env):
 
 
 s = """ 
+
+
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now();
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', now());
+SELECT now();
+"""
+s2 = """
+
+CREATE FUNCTION foo(texto text, b boolean) RETURNS text AS $$
+BEGIN
+return texto;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION myFuncion(texto text, b boolean) RETURNS text AS $$
+BEGIN
+INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(texto),1);
+SELECT 3-5>4 and -3=texto as sho, texto between symmetric 2 and 3 as alv;
+
 select * from tbCalificacion;
-select *
-from tbventa where ventaregistrada = false;
-select *
-from tbempleadopuesto
-group by departamento;
+select * from tbventa where ventaregistrada = false;
+select * from tbempleadopuesto group by departamento;
+
 select *
 from tbventa V,tbempleado E
 where V.idempleado = E.idempleado
 group by primernombre,segundonombre,primerapellido;
 
-select *
+
+select v.id+foo(texto, 3)
 from tbventa V,tbempleado E
 where V.idempleado = E.idempleado
 group by primernombre,segundonombre,primerapellido,fechaventa
@@ -116,10 +139,20 @@ group by primernombre,segundonombre,primerapellido
 UNION
 select DISTINCT * 
 from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
+where V.idempleado = texto
 group by 1,2,3
 order by 1;
-"""
 
+b = texto between symmetric 2 and 3;
+	RETURN texto;
+END;
+$$ LANGUAGE plpgsql;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+
+"""
 
 traducir(s)
