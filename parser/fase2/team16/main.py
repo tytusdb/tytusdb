@@ -29,7 +29,12 @@ if __name__ == '__main__':
 
 
     Gui.principal
-    cadena=  "goto"
+
+    #cadena= ["data","Camaleon"]
+
+
+    #print("Estoy en los datos ")
+    #print(str(cadena.get("data")))
 
 
     # for n in cadena:

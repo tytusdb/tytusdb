@@ -232,8 +232,8 @@ reservadas = {
 
     'index' : 'INDEX',
     'hash' : 'HASH',
-    'statistics':'STATISTICS'
-
+    'statistics':'STATISTICS',
+    'count':'COUNT'
 }
 
 tokens = [
@@ -624,11 +624,19 @@ def p_Lista_SubsQuerys(t):
 
 
 
-# def p_Lista_COMAs(t):
-#     LISTAA    :   COMA
-#     print("estoy entrando")
-#     t[0] = str(t[1])
-#     rep_gramatica('\n <TR><TD> LISTAA →  COMA ,   </TD><TD>  t[0] = str(t[1]) </TD></TR>')
+def p_Lista_Count(t):
+    'LISTAA    :   COUNT PARIZQ DATAAAAAAA PARDER'
+
+    print("estoy entrando")
+    t[0] = ProcesoCount(t[3])
+    rep_gramatica('\n <TR><TD> LISTAA →  COUNT ( * ) ,   </TD><TD>  t[0] = COUNT(DATA)')
+
+
+def p_Lista_Dataaaa(t):
+    '''DATAAAAAAA    : ASTERISCO
+                     | ID '''
+    t[0]  = str(t[1])
+
 
 
 
@@ -3310,7 +3318,9 @@ def p_nulable_col2(t):
 
 def p_where_in(t):
     'where_in : WHERE expresion_logica'
-    t[0] = t[1]
+    t[0] = t[2]
+
+
 def p_where_in_e(t):
     'where_in : '
     t[0] = None
@@ -3319,8 +3329,8 @@ def p_where_in_e(t):
 
 
 def p_AlterIndex(t):
-    'EDITINDEX  :   ALTER INDEX  IFEXISTI  ID ALTER COLEMN  ENTERO SET STATISTICS  TIPOCOLUMNS  PUNTOCOMA'
-    t[0] = AlterIndiceCol(t[4],t[7],t[10])
+    'EDITINDEX  :   ALTER INDEX  IFEXISTI  ID ALTER COLEMN  TIPOCOLUMNS SETASTIC  TIPOCOLUMNS  PUNTOCOMA'
+    t[0] = AlterIndiceCol(t[4],t[7],t[9])
 
 
 
@@ -3359,6 +3369,17 @@ def p_TipoDato_Alter(t):
     '''TIPOCOLUMNS   :  ENTERO
                      |  ID '''
     t[0] = t[1]
+
+
+#-----------------  SET ESTATISTICS OPCIONAL
+
+def p_SetEstatisticsA(t):
+    'SETASTIC  :  SET STATISTICS'
+    t[0] = "SET STATISTICS"
+
+def p_SetEstatisticsEpsilon(t):
+    'SETASTIC  :  '
+    t[0] = ""
 
 
 
