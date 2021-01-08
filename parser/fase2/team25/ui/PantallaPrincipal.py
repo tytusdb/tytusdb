@@ -57,8 +57,7 @@ class Pantalla:
         frame_btn = Frame(self.window)
         btn = Button(frame_btn, text="Ejecutar F1", command=self.analize)
         btn.pack(side=LEFT, anchor=E, padx=25, pady=20)
-        btn_1 = Button(frame_btn, text="Verificar Errores", command=self.parse)
-        btn_1.pack(side=LEFT, anchor=E, padx=25, pady=20)
+    
         btn_codigo_3d = Button(
             frame_btn, text="Generar Codigo 3D", command=self.generarCodigo3d)
         btn_codigo_3d.pack(side=LEFT, anchor=E, padx=25, pady=20)
@@ -234,11 +233,11 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        info = self.read('../analizer/Databases.json')
-        f = open("tb.html", "w")
-        f.write(json2html.convert(json=info))
-        f.close()
-        os.system('tb.html')
+        # info = self.read('Database.json')
+        # f = open("tb.html", "w")
+        # f.write(json2html.convert(json=info))
+        # f.close()
+        # os.system('tb.html')
         windowTableS = Pantalla_TS(self.window, self.ts)
     def read(self ,path: str) -> dict:
         with open(path) as file:
