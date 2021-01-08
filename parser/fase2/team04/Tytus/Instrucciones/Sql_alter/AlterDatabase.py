@@ -34,10 +34,12 @@ class AlterDatabase(Instruccion):
                 os.rename(archivo, nombre_nuevo)
                 '''
                 arbol.consola.append(f"La base de datos se cambio: {self.nombreNuevo} correctamente.")
+                print(f"La base de datos se cambio: {self.nombreNuevo} correctamente.")
             else:
                 #aqui vamos a renombrar en memoria
                 arbol.renombrarBd(self.nombreAntiguo,self.nombreNuevo)
                 arbol.consola.append(f"La base de datos se cambio: {self.nombreNuevo} correctamente.")
+                print(f"La base de datos se cambio: {self.nombreNuevo} correctamente.")
 
 
     def getCodigo(self, tabla, arbol):
@@ -101,12 +103,13 @@ class AlterDatabase(Instruccion):
         
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter_alterDataBaseRename()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo
 
 '''
 instruccion = AlterDatabase("hola mundo",None, 1,2)
