@@ -61,6 +61,15 @@ class TernaryExpression(Expression):
         c3d += val3.temp
         return C3D(val1.value + val2.value + val3.value, c3d, self.row, self.column)
 
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        n3 = self.exp3.dot()
+        new = Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        new.addNode(n3)
+        return new
 
 class BinaryExpression(Expression):
     def __init__(self, temp, exp1, exp2, operator, isBlock, row, column):
