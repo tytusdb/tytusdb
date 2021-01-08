@@ -196,8 +196,11 @@ def t_error(t):
 #                         ANALIZADOR LEXICO
 # ======================================================================
 def analizarASTLex(texto):  
-    remove("Graph.gv")
-    i = 0
+    try:
+        remove("Graph.gv")
+        cleanContador()
+    except:
+        print('')
     analizador = lex.lex()
     analizador.input(texto)# el parametro cadena, es la cadena de texto que va a analizar.
 
@@ -230,7 +233,15 @@ def inc():
     global i
     print(str(i))
     i += 1
-    return i            
+    return i  
+def cleanContador(): 
+    global i
+    i = 0    
+
+dot = Graph()
+def inicializar():
+    global dot
+    dot = Graph()
 
 # Definición de la gramática
 def p_inicio(t):
@@ -5191,7 +5202,7 @@ def p_argcol(t):
 #                         ELIMINACION PLSQL
 # ======================================================================
 def p_drop_pf(t):
-    ''' drop_pf : DROP drop_case opt_exist ID PARABRE arg_list_opt PARCIERRE PUNTO_COMA'''
+    ''' drop_pf : DROP drop_case opt_exist ID arg_list_opt PUNTO_COMA'''
     id = inc()
     t[0] = id
     dot.node(str(id), 'DROP_PF')
@@ -5211,20 +5222,14 @@ def p_drop_pf(t):
     id4 = inc()
     dot.edge(str(id), str(id4)) 
     dot.node(str(id4), str(t[4]))
-    id5 = inc()
-    dot.edge(str(id), str(id5)) 
-    dot.node(str(id5), str(t[5]))
-    if t[6] != None:
-        id6 = inc()
-        dot.edge(str(id), str(id6)) 
-        dot.node(str(id6), str(t[6]))
-        dot.edge(str(id6), str(t[6]))
-    id7 = inc()
-    dot.edge(str(id), str(id7)) 
-    dot.node(str(id7), str(t[7]))
-    id8 = inc()
-    dot.edge(str(id), str(id8)) 
-    dot.node(str(id8), str(t[8]))
+    if t[5] != None:
+        id5 = inc()
+        dot.edge(str(id), str(id5)) 
+        dot.node(str(id5), str(t[5]))
+        dot.edge(str(id5), str(t[5]))
+    id6 = inc()
+    dot.edge(str(id), str(id6)) 
+    dot.node(str(id6), str(t[6]))
 
 def p_drop_case(t):
     ''' drop_case : FUNCTION
@@ -5237,7 +5242,7 @@ def p_drop_case(t):
     dot.node(str(id1), str(t[1]))
 
 def p_opt_exist(t):
-    ''' opt_exist : IF EXIST
+    ''' opt_exist : IF EXISTS
                   |'''
     if len(t)== 3:
         id = inc()
@@ -5253,9 +5258,16 @@ def p_opt_exist(t):
         t[0] = None
 
 def p_arg_list_opt(t):
-    ''' arg_list_opt : arg_list 
-                     |'''
-    if len(t)== 2:
+    ''' arg_list_opt : PARABRE arg_list_opt PARCIERRE 
+                    | arg_list
+                    |'''
+    if len(t)== 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), 'ARG_LIST_OPT')
+        if t[2] != None:
+            dot.edge(str(id), str(t[2]))
+    elif len(t)== 2:
         id = inc()
         t[0] = id
         dot.node(str(id), 'ARG_LIST_OPT')
@@ -5289,16 +5301,14 @@ def p_arg_list(t):
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
 
-dot = Graph()
-def analizarASTSin(texto):    
+def analizarASTSin(texto):  
     parser = yacc.yacc()
+    cleanContador()
     while True:
-        i = 0
         dot.attr(splines='false')
         dot.node_attr.update(shape='circle')
         dot.node_attr.update(color='darkgreen')
         parser.parse(texto)
         dot.view()
         break
-    texto = ''
-
+    inicializar()
