@@ -4,6 +4,8 @@ import webbrowser
 import platform
 import socket
 import sys
+import pickle
+import json
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk, font, messagebox
@@ -20,18 +22,8 @@ class cliente():
 
     def __init__(self, img_carpeta, iconos):
         self.consoleMode = False
-        # Prueba de conexion a base de datos
-        message = 'data from client'
-        print(message)
-        serv.sendall(message.encode('utf-8'))
 
-        recibido = 0
-        esperado = len(message)
-
-        while recibido < esperado:
-            data = serv.recv(4096)
-            recibido += len(data)
-            print(data)
+        self.send_scritp('create database prueba7;')
 
         # Creacion de la Ventana
         self.raiz = Tk()
@@ -289,6 +281,25 @@ class cliente():
 
         # Ejecucion de la ventana
         self.raiz.mainloop()
+
+    def send_scritp(self,texto):
+                # Prueba de conexion a base de datos
+        # Este message deberia ser el obtenido del query tool
+    
+    
+        # Mandamos el script
+        serv.sendall(texto.encode('utf-8'))
+        recibido = 0
+        esperado = len(texto)
+
+        #Recibiendo JSON
+        data = serv.recv(4096)     
+        data_json = json.loads(data.decode())
+        recibido += len(data)
+        #imprimiendo todo el json
+        print(data_json);
+        #Leyendo los hijos del padre mensaje
+        print(data_json['messages']);
 
     def f_switch_console_mode(self):
         self.consoleMode = not self.consoleMode
