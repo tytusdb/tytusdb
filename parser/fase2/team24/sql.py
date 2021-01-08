@@ -18,15 +18,14 @@ jsonObject = None
 
 def execute(script: str):
     
-    
+    global ts
     raiz = g.parse(script)
     
     for a in raiz:
-        ts = a.ejecutar()[1]
-
-    print(type(ts), ts)
-    graphTable(ts)
-    return ts
+        a.ejecutar()
+    
+    
+    return
     
 
 
