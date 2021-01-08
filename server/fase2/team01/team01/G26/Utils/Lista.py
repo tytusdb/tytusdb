@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../G26/Expresiones')
+sys.path.append('../team01/G26/Expresiones')
 
 from TablaSimbolos import *
 from Primitivo import *

@@ -3,16 +3,16 @@ sys.path.append('../tytus/storage/storageManager')
 
 from tkinter import * #importando tkinter
 import tkinter as TK
-import gramatica as g
-import Utils.TablaSimbolos as table
-import Utils.Lista as l
+import G26.gramatica as g
+import G26.Utils.TablaSimbolos as table
+import G26.Utils.Lista as l
 import jsonMode as storage
 from tkinter.filedialog import askopenfilename as files
 import os
 import webbrowser
-from Utils.fila import fila
+from G26.Utils.fila import fila
 from Error import *
-import Instrucciones.DML.select as select
+import G26.Instrucciones.DML.select as select
 import json
 #from select import *
 
@@ -21,6 +21,7 @@ import json
 storage.dropAll() #Comentar si quieren que se borre todo al cerrar y abrir la app
 
 datos = l.Lista({}, '')
+salidajs = ""
 
 ##################################FUNCIONES#################################
 def openFile():
@@ -36,20 +37,42 @@ def openFile():
         editor.insert(TK.END, text)
     root.title(f"TYTUSDB_Parser - {route}")
 
-
-
-def analisis():
-    global datos
-
-    salida.delete("1.0", "end")
-    texto = editor.get("1.0", "end")
-    instrucciones = g.parse(texto)
+def parser(entrada):
+    global salidajs
+    salidajs = ""
+    print('Llamada exitosa\n'+entrada)
+    instrucciones = g.parse(entrada)
     erroresSemanticos = []
 
-    try:
-        hacerReporteGramatica(instrucciones['reporte'])
-    except:
-        print("")
+
+    for instr in instrucciones['ast'] :
+        if instr != None:
+                result = instr.execute(datos)
+                if isinstance(result, Error):
+                    escribirEnSalidaFinal(str(result.desc))#imprimir en consola
+                    erroresSemanticos.append(result)
+                elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
+                    escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))#imprimir en consola
+                else:
+                    escribirEnSalidaFinal(str(result))#imprimir en consola
+    del instrucciones
+    return salidajs
+
+def analisis(entrada):
+    global salidajs
+    salidajs = ""
+    global datos
+
+  #  salida.delete("1.0", "end")
+  #  texto = editor.get("1.0", "end")
+    instrucciones = g.parse(entrada)
+    erroresSemanticos = []
+
+   
+   # try:
+      #  hacerReporteGramatica(instrucciones['reporte'])
+   # except:
+  #      print("")
 
     '''try:
         f = open("../G26/Utils/tabla.txt", "r")
@@ -84,15 +107,16 @@ def analisis():
 
     errores = g.getMistakes()
     recorrerErrores(errores)
-    Rerrores(errores, erroresSemanticos)
+#    Rerrores(errores, erroresSemanticos)
     errores.clear()
     erroresSemanticos.clear()
 
-    reporteTabla()
+#    reporteTabla()
     del instrucciones
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
+    return salidajs
 
-def Rerrores(errores, semanticos):
+'''def Rerrores(errores, semanticos):
     f = open("../G26/Reportes/Reporte_Errores.html", "w")
     f.write("<!DOCTYPE html>\n")
     f.write("<html>\n")
@@ -115,7 +139,7 @@ def Rerrores(errores, semanticos):
     f.write("         </div>")
     f.write("   </body>\n")
     f.write("</html>\n")
-    f.close()
+    f.close() '''
 
 def tabla():
     ruta = ".\\Reportes\\Reporte_TablaSimbolos.html"
@@ -138,10 +162,12 @@ def mistakes():
     webbrowser.open(ruta)
 
 def recorrerErrores(errores):
+    global salidajs
     salidaE = ""
     for error in errores:
         salidaE += error.toString() + "\n"
-    salida.insert("1.0", salidaE)
+    salidajs += salidaE
+    #salida.insert("1.0", salidaE)
 
 def hacerReporteGramatica(gramatica):
     if gramatica != None:
@@ -157,7 +183,7 @@ def hacerReporteGramatica(gramatica):
         f.write("#Gramatica Generada Automaticamente\n")
         f.write("No se detecto")
 
-def reporteTabla():
+'''def reporteTabla():
     f = open("../G26/Reportes/Reporte_TablaSimbolos.html", "w")
     f.write("<!DOCTYPE html>\n")
     f.write("<html>\n")
@@ -271,14 +297,18 @@ def reporteTabla():
                 f.write("         </div>\n")
     f.write("   </body>\n")
     f.write("</html>\n")
-    f.close()
+    f.close() '''
 
 def escribirEnSalidaInicio(texto): #borra lo que hay y escribe al inicio
-    salida.insert("1.0", texto)
+    global salidajs
+    salidajs = texto
+   # salida.insert("1.0", texto)
 
 def escribirEnSalidaFinal(texto): # no borra y escribe al final de lo que ya estaACTIVE
-    text = texto + "\n"
-    salida.insert("end", text)
+  #  text = texto + "\n"
+   global salidajs
+   salidajs += texto + "\n"
+  #  salida.insert("end", text)
 #root
 ################################Configuracion#################################
 root = Tk()
@@ -321,4 +351,4 @@ salida = Text(root, width=122, height=18, bg="skyblue")
 salida.place(x=300, y=380)
 
 
-root.mainloop() #mostrar interfaz
+#root.mainloop() #mostrar interfaz

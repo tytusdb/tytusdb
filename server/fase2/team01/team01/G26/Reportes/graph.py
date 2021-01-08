@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../G26/Reportes')
+sys.path.append('../team01/G26/Reportes')
 
 from graphviz import Graph
 

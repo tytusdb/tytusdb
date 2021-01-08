@@ -1,4 +1,4 @@
-from error import error
+from G26.error import error
 
 errores = list()
 
@@ -313,10 +313,10 @@ def t_error(t):
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
-import Librerias.ply.lex as lex
+import G26.Librerias.ply.lex as lex
 lexer = lex.lex()
 
-from imports import *
+from G26.imports import *
 
 grafo = graph.Grafo(0)
 
@@ -2604,7 +2604,7 @@ def getMistakes():
     return errores
     errores.clear()
 
-import Librerias.ply.yacc as yacc
+import G26.Librerias.ply.yacc as yacc
 parser = yacc.yacc()
 
 def parse(input) :

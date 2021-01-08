@@ -1,10 +1,10 @@
-from Expresiones.Primitivo import Primitive
+from G26.Expresiones.Primitivo import Primitive
 import sys
-sys.path.append('../G26/Instrucciones')
-sys.path.append('../G26/Utils')
-sys.path.append('../G26/Expresiones')
-sys.path.append('../G26/Librerias/storageManager')
-sys.path.append('../G26/Librerias/prettytable')
+sys.path.append('../team01/G26/Instrucciones')
+sys.path.append('../team01/G26/Utils')
+sys.path.append('../team01/G26/Expresiones')
+sys.path.append('../team01/G26/Librerias/storageManager')
+sys.path.append('../team01/G26/Librerias/prettytable')
 
 from jsonMode import *
 from instruccion import *
