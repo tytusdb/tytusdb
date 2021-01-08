@@ -124,6 +124,7 @@ BEGIN
 RETURN retorna;
 END;
 $$ LANGUAGE plpgsql;
+delete from tbbodega as tb where idbodega = 4 and idbodega = 5;
 """
 s2 = """
 

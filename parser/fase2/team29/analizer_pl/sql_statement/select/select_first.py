@@ -9,7 +9,7 @@ class SelectOnlyParamsFirst(instruction.Instruction):
     def __init__(self, temp, select) -> None:
         super().__init__(select.row, select.column)
         self.params = select.params
-        self.temp = "t"+temp
+        self.temp = "t" + temp
 
     def execute(self, environment):
         parVal = ""
@@ -30,7 +30,7 @@ class SelectOnlyParamsFirst(instruction.Instruction):
         out += '")\n'
         if isinstance(environment, Environment):
             out = "\t" + out
-        return code.C3D(parVal+out, self.temp, self.row, self.column)
+        return code.C3D(parVal + out, self.temp, self.row, self.column)
 
 
 class SelectFirstValue(instruction.Instruction):
@@ -43,7 +43,7 @@ class SelectFirstValue(instruction.Instruction):
         self.wherecl = select.wherecl
         self.groupbyCl = select.groupbyCl
         self.limitCl = select.limitCl
-        self.temp = "t"+temp
+        self.temp = "t" + temp
 
     def execute(self, environment):
         parVal = ""
@@ -70,7 +70,7 @@ class SelectFirstValue(instruction.Instruction):
         # where
         pval = self.wherecl.execute(environment)
         if pval.temp != "":
-            out += "WHERE "+pval.temp + " "
+            out += "WHERE " + pval.temp + " "
         parVal += pval.value
 
         # group by
@@ -97,11 +97,11 @@ class SelectFirstValue(instruction.Instruction):
             out = "\t" + out
 
         # TODO: optimizacion
-        '''
+        """
         if isinstance(environment, Environment):
             grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
         else:
             grammar.optimizer_.addIgnoreString(out, self.row, False)
-        '''
-        return code.C3D(parVal+out, self.temp, self.row, self.column)
+        """
+        return code.C3D(parVal + out, self.temp, self.row, self.column)
