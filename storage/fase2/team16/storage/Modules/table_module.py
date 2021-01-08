@@ -250,93 +250,70 @@ class TableModule:
     def alterTableCompress(self, database: str, table: str, level: int) -> int:
         try:
             tp = TupleModule()
-            actualTable = None
-            mode = ""
             if level not in [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
                 if level == 0:
                     return 0
                 return 4
-            if not isinstance(database, str) or self.handler.invalid(database):
+            if not isinstance(database, str) or not isinstance(table, str):
                 raise Exception()
-            self.databases = self.handler.rootinstance()
-            for i in self.databases:
-                if database.upper() == i.name.upper():
-                    mode = i.mode
-                    for tabla in i.tables:
-                        if tabla.name == table:
-                            if tabla.compress:
-                                return 0
-                            actualTable = tabla
-                            break
-                    break
-
-            if actualTable != None:
-                original_content = self.extractTable(database, table)
-                tp.truncate(database, table)
-                compressContent = self._compress(original_content, level)
-                try:
-                    for tupla in compressContent:
-                        tp.insert(database, table, tupla)
-                    databases = self.handler.rootinstance()
-                    for base in databases:
-                        if database.upper() == base.name.upper():
-                            for tabla in base.tables:
-                                if tabla.name == table:
-                                    tabla.compress = True
-                                    # falta guardar el estado de la tabla
-                                    #self.handler.tableupdate(mode, database, table, actualTable)
-                                    break
-                            break
-                    return 0
-                except:
-                    for tupla in original_content:
-                        tp.insert(database, table, tupla)
-                    return 1
+            self.dbs = self.handler.rootinstance()
+            tmp, index = self._exist(database)
+            if tmp:
+                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
+                if _table:
+                    if _table.compress:
+                        return 0
+                    original_content = self.extractTable(database, table)
+                    tp.truncate(database, table)
+                    compressContent = self._compress(original_content, level)
+                    try:
+                        for tupla in compressContent:
+                            tp.insert(database, table, tupla)
+                        for i in range(len(tmp.tables)):
+                            if tmp.tables[i].name == table:
+                                self.dbs[index].tables[i].compress = True
+                                self.handler.rootupdate(self.dbs)
+                                break
+                        return 0
+                    except:
+                        tp.truncate(database, table)
+                        for tupla in original_content:
+                            tp.insert(database, table, tupla)
+                        return 1
+                return 3
             return 2
         except:
             return 1
 
+
     def alterTableDecompress(self, database: str, table: str) -> int:
         try:
             tp = TupleModule()
-            actualTable = None
-            mode = ""
-            if not isinstance(database, str) or self.handler.invalid(database):
+            if not isinstance(database, str) or not isinstance(table, str):
                 raise Exception()
-            self.databases = self.handler.rootinstance()
-            for i in self.databases:
-                if database.upper() == i.name.upper():
-                    mode = i.mode
-                    for tabla in i.tables:
-                        if tabla.name == table:
-                            if tabla.compress is False:
-                                return 0
-                            actualTable = tabla
-                            break
-                    break
-
-            if actualTable != None:
-                original_content = self.extractTable(database, table)
-                tp.truncate(database, table)
-                decompressContent = self._decompress(original_content)
-                try:
-                    for tupla in decompressContent:
-                        tp.insert(database, table, tupla)
-                    databases = self.handler.rootinstance()
-                    for base in databases:
-                        if database.upper() == base.name.upper():
-                            for tabla in base.tables:
-                                if tabla.name == table:
-                                    tabla.compress = True
-                                    # falta guardar el estado de la tabla
-                                    # self.handler.tableupdate(mode, database, table, actualTable)
-                                    break
-                            break
-                    return 0
-                except:
-                    for tupla in original_content:
-                        tp.insert(database, table, tupla)
-                    return 1
+            self.dbs = self.handler.rootinstance()
+            tmp, index = self._exist(database)
+            if tmp:
+                _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
+                if _table:
+                    if not _table.compress:
+                        return 3
+                    original_content = self.extractTable(database, table)
+                    tp.truncate(database, table)
+                    decompressContent = self._decompress(original_content)
+                    try:
+                        for tupla in decompressContent:
+                            tp.insert(database, table, tupla)
+                        for i in range(len(tmp.tables)):
+                            if tmp.tables[i].name == table:
+                                self.dbs[index].tables[i].compress = False
+                                self.handler.rootupdate(self.dbs)
+                                break
+                        return 0
+                    except:
+                        for tupla in original_content:
+                            tp.insert(database, table, tupla)
+                        return 1
             return 2
         except:
             return 1

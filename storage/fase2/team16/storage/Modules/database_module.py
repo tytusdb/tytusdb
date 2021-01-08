@@ -19,6 +19,7 @@ class Database:
         self.mode = mode
         self.encoding = encoding
         self.tables = []
+        self.compress = False
 
     def __repr__(self) -> str:
         return str(self.name)
@@ -233,22 +234,17 @@ class DatabaseModule:
             if not isinstance(database, str) or self.handler.invalid(database):
                 raise Exception()
             self.databases = self.handler.rootinstance()
-            for i in self.databases:
-                if database.upper() == i.name.upper():
-                    if i.compress:
-                        return 0
-                    for tabla in i.tables:
-                        if tabla.compress:
-                            continue
-                        tm.alterTableCompress(database, tabla.name, level)
-
-                    databases = self.handler.rootinstance()
-                    for base in databases:
-                        if database.upper() == base.name.upper():
-                            base.compress = True
-                            # falta guardar el metadato
-                            break
+            tmp, index = self._exist(database)
+            if tmp:
+                if tmp.compress:
                     return 0
+                for tabla in tmp.tables:
+                    tm.alterTableCompress(database, tabla.name, level)
+                self.databases = self.handler.rootinstance()
+                tmp, index = self._exist(database)
+                self.databases[index].compress = True
+                self.handler.rootupdate(self.databases)
+                return 0
             return 2
         except:
             return 1
@@ -259,22 +255,15 @@ class DatabaseModule:
             if not isinstance(database, str) or self.handler.invalid(database):
                 raise Exception()
             self.databases = self.handler.rootinstance()
-            for i in self.databases:
-                if database.upper() == i.name.upper():
-                    if i.compress is False:
-                        return 3
-                    for tabla in i.tables:
-                        if tabla.compress is False:
-                            continue
-                        tm.alterTableDecompress(database, tabla)
-
-                    databases = self.handler.rootinstance()
-                    for base in databases:
-                        if database.upper() == base.name.upper():
-                            base.compress = False
-                            # falta guardar el metadato
-                            break
+            tmp, index = self._exist(database)
+            if tmp:
+                if not tmp.compress:
                     return 0
+                for tabla in tmp.tables:
+                    tm.alterTableDecompress(database, tabla.name)
+                self.databases[index].compress = False
+                self.handler.rootupdate(self.databases)
+                return 0
             return 2
         except:
             return 1
