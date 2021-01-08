@@ -10,6 +10,8 @@ from reportTable import *
 from variables import cont
 from variables import tabla
 from variables import NombreDB
+
+
 from procedural import llamadaF
 
 #VARIABLES GLOBALES
@@ -21,6 +23,7 @@ contregistro = 0
 
 
 def Textoresultado():
+    
     for simbolo in tabla.simbolos:
         print("ID: " + str(tabla.simbolos[simbolo].id) + " Nombre: " + tabla.simbolos[simbolo].nombre + " Ambito: " + str(tabla.simbolos[simbolo].ambito) + " Tipo indice: " + str(tabla.simbolos[simbolo].tipoind) + " Orden Indice: " + str(tabla.simbolos[simbolo].ordenind) + " Columna ind: " + str(tabla.simbolos[simbolo].columnaind) + " Tabla indice: " + str(tabla.simbolos[simbolo].tablaind))
     print("\n")
@@ -55,6 +58,7 @@ class reservadatipo(instruccion):
 """MANIPULACION DE BASES DE DATOS"""
 #CREATEDB----------------------------
 class createdb(instruccion):
+    
     def __init__(self,replacedb,ifnotexists,iden,owner,mode):
         self.replacedb = replacedb
         self.ifnotexists = ifnotexists
@@ -62,7 +66,7 @@ class createdb(instruccion):
         self.owner = owner
         self.mode = mode
     
-    def traducir(self,table):
+    def traducir(self):
         
         #global traduccion
         traduccion = '\t'
@@ -75,13 +79,13 @@ class createdb(instruccion):
         if self.mode != "":
             traduccion += ' MODE =' + self.mode
         traduccion += ';")'
-        self.ejecutar()
-        
+
         
         
         return traduccion + '\n'
 
     def ejecutar(self):
+        
         global resultadotxt
         global cont
         global tabla
@@ -93,6 +97,9 @@ class createdb(instruccion):
                 cont+=1
                 contambito += 1
                 tabla.agregar(NuevoSimbolo)
+                print("2 luego de ejecutar en DGA",id(tabla))
+                
+
                 #resultadotxt += "Se creo la base de datos " + self.iden + "\n"
                 print("Se creo la base de datos " + self.iden + "\n")
                 return "Se creo la base de datos " + self.iden + "\n"
@@ -123,6 +130,11 @@ class createdb(instruccion):
                 return "Error al crear base de datos: " + self.iden + "\n"
             
         except:
+            NuevoSimbolo = TS.Simbolo(cont,self.iden,TS.TIPO.DATABASE,contambito)
+            cont+=1
+            contambito += 1
+            tabla.agregar(NuevoSimbolo)
+            print("2 luego de ejecutar en DGA",id(tabla))
             """ERROR SEMANTICO"""
 
 #SHOWDB----------------------------------
@@ -287,12 +299,16 @@ class usedb(instruccion):
         traduccion += 'sql.execute("USE DATABASE '+ self.iden
         traduccion += ';")'
         traduccion += '\n'
+        traduccion += '\tNombreDB = ts.nameDB\n'
         
         return traduccion
 
     def ejecutar(self):
         global resultadotxt
         global NombreDB
+        global tabla
+        
+        tabla.nameDB = self.iden
         NombreDB = self.iden
         resultadotxt += "Usando la base de datos " + self.iden + "\n"
         print("Usando la base de datos " + self.iden + "\n")
@@ -666,6 +682,7 @@ class insert(instruccion):
         traduccion += '\n'
         c3d += traduccion
         
+
         return c3d.replace(',)',')')
 
     def ejecutar(self):

@@ -418,8 +418,8 @@ class createfunc(pl):
     def ejecutar(self):
         return 'Se creo la funcion o procedimiento'
 
-    def traducir(self,tabla):
-        ts = tabla
+    def traducir(self):
+        
         global cont
         if  ts.existeF(str(self.id)):
             print('Funcion '+str(self.id) +' ya existe')

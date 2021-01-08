@@ -64,6 +64,7 @@ def p_definition_instr(p):
                         | ID LEFT_CORCH EXPRESSION RIGHT_CORCH EQUALS comparasion
                         | ID EQUALS comparasion
                         | ID EQUALS ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
+                        | ID EQUALS ID LEFT_PARENTHESIS EXPRESSION RIGHT_PARENTHESIS
                         | ID EQUALS ID LEFT_CORCH EXPRESSION RIGHT_CORCH'''
     if len(p) == 4:
         if p.slice[2].type == "EQUALS":

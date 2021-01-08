@@ -14,7 +14,7 @@ import os.path
 from os import path
 import webbrowser
 
-class Funcion(Instruccion):
+class CreateProcedure(Instruccion):
     def __init__(self, id, replace, parametros, declaraciones, instrucciones, tipo, strGram, linea, columna):
         Instruccion.__init__(self,tipo,linea,columna,strGram)
         self.id = id
@@ -53,7 +53,7 @@ class Funcion(Instruccion):
 
         arbol.lista_funciones.append(parametros_rep)
         arbol.lista_funciones.append(self.id)
-        arbol.lista_funciones.append('Funcion')
+        arbol.lista_funciones.append('Procedimiento')
         
         self.crear_tabla(arbol)
         arbol.consola.append(f"Se Creo la Funcion: {self.id} correctamente.")
@@ -108,13 +108,13 @@ class Funcion(Instruccion):
                 # Espacio para los parámetros
                 arbol.contador += len(self.declaraciones)
 
-                # print("tamaño de la función ------------>",arbol.contador)
+                print("tamaño de la función ------------>",arbol.contador)
 
                 existe.rol = "Metodo"
                 existe.funcion = self
                 existe.tamanio = arbol.contador 
                 arbol.contador = 0
-                # print("se limpió? ------------>",arbol.contador, existe.tamanio)
+                print("se limpió? ------------>",arbol.contador, existe.tamanio)
                 return 
             else:
                 error = Excepcion("42723", "Semantico", f"La función {self.id} ya existe.", self.linea, self.columna)

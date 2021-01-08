@@ -162,8 +162,12 @@ def Insert(tabla, columns, parametros, row, column):
     return insert_.InsertInto(tabla, columns, parametros, row, column)
 
 
-def Select(distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column):
-    return select.Select(distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column)
+def Select(
+    distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column
+):
+    return select.Select(
+        distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column
+    )
 
 
 def Union(type_, select1, select2, all, row, column):
@@ -179,4 +183,10 @@ def SelecctParam(exp, alias, row, column):
 
 
 def TernaryExpression(temp, exp1, exp2, exp3, operator, isBlock, row, column):
-    return datatype.TernaryExpression(temp, exp1, exp2, exp3, operator, isBlock, row, column)
+    return datatype.TernaryExpression(
+        temp, exp1, exp2, exp3, operator, isBlock, row, column
+    )
+
+
+def Aggrupation(exp, isBlock, row, column):
+    return datatype.Aggrupation(exp, isBlock, row, column)
