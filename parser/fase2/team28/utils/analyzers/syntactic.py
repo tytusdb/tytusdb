@@ -1222,6 +1222,8 @@ def p_sql_var_declarations(p):
     '''
     if len(p) == 5:
         p[0] = DeclaracionID(p[1], p[2], p[3],find_column(p.slice[1]), p.slice[1].lineno)
+    elif len(p) == 4:
+        p[0] = DeclaracionID(p[1], p[2], None,find_column(p.slice[1]), p.slice[1].lineno)
 
 def p_type_param(p):
     '''typeDeclare : typecol
@@ -2481,15 +2483,15 @@ def p_mathematical_functions(p):
 
 
 def p_binary_string_functions(p):
-    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
-                               | TRIM LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | MD5 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | SHA256 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | SUBSTR LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
-                               | DECODE LEFT_PARENTHESIS SQLNAME COMMA SQLNAME  RIGHT_PARENTHESIS'''
+    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SUBSTRING LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | TRIM LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | MD5 LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SHA256 LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SUBSTR LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION AS DATE RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION AS INTEGER RIGHT_PARENTHESIS
+                               | DECODE LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION  RIGHT_PARENTHESIS'''
     if p.slice[1].type == "LENGTH":
         p[0] = Length(p[3], p.lineno(1), find_column(p.slice[1]))
     elif p.slice[1].type == "SUBSTRING":
