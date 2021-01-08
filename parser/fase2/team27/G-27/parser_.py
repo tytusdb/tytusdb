@@ -9,6 +9,6 @@ class Parser(object):
     ''' '''
   def parse(self,input):
     obj = execution(input)
-    print(obj)
+    print(obj['messages'])
     return obj['querys']
     

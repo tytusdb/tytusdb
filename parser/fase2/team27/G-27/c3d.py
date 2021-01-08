@@ -261,7 +261,7 @@ def p_inicio(t):
     '''inicio : instrucciones '''
     arreglo = []
     for value in ListaFunciones:
-        arreglo.append(value)
+        arreglo.append(value['cod'])
     ListaFunciones.clear()
     t[0]= resFinal(arreglo,t[1].code)
 
@@ -1505,7 +1505,7 @@ def p_ins_delete(t):
 
 def p_drop_pf(t):
     ''' drop_pf : DROP drop_case opt_exist ID PUNTO_COMA'''
-    result = deleteProcFunc(t[2], t[4])
+    result = deleteProcFunc(t[2], t[4], ListaFunciones)
 
     t[0] = GenerarC3D()
     t[0].code = str(result)
@@ -1550,14 +1550,14 @@ def p_ins_create_pl(t):
     if len(t) == 14:
         meta = {'id':t[4], 'parametros':t[6],'estado': 'ALMACENADO', 'tipo': t[3]}
         func = funcion(meta,t[10])
-        ListaFunciones.append(func)
+        ListaFunciones.append({'id':t[4], 'cod':func})
         genTable(t[4])
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
     else: 
         meta = {'id':t[4], 'parametros':t[6], 'estado': 'ALMACENADO', 'tipo':t[3]}
         func = funcion(meta,t[11])
-        ListaFunciones.append(func)
+        ListaFunciones.append({'id':t[4], 'cod':func})
         genTable(t[4])
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
