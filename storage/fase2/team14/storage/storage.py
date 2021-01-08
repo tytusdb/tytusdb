@@ -277,6 +277,16 @@ def extractTable(database: str, table: str) -> list:
         tuples = jsonM.extractTable(database, table)
     elif databasesinfo[1][database][table]['mode'] == 'hash':
         tuples = HashM.extractTable(database, table)
+    if databasesinfo[1][database][table]['Compress'] == True:
+        tabla = tuples
+        for i in range(0, len(tabla)):
+            tupla = tabla[i]
+            for j in range(0, len(tupla)):
+                # print(tupla[j])
+                if type(tupla[j]) == bytes:
+                    tupla[j] = zlib.decompress(tupla[j]).decode()
+            tabla[i] = tupla
+        tuples=tabla
     return tuples
 
 
@@ -310,6 +320,16 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
             tuples = jsonM.extractRangeTable(database, table, lower, upper)
         elif databasesinfo[1][database][table]['mode'] == 'hash':
             tuples = HashM.extractRangeTable(database, table, columnNumber, lower, upper)
+        if databasesinfo[1][database][table]['Compress'] == True:
+                tabla = tuples
+                for i in range(0, len(tabla)):
+                    tupla = tabla[i]
+                    for j in range(0, len(tupla)):
+                        # print(tupla[j])
+                        if type(tupla[j]) == bytes:
+                            tupla[j] = zlib.decompress(tupla[j]).decode()
+                    tabla[i] = tupla
+                tuples=tabla
         return tuples
     except:
         return []
@@ -797,12 +817,10 @@ def insert(database: str, table: str, register: list) -> int:
                     register[ind] = x.decode(encoding)
         except:
             return 1
-
         if databasesinfo[1][database][table]['Compress'] == True:
             for i in range(0, len(register)):
                 if type(register[i]) == str:
                     register[i] = zlib.compress(bytes(register[i].encode()))
-
         if databasesinfo[1][database][table]['mode'] == 'avl':
             result = AVLM.insert(database, table, register)
         elif databasesinfo[1][database][table]['mode'] == 'b':
@@ -867,6 +885,16 @@ def extractRow(database: str, table: str, columns: list) -> list:
             result = jsonM.extractRow(database, table, columns)
         elif databasesinfo[1][database][table]['mode'] == 'hash':
             result = HashM.extractRow(database, table, columns)
+        if databasesinfo[1][database][table]['Compress'] == True:
+            tabla = result
+            for i in range(0, len(tabla)):
+                tupla = tabla[i]
+                for j in range(0, len(tupla)):
+                    # print(tupla[j])
+                    if type(tupla[j]) == bytes:
+                        tupla[j] = zlib.decompress(tupla[j]).decode()
+                tabla[i] = tupla
+            tuples = result
         return result
     except:
         return []
