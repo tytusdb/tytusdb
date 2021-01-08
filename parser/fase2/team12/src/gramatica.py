@@ -2223,6 +2223,14 @@ def p_alter2(t):
     nuevo.hijos.append(IdentificadorDML("TABLE",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(t[4])
     t[0] = nuevo
+
+def p_alter3(t):
+    '''sent_alter : ALTER INDEX IF EXISTS IDENTIFICADOR IDENTIFICADOR IDENTIFICADOR'''
+    nuevo = Alter('SENTENCIA_ALTER_INDEX')
+    nuevo.hijos.append(IdentificadorDML("INDEX",t.lineno(5),t.lexpos(5)+1,t[5]))
+    nuevo.hijos.append(IdentificadorDML("COLUMNA1",t.lineno(6),t.lexpos(6)+1,t[6]))
+    nuevo.hijos.append(IdentificadorDML("COLUMNA2",t.lineno(7),t.lexpos(7)+1,t[7]))
+    t[0] = nuevo    
     
 def p_alter_db(t):
     '''accion_alter_db  : RENAME TO IDENTIFICADOR'''

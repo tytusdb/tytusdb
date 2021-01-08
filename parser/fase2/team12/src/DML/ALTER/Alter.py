@@ -5,15 +5,32 @@ sys.path.append(nodo_dir)
 storage_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\storageManager\\')
 sys.path.append(storage_dir)
 
+storage_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\typeChecker\\')
+sys.path.append(storage_dir)
+
+from typeChecker.typeChecker import *
 from Nodo import Nodo
 from jsonMode import showDatabases
-
+import json
 class Alter(Nodo):
     def __init__(self, nombreNodo,fila = -1 ,columna = -1 ,valor = None):
         Nodo.__init__(self,nombreNodo, fila, columna, valor)
 
     def execute(self,enviroment = None):
         print('Llamar al Alter')
+        if self.nombreNodo == 'SENTENCIA_ALTER_INDEX':
+            id1 = self.hijos[0].valor
+            id2 = self.hijos[1].valor
+            id3 = self.hijos[2].valor
+            with open('src/Config/Config.json') as file:
+                config = json.load(file)
+                dbUse = config['databaseIndex']            
+                tc = TypeChecker()
+                if tc.alter_index(dbUse,id1,id2,id3):
+                    return {"Code":"0000","Message": "Succesful altered index <"+id1+">", "Data" : ""}
+                
+        return {"Code":"42P01","Message": "undefined_index: The index <"+id1+"> doesn´t exists"}
+            
         
     def compile(self):
         tmp = instanceTemporal.getTemporal()
@@ -30,3 +47,8 @@ class Alter(Nodo):
             #exp =  self.hijos[3].hijos[0].getText()
             #where_body = f" WHERE {exp};"
             return f"ALTER TABLE {table_}"
+        elif self.nombreNodo == 'SENTENCIA_ALTER_INDEX':
+            id1 = self.hijos[0].valor
+            id2 = self.hijos[1].valor
+            id3 = self.hijos[2].valor
+            return f'ALTER INDEX IF EXISTS {id1} {id2} {id3};'

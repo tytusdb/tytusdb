@@ -21,7 +21,7 @@ def reporte_ts(arbol):
                     cadena += "\t"+"INDICE: "+str(indx["name"])+"\n"
                     cadena += "\t\t"+"table: "+str(indx["table"])+"\n"
                     cadena += "\t\t"+"Method: "+str(indx["method"])+"\n"
-                    for columns in indx['listaAttribb']:
+                    for columns in indx['listaAtribb']:
                         cadena += "\t\t\t"+"Column: "+str(columns["column"])+"\n"
                         cadena += "\t\t\t"+"Order: "+str(columns["order"])+"\n"
                         cadena += "\t\t\t"+"Nulls: "+str(columns["nulls"])+"\n"

@@ -41,7 +41,7 @@ class Index():
         self.name = None
         self.table = None
         self.method = None
-        self.listaAttribb = []
+        self.listaAtribb = []
         self.sentenciaWhere = None
 
 class Atribb():
@@ -54,6 +54,7 @@ class Procedure:
     def __init__(self):
         self.nombre = None
         self.C3D = None  
+        self.parametros = []
 
 
 file_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))+ '\\estructura.json')
@@ -129,7 +130,8 @@ class TypeChecker():
                 if procedure.nombre not in listanombres:
                     procedures.append({
                         "nombre" : procedure.nombre,
-                        "C3D" : procedure.C3D
+                        "C3D" : procedure.C3D,
+                        "parametros" : procedure.parametros
                         })
                     dataFinal = json.dumps(data)
                 else:
@@ -176,7 +178,7 @@ class TypeChecker():
                         "name" : index.name,
                         "table" : index.table,
                         "method" : index.method,
-                        "listaAttribb" : listaAttribs,
+                        "listaAtribb" : listaAttribs,
                         "sentenciaWhere" : index.sentenciaWhere
                         })
                     dataFinal = json.dumps(data)
@@ -188,6 +190,39 @@ class TypeChecker():
             file = open(file_dir,'w')
             file.write(dataFinal)
             file.close()
+
+
+    def alter_index(self, database : str,nombre_index,old_column, new_column):
+            with open(file_dir) as file:
+                data = json.load(file)
+                if database in data:
+                    indices = data[database]["indexes"]
+                    for ind in indices:
+                        tabla_actual = ''
+                        if nombre_index == ind["name"]:
+                            tabla_actual = str(ind["table"]).upper()
+                            if tabla_actual not in self.tablename_list(database):
+                                return 1 #No existe la tabla
+
+                            l_columns = self.column_list(database,tabla_actual)
+                            if old_column.upper() not in l_columns  and new_column.upper() not in l_columns:
+                                return 2
+
+
+                            lista = ind['listaAtribb']
+                            for attr in lista:
+                                if attr['column'] == old_column:
+                                    attr['column'] = new_column
+                                    dataFinal = json.dumps(data)
+                                    file = open(file_dir,'w')
+                                    file.write(dataFinal)
+                                    file.close()
+                                    return True
+                            return None
+                    return None
+                else:
+                    return None
+
 
     def return_indexJSON(self, database : str):
         if self.existeDB(database):
@@ -206,14 +241,14 @@ class TypeChecker():
             index_tmp.method = indx["method"]
             l = []
 
-            for item in indx["listaAttribb"]:
+            for item in indx["listaAtribb"]:
                 attr_tmp = Atribb()
                 attr_tmp.column = item["column"]
                 attr_tmp.order = item["order"]
                 attr_tmp.nulls = item["nulls"]
                 l.append(attr_tmp)
 
-            index_tmp.listaAttribb = l
+            index_tmp.listaAtribb = l
             index_tmp.sentenciaWhere = indx["sentenciaWhere"]
             retorno.append(index_tmp)
         return retorno

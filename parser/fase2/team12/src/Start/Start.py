@@ -114,6 +114,8 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
             elif hijo.nombreNodo == "SENTENCIA_SHOW":
                 self.listaSemanticos.append(hijo.execute(None))
+            elif hijo.nombreNodo == "SENTENCIA_ALTER_INDEX":
+                self.listaSemanticos.append(hijo.execute(None))                
             elif hijo.nombreNodo == "SENTENCIA_DROP":
                 self.listaSemanticos.append(hijo.execute(None))
             elif hijo.nombreNodo == "SENTENCIA_DELETE":
