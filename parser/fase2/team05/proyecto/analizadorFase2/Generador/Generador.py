@@ -39,6 +39,11 @@ class Generador:
         self.label += 1
         return label
 
+    def generarNativaDelete(self):
+        temp = self.generarTemporal()
+        inst = "def nativa_borrarfuncion():\n\tglobal lista\n\t" + temp + "=lista.pop()\n\tglobals()[" + temp + "] = 0"
+        self.codigo3d.append(inst)
+
     def agregarvariableglobal(self, id):
         inst = self.generarTab() + "global " + id
         self.codigo3d.append(inst)
@@ -79,6 +84,8 @@ class Generador:
                 self.compilarFuncion(instruccion)
             elif isinstance(instruccion, FuncionNativa): 
                 self.compilarFuncionesNativas(instruccion)
+
+        self.generarNativaDelete()
         for linea in self.codigo3d:
             print(linea)
 
@@ -130,12 +137,12 @@ class Generador:
                 valor_param = self.compilarOperacionLogicaRelacional(param.valor)
                 self.generarAsignacion("simulador_pila[" + temporal + "]", valor_param.valor)
                 self.generarAsignacion(temporal, temporal + " + 1")
-            self.generarLlamada("C3D_" + instruccion.id)
-            temp = self.generarTemporal()
-            self.generarAsignacion(temp, "0")
-            temp1 = self.generarTemporal()
-            self.generarAsignacion(temp1, "simulador_pila[" + temp + "]")
-            return RetornoOp(temp1, None)
+        self.generarLlamada("C3D_" + instruccion.id)
+        temp = self.generarTemporal()
+        self.generarAsignacion(temp, "0")
+        temp1 = self.generarTemporal()
+        self.generarAsignacion(temp1, "simulador_pila[" + temp + "]")
+        return RetornoOp(temp1, None)
 
     def compilarReturn(self, instruccion):
         if not instruccion.valor is None:
@@ -155,7 +162,7 @@ class Generador:
             elif isinstance(instruccion1, Llamada):
                 self.compilarLlamada(instruccion1)
             elif isinstance(instruccion1, Primitivo):
-                self.compilarPrimitivo
+                self.compilarPrimitivo(instruccion1)
             elif isinstance(instruccion1, EliminarFuncion):
                 self.compilarDropFunction(instruccion1)
 
@@ -205,8 +212,8 @@ class Generador:
 
 
     def compilarDropFunction(self, instruccion):
-        inst = self.generarTab() + "del " + instruccion.id
-        self.codigo3d.append(inst)
+        if isinstance(instruccion, EliminarFuncion):
+            self.codigo3d.append(instruccion.instruccion)
 
     def compilarOperacionLogicaRelacional(self, instruccion):
         if isinstance(instruccion, OperacionesLogicasRelacionales):
@@ -495,16 +502,29 @@ class Generador:
                 self.generarAsignacion(temporal, instruccion.valor)
                 return RetornoOp(temporal, instruccion.tipo)
             elif instruccion.tipo == Tipos.ISQL:
-                valor = instruccion.valor;
-                auxvalor = valor.split("=", 1)
-                temporal = auxvalor[0]
-                inst = auxvalor[1]
-                self.generarAsignacion(temporal, inst)
-                self.generarAsignacion("lista", "[" + temporal + "]")
-                temp = self.generarTemporal()
-                self.generarAsignacion(temp, "funcionIntermedia()")
-                ret = RetornoOp(temp, None)
-                return ret
+                valor = instruccion.valor
+                if valor.find("C3D_") == -1:
+                    auxvalor = valor.split("=", 1)
+                    temporal = auxvalor[0].replace("\t", "")
+                    inst = auxvalor[1]
+                    self.generarAsignacion(temporal, inst)
+                    self.generarAsignacion("lista", "[" + temporal + "]")
+                    temp = self.generarTemporal()
+                    self.generarAsignacion(temp, "funcionIntermedia()")
+                    ret = RetornoOp(temp, None)
+                    return ret
+                else:
+                    auxvalor = valor
+                    auxvalor1 = auxvalor.split("\n")
+                    temp = ""
+                    for inst in auxvalor1:
+                        if inst.find("funcionIntermedia()") == -1:
+                            self.codigo3d.append(inst)
+                        else:
+                            temp = self.generarTemporal()
+                            self.generarAsignacion(temp, "funcionIntermedia()")
+                    ret = RetornoOp(temp, None)
+                    return ret
             else:
                 ret = RetornoOp(instruccion.valor, instruccion.tipo)
                 return ret
