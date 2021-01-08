@@ -542,8 +542,7 @@ class Main(tk.Tk):
         print('*************************************')
         print(retornoOpt())
         fOpt.write(archivo)
-        f.close()
-
+        fOpt.close()
         reporteOptimizacion(reglasOpt)
 
 
