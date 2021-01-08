@@ -5,13 +5,18 @@ import mathtrig as mt
 import hashlib
 from datetime import date
 
+from variables import cont
+from variables import tabla
+from variables import NombreDB
+from procedural import llamadaF
+
 #VARIABLES GLOBALES
 resultadotxt = ""
-tabla = TS.Tabla()
-cont = 0
+
 contambito = 0
-NombreDB = ""
+
 contregistro = 0
+
 
 def Textoresultado():
     for simbolo in tabla.simbolos:
@@ -67,8 +72,8 @@ class createdb(instruccion):
         if self.mode != "":
             traduccion += ' MODE =' + self.mode
         traduccion += ';")'
-        print(traduccion)
-        return traduccion + ';\n'
+        
+        return traduccion + '\n'
 
     def ejecutar(self):
         global resultadotxt
@@ -83,11 +88,13 @@ class createdb(instruccion):
                 contambito += 1
                 tabla.agregar(NuevoSimbolo)
                 #resultadotxt += "Se creo la base de datos " + self.iden + "\n"
+                print("Se creo la base de datos " + self.iden + "\n")
                 return "Se creo la base de datos " + self.iden + "\n"
             elif resultado == 2 and not self.replacedb:
                 e = errores.CError(0,0,"Ya existe la base de datos " + self.iden,'Semantico') 
                 errores.insert_error(e)
                 resultadotxt += "Ya existe la base de datos " + self.iden + "\n"
+                print("Ya existe la base de datos " + self.iden + "\n")
                 return "Ya existe la base de datos " + self.iden + "\n"
             elif resultado == 2 and self.replacedb:
                 func.dropDatabase(self.iden)
@@ -99,11 +106,13 @@ class createdb(instruccion):
                 contambito+=1
                 tabla.agregar(NuevoSimbolo)
                 resultadotxt += "Se reemplazo la base de datos: " + self.iden + "\n"
+                print("Se reemplazo la base de datos: " + self.iden + "\n")
                 return "Se reemplazo la base de datos: " + self.iden + "\n"
             else:
                 e = errores.CError(0,0,"Error al crear base de datos: " + self.iden,'Semantico') 
                 errores.insert_error(e)
                 resultadotxt += "Error al crear base de datos: " + self.iden + "\n"
+                print("Error al crear base de datos: " + self.iden + "\n")
                 return "Error al crear base de datos: " + self.iden + "\n"
         except:
             """ERROR SEMANTICO"""
@@ -117,7 +126,7 @@ class showdb(instruccion):
         traduccion = '\t'
         traduccion += 'sql.execute("SHOW DATABASES '+ self.nombre + ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -135,9 +144,11 @@ class showdb(instruccion):
                     resultadotxt += str(contador) + ". " + base + "\n"
                     resp += str(contador) + ". " + base + "\n"
                     contador += 1
+                print(resp)
                 return resp
             else:
                 resultadotxt += "No existen bases de datos"
+                print("No existen bases de datos")
                 return "No existen bases de datos"
         except:
             """ERROR SEMANTICO"""
@@ -156,7 +167,7 @@ class alterdb(instruccion):
             traduccion += ' RENAME TO ' + self.alterdb2.alterdb3.iden
         traduccion += ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -170,17 +181,20 @@ class alterdb(instruccion):
                     e = errores.CError(0,0,"No existe la base de datos " + self.alterdb2.iden,'Semantico')
                     errores.insert_error(e)
                     resultadotxt += "No existe la base de datos " + self.alterdb2.iden + "\n"
+                    print("No existe la base de datos " + self.alterdb2.iden + "\n")
                     return "No existe la base de datos " + self.alterdb2.iden + "\n"
                 if resultado == 3:
                     e = errores.CError(0,0,"Ya existe la base de datos " + self.alterdb2.alterdb3.iden,'Semantico')
                     errores.insert_error(e)
                     resultadotxt += "Ya existe la base de datos " + self.alterdb2.alterdb3.iden + "\n"
+                    print("Ya existe la base de datos " + self.alterdb2.alterdb3.iden + "\n")
                     return "Ya existe la base de datos " + self.alterdb2.alterdb3.iden + "\n"
                 else:
                     buscar = tabla.BuscarNombre(self.alterdb2.iden)
                     buscar.nombre = self.alterdb2.alterdb3.iden
                     tabla.actualizar(buscar)
                     resultadotxt += "Se actualizo la base de datos " + self.alterdb2.iden + " a " + self.alterdb2.alterdb3.iden + "\n"
+                    print("Se actualizo la base de datos " + self.alterdb2.iden + " a " + self.alterdb2.alterdb3.iden + "\n")
                     return "Se actualizo la base de datos " + self.alterdb2.iden + " a " + self.alterdb2.alterdb3.iden + "\n"
         except:
             """ERROR SEMANTICO"""
@@ -218,6 +232,7 @@ class dropdb(instruccion):
         traduccion += ' ' + self.iden
         traduccion += ';)"'
         traduccion += '\n'
+        
         return traduccion
 
     def ejecutar(self):
@@ -231,6 +246,7 @@ class dropdb(instruccion):
                 e = errores.CError(0,0,"No existe la base de datos " + str(self.iden),'Semantico')
                 errores.insert_error(e)
                 resultadotxt += "No existe la base de datos " + self.iden + "\n"
+                print("No existe la base de datos " + self.iden + "\n")
                 return "No existe la base de datos " + self.iden + "\n"
             else:
                 BaseDatos = tabla.BuscarNombre(self.iden)
@@ -248,6 +264,7 @@ class dropdb(instruccion):
                 if self.iden == NombreDB:
                     NombreDB = ""
                 resultadotxt += "Se elimino la base de datos " + self.iden + "\n"
+                print("Se elimino la base de datos " + self.iden + "\n")
                 return "Se elimino la base de datos " + self.iden + "\n"
         except:
             """ERROR SEMANTICO"""
@@ -262,7 +279,7 @@ class usedb(instruccion):
         traduccion += 'sql.execute("USE DATABASE '+ self.iden
         traduccion += '";)'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -270,6 +287,7 @@ class usedb(instruccion):
         global NombreDB
         NombreDB = self.iden
         resultadotxt += "Usando la base de datos " + self.iden + "\n"
+        print("Usando la base de datos " + self.iden + "\n")
         return "Usando la base de datos " + self.iden + "\n"
 
 #MANIPULACION DE TABLAS
@@ -299,7 +317,7 @@ class createtb(instruccion):
         traduccion += ');")'
         traduccion = traduccion.replace(',)',')')
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
 
@@ -409,6 +427,7 @@ class createtb(instruccion):
                 resultadotxt += "Se creo la tabla: " + self.iden + " En la base de datos: " + NombreDB + "\n"
         except:
             """ERROR SEMANTICO"""
+        print(resultadotxt)
         return resultadotxt
 
 class columna(instruccion):
@@ -430,7 +449,7 @@ class droptb(instruccion):
         traduccion = '\t'
         traduccion += 'sql.execute("DROP TABLE '+ self.iden + ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -461,6 +480,7 @@ class droptb(instruccion):
                 resultadotxt += "Se elimino la tabla: " + self.iden + " de la base de datos: " + NombreDB + "\n"
         except:
             """ERROR SEMANTICO"""
+        print(resultadotxt)
         return resultadotxt
 
 #ALTER TABLE-------------------------------------
@@ -498,7 +518,7 @@ class altertb(instruccion):
                 subtraduccion += ';")'
                 subtraduccion += '\n'
                 traduccion += subtraduccion
-        print(traduccion)
+        
         return traduccion
 
 
@@ -561,6 +581,7 @@ class altertb(instruccion):
                         """ERROR SEMANTICO"""
             except:
                 """ERROR"""
+        print(resultadotxt)
         return resultadotxt    
 
 def OrdenarColumnas(NombreTabla):
@@ -610,24 +631,34 @@ class insert(instruccion):
         self.valores = valores
 
     def traducir(self):
-        traduccion = '\t'
-        traduccion += 'sql.execute("INSERT INTO '+ self.iden + ' VALUES('
+        c3d = ''
+        traduccion = ''
+        traduccion += '\tsql.execute("INSERT INTO '+ self.iden + ' VALUES('
 
         for v in self.valores:
-            if isinstance(v , (int, float, complex)):
-                traduccion += str(v) + ","
-            elif isinstance(v, str):
-                traduccion += "'"+ v + "'" + ","
-            elif isinstance(v, bool):
-                traduccion += str(v) + ","
-            elif "ejecutar" in dir(v) :
-                traduccion += str(v.ejecutar()) + ","
+            print(type(v))
+            if isinstance(v, llamadaF):
+                print(v) 
+                c = v.traducir()
+                c3d += '\t'+str(c[0]).replace('\n','\n\t')
+                c3d += '\n'
+                traduccion += "\"+"+str(c[1])+ "+\","
+            else:
+                if isinstance(v , (int, float, complex)):
+                    traduccion += str(v) + ","
+                elif isinstance(v, str):
+                    traduccion += "'"+ v + "'" + ","
+                elif isinstance(v, bool):
+                    traduccion += str(v) + ","
+                elif "ejecutar" in dir(v) :
+                    traduccion += str(v.ejecutar()) + ","
 
         traduccion = traduccion.replace(",)",")")
         traduccion += ');")'
         traduccion += '\n'
-        print(traduccion.replace(',)',')'))
-        return traduccion.replace(',)',')')
+        c3d += traduccion
+        print(c3d.replace(',)',')'))
+        return c3d.replace(',)',')')
 
     def ejecutar(self):
         global resultadotxt
@@ -697,6 +728,7 @@ class insert(instruccion):
                 resultadotxt += "El registro  " + nombrereg + " fue agregado a la tabla " + self.iden + "\n"
         except:
             """ERRORES SEMANTICOS"""
+        print(resultadotxt)
         return resultadotxt
 
 #FUNCIONES MATH
@@ -1705,7 +1737,7 @@ class update(instruccion):
 
         traduccion += ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -1841,7 +1873,7 @@ class delete(instruccion):
 
         traduccion += ';")'
         traduccion += '\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -1966,6 +1998,9 @@ class IndexCreate(instruccion):
         self.id2 = id2
         self.createind2 = createind2
 
+    def traducir(self):
+        return ''
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -2051,6 +2086,9 @@ class IndexDrop(instruccion):
         self.listaindices = listaindices
         self.orden = orden
 
+    def traducir(self):
+        return ''
+
     def ejecutar(self):
         global resultadotxt
         global cont
@@ -2079,6 +2117,9 @@ class IndexAlter(instruccion):
     def __init__(self, tipo, alterind2):
         self.tipo = tipo
         self.alterind2 = alterind2
+
+    def traducir(self):
+        return ''
 
     def ejecutar(self):
         global resultadotxt

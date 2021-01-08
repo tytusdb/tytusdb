@@ -1,10 +1,10 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Time import Time
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math_
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as  Expresion
-import Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario as Binario
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time import Time
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math_
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as  Expresion
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario as Binario
 
 class IdAsId(Instruccion):
     '''ID ID

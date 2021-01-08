@@ -25,11 +25,13 @@ class TIPO_DATO(Enum):
     BASEDEDATOS = 21
     USE = 22
     CLASEENUMERADA = 23
+
     INDEX_SIMPLE = 24
     INDEX_HASH = 25
     INDEX_LOWER = 26
     INDEX_UNIQUE = 27
     INDEX_ORDER = 28
+    PROCEDURE = 50
 
     FUNCTION = 29
     DECLARE = 30
@@ -37,18 +39,16 @@ class TIPO_DATO(Enum):
     PARAMETRO = 32
     DECLARACION = 33
 
-
-
 #La clase simbolo sera todo aquello que se desee guardar para el manejo de los datos
 class Simbolo():
 
 
     def __init__(self, categoria,id, tipo, valor,Entorno):
-        self.categoria = categoria
-        self.id = id
-        self.tipo = tipo
-        self.valor = valor
-        self.Entorno = Entorno
+        self.categoria = categoria              #function
+        self.id = id            #nombre de la funcion
+        self.tipo = tipo        #tipo que retorna la funcion
+        self.valor = valor      #None
+        self.Entorno = Entorno  #DECLARE = [Objetos decla,], BEGIN = [instruccion,instruccion]
 
 
 #Aqui se define la tabla de simbolos , cada tabla define un nuevo entorno
@@ -67,6 +67,7 @@ class TablaDeSimbolos():
     def buscar_sim(self, id):
         if not id in self.simbolos:
             print('Error: el identificador ', id, ' no esta definido.')
+            return None
         return self.simbolos[id]
 
     def validar_sim(self, id):
