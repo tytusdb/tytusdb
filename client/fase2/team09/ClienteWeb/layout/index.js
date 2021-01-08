@@ -94,7 +94,7 @@ function server(){
 }
 
 function ejecutar(){
-  alert("Se ejecutara el script.")
+  peticionQuery(document.getElementById("texto").value)
 }
 function logout(){
   window.open("http://localhost:8000","_self") 
@@ -105,52 +105,19 @@ function base(tipo){
     case "create":
       var contenido = "create database " + document.getElementById("nameBase").value + ";"
       console.log(contenido)
-      fetch('http://localhost:8888/query',
-          {
-              method:'POST',
-              mode: 'cors',
-              body: JSON.stringify({query: contenido}),
-              headers:{
-                  'Content-Type': 'application/json'
-              }
-          })
-      .then(response => response.json())
-      .catch(error=> cosole.log('Error:',error))
-      .then(data => mostrarSalida(data));
+      peticionQuery(contenido)
       document.getElementById("myModal").style.display = "none";
       document.getElementById("nameBase").value = "";
     break;
     case "show":
       console.log("show")
-      fetch('http://localhost:8888/query',
-      {
-          method:'POST',
-          mode: 'cors',
-          body: JSON.stringify({query: "show databases;"}),
-          headers:{
-              'Content-Type': 'application/json'
-          }
-      })
-      .then(response => response.json())
-      .catch(error=> cosole.log('Error:',error))
-      .then(data => mostrarSalida(data));  
+      peticionQuery("show databases;")
     break;
     case "alter":
       var contenido = "alter database " + document.getElementById("nameBaseAntiguo").value 
       contenido +=  " rename to " + document.getElementById("nameBaseNuevo").value + ";"
       console.log(contenido)
-      fetch('http://localhost:8888/query',
-          {
-              method:'POST',
-              mode: 'cors',
-              body: JSON.stringify({query: contenido}),
-              headers:{
-                  'Content-Type': 'application/json'
-              }
-          })
-      .then(response => response.json())
-      .catch(error=> cosole.log('Error:',error))
-      .then(data => mostrarSalida(data));
+      peticionQuery(contenido)
       document.getElementById("myModal1").style.display = "none";
       document.getElementById("nameBaseAntiguo").value = "";
       document.getElementById("nameBaseNuevo").value = "";
@@ -158,18 +125,7 @@ function base(tipo){
     case "drop":
       var contenido = "drop database " + document.getElementById("nameBaseDrop").value + ";"
       console.log(contenido)
-      fetch('http://localhost:8888/query',
-          {
-              method:'POST',
-              mode: 'cors',
-              body: JSON.stringify({query: contenido}),
-              headers:{
-                  'Content-Type': 'application/json'
-              }
-          })
-      .then(response => response.json())
-      .catch(error=> cosole.log('Error:',error))
-      .then(data => mostrarSalida(data));
+      peticionQuery(contenido)
       document.getElementById("myModal2").style.display = "none";
       document.getElementById("nameBaseDrop").value = "";
     break;
@@ -178,4 +134,19 @@ function base(tipo){
 
 function mostrarSalida(data){
   document.getElementById("textoSalida").value = data
+}
+
+function peticionQuery(contenido){
+  fetch('http://localhost:8888/query',
+  {
+      method:'POST',
+      mode: 'cors',
+      body: JSON.stringify({query: contenido}),
+      headers:{
+          'Content-Type': 'application/json'
+      }
+  })
+  .then(response => response.json())
+  .catch(error=> cosole.log('Error:',error))
+  .then(data => mostrarSalida(data));
 }
