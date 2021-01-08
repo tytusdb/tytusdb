@@ -1,6 +1,6 @@
 from flask import Blueprint, Response, jsonify, request
 from flask_cors import CORS
-from controller import interpreter
+from Fase1.analizer import interpreter
 
 qry = Blueprint('qry', __name__)
 
@@ -14,7 +14,7 @@ def exec():
     query = body.get('query')
     try:
         # Ejecuta el query (con el interpreter)
-        result = interpreter.exec(query)
+        result = interpreter.execution(query)
         return {"result": result, "ok": True}, 200
     except Exception as e:
         #  Retorna un mensaje de error en el servidor
