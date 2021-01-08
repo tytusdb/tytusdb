@@ -3317,7 +3317,11 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
             cantidadFilas =len(lfilas)
             agregarMensjae('table',"Select:"+str(cantidadFilas),'')
         else:
-            cantidadFilas=lfilas[0]
+            if len(lfilas)>0:
+                cantidadFilas=lfilas[0]
+            else:
+                cantidadFilas=0
+
             CD3.PSelectTablas(ltablas,lcolumnas,lfilas,len(lfilas))
             result = result.get_string(fields=lcolumnas)
             agregarMensjae('table',result,'')
@@ -3332,6 +3336,7 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
                             tip=col.tipo
                             nom=col.nombre
                             agregarTSRepor('',nom,tip,'',tab,'1','','')
+
     return cantidadFilas
 
 def filtroWhere(tabla,filtro,ts):
@@ -3756,6 +3761,7 @@ def EjecucionFuncion(operacion,ts):
     funcion=buscarFuncion(nombreFuncion)
     ejecucion=True
     if funcion != None:
+        funcion=copy.deepcopy(funcion)
         print("valores ",len(lvalores),"param ",len(funcion.parametros))
         if len(lvalores) == len(funcion.parametros):
             contval=0
@@ -4940,7 +4946,6 @@ table.title = 'Results for method Foo'
 table.field_names = ['Experiment', 'Value']
 table.add_row(['bla', 3.14])
 table.add_row(['baz', 42.0])
-
 Salida
 +-------------------------+
 |  Results for method Foo |
@@ -4950,5 +4955,4 @@ Salida
 |      bla      |   3.14  |
 |      baz      |   42.0  |
 +---------------+---------+
-
 '''
