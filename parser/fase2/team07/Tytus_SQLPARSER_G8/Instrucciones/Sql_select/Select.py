@@ -9,13 +9,13 @@ from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select import SelectLista 
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 import numpy as np
-import pandas as pd
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 
 class Select(Instruccion):
                        #dist  tipo  lcol  lcol  linners where lrows
-    def __init__(self, dist, lcol, lcol2, linners, where, lrows, strGram, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.QUERY),linea,columna,strGram)
+    def __init__(self, dist, lcol, lcol2, linners, where, lrows, strGram, linea, columna,strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.QUERY),linea,columna,strGram,strSent)
         self.dist = dist
         self.lcol = lcol
         self.lcol2 = lcol2
@@ -385,6 +385,14 @@ class Select(Instruccion):
                    tablaRes2.append(nodo)
                 print(nodo)
         return tablaRes2
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal1 = arbol.generaTemporal()
+        codigo = "\t" + temporal1 + " = " + "\"" + self.strSent + "\"\n"
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = FuncionesPara3D.ejecutarsentecia(" + temporal1 + ")\n\n"
+        return Simbolo3d(Tipo("",Tipo_Dato.INTEGER), temporal, codigo, None, None)
+
 
 '''
 columnas y filas

@@ -14,27 +14,27 @@
     <th>Carnet</th>
   </tr>
   <tr>
-    <td>Edgar Orlando Guamuch Zárate</td>
-    <td>201314632</td>
+    <td>ROMARIO DAVID CASTILLO ECHEVERRIA</td>
+    <td>201314064</td>
   </tr>
   <tr>
-    <td>Glen Abraham Calel Robledo</td>
-    <td>201314642</td>
+    <td>ROBERTO EDUARDO CASEROS REYNOSO</td>
+    <td>201314177</td>
   </tr>
   <tr>
-    <td>Katherine Mishelle Serrano del Cid</td>
-    <td>201314697</td>
+    <td>CARLOS ENRIQUE CANTÉ LÓPEZ</td>
+    <td>201314448</td>
   </tr>
   <tr>
-    <td>Alan Jeremías Pérez Tomas</td>
-    <td>201314817</td>
+    <td>CARLOS GABRIEL PERALTA CAMBRAN</td>
+    <td>201314556</td>
   </tr>
 </table>
 </div>
 <br>
 
 ## Índice
-- [SQL PARSER Grupo 8 - TytusDB](#SQL_PARSER_Grupo_8-TytusDB) 
+- [SQL PARSER Grupo 7 - TytusDB](#SQL_PARSER_Grupo_7-TytusDB) 
 - [Barra de Menú](#Barra_de_Menú)
 - [Consola de Salida](#Consola_Salida)
 - [Tabla de Errores](#Tabla_Errores)
@@ -43,7 +43,7 @@
 
 <br>
 
-# SQL_PARSER_Grupo_8-TytusDB
+# SQL_PARSER_Grupo_7-TytusDB
 
 <div style="text-align: justify">Cuando se inicia la aplicacion, se podrá ver toda la interfaz QueryTool con todos sus módulos que la componen e igualmente las operaciones encargadas del funcionamiento del proyecto, tales como las opciones siguientes: guardar, guardar como, ver árbol, Analizar, entre otros que se detallaran mas adelante.  
 <br>
@@ -57,8 +57,9 @@
 ## Barra_de_Menú 
 <div style="text-align: justify">
 <p align="center">
-  <img src="img/menu1.png" width="200" alt="Menu">
-  <img src="img/menu2.png" width="200" alt="Menu">
+  <img src="img/menu1.png" width="150" alt="Menu">
+  <img src="img/menu2.png" width="150" alt="Menu">
+  <img src="img/menu3.png" width="150" alt="Menu">
 </p>
 </div>
 
@@ -124,6 +125,58 @@ En este Reporte se puede apreciar la gramatica en formato BNF.
 </div>
 <br>
 
+## AST 
+<div style="text-align: justify">
+En este Reporte se genera el AST.
+<br>
+<br>
+<p align="center">
+  <img src="img/Arbol.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
+
+## TRADUCIR C3D
+<div style="text-align: justify">
+Con este boton se traduce cualquier instrucción SQL o PL/pgsql a codigo tres direcciones.
+<br>
+<br>
+<p align="center">
+  <img src="img/c3d.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
 
 
+## Ejecutar C3D
+<div style="text-align: justify">
+Se ejecutan las sentencias del codigo 3 direcciones.
+<br>
+<br>
+<p align="center">
+  <img src="img/consola.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
 
+## Optimizar C3D
+<div style="text-align: justify">
+Se aplican las reglas de mirilla y se genera un codigo de tres direcciones optimizado.
+<br>
+<br>
+<p align="center">
+  <img src="img/c3d_optimizado.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
+
+## Reporte de optimizacion
+<div style="text-align: justify">
+Al aplicarse las reglas de mirilla y generar el codigo optimizado, se genera un reporte de las reglas de mirilla aplicadas en la optimizacion.
+<br>
+<br>
+<p align="center">
+  <img src="img/opt_reporte.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>

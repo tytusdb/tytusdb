@@ -14,27 +14,27 @@
     <th>Carnet</th>
   </tr>
   <tr>
-    <td>Edgar Orlando Guamuch Zárate</td>
-    <td>201314632</td>
+    <td>ROMARIO DAVID CASTILLO ECHEVERRIA</td>
+    <td>201314064</td>
   </tr>
   <tr>
-    <td>Glen Abraham Calel Robledo</td>
-    <td>201314642</td>
+    <td>ROBERTO EDUARDO CASEROS REYNOSO</td>
+    <td>201314177</td>
   </tr>
   <tr>
-    <td>Katherine Mishelle Serrano del Cid</td>
-    <td>201314697</td>
+    <td>CARLOS ENRIQUE CANTÉ LÓPEZ</td>
+    <td>201314448</td>
   </tr>
   <tr>
-    <td>Alan Jeremías Pérez Tomas</td>
-    <td>201314817</td>
+    <td>CARLOS GABRIEL PERALTA CAMBRAN</td>
+    <td>201314556</td>
   </tr>
 </table>
 </div>
 <br>
 
 ## Índice
-- [SQL PARSER Grupo 8 - TytusDB](#SQL_PARSER_Grupo_8-TytusDB) 
+- [SQL PARSER Grupo 7 - TytusDB](#SQL_PARSER_Grupo_7-TytusDB) 
 - [Objetivos](#Objetivos)
 - [Requisitos del Sistema](#Requisitos_del_Sistema)
 - [¿Cómo Funciona?](#¿Cómo_Funciona?)
@@ -44,20 +44,25 @@
 
 <br>
 
-# SQL_PARSER_Grupo_8-TytusDB
+# SQL_PARSER_Grupo_7-TytusDB
 
 <div style="text-align: justify">TytusDB es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres componentes interrelacionados: el administrador de almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1, este administrador se compone a su vez de un servidor y de un cliente; y el SQL Parser, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.</div>
+
+<p align="center">
+  <img src="img/topologia.png" width="800" alt="TytusDB Architecture">
+</p>
+
 <br>
 
 ## Objetivos  
 ### General  
-* <div style="text-align: justify">Poner en práctica los conocimientos teóricos adquiridos durante cada curso y aplicarlo a un proyecto real de código abierto fortaleciendo las competencias de administración de equipos de desarrollo.</div>
+* <div style="text-align: justify">Traducir, optimizar y ejecutar el codigo del SQL Parser cumpliendo con las caracteristicas del código tres direcciones y ejecutando el coódigo generado desde python para mostrar los resultados al administrador de bases de datos.</div>
 
 ### Específicos  
-* <div style="text-align: justify">El estudiante construye un intérprete para el subconjunto del lenguaje SQL mediante la traducción dirigida por la sintaxis.</div>
-* <div style="text-align: justify">El estudiante utiliza la herramienta PLY o SLY de Python para la traducción.</div>
-* <div style="text-align: justify">El estudiante proporciona una solución de estructuras de datos para gestionar la información de un sistema de bases de datos.</div>
-* <div style="text-align: justify">El estudiante construye un servidor http y un cliente para que se conecten y accedan a las funciones definidas para el administrador de la base de datos.</div>
+* <div style="text-align: justify">Agregar al parser la administración de índices.</div>
+* <div style="text-align: justify"> Agregar al parser el lenguaje procedural PL/pgSQL</div>
+* <div style="text-align: justify">Traducir a código tres direcciones las instrucciones sql y PL/SQL</div>
+* <div style="text-align: justify">Optimizar y ejecutar el código tres direcciones.</div>
 <br>
 
 ## Requisitos_del_Sistema
@@ -80,14 +85,15 @@ Este componente proporciona al servidor una función encargada de interpretar se
 <h3>Componentes</h3>
 
 Está compuesto por tres sub componentes:
-SQL Parser: es el intérprete de sentencias de SQL, que proporcionará una función para invocar al parser, al recibir una consulta el parser luego del proceso interno y de la planificación de la consulta debe invocar las diferentes funciones proporcionadas por el componente de administrador de almacenamiento.
-Type Checker: es un sub componente que ayudará al parser a la comprobación de tipos. Al crear un objeto cualquiera se debe crear una estructura que almacenará los tipos de datos y cualquier información necesaria para este fin.
-Query Tool: es un sub componente que consiste en una ventana gráfica similar al Query Tool de pgadmin de PostgreSQL, para ingresar consultas y mostrar los resultados, incluyendo el resalto de la sintaxis. La ejecución se realizará de todo el contenido del área de texto.
+SQL Parser: es el intérprete de sentencias de SQL y PL/pgSQL, que proporcionará una función para invocar al parser, al recibir una instrucción el parser luego del proceso interno y de la planificación de esta debe invocar las diferentes funciones proporcionadas por el componente de administrador de almacenamiento. <br>
+Type Checker: es un sub componente que ayudará al parser a la comprobación de tipos. Al crear un objeto cualquiera se debe crear una estructura que almacenará los tipos de datos y cualquier información necesaria para este fin.<br>
+Query Tool: es un sub componente que consiste en una ventana gráfica similar al Query Tool de pgadmin de PostgreSQL, para ingresar consultas y mostrar los resultados, incluyendo el resalto de la sintaxis. La ejecución se realizará de todo el contenido del área de texto.<br>
+PL/pgSQL: es un lenguaje de procedural para el sistema de base de datos, las funciones creadas con PL/pgSQL se pueden usar en cualquier lugar donde se puedan usar funciones integradas.
 </div>
 
 
 <p align="center">
-  <img src="img/topologia.png" width="800" alt="TytusDB Architecture">
+  <img src="img/topologiaParser.png" width="800" alt="TytusDB Architecture">
 </p>
 
 ## Análisis_Léxico
@@ -164,7 +170,24 @@ Query Tool: es un sub componente que consiste en una ventana gráfica similar al
         'UNION', 'INTERSECT', 'EXCEPT', 'ALL',
         # Begin
         'FUNCTION', 'BEGIN', 'END',
-        'DECLARE'
+        'DECLARE',
+        'PROCEDURE',
+        'CONSTANT',
+        'LANGUAGE',
+        'PLPGSQL',
+        'FOR',
+        'RETURNS',
+        'ROWTYPE',
+        'COLLATE',
+        'ALIAS',
+        'SQLSTATE',
+        'EXCEPTION',
+        'ELSIF',
+        'ELSEIF',
+        'RAISE',
+        'NOTICE',
+        'RETURN',
+        'INDEX', 'USING', 'HASH'
     )
 
     tokens = reservadas + (
@@ -197,7 +220,9 @@ Query Tool: es un sub componente que consiste en una ventana gráfica similar al
         'CARACTER',
         'COMENTARIO_MULTILINEA',
         'COMENTARIO_SIMPLE',
-        'ARROBA'
+        'ARROBA',
+        'DOLLAR',
+        'DOSP_IGUAL'
     )
 </code>
 </div>
@@ -253,6 +278,8 @@ Query Tool: es un sub componente que consiste en una ventana gráfica similar al
             | INSERT INTO ID PARIZQ lcol PARDER VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
             | INSERT INTO ID VALUES PARIZQ l_expresiones PARDER PUNTO_COMA
             | lquery PUNTO_COMA
+            | CREATE PROCEDURE ID PARIZQ parametros_funcion PARDER LANGUAGE PLPGSQL AS DOLLAR DOLLAR declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR
+            | CREATE FUNCTION ID PARIZQ parametros_funcion PARDER returns_n retorno_funcion declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
 
     if_not_exists : IF NOT EXISTS
                 | 
@@ -503,6 +530,142 @@ Query Tool: es un sub componente que consiste en una ventana gráfica similar al
         | TIMESTAMP
         | TIME
         | INTERVAL
+
+    parametros_funcion : lista_parametros_funcion 
+                       |
+                           
+    lista_parametros_funcion : lista_parametros_funcion COMA parametro_fucion
+                             | parametro_fucion
+                             
+    parametro_fucion : ID tipo
+					 | tipo
+					    
+	returns_n : RETURNS
+	          | 
+	
+	retorno_funcion : tipo AS DOLLAR DOLLAR
+				    | TABLE PARIZQ lista_campos_tabla PARDER AS DOLLAR DOLLAR
+				    | AS DOLLAR DOLLAR
+				    
+	lista_campos_tabla : lista_campos_tabla COMA ID tipo
+	                   | ID tipo
+	                   
+	declaraciones_funcion : DECLARE list_dec_var_funcion
+	                      |
+	                      
+	list_dec_var_funcion : list_dec_var_funcion dec_var_funcion PUNTO_COMA
+	                     | dec_var_funcion PUNTO_COMA
+	                     
+	dec_var_funcion : ID constant_n tipo nnull aisgnacion_valor 
+	                | ID ALIAS FOR DOLLAR ENTERO
+				    | ID ALIAS FOR ID
+				    | ID tabla_typerow MODULO type_row
+				    
+    tabla_typerow : ID PUNTO ID
+                  | ID
+                  
+    type_row : TYPE
+			 | ROWTYPE
+			 
+	constant_n : CONSTANT
+	           |
+	           
+	nnull : NOT NULL
+	      | 
+	      
+	aisgnacion_valor : DEFAULT expre 
+					 | DOSP_IGUAL expre 
+					 | IGUAL expre 
+					 |
+					 
+	contenido_funcion : contenido_funcion cont_funcion
+	                  | cont_funcion
+	                  
+    cont_funcion : sentencia_if
+                 | instruccion
+                 | sentencia_retorno
+                 | asignacion_var
+                 
+    sentencia_retorno : RETURN PUNTO_COMA
+                      | RETURN expre PUNTO_COMA
+                      
+    asignacion_var : ID IGUAL expre PUNTO_COMA
+                   | ID DOSP_IGUAL expre PUNTO_COMA
+                   
+    sentencia_if : IF expre THEN instrucciones_if condicionesif ELSE  instrucciones_if END IF PUNTO_COMA
+				  | IF expre THEN instrucciones_if condicionesif END IF PUNTO_COMA
+				  | IF expre THEN instrucciones_if ELSE  instrucciones_if END IF PUNTO_COMA
+				  | IF expre THEN instrucciones_if END IF PUNTO_COMA
+				  | CASE ID condiciones_cuando ELSE instrucciones_if END CASE PUNTO_COMA
+				  | CASE ID condiciones_cuando END CASE PUNTO_COMA
+				  | CASE condiciones_cuandoB ELSE instrucciones_if END CASE PUNTO_COMA
+				  | CASE condiciones_cuandoB END CASE PUNTO_COMA
+				  | BEGIN instrucciones_if EXCEPTION WHEN l_identificadores THEN instrucciones_if END PUNTO_COMA
+				  | BEGIN instrucciones_if EXCEPTION WHEN sql_states THEN instrucciones_if END PUNTO_COMA
+				  
+	instrucciones_if : instrucciones_if instruccion_if 
+                     | instruccion_if
+                     
+    instruccion_if : cont_funcion
+                   | expre PUNTO_COMA
+                   | RAISE NOTICE CADENA PUNTO_COMA
+                   | RAISE NOTICE CADENA COMA ID PUNTO_COMA
+                   | RAISE NOTICE CARACTER PUNTO_COMA
+                   | RAISE NOTICE CARACTER COMA ID PUNTO_COMA
+                   
+    condicionesif : condicionesif condicionif
+			      | condicionif
+			      
+	condicionif : ELSIF expre THEN instrucciones_if 
+			    | ELSEIF expre THEN instrucciones_if  
+			    
+	condiciones_cuando : condiciones_cuando condicion_cuando
+				       | condicion_cuando
+				       
+	condicion_cuando : WHEN l_expresiones THEN instrucciones_if
+	
+	condiciones_cuandoB : condiciones_cuandoB condicion_cuandoB
+					    | condicion_cuandoB
+					    
+	condicion_cuandoB : WHEN expre THEN instrucciones_if
+	
+	sql_states : sql_states OR sql_state
+			   | sql_state
+			   
+	sql_state : SQLSTATE CADENA
+	
+	l_identificadores : l_identificadores OR ID
+                      | ID
+                      
+    if_op : IF EXISTS
+          |
+          
+    nombre_op : ID
+              | 
+              
+    unique_op : UNIQUE
+              |
+              
+    hash_op : USING HASH
+            |
+    
+    l_indexes : l_indexes COMA ID order_op null_op first_last_op
+              | ID order_op null_op first_last_op
+              | ID PARIZQ ID PARDER
+              
+    order_op : ASC
+             | DESC
+             |
+             
+    null_op : NULLS
+            |
+            
+    first_last_op : FIRST
+                  | LAST
+                  |
+                  
+    where_op : instructionWhere
+             |
 </code>
 </div>
 
@@ -513,50 +676,29 @@ Query Tool: es un sub componente que consiste en una ventana gráfica similar al
 
 <code>
 
-    CREATE DATABASE IF NOT EXISTS test
-        OWNER = 'root'
-        MODE = 1;
+    CREATE DATABASE DBFase2;
 
-    USE test;
+    USE DBFase2;
 
-    CREATE TABLE tbusuario (
-        idusuario integer NOT NULL primary key,
-        nombre varchar(50),
-        apellido varchar(50),
-        usuario varchar(15)  UNIQUE NOT NULL,
-        password varchar(15) NOT NULL,
-        fechacreacion date 
-    );
+    CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+    BEGIN
+	        RETURN texto;
+    END;
+    $$ LANGUAGE plpgsql;
 
-    CREATE TABLE tbroles (
-        idrol integer NOT NULL primary key,
-        rol varchar(15)
-    );
-    DROP TABLE tbroles;
+    select myFuncion('INICIO CALIFICACION FASE 2');
 
-    CREATE TABLE tbrol (
-        idrol integer NOT NULL primary key,
-        rol varchar(15)
-    );
+    CREATE TABLE tbProducto (idproducto integer not null primary key,
+    						 producto varchar(150) not null,
+  						 fechacreacion date not null,
+						 estado integer);
 
-    CREATE TABLE tbrolxusuario (
-        idrol integer NOT NULL ,
-        idusuario integer NOT NULL 
-    );
-
-    alter table tbrolxusuario
-    add constraint FK_rol
-    foreign key (idrol)
-    references tbrol(idrol);
+    CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
+    INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
+    INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
+    INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
+    INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
     
-    alter table tbrolxusuario
-    add constraint FK_usuario
-    foreign key (idusuario)
-    references tbusuario(idusuario);
-
-    insert into tbrol values (1,'Administrador');
-    insert into tbrol values (2,'Admin');
-    insert into tbrol values (3,'Ventas');
 </code>
 </div>
 

@@ -11,13 +11,14 @@ class Instruccion(ABC):
             arbol.lRepDin.append(self.strGram)
         pass
     
-    def __init__(self, tipo, linea, columna, strGram):
+    def __init__(self, tipo, linea, columna, strGram, strSent):
         self.tipo = tipo
         self.linea = linea
         self.columna = columna
         self.nodoPadre = None
         self.nodosLista = []
         self.strGram = strGram
+        self.strSent = strSent
 
     #@abstractmethod
     #def nodoGraphviz(self, nodoPadre, nodosLista):
