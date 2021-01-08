@@ -189,7 +189,7 @@ select DISTINCT *
 from tbventa V,tbempleado E
 where V.idempleado = texto
 group by 1,2,3
-order by 1;
+order by col ,1 ;
 
 
 """
@@ -216,4 +216,29 @@ update tbbodega set bodega = 'bodega zona 9' where idbodega = 4;
 update tbbodega set bodega = DEFAULT where idbodega = 4; 
 """
 
-traducir(s3)
+s4 = """
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+	if tabla = 'tbProducto' then
+	    resultado := not ((4+4*10/3) NOT IN  (SELECT COUNT(*) FROM tbProducto)); 
+		retorna = 0;
+		
+	end if;
+	if tabla = 'tbProductoUp' then
+	    resultado := xd IN (SELECT * FROM tbProducto where estado = 2);
+    	retorna = 1;
+	end if;
+	if tabla = 'tbbodega' then
+	    resultado := EXISTS (SELECT COUNT(*) FROM tbbodega);
+    	retorna = 2;
+	end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;				 
+	
+"""
+
+traducir(s4)
