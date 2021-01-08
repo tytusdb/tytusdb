@@ -3,7 +3,7 @@ from .AST.expression import *
 from .AST.error import * 
 from .AST.sentence import *
 from .storageManager.TypeChecker import * 
-from console import print_success, print_table, print_error
+from console import print_success, print_table, print_error, print_text
 
 def executeInstruction(self, instruction,indent, main):
     if isinstance(instruction, CreateFunction):
@@ -157,6 +157,7 @@ def executeInstruction(self, instruction,indent, main):
                 else:
                     params+=str(expcode.value)+", "
             if(main==0): 
+                code+="\n"+(indent*"\t")+"print_text('',"+instruction.name+params[:-2]+"),2)\n"
                 code+="\n"+(indent*"\t")+"print("+instruction.name+params[:-2]+"))\n"
                 archivo = open("C3D.py", 'a')
                 archivo.write(code) 
@@ -165,6 +166,7 @@ def executeInstruction(self, instruction,indent, main):
                 code+=(indent*"\t")+instruction.name+params[:-2]+")\n"
         else:
             if(main==0): 
+                code+="\n"+(indent*"\t")+"print_text('',"+instruction.name+"(),2)\n"
                 code+="\n"+(indent*"\t")+"print("+instruction.name+"())\n"
                 archivo = open("C3D.py", 'a')
                 archivo.write(code) 

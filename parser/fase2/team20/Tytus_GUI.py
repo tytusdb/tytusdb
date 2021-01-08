@@ -21,6 +21,7 @@ from prettytable import PrettyTable
 
 from execution.executeOptimization import *
 from execution.executeOptimization_result import *
+from C3D import up
 
 def update_line_and_column(text_: tk.Text):
     line, column = text_.index("insert").split(".") # Row starts at 1 and column starts at 0
@@ -303,9 +304,10 @@ def compile_C3D():
 def compile_C3D_aux(c3d_optimized):
     global path_c3d
     try:
-        exec(compile(c3d_optimized, path_c3d, 'exec'))
+        up()
+        #exec(compile(c3d_optimized, path_c3d, 'exec'))
     except Exception as e:
-        print_error("UNKNOWN ERROR", "Error running optimized c3d",2)
+        print_error("UNKNOWN ERROR", "Error running optimized c3d, "+str(e),2)
         #print(e)
 
 

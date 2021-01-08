@@ -476,6 +476,15 @@ class SelectFunction(Expression):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str("SELECT") + '\"]\n'
         return dot
+    def translate(self,opts,indent):
+        old_stdout = sys.stdout
+        new_stdout = StringIO()
+        sys.stdout = new_stdout
+        print(self.select)
+        val1 = new_stdout.getvalue()[:-1]
+        sys.stdout = old_stdout
+        result = Value(1,val1)
+        return result
 
 class ExpressionAsStringFunction(Expression):
     def __init__(self, expression):
@@ -525,6 +534,9 @@ class DatePartFunction(Expression):
 class CountFunction(Expression):
     def __init__(self, function):
         self.function = function
+    def __repr__(self):
+        v=str(self.function)
+        return "CountFunction('"+v+"')"
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.function) + '\"]\n'

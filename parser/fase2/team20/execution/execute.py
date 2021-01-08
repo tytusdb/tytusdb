@@ -47,6 +47,7 @@ class Execute():
             archivo.write("\nfrom execution.AST.sentence import *")
             archivo.write("\nfrom execution.AST.expression import *")
             archivo.write("\nfrom execution.executeInstruction import createFunction, deleteFunction")
+            archivo.write("\nfrom console import print_error, print_success, print_warning")
             archivo.write("\nfrom goto import with_goto")
             archivo.write("\nimport math")
             archivo.write("\n\n@with_goto")
@@ -74,9 +75,12 @@ class Execute():
                     executeInstruction(self,node, 1, 0)
                 
                 #executeSentence2(self,node)
-        for storedproc in TCgetFunctions():
-            if storedproc not in self.plcode: 
-                self.plcode+=storedproc
+        try:
+            for storedproc in TCgetFunctions():
+                if storedproc not in self.plcode: 
+                    self.plcode+=storedproc
+        except:
+            pass
         archivo = open(path_c3d, 'a')
         archivo.write("\n")
         archivo.write(self.plcode)

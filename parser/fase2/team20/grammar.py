@@ -1105,20 +1105,23 @@ def p_instruction_selectoption(t):
 
 #UPDATE
 def p_instruction_update(t):
-    '''update : UPDATE ID SET reallocationOfValues WHERE expression'''
+    '''update : UPDATE ID SET reallocationOfValues WHERE expression
+              | UPDATE STRING SET reallocationOfValues WHERE expression'''
     t[0] = Update(t[2],t[4],t[6])
     global grammarreport
     grammarreport = "<update> ::= UPDATE ID SET <reallocationOfValues> WHERE <expression> { ID.val='"+t[2]+"'; update.val=Update(ID.val,reallocationOfValues.val,expression.val) }\n" + grammarreport
 
 def p_instruction_reallocationofvalues_list(t):
-    '''reallocationOfValues : reallocationOfValues COMMA ID EQUAL expression'''
+    '''reallocationOfValues : reallocationOfValues COMMA ID EQUAL expression
+                            | reallocationOfValues COMMA STRING EQUAL expression'''
     t[1].append([t[3],t[5]])
     t[0]  = t[1]
     global grammarreport
     grammarreport = "<reallocationOfValues> ::= <reallocationOfValues> ',' ID '=' <expression> { ID.val='"+t[3]+"'; reallocationOfValues.val = reallocationOfValues1.val.append([ID.val,expression.val]) }\n" + grammarreport
 
 def p_instruction_reallocationofvalues_single(t):
-    '''reallocationOfValues : ID EQUAL expression'''
+    '''reallocationOfValues : ID EQUAL expression
+                            | STRING EQUAL expression'''
     t[0] = [[t[1],t[3]]]
     global grammarreport
     grammarreport = "<reallocationOfValues> ::= ID '=' <expression> { ID.val='"+t[1]+"'; reallocationOfValues.val = [ID.val,expression.val] }\n" + grammarreport
@@ -1476,15 +1479,15 @@ def p_pl_function_3(t):
 
 def p_pl_function_4(t):
     '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
-    t[0] = CreateFunction(t[3],True,None,t[9],t[13])
+    t[0] = CreateFunction(t[5],True,None,t[9],t[13])
 
 def p_pl_function_5(t):
     '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
-    t[0] = CreateFunction(t[3],True,t[7],t[10],t[14])
+    t[0] = CreateFunction(t[5],True,t[7],t[10],t[14])
 
 def p_pl_function_6(t):
     '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
-    t[0] = CreateFunction(t[3],True,t[7],None,t[12])
+    t[0] = CreateFunction(t[5],True,t[7],None,t[12])
 
 #PARAMS
 def p_pl_paramlist_list(t):
