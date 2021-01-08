@@ -10,9 +10,10 @@ class Funcion(Instruccion):
         self.instrucciones = instrucciones
 
     def ejecutar(self, tabla, arbol):
-        tabla.setFuncion(self)
+        tabla.setFuncion(self, arbol)
 
     def traducir(self,tabla,arbol,cadenaTraducida):
+        tabla.setFuncion(self, arbol)
         codigo = ""
 
         #Se declara la funcion con el nombre

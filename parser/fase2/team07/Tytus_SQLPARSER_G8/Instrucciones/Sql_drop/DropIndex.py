@@ -7,7 +7,7 @@ class DropIndex(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         #super().ejecutar(tabla,arbol)
-        tabla.removeIndice(self)
+        tabla.removeIndice(self, arbol)
     
     def traducir(self,tabla,arbol,cadenaTraducida):
         temporal = arbol.generaTemporal()
