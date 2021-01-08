@@ -70,6 +70,7 @@ from InterpreteF2.DML.drops.droptable import droptable
 from InterpreteF2.indices.alterindex import alterindex
 from InterpreteF2.Soporte_aFun.dropfun import dropfun
 from InterpreteF2.Soporte_aFun.lappel import lappel
+from Main.erroresglobales import erroresglobales
 
 ArbolErrores: Arbol = Arbol(None)
 
@@ -486,8 +487,9 @@ def t_COMENTARIO_MULTILINEA(t):
 def t_error(t):
     global ArbolErrores
     print("Caracter ilegal '%s'" % t.value[0])
-    Error: ErroresLexicos = ErroresLexicos("Caracter ilegal '%s'" % t.value[0], int(t.lexer.lineno),  int(t.lexer.lineno), 'Lexico')
-    ArbolErrores.ErroresLexicos.append(Error)
+    descripncion = "Caracter ilegal " + str(t.value[0])
+    error_l: ErroresLexicos = ErroresLexicos(descripncion, int(t.lexer.lineno),  int(t.lexer.lineno), 'Lexico')
+    ArbolErrores.ErroresLexicos.append(error_l)
     print("Caracter ilegal ")
 
 

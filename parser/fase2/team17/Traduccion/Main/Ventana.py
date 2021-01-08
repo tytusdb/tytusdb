@@ -21,6 +21,7 @@ from reportlab.pdfgen import canvas
 from Parser.Reportes.Nodo1 import Nodo
 from Parser.Reportes.TourTree import TourTree
 from graphviz import Source
+from Main.erroresglobales import erroresglobales
 
 #================================================================
 #======================Declaracion de variables globales========
@@ -276,7 +277,7 @@ def Err_Lexico():
             '''
     contador = 1
 
-    for i in arboAux_errores.ErroresLexicos:
+    for i in erroresglobales.errores_lexicos:
         Error: ErroresLexicos = i
         texto += '<tr><td> ' + str(contador) + '</td>'
         texto += '<td> ' + Error.descripcion + '</td>'

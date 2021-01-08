@@ -1,4 +1,7 @@
 from Parser.Reportes.Nodo1 import Nodo
+from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
+from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
+from Main.erroresglobales import erroresglobales
 
 reservadas = {
 
@@ -418,6 +421,9 @@ def t_error(t):
     print("Caracter NO Valido: '%s'" % t.value[0])
     t.lexer.skip(1)
     print(t.value[0])
+    descripncion = "Caracter ilegal " + str(t.value[0])
+    error_l: ErroresLexicos = ErroresLexicos(descripncion, int(t.lexer.lineno), int(t.lexer.lineno), 'Lexico')
+    erroresglobales.errores_lexicos.append(error_l)
 
 
 # -----------------------------------------------------------------------------------
