@@ -105,6 +105,7 @@ class Quadruple(object):
             elif self.op == OpArithmetic.DIVIDE:
                 return self.res == self.arg1 and self.arg2 == '1'
         return False
+
     def __str__(self):
         if self.instType == OpTAC.ASSIGNMENT:
             oper = self.op.strSymbol() if self.op else ''
@@ -118,6 +119,8 @@ class Quadruple(object):
             oper = self.op.strSymbol() if self.op else ''
             ar2 = self.arg2 if self.arg2 else ''
             return f'if {self.arg1} {oper} {ar2}: goto {self.res}'
+        else:
+            return f'arg1:{self.arg1}, arg2:{self.arg2}, op:{self.op}'
         
     def strpy(self):
         if str(self.arg1).lower() == 'false':
@@ -156,40 +159,82 @@ def DoOptimization(quadL: list):
     #Each Rule function modifi the current Quadruple (changing its values) and the list (remoing items)
     #Each Rule function returns the elemens removed fro list (for log)
     result = []
-    rulesApplied = []
+    str_result = []
     while len(quadL) > 0:
         tmp = quadL.pop(0)
-        removedItems = Rule1(quadL, tmp)
-        rulesApplied += removedItems
+        res = Rule1(quadL, tmp)
+        if len(res) > 0:
+            in_str = ''
+            for item in res:
+                in_str = f'{in_str}{item},'
+            str_result.append(f'Regla 1: To remove --> {in_str[:-1]}')
+            
+        res = Rule2(quadL, tmp)
+        if len(res) > 0:
+            in_str = ''
+            for item in res:
+                in_str = f'{in_str}{item},'
+            str_result.append(f'Regla 2: To remove --> {in_str[:-1]}')
+        
+        res = Rule3(quadL, tmp)
+        if len(res) > 0:
+            in_str = ''
+            for item in res:
+                in_str = f'{in_str}{item},'
+            str_result.append(f'Regla 3: To remove --> {in_str[:-1]}')
 
-        removedItems = Rule2(quadL, tmp)
-        rulesApplied += removedItems
+        res = Rule4(quadL, tmp)
+        if len(res) > 0:
+            in_str = ''
+            for item in res:
+                in_str = f'{in_str}{item},'
+            str_result.append(f'Regla 4: To remove --> {in_str[:-1]}')
 
-        removedItems = Rule3(quadL, tmp)
-        rulesApplied += removedItems
+        res = Rule5(quadL, tmp)
+        if len(res) > 0:
+            in_str = ''
+            for item in res:
+                in_str = f'{in_str}{item},'
+            str_result.append(f'Regla 5: To remove --> {in_str[:-1]}')
 
-        removedItems = Rule4(quadL, tmp)
-        rulesApplied += removedItems
+        res = Rule6(quadL, tmp)
+        if len(res) > 0:
+            in_str = ''
+            for item in res:
+                in_str = f'{in_str}{item},'
+            str_result.append(f'Regla 6: To remove --> {in_str[:-1]}')
 
-        removedItems = Rule5(quadL, tmp)
-        rulesApplied += removedItems
-        removedItems = Rule6(quadL, tmp)
-        rulesApplied += removedItems
-
-        removedItems = Rule7(quadL, tmp)
-        rulesApplied += removedItems
+        res = Rule7(quadL, tmp)
+        if len(res) > 0:
+            in_str = ''
+            for item in res:
+                in_str = f'{in_str}{item},'
+            str_result.append(f'Regla 7: To remove --> {in_str[:-1]}')
 
         #Rule 8 - 11
         if tmp.neutralElement():
-            removedItems.append(tmp)
+            # res.append(tmp)
+            str_result.append(f'Regla 8,9,10,11: Neutral Element -> to remove {tmp}')
             continue
 
-        Rule12(tmp)
-        Rule13(tmp)
-        Rule14_16_17(tmp)
-        Rule15_18(tmp)
+        res = Rule12(tmp)
+        if res:
+            str_result.append(f'Regla 12: {res} --> {tmp}')
+
+        res = Rule13(tmp)
+        if res:
+            str_result.append(f'Regla 13: {res} --> {tmp}')
+
+        res = Rule14_16_17(tmp)
+        if res:
+            str_result.append(f'Regla 14,16,17: {res} --> {tmp}')
+
+        res = Rule15_18(tmp)
+        if res:
+            str_result.append(f'Regla 15,18: {res} --> {tmp}')
+
         result.append(tmp)
-    return [result, removedItems]
+    return [result, [], str_result]
 
 def printL(quadL: list):
     for q in quadL:
@@ -238,8 +283,18 @@ def getParamNameFormat():
 def Save_TAC_obj(objname: str, quadL: list):
     optimiR = DoOptimization(quadL)
     result = optimiR[0]
-    removed_items = optimiR[1]
 
+    # Writing Report
+    opt_report = optimiR[2]
+    f = open(f'opt_report.txt', "a")
+    str_report = ''
+    for item_report in opt_report:
+        str_report = f'{str_report}{item_report}\n'
+    content = f'\n+------------- {objname} --------------+\n {str_report}'
+    f.write(content)
+    f.close()
+
+    # Writing TAC File
     f = open(f'{getPlpgFolder()}{objname}.py', "w")
     content = getHeader() + strTAC_pySyntax(result, 1) + getFooter()
     f.write(content)
@@ -340,6 +395,7 @@ def Rule6(quadL: list, currQuad: Quadruple):
             if prev is not None and prev.isLabel() and prev.labelName() == currQuad.labelName():
                 if q.isGoTo():
                     currQuad.arg1 = q.arg1
+                    removed.append(prev)
                 else:
                     break
             prev = q
@@ -357,6 +413,7 @@ def Rule7(quadL: list, currQuad: Quadruple):
             if prev is not None and prev.isLabel() and prev.labelName() == currQuad.res:
                 if q.isGoTo():
                     currQuad.res = q.arg1
+                    removed.append(prev)
                 else:
                     break
             prev = q
