@@ -35,6 +35,7 @@ class TourTree:
 				self.id+=1
 
 
+			print(nodo.valor)
 			self.result += str(nodo.id)+'[label= "' +str(nodo.valor)+'" fillcolor="#d62728"];\n'
 
 			#self.dot.node(nodo.id,label=str(nodo.valor))

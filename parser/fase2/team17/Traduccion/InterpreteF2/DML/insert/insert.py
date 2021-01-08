@@ -4,6 +4,7 @@ from InterpreteF2.Arbol import Arbol
 from InterpreteF2.Valor.Valor import Valor
 from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
+from datetime import datetime
 
 
 class insert(NodoArbol):
@@ -24,10 +25,21 @@ class insert(NodoArbol):
             contador = 0
             for i in self.expres:
                 if contador == 0:
-                    argumentos = argumentos + i.getString(entorno, arbol)
+                    argumento = i.getString(entorno, arbol)
+                    if str(argumento) == 'now()':
+                        ahora = '\'' + str(datetime.now()) + '\''
+                        argumentos = argumentos + ahora
+                    else:
+                        argumentos = argumentos + argumento
                     contador = 1
                 else:
-                    argumentos = argumentos + ',' + i.getString(entorno, arbol)
+                    argumento = i.getString(entorno, arbol)
+                    if str(argumento) == 'now':
+                        ahora = '\'' + str(datetime.now()) + '\''
+                        argumentos = argumentos + ',' + ahora
+                    else:
+                        argumentos = argumentos + ',' + argumento
+
             arbol.addC3D('heap = \'' + 'insert into ' + str(self.identificador) + ' values (' + argumentos + ');' + '\'')
             temp = arbol.getTemp()
             arbol.addC3D(temp + ' = inter()')

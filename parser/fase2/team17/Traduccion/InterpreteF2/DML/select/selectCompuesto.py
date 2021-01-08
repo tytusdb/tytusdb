@@ -6,17 +6,19 @@ from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 
 
-class Update(NodoArbol):
+class SelectCompuesto(NodoArbol):
 
-    def __init__(self, string_, line, coliumn):
+    def __init__(self, string1_, string2_, string3_, line, coliumn):
         super().__init__(line, coliumn)
-        self.string = string_
+        self.string1 = string1_
+        self.string2 = string2_
+        self.string3 = string3_
 
     def analizar_semanticamente(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
-        arbol.addC3D('heap = ' + '\'' + str(self.string) + ';\'')
+        arbol.addC3D('heap = ' + '\'' + str(self.string1) + ' ' + str(self.string2) + ' ' + str(self.string3) + ';\'')
         temp = arbol.getTemp()
         arbol.addC3D(temp + ' = inter()')
         return temp

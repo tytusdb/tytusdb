@@ -6,7 +6,7 @@ from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 
 
-class Update(NodoArbol):
+class Select(NodoArbol):
 
     def __init__(self, string_, line, coliumn):
         super().__init__(line, coliumn)
