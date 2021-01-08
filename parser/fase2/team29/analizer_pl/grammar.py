@@ -1977,6 +1977,7 @@ def p_boolean_1(t):
     """
     boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
     """
+    t[0] = code.ExistsRelationalOperation(newTemp(), t[3])
     repGrammar.append(t.slice)
 
 
@@ -1984,6 +1985,8 @@ def p_boolean_2(t):
     """
     boolean : datatype R_IN S_PARIZQ selectStmt S_PARDER
     """
+    #temp, colData, optNot , select
+    t[0] = code.inRelationalOperation(newTemp(),t[1],"", t[4])
     repGrammar.append(t.slice)
 
 
@@ -1991,6 +1994,7 @@ def p_boolean_3(t):
     """
     boolean : datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
     """
+    t[0] = code.inRelationalOperation(newTemp(),t[1],t[2]+ " ", t[5])
     repGrammar.append(t.slice)
 
 
@@ -2574,25 +2578,26 @@ def p_havingCl_2(t):
 
 def p_orderByCl(t):
     """orderByCl : R_ORDER R_BY orderList"""
-    t[0] = t[1] + " " + t[2] + " " + t[3]
+    t[0] =t[3]
     repGrammar.append(t.slice)
 
 
 def p_orderByCl_n(t):
     """orderByCl : """
-    t[0] = ""
+    t[0] = None
     repGrammar.append(t.slice)
 
 
 def p_orderList(t):
     """orderList : orderList S_COMA orderByElem"""
-    t[0] = t[1] + ", " + t[3]
+    t[1].append(t[3])
+    t[0] = t[1] 
     repGrammar.append(t.slice)
 
 
 def p_orderList_1(t):
     """orderList : orderByElem"""
-    t[0] = t[1]
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
@@ -2601,7 +2606,7 @@ def p_orderByElem(t):
     orderByElem : columnName orderOpts orderNull
                 | INTEGER orderOpts orderNull
     """
-    t[0] = str(t[1]) + t[2] + t[3]
+    t[0] = [t[1], t[2], t[3]]
     repGrammar.append(t.slice)
 
 
