@@ -18,7 +18,7 @@ class ReporteGramatical():
             contenido = contenido + "<TR>" + '\n'
             contenido = contenido + "<TD style=\"font-size: 15px; color:white;\" color:white align=rigth>"+item+"</TD>" + '\n'
             contenido = contenido + "</TR>" + '\n'
-            #print(item)
+            ##print(item)
 
 
         contenido = contenido + '\n' + "</center>" + '\n' + "</table>" + "</body>" + '\n' + "</html>"

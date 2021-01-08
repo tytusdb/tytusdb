@@ -51,17 +51,18 @@ class AlterIndex(Instruccion):
         etiqueta = GeneradorTemporales.nuevo_temporal()
         instruccion_quemada = 'Alter index '
         instruccion_quemada += '%s ' % self.id
-        instruccion_quemada += ';'
+        instruccion_quemada += 'ALTER COLUMN '
+        instruccion_quemada += '%s ' % self.columna + ' '
+        instruccion_quemada += '%s ' % self.noCol + ';'
         c3d = '''
     # ---------Alter Index-----------
     top_stack = top_stack + 1
     %s = "%s"
     stack[top_stack] = %s
-    funcion_intermedia()
 
     ''' % (etiqueta, instruccion_quemada, etiqueta)
 
-        optimizacion1 = Reportes.ListaOptimizacion("c3d original", "c3d que entra", Reportes.TipoOptimizacion.REGLA1)
-        lista_optimizaciones_C3D.append(optimizacion1)
+        '''optimizacion1 = Reportes.ListaOptimizacion("c3d original", "c3d que entra", Reportes.TipoOptimizacion.REGLA1)
+        lista_optimizaciones_C3D.append(optimizacion1)'''
 
         return c3d

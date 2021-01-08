@@ -1136,6 +1136,13 @@ def p_selectCount(t):
     varSemantico.append('E = SelectCount(ID)')
 
 #*******************************************************************
+#Para aceptar Select en expresion paraun asignacion*****************
+def p_selectInstruccion(t):
+    '''E : instruccion'''
+    t[0] = t[1]
+    varGramatical.append('E ::= instruccion')
+    varSemantico.append('E = instruccion')
+
 def p_E(t):
     '''E                : operando
 	                    | boolean
@@ -2006,6 +2013,7 @@ def p_prim(t):
                 | trig
                 | bina
                 | Time
+                | E
                 '''
     t[0] = t[1]
     varGramatical.append('prim ::=  var')
@@ -3111,8 +3119,8 @@ def generar_Codigo3D(instrucciones, ts, codigo_3d_generado):
                     codigo_3d_generado += selectTime.getC3D(instruccion, ts, lista_optimizaciones_C3D)
                 elif instruccion.caso == 2:
                     consola.append('caso 2')
-                    # variable = SelectDist.Select_Dist()
-                    # SelectDist.Select_Dist.ejecutar(variable, inst, ts, consola, exceptions)
+                    variable = SelectDist.Select_Dist()
+                    SelectDist.Select_Dist.ejecutar(variable, instruccion, ts, lista_optimizaciones_C3D)
                 elif instruccion.caso == 3:
                     variable = selectInst.Select_inst()
                     codigo_3d_generado += selectInst.Select_inst.get3D(variable, instruccion, ts, lista_optimizaciones_C3D)
