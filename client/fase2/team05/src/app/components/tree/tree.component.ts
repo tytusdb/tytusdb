@@ -11,6 +11,8 @@ export class TreeComponent implements OnInit {
 
   json: String = "";
   faSync = faSync
+  data: any
+
 
   constructor(private ServiceTreeService:ServiceTreeService) {
   }
@@ -31,6 +33,7 @@ export class TreeComponent implements OnInit {
 
   refresh() {
     alert("este es un texto")
+    this.consumir_servicio()
     /*
     alert("def showDatabases()")                  //funcion a la que se invocara en siguiente fase
     let item_db = document.getElementById("db")
@@ -62,6 +65,16 @@ export class TreeComponent implements OnInit {
     this.funcion1()*/
   }
 
+  consumir_servicio(){
+    this.ServiceTreeService.getData_treedatabase().subscribe(
+      res=> {
+       this.data=(res)
+       console.log(this.data.result)
+      },err=>{
+        alert("error al traer la data al arbol")
+      }
+    );
+  }
   parser(data) {
     var array = []
     data = data.replace('[', "")
