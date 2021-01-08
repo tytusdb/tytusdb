@@ -7,7 +7,7 @@ class error():
 
 
     def toString(self):
-        return "Tipo: " + self.tipo + "Descripcion: " + self.description + "Linea: " + self.linea
+        return "Tipo: " + self.tipo + "Descripcion: " + self.description + "Linea: " + str(self.linea)
 
     def getTipo(self):
         return self.tipo

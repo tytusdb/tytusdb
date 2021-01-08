@@ -170,7 +170,15 @@ class InsertInto(Instruccion):
                     if "%" in datasub:
                         temporalaux = tv.Temp()
                         guardar_parametros_funciones.append(temporalaux)
-                        consola.append("\t"+str(str(datasub).replace("!", str(temporalaux))).replace("%","") + "\n")
+                        try:
+                            data1  = str(datasub).replace("\\\"","")
+                            consola.append(
+                                "\t" + str(str(data1).replace("!", str(temporalaux))).replace("%", "") + "\n")
+
+                            print("ññññññ ",data)
+                        except:
+                            print("ññññññ ",datasub)
+                            consola.append("\t"+str(str(datasub).replace("!", str(temporalaux))).replace("%","") + "\n")
                     elif "?" in datasub:
                         concatena_parametros = ""
                         j =1
@@ -213,7 +221,8 @@ class InsertInto(Instruccion):
 
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({obtenerTemporal})")
-        consola.append(f"\n\tstack.append({contador2})\n")
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")
 
 
 

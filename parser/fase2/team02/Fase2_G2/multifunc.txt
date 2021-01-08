@@ -1,0 +1,35 @@
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+
+retorna6 := 9;
+insert into tbrol333 values (3,'Ventas');
+    	
+			
+	
+	
+	    
+
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+
+
+create procedure sp_validaupdate88()
+language plpgsql
+as $$
+begin
+	retorna = 100;
+	insert into tbrol values (3,'Ventas');
+
+end; $$
+drop procedure ValidaRegistros ;
+EXECUTE ValidaRegistros("dddd",2);
+
+
+
+EXECUTE sp_validaupdate88() ;
+
+
+

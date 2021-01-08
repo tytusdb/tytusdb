@@ -1,9 +1,11 @@
 import os
+import json as Json
 import pickle
 import zlib
 import binascii
 import sys
 from cryptography.fernet import Fernet
+from BlockChain.BlockChain import BlockChain
 
 # 1. UNIFICACION DE INDICES
 from storage.AVLMode import avlMode as avl
@@ -17,7 +19,7 @@ from os import path
 
 structs = [avl, b, bplus, _hash, isam, _dict]
 databases = []
-
+uIndex = {}
 def dropAll():
     avl.dropAll()
     bplus.dropAll()
@@ -32,11 +34,11 @@ def addDatabase(name, mode, code, mod):
     database["mode"] = mode
     database["code"] = code
     databases.append(database)
-    # persistence()
+    persistence(databases)
 
 def createDatabase(name, mode = 'avl', code = 'ASCII'):
     try:
-        # chargePersistence()
+        chargePersistence()
         if code == 'UTF8' or code == 'ASCII' or code == 'ISO-8859-1':
             if mode == 'avl':
                 addDatabase(name, mode, code, avl)
@@ -67,20 +69,12 @@ def createDatabase(name, mode = 'avl', code = 'ASCII'):
         return 1
 
 def showDatabases():
-    # return databases
-    # chargePersistence()
+    chargePersistence()
     msg = "BASES DE DATOS\n"
-    dbs = []
+    # dbs = []
     for db in databases:
         if '_' not in db['name']:
             msg += f"\t{db['mode']}: {db['name']}\n"
-    # msg += f"\tAVL: {avl.showDatabases()}\n"
-    # msg += f"\tB: {b.showDatabases()}\n"
-    # msg += f"\tB+: {bplus.showDatabases()}\n"
-    # msg += f"\tHash: {_hash.showDatabases()}\n"
-    # msg += f"\tIsam: {isam.showDatabases()}\n"
-    # msg += f"\tDict: {_dict.showDatabases()}\n"
-    # msg += f"\tJSON: {json.showDatabases()}\n"
     return msg
 
 def alterDatabase(databaseOld, databaseNew):
@@ -111,23 +105,25 @@ def createTable(database, table, nCols):
         if value != 2:
             for i in databases:
                 if database == i["name"]:
-                    t = {"name": table, "nCols": nCols, "tuples": [], 
+                    t = {"name": table, "nCols": nCols, "tuples": [], "safeMode": False,
                         "fk": None, "iu": None, "io": None}
                     i["tables"].append(t)
-                    # persistence()
+                    persistence(databases)
                     return value
     return 2
 
 def showTables(database):
+    chargePersistence()
     tables = []
-    for item in structs:
-        value = item.showTables(database)
+    for item in databases:
+        value = item["mod"].showTables(database)
         if value:
             tables.append(value)
             break
     return tables
 
 def extractTable(database, table):
+    chargePersistence()
     alterDatabaseDecompress(database)
     for item in structs:
         value = item.extractTable(database, table)
@@ -152,6 +148,7 @@ def alterAddPK(database, table, columns):
                     for t in i["tables"]:
                         if table == t["name"]:
                             t["pk"] = columns
+                            persistence(databases)
                             return value
     return 2
 
@@ -210,20 +207,31 @@ def insert(database, table, register):
     for item in structs:
         codificacion = codificationValidation(getCodificationMode(database),register)
         if codificacion == True:
-            value = item.insert(database, table, register) ###AQUI CREO QUE TENGO QUE HACER ESA VALIDACION PAPUA
-            if value != 2:
-                for i in databases:
-                    if database == i["name"]:
-                        for t in i["tables"]:
-                            if table == t["name"]:
-                                tupla = {"register": register} 
-                                t["tuples"].append(tupla)
-                                return value
+            if insertVerifyUnique(database, table, register ):   #verifica si la tabla tiene indices unicos y si el indice unico viene en null
+                value = item.insert(database, table, register)
+                Unique(database,table,register)if value != 2:
+                    for i in databases:
+                        if database == i["name"]:
+                            for t in i["tables"]:
+                                if table == t["name"]:
+                                    tupla = {"register": register} 
+                                    t["tuples"].append(tupla)
+                                    #START BlockChain
+                                    i = 0
+                                    while i<len(listBlockChain):
+                                        if(listBlockChain[i].getName() == (str(database)+"_"+str(table))):
+                                            listBlockChain[i].addNodeNoSecure(register)
+                                            listBlockChain[i].generateJsonSafeMode()
+                                        i += 1
+                                    #END BlockChain
+                                    persistence(databases)
+                                    return value
         else:
             return 1                        
     return 2
 
 def extractRow(database, table, columns):
+    chargePersistence()
     for item in structs:
         value = item.extractRow(database, table, columns)
         if value:
@@ -232,43 +240,75 @@ def extractRow(database, table, columns):
 
 def loadCSV(fileCSV, db, table):
     for item in structs:
-        value = item.loadCSV(fileCSV, db, table)
-        if value != [] and value[0] != 2:
-            # persistence()
-            return value
-    return value
+        # value = item.loadCSV(fileCSV, db, table)
+        import csv
+        try:
+            with open(fileCSV, 'r') as fileCsv:
+                lector = csv.reader(fileCsv, delimiter = ',')
+                listaResultado = []
+                for f in lector:
+                    listaResultado.append(insert(db, table, f))
+                return listaResultado
+                # print("Operación Exitosa")
+        except:
+            raise
 
-def update(database, table,  register, columns):
+def update(database, table, register, columns):
     for item in structs:
         value = item.update(database, table, register, columns)
+        # START BlockChain
+        i = 0
+        while i<len(listBlockChain):
+            if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
+                j = 0
+                tuplesBlockChain = listBlockChain[i].getListValues()
+                tuples = extractTable("ventas", "producto")
+                while j < len(tuplesBlockChain):
+                    k = 0
+                    newValue = ""
+                    while k < len(tuples):
+                        if tuples[k] not in tuplesBlockChain:
+                            newValue = tuples[k]
+                        k += 1
+
+                    if tuplesBlockChain[j] not in tuples:#.getValue()
+                        listBlockChain[i].alterValueNode(newValue, j)
+                        listBlockChain[i].generateJsonSafeMode()
+                    j += 1
+                break    
+            i += 1
+        # END BlockChain
         if value != 2:
             for i in databases:
                 if database == i["name"]:
                     for t in i["tables"]:
                         if table == t["name"]:
                             for tup in t["tuples"]:
-                                index = 0
-                                for key in register:
-                                    index = key
-                                tup["register"][index] = register[1]
+                                if tup["register"][0] == columns[0]:
+                                    index = 0
+                                    for key in register:
+                                        index = key
+                                    tup["register"][index] = register[index]
+                        persistence(databases)
                         return value
     return 2
 
 def delete(database, table, columns):
-    for item in structs:
-        value = item.delete(database, table, columns)
-        if value != 2:
-            for i in databases:
-                if database == i["name"]:
-                    for t in i["tables"]:
-                        if table == t["name"]:
-                            for tup in t["tuples"]:
-                                index = 0
-                                for key in columns:
-                                    index = key
-                                tup["register"][index] = register[1]
-                        return value
-    return 2
+    pass
+    # for item in structs:
+    #     value = item.delete(database, table, columns)
+    #     if value != 2:
+    #         for i in databases:
+    #             if database == i["name"]:
+    #                 for t in i["tables"]:
+    #                     if table == t["name"]:
+    #                         for tup in t["tuples"]:
+    #                             index = 0
+    #                             for key in columns:
+    #                                 index = key
+    #                             tup["register"][index] = register[1]
+    #                     return value
+    # return 2
 
 def truncate(database, table):
     for item in structs:
@@ -286,6 +326,7 @@ def truncate(database, table):
 # 2. ADMINISTRADOR DE MODO DE ALMACENAMIENTO
 def alterDatabaseMode(database, mode):
     try:
+        changueMode(databases)
         for db in databases:
             if db["name"] == database:
                 dbCopy = db.copy()
@@ -296,6 +337,7 @@ def alterDatabaseMode(database, mode):
                     createTable(dbCopy["name"], table["name"], table["nCols"])
                     for reg in table["tuples"]:
                         insert(dbCopy["name"], table["name"], reg["register"])
+                persistence(databases)
                 return 0
     except:
         return 1
@@ -307,7 +349,211 @@ def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
 def alterTableDropFK(database, table, indexName):
     pass
 
+
+def insertVerifyUnique(database, table,tupla ):
+    try:
+        tabla = uIndex[database]
+        indices = tabla[table]
+        indiceTbl = table+indices[0]
+        listaIndices = indices[1]
+        uniqueIndices = [tupla[x] for x in listaIndices]
+        if None in uniqueIndices:
+            return False
+        else:
+            for estructura in structs: 
+                    value = estructura.extractRow(database,indiceTbl,uniqueIndices)
+                    if value ==uniqueIndices :
+                        return False
+                    else:    
+                        return True
+            
+    except: 
+        return True
+
+def Unique(database, table,  tupla):
+    try:
+        tabla = uIndex[database]
+        indices = tabla[table]
+        indiceTbl = table+indices[0]
+        listaIndices = indices[1]
+        uniqueIndices = [tupla[x] for x in listaIndices]
+        if None in uniqueIndices:
+            return True
+        else:
+            for estructura in structs: 
+                    value = estructura.insert(database,indiceTbl,uniqueIndices)
+                    if value != 2 or value != 3 or value!= 4 :
+                        return False
+                    else:    
+                        return True
+            
+    except: 
+        return True
+
+
+def alterTableaddUnique(database , table,  indexName, colums): 
+    tabla = {}
+    for item in structs: 
+        tuplas = item.extractTable(database,table)
+        if tuplas !=2:
+            if item.tipoEDD() == 'avl':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if avl.createTable(database, table+indexName , len(colums)) != 2 and avl.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+            elif item.tipoEDD() == 'bplus':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if bplus.createTable(database, table+indexName , len(colums)) != 2 and bplus.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+            elif item.tipoEDD() == 'b':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if b.createTable(database, table+indexName , len(colums)) != 2 and b.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+
+
+            elif item.tipoEDD() == 'hash':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if _hash.createTable(database, table+indexName , len(colums)) != 2 and _hash.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+
+            elif item.tipoEDD() == 'isam':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if isam.createTable(database, table+indexName , len(colums)) != 2 and isam.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+            elif item.tipoEDD() == 'dict':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if _dict.createTable(database, table+indexName , len(colums)) != 2 and _dict.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+
+            elif item.tipoEDD() == 'json':
+                indice = (indexName , colums)
+                tabla[table] = indice
+                uIndex[database] = tabla
+                if _hash.createTable(database, table+indexName , len(colums)) != 2 and _hash.alterAddPK(database, table+indexName, colums) !=2:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 2
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value == 2:
+                                return 2 
+                        
+                else: 
+                    return 2
+
+            else:
+                return 3
+
+
+
+
+
+
+
+
+
+
+
 # 4. ADMINISTRACION DE LA CODIFICACION
+def alterDatabaseEncoding(database,encoding):
+    if encoding =="ASCII" or encoding =="ISO-8859-1" or encoding =="UTF8":
+        pass
+    else:
+        return 3
+    try:
+        i=0
+        for db in databases:
+            if db["name"] == database:
+                for table in db["tables"]:
+                    for tupla in table["tuples"]:
+                        for register in tupla["register"]:
+                            if isinstance(register, str) : 
+                                codificacion = codificationValidation(encoding,register)    
+                                if codificacion == True:
+                                    pass
+                                else:
+                                    return 1     
+                break                          
+            i+=1   
+        if i==len(databases):
+            return 2
+        else:
+            return 0    
+    except:
+        return 1
+
 def codificationValidation(codification,stringlist): ##Cristian
     if codification=="ASCII":
         try:
@@ -362,6 +608,7 @@ def alterDatabaseCompress(database, level):
         for db in databases:
             if db["name"] == database:
                 for table in db["tables"]:
+                    changueMode(databases)
                     tableCopy = table.copy()
                     table["tuples"] = []
                     db["mod"].truncate(db["name"], table["name"])
@@ -373,8 +620,6 @@ def alterDatabaseCompress(database, level):
                                 register = zlib.compress(text, level)
                             newRegister.append(register)
                         insert(db['name'], table["name"], newRegister)
-            else:
-                return 2
         return 0
     except:
         return 1
@@ -385,6 +630,7 @@ def alterDatabaseDecompress(database):
         for db in databases:
             if db["name"] == database:
                 for table in db["tables"]:
+                    changueMode(databases)
                     tableCopy = table.copy()
                     table["tuples"] = []
                     db["mod"].truncate(db["name"], table["name"])
@@ -397,8 +643,6 @@ def alterDatabaseDecompress(database):
                                 isCompressed = True
                             newRegister.append(register)
                         insert(db['name'], table["name"], newRegister)
-            else:
-                return 2
         if not isCompressed:
             return 3
         return 0
@@ -412,6 +656,7 @@ def alterTableCompress(database, table, level):
         for db in databases:
             if db["name"] == database:
                 for t in db["tables"]:
+                    changueMode(databases)
                     if t["name"] == table:
                         tableCopy = t.copy()
                         t["tuples"] = []
@@ -486,22 +731,137 @@ def encrypt(backup, password):
 def decrypt(cipherBackup, password):
     return Fernet(password).decrypt(cipherBackup.encode()).decode()
 
-# def persistence():
-#     try:
-#         if path.exists("DB"):
-#             os.remove("DB")
-#         archivo = open("DB" , "wb")
-#         pickle.dump(databases, archivo)
-#         archivo.close()
-#     except: 
-#         pass
+def persistence(databases):
+    try:
+        if path.exists("DB"):
+            os.remove("DB")
+        archivo = open("DB", "wb")
+        for db in databases:
+            db["mod"] = db["mode"]
+        pickle.dump(databases, archivo)
+        archivo.close()
+        del(archivo)
+    except: 
+        pass
 
-# def chargePersistence():
-#     n = databases
-#     if path.isfile("DB") and len(n) == 0 and path.getsize("DB") > 0:
-#         archivo = open("DB" , "rb")
-#         data = pickle.load(archivo)
-#         for i in data: 
-#             databases.append(i)
-#         archivo.close()
-#         print("bases de datos cargadas")
+def chargePersistence():
+    n = databases
+    if path.isfile("DB") and len(n) == 0 and path.getsize("DB") > 0:
+        archivo = open("DB" , "rb")
+        data = pickle.load(archivo)
+        changueMode(data, True)
+        archivo.close()
+        print("bases de datos cargadas")
+
+def changueMode(database, isPersistence = False):
+    for i in database:
+        if i["mod"] == 'avl':
+            i["mod"] = avl
+        elif i["mod"] == 'b':
+            i["mod"] == b
+        elif i["mod"] == 'bplus':
+            i["mod"] = bplus
+        elif i["mod"] == 'hash':
+            i["mod"] = _hash
+        elif i["mod"] == 'isam':
+            i["mod"] = isam
+        elif i["mod"] == 'dict':
+            i["mod"] = _dict
+        elif i["mod"] == 'json':
+            i["mod"] = json
+        if isPersistence:
+            databases.append(i)
+            
+#generar el grafo reporte del block chain
+def generateGraphBlockChain(database, table):
+    i = 0
+    fileName = str(database)+"_"+str(table)+"BC"
+    while i < len(listBlockChain):
+        if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
+            data = listBlockChain[i].generateGraph()
+            with open(fileName+".dot", "w") as file:
+                file.write(data)
+            os.system("dot -Tpng "+fileName+".dot"+" -o "+fileName+".png")
+            break
+            
+        else:
+            print("No se encontro el Block Chain de la tabla indicada")
+        i += 1  
+      
+    ### WORK BLOCKCHAIN ###
+"""
+    @description 
+        Activa el modo seguro para una tabla de una base de datos
+    @param
+        database: Nombre de la base de datos a utilizar
+        table: Nombre de la tabla a utilizar
+    @return 
+        0: Operación exitosa
+        1: Error en la operación
+        2: database inexistente
+        3: table inexistente
+        4: Modo seguro inexistente
+"""
+def safeModeOn(database, table):
+    try:
+        for db in databases:
+            #verifica si la base de datos existe
+            if db.get("name") == database:
+                for tb in db.get("tables"):
+                    #verifica si la tabla existe
+                    if tb.get("name") == table:
+                        #verifica si el modo seguro esta activado
+                        if tb.get("safeMode"):
+                            #Modo seguro existente
+                            return 4
+                        tb["safeMode"] = True
+                        #_________________________________________________________
+                        bc = BlockChain(str(database)+"_"+str(table))
+                        for tp in tb.get("tuples"):
+                            bc.addNode(tp.get("register"))
+                        bc.generateJsonSafeMode()
+                        listBlockChain.append(bc)
+                        #_________________________________________________________
+                #tabel inexistente
+                return 3
+        #database inexistente
+        return 2
+    except:
+        #Error en la operación
+        return 1
+
+"""
+    @description
+        Desactiva el modo en la tabla especificada de la base de datos
+    @param
+        database: Nombre de la base de datos a utilizar
+        table: Nombre de la tabla a utilizar
+    @return 
+        0: Operación exitosa
+        1: Error en la operación
+        2: database inexistente
+        3: table inexistente
+        4: modo seguro no inexistente
+"""
+def safeModeOff(database, table):
+    try:
+        for db in databases:
+            #verifica si la base de datos existe
+            if db.get("name") == database:
+                for tb in db.get("tables"):
+                    #verifica si la tabla existe
+                    if tb.get("name") == table:
+                        #verifica si el modo seguro esta activado
+                        if tb.get("safeMode"):
+                            tb["safeMode"] = False
+                            os.remove('BlockChain\\'+str(database)+'_'+str(table)+'.json')
+                            return 0
+                        #Modo seguro no existente
+                        return 4
+                #tabel inexistente
+                return 3
+        #database inexistente
+        return 2
+    except:
+        #Error en la operación
+        return 1

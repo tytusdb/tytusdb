@@ -15,6 +15,8 @@ from analizadorFase2.Operaciones.Operaciones_Aritmeticcas import Operaciones_Ari
 from analizadorFase2.Operaciones.TiposOperacionesA import TiposOperaciones
 from analizadorFase2.Operaciones.OperacionesUnarias import OperacionesUnarias
 from analizadorFase2.Instrucciones.Return import Return_inst
+
+
 class Generador:
     def __init__(self, numero_temp, numero_labl, inst):
         self.temp = numero_temp
@@ -197,6 +199,10 @@ class Generador:
         elif isinstance(instruccion.valor, Llamada):
             ret = self.compilarLlamada(instruccion.valor)
             self.generarAsignacion(instruccion.id, ret.valor)
+        elif isinstance(instruccion.valor, FuncionNativa):
+            ret = self.compilarFuncionesNativas(instruccion.valor)
+            self.generarAsignacion(instruccion.id, ret.valor)
+
 
     def compilarDropFunction(self, instruccion):
         inst = self.generarTab() + "del " + instruccion.id
@@ -554,6 +560,19 @@ class Generador:
                 self.codigo3d.append(lineaAbs)
                 self.agregarEtiqueta(etiquetaverdadero)
                 return retorno
-        elif instruccion.TipoFunNativa==1: 
-            #CORRESPONDE A LA FUNCION AVG
-            pass
+        elif instruccion.tipo == TipoFunNativa.seno:
+            # Corresponde a función de SENO
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.sin(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.sin(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret

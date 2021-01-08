@@ -1,4 +1,5 @@
 # from generate_ast import GraficarAST
+from models.Other.delete_function import DeleteFunction
 from models.Indexes.indexes import AlterIndex, DropIndex, Indexes
 from models.instructions.Expression.trigonometric_functions import ExpressionsTrigonometric
 from models.instructions.Expression.extract_from_column import ExtractFromIdentifiers
@@ -22,7 +23,7 @@ from models.instructions.Expression.string_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
-from models.Other.funcion import Funcion, Parametro
+from models.Other.funcion import Funcion, Parametro, ProcedimientoAlmacenado
 from models.Other.declaracion import DeclaracionID, AsignacionID
 from models.procedural.clases import BodyDeclaration, ReturnFuncProce
 from models.procedural.if_statement import If,anidarIFs
@@ -229,7 +230,7 @@ def p_permits(p):
     '''
     if p[1].lower() == 'MODE'.lower():
         if len(p) == 4:
-            p[0] = {'MODE': p[3], '_tac': f'MODE = {p[3]._tac}'}
+            p[0] = {'MODE': p[3], '_tac': f'MODE = {p[3]}'}
         else:
             p[0] = {'MODE': p[2], '_tac': f'MODE {p[2]}' }
     else:
@@ -481,7 +482,11 @@ def p_indexes_statement(p):
     '''INDEXES_STATEMENT : CREATE_INDEXES
                          | DROP_INDEXES SEMICOLON
                          | ALTER_INDEXES SEMICOLON'''
-    p[0] = p[1]
+    if len(p) == 3:
+        p[1]._tac = f'{p[1]._tac};'
+        p[0] = p[1]
+    else:
+        p[0] = p[1]
 
 def p_indexes_drop(p):
     '''DROP_INDEXES : DROP INDEX CONCURRENTLY IF EXISTS columnlist CASCADE
@@ -493,30 +498,68 @@ def p_indexes_drop(p):
                     | DROP INDEX CONCURRENTLY IF EXISTS columnlist
                     | DROP INDEX CONCURRENTLY columnlist
                     | DROP INDEX IF EXISTS columnlist
-                    | DROP INDEX columnlist '''
+                    | DROP INDEX columnlist'''
+    string = ""
     if len(p) == 8:
         if p.slice[7].type == "CASCADE":
             p[0] = DropIndex(p[6], p.lineno(1), find_column(p.slice[1]))
         else:
             p[0] = DropIndex(p[6], p.lineno(1), find_column(p.slice[1]))
+        for index, var in enumerate(p[6]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {string} {p[7]}'
     elif len(p) == 7:
         if p.slice[6].type == "CASCADE":
+            for index, var in enumerate(p[5]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
             p[0] = DropIndex(p[5], p.lineno(1), find_column(p.slice[1]))
+            p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {string} {p[6]}'
         elif p.slice[3].type == "CONCURRENTLY":
+            for index, var in enumerate(p[6]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
             p[0] = DropIndex(p[6], p.lineno(1), find_column(p.slice[1]))
+            p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {string}'
         else:
+            for index, var in enumerate(p[5]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
             p[0] = DropIndex(p[5], p.lineno(1), find_column(p.slice[1]))
+            p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {string} {p[6]}'
     elif len(p) == 6:
+        for index, var in enumerate(p[5]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
         p[0] = DropIndex(p[5], p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {string}'
     elif len(p) == 5:
         if p.slice[4].type == "CASCADE":
+            for index, var in enumerate(p[3]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
             p[0] = DropIndex(p[3], p.lineno(1), find_column(p.slice[1]))
+            p[0]._tac = f'{p[1]} {p[2]} {string} {p[4]}'
         elif p.slice[3].type == "CONCURRENTLY":
+            for index, var in enumerate(p[4]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
             p[0] = DropIndex(p[4], p.lineno(1), find_column(p.slice[1]))
+            p[0]._tac = f'{p[1]} {p[2]} {p[3]} {string}'
         else:
+            for index, var in enumerate(p[3]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
             p[0] = DropIndex(p[3], p.lineno(1), find_column(p.slice[1]))
+            p[0]._tac = f'{p[1]} {p[2]} {string} {p[4]}'
+            
     else:
+        for index, var in enumerate(p[3]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
         p[0] = DropIndex(p[3], p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f"{p[1]} {p[2]} {string}"
     
 def p_indexes_alter(p):
     '''ALTER_INDEXES : ALTER INDEX IF EXISTS ID RENAME TO ID
@@ -528,50 +571,95 @@ def p_indexes_alter(p):
     if len(p) == 9:
         if p.slice[6].type == "ALTER":
             p[0] = AlterIndex(p[5], p[7], p.lineno(1), find_column(p.slice[1]), True, p[8])
+            p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {p[6]} {p[7]} {p[8]}'
         else:
             p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]), False, None)
+            p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {p[6]} {p[7]} {p[8]}'
     elif len(p) == 10:
         p[0] = AlterIndex(p[5], p[8], p.lineno(1), find_column(p.slice[1]), True, p[9])
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {p[6]} {p[7]} {p[8]} {p[9]}'
     elif len(p) == 7:
         p[0] = AlterIndex(p[3], p[5], p.lineno(1), find_column(p.slice[1]), True, p[6])
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {p[6]}'
     elif len(p) == 8:
         p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]), True, p[7])
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {p[6]} {p[7]}'
     else:
         p[0] = AlterIndex(p[3], p[6], p.lineno(1), find_column(p.slice[1]), False, None)
-
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {p[5]} {p[6]}'
 def p_index_alter_body(p):
     '''body_cont_index : ID
                        | INT_NUMBER'''
     p[0] = p[1]
 
 def p_indexes_create(p):
+                            #1      #2       #3 #4 #5      #6               #7           #8           #9                #10       #11      
     '''CREATE_INDEXES    : CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID OPTIONS1_INDEXES LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS  WHERECLAUSE SEMICOLON
                          | CREATE TYPE_INDEX ID ON ID LEFT_PARENTHESIS BODY_INDEX RIGHT_PARENTHESIS SEMICOLON 
     '''
+    string = ''
+    lista_valores = []
+    
     if len(p) == 10:
-        p[0] = Indexes(p[2],p[5], p[3], None,p[7], None, p.lineno(1), find_column(p.slice[1]),generateC3D(p))
+        count = 0
+        for lista, var in p[7]:
+            for ids in lista:
+                lista_valores.append(ids)
+            if count > 0: string += f', {var}'
+            else: string += f'{var}'
+            count += 1 
+        p[0] = Indexes(p[2]["value"],p[5], p[3], None, lista_valores, None, p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'{p[1]} {p[2]["_tac"]} {p[3]} {p[4]} {p[5]} {p[6]}{string}{p[8]};'
     elif len(p) == 11:
         if p.slice[6].type == "LEFT_PARENTHESIS":
-            p[0] = Indexes(p[2], p[5], p[3], None, p[7], p[9], p.lineno(1), find_column(p.slice[1]), generateC3D(p))
+            count = 0
+            for lista, var in p[7]:
+                for ids in lista:
+                    lista_valores.append(ids)
+                if count > 0: string += f', {var}'
+                else: string += f'{var}'
+                count += 1 
+            p[0] = Indexes(p[2]["value"], p[5], p[3], None, lista_valores, p[9], p.lineno(1), find_column(p.slice[1]))
+            p[0]._tac = f'{p[1]} {p[2]["_tac"]} {p[3]} {p[4]} {p[5]} {p[6]}{string}{p[8]} {p[9]._tac};'
         else:
-            p[0] = Indexes(p[2], p[5], p[3], p[6], p[8], None, p.lineno(1), find_column(p.slice[1]), generateC3D(p))
+            count = 0
+            for lista, var in p[8]:
+                for ids in lista:
+                    lista_valores.append(ids)
+                if count > 0: string += f', {var}'
+                else: string += f'{var}'
+                count += 1
+            p[0] = Indexes(p[2]["value"], p[5], p[3], p[6]["value"], lista_valores, None, p.lineno(1), find_column(p.slice[1]))
+            p[0]._tac = f'{p[1]} {p[2]["_tac"]} {p[3]} {p[4]} {p[5]} {p[6]["_tac"]} {p[7]}{string}{p[9]};'
     else:
-        p[0] = Indexes(p[2], p[5], p[3], p[6], p[8], p[10], p.lineno(1), find_column(p.slice[1]), generateC3D(p))
+        count = 0
+        for lista, var in p[8]:
+            for ids in lista:
+                lista_valores.append(ids)
+            if count > 0: string += f', {var}'
+            else: string += f'{var}'
+            count += 1
+        p[0] = Indexes(p[2]["value"], p[5], p[3], p[6]["value"], lista_valores, p[10], p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f"{p[1]} {p[2]['_tac']} {p[3]} {p[4]} {p[5]} {p[6]['_tac']} {p[7]}{string}{p[9]} {p[10]._tac};"
 def p_type_index(p):
     ''' TYPE_INDEX : INDEX
                    | UNIQUE INDEX
     '''
+    
     if len(p) == 2:
-        p[0] = p[1]
+        valores = {'value': p[1], '_tac': f'{p[1]}'}
+        p[0] = valores
     else:
-        p[0] = p[1]
+        valores = {'value': p[1], '_tac': f'{p[1]} {p[2]}'}
+        p[0] = valores
 
 def p_options1_indexes(p):
     ''' OPTIONS1_INDEXES : USING TYPE_MODE_INDEX
     '''
-    p[0] = p[2]
+    valores = {'value': p[2], '_tac': f'{p[1]} {p[2]}'}
+    p[0] = valores
 
 def p_type_mode_index(p):
     ''' TYPE_MODE_INDEX : BTREE 
@@ -580,41 +668,33 @@ def p_type_mode_index(p):
     p[0] = p[1]
 
 def p_body_index(p):
-    ''' BODY_INDEX : BODY_INDEX COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
-                   | BODY_INDEX COMMA ID OPTIONS2_INDEXES
-                   | BODY_INDEX COMMA LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                   | BODY_INDEX COMMA ID 
-                   | ID OPTIONS2_INDEXES
-                   | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                   | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
-                   | ID
+    ''' BODY_INDEX : BODY_INDEX COMMA BODY_INDEX_AUX 
+                   | BODY_INDEX_AUX
     '''
-    lista_body = []
-    if len(p) == 2:
-        p[0] = [p[1]]
-    elif len(p) == 3:
-        p[0] = [p[1], p[2]]
-    elif len(p) == 5:
-        if p.slice[1].type == "LOWER":
-            p[0] = [p[3]]
-        else:
-            p[1].append(p[3])
-            p[1].append(p[4])
-            p[0] = p[1]
-    elif len(p) == 6:
-        lista_body.append(p[3])
-        lista_body.append(p[5])
-        p[0] = lista_body
-    elif len(p) == 4:
+    if len(p) == 4:
         p[1].append(p[3])
         p[0] = p[1]
-    elif len(p) ==  7:
-        p[1].append(p[5])
-        p[0] = p[1]
-    elif len(p) == 8:
-        p[1].append(p[5])
-        p[1].append(p[7])
-        p[0] = p[1]
+    elif len(p) == 2:
+        p[0] = [p[1]]
+
+def p_body_index_aux(p):
+    '''BODY_INDEX_AUX : ID OPTIONS2_INDEXES
+                      | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                      | LOWER LEFT_PARENTHESIS ID RIGHT_PARENTHESIS OPTIONS2_INDEXES
+                      | ID'''
+    string = ''
+    if len(p) == 6:
+        string = f'{p[1]}{p[2]}{p[3]}{p[4]} {p[5][1]}'
+        p[0] = [[p[3], p[5][0]], string]
+    elif len(p) == 5:
+        string = f'{p[1]}{p[2]}{p[3]}{p[4]}'
+        p[0] = [[p[3]], string]
+    elif len(p) == 3:
+        string = f'{p[1]} {p[2][1]}'
+        p[0] = [[p[1], p[2][0]], string]
+    elif len(p) == 2:
+        string = f'{p[1]}'
+        p[0] = [[p[1]], string]
 
 def p_options2_indexes(p):
     '''  OPTIONS2_INDEXES : ASC NULLS FIRST 
@@ -624,21 +704,25 @@ def p_options2_indexes(p):
                           | ASC
                           | DESC
     '''
+    string = ''
     if len(p) == 4:
+        string = f'{p[1]} {p[2]} {p[3]}'
         if p.slice[1].type == 'ASC':
-            p[0] = False
+            p[0] = [False, string]
         else:
-            p[0] = True
+            p[0] = [True, string]
     elif len(p) == 3:
+        string = f'{p[1]} {p[2]}'
         if p.slice[2].type == 'FIRST':
-            p[0] = True
+            p[0] = [True, string]
         else:
-            p[0] = False
+            p[0] = [False, string]
     else:
+        string = f'{p[1]}'
         if p.slice[1].type == 'ASC':
-            p[0] = False
+            p[0] = [False, string]
         else:
-            p[0] = True
+            p[0] = [True, string]
 
 def p_call_functions_or_procedure(p):
     '''CALL_FUNCTIONS_PROCEDURE : ID LEFT_PARENTHESIS LISTVALUESINSERT  RIGHT_PARENTHESIS
@@ -739,10 +823,11 @@ def p_show_statement(p):
     '''
     if len(p) == 4:
         p[0] = ShowDatabase(None, generateC3D(p))
-        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]._tac} {p[5]}'
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]}'
     else:
         p[0] = ShowDatabase(p[4], generateC3D(p))
-        p[0]._tac = f'{p[1]} {p[2]} {p[3]}'
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]._tac} {p[5]}'
+        
 
 
 def p_alter_statement(p):
@@ -951,22 +1036,40 @@ def p_sql_functions_drop_inst(p):
     '''SQL_DROP_FUNCTION : DROP FUNCTION IF EXISTS DETAIL_FUNC_DROP SEMICOLON
                         | DROP FUNCTION DETAIL_FUNC_DROP SEMICOLON
     '''
+    string = ''
     print('TE AVS A DROPEAR LAS :')
     if len(p) == 7:
-        p[0] = p[5]
+        for index, var in enumerate(p[5]):
+            if index > 0: string += f', {var["_tac"]}'
+            else: string += f'{var["_tac"]}'
+        p[0] = DeleteFunction(p[5], p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {string};'
     else:
-        p[0] = p[3]
+        for index, var in enumerate(p[3]):
+            if index > 0: string += f', {var["_tac"]}'
+            else: string += f'{var["_tac"]}'
+        p[0] = DeleteFunction(p[3], p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'{p[1]} {p[2]} {string};'
 
 def p_sql_procedures_drop_inst(p):
     '''SQL_DROP_PROCEDURE : DROP PROCEDURE IF EXISTS DETAIL_FUNC_DROP SEMICOLON
                           | DROP PROCEDURE DETAIL_FUNC_DROP SEMICOLON
     '''
     print('TE AVS A DROPEAR LAS :')
+    string = ''
     if len(p) == 7:
-        p[0] = p[5]
-    else:
-        p[0] = p[3]
+        for index, var in enumerate(p[5]):
+            if index > 0: string += f', {var["_tac"]}'
+            else: string += f'{var["_tac"]}'
 
+        p[0] = DeleteFunction(p[5], p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {string};'
+    else:
+        for index, var in enumerate(p[3]):
+            if index > 0: string += f', {var["_tac"]}'
+            else: string += f'{var["_tac"]}'
+        p[0] = DeleteFunction(p[3], p.lineno(1), find_column(p.slice[1]))
+        p[0]._tac = f'{p[1]} {p[2]} {string};'
 
 def p_sql_detail_func_drop(p):
     '''DETAIL_FUNC_DROP : DETAIL_FUNC_DROP COMMA FUNCTIONS_TO_DROP
@@ -983,7 +1086,19 @@ def p_sql_functions_to_drop(p):
                          | ID LEFT_PARENTHESIS  RIGHT_PARENTHESIS
                          | ID
     '''
-    p[0] = p[1]
+    if len(p) == 2:
+        p[1] = {'value': p[1], '_tac': f'{p[1]}'}
+        p[0] = p[1]
+    elif len(p) == 4:
+        p[1] = {'value': p[1], '_tac': f'{p[1]}{p[2]}{p[3]}'}
+        p[0] = p[1]
+    elif len(p) == 5:
+        string = ''
+        for index, var in enumerate(p[3]):
+                if hasattr(var, '_tac'):
+                    if index > 0: string += f', {var._tac}'
+                    else: string += f'{var._tac}'
+        p[1] = {'value': p[1], '_tac': f'{p[1]}{p[2]}{string}{p[4]}'}
 
 
 #--->
@@ -993,6 +1108,12 @@ def p_sql_procedures(p):
     '''SQL_PROCEDURES : CREATE PROCEDURE ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
                       | CREATE PROCEDURE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
     '''
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
+    if len(p) == 11:
+        p[0] = ProcedimientoAlmacenado(p[3], p[5], p[10], True, False, noLine, noColumn)
+    else:
+        p[0] = ProcedimientoAlmacenado(p[3], [], p[9], True, False, noLine, noColumn)
 
 def p_returns_type_func(p):
     '''typeReturns : typecol
@@ -1020,6 +1141,10 @@ def p_param(p):
     noLine = p.slice[1].lineno
     if(len(p) == 3):
         p[0] = Parametro(p[1], p[2], noLine, noColumn)
+    if len(p) == 3:
+        p[0]._tac = f'{p[1]} {p[2]._tac}'
+    elif len(p) == 2:
+        p[0]._tac = f'{p[1]._tac}'
 
 def p_body_block(p):
     '''bodyBlock : DOUBLE_DOLLAR BODY_DECLARATION DOUBLE_DOLLAR
@@ -1405,7 +1530,7 @@ def p_set_list(p):
 def p_column_values(p):
     '''COLUMNVALUES : OBJECTREFERENCE EQUALS SQLEXPRESSION2'''
     p[0] = ColumnVal(p[1], p[3])
-
+    p[0]._tac = f"{p[1]._tac} {p[2]} {p[3]._tac} "
 
 def p_sql_expression2(p):
     '''SQLEXPRESSION2 : SQLEXPRESSION2 PLUS SQLEXPRESSION2 
@@ -1627,6 +1752,7 @@ def p_query_statement(p):
     #  ELEMENTO 0       ELEMENTO 1     ELEMENTO 2      ELEMENTO 3
     '''QUERYSTATEMENT : SELECTSTATEMENT SEMICOLON'''
     p[0] = p[1]
+    p[0]._tac = f'{p[1]._tac};'
 
 
 def p_select_statement(p):
@@ -1639,20 +1765,20 @@ def p_select_statement(p):
         [3].pop(0)
         p[3] = p[3][0]
         p[0] = Select(p[1], p[2], p[3], generateC3D(p))
-        p[0]._tac = f'{p[1]._tac} {p[2]._tac} {p[3]._tac};'
+        p[0]._tac = f'{p[1]._tac} {p[2]._tac} {p[3]._tac}'
     elif (len(p) == 3):
         if ('ORDER' in p[2]):
             p[2] = p[2][1]
             p[0] = Select(p[1], p[2], None, generateC3D(p))
-            p[0]._tac = f'{p[1]._tac} {p[2]._tac};'
+            p[0]._tac = f'{p[1]._tac} {p[2]._tac}'
         elif ('LIMIT' in p[2]):
             [2].pop(0)
             p[2] = p[2][0]
             p[0] = Select(p[1], None, p[2], generateC3D(p))
-            p[0]._tac = f'{p[1]._tac} {p[2]._tac};'
+            p[0]._tac = f'{p[1]._tac} {p[2]._tac}'
     elif (len(p) == 2):
         p[0] = Select(p[1], None, None, generateC3D(p))
-        p[0]._tac = f'{p[1]._tac};'
+        p[0]._tac = f'{p[1]._tac}'
 
 
 def p_select_without_order(p):
@@ -1728,9 +1854,9 @@ def p_selectq(p):
                 if index > 0: string += f', {var._tac}'
                 else: string += f'{var._tac}'
         if isinstance(p[5], list):
-            p[0]._tac = f'SELECT {p[2]} {string} {p[3]._tac} {p[4][0]._tac} {p[4][1]._tac}'
+            p[0]._tac = f'SELECT {p[2]} {string} {p[4]._tac} {p[5][0]._tac} {p[5][1]._tac}'
         else:
-            p[0]._tac = f'SELECT {p[2]} {string} {p[3]._tac} {p[4]._tac}'
+            p[0]._tac = f'SELECT {p[2]} {string} {p[4]._tac} {p[5]._tac}'
 
     elif len(p) == 3:
         p[0] = SelectQ(None, p[2], None, None, p.lineno(1),
@@ -1769,6 +1895,7 @@ def p_select_item(p):
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     if (len(p) == 3):
         p[1].alias = p[2].alias
+        p[1]._tac = f'{p[1]._tac} {p[2]._tac}'
         p[0] = p[1]
     elif (len(p) == 4):
         p[0] = p[2]
@@ -1909,8 +2036,15 @@ def p_limit_types(p):
 
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
+    string = ""
     p[0] = Where(p[2])
-    p[0]._tac = f'WHERE {p[2]._tac}'
+    if isinstance(p[2], list):
+        for index, var in enumerate(p[2]):
+            if hasattr(var, '_tac'):
+                string += f'{var._tac}'
+        p[0]._tac = f'WHERE {string}'
+    else:
+        p[0]._tac = f'WHERE {p[2]._tac}'
 
 def p_group_by_clause(p):
     '''GROUPBYCLAUSE : GROUP BY SQLEXPRESSIONLIST'''
@@ -1958,6 +2092,7 @@ def p_sql_expression(p):
         p[0] = LogicalOperators(
             p[1], p[2], p[3], p.lineno(2), find_column(p.slice[2]))
     elif len(p) == 3:
+        p[2]._tac = f'{p[1]} {p[2]._tac}'
         p[0] = [True, p[2]]
     else:
         p[0] = p[1]
@@ -1974,7 +2109,7 @@ def p_exists_clause(p):
     '''EXISTSCLAUSE : EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     p[0] = ExistsClause(None,  False,  p[3], p.lineno(1),
                         find_column(p.slice[1]))
-
+    p[0]._tac = f'{p[1]}{p[2]}{p[3]._tac}{p[4]}'
 
 def p_sql_relational_expression(p):
     '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION
@@ -2444,6 +2579,7 @@ def p_sql_alias(p):
                 | SQLNAME'''
     if (len(p) == 3):
         p[0] = p[2]
+        p[0]._tac = f"{p[1]} {p[2]._tac}"
     elif (len(p) == 2):
         p[0] = p[1]
 
@@ -2516,11 +2652,14 @@ def p_sql_object_reference(p):
                        | SQLNAME'''
     if (len(p) == 2):
         p[0] = ObjectReference(p[1], None, None)
+        p[0]._tac = f'{p[1]._tac}'
     elif (len(p) == 4):
         if p[3] == "*":
             p[0] = ObjectReference(p[1], p[3], None)
+            p[0]._tac = f'{p[1]._tac}{p[2]}{p[3]}'
         else:
             p[0] = ObjectReference(p[3], None, p[1])
+            p[0]._tac = f'{p[1]._tac}{p[2]}{p[3]._tac}'
 
 
 def p_list_values_insert(p):

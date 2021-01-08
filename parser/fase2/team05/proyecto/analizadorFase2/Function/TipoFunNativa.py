@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class TipoFunNativa(Enum):
     avg = 1
     sum = 2 
@@ -14,4 +15,4 @@ class TipoFunNativa(Enum):
     length = 11
     trim = 12
     trim2 = 13
-    
+    seno = 50

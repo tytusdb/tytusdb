@@ -35,7 +35,7 @@ class Pantalla_TS:
                     self.create_table(consult, "Tabla de Simbolos " + str(i))
         self.tabControl.pack()
 
-    def create_table(self, input, name):
+    def create_table(self,input,name):
         frame = Frame(self.tabControl, height=300, width=450, bg="#d3d3d3")
         # Creacion del scrollbar
         table_scroll = Scrollbar(frame, orient="vertical")

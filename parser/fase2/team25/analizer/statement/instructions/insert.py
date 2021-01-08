@@ -6,7 +6,7 @@ from analizer.typechecker.Metadata import Struct
 from analizer.typechecker import Checker
 from analizer.reports import Nodo
 from analizer.abstract import instruction
-
+from analizer.statement.functions.call import FunctionCall
 # carga de datos
 Struct.load()
 
@@ -114,3 +114,8 @@ class InsertInto(instruction.Instruction):
 
     def generate3d(self, environment, instanciaAux):
         pass
+    
+    def validaFuncionesFase2(self):
+        for parametro in self.parametros:
+            if isinstance( parametro , FunctionCall):
+                parametro.validaFuncionesFase2()

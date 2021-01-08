@@ -63,13 +63,13 @@ class Codigo3d:
 
 
 
-    def asegurarIntruccion(self, instruccion :str):
+    def asegurarIntruccion(self, instruccion :str , goToMain : bool , quitarParentesisFinal = False):
         '''Limpia de comentarios y se asegura que inicie con una palabra reservada de la fase 1 como USE , INSERT , SELECT , UPDATE '''
-        #
+        tn_previos = ''
         instruccion += "\n"
         instruccion = instruccion.lower()
         instruccion = re.sub('\-\-(.*)\n|/\*(.|\n)*?\*/' ,"",instruccion)
-        instruccion = re.sub('create\s+(function|procedure)' ,"",instruccion)# quito unos create que podrian dar problemas 
+        instruccion = re.sub('create\s+(function|procedure)' ,"",instruccion)# quito unos create que podrian dar problemas
         instruccion = instruccion[0:len(instruccion)-1]
         instruccion = instruccion.replace("\n", " ")
         lexema = ""
@@ -106,7 +106,14 @@ class Codigo3d:
             instruccionOK+=instruccion[indiceInicial]
             indiceInicial +=1
         lexema = ""
-        if tipoFuncion == "select": # EXTRAIGO LOS PARAMETROS
+        if tipoFuncion  =="(select":
+                    instruccionOK = quitarParentesisSubquery(instruccionOK)
+                    quitarParentesisFinal = False
+                    tipoFuncion ="select"
+        if tipoFuncion == "select":
+            if quitarParentesisFinal:
+                instruccionOK = quitarParentesisSubquery(instruccionOK)
+
             aux = re.sub('select' ,"",instruccionOK)
             aux =  aux.strip()
 
@@ -124,19 +131,26 @@ class Codigo3d:
             auxParams = auxParams.strip()
             parametros = mi_split(auxParams)
             parametros = quitarEspacios(parametros)
-            #BUSCO SI EXISTE UNA FUNCION NUEVA , VERIFICO SI SE DECLARO ANTES Y SI ESTA LE HAGO UN REPLACE
-            # [a-zA-Z_][a-zA-Z_0-9]*\s*[(].*[)]     PATRON PARA FUNCIONES
+
+
             patron = '[a-zA-Z_][a-zA-Z_0-9]*\s*[(].*[)]'
             for parametro in parametros:
                 if re.match(patron,parametro):
                         objPattern = re.search(patron , parametro)
                         coincidencia = objPattern.string[objPattern.span()[0] : objPattern.span()[1]]
-                        print(f'{coincidencia} es una funcion')
-                        # VERIFICO SI EXISTE EN LA ESTRUCUTRA  Y REEMPLAZO EL CODIGO 3D como un str(tn)
+                        #  Y REEMPLAZO EL CODIGO 3D como un str(tn)
                         if getOnlyId(coincidencia).upper() in funcionesDefinidas:
-                            print("ES DEFINIDA DE FASE 1")
+                            # es de la fase 1 asi que se queda normal
+                            pass
                         else:# REPLACE
-                            print("ES UNA FUNCION NUEVA")
+                                # * SI SALE TODO BIEN
+                                tn = self.getNewTemporal()
+                                salida = f'\t{tn} = {coincidencia}\n\t{tn} = RETURN[0]'
+                                if goToMain:
+                                    self.addToMain(salida)
+                                else:
+                                    tn_previos+= salida+'\n'
+                                instruccionOK = instruccionOK.replace(coincidencia,f'\"+str({tn})+\"')
 
 
         elif tipoFuncion == "insert":
@@ -167,14 +181,29 @@ class Codigo3d:
                 if re.match(patron,parametro):
                         objPattern = re.search(patron , parametro)
                         coincidencia = objPattern.string[objPattern.span()[0] : objPattern.span()[1]]
-                        print(f'{coincidencia} es una funcion')
                         # VERIFICO SI EXISTE EN LA ESTRUCUTRA  Y REEMPLAZO EL CODIGO 3D como un str(tn)
                         if getOnlyId(coincidencia).upper() in funcionesDefinidas:
-                            print("ES DEFINIDA DE FASE 1")
+                            pass # no se traduce
                         else:# REPLACE
-                            print("ES UNA FUNCION NUEVA")
+                            # * SI SALE TODO BIEN
+                            tn = self.getNewTemporal()
+                            salida = f'\t{tn} = {coincidencia}\n\t{tn} = RETURN[0]'
+                            if goToMain:
+                                self.addToMain(salida)
+                            else:
+                                tn_previos+= salida+'\n'
+                            instruccionOK = instruccionOK.replace(coincidencia,f'\"+str({tn})+\"')
+                                #va adentro de  un procedure o funcion
 
-        return instruccionOK
+        if goToMain:
+            return instruccionOK
+        else:
+            tn = self.getNewTemporal()
+            tres = self.getNewTemporal()#TEMPORAL RESULTANTE
+            instruccionOK = tn_previos +f'\t{tn} = "{instruccionOK}"'
+            instruccionOK += f'\n\tstack.push({tn})'
+            instruccionOK += f"\n\t{tres} = funcionIntermedia()"
+            return [instruccionOK,tres]
 
 
 
@@ -202,7 +231,7 @@ class Codigo3d:
         for inst in self.principal:
             cadena += (inst)
         cadena+=('\n\n\ndef funcionIntermedia():\n')
-        cadena+=("\texecution(stack.pop())\n")
+        cadena+=("\treturn execution(stack.pop())\n")
         cadena+=("principal()")
         return cadena
 
@@ -314,11 +343,43 @@ def getOnlyId(cadena)->str:
         else:
             id+=c
     return id
+def getOnlyParams(cadena)->str:
+    i = 0
+    for c in range(len(cadena)):
+        if c == '(':
+            i = c
+            break
+    x = ''
+    while(i < len(cadena)):
+        x += cadena[i]
+        i+=1
+    x.strip()
+    return x
 
+def quitarParentesisSubquery(cadena)->str:
+    try:
+        k = 0
+        i = len(cadena)-1
+        while( i >= 0):
+            if cadena[i] == ")":
+                k = i
+                print(cadena[i+1])
+                break
+            i-=1
+        if k == 0 : return cadena
+        indiceInicial = 0
+        salida = ''
+        while(indiceInicial < k):
+            salida +=cadena[indiceInicial]
+            indiceInicial +=1
+        salida += ";"
+        return salida
+    except:
+        print('NO SALIO DEL CICLO , NO SE PUDO QUITAR EL PARENTESIS DEL SUBQUERY')
+        return cadena
 
 
 # INSTANCIA PARA CONTROLAS LOS METODOS DE LA CLASE
 instancia_codigo3d = Codigo3d()
-
 #instacia auxiliar
 # instanciaAux = Codigo3d()

@@ -3,11 +3,10 @@ from sys import path
 from os.path import dirname as dir
 
 path.append(dir(path[0]))
-
-import analizer_pl.grammar as grammar
-from analizer_pl.abstract import global_env
-from analizer_pl.reports import BnfGrammar
 from analizer_pl.C3D.operations import block
+from analizer_pl.reports import BnfGrammar
+from analizer_pl.abstract import global_env
+import analizer_pl.grammar as grammar
 
 
 def traducir(input):
@@ -47,7 +46,7 @@ def traducir(input):
         "symbols": symbols,
         "functions": functions,
     }
-    #grammar.InitTree()
+    # grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -92,62 +91,85 @@ def functionsReport(env):
 
 
 s = """ 
-CREATE function foo(i integer) RETURNS integer AS $$
-declare 
-	j integer := -i + 5;
-    texto text := now();
+
+
+(SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40'));
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now();
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', now());
+SELECT now();
+select distinct  E.primernombre,primerapellido,EXTRACT(YEAR FROM fechadenacimiento) AnioNacimiento,estado
+from tbempleado E, tbestado ES 
+where ES.idestado = E.idestado;
+"""
+s2 = """
+
+CREATE FUNCTION foo(texto text, b boolean) RETURNS text AS $$
 BEGIN
-	case 
-        when i > -10 then
-            RETURN k;
-        when i < 10 then
-            RETURN texto;
-        else 
-            RETURN k;
-    end case;
+return texto;
 END;
 $$ LANGUAGE plpgsql;
 
-
-CREATE DATABASE DBFase2;
-
-USE DBFase2;
-
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+CREATE FUNCTION myFuncion(texto text, b boolean) RETURNS text AS $$
 BEGIN
-INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(foo(texto)),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',foo(md5(texto)),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',foo(md5('texto')),1);
 INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(texto),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',md5('texto'),1);
-INSERT INTO tbProducto values(1,'Laptop Lenovo',foo('texto'),1);
-	RETURN texto;
+SELECT 3-5>4 and -3=texto as sho, texto between symmetric 2 and 3 as alv;
+
+select * from tbCalificacion;
+select * from tbventa where ventaregistrada = false;
+select * from tbempleadopuesto group by departamento;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+
+
+select v.id+foo(texto, 3)
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido,fechaventa
+limit 1;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = texto
+group by 1,2,3
+order by 1;
+
+b = texto between symmetric 2 and 3;
+RETURN (3+1)*-1;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TABLE tbProducto (idproducto integer not null primary key,
-  						 producto varchar(150) not null,
-  						 fechacreacion date not null,
-						 estado integer);
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
 
-CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
+select (3+3)*5;
 
-CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
-							 item varchar(100) not null,
-							 punteo integer not null);
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = texto
+group by 1,2,3
+order by 1;
 
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-
-INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
-INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
-INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
-INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
-INSERT INTO tbProducto values(5,'WIFI USB',now(),1);
-INSERT INTO tbProducto values(6,'Laptop HP',now(),1);
-INSERT INTO tbProducto values(7,'Teclado Flexible USB',now(),1);
-INSERT INTO tbProducto values(8,'Laptop Samsung','2021-01-02',1);
 
 """
-
 
 traducir(s)
