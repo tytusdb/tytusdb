@@ -49,13 +49,13 @@ export class EditorComponent implements OnInit, OnDestroy {
   // tslint:disable-next-line:typedef
   newMessage() {
     // ------------------------
+
     this.servicio.create({query: this.get()}).subscribe((response) => {
       const body = response.body;
-      const msg = body.result.messages;
-      this.message = msg;
+      const msg = body;
+      this.data.changeMessage(msg);
     }, err => console.log(err));
     // -----------------------
-    this.data.changeMessage(this.message);
   }
 
   // tslint:disable-next-line:typedef

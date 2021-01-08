@@ -4,41 +4,6 @@ import { TableDataService } from 'src/app/service/tableData/table-data.service';
 import { ShareService } from 'src/app/service/share/share.service';
 import { Subscription } from 'rxjs';
 
-const text = '{\n' +
-  '    "ok": true,\n' +
-  '    "result": {\n' +
-  '        "lexical": [],\n' +
-  '        "messages": [\n' +
-  '            "Select ejecutado con exito."\n' +
-  '        ],\n' +
-  '        "postgres": [],\n' +
-  '        "querys": [\n' +
-  '            [\n' +
-  '                [\n' +
-  '                    "productos.nombre",\n' +
-  '                    "categoria.nombre"\n' +
-  '                ],\n' +
-  '                [\n' +
-  '                    [\n' +
-  '                        "Escoba",\n' +
-  '                        "Abarrotes"\n' +
-  '                    ],\n' +
-  '                    [\n' +
-  '                        "Set de cubiertos",\n' +
-  '                        "Abarrotes"\n' +
-  '                    ]\n' +
-  '                ]\n' +
-  '            ]\n' +
-  '        ],\n' +
-  '        "semantic": [],\n' +
-  '        "symbols": [],\n' +
-  '        "syntax": []\n' +
-  '    }\n' +
-  '}\n' +
-  '\n' +
-  '  \n';
-
-
 @Component({
   selector: 'app-data',
   templateUrl: './data.component.html',
@@ -48,7 +13,6 @@ const text = '{\n' +
 export class DataComponent implements OnInit, OnDestroy {
 
   message: string;
-  anuncio: string;
   subscription: Subscription;
 
   constructor(private servicio: TableDataService, private data: ShareService) { }
@@ -65,27 +29,24 @@ export class DataComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subscription = this.data.currentMessage.subscribe(message => this.message = message);
 
-    const obj = JSON.parse(text);
-    // tslint:disable-next-line:triple-equals
-    if (this.message != '***' && obj.result.querys != null){
-      this.anuncio = this.message;
-      this.fillData(obj);
-    }else{
-      this.anuncio = this.message;
-    }
+    // console.log(JSON.parse(this.message).result);
+    // if (obj.result.querys != null){
+    const arreglo = JSON.parse(this.message).result.querys;
+    this.headers = arreglo[0][0];
+    this.rows = arreglo[0][1];
+    // }
+
+    // if ($.isArray(siteArray)) {
+    //   if (siteArray.length) {
+    //
+    //   }
+    // }
+
   }
 
   // tslint:disable-next-line:typedef
   ngOnDestroy() {
     this.subscription.unsubscribe();
-  }
-
-  // tslint:disable-next-line:typedef variable-name
-  fillData(obj: any){
-    const arreglo = obj.result.querys;
-    this.headers = arreglo[0][0];
-    this.rows = arreglo[0][1];
-
   }
 
 }
