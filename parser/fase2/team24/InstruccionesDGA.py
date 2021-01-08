@@ -666,7 +666,7 @@ class insert(instruccion):
                 c = v.traducir()
                 c3d += '\t'+str(c[0]).replace('\n','\n\t')
                 c3d += '\n'
-                traduccion += "\"+"+str(c[1])+ "+\","
+                traduccion += "\"+str("+str(c[1])+ ")+\","
             else:
                 if isinstance(v , (int, float, complex)):
                     traduccion += str(v) + ","
@@ -1715,6 +1715,7 @@ class update(instruccion):
         self.wherecond = wherecond
 
     def traducir(self):
+        c3d = ''
         traduccion = '\t'
         traduccion += 'sql.execute("UPDATE'
         traduccion += ' ' + self.iden
@@ -1729,9 +1730,9 @@ class update(instruccion):
             traduccion += str(self.cond.tipo )
         elif isinstance(self.cond.tipo, llamadaF): 
                 c = self.cond.tipo.traducir()
-                traduccion += '\t'+str(c[0]).replace('\n','\n\t')
-                traduccion += '\n'
-                traduccion += "\"+"+str(c[1])+ "+\","
+                c3d += '\t'+str(c[0]).replace('\n','\n\t')+ '\n'
+                
+                traduccion += "\"+str("+str(c[1])+ ")+\""
         else:
             try:
                 temp = self.cond.tipo.ejecutar()
@@ -1754,8 +1755,15 @@ class update(instruccion):
                 traduccion += " '" + tempwherw.tipo + "'"
             elif isinstance(tempwherw.tipo, (int, float, complex)):
                 traduccion += ' ' + str(tempwherw.tipo)
+            elif isinstance(self.cond.tipo, llamadaF): 
+                c = self.cond.tipo.traducir()
+                c3d += '\t'+str(c[0]).replace('\n','\n\t')+ '\n'
+                
+                traduccion += "\"+str("+str(c[1])+ ")+\""
+
             if "ejecutar" in dir(self.wherecond.tipo):
-                traduccion += ' ' + str(self.wherecond.tipo.ejecutar())
+                if self.wherecond.tipo.ejecutar() != None:
+                    traduccion += ' ' + str(self.wherecond.tipo.ejecutar())
         if isinstance(tempwherw, wherecond):
             traduccion += ' ' + tempwherw.iden + ' BETWEEN'
             try:
@@ -1770,8 +1778,8 @@ class update(instruccion):
 
         traduccion += ';")'
         traduccion += '\n'
-        
-        return traduccion
+        c3d += traduccion + '\n'
+        return c3d
 
     def ejecutar(self):
         global resultadotxt
@@ -2045,7 +2053,7 @@ class IndexCreate(instruccion):
         self.createind2 = createind2
 
     def traducir(self):
-            traduccion = '\t'
+        traduccion = '\t'
         traduccion += 'sql.execute("CREATE UNIQUE INDEX ' + self.id1 + ' ON ' + self.id2 + '('
 
         if isinstance(self.createind2, createind3):
@@ -2154,7 +2162,7 @@ class IndexDrop(instruccion):
         traduccion = ''
         for x in self.listaindices:
             traduccion += '\tsql.execute("DROP INDEX ' + x + ';")'+ '\n'
-        return traduccion'
+        return traduccion
 
     def ejecutar(self):
         global resultadotxt
@@ -2178,7 +2186,7 @@ class IndexDrop(instruccion):
             print(textores)
             return textores
         except:
-            print(return "Error en " + self.tipo)
+            print("Error en " + self.tipo)
             return "Error en " + self.tipo
 
 #--------------------------------------------CLASES PARA ALTER INDICES-------------------------------------------------
