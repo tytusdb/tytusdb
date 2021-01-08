@@ -4,6 +4,7 @@ from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.PL.Return import Return
 
 class Elsif(Instruccion):
     def __init__(self, condicion, instrucciones, strGram, linea, columna):
@@ -17,9 +18,17 @@ class Elsif(Instruccion):
 
     def analizar(self, tabla, arbol):
         super().analizar(tabla,arbol)
+        retorno = None
         resultado = self.condicion.analizar(tabla,arbol)
         if not isinstance(resultado, Excepcion):
             self.tipo = resultado
+        
+        for i in self.instrucciones:
+            r = i.analizar(tabla, arbol)
+            if isinstance(r, Excepcion):
+                return None
+            if isinstance(r, Return):
+                retorno = r
         
         if resultado.tipo != Tipo_Dato.BOOLEAN:
             error = Excepcion("22023", "Semantico", "Tipo de datos incorrecto, se esperaba un valor de tipo boolean para la condición.", self.linea, self.columna)
@@ -27,6 +36,7 @@ class Elsif(Instruccion):
             arbol.consola.append(error.toString())
             return error
         
+        return retorno
         
     def traducir(self, tabla:Tabla, arbol:Arbol):
         super().traducir(tabla,arbol)

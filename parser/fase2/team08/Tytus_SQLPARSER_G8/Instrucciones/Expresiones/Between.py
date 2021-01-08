@@ -1,7 +1,7 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
-from Instrucciones.Sql_select.SelectLista import Alias
+from Instrucciones.Sql_select.Alias import Alias
 import time
 import numpy as np
 
@@ -146,3 +146,9 @@ class Between(Instruccion):
                 arbol.excepciones.append(error)
                 arbol.consola.append(error.toString())
                 return error
+
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+
+    def traducir(self, tabla, arbol):
+        return super().traducir(tabla, arbol)

@@ -1,10 +1,11 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo 
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 import datetime
 
 class Extract(Instruccion):
     def __init__(self, tiempo, caracter, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+        Instruccion.__init__(self,Tipo(Tipo_Dato.INTEGER),linea,columna,strGram)
         self.tiempo = tiempo
         self.caracter = caracter
 
@@ -32,11 +33,10 @@ class Extract(Instruccion):
             year = date.year
             return year
 
-    def analizar(self, ts, arbol):
-        pass
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
     def traducir(self, ts, arbol):
-        #self.tiempo = tiempo
-        #self.caracter = caracter
+        super().traducir(ts, arbol)
         cadena = f"EXTRACT ( {self.tiempo} "
 
         cadena += "FROM TIMESTAMP "

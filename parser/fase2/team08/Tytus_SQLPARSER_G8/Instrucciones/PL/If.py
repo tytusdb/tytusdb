@@ -4,6 +4,7 @@ from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.PL.Return import Return
 
 class If(Instruccion):
     def __init__(self, condicion, instrucciones, l_if, instrucciones_else, strGram, linea, columna):
@@ -19,6 +20,7 @@ class If(Instruccion):
 
     def analizar(self, tabla, arbol):
         super().analizar(tabla,arbol)
+        retorno = None
         resultado = self.condicion.analizar(tabla,arbol)
         if not isinstance(resultado, Excepcion):
             self.tipo = resultado
@@ -26,40 +28,72 @@ class If(Instruccion):
         # If
         if len(self.l_if) == 0 and len(self.instrucciones_else) == 0:
             for i in self.instrucciones:
-                i.analizar(tablaLocal, arbol)
+                r = i.analizar(tablaLocal, arbol)
+                if isinstance(r, Excepcion):
+                    return None
+                if isinstance(r, Return):
+                    retorno = r
         # If - Else            
         elif len(self.l_if) == 0 and len(self.instrucciones_else) != 0:
             for i in self.instrucciones:
-                i.analizar(tablaLocal, arbol)
+                r = i.analizar(tablaLocal, arbol)
+                if isinstance(r, Excepcion):
+                    return None
+                if isinstance(r, Return):
+                    retorno = r
 
             for i in self.instrucciones_else:
-                i.analizar(tablaLocal, arbol)
+                r = i.analizar(tablaLocal, arbol)
+                if isinstance(r, Excepcion):
+                    return None
+                if isinstance(r, Return):
+                    retorno = r
         # If ... Elsif
         elif len(self.l_if) > 0 and len(self.instrucciones_else) == 0:
             for i in self.instrucciones:
-                i.analizar(tablaLocal, arbol)
+                r = i.analizar(tablaLocal, arbol)
+                if isinstance(r, Excepcion):
+                    return None
+                if isinstance(r, Return):
+                    retorno = r
 
             for elseif in self.l_if:
-                elseif.analizar(tablaLocal, arbol)
+                r = elseif.analizar(tablaLocal, arbol)
+                if isinstance(r, Excepcion):
+                    return None
+                if isinstance(r, Return):
+                    retorno = r
                 
         # If ... Elsif ... Else
         elif len(self.l_if) > 0 and len(self.instrucciones_else) > 0:
             for i in self.instrucciones:
-                i.analizar(tablaLocal, arbol)
+                r = i.analizar(tablaLocal, arbol)
+                if isinstance(r, Excepcion):
+                    return None
+                if isinstance(r, Return):
+                    retorno = r
 
             for elseif in self.l_if:
-                elseif.analizar(tablaLocal, arbol)
+                r = elseif.analizar(tablaLocal, arbol)
+                if isinstance(r, Excepcion):
+                    return None
+                if isinstance(r, Return):
+                    retorno = r
 
             for i in self.instrucciones_else:
-                i.analizar(tablaLocal, arbol)
-        
+                r = i.analizar(tablaLocal, arbol)
+                if isinstance(r, Excepcion):
+                    return None
+                if isinstance(r, Return):
+                    retorno = r
         
         if resultado.tipo != Tipo_Dato.BOOLEAN:
             error = Excepcion("22023", "Semantico", "Tipo de datos incorrecto, se esperaba un valor de tipo boolean para la condición.", self.linea, self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
-        
+
+        return retorno
         
     def traducir(self, tabla:Tabla, arbol:Arbol):
         super().traducir(tabla,arbol)

@@ -25,8 +25,9 @@ class Primitivo(Instruccion):
             else:
                 retorno.temporalAnterior = "0"
             return retorno
+        self.valor = str(self.valor).replace("\"","\\\"")
         if self.tipo.tipo == Tipo_Dato.CHAR:
-            retorno.temporalAnterior = f"'{self.valor}'"
+            retorno.temporalAnterior = f"\'{self.valor}\'"
             return retorno
         elif self.tipo.tipo == Tipo_Dato.TEXT:
             retorno.temporalAnterior = f"\'{self.valor}\'"
