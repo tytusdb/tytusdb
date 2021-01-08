@@ -71,17 +71,16 @@ def DataQuery():
     if response.status == 200:       
         data = response.read()
         result = data.decode("utf-8")
-        
         dividir= result.replace("{\"consola\": \"","")
         dividir1=dividir.replace("\"}","")
         dividir2=str(str(dividir1).replace("\\n","\n")).replace(".",".\n")
         print(dividir2)
         consola.config(state=NORMAL)
-        consola.insert(INSERT,dividir2)
+        consola.insert(INSERT,"\n\n"+dividir2)
         consola.config(state=DISABLED)
     else:
         consola.config(state=NORMAL)
-        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.insert(INSERT,"\nERROR EN RESPUESTA.")
         consola.config(state=DISABLED)
     myConnection.close()
 
