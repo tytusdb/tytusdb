@@ -95,7 +95,7 @@ class select(query):
         insertarS(Nuevoselect)
         serialaizer()
         traduccion = '\t'
-        traduccion += 'sql.execute(SELECT * FROM temp)'
+        traduccion += 'sql.execute(\'SELECT * FROM temp\')\n'
         print(traduccion)
         return traduccion
 

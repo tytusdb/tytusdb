@@ -7,7 +7,7 @@ from InstruccionesDGA import tabla as ts
 f = open("entrada.txt", "r")
 a = open("c3d.py", "w")
 
-a.write('''from InstruccionesDGA import tabla as ts
+a.write('''
 from datetime import date
 from variables import tabla as ts
 from variables import NombreDB 
@@ -37,7 +37,7 @@ res =''
     #executeGraphTree(raiz)
 for val in raiz:
     
-    res += val.traducir()
+    res += val.traducir(ts)
 
     
     #pass
@@ -45,9 +45,11 @@ a.write(res)
 a.write('\tsql.execute(\'3D\')\n\n')
 a.write('\tgraphTable(ts)\n')
 for fa in g.funciones:
-   
+       
    a.write(fa)
 
 a.write('''ejecutar()''')
 a.close()
-#graphTable(ts)
+
+
+
