@@ -25,7 +25,7 @@ class If(Instruccion):
             #Inicia traduccion
             codigo = expresion_logica.codigo
 
-            codigo += "\t\tlabel " + expresion_logica.etiquetaV + "\n"
+            codigo += "\tlabel " + expresion_logica.etiquetaV.replace(":","") + "\n"
             for i in self.instrucciones:
                 instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
                 if isinstance(instruccion_if, Excepcion):
@@ -33,12 +33,11 @@ class If(Instruccion):
                 codigo += instruccion_if
             
             if cadenaTraducida == "":
-                codigo += "\t\tlabel " + expresion_logica.etiquetaF + "\n"
+                codigo += "\tlabel " + expresion_logica.etiquetaF.replace(":","") + "\n"
             else:
                 #cadenaTraducida traera la etiqueta de salida si es un elsif
-                codigo += "\t\tgoto " + cadenaTraducida + "\n"
-                codigo += "\t\tlabel " + expresion_logica.etiquetaF + "\n"
-            print(codigo)
+                codigo += "\tgoto " + cadenaTraducida + "\n"
+                codigo += "\tlabel " + expresion_logica.etiquetaF.replace(":","") + "\n"
             return codigo
             #   ...
             #   if temporal_logico:
@@ -80,22 +79,22 @@ class Ifelse(Instruccion):
 
             etiquetaSalida = arbol.generaEtiqueta()
 
-            codigo += "\t\tlabel " + expresion_logica.etiquetaF + "\n"
+            codigo += "\tlabel " + expresion_logica.etiquetaF.replace(":","") + "\n"
             for inst in self.instrIfFalso:
                 instruccion_ifFalso = inst.traducir(tabla, arbol,cadenaTraducida)
                 if isinstance(instruccion_ifFalso, Excepcion):
                     return instruccion_ifFalso
                 codigo += instruccion_ifFalso
             
-            codigo += "\t\tgoto ." + etiquetaSalida + "\n"
-            codigo += "\t\tlabel " + expresion_logica.etiquetaV + "\n"
+            codigo += "\tgoto ." + etiquetaSalida + "\n"
+            codigo += "\tlabel " + expresion_logica.etiquetaV.replace(":","") + "\n"
             for i in self.instrIfVerdadero:
                 instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
                 if isinstance(instruccion_if, Excepcion):
                     return instruccion_if
                 codigo += instruccion_if
             
-            codigo += "\t\tlabel ." + etiquetaSalida + "\n"
+            codigo += "\tlabel ." + etiquetaSalida + "\n"
             return codigo
             #   ...
             #   if temporal_logico
@@ -139,7 +138,7 @@ class IfElseIf(Instruccion):
             #Inicia traduccion
             etiquetaSalida = arbol.generaEtiqueta()
             codigo = expresion_logica.codigo
-            codigo += "\t\tlabel " + expresion_logica.etiquetaF + "\n"
+            codigo += "\tlabel " + expresion_logica.etiquetaF.replace(":","") + "\n"
 
             #Sentencias elseif
             for s_if in self.l_elseif:
@@ -148,8 +147,8 @@ class IfElseIf(Instruccion):
                     return sentencia_if
                 codigo += sentencia_if
             #Label si el primer if es verdadero
-            codigo += "\t\tgoto " + etiquetaSalida + "\n"
-            codigo += "\t\tlabel " + expresion_logica.etiquetaV + "\n"
+            codigo += "\tgoto " + etiquetaSalida + "\n"
+            codigo += "\tlabel " + expresion_logica.etiquetaV.replace(":","") + "\n"
             #instrucciones if principal
             for i in self.instrIfVerdadero:
                 instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
@@ -157,7 +156,7 @@ class IfElseIf(Instruccion):
                     return instruccion_if
                 codigo += instruccion_if
             
-            codigo += "\t\tlabel " + etiquetaSalida + "\n"
+            codigo += "\tlabel " + etiquetaSalida + "\n"
             return codigo
             #   ...
             #   if temporal_logico:
@@ -211,7 +210,7 @@ class IfElseIfElse(Instruccion):
             #Inicia traduccion
             codigo = expresion_logica.codigo
             etiquetaF = arbol.generaEtiqueta()
-            codigo += "\t\tlabel " + expresion_logica.etiquetaF + "\n"
+            codigo += "\tlabel " + expresion_logica.etiquetaF.replace(":","") + "\n"
             #Sentencias elseif
             for s_if in self.l_elseif:
                 sentencia_if = s_if.traducir(tabla,arbol,etiquetaF)
@@ -225,9 +224,9 @@ class IfElseIfElse(Instruccion):
                     return instruccion_falsa
                 codigo += instruccion_falsa     
             
-            codigo += "\t\tgoto " + etiquetaF + "\n"
+            codigo += "\tgoto " + etiquetaF + "\n"
             #Label si el primer if es verdadero
-            codigo += "\t\tlabel " + expresion_logica.etiquetaV + "\n"
+            codigo += "\tlabel " + expresion_logica.etiquetaV.replace(":","") + "\n"
             #instrucciones if principal
             for i in self.instrIfVerdadero:
                 instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
@@ -235,7 +234,7 @@ class IfElseIfElse(Instruccion):
                     return instruccion_if
                 codigo += instruccion_if
 
-            codigo += "\t\tlabel " + etiquetaF + "\n"
+            codigo += "\tlabel " + etiquetaF + "\n"
             return codigo
             #   ...
             #   if temporal_logico:

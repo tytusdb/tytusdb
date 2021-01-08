@@ -83,7 +83,59 @@ def reporte_tabla(tabla, tablasimbolos):
         cadena += "<td><center> - </center></td>\n"
         cadena += "<td><center>" + s.columnas + "</center></td>\n"
         cadena += "</tr>\n"
-        contador += 1    
+        contador += 1
+    
+    for f in tablasimbolos.funciones:
+        params = ""
+        if f.parametros is not None:
+            contadorParametros = 0
+            for par in f.parametros[:-1]:
+                if par == "$":
+                    params += "S" + str(contadorParametros) + ","
+                else:
+                    params += par + ","
+                contadorParametros = contadorParametros + 1
+            
+            if f.parametros[-1] == "$":
+                params += "S" + str(contadorParametros)
+            else:
+                params += f.parametros[-1]
+        cadena += "<tr>\n"
+        cadena += "<td><center>" + str(contador) + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + f.id + "</center></td>\n"
+        cadena += "<td><center>" + f.tipo + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + params + "</center></td>\n"
+        cadena += "</tr>\n"
+        contador += 1
+    
+    for p in tablasimbolos.procedimientos:
+        params = ""
+        if p.parametros is not None:
+            contadorParametros = 0
+            for par in p.parametros[:-1]:
+                if par == "$":
+                    params += "S" + str(contadorParametros) + ","
+                else:
+                    params += par + ","
+                contadorParametros = contadorParametros + 1
+            
+            if p.parametros[-1] == "$":
+                params += "S" + str(contadorParametros)
+            else:
+                params += p.parametros[-1]
+        cadena += "<tr>\n"
+        cadena += "<td><center>" + str(contador) + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + p.id + "</center></td>\n"
+        cadena += "<td><center>" + p.tipo + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + params + "</center></td>\n"
+        cadena += "</tr>\n"
+        contador += 1
     
     cadena += "</table>\n"
     cadena += "</body>\n"

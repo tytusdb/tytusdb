@@ -25,7 +25,7 @@ class Case(Instruccion):
             if isinstance(condicion_case, Excepcion):
                 return condicion_case
             codigo += condicion_case
-        codigo += "\t\tlabel " + etiquetaSalida + "\n"
+        codigo += "\tlabel ." + etiquetaSalida + "\n"
         return codigo
         
 class condicion_case(Instruccion):
@@ -50,14 +50,14 @@ class condicion_case(Instruccion):
             codigo = expresion_logica.codigo
             etiquetaSalida = cadenaTraducida
             
-            codigo += "\t\tlabel " + expresion_logica.etiquetaV[:-1] + "\n"
+            codigo += "\tlabel " + expresion_logica.etiquetaV.replace(":","") + "\n"
             for i in self.instrucciones:
                 instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
                 if isinstance(instruccion_if, Excepcion):
                     return instruccion_if
                 codigo += instruccion_if
-            codigo += "\t\tgoto " + etiquetaSalida + "\n"
-            codigo += "\t\tlabel " + expresion_logica.etiquetaF[:-1] + "\n"
+            codigo += "\tgoto ." + etiquetaSalida + "\n"
+            codigo += "\tlabel " + expresion_logica.etiquetaF.replace(":","") + "\n"
             return codigo
             #   ...
             #   if temporal_logico:
@@ -104,7 +104,7 @@ class CaseElse(Instruccion):
             if isinstance(instruccion_if, Excepcion):
                 return instruccion_if
             codigo += instruccion_if
-        codigo += "\t\tlabel " + etiquetaSalida + "\n"
+        codigo += "\tlabel " + etiquetaSalida + "\n"
         return codigo
 
 class CaseID(Instruccion):
@@ -124,7 +124,7 @@ class CaseID(Instruccion):
 
     def traducir(self, tabla, arbol,cadenaTraducida):
         temporal = arbol.generaTemporal()
-        codigo = "\t\t" + temporal + " = " + self.identificador + "\n"
+        codigo = "\t" + temporal + " = " + self.identificador + "\n"
         etiquetaSalida = arbol.generaEtiqueta()
         #Si existe algun error en la condicion se devuelve el error
         for condicion in self.l_condiciones:
@@ -132,7 +132,7 @@ class CaseID(Instruccion):
             if isinstance(condicion_case, Excepcion):
                 return condicion_case
             codigo += condicion_case
-        codigo += "\t\tlabel ." + etiquetaSalida + "\n"
+        codigo += "\tlabel ." + etiquetaSalida + "\n"
         return codigo
 
 
@@ -163,18 +163,18 @@ class condicion_caseID(Instruccion):
             etiquetaV = arbol.generaEtiqueta()
             etiquetaF = arbol.generaEtiqueta()
             etiquetaSalida = cadenaTraducida
-            codigo += "\t\tif (" + temporal + "==" + expresion_logica.temporal + "):\n"
-            codigo += "\t\t\tgoto ." + etiquetaV + "\n"
-            codigo += "\t\tgoto ." + etiquetaF + "\n"
-            codigo += "\t\tlabel ." + etiquetaV + "\n"
+            codigo += "\tif (" + temporal + "==" + expresion_logica.temporal + "):\n"
+            codigo += "\t\tgoto ." + etiquetaV + "\n"
+            codigo += "\tgoto ." + etiquetaF + "\n"
+            codigo += "\tlabel ." + etiquetaV + "\n"
             for i in self.instrucciones:
                 instruccion_if = i.traducir(tabla, arbol,cadenaTraducida)
                 if isinstance(instruccion_if, Excepcion):
                     return instruccion_if
                 codigo += instruccion_if
 
-            codigo += "\t\tgoto ." + etiquetaSalida + "\n"
-            codigo += "\t\tlabel ." + etiquetaF + "\n"
+            codigo += "\tgoto ." + etiquetaSalida + "\n"
+            codigo += "\tlabel ." + etiquetaF + "\n"
             
         return codigo
         #   ...
@@ -205,7 +205,7 @@ class CaseIDElse(Instruccion):
 
     def traducir(self, tabla, arbol,cadenaTraducida):
         temporal = arbol.generaTemporal()
-        codigo = "\t\t" + temporal + " = " + self.identificador + "\n"
+        codigo = "\t" + temporal + " = " + self.identificador + "\n"
         etiquetaSalida = arbol.generaEtiqueta()
         #Si existe algun error en la condicion se devuelve el error
         for condicion in self.l_condiciones:
@@ -218,5 +218,5 @@ class CaseIDElse(Instruccion):
             if isinstance(instruccion_if, Excepcion):
                 return instruccion_if
             codigo += instruccion_if
-        codigo += "\t\tlabel ." + etiquetaSalida + "\n"
+        codigo += "\tlabel ." + etiquetaSalida + "\n"
         return codigo

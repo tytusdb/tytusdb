@@ -10,13 +10,14 @@ class Funcion(Instruccion):
         self.instrucciones = instrucciones
 
     def ejecutar(self, tabla, arbol):
-        tabla.setFuncion(self)
+        tabla.setFuncion(self, arbol)
 
     def traducir(self,tabla,arbol,cadenaTraducida):
+        tabla.setFuncion(self, arbol)
         codigo = ""
 
         #Se declara la funcion con el nombre
-        codigo += "\tdef " + self.id + "(self,"
+        codigo += "\tdef " + self.id + "("
 
         #Se añaden los parametros si es que estos existen
         if self.parametros is not None:
@@ -34,14 +35,15 @@ class Funcion(Instruccion):
                 codigo += self.parametros[-1]
 
 
-        codigo += "):\n\n"
+        codigo += "):\n"
 
         #Se agregan las declaraciones
-        for dec in self.declaraciones:
-            codigo += dec.traducir(tabla,arbol,cadenaTraducida) + "\n"
+        if self.declaraciones is not None:
+            for dec in self.declaraciones:
+                codigo += dec.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
 
         #Se agrega todo el contenido de las instrucciones traducido a 3D
         for ins in self.instrucciones:
-            codigo += ins.traducir(tabla,arbol,cadenaTraducida) + "\n"
+            codigo += ins.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
 
         return codigo

@@ -10,6 +10,7 @@ from Instrucciones.Sql_select import SelectLista
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 import numpy as np
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 
 class Select(Instruccion):
                        #dist  tipo  lcol  lcol  linners where lrows
@@ -387,9 +388,10 @@ class Select(Instruccion):
 
     def traducir(self,tabla,arbol,cadenaTraducida):
         temporal = arbol.generaTemporal()
-        codigo = "\t\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
-        codigo += "\t\tself.mensaje += FuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
-        return codigo
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = FuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return Simbolo3d(Tipo("",Tipo_Dato.INTEGER), temporal, codigo, None, None)
 
 
 '''

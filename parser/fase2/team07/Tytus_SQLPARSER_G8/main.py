@@ -21,7 +21,9 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from storageManager.jsonMode import *
 
 from Codigo_3D import FuncionesPara3D
-#from Codigo_3D import Codigo3D
+from Codigo_3D import Optimizacion
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
+
 
 import sintactico
 
@@ -89,6 +91,7 @@ class interfaz():
         menu3d = Menu(menu,tearoff=0)
         menu3d.add_command(label='Traducir C3D', command=self.traducirc3d_click)
         menu3d.add_command(label='Ejecutar C3D', command=self.ejecutarc3d_click)
+        menu3d.add_command(label='Optimizar C3D', command=self.optimizarc3d_click)
         menu.add_cascade(label='3 Direcciones', menu=menu3d)
         self.window.config(menu=menu)
 
@@ -122,7 +125,9 @@ class interfaz():
         self.file=""
 
         self.window.mainloop()
-
+    
+    def optimizarc3d_click():
+        pass
 
     def ejecutar(self):
         print("Hello World!")
@@ -156,8 +161,11 @@ class interfaz():
         arbol = Arbol(inst)
         resultado = ""
         for i in arbol.instrucciones:
-            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
-            resultado += i.traducir(tablaGlobal,arbol,"")
+            res = i.traducir(tablaGlobal,arbol,"")
+            if isinstance(res, Simbolo3d):
+                resultado += res.codigo
+            else:
+                resultado += res
 
         FuncionesPara3D.FuncionesPara3D.GenerarArchivo(resultado)
         tablaSym = tablaGlobal
@@ -179,10 +187,18 @@ class interfaz():
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(3,\"David\");")
         FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("SELECT * FROM persona;")'''
 
-        #c3d = Codigo3D.Codigo3D()
+        from Codigo_3D import Codigo3D
         #c3d.ejecutar()
-        
-        #self.txtsalida[self.tab.index("current")].insert(INSERT,c3d.mensaje)
+        mensaje = ""
+        for m in FuncionesPara3D.arbol.consola:
+            mensaje += m + '\n'
+        self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+        pass
+
+    def optimizarc3d_click(self):
+        op = Optimizacion.Optimizacion()
+        op.Optimizar()
+        op.GenerarReporte()
         pass
 
     def abrir_click(self):
@@ -224,7 +240,8 @@ class interfaz():
         # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
         global arbol
         global tablaSym
-        rs.crear_tabla(arbol, tablaSym)  
+        
+        rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)  
         arbol = None         
 
     def ast_click(self):

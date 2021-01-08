@@ -15,6 +15,8 @@ global arbol
 arbol = Arbol(None)
 global tablaGlobal
 tablaGlobal = Tabla(None)
+global valores
+valores = []
 
 class FuncionesPara3D():
 
@@ -32,11 +34,8 @@ class FuncionesPara3D():
         cont = "from Codigo_3D.FuncionesPara3D import FuncionesPara3D\n\n"
         
         cont += "class Codigo3D():\n\n"
+        cont += "\tmensaje = \"\"\n"
 
-        cont += "\tdef __init__(self):\n"
-        cont += "\t\tself.mensaje = \"\" \n\n"
-
-        cont += "\tdef ejecutar(self):\n\n"
         #Se esribe el codigo traducido
         cont += codigo
         
@@ -46,6 +45,7 @@ class FuncionesPara3D():
     def ejecutarsentecia(sentecia):
         global arbol
         global tablaGlobal
+        global valores
         #Elimina el Contenido de txtsalida
         #Inserta "Archivo Analizado" en txtsalida
         #self.txtsalida[self.tab.index("current")].insert(INSERT,"Archivo Analizado")
@@ -72,7 +72,10 @@ class FuncionesPara3D():
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
         # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
         mensaje = ''
-        for m in arbol.consola:
-            mensaje += m + '\n'
-        print(mensaje)
-        return mensaje
+        
+        mensaje += arbol.consola[-1] + '\n'
+        valores = arbol.valoresActuales
+        if "SELECT" in str.upper(sentecia):
+            return valores[0][0]
+        else:
+            return mensaje
