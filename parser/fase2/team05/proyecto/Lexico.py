@@ -5501,7 +5501,10 @@ def p_VALORFCotd(t):
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFSin(t):
-    'VALORF  :   SIN PABRE LNUMF PCIERRA '
+    'VALORF  :   SIN PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.seno, t[3].getInstruccion()), NodoAST("SIN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFSind(t):
