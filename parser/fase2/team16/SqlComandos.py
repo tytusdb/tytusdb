@@ -1535,3 +1535,9 @@ class SqlComandos:
         ob: DropIndice = objeto
         Cadenita = " DROP INDEX " + ob.id_indice + " ;  "
         return Cadenita
+
+    def Grafo_Count(self, objeto):
+        ob: ProcesoCount = objeto
+        Cadenita = "COUNT ("+ob.Columna+")"
+
+        return Cadenita

@@ -3550,3 +3550,16 @@ class Ast2:
         self.inc()
         dot.node('Node' + str(self.i), ob.id_indice + " ;  ")
         dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def Grafo_Count(self, objeto, padre):
+            global dot
+            ob: ProcesoCount = objeto
+
+            self.inc()
+            nuevoPadre = self.i
+            dot.node('Node' + str(self.i), "COUNT")
+            dot.edge(padre, 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), "COUNT ("+ ob.Columna + ")")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
