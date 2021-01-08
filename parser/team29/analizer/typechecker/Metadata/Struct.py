@@ -19,6 +19,7 @@ def load():
 
 
 def createDatabase(name, mode, owner):
+    load()
     database = {}
     database["name"] = name
     database["mode"] = mode
@@ -29,7 +30,7 @@ def createDatabase(name, mode, owner):
 
 
 def alterDatabaseRename(databaseOld, databaseNew):
-
+    load()
     for data in Databases:
         if data["name"] == databaseOld:
             data["name"] = databaseNew
@@ -40,6 +41,7 @@ def alterDatabaseRename(databaseOld, databaseNew):
 
 # TODO: Establecer los parametros CURRENT_USER and SESSION_USER
 def alterDatabaseOwner(database, ownerNew):
+    load()
     if ownerNew == "CURRENT_USER" or ownerNew == "SESSION_USER":
         ownerNew = "root"
 
@@ -52,6 +54,7 @@ def alterDatabaseOwner(database, ownerNew):
 
 
 def dropDatabase(name):
+    load()
     element = {}
     for data in Databases:
         if data["name"] == name:
@@ -113,6 +116,7 @@ def createTable(dbName, tableName, inherits):
 
 
 def alterTable(dbName, tableOld, tableNew):
+    load()
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -122,6 +126,7 @@ def alterTable(dbName, tableOld, tableNew):
 
 
 def dropTable(dbName, tableName):
+    load()
     tbl = {}
     for db in Databases:
         if db["name"] == dbName:
@@ -136,6 +141,7 @@ def dropTable(dbName, tableName):
 
 
 def extractTable(dbName, tableName):
+    load()
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -143,7 +149,7 @@ def extractTable(dbName, tableName):
                     return table
             Error.append("Tabla no encontrada")
             return 1
-    Error.append("Dase de datos no encontrada")
+    Error.append("Base de datos no encontrada")
     return 0
 
 
@@ -218,6 +224,7 @@ def setColumn(table, name, value):
 
 
 def alterType(table, name, value):
+    load()
     for column in table["columns"]:
         if column["name"] == name:
             if column["type"] == "TEXT":
@@ -269,6 +276,7 @@ def extractColumns(database, table):
 
 
 def extractPKIndexColumns(database, table):
+    load()
     lst = []
     for db in Databases:
         if db["name"] == database:
@@ -299,6 +307,7 @@ def getValue(nameTemp, colNames, values, dafault):
 
 
 def getValues(table, colNames, params):
+    load()
     List = []
 
     if colNames == None:
@@ -504,6 +513,7 @@ def getIndex(dbName, tableName, colName):
 
 
 def createType(exist, name, list_):
+    load()
     if existType(name):
         if exist:
             return "Type no insertado"

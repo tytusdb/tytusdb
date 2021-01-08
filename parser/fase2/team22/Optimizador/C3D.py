@@ -17,6 +17,8 @@ class OP_RELACIONAL(Enum) :
     IGUAL = 5
     DIFERENTE = 6
 
+aritmetico = {'SUMA': '+', 'RESTA': '-', 'MULTIPLICACION': '*', 'DIVISION': '/', 'MODULO': '%', 'POTENCIA': '^'}
+
 class Identificador:
     def __init__(self, nombre):
         self.Id = nombre #Si hay variables o temporales, se utiizará esto para almacenarla.
@@ -31,6 +33,9 @@ class Identificador:
         (esto solo es una sugerencia, si es necesario cambiarlo, o eliminarlo es factible.)
         '''
 
+    def __str__(self):
+        return self.Id
+
 class Valor:
     def __init__(self, valor, tipo):
         self.Valor = valor #Valor contenido 
@@ -43,6 +48,45 @@ class Valor:
         Para 6 -> Valor = 6, Tipo = ENTERO
         Para 1.5 -> Valor = 1.5, Tipo = DECIMAL
         '''
+
+    def __str__(self):
+        return str(self.Valor)
+
+class ValorLista:
+    def __init__(self, valor):
+        self.Valor = valor
+        '''
+        Ejemplo:
+        t1 = [var]
+        ValorLista(Identificador('var'))
+        '''
+    
+    def __str__(self):
+        return str('[' + str(self.Valor) + ']')
+
+class ListaPosicion:
+    def __init__(self, id, posicion):
+        self.Id = id
+        self.Posicion = posicion
+        '''
+        Ejemplo:
+        heap[t1] = 'esto'
+        ListaPosicion(Identificador('heap'), Identificador('t1'))
+        '''
+    def __str__(self):
+        return str(str(self.Id) + '[' + str(self.Posicion) + ']')
+
+class LlamFuncion:
+    def __init__(self, id):
+        self.Id = id
+        '''
+        Ejemplo:
+        call_insert_table()
+        LlamFuncion(Identificador('call_insert_table'))
+        '''
+    
+    def __str__(self):
+        return str(str(self.Id) + '()')
 
 class Operacion:
     def __init__(self, op1, op2, operador):
@@ -60,6 +104,9 @@ class Operacion:
         t3 = t2 * t1
         t4 = t3 / t1
         '''
+
+    def __str__(self):
+        return str(self.Op1) + " " + aritmetico[self.Operador.name] + " " + str(self.Op2)
 
 class Condicion:
     def __init__(self, op1, op2, operador):
@@ -80,7 +127,7 @@ class Condicion:
 
 class Asignacion:
     def __init__(self, asignado, valor):
-        self.Tx = asignado #Este será el temporal o variable que almacenará lo que valor contenga
+        self.Tx = asignado #Este será el temporal, variable o Arreglo que almacenará lo que valor contenga
         self.Valor = valor #Esto puede variar, puede ser un id, un valor, una operación o una condicion
         '''
         Ejemplo:
@@ -95,8 +142,26 @@ class Asignacion:
         En este caso Tx = t1 y Valor = Operacion(t2, 4, OP_ARITMETICA.MULTIPLICACION)
         t1 = 'valor'
         Instruccion = Asignacion(Identificador('t1'), Valor('valor', cadena))
+        stack[p] = "Hola"
+        Instruccion = Asignacion(Arreglo(Identificador("stack"), Identificador("p")), Valor("Hola", "STRING"))
         t1 = h[0]
         '''
+
+    def __str__(self):
+        return str(self.Tx) + " = " + str(self.Valor)
+
+class Arreglo:
+    def __init__(self, identificador, posicion):
+        self.Identificador = identificador #Identificador del arreglo
+        self.Posicion = posicion #Posicion que ocupa (puede ser un Identificador o Valor)
+        '''
+        Ejemplo:
+        stack[p] = "Hola"
+        Arreglo(Identificador("stack"), Identificador("p"))
+        '''
+
+    def __str__(self):
+        return str(self.Identificador) + "[" + str(self.Posicion) + "]"
 
 class Etiqueta:
     def __init__(self, etiqueta):

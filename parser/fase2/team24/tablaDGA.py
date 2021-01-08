@@ -22,6 +22,8 @@ class TIPO(Enum) :
     INTERVAL = 19
     BOOLEAN = 20
     TUPLA = 21
+    FUNCTION = 22
+    INDICE = 23
 
 class Simbolo() :
     #id = identificador numerico unico por simbolo
@@ -36,7 +38,22 @@ class Simbolo() :
     #nullcol = columna null(FALSE) o not null(TRUE)
     #constcol = constraint de columna
     #numcol = Numero de la columna dentro de la tabla
-    def __init__(self, id, nombre, tipo, ambito, coltab=0, tipocol="", llavecol=0, refcol="", defcol="", nullcol=False, constcol="",numcol=0,registro=[]) :
+    #registro
+    ######################
+    ##plpgsql####
+    ######
+    #valor =  valor de la variable
+    #collate  = coleccion a la que pertenece la variable
+    #notnull =  Puede ser null esa variable
+    #------------------PARA INDICES--------------------------------
+    #uniqueind = Sirve para indicar si el indice es unico
+    #tablaind = Nombre de tabla a la cual se aplica el indice
+    #tipoind = tipo de indice
+    #ordenind = orden del indice
+    #columnaind = columna del indice
+    #indicesind = indices que afectan al indice
+    #listacolind = mismos elementos que columnaind pero en una lista
+    def __init__(self, id="", nombre="", tipo=None, ambito=0, coltab="", tipocol=None, llavecol="", refcol="", defcol="", nullcol="", constcol=0,numcol=0,registro="",valor=None, collate="",notnull=False,constant= False, uniqueind="", tablaind = "", tipoind="", ordenind="", columnaind = "", indicesind = "", listacolind = ""):
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -50,6 +67,18 @@ class Simbolo() :
         self.constcol = constcol
         self.numcol = numcol
         self.registro = registro
+        self.valor = valor
+        self.collate = collate
+        self.constant = constant
+        self.notnull = notnull
+        self.uniqueind = uniqueind
+        self.tablaind = tablaind
+        self.tipoind = tipoind
+        self.ordenind = ordenind
+        self.columnaind = columnaind
+        self.indicesind = indicesind
+        self.listacolind = listacolind
+
 
 class Tabla() :
     
@@ -61,9 +90,19 @@ class Tabla() :
     
     def obtener(self, id) :
         if not id in self.simbolos :
-            print('(obtener)Error: variable ', id, ' no definida.')
+            print('Error: variable ', id, ' no definida.')
+            return None
 
         return self.simbolos[id]
+
+    def getVariable(self,name):
+        for s in self.simbolos.values():
+            if s.nombre == name:
+                if s.tipo == TIPO.FUNCTION or s.tipo == TIPO.DATABASE or s.tipo == TIPO.TABLE or s.tipo == TIPO.COLUMN or s.tipo == TIPO.INDICE or s.tipo == TIPO.TUPLA:
+                    continue
+                return s.valor
+        return None
+
 
     def BuscarNombre(self, nombre) :
         for simbolo in self.simbolos:
@@ -151,3 +190,97 @@ class Tabla() :
             if simbolo.tipo == TIPO.COLUMN and simbolo.ambito == idtable:
                 columns.append(simbolo.nombre)
         return columns 
+
+    def buscarIDTB(self,nombre): 
+        #Buscamos el ambito de la DB
+        iddb = -1
+        for simbolo in self.simbolos.values():  
+            
+            if simbolo.nombre == nombre and simbolo.tipo == TIPO.DATABASE : 
+                iddb = simbolo.id
+                return iddb
+        
+        return iddb
+
+    def buscarIDF(self):
+
+        idf = -1
+
+        for simbolo in reversed(self.simbolos.items()):
+            if simbolo[1].tipo == TIPO.FUNCTION:
+                return simbolo[1].id
+
+        return idf
+
+
+
+    def isFunc(self,ide):
+        for simbolo in self.simbolos.values() :
+            if simbolo.id == ide and simbolo.tipo == TIPO.FUNCTION:
+                return  True
+        
+        return False
+
+    def modificar_valor(self,name, nuevo_valor):
+        
+        for simbolo in self.simbolos.values() :
+            
+            if simbolo.nombre.upper() == name.upper(): 
+                
+                simbolo.valor = nuevo_valor
+                
+        
+
+    
+    
+    def existe_id(self,name):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == name:
+                return True
+        
+        return False
+
+    def id_db(self,name):
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == name and simbolo.tipo == TIPO.DATABASE:
+                return simbolo.id
+        
+        return -1
+    
+   
+    def deleteFP(self,name):
+        idF = -1
+        
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == name and simbolo.tipo == TIPO.FUNCTION:
+                idF =  simbolo.id
+        
+
+        for simbolo in self.simbolos.values():
+            if simbolo.id == idF:
+                self.simbolos.pop(idF)
+                break
+            
+        
+        cantidad = 0
+        
+
+        for simbolo in self.simbolos.values():
+            if simbolo.ambito == idF:
+                cantidad += 1
+
+        
+
+        for a in range(cantidad):
+            
+            print(a)
+
+            for simbolo in self.simbolos.values():
+
+                if simbolo.ambito == idF:
+                    self.simbolos.pop(simbolo.id)
+                    break
+                
+
+    
+    

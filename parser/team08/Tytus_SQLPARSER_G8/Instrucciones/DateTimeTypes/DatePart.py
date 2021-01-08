@@ -19,7 +19,6 @@ class DatePart(Instruccion):
         minuto = 0
         hora = 0
         for x in range(0,len(parser)):
-            print(parser[x])
             if(parser[x]=="seconds"):
                 segundo = parser[x-1]
             elif(parser[x]=="minutes"):

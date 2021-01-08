@@ -14,3 +14,19 @@ class Update(Nodo):
 
     def execute(self,enviroment = None):
         print('Llamar al update')
+        
+    def compile(self):
+        tmp = instanceTemporal.getTemporal()
+        dir = f"{tmp} = '{self.getText()}'\n"
+        dir += f'display[p] = {tmp}\n'
+        dir += 'p = p + 1'
+    
+    def getText(self):
+        table_ =  self.hijos[0].valor.upper()
+        if len(self.hijos) < 4:
+            return f"UPDATE {table_} SET VALS"
+        else:
+            exp =  self.hijos[3].hijos[0].getText()
+            where_body = f" WHERE {exp};"
+            return f"UPDATE {table_} SET VALS {where_body};"
+            

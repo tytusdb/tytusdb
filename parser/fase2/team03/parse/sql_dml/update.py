@@ -49,6 +49,15 @@ class Update(ASTNode):
                 raise Error(0, 0, ErrorType.RUNTIME, '42P10: PK_does_not_exists')
         return f'Update in {self.table_name}'
 
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        updates_str = ''
+        for update in self.update_list:
+            updates_str = f'{updates_str}{update.generate(table, tree)},'
+
+        return f'UPDATE {self.table_name} SET {updates_str[:-1]} ' \
+               f'{self.where.generate(table, tree) if self.where is not None else ""};'
+
 
 class UpdateItem(ASTNode):
     def __init__(self, column_name, exp, line, column, graph_ref):
@@ -60,3 +69,7 @@ class UpdateItem(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'{self.column_name} = {self.exp.generate(table, tree)}'

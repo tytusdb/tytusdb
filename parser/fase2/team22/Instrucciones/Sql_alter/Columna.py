@@ -8,4 +8,7 @@ class Columna(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
         

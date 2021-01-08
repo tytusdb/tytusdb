@@ -41,3 +41,7 @@ class Delete(ASTNode):
             raise Error(0, 0, ErrorType.RUNTIME, '42P10: PK_does_not_exists')
         else:
             return True
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        return f'DELETE FROM {self.table_name} {self.where.generate(table, tree) if self.where is not None else ""};'

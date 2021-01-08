@@ -5,6 +5,8 @@ from Instrucciones.Sql_create.ShowDatabases import ShowDatabases
 from Instrucciones.TablaSimbolos.Instruccion import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 from storageManager.jsonMode import *
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class CreateOrReplace(Instruccion):
     def __init__(self, base, tipo, existe, owner, mode, strGram ,linea, columna):
@@ -71,6 +73,29 @@ class CreateOrReplace(Instruccion):
             nueva = BaseDeDatos(str(self.base))
             arbol.setListaBd(nueva)
         '''
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        t0 = c3d.getTemporal()
+        if self.existe == "IF NOT EXISTS":
+            code.append(c3d.asignacionString(t0, "CREATE OR REPLACE DATABASE IF NOT EXISTS " + self.base))
+        else:
+            code.append(c3d.asignacionString(t0, "CREATE OR REPLACE DATABASE " + self.base))
+        t1 = c3d.getTemporal()
+        if self.owner != None:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor("\" OWNER = " + "\\'" + self.owner + "\\'\" ", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+        if self.mode != None:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor("\" MODE = " + str(self.mode) + "\"", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t1))
+        code.append(c3d.aumentarP())
+
+        return code
 
 '''
 instruccion = CreateOrReplace("hola mundo",None, 1,2)

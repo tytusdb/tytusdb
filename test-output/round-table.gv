@@ -1,0 +1,68 @@
+// AST
+digraph {
+	0 [label=INSTRUCTION_LIST]
+	1 [label=EXECUTE]
+	2 [label=FUNCTION_CALL]
+	3 [label=myfuncion]
+	4 [label=PARAMS]
+	5 [label="\"Francisco\""]
+	6 [label=INST]
+	7 [label="SQL_INSTRUCTION:_CREATE_INDEX"]
+	8 [label=INST]
+	9 [label="SQL_INSTRUCTION:_CREATE_TABLE"]
+	10 [label=INST]
+	11 [label="SQL_INSTRUCTION:_CREATE_INDEX"]
+	12 [label=INST]
+	13 [label="SQL_INSTRUCTION:_CREATE_TABLE"]
+	14 [label=INST]
+	15 [label=BLOCK]
+	16 [label=FUNCTION]
+	17 [label=myfuncion]
+	18 [label=PARAMS]
+	19 [label=DECLARATION]
+	20 [label="TYPE.STRING"]
+	21 [label=texto]
+	22 [label=RETURN]
+	23 [label="TYPE.STRING"]
+	24 [label=DECLARATION]
+	25 [label=INSTRUCTIONS]
+	26 [label=RETURN]
+	27 [label=texto]
+	28 [label=INST]
+	29 [label="SQL_INSTRUCTION:_USE"]
+	30 [label=INST]
+	31 [label="SQL_INSTRUCTION:_CREATE_DATABASE"]
+	32 [label=INST]
+	0 -> 1
+	1 -> 2
+	2 -> 3
+	2 -> 4
+	4 -> 5
+	0 -> 6
+	6 -> 7
+	6 -> 8
+	8 -> 9
+	8 -> 10
+	10 -> 11
+	10 -> 12
+	12 -> 13
+	12 -> 14
+	14 -> 15
+	15 -> 16
+	16 -> 17
+	16 -> 18
+	18 -> 19
+	19 -> 20
+	19 -> 21
+	16 -> 22
+	22 -> 23
+	15 -> 24
+	15 -> 25
+	25 -> 26
+	26 -> 27
+	14 -> 28
+	28 -> 29
+	28 -> 30
+	30 -> 31
+	30 -> 32
+}

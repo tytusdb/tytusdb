@@ -20,7 +20,9 @@ class ErrorController(object):
     def add(self, noType, errorType, desc, line, column):
         numberError, description = get_type_error(noType)
         self._idError += 1
-        description += desc
+        description += f": {desc}"
+        description = ' '.join(description.split())
+        description = description.replace(': :', ':')
 
         self._errorsList.append(Error(self._idError, errorType, numberError,
                                       description, line, column))
