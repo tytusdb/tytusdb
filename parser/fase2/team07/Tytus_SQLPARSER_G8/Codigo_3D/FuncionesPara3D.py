@@ -32,8 +32,7 @@ class FuncionesPara3D():
 
         #Se escriben codigo quemado como los imports
         cont = "from Codigo_3D.FuncionesPara3D import FuncionesPara3D\n"
-        cont += "from goto import with_goto\n"
-        cont += "@with_goto\n\n"
+        cont += "from goto import with_goto\n\n"
         
         cont += "class Codigo3D():\n\n"
 

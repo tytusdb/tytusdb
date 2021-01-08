@@ -16,6 +16,7 @@ class Procedimiento(Instruccion):
         codigo = ""
 
         #Se declara la funcion con el nombre
+        codigo += "\t@with_goto\n"
         codigo += "\tdef " + self.id + "("
 
         #Se añaden los parametros si es que estos existen

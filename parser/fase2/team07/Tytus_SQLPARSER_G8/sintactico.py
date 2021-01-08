@@ -198,9 +198,9 @@ def p_instruccion_show_database1(t):
     t[0] =ShowDatabases.ShowDatabases(None, None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_show_database2(t):
-    '''instruccion : SHOW DATABASES LIKE CARACTER PUNTO_COMA
+    '''instruccion : SHOW DATABASES LIKE cadena_o_caracter PUNTO_COMA
     '''
-    strGram = "<instruccion> ::= SHOW DATABASES LIKE CARACTER PUNTO_COMA"
+    strGram = "<instruccion> ::= SHOW DATABASES LIKE cadena_o_caracter PUNTO_COMA"
     strSent = "SHOW DATABASES LIKE " + t[4] + ";"
     t[0] =ShowDatabases.ShowDatabases(t[4],None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
 
@@ -687,7 +687,6 @@ def p_instruccion_select1(t):
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <instructionWhere> <lrows>"
     strGram2 = ""
     val = []
-    val.append(Select.Select(t[2], t[3], t[5], None, t[6], t[7], strGram ,t.lexer.lineno, t.lexer.lexpos))
     
     strSent = "SELECT " + t[2] 
     for col in t[3]:
@@ -706,8 +705,9 @@ def p_instruccion_select1(t):
     strSent = strSent + " " + t[6].strSent
     for col in t[7]:
         strSent = strSent + " " + col.strSent
-    
 
+    val.append(Select.Select(t[2], t[3], t[5], None, t[6], t[7], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent))
+    
     t[0] = SelectLista.SelectLista(val, strGram2 ,t.lexer.lineno, t.lexer.lexpos, strSent)
 
 def p_instruccion_select2(t):
@@ -735,9 +735,6 @@ def p_instruccion_select2(t):
     strSent = strSent + " " + t[6].strSent
 
     val.append(Select.Select(t[2], t[3], t[5], None, t[6], None, strGram,t.lexer.lineno, t.lexer.lexpos, strSent))
-    
-    
-
 
     t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos, strSent)
 
@@ -801,8 +798,6 @@ def p_instruccion_select7(t):
     strGram = "<query> ::= SELECT <dist> <lcol> FROM <lcol> <lrows>"
     strGram2 = ""
     val = []
-    val.append(Select.Select(t[2], t[3], t[5], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos))
-    
     strSent = "SELECT " + t[2]
     for col in t[3]:
         if isinstance(col, str):
@@ -819,6 +814,9 @@ def p_instruccion_select7(t):
     strSent = strSent[:-1]
     for col in t[7]:
         strSent = strSent + " " + col.strSent
+
+    val.append(Select.Select(t[2], t[3], t[5], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent))
+
 
     t[0] = SelectLista.SelectLista(val, strGram2, t.lexer.lineno, t.lexer.lexpos, strSent)
 
@@ -1471,13 +1469,20 @@ def p_operadores_trigonometricas(t):
     elif t[1] == 'TANH':
         t[0] = Tanh.Tanh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
             
+def p_cadena_o_caracter(t):
+    '''
+    cadena_o_caracter   : CADENA
+                        | CARACTER
+    '''
+    t[0] = t[1]
+
 def p_operadores_otros(t):
-    ''' expre : EXTRACT PARIZQ tiempo FROM TIMESTAMP CARACTER PARDER
+    ''' expre : EXTRACT PARIZQ tiempo FROM TIMESTAMP cadena_o_caracter PARDER
             | NOW PARIZQ PARDER
-            | DATE_PART PARIZQ CARACTER COMA INTERVAL CARACTER PARDER
+            | DATE_PART PARIZQ cadena_o_caracter COMA INTERVAL cadena_o_caracter PARDER
             | CURRENT_DATE
             | CURRENT_TIME
-            | TIMESTAMP CARACTER
+            | TIMESTAMP cadena_o_caracter
             | CASE lcase END 
     '''
     if t[1] == 'EXTRACT':
@@ -1512,9 +1517,13 @@ def p_operadores_otros(t):
 
 def p_operadores_parentesis(t):
     ''' expre : PARIZQ expre PARDER
-            | PARIZQ query PARDER
     '''
     t[2].strSent = "(" + t[2].strSent + ")"
+    t[0] = t[2]
+
+def p_operadores_parentesis1(t):
+    ''' expre : PARIZQ query PARDER
+    '''
     t[0] = t[2]
 
  
@@ -2081,7 +2090,7 @@ def p_procedimiento(t):
     '''
     instruccion     :   CREATE PROCEDURE ID PARIZQ parametros_funcion PARDER LANGUAGE PLPGSQL AS DOLLAR DOLLAR declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR
     '''
-    t[0] = Procedimiento.Procedimiento(t[3], t[5], t[12], t[14], "",  "")
+    t[0] = Procedimiento.Procedimiento(t[3], t[5], t[12], t[14], "", t.lexer.lineno, t.lexer.lexpos,"")
 
 
 #DECLARACION DE UNA FUNCION

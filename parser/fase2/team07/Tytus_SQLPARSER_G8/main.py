@@ -240,8 +240,10 @@ class interfaz():
         # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
         global arbol
         global tablaSym
-        
-        rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)  
+        if arbol is not None:
+            rs.crear_tabla(arbol, tablaSym)
+        else:
+            rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)  
         arbol = None         
 
     def ast_click(self):
