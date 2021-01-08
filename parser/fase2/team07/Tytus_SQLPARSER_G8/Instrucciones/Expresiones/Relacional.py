@@ -390,7 +390,7 @@ class Relacional(Instruccion):
                 #aqui va un comparador para update como en update el igual es para asignacion
                 if(self.opIzq.tipo.tipo == Tipo_Dato.ID and (not self.opDer.tipo.tipo == Tipo_Dato.ID)):
                     # aqui va el procedimiento para devolver un id con su valor
-                    a = Alias(resultadoIzq, resultadoDer)
+                    a = Alias(resultadoIzq, resultadoDer, "")
                     a.tipo = self.opDer.tipo
                     return a
                 else:
