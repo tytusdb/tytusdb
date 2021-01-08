@@ -6,6 +6,8 @@ from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relaci
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
 from Interprete.SELECT.indexador_auxiliar import indexador_auxiliar
+from InterpreteF2.DML.select.select import Select
+from InterpreteF2.DML.select.selectCompuesto import SelectCompuesto
 from InterpreteF2.Arbol import Arbol
 from Interprete.Insert.insert import Insert
 from Interprete.SELECT.select_simples_date import Select_simples_date
@@ -967,22 +969,22 @@ def p_statements_perfom(t):
 
 
 # ================= select =================
-def p_statements_select(t):
-    '''
-        statements  : SELECT exp_list INTO exp_list FROM exp_list
-                    | SELECT exp_list INTO exp_list FROM exp_list conditions
-    '''
-    pass
-    set('<TR> \n <TD> statements → SELECT exp_list INTO exp_list FROM exp_list | SELECT exp_list INTO exp_list FROM exp_list conditions: </TD> \n <TD> statements  = select(t[2], t[4], t[6]) </TD> \n </TR> \n')
+#def p_statements_select(t):
+#    '''
+#        statements  : SELECT exp_list INTO exp_list FROM exp_list
+#                    | SELECT exp_list INTO exp_list FROM exp_list conditions
+#    '''
+#    pass
+#    set('<TR> \n <TD> statements → SELECT exp_list INTO exp_list FROM exp_list | SELECT exp_list INTO exp_list FROM exp_list conditions: </TD> \n <TD> statements  = select(t[2], t[4], t[6]) </TD> \n </TR> \n')
 
 
-def p_statements_select_strict(t):
-    '''
-        statements : SELECT exp_list INTO STRICT ID FROM exp_list
-                   | SELECT exp_list INTO STRICT ID FROM exp_list conditions
-    '''
-    pass
-    set('<TR> \n <TD> statements → SELECT exp_list INTO STRICT ID FROM exp_list | SELECT exp_list INTO STRICT ID FROM exp_list conditions: </TD> \n <TD> statements  = select(t[2], t[4], t[6]) </TD> \n </TR> \n')
+#def p_statements_select_strict(t):
+#    '''
+#        statements : SELECT exp_list INTO STRICT ID FROM exp_list
+#                   | SELECT exp_list INTO STRICT ID FROM exp_list conditions
+#    '''
+#    pass
+#    set('<TR> \n <TD> statements → SELECT exp_list INTO STRICT ID FROM exp_list | SELECT exp_list INTO STRICT ID FROM exp_list conditions: </TD> \n <TD> statements  = select(t[2], t[4], t[6]) </TD> \n </TR> \n')
 
 
 # ================= insert =================
@@ -1119,9 +1121,7 @@ def p_index_params(t):
 
 def p_index_param(t):
     '''
-        index_param     :  ID options
-                        |  ID
-                        |  exp
+        index_param     :  exp
                         |  exp options
     '''
 
@@ -1331,48 +1331,101 @@ def p_DataManipulationLenguage_drop_database(t):
 
 def p_DataManipulationLenguage_UNION(t):
     '''
-        DataManipulationLenguage  : select UNION select
+        DataManipulationLenguage  : selectSubquery UNION selectSubquery
     '''
-    t[0] = union(t[1], t[3], 1 , 1)
+    t[0] = SelectCompuesto(t[1], t[2], t[3], 1, 1)
     set('<TR> \n <TD> DataManipulationLenguage → select UNION select : </TD> \n <TD>  DataManipulationLenguage = Union() </TD> \n </TR> \n')
+
+
+def p_selectSubquery_UNION(t):
+    '''
+        selectSubquery  : selectSubquery UNION selectSubquery
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    set('<TR> \n <TD> DataManipulationLenguage → select UNION select : </TD> \n <TD>  DataManipulationLenguage = Union() </TD> \n </TR> \n')
+
+
+def p_selectSubquery_INTERSECT(t):
+    '''
+        selectSubquery : selectSubquery INTERSECT selectSubquery
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    set('<TR> \n <TD> DataManipulationLenguage → select INTERSECT select : </TD> \n <TD>  DataManipulationLenguage = Intersect() </TD> \n </TR> \n')
+
 
 def p_DataManipulationLenguage_INTERSECT(t):
     '''
-        DataManipulationLenguage  : select INTERSECT select
+        DataManipulationLenguage  : selectSubquery INTERSECT selectSubquery
     '''
-    t[0] = intersect(t[1], t[3], 1 , 1)
+    t[0] = SelectCompuesto(t[1], t[2], t[3], 1, 1)
     set('<TR> \n <TD> DataManipulationLenguage → select INTERSECT select : </TD> \n <TD>  DataManipulationLenguage = Intersect() </TD> \n </TR> \n')
+
+
+def p_selectSubquery_except(t):
+    '''
+        selectSubquery  : selectSubquery EXCEPT selectSubquery
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    set('<TR> \n <TD> DataManipulationLenguage → select EXCEPT select : </TD> \n <TD>  DataManipulationLenguage = Except() </TD> \n </TR> \n')
+
 
 def p_DataManipulationLenguage_except(t):
     '''
-        DataManipulationLenguage  : select EXCEPT select
+        DataManipulationLenguage  : selectSubquery EXCEPT selectSubquery
     '''
-    t[0] = except_(t[1], t[3], 1, 1)
+    t[0] = SelectCompuesto(t[1], t[2], t[3], 1, 1)
     set('<TR> \n <TD> DataManipulationLenguage → select EXCEPT select : </TD> \n <TD>  DataManipulationLenguage = Except() </TD> \n </TR> \n')
+
+
+def p_selectSubquery(t):
+    '''
+        selectSubquery  : SELECT expF2_list FROM expF2_list conditionsF2
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
+
 
 def p_select(t):
     '''
-        select  : SELECT exp_list FROM exp_list conditions
+        select  : SELECT expF2_list FROM expF2_list conditionsF2
     '''
-    if len(t) == 6:
-        # SELECT exp_list FROM exp_list conditions
-        t[0] = select(t[2], t[4], t[5], 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
+    t[0] = Select(string, 1, 1)
     set('<TR> \n <TD> select → SELECT exp_list FROM exp_list conditions: </TD> \n <TD>  select = Select(t[2], t[4], t[5]) </TD> \n </TR> \n')
+
+
+def p_selectSubquery_simple(t):
+    '''
+        selectSubquery : SELECT expF2_list FROM expF2_list
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> select → SELECT exp_list FROM exp_list: </TD> \n <TD>  select = Select(t[2], N/A, t[5]) </TD> \n </TR> \n')
+
 
 def p_select_simple(t):
     '''
-        select : SELECT exp_list FROM exp_list
+        select : SELECT expF2_list FROM expF2_list
     '''
-    # SELECT SIMPLE
-    t[0] = select(t[2], t[4], "N/A", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Select(string, 1, 1)
     set('<TR> \n <TD> select → SELECT exp_list FROM exp_list: </TD> \n <TD>  select = Select(t[2], N/A, t[5]) </TD> \n </TR> \n')
+
+
+def p_selectSubquery_simple_simple(t):
+    '''
+        selectSubquery : SELECT expF2_list
+    '''
+    t[0] = t[1] + ' ' + t[2]
+    set('<TR> \n <TD> select → SELECT exp_list: </TD> \n <TD>  select = Select_simple(t[2]) </TD> \n </TR> \n')
+
 
 def p_select_simple_simple(t):
     '''
-        select : SELECT exp_list
+        select : SELECT expF2_list
     '''
-    t[0] = select_simple_simple(t[2], 1, 1)
+    string = t[1] + ' ' + t[2]
+    t[0] = Select(string, 1, 1)
     set('<TR> \n <TD> select → SELECT exp_list: </TD> \n <TD>  select = Select_simple(t[2]) </TD> \n </TR> \n')
+
 
 def p_time(t):
     '''
@@ -1386,6 +1439,34 @@ def p_time(t):
     t[0] = t[1].lower()
     set('<TR> \n <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> \n <TD>  time = t[1] </TD> \n </TR> \n')
 
+
+def p_conditionsF2(t):
+    '''
+        conditionsF2  : conditionsF2 conditionF2
+                    | conditionF2
+    '''
+    if len(t) == 3:
+        t[0] = t[1] + ' ' + t[2]
+    else:
+        t[0] = t[1]
+
+
+def p_conditionF2(t):
+    '''
+        conditionF2 : WHERE expF2
+                     | ORDER BY expF2 setOrder
+                     | GROUP BY expF2_list
+                     | LIMIT expF2
+                     | HAVING expF2
+    '''
+    if len(t) == 3:
+        t[0] = t[1] + ' ' + t[2]
+    elif len(t) == 4:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    elif len(t) == 5:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+
 def p_conditions(t):
     '''
         conditions  : conditions condition
@@ -1398,6 +1479,7 @@ def p_conditions(t):
     else:
         t[0] = [t[1]]
         set('\n <TR><TD> conditions → condition  </TD><TD> t[0] = [t[1]] </TD> </TR> ')
+
 
 def p_condition(t):
     '''
@@ -1481,11 +1563,9 @@ def p_exp_call(t):
         set('<TR> \n <TD> exp →  PARIZQ exp PARDER: </TD> \n <TD>  exp  = t[3] </TD> \n </TR> \n')
 
 
-
 def p_exp_count(t):
     '''
         exp   : COUNT PARIZQ exp PARDER
-              | COUNT PARIZQ MULTI PARDER
     '''
     if t[3]=='*':
         #COUNT PARIZQ MULTI PARDER
@@ -2292,10 +2372,7 @@ def p_expSimples_ID_ID(t):
 
 def p_expSimples_exp_AS_ID(t):
     '''
-        expSimple : ID AS ID
-                  | exp AS CADENA
-                  | exp AS ID
-                  | exp AS CADENADOBLE
+        expSimple : exp AS exp
     '''
     t[0] = indexador_auxiliar(t[1], t[3], 1)
     set('<TR> \n <TD> expSimple  →  exp AS CADENA | exp AS ID | exp AS CADENADOBLE : </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
@@ -2392,7 +2469,6 @@ def p_expF2_call(t):
 def p_expF2_count(t):
     '''
         expF2   : COUNT PARIZQ expF2 PARDER
-              | COUNT PARIZQ MULTI PARDER
     '''
     t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
 
@@ -3004,6 +3080,7 @@ def p_expSimplesF2(t):
         t[0] = t[1]
     set('<TR> \n <TD> expSimpleF2 → subquery </TD> \n <TD>  exp = select() </TD> \n </TR> \n')
 
+
 def p_dateFunctionF2(t):
     '''
         dateFunctionF2 : EXTRACT PARIZQ time FROM TIMESTAMP expF2 PARDER
@@ -3073,10 +3150,7 @@ def p_expSimplesF2_ID_ID(t):
 
 def p_expSimplesF2_exp_AS_ID(t):
     '''
-        expSimpleF2 : ID AS ID
-                  | expF2 AS CADENA
-                  | expF2 AS ID
-                  | expF2 AS CADENADOBLE
+        expSimpleF2 : expF2 AS expF2
     '''
     t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
     set('<TR> \n <TD> expSimpleF2  →  exp AS CADENA | exp AS ID | exp AS CADENADOBLE : </TD> \n <TD> expSimpleF2  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
@@ -3086,21 +3160,17 @@ def p_expSimplesF2_exp_AS_ID(t):
 # --------------------------------------------------------------------------------------
 def p_subqueryF2(t):
     '''
-        subqueryF2 : PARIZQ select PARDER
-                 | PARIZQ select PARDER ID
-                 | PARIZQ select PARDER AS ID
+        subqueryF2 : PARIZQ selectSubquery PARDER
+                 | PARIZQ selectSubquery PARDER ID
+                 | PARIZQ selectSubquery PARDER AS ID
     '''
     if len(t) == 4:
-        #PARIZQ select PARDER
-        pass
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
     elif len(t) == 5:
-        #PARIZQ select PARDER ID
-        t[0] = indexador_auxiliar(t[2], t[4], 2)
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
     elif len(t) == 6:
-        #PARIZQ select PARDER AS ID
-        t[0] = indexador_auxiliar(t[2], t[5], 2)
-        pass
-    set('<TR> \n <TD> subquery  → PARIZQ select PARDER : </TD> \n <TD> subquery  = select(t[1]) </TD> \n </TR> \n')
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
+        set('<TR> \n <TD> subquery  → PARIZQ select PARDER : </TD> \n <TD> subquery  = select(t[1]) </TD> \n </TR> \n')
 
 
 def p_expSimplesF2_entero(t):
@@ -3123,14 +3193,14 @@ def p_expSimplesF2_cadenas(t):
     '''
         expSimpleF2   :   CADENA
     '''
-    t[0] = '\'' + t[1] + '\''
+    t[0] = '\\' + '\'' + t[1] + '\\' + '\''
     set('<TR> \n <TD> expSimplesF2  → CADENA: </TD> \n <TD> expSimpleF2  = cadena(t[1]) </TD> \n </TR> \n')
 
 def p_expSimplesF2_cadenadoble(t):
     '''
         expSimpleF2   :   CADENADOBLE
     '''
-    t[0] = '\"' + t[1] + '\"'
+    t[0] = '\\' + '\"' + t[1] + '\\' + '\"'
     set('<TR> \n <TD> expSimplesF2  → CADENADOBLE: </TD> \n <TD> expSimpleF2  = cadena(t[1]) </TD> \n </TR> \n')
 
 
@@ -3322,12 +3392,6 @@ def p_definitionTypes(t):
     t[0] = t[1]
     set('<TR> \n <TD> definitionTypes → types: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
 
-def p_definitionTypes_id(t):
-    '''
-        definitionTypes : ID
-    '''
-    t[0] = t[1]
-    set('<TR> \n <TD> definitionTypes → ID: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
 
 def p_typesF2(t):
     '''
@@ -3347,6 +3411,7 @@ def p_typesF2(t):
               | BOOLEAN
               | DOUBLE PRECISION
               | CHARACTER VARYING PARIZQ expF2 PARDER
+              | CHARACTER PARIZQ expF2 PARDER
               | VARCHAR PARIZQ expF2 PARDER
               | CHAR PARIZQ expF2 PARDER
               | STRING
@@ -3362,7 +3427,6 @@ def p_typesF2(t):
         t[0] = t[1] + t[2] + t[3] + t[4] + t[5]
     elif len(t) == 5:
         t[0] = t[1] + t[2] + t[3] + t[4]
-
 
 
 def p_types(t):
