@@ -15,3 +15,9 @@ class Now(Instruccion):
         todays_date = datetime.now()
         current_time = todays_date.strftime("%Y-%m-%d %H:%M:%S")
         return current_time
+
+    def traducir(self, tabla, arbol):
+        print("entro  traduc return")
+        todays_date = datetime.now()
+        current_time = todays_date.strftime("%Y-%m-%d %H:%M:%S")
+        return "'"+current_time+ "'"

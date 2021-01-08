@@ -176,5 +176,5 @@ class Selectp3(Instruccion):
 
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({obtenerTemporal})")
-        consola.append(f"\n\tstack.append({contador2})\n")
-
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")

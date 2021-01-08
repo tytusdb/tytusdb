@@ -52,16 +52,20 @@ def p_instruction(p):
 
 def p_import_instr(p):
     '''import_instr : FROM GOTO IMPORT WITH_GOTO
-                    | FROM CONTROLLERS DOT ID IMPORT ID'''
+                    | FROM LIST_DOT IMPORT LIST_ID
+                    | FROM LIST_DOT IMPORT ASTERISK'''
 
 def p_definition_instr(p):
     '''definition_instr : DEF ID LEFT_PARENTHESIS RIGHT_PARENTHESIS COLON
-                        | GLOBAL ID
-                        | PRINT LEFT_PARENTHESIS ID LEFT_CORCH INTEGER_NUMBERS RIGHT_CORCH  RIGHT_PARENTHESIS
+                        | GLOBAL LIST_ID
+                        | PRINT LEFT_PARENTHESIS ID LEFT_CORCH EXPRESSION RIGHT_CORCH  RIGHT_PARENTHESIS
+                        | PRINT LEFT_PARENTHESIS EXPRESSION RIGHT_PARENTHESIS
                         | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
-                        | ID LEFT_CORCH INTEGER_NUMBERS RIGHT_CORCH EQUALS comparasion
+                        | ID LEFT_CORCH EXPRESSION RIGHT_CORCH EQUALS comparasion
                         | ID EQUALS comparasion
-                        | ID EQUALS ID LEFT_CORCH INTEGER_NUMBERS RIGHT_CORCH'''
+                        | ID EQUALS ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
+                        | ID EQUALS ID LEFT_PARENTHESIS EXPRESSION RIGHT_PARENTHESIS
+                        | ID EQUALS ID LEFT_CORCH EXPRESSION RIGHT_CORCH'''
     if len(p) == 4:
         if p.slice[2].type == "EQUALS":
             p[0] = AsignacionID(p[1], p[3])
@@ -69,6 +73,13 @@ def p_definition_instr(p):
 def p_alias_instr(p):
     '''alias_instr : ARROBA WITH_GOTO'''
 
+def p_list_id(p):
+    '''LIST_ID : LIST_ID COMMA ID
+               | ID'''
+
+def p_list_dot(p):
+    '''LIST_DOT :  LIST_DOT DOT ID
+                |  ID'''
 
 def p_goto_instr(p):
     ''' goto_instr : GOTO DOT ID'''

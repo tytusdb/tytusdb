@@ -11,3 +11,9 @@ class Llamada(Instruccion):
 
     def setInstruccion3d(self, instruccion):
         self.instruccion3d = instruccion
+
+    def setInstruccion(self, instruccion):
+        self.instruccion = instruccion
+
+    def getInstruccion(self):
+        return self.instruccion

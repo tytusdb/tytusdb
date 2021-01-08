@@ -1,7 +1,8 @@
 reglasOpt = []
 codOpt = ''
+indice = 0
 def optimizar(pOpt):
-    global codOpt
+    global codOpt, indice
     listaOp = pOpt
     size = len(listaOp)
     for indice in range(size):
@@ -71,12 +72,26 @@ def optimizar(pOpt):
                 else:
                     codOpt += valor + '\n'
             elif 'if' in valor:
-                print('valor')
+                v = ""
+                vIf = valor.split(':')
+                vIf[0] = vIf[0].replace("if","")
+                operador = vIf[0].split('==')
+                a = str(operador[0]).strip()
+                b = str(operador[1]).strip()
+                if a.isnumeric() and  b.isnumeric():
+                    if a == b:
+                        indiceB = indice + 1
+                        val = str(vIf[1])
+                        reglasOpt.append("Regla 4: " + valor + '\n' + str(listaOp[indiceB]) + '. Se optimiza por: ' + str(val))
+                        listaOp[indiceB] = ''
+                        codOpt += val
+                else:
+                    print('b')
+
+                print(valor)
             else:
                 codOpt += valor +'\n'
         else:
-            if 'if' in valor:
-                print(valor)
             codOpt += valor + '\n'
 
 def retornoOpt():

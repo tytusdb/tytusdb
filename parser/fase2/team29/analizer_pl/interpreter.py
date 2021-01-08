@@ -3,11 +3,10 @@ from sys import path
 from os.path import dirname as dir
 
 path.append(dir(path[0]))
-
-import analizer_pl.grammar as grammar
-from analizer_pl.abstract import global_env
-from analizer_pl.reports import BnfGrammar
 from analizer_pl.C3D.operations import block
+from analizer_pl.reports import BnfGrammar
+from analizer_pl.abstract import global_env
+import analizer_pl.grammar as grammar
 
 
 def traducir(input):
@@ -47,7 +46,7 @@ def traducir(input):
         "symbols": symbols,
         "functions": functions,
     }
-    grammar.InitTree()
+    # grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -92,56 +91,85 @@ def functionsReport(env):
 
 
 s = """ 
-CREATE function foo(i integer) RETURNS integer AS $$
-declare 
-	j integer := i + 1;
-	k integer;
+
+
+(SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40'));
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now();
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', now());
+SELECT now();
+select distinct  E.primernombre,primerapellido,EXTRACT(YEAR FROM fechadenacimiento) AnioNacimiento,estado
+from tbempleado E, tbestado ES 
+where ES.idestado = E.idestado;
+"""
+s2 = """
+
+CREATE FUNCTION foo(texto text, b boolean) RETURNS text AS $$
 BEGIN
-	case 
-        when i > 10 then
-            k = 0;
-            RETURN j * k + 1;
-        when i < 10 then
-            k = 1;
-            RETURN j * k + 2;
-        else 
-            k = 2;
-            RETURN j * k + 3;
-    end case;
+return texto;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE procedure p1() AS $$
-declare 
-	k integer;
+CREATE FUNCTION myFuncion(texto text, b boolean) RETURNS text AS $$
 BEGIN
-	k = foo(5);
-    k = foo(10);
-    k = foo(15);
+INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(texto),1);
+SELECT 3-5>4 and -3=texto as sho, texto between symmetric 2 and 3 as alv;
+
+select * from tbCalificacion;
+select * from tbventa where ventaregistrada = false;
+select * from tbempleadopuesto group by departamento;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+
+
+select v.id+foo(texto, 3)
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido,fechaventa
+limit 1;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = texto
+group by 1,2,3
+order by 1;
+
+b = texto between symmetric 2 and 3;
+RETURN (3+1)*-1;
 END;
 $$ LANGUAGE plpgsql;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+
+select (3+3)*5;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = texto
+group by 1,2,3
+order by 1;
+
+
 """
 
-sql = """
-CREATE DATABASE DBFase2;
-USE DBFase2;
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$ BEGIN RETURN texto;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TABLE tbProducto (
-  idproducto integer not null primary key,
-  producto varchar(150) not null,
-  fechacreacion date not null,
-  estado integer
-);
-CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
-CREATE TABLE tbCalificacion (
-  idcalifica integer not null primary key,
-  item varchar(100) not null,
-  punteo integer not null
-);
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-execute myFuncion("Francisco");
-"""
-
-traducir(sql)
+traducir(s)

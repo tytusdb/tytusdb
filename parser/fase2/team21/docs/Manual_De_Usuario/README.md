@@ -16,11 +16,11 @@ Desde aquí también es posible abrir los reportes:
 * Tabla de símbolos
 
 ![imagen1](c.PNG)
- 
+
  El resaltado de sintáxis ayuda a diferenciar las palabras reservadas, id y cadenas.
- 
- Al ser un subconjunto de lenguaje SQL aplican las mismas reglas, acepta palabras reservadas tanto en minúscula, mayúscula o una mezcla de ellas. Se recomienda usar las parablas reservadas en mayúsculas
- 
+
+ Al ser un subconjunto de lenguaje SQL aplican las mismas reglas, acepta palabras reservadas tanto en minúscula, mayúscula o una mezcla de ellas. Se recomienda usar las palabras reservadas en mayúsculas
+
  ![imagen2](c1.PNG) 
 
 ---
@@ -136,3 +136,35 @@ De esa manera se verán las consultas realizadas.
 * Tabla de símbolos
 
 ![imagen8](c7.PNG)
+
+## FASE 2
+
+Se agrego un nuevo botón y nuevas funcionalidades.
+
+![imagen1](NewQuerytool.PNG)
+
+* #### Nueva Funcionalidades
+
+  Se agregó la funcion de poder seleccionar la parte del codigo que se quiera ejecutar como se muestra en la imagen, en este caso solo  se ejecuto el CREATE DATABASE DBFase2; y USE DATABASE DBFase2; 
+
+  ![imagen19](nuevaFunci.PNG)
+
+* #### Nueva salida
+
+  ![imagen19](salidaConsola.PNG)
+
+  La consola ahora muestra la traduccion del codigo en tres direcciones de cada instrucción que se deseo ejecutar con anterioridad.
+
+* #### Reporte de Optimización
+
+  ![imagen19](botonOptim.PNG)
+
+Este icono genera el reporte de Optimizacion.
+
+![imagen19](reportOptim.PNG)
+
+Al presionar el botón este generara el siguiente reporte.
+
+Este contendra la regla que se utilizo el parte sin optimizar como la que ya esta optimizada.
+
+![imagen19](reporOptim2.PNG)

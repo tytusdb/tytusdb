@@ -90,3 +90,85 @@ def reporte_tabla(tabla):
     cadena += "</body>\n"
     cadena += "</html>"
     return cadena
+
+
+
+def crear_tabla2(tabla):
+    filename = "TablaSimbolos2.html"
+    file = open(filename,"w",encoding='utf-8')
+    file.write(reporte_tabla2(tabla))
+    file.close()
+    webbrowser.open_new_tab(filename)
+
+def reporte_tabla2(tabla):
+    cadena = ''
+    cadena += "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/><title>Reporte</title><style> \n"
+    cadena += "table{ \n"
+    cadena += "width:100%;"
+    cadena += "} \n"
+    cadena += "table, th, td {\n"
+    cadena += "border: 1px solid black;\n"
+    cadena += "border-collapse: collapse;\n"
+    cadena += "}\n"
+    cadena += "th, td {\n"
+    cadena += "padding: 5px;\n"
+    cadena += "text-align: left;\n"
+    cadena += "}\n"
+    cadena += "table#t01 tr:nth-child(even) {\n"
+    cadena += "background-color: #eee;\n"
+    cadena += "}\n"
+    cadena += "table#t01 tr:nth-child(odd) {\n"
+    cadena += "background-color:#fff;\n"
+    cadena += "}\n"
+    cadena += "table#t01 th {\n"
+    cadena += "background-color: black;\n"
+    cadena += "color: white;\n"
+    cadena += "}\n"
+    cadena += "</style></head><body><h1><center>Tabla de Símbolos</center></h1>\n"
+    cadena += "<table id=\"t01\">\n"
+
+    cadena += "<tr>\n"
+ 
+    cadena += "<th><center>Nombre</center></th>\n"
+    cadena += "<th><center>Tipo</center></th>\n"
+    cadena += "<th><center>Valor</center></th>\n"
+    cadena += "<th><center></center></th>\n"
+    cadena += "<th><center></center></th>\n"
+    cadena += "</tr>\n"
+
+    # Recorrido
+    contador = 0
+    for db in tabla.variables:
+          try: 
+                cadena += "<tr>\n"
+                cadena += "<td><center>" + str(db.id) + "</center></td>\n"
+                cadena += "<td><center>" + str(db.tipo) + "</center></td>\n"
+                cadena += "<td><center>" + str(db.valor) + "</center></td>\n"
+                cadena += "<td><center></center></td>\n"
+                cadena += "<td><center></center></td>\n"
+            
+                cadena += "</tr>\n"
+          except Exception as e:
+                    print(e)       
+                #print("-------------------->",db.nombreTabla,t.nombreDeTabla, c.nombre, c.tipo.toString(),c.tipo.dimension,c.constraint)
+
+    '''
+    while tabla != None:
+        for s in tabla.variables:
+            cadena += "<tr>\n"
+            cadena += "<td><center>" + str(contador) + "</center></td>\n"
+            cadena += "<td><center>" + s.id + "</center></td>\n"
+            cadena += "<td><center>" + s.tipo + "</center></td>\n"
+            cadena += "<td><center>" + s.valor + "</center></td>\n"
+            cadena += "<td><center>" + str(s.linea) + "</center></td>\n"
+            cadena += "<td><center>" + str(s.columna) + "</center></td>\n"
+            cadena += "</tr>\n"
+            contador += 1
+        tabla = tabla.anterior
+    '''
+    cadena += "</table>\n"
+    cadena += "</body>\n"
+    cadena += "</html>"
+    return cadena
+
+
