@@ -261,6 +261,8 @@ class Update(Instruction):
                         pk], self.line, self.column)
 
         else:
+            if self.params is not list:
+                self.params = [self.params]
             for option in self.params:
                 if isinstance(option, Where):
                     table_update.columns = headers

@@ -623,10 +623,12 @@ def putVarValues(entry:str, temps_array:[], environment: Ambito):
             first_letter = entry_lower.index(variable)
             next_last_letter = first_letter + len(variable)
 
-            if first_letter - 1 > 0 and not entry_lower[first_letter - 1].isalpha() and not entry_lower[next_last_letter].isalpha():
-                pass
-            else:
-                continue
+            if first_letter - 1 > 0:
+                if entry_lower[first_letter - 1].isalpha(): 
+                    continue
+            if next_last_letter < len(entry_lower):
+                if entry_lower[next_last_letter].isalpha():
+                    continue
 
             split = entry_lower.split(variable)
             newValue = environment.getVar(variable)
@@ -714,9 +716,9 @@ def hacerUnSoloCambio(func, entry_lower, temps_array, contador_funciones):
                 # newValue = temp
                 #METIENDO COMILLAS
                 if type_return == ColumnsTypes.TEXT or type_return == ColumnsTypes.VARCHAR:
-                    ThreeAddressCode().addCode(f"{temp} = \"{val}\" + \"\\\"\"")
+                    ThreeAddressCode().addCode(f"{temp} = \"{val}\" + \'\\\"\'")
                     temp = ThreeAddressCode().newTemp()
-                    ThreeAddressCode().addCode(f"{temp} = str({temp_ant}) + \"\\\"\"")
+                    ThreeAddressCode().addCode(f"{temp} = str({temp_ant}) + \'\\\"\'")
                 else:
                     ThreeAddressCode().addCode(f"{temp} = \"{val}\" + str({temp_ant})")
             newString += f"{val}"

@@ -58,13 +58,18 @@ def p_import_instr(p):
 def p_definition_instr(p):
     '''definition_instr : DEF ID LEFT_PARENTHESIS RIGHT_PARENTHESIS COLON
                         | GLOBAL LIST_ID
-                        | PRINT LEFT_PARENTHESIS EXPRESSION  RIGHT_PARENTHESIS
+                        | PRINT LEFT_PARENTHESIS LIST_EXPRESSION  RIGHT_PARENTHESIS
                         | ID EQUALS comparasion
                         | ID LEFT_CORCH EXPRESSION RIGHT_CORCH EQUALS comparasion
                         | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS'''
     if len(p) == 4:
         if p.slice[2].type == "EQUALS":
             p[0] = AsignacionID(p[1], p[3])
+
+
+def p_list_expression(p):
+    '''LIST_EXPRESSION : LIST_EXPRESSION COMMA  EXPRESSION
+                       | EXPRESSION'''
 
 def p_alias_instr(p):
     '''alias_instr : ARROBA WITH_GOTO'''

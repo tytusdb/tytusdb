@@ -55,10 +55,10 @@ class Funcion(Instruction):
             var_array = Procedures().getProcedure(self.id, params, self.line, self.column)
             if var_array:
                 temporal = self.setVariables(var_array, environment)
-
-            fun = ThreeAddressCode().searchFunction(self.id)
-            if fun:
-                temporal = self.setVariables(fun['variables'], environment)
+            else:
+                fun = ThreeAddressCode().searchFunction(self.id)
+                if fun:
+                    temporal = self.setVariables(fun['variables'], environment)
         
         return temporal
                 #temp = ThreeAddressCode().newTemp()
@@ -101,8 +101,11 @@ class Funcion(Instruction):
 
                 if isinstance(value, PrimitiveData):
                     if value.data_type == DATA_TYPE.STRING:
-                        value.value = f"\'{value.value}\'"
-
+                        if value.value[0]  == "'" or value.value[0]  == "\"":
+                            value.value = f"\"{value.value}\""
+                        else:
+                            value.value = f"\"\'{value.value}\'\""
+                            
                 ThreeAddressCode().addCode(f"Stack[{var.position}] = {value.value}")
 
             temp = ThreeAddressCode().newTemp()
