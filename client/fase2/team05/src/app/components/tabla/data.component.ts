@@ -72,16 +72,17 @@ export class DataComponent implements OnInit, OnDestroy {
 
   // tslint:disable-next-line:typedef
   fillData(){
-    this.servicio.create({query: 'SHOW DATABASES;'}).subscribe((response) => {
+    console.log(this.message);
+    this.servicio.create({query: this.message}).subscribe((response) => {
       const body = response.body;
       const msg = body.result.messages;
       console.log(msg);
     }, err => console.log(err));
 
-    // const obj = JSON.parse(text);
-    // const arreglo = obj.result.querys;
-    // this.headers = arreglo[0][0];
-    // this.rows = arreglo[0][1];
+    const obj = JSON.parse(text);
+    const arreglo = obj.result.querys;
+    this.headers = arreglo[0][0];
+    this.rows = arreglo[0][1];
 
   }
 

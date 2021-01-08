@@ -47,7 +47,7 @@ export class EditorComponent implements OnInit, OnDestroy {
 
   // tslint:disable-next-line:typedef
   newMessage() {
-    this.data.changeMessage('Hello from Sibling');
+    this.data.changeMessage(this.message);
   }
 
   // tslint:disable-next-line:typedef
@@ -131,6 +131,7 @@ export class EditorComponent implements OnInit, OnDestroy {
         mensaje = this.content3.trim();
         break;
     }
+    this.message = mensaje;
     return mensaje;
   }
   // tslint:disable-next-line:typedef

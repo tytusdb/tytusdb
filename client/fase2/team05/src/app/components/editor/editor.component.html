@@ -1,5 +1,5 @@
 {{message}}
-<button (click)="newMessage()">New Message</button>
+<!--<button (click)="newMessage()">New Message</button>-->
 
 <div style="width: 100%; height:relative;">
   <br>
@@ -38,7 +38,7 @@
       </a>
     </label>
     <label  class="btn btn-outline-dark">
-      <a (click)="get()">
+      <a (click)="get(); newMessage();">
         <i class="fa fa-info-circle" aria-hidden="true"></i>
       </a>
     </label>
