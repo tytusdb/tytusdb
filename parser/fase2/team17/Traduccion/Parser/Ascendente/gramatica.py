@@ -878,14 +878,23 @@ def p_case(t):
 def p_drop_function(t):
     '''
         drop_function : DROP FUNCTION ID
+                      | DROP FUNCTION IF EXISTS ID
     '''
-    t[0] = dropfun(t[3], 1, 1)
+    if len(t) == 6:
+        t[0] = dropfun(t[5], 1, 1)
+    else:
+        t[0] = dropfun(t[3], 1, 1)
+
 
 def p_drop_procedure(t):
     '''
-        drop_procedure : DROP PROCEDURE ID
+        drop_procedure : DROP PROCEDURE IF EXISTS ID
+                       | DROP PROCEDURE ID
     '''
-    t[0] = dropfun(t[3], 1, 1)
+    if len(t) == 6:
+        t[0] = dropfun(t[5], 1, 1)
+    else:
+        t[0] = dropfun(t[3], 1, 1)
 
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
@@ -962,34 +971,6 @@ def p_statements_assign(t):
     set('<TR> \n <TD> asignacionvar → ID  DOSPTS IGUAL exp | ID  IGUAL exp: </TD> \n <TD> asignacionvar = var_asignacion(t[1], t[4], 1, 1) </TD> \n </TR> \n')
 
 
-# ================= perform =================
-def p_statements_perfom(t):
-    '''
-        statements : PERFORM select
-    '''
-    pass
-    set('<TR> \n <TD> statements → PERFORM select: </TD> \n <TD> statements  = perform(t[1]) </TD> \n </TR> \n')
-
-
-# ================= select =================
-#def p_statements_select(t):
-#    '''
-#        statements  : SELECT exp_list INTO exp_list FROM exp_list
-#                    | SELECT exp_list INTO exp_list FROM exp_list conditions
-#    '''
-#    pass
-#    set('<TR> \n <TD> statements → SELECT exp_list INTO exp_list FROM exp_list | SELECT exp_list INTO exp_list FROM exp_list conditions: </TD> \n <TD> statements  = select(t[2], t[4], t[6]) </TD> \n </TR> \n')
-
-
-#def p_statements_select_strict(t):
-#    '''
-#        statements : SELECT exp_list INTO STRICT ID FROM exp_list
-#                   | SELECT exp_list INTO STRICT ID FROM exp_list conditions
-#    '''
-#    pass
-#    set('<TR> \n <TD> statements → SELECT exp_list INTO STRICT ID FROM exp_list | SELECT exp_list INTO STRICT ID FROM exp_list conditions: </TD> \n <TD> statements  = select(t[2], t[4], t[6]) </TD> \n </TR> \n')
-
-
 # ================= insert =================
 
 def p_statements_insert(t):
@@ -998,25 +979,6 @@ def p_statements_insert(t):
                    | INSERT INTO ID                      VALUES PARIZQ exp_list PARDER returning
     '''
     set('<TR> \n <TD> statements → INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER returning | INSERT INTO ID VALUES PARIZQ exp_list PARDER returning: </TD> \n <TD> statements  = insert(t[3], t[6]) </TD> \n </TR> \n')
-
-
-# ================= update =================
-def p_statements_update(t):
-    '''
-        statements : UPDATE ID SET exp_list WHERE exp returning
-                   | UPDATE ID SET exp_list           returning
-    '''
-    set('<TR> \n <TD> statements → UPDATE ID SET setcolumns WHERE exp returning | UPDATE ID SET setcolumns returning: </TD> \n <TD> statements  = update(t[2], t[4], t[6]) </TD> \n </TR> \n')
-
-
-# ================= update =================
-def p_statements_delete(t):
-    '''
-    statements : DELETE                FROM ID WHERE exp returning
-               | DELETE 			   FROM ID           returning
-    '''
-    set('<TR> \n <TD> statements → DELETE FROM ID WHERE exp returning | DELETE FROM ID returning | DELETE groupatributes FROM ID WHERE exp returning | DELETE groupatributes FROM ID returning: </TD> \n <TD> statements  = delete(t[2], t[4], t[6]) </TD> \n </TR> \n')
-
 
 
 def p_returning(t):
@@ -2385,20 +2347,10 @@ def p_expSimples_exp_AS_ID(t):
 # --------------------------------------------------------------------------------------
 def p_subquery(t):
     '''
-        subquery : PARIZQ select PARDER
-                 | PARIZQ select PARDER ID
-                 | PARIZQ select PARDER AS ID
+        subquery : PARIZQ DataManipulationLenguage PARDER
+                 | PARIZQ callfunction PARDER
     '''
-    if len(t) == 4:
-        #PARIZQ select PARDER
-        pass
-    elif len(t) == 5:
-        #PARIZQ select PARDER ID
-        t[0] = indexador_auxiliar(t[2], t[4], 2)
-    elif len(t) == 6:
-        #PARIZQ select PARDER AS ID
-        t[0] = indexador_auxiliar(t[2], t[5], 2)
-        pass
+    t[0] = t[2]
     set('<TR> \n <TD> subquery  → PARIZQ select PARDER : </TD> \n <TD> subquery  = select(t[1]) </TD> \n </TR> \n')
 
 
@@ -3534,16 +3486,15 @@ def p_idlist(t):
 # --------------------------------------------------------------------------------------
 def p_update(t):
     '''
-        update : UPDATE ID SET exp_list WHERE exp
-               | UPDATE ID SET exp_list
+        update : UPDATE ID SET expF2_list WHERE expF2
+               | UPDATE ID SET expF2_list
     '''
+    string = ''
     if len(t)==7:
-        #UPDATE ID SET setcolumns WHERE exp
-        t[0] = Update(t.lineno, 0, t[2], t[4], t[6])
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
     elif len(t)==5:
-        t[0] = Update(t.lineno, 0, t[2], t[4])
-        #UPDATE ID SET setcolumns
-        pass
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Update(string, 1, 1)
     set('<TR> \n <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> \n <TD> update = Update(t[2], t[4], t[6]) </TD> \n </TR> \n')
 
 
@@ -3627,16 +3578,15 @@ def p_newInstructions(t):
 # --------------------------------------------------------------------------------------
 def p_deletetable(t):
     '''
-        deletetable : DELETE FROM ID WHERE exp
+        deletetable : DELETE FROM ID WHERE expF2
                     | DELETE FROM ID
     '''
+    string = ''
     if len(t)==6:
-        #DELETE FROM ID WHERE exp
-        t[0] = Delete(t[3], t[5], 1, 1)
-        pass
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
     elif len(t) == 4:
-        t[0] = Delete(t[3], None, 1, 1)
-        pass
+        string = t[1] + ' ' + t[2] + ' ' + t[3]
+    t[0] = Delete(string, 1, 1)
     set('<TR> \n <TD> deletetable → DELETE FROM ID WHERE exp | DELETE FROM ID: </TD> \n <TD> defAcces = deleteTable(t[2], t[4]) </TD> \n </TR> \n')
 
 
