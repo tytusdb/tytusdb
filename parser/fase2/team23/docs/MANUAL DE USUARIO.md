@@ -164,7 +164,7 @@ main()
 ### GRAMÁTICA SQL REALIZADA
 ---
 
-La gramática desarrollada la puede consultar en: [Gramática SQL](https://github.com/tytusdb/tytus/blob/main/parser/team23/grammar/Gramatica_Ascendente_BNF.md)
+La gramática desarrollada la puede consultar en: [Gramática SQL](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team23/docs/Gramatica_Ascendente_BNF)
 
 ### DOCUMENTACIÓN CONSULTADA
 ---
