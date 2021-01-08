@@ -5,6 +5,8 @@ import mathtrig as mt
 import hashlib
 from datetime import date
 
+from reportTable import *
+
 from variables import cont
 from variables import tabla
 from variables import NombreDB
@@ -59,8 +61,9 @@ class createdb(instruccion):
         self.iden = iden
         self.owner = owner
         self.mode = mode
-
-    def traducir(self):
+    
+    def traducir(self,table):
+        
         #global traduccion
         traduccion = '\t'
         traduccion += 'sql.execute("CREATE DATABASE'
@@ -72,6 +75,9 @@ class createdb(instruccion):
         if self.mode != "":
             traduccion += ' MODE =' + self.mode
         traduccion += ';")'
+        self.ejecutar()
+        
+        
         
         return traduccion + '\n'
 
@@ -113,7 +119,9 @@ class createdb(instruccion):
                 errores.insert_error(e)
                 resultadotxt += "Error al crear base de datos: " + self.iden + "\n"
                 print("Error al crear base de datos: " + self.iden + "\n")
+
                 return "Error al crear base de datos: " + self.iden + "\n"
+            
         except:
             """ERROR SEMANTICO"""
 
@@ -277,7 +285,7 @@ class usedb(instruccion):
     def traducir(self):
         traduccion = '\t'
         traduccion += 'sql.execute("USE DATABASE '+ self.iden
-        traduccion += '";)'
+        traduccion += ';")'
         traduccion += '\n'
         
         return traduccion
@@ -317,7 +325,7 @@ class createtb(instruccion):
         traduccion += ');")'
         traduccion = traduccion.replace(',)',')')
         traduccion += '\n'
-        
+        #self.ejecutar()
         return traduccion
 
 
@@ -636,7 +644,7 @@ class insert(instruccion):
         traduccion += '\tsql.execute("INSERT INTO '+ self.iden + ' VALUES('
 
         for v in self.valores:
-            print(type(v))
+            
             if isinstance(v, llamadaF):
                 print(v) 
                 c = v.traducir()
@@ -657,7 +665,7 @@ class insert(instruccion):
         traduccion += ');")'
         traduccion += '\n'
         c3d += traduccion
-        print(c3d.replace(',)',')'))
+        
         return c3d.replace(',)',')')
 
     def ejecutar(self):
