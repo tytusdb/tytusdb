@@ -9,8 +9,10 @@ class FuncionNativa(Instruccion):
         self.parametros = parametros
         if parametros is None:
             self.numparametros = 0
-        else:
+        elif isinstance(parametros, list):
             self.numparametros = len(parametros)
+        else:
+            self.numparametros = 1
 
 #class Funcion(Expresion):
 #    def __init__(self, id, parametros, declaraciones, cuerpo):
