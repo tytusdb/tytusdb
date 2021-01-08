@@ -5,6 +5,7 @@ import zlib
 import binascii
 import sys
 from cryptography.fernet import Fernet
+from grafos import Grafo , Nodo
 from BlockChain.BlockChain import BlockChain
 
 # 1. UNIFICACION DE INDICES
@@ -21,6 +22,7 @@ structs = [avl, b, bplus, _hash, isam, _dict]
 databases = []
 listBlockChain = []
 uIndex = {}
+fkIndex = {}
 isCompressed = False
 
 def dropAll():
@@ -239,10 +241,11 @@ def insert(database, table, register):
     for item in structs:
         codificacion = codificationValidation(getCodificationMode(database),register)
         if codificacion == True:
-            if insertVerifyUnique(database, table, register ):   #verifica si la tabla tiene indices unicos y si el indice unico viene en null
+            if insertVerifyUnique(database, table, register ) and insertVerifyFK(database, table, register):   #verifica si la tabla tiene indices unicos y si el indice unico viene en null
                 value = item.insert(database, table, register)
                 Unique(database,table,register)
-                if value != 2:
+                foreingKey(database,table,register)
+             if value != 2:
                     if value != 0:
                         return value
                     for i in databases:
@@ -872,3 +875,26 @@ def alterTableAddIndex(database, table, indexName, columns):
     except Exception as e:
         #Error en la operación
         return 1
+def graphDF(database):
+    try: 
+        grafo = Grafo()
+        tablas = fkIndex[database]
+        for i in list(tablas.keys()):
+            tabla_con_referencia = i[0]
+            tabla_referenciada = i[1]
+            referencia = tablas[i]
+            grafo.insertar(tabla_referenciada, referencia , tabla_con_referencia)
+        agregados = [i.valor for i in grafo.nodosAgregados]
+        
+        
+        for db in databases: 
+            if database == db["name"]:
+                for t in db["tables"]:
+                    if t["name"] not in agregados:
+                        nodo = Nodo(t["name"])
+                        grafo.insertIndependiente(nodo)
+                    
+        grafo.graficar()
+        return "0"
+    except: 
+        None
