@@ -4,6 +4,16 @@ import sys
 import pickle
 import analizer.interpreter as interpreter
 
+def importFile(name):
+    try:
+        with open("./" + name + ".json", "r") as file:
+            databases = json.load(file)
+            return databases
+    except:
+        if name == "Databases":
+            return []
+        return {}
+
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
@@ -12,6 +22,7 @@ print("hi")
 serv.bind(serv_add)
 
 serv.listen(1)
+
 
 while True:
     
@@ -31,8 +42,9 @@ while True:
             #recibimos el script del query tool y la decodificamos a utf 8 
             scritp_sql = data.decode('utf-8')
             #Realiza la interpretacion
-            obj = interpreter.execution(scritp_sql);
-            json_data = json.dumps(obj, sort_keys=False, indent=2)
+            obj = interpreter.execution(scritp_sql)
+            temp = {"obj": obj, "databases":importFile("Databases")} 
+            json_data = json.dumps(temp, sort_keys=False, indent=2)
             #Imprimimos el json desde el server
             print("data %s" % json_data)
             if data:
@@ -44,3 +56,4 @@ while True:
                 break
     finally:
         connection.close()
+

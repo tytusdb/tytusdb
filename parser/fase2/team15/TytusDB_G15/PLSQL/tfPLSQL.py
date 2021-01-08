@@ -35,12 +35,16 @@ class TablaDeFunciones():
 
     def obtener(self, id):
         if not id in self.funciones:
-            print('Error: variable ', id, ' no definida.')
+            print('Error: funcion ', id, ' no definida.')
             return None
         return self.funciones[id]
 
     def actualizar(self, funcion):
         if not funcion.id in self.funciones:
-            print('Error: variable ', funcion.id, ' no definida.')
+            print('Error: funcion ', funcion.id, ' no definida.')
         else:
             self.funciones[funcion.id] = funcion
+
+    def eliminar(self, id):
+        if id in self.funciones:
+            del self.funciones[id]

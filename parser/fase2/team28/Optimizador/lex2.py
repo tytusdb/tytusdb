@@ -74,8 +74,8 @@ digit = r'[0-9]+'
 letter = r'([_A-Za-z])'
 identifier = r'(' + letter + r'(' + digit + r'|' + letter + r')*)'
 decimal = r'\d+\.\d+'
-char = r'\'[^"\'"]*\''
-string = r'\"[^"\""]*\"'
+char = r'\'[^\']*\''
+string = r'\"[^\"]*\"'
 single_line = r'\#.*\n'
 # Definition of Symbols
 t_DOT = r'\.'
@@ -106,7 +106,6 @@ t_BITWISE_SHIFT_RIGHT = r'\>\>'
 t_LEFT_CORCH = r'\['
 t_RIGHT_CORCH = r'\]'
 t_ARROBA = r'\@'
-
 # Token recognition using patterns
 
 

@@ -23,8 +23,11 @@ class Llamada(Instruccion):
                 elif isinstance(expr,Unario):
                     exp1 = Expresion.Expresion.ObtenerCadenaEntrada(expr.op,condicion)
                     concatenar += str(expr.operador)+exp1
+                elif isinstance(expr,Id):
+                    concatenar +=expr.id
                 con += 1
                 if con < len(llamada.listaE):
                     concatenar += ","
             concatenar += ")"
             return  concatenar
+

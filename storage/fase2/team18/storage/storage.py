@@ -10,8 +10,12 @@ from .hash import HashMode as hash
 from .isam import ISAMMode as isam
 from .json import jsonMode as json
 from . import Serializable as Serializable
+from . import blockchain as block
+from . import Criptografia as crypt
+import hashlib
 import shutil
 import os
+import re
 
 #----------------Data--------------------#
 
@@ -21,6 +25,20 @@ def checkData():
     if not os.path.isfile("./Data/Data.bin"):
         dataBaseTree = {}
         Serializable.update('./Data', 'Data', dataBaseTree)
+        Serializable.update('./Data', 'DataTables', dataBaseTree)
+        Serializable.update('./Data', 'DataTablesRef', dataBaseTree)
+    if not os.path.isdir("./Data/security"):
+        os.mkdir("./Data/security")
+    if not os.path.isdir("./Data/hash"):
+        hash.__init__()
+        hash._storage = hash.ListaBaseDatos.ListaBaseDatos()
+    if not os.path.isdir("./Data/B"):
+        os.mkdir("./Data/B")
+        b.b = b.db.DB()
+
+def validateIdentifier(identifier):
+    # Returns true if is valid
+    return re.search("^[a-zA-Z][a-zA-Z0-9#@$_]*", identifier)
 
 def dropAll():
     dict.dropAll()
@@ -31,6 +49,8 @@ def dropAll():
 
 def createDatabase(database: str, mode: str, encoding: str) -> int:
     checkData()
+    if not validateIdentifier(database):
+        return 1
     data = Serializable.Read('./Data/',"Data")
     if encoding not in ['ascii', 'iso-8859-1', 'utf8']:
         return 4
@@ -59,6 +79,7 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
         return 2
 
 def showDatabases() -> list:
+    checkData()
     data = Serializable.Read('./Data/',"Data")
     temp = []
     for x in list(data.values()):
@@ -66,32 +87,58 @@ def showDatabases() -> list:
     return temp
 
 def alterDatabase(databaseOld, databaseNew) -> int:
+    checkData()
     try:
+        if not validateIdentifier(databaseNew):
+            return 1
         data = Serializable.Read('./Data/',"Data")
         db = data.get(databaseOld)
         if db:
             if data.get(databaseNew):
                 return 3
-            mode =db[1][0] 
-            if mode == 'avl':
+            tablas = []
+            if 'avl' in db[1]:
                 res = avl.alterDatabase(databaseOld, databaseNew)
-            elif mode == 'b':
+                tablas += avl.showTables(databaseNew)
+            if 'b' in db[1]:
                 res = b.alterDatabase(databaseOld, databaseNew)
-            elif mode == 'bplus':
+                tablas += b.showTables(databaseNew)
+            if 'bplus'in db[1]:
                 res = bplus.alterDatabase(databaseOld, databaseNew)
-            elif mode == 'dict':
+                tablas += bplus.showTables(databaseNew)
+            if 'dict'in db[1]:
                 res = dict.alterDatabase(databaseOld, databaseNew)
-            elif mode == 'isam':
+                tablas += dict.showTables(databaseNew)
+            if 'isam'in db[1]:
                 res = isam.alterDatabase(databaseOld, databaseNew)
-            elif mode == 'json':
+                tablas += isam.showTables(databaseNew)
+            if 'json'in db[1]:
                 res = json.alterDatabase(databaseOld, databaseNew)
-            elif mode == 'hash':
+                tablas += json.showTables(databaseNew)
+            if 'hash'in db[1]:
                 res = hash.alterDatabase(databaseOld, databaseNew)
+                tablas += hash.showTables(databaseNew)
             if not res:
                 del data[databaseOld]
                 db[0] = databaseNew
                 data[databaseNew] = db
                 Serializable.update('./Data', 'Data', data)
+                if len(tablas):
+                    dataTable = Serializable.Read('./Data/',"DataTables")
+                    dataTableRef = Serializable.Read('./Data/',"DataTablesRef")
+                    for x in tablas:
+                        tab = dataTable.get(databaseOld+"_"+x)
+                        if tab:
+                            tab[0] = databaseNew
+                            dataTable[databaseNew+"_"+x] = tab
+                            del dataTable[databaseOld+"_"+x]
+                        else:
+                            dataTableRef[x+"-"+databaseNew] = dataTableRef.get(x+"-"+databaseOld)
+                            del dataTableRef[x+"_"+databaseOld]
+                    Serializable.update('./Data', 'DataTables', dataTable)
+                    Serializable.update('./Data', 'DataTablesRef', dataTableRef)
+                    Serializable.update('./Data', 'Data', data)
+
             return res
         else:
             return 2
@@ -99,6 +146,7 @@ def alterDatabase(databaseOld, databaseNew) -> int:
         return 1
 
 def dropDatabase(database: str) -> int: 
+    checkData()
     try:
         data = Serializable.Read('./Data/',"Data")
         db = data.get(database)
@@ -149,6 +197,7 @@ def dropDatabase(database: str) -> int:
         return 1
 
 def alterDatabaseMode(database: str, mode: str) -> int:
+    checkData()
     # try:
     data = Serializable.Read('./Data/',"Data")
     db = data.get(database)
@@ -156,7 +205,10 @@ def alterDatabaseMode(database: str, mode: str) -> int:
         return 4
     if db:
         tablas = []
-        mod =db[1][0] 
+        mod =db[1][0]
+        if mod== mode:
+            return 0
+        
         if mod == 'avl':
             tablas = avl.showTables(database)
             res = cambioTablas(avl, tablas, database, mode, db)
@@ -198,9 +250,10 @@ def alterDatabaseMode(database: str, mode: str) -> int:
     else:
         return 2
     # except:
-    #     return 1
+        # return 1
 
 def cambioTablas(modo, tablas, database, mode, db):
+    checkData()
     if mode in db:
         db[1].pop(0)
         db[1].remove(mode)
@@ -229,22 +282,61 @@ def cambioTablas(modo, tablas, database, mode, db):
         elif mode == 'hash':
             hash.createDatabase(database)
             mod = hash
-    if mod!= modo:
-        import csv
-        for x in tablas:
-            t=0
-            file = open("./data/change.csv", "w", newline='', encoding='utf-8')
-            spamreader = csv.writer(file)
-            for y in modo.extractTable(database, x):
-                if t == 0:
-                    mod.createTable(database, x, len(y))
-                spamreader.writerow(y)
-                t=1
-            mod.loadCSV("./data/change.csv", database, x)
-            file.close()
-            os.remove("./data/change.csv")
-        return 0
-    return 4
+    import csv
+    dataTable = Serializable.Read('./Data/',"DataTables")
+    dataTableRef = Serializable.Read('./Data/',"DataTablesRef")
+    for x in tablas:
+        tab = dataTable.get(database+"_"+x)
+        if tab:
+            tab[1] = mode
+            mod.createTable(database, x, tab[2])
+            if len(tab[3]):
+                mod.alterAddPK(database, x, tab[3])
+        else:
+            mod.createTable(database, x, dataTableRef[x+"_"+database])
+        file = open("./data/change.csv", "w", newline='', encoding='utf-8')
+        spamreader = csv.writer(file)
+        tipado = []
+        for y in modo.extractTable(database, x):
+            tipado_tupla = []
+            for t in y:
+                tipado_tupla.append(type(t))
+            tipado.append(tipado_tupla)
+            spamreader.writerow(y)
+        file.close()
+        mod.loadCSV("./data/change.csv", database, x, tipado)
+        os.remove("./data/change.csv")
+        Serializable.update('./Data', 'DataTables', dataTable)
+    return 0
+
+
+
+
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    checkData()
+    try:
+        data = Serializable.Read('./Data/',"Data")
+        if encoding not in ['ascii', 'iso-8859-1', 'utf8']:
+            return 3
+        db = data.get(database)
+        if db:
+            res = showTables(database)
+            if len(res):
+                for x in res:
+                    row = extractTable(database, x)
+                    if len(row):
+                        for l in row:
+                            for g in l:
+                                if type(g) == str:
+                                    g.encode(encoding)
+            db[2] == encoding
+            data[database] = db
+            Serializable.update('./Data', 'Data', data)
+            return 0
+        else:
+            return 2
+    except:
+        return 1
 
 #----------------Table-------------------#
 
@@ -656,161 +748,248 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
 
 
 def insert(database: str, table: str, register: list) -> int:
+    checkData()
     try:
         data = Serializable.Read('./Data/',"Data")
         db = data.get(database)
+        dataTable = Serializable.Read('./Data/',"DataTables")
+        tab = dataTable.get(database+"_"+table)
         if db:
-            res = 3
-            if 'avl' in db[1] and res == 3:
-                res = avl.insert(database, table, register)
-            if 'b' in db[1] and res == 3:
-                res = b.insert(database, table, register)
-            if 'bplus' in db[1] and res == 3:
-                res = bplus.insert(database, table, register)
-            if 'dict' in db[1] and res == 3:
-                res = dict.insert(database, table, register)
-            if 'isam' in db[1] and res == 3:
-                res = isam.insert(database, table, register)
-            if 'json' in db[1] and res == 3:
-                res = json.insert(database, table, register)
-            if 'hash' in db[1] and res == 3:
-                res = hash.insert(database, table, register)
-            return res
+            if tab:
+                for x in register:
+                    if type(x)==str:
+                        x.encode(db[2], "strict")
+                        if tab[4] != -2:
+                            import zlib
+                            index = register.index(x)
+                            register[index] = zlib.compress(x.encode(), tab[4]).hex()  
+                if tab[1] == 'avl' :
+                    res = avl.insert(database, table, register)
+                elif tab[1] == 'b':
+                    res = b.insert(database, table, register)
+                elif tab[1] == 'bplus':
+                    res = bplus.insert(database, table, register)
+                elif tab[1] == 'dict':
+                    res = dict.insert(database, table, register)
+                elif tab[1] == 'isam':
+                    res = isam.insert(database, table, register)
+                elif tab[1] == 'json':
+                    res = json.insert(database, table, register)
+                elif tab[1] == 'hash':
+                    res = hash.insert(database, table, register)
+                if not res:
+                    if os.path.isfile("./Data/security/"+database+"_"+table+".json"):
+                        block.blockchain().insert(register, database, table)
+                return res
+            return 3
         else:
             return 2
     except:
         return 1
-
 
 def loadCSV(file: str, database: str, table: str) -> list:
+    checkData()
     try:
         data = Serializable.Read('./Data/',"Data")
         db = data.get(database)
+        dataTable = Serializable.Read('./Data/',"DataTables")
+        tab = dataTable.get(database+"_"+table)
         if db:
-            res = 3
-            if 'avl' in db[1] and res == 3:
-                res = avl.loadCSV(file, database, table)
-            if 'b' in db[1] and res == 3:
-                res = b.loadCSV(file, database, table)
-            if 'bplus' in db[1] and res == 3:
-                res = bplus.loadCSV(file, database, table)
-            if 'dict' in db[1] and res == 3:
-                res = dict.loadCSV(file, database, table)
-            if 'isam' in db[1] and res == 3:
-                res = isam.loadCSV(file, database, table)
-            if 'json' in db[1] and res == 3:
-                res = json.loadCSV(file, database, table)
-            if 'hash' in db[1] and res == 3:
-                res = hash.loadCSV(file, database, table)
-            return res
+            if tab:
+                res = []
+                tabla = []
+                import csv
+                ff = open("./data/change.csv", "w", newline='', encoding='utf-8')
+                spamreader = csv.writer(ff)
+                with open(file, 'r', encoding='utf-8-sig') as fil:
+                    reader = csv.reader(fil, delimiter=',')
+                    for y in reader:
+                        for g in y:
+                            if type(g) == str:
+                                g.encode(db[2], errors='strict')
+                                if tab[4] != -2:
+                                    import zlib
+                                    index = y.index(g)
+                                    y[index] = zlib.compress(g.encode(), tab[4]).hex()  
+                        spamreader.writerow(y)
+                        tabla.append(y)
+                    fil.close()
+                    ff.close()
+                file = "./data/change.csv"
+                if tab[1] == 'avl':
+                    res = avl.loadCSV(file, database, table, None)
+                elif tab[1] == 'b':
+                    res = b.loadCSV(file, database, table, None)
+                elif tab[1] == 'bplus':
+                    res = bplus.loadCSV(file, database, table, None)
+                elif tab[1] == 'dict':
+                    res = dict.loadCSV(file, database, table, None)
+                elif tab[1] == 'isam':
+                    res = isam.loadCSV(file, database, table, None)
+                elif tab[1] == 'json':
+                    res = json.loadCSV(file, database, table, None)
+                elif tab[1] == 'hash':
+                    res = hash.loadCSV(file, database, table, None)
+                if len(tabla):
+                    if os.path.isfile("./Data/security/"+database+"_"+table+".json"):
+                        i=0
+                        for r in res:
+                            if r ==0:
+                                block.blockchain().insert(tabla[i], database, table)
+                        i+=1
+                return res
+            return []
         else:
-            return 2
+            return []
     except:
-        return 1
-
+        return []
 
 def extractRow(database: str, table: str, columns: list) -> list:
+    checkData()
     try:
         data = Serializable.Read('./Data/',"Data")
         db = data.get(database)
+        dataTable = Serializable.Read('./Data/',"DataTables")
+        tab = dataTable.get(database+"_"+table)
         if db:
-            res = 3
-            if 'avl' in db[1] and res == 3:
-                res = avl.extractRow(database, table, columns)
-            if 'b' in db[1] and res == 3:
-                res = b.extractRow(database, table, columns)
-            if 'bplus' in db[1] and res == 3:
-                res = bplus.extractRow(database, table, columns)
-            if 'dict' in db[1] and res == 3:
-                res = dict.extractRow(database, table, columns)
-            if 'isam' in db[1] and res == 3:
-                res = isam.extractRow(database, table, columns)
-            if 'json' in db[1] and res == 3:
-                res = json.extractRow(database, table, columns)
-            if 'hash' in db[1] and res == 3:
-                res = hash.extractRow(database, table, columns)
-            return res
+            if tab:
+                
+                if tab[1] == 'avl':
+                    res = avl.extractRow(database, table, columns)
+                elif tab[1] == 'b':
+                    res = b.extractRow(database, table, columns)
+                elif tab[1] == 'bplus':
+                    res = bplus.extractRow(database, table, columns)
+                elif tab[1] == 'dict':
+                    res = dict.extractRow(database, table, columns)
+                elif tab[1] == 'isam':
+                    res = isam.extractRow(database, table, columns)
+                elif tab[1] == 'json':
+                    res = json.extractRow(database, table, columns)
+                elif tab[1] == 'hash':
+                    res = hash.extractRow(database, table, columns)
+                return res
+            return 3
         else:
             return 2
     except:
         return 1
-
 
 def update(database: str, table: str, register: dict, columns: list) -> int:
+    checkData()
     try:
         data = Serializable.Read('./Data/',"Data")
         db = data.get(database)
+        dataTable = Serializable.Read('./Data/',"DataTables")
+        tab = dataTable.get(database+"_"+table)
         if db:
-            res = 3
-            if 'avl' in db[1] and res == 3:
-                res = avl.update(database, table, register, columns)
-            if 'b' in db[1] and res == 3:
-                res = b.update(database, table, register, columns)
-            if 'bplus' in db[1] and res == 3:
-                res = bplus.update(database, table, register, columns)
-            if 'dict' in db[1] and res == 3:
-                res = dict.update(database, table, register, columns)
-            if 'isam' in db[1] and res == 3:
-                res = isam.update(database, table, register, columns)
-            if 'json' in db[1] and res == 3:
-                res = json.update(database, table, register, columns)
-            if 'hash' in db[1] and res == 3:
-                res = hash.update(database, table, register, columns)
-            return res
+            if tab:
+                for x in list(register.values()):
+                    if type(x)==str:
+                        x.encode(db[2], "strict")
+                if tab[1] == 'avl':
+                    row = avl.extractRow(database, table, columns)
+                    res = avl.update(database, table, register, columns)
+                elif tab[1] == 'b':
+                    row = b.extractRow(database, table, columns)
+                    res = b.update(database, table, register, columns)
+                elif tab[1] == 'bplus':
+                    row = bplus.extractRow(database, table, columns)
+                    res = bplus.update(database, table, register, columns)
+                elif tab[1] == 'dict':
+                    row = dict.extractRow(database, table, columns)
+                    res = dict.update(database, table, register, columns)
+                elif tab[1] == 'isam':
+                    row = isam.extractRow(database, table, columns)
+                    res = isam.update(database, table, register, columns)
+                elif tab[1] == 'json':
+                    row = json.extractRow(database, table, columns)
+                    res = json.update(database, table, register, columns)
+                elif tab[1] == 'hash':
+                    row = hash.extractRow(database, table, columns)
+                    res = hash.update(database, table, register, columns)
+                if not res:
+                    if os.path.isfile('./Data/security/'+database+"_"+table+".json"):
+                        row2 = row[:]
+                        values = list(register.values())
+                        for x in list(register.keys()):
+                            row2[x] = values[x]
+                        block.blockchain().CompararHash(row, row2, database, table)
+                return res
+            return 3
         else:
             return 2
     except:
         return 1
-
 
 def delete(database: str, table: str, columns: list) -> int:
+    checkData()
     try:
         data = Serializable.Read('./Data/',"Data")
         db = data.get(database)
+        dataTable = Serializable.Read('./Data/',"DataTables")
+        tab = dataTable.get(database+"_"+table)
         if db:
-            res = 3
-            if 'avl' in db[1] and res == 3:
-                res = avl.delete(database, table, columns)
-            if 'b' in db[1] and res == 3:
-                res = b.delete(database, table, columns)
-            if 'bplus' in db[1] and res == 3:
-                res = bplus.delete(database, table, columns)
-            if 'dict' in db[1] and res == 3:
-                res = dict.delete(database, table, columns)
-            if 'isam' in db[1] and res == 3:
-                res = isam.delete(database, table, columns)
-            if 'json' in db[1] and res == 3:
-                res = json.delete(database, table, columns)
-            if 'hash' in db[1] and res == 3:
-                res = hash.delete(database, table, columns)
-            return res
+            if tab:
+                if tab[1] == 'avl':
+                    row = avl.extractRow(database, table, columns)
+                    res = avl.delete(database, table, columns)
+                elif tab[1] == 'b':
+                    row = b.extractRow(database, table, columns)
+                    res = b.delete(database, table, columns)
+                elif tab[1] == 'bplus':
+                    row = bplus.extractRow(database, table, columns)
+                    res = bplus.delete(database, table, columns)
+                elif tab[1] == 'dict':
+                    row = dict.extractRow(database, table, columns)
+                    res = dict.delete(database, table, columns)
+                elif tab[1] == 'isam':
+                    row = isam.extractRow(database, table, columns)
+                    res = isam.delete(database, table, columns)
+                elif tab[1] == 'json':
+                    row = json.extractRow(database, table, columns)
+                    res = json.delete(database, table, columns)
+                elif tab[1] == 'hash':
+                    row = hash.extractRow(database, table, columns)
+                    res = hash.delete(database, table, columns)
+                if not res:
+                    if os.path.isfile('./Data/security/'+database+"_"+table+".json"):
+                        block.blockchain().EliminarHash(row, database, table)
+                return res
+            return 3
         else:
             return 2
     except:
         return 1
 
-
 def truncate(database: str, table: str) -> int:
+    checkData()
     try:
         data = Serializable.Read('./Data/',"Data")
         db = data.get(database)
+        dataTable = Serializable.Read('./Data/',"DataTables")
+        tab = dataTable.get(database+"_"+table)
         if db:
-            res = 3
-            if 'avl' in db[1] and res == 3:
-                res = avl.truncate(database, table)
-            if 'b' in db[1] and res == 3:
-                res = b.truncate(database, table)
-            if 'bplus' in db[1] and res == 3:
-                res = bplus.truncate(database, table)
-            if 'dict' in db[1] and res == 3:
-                res = dict.truncate(database, table)
-            if 'isam' in db[1] and res == 3:
-                res = isam.truncate(database, table)
-            if 'json' in db[1] and res == 3:
-                res = json.truncate(database, table)
-            if 'hash' in db[1] and res == 3:
-                res = hash.truncate(database, table)
-            return res
+            if tab:
+                if tab[1] == 'avl':
+                    res = avl.truncate(database, table)
+                elif tab[1] == 'b':
+                    res = b.truncate(database, table)
+                elif tab[1] == 'bplus':
+                    res = bplus.truncate(database, table)
+                elif tab[1] == 'dict':
+                    res = dict.truncate(database, table)
+                elif tab[1] == 'isam':
+                    res = isam.truncate(database, table)
+                elif tab[1] == 'json':
+                    res = json.truncate(database, table)
+                elif tab[1] == 'hash':
+                    res = hash.truncate(database, table)
+                if not res:
+                    if os.path.isfile('./Data/security/'+database+"_"+table+".json"):
+                        block.blockchain().crear(database, table)
+                return res
+            return 3
         else:
             return 2
     except:

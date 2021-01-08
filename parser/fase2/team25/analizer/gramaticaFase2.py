@@ -2259,7 +2259,7 @@ def parserTo3D(input)-> None:
 #------------------------------------ METODOS PROPIOS DE LA FASE 2
 
 def getCodigo():
-    #instancia_codigo3d.generarArchivoEjecucion()
+    instancia_codigo3d.generarArchivoEjecucion()
     return instancia_codigo3d.getCodigo()
 
 def C3D_INSTRUCCIONES_FASE1(t):

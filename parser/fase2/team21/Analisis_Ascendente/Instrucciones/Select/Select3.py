@@ -245,21 +245,52 @@ class Selectp4(Instruccion):
 
             return DataSelectAux
 
-    def traducir(Select, ts, consola, Exception, tv):
+    def traducir(Sel, ts, consola, lista, tv):
         # iniciar traduccion
         # iniciar traduccion
         info = ""  # info contiene toda el string a mandar como parametros
-        #print("concatena \n")
-        #print(Select.concatena)
-        for data in Select.concatena:
-            info += " " + data
 
+        # print("concatena \n")
+        # print(Select.concatena)
+
+        for data in Sel.concatena:
+
+            info += " " + data
+        print('concatena' + str(Sel.concatena))
+
+        info = obtenerTraduccion2(Sel, ts, consola, lista, tv)
+
+        # info = Sel.concatena[0]
         contador = tv.Temp()
-        consola.append(f"\n\t{contador} = \"{info}\"")
+        consola.append(f"\n\t{contador} = f\"{info}\"")
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({contador})")
         consola.append(f"\n\tT1 = T3({contador2})")
         consola.append(f"\n\tstack.append(T1)\n")
+
+
+def obtenerTraduccion2(Sel,ts,consola, lista,tv):
+    fromt = Select.select.Select.obtenerCadenaInner(Sel.inner, lista)
+    order = ''
+    subq = ''
+
+    where = ''
+    where = ' WHERE ' + str(Select.select.Select.obtenerCadenaWhere(Sel.complementS, lista)) + ' '
+    if Sel.orderby != None:
+        order = ' ORDER BY ' + str(Select.select.Select.obtenerCadenalistColumn(Sel.orderby, lista)) + ' '
+
+    if Sel.subquery != None and Sel.subquery.caso != 4:
+        subq = '( ' + (Sel.subquery).concatena[0].replace(";", "") + ' ) '
+
+    if isinstance(Sel.columnas, str):
+        info = (f"SELECT  * FROM  {subq}{fromt} {where}{order};")
+    else:
+        cols = Select.select.Select.obtenerCadenalistColumna(Sel.columnas, lista)
+
+        info = (f"SELECT  {cols} FROM  {subq}{fromt}{where}{order};")
+    # t[0] = Select(5, False, None, t[2], t[4], t[5], t[8], t[9], t[7], concatenaTime, lexer.lineno, columna)
+    return info
+
 
 
 def existeTabla(listadoTablas,tablaBuscar):

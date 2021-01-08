@@ -92,8 +92,8 @@ def p_instruction(t):
     try:
         if t[1].dot():
             listInst.append(t[1].dot())
-    except:
-        pass
+    except Exception as e:
+        print(e)
     t[0] = t[1]
     repGrammar.append(t.slice)
 
@@ -123,6 +123,8 @@ def p_isblock_f(t):
     global isBlock
     isBlock = False
 
+
+# endregion
 
 # region function
 
@@ -228,7 +230,6 @@ def p_language_function_1(t):
 
 
 # endregion
-
 
 # region declaration
 
@@ -420,7 +421,6 @@ def p_typesvar(t):
 
 # endregion
 
-
 # region block stmts
 
 
@@ -530,7 +530,6 @@ def p_elseif_stmts_opt(t):
     elseif_stmts_opt : elseif_stmts
     """
     t[0] = t[1]
-
     repGrammar.append(t.slice)
 
 
@@ -764,7 +763,7 @@ def p_deleteStmt_single_row(t):
     repGrammar.append(t.slice)
 
 
-# region select
+# select
 
 
 def p_selectStmt_single_row_1(t):
@@ -808,12 +807,14 @@ def p_selectstmt_only_params_single_row(t):
 
 # endregion
 
-# perform
+# region perform
 
 
 def p_perform(t):
     """perform : R_PERFORM STRING """
 
+
+# endregion
 
 # region GET
 
@@ -832,8 +833,6 @@ def p_current_g(t):
 def p_item(t):
     """item : R_ROW_COUNT"""
 
-
-# endregion
 
 # endregion
 
@@ -1978,6 +1977,7 @@ def p_boolean_1(t):
     """
     boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
     """
+    t[0] = code.ExistsRelationalOperation(newTemp(), t[3])
     repGrammar.append(t.slice)
 
 
@@ -1985,6 +1985,8 @@ def p_boolean_2(t):
     """
     boolean : datatype R_IN S_PARIZQ selectStmt S_PARDER
     """
+    # temp, colData, optNot , select
+    t[0] = code.inRelationalOperation(newTemp(), t[1], "", t[4])
     repGrammar.append(t.slice)
 
 
@@ -1992,6 +1994,7 @@ def p_boolean_3(t):
     """
     boolean : datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
     """
+    t[0] = code.inRelationalOperation(newTemp(), t[1], t[2] + " ", t[5])
     repGrammar.append(t.slice)
 
 
@@ -2074,7 +2077,6 @@ def p_columnName_id(t):
     """
     global isBlock
     t[0] = code.Identifier(t[1], isBlock, t.slice[1].lineno, t.slice[1].lexpos)
-
     repGrammar.append(t.slice)
 
 
@@ -2131,14 +2133,21 @@ def p_booleanCheck_3(t):
 def p_idOrLiteral(t):
     """
     idOrLiteral : ID
-    | INTEGER
     | STRING
-    | DECIMAL
     | CHARACTER
     | R_TRUE
     | R_FALSE
     """
     t[0] = t.slice[1].value
+    repGrammar.append(t.slice)
+
+
+def p_idOrLiteral_1(t):
+    """
+    idOrLiteral : INTEGER
+    | DECIMAL
+    """
+    t[0] = str(t.slice[1].value)
     repGrammar.append(t.slice)
 
 
@@ -2569,25 +2578,26 @@ def p_havingCl_2(t):
 
 def p_orderByCl(t):
     """orderByCl : R_ORDER R_BY orderList"""
-    t[0] = t[1] + " " + t[2] + " " + t[3]
+    t[0] = t[3]
     repGrammar.append(t.slice)
 
 
 def p_orderByCl_n(t):
     """orderByCl : """
-    t[0] = ""
+    t[0] = None
     repGrammar.append(t.slice)
 
 
 def p_orderList(t):
     """orderList : orderList S_COMA orderByElem"""
-    t[0] = t[1] + ", " + t[3]
+    t[1].append(t[3])
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
 def p_orderList_1(t):
     """orderList : orderByElem"""
-    t[0] = t[1]
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
@@ -2596,7 +2606,7 @@ def p_orderByElem(t):
     orderByElem : columnName orderOpts orderNull
                 | INTEGER orderOpts orderNull
     """
-    t[0] = str(t[1]) + t[2] + t[3]
+    t[0] = [t[1], t[2], t[3]]
     repGrammar.append(t.slice)
 
 
@@ -2688,28 +2698,38 @@ def p_paramsColumn_none(t):
 
 def p_updateStmt(t):
     """updateStmt : R_UPDATE isblock_f fromBody R_SET updateCols whereCl"""
+    t[0] = code.Update(t[3], t[5], t[6], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_updateCols_list(t):
     """updateCols : updateCols S_COMA updateVals"""
+    t[1].append(t[3])
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
 def p_updateCols_u(t):
     """updateCols : updateVals """
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
 def p_updateVals(t):
     """updateVals : ID S_IGUAL updateExp"""
+    t[0] = [t[1], t[3]]
     repGrammar.append(t.slice)
 
 
 def p_updateExp(t):
-    """updateExp : datatype
-    | R_DEFAULT
-    """
+    """updateExp : datatype"""
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_updateExp_Default(t):
+    """updateExp : R_DEFAULT"""
+    t[0] = expression.C3D("", t[1], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 

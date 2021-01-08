@@ -5,3 +5,6 @@ class Ins_return(Instruccion):
     
     def execute(self):
         return {'ins': self.ins, 'params': self.params}
+    
+    def toString(self,tab):
+        return '\t'*tab + 'return ' + str(self.params)
