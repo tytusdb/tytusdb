@@ -1959,7 +1959,7 @@ def p_CIndex(t):
    global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "(" <LCINDEX> ")" ";" ')
    
-   ret = Retorno(Index(t[3],t[5],t[7].getInstruccion(),False,False),NodoAST("INDEX"))
+   ret = Retorno(Index(t[3],t[5],t[7].getInstruccion(),False,False,None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(t[7].getNodo())
@@ -1970,7 +1970,7 @@ def p_CIndex2(t):
    global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "USING" "HASH" "(" "ID" ")" ";" ')
 
-   ret = Retorno(Index(t[3],t[5],t[9],False,True),NodoAST("INDEX"))
+   ret = Retorno(Index(t[3],t[5],t[9],False,True,None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(NodoAST(t[9]))
@@ -1980,7 +1980,7 @@ def p_CIndex3(t):
    'I_CINDEX        :   CREATE INDEX ID ON ID PABRE MAJOR COMA MINOR PCIERRA PCOMA'
    global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID"  "(" "NUMERO" "," "NUMERO"  ")" ";" ')
-   ret = Retorno(IndexMM(t[3],t[5],t[7],t[9]),NodoAST("INDEX"))
+   ret = Retorno(IndexMM(t[3],t[5],t[7],t[9],None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(NodoAST(t[7]))
@@ -1992,7 +1992,7 @@ def p_CIndex4(t):
    global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "UNIQUE" "INDEX" "ID" "ON" "ID"  "(" <LCINDEX> ")" ";" ')
 
-   ret = Retorno(Index(t[4],t[6],t[8].getInstruccion(),True,False),NodoAST("INDEX"))
+   ret = Retorno(Index(t[4],t[6],t[8].getInstruccion(),True,False,None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[4]))
    ret.getNodo().setHijo(NodoAST(t[6]))
    ret.getNodo().setHijo(t[8].getNodo())
@@ -2003,7 +2003,7 @@ def p_CIndex5(t):
    global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "(" <LCINDEX> ")" <PWHERE> ";" ')
 
-   ret = Retorno(IndexW(t[3],t[5],t[7].getInstruccion(),t[9].getInstruccion()),NodoAST("INDEX"))
+   ret = Retorno(IndexW(t[3],t[5],t[7].getInstruccion(),t[9].getInstruccion(),None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(t[7].getNodo())
@@ -2028,7 +2028,7 @@ def p_CIndex6(t):
    global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "(" "ID" <COMPLEMENTOINDEX> ")" ";" ')
 
-   ret = Retorno(IndexOrden(t[3],t[5],t[7],t[8]), NodoAST('INDEX'))
+   ret = Retorno(IndexOrden(t[3],t[5],t[7],t[8],None), NodoAST('INDEX'))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(NodoAST(t[7]))
@@ -2050,7 +2050,7 @@ def p_DropIndex(t):
     'I_DROPI  :   DROP INDEX ID PCOMA'
     global reporte_gramatical
     reporte_gramatical.append("<I_DROPI> ::= \"DROP\" \"INDEX\" \"ID\" \";\" ")
-    ret = Retorno(DropIndex(t[3]), NodoAST('DROP INDEX'))
+    ret = Retorno(DropIndex(t[3],None), NodoAST('DROP INDEX'))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
 
@@ -2059,7 +2059,7 @@ def p_AlterIndex(t):
     'I_ALTERIN  :   ALTER INDEX IF EXISTS ID RENAME TO ID PCOMA'
     global reporte_gramatical
     reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"IF\" \"EXIST\" \"ID\" \"DO\" \"RENAME\" \"TO\" \"ID\" \";\" ")
-    ret = Retorno(AlterRenameIn(t[5],t[8]), NodoAST('ALTER INDEX'))
+    ret = Retorno(AlterRenameIn(t[5],t[8],None), NodoAST('ALTER INDEX'))
     ret.getNodo().setHijo(NodoAST(t[5]))
     Ret.getNodo().setHijo(NodoAST(t[8]))
     t[0] = ret
@@ -2068,41 +2068,43 @@ def p_AlterIndex2(t):
     'I_ALTERIN  :   ALTER INDEX ID RENAME TO ID PCOMA'
     global reporte_gramatical
     reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"ID\" \"DO\" \"RENAME\" \"TO\" \"ID\" \";\" ")
-    ret = Retorno(AlterRenameIn(t[3],t[6]), NodoAST('ALTER INDEX'))
+    ret = Retorno(AlterRenameIn(t[3],t[6],None), NodoAST('ALTER INDEX'))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(NodoAST(t[6]))
     t[0] = ret
 
 
 def p_AlterIndex3(t):
-    'I_ALTERIN  :   ALTER INDEX IF EXISTS ID ALTER COLUMN NUMERO PCOMA'
+    'I_ALTERIN  :   ALTER INDEX IF EXISTS ID ALTER ID NUMERO PCOMA'
     global reporte_gramatical
-    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"IF\" \"EXIST\" \"ID\" \"ALTER\" \"COLUMN\"  \"NUMBER\" \";\" ")
-    ret = Retorno(AlterIndex(t[5],t[8]), NodoAST('ALTER INDEX'))
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"IF\" \"EXISTS\" \"ID\" \"ALTER\" \"ID\"  \"NUMERO\" \";\" ")
+    ret = Retorno(AlterIndex(t[5],t[7],t[8],True,None), NodoAST('ALTER INDEX'))
     ret.getNodo().setHijo(NodoAST(t[5]))
     t[0] = ret
 
 def p_AlterIndex4(t):
-    'I_ALTERIN  :   ALTER INDEX IF EXISTS ID ALTER NUMERO PCOMA'
+    'I_ALTERIN  :   ALTER INDEX IF EXISTS ID ALTER ID ID PCOMA'
     global reporte_gramatical
-    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"IF\" \"EXIST\" \"ID\" \"ALTER\" \"NUMBER\" \";\" ")
-    ret = Retorno(AlterIndex(t[5],t[7]), NodoAST('ALTER INDEX'))
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"IF\" \"EXISTS\" \"ID\" \"ALTER\" \"ID\" \"ID\" \";\" ")
+    ret = Retorno(AlterIndex(t[5],t[7],t[8],False,None), NodoAST('ALTER INDEX'))
     ret.getNodo().setHijo(NodoAST(t[5]))
     t[0] = ret
 
+
+
 def p_AlterIndex5(t):
-    'I_ALTERIN  :   ALTER INDEX ID ALTER COLUMN NUMERO PCOMA'
+    'I_ALTERIN  :   ALTER INDEX ID ALTER ID NUMERO PCOMA'
     global reporte_gramatical
-    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"ID\" \"ALTER\" \"COLUMN\"  \"NUMBER\" \";\" ")
-    ret = Retorno(AlterIndex(t[3],t[6]), NodoAST('ALTER INDEX'))
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"ID\" \"ALTER\" \"ID\" \"NUMERO\" \";\" ")
+    ret = Retorno(AlterIndex(t[3],t[5],t[6],True,None), NodoAST('ALTER INDEX'))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
 
 def p_AlterIndex6(t):
-    'I_ALTERIN  :   ALTER INDEX ID ALTER NUMERO PCOMA'
+    'I_ALTERIN  :   ALTER INDEX ID ALTER ID ID PCOMA'
     global reporte_gramatical
-    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"ID\" \"ALTER\" \"NUMBER\" \";\" ")
-    ret = Retorno(AlterIndex(t[3],t[5]), NodoAST('ALTER INDEX'))
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"ID\" \"ALTER\" \"ID\"  \"ID\" \";\" ")
+    ret = Retorno(AlterIndex(t[3],t[5],t[6],False,None), NodoAST('ALTER INDEX'))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
 
@@ -5384,54 +5386,45 @@ def p_VALORFAvg(t):
     ret= Retorno(FuncionNativa(TipoFunNativa.avg,t[3].getInstruccion()), NodoAST("AVG"))
     ret.getNodo().setHijo(t[3].getNodo())
     t[0]=ret
-    ##ret = Retorno(Funcion(t[3], t[5].getInstruccion(), t[8].getInstruccion(), t[9].getInstruccion()), NodoAST("FUNCION"))
-    #ret.getNodo().setHijo(NodoAST(t[3]))
-    #ret.getNodo().setHijo(t[5].getNodo())
-    #ret.getNodo().setHijo(t[8].getNodo())
-    #ret.getNodo().setHijo(t[9].getNodo())
-    #t[0] = ret
 
-    #ret = Retorno(Operaciones_Aritmeticas(TiposOperaciones.Suma, t[1].getInstruccion(), t[3].getInstruccion()), NodoAST("+"))
-    #ret.getNodo().setHijo(t[1].getNodo())
-    #ret.getNodo().setHijo(t[3].getNodo())
-    #t[0] = ret
-    
-
-#TODO: AGREGAR DIEGO
+#TODO: AGREGAR DIEGO1
 def p_VALORFSum(t):
     'VALORF  :   SUM PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFMin(t):
     'VALORF  :   MIN PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFMax(t):
     'VALORF  :   MAX PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO11
 def p_VALORFAbs(t):
     'VALORF  :   ABS PABRE VALORF PCIERRA '
-    #! VERIFICAR SI EL CAMBIO ESTA BIEN HECHO (LNUMF POR VALORF)
     #VALOR ABSOLUTO DE UN NUMERO O VARIABLE 
     ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("ABS"))
     ret.getNodo().setHijo(t[3].getNodo())
     t[0]=ret
 
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFCbrt(t):
     'VALORF  :   CBRT PABRE LNUMF PCIERRA '
+    #RAIZ CUBICA DE UN VALOR O VARIABLE
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("ABS"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFCeil(t):
     'VALORF  :   CEIL PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFCeiling(t):
     'VALORF  :   CEILING PABRE LNUMF PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO1
 def p_VALORFSubstring(t):
     'VALORF  :   SUBSTRING PABRE LVALOR PCIERRA '
 
@@ -5501,7 +5494,10 @@ def p_VALORFCotd(t):
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFSin(t):
-    'VALORF  :   SIN PABRE LNUMF PCIERRA '
+    'VALORF  :   SIN PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.seno, t[3].getInstruccion()), NodoAST("SIN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFSind(t):

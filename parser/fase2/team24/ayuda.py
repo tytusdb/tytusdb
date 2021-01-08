@@ -11,19 +11,21 @@ a.write('''
 from datetime import date
 from variables import tabla as ts
 from variables import NombreDB 
-from variables import cont as ncont
+from variables import cont 
 import tablaDGA as TAS
 import sql as sql 
 import mathtrig as mt
 from reportTable import *
 
-cont = ncont
+
 pila = []
 for i in range(100):
     pila.append(i)
 
 def ejecutar():
     global cont
+    global ts
+    NombreDB = ts.nameDB
 	\n''')
 
 
@@ -37,12 +39,12 @@ res =''
     #executeGraphTree(raiz)
 for val in raiz:
     
-    res += val.traducir(ts)
+    res += val.traducir()
 
     
     #pass
 a.write(res)
-a.write('\tsql.execute(\'3D\')\n\n')
+
 a.write('\tgraphTable(ts)\n')
 for fa in g.funciones:
        

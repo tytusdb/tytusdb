@@ -2551,7 +2551,7 @@ def p_tipo_2(t):
 # -------------------------------------------------------------------------------------------------------------- 
 def p_tipo_3(t):
     'tipo               : DECIMAL PARENTESISIZQUIERDA ENTERO COMA ENTERO PARENTESISDERECHA '
-    t[0] = " DECIMAL ( " + str(t[3]) + " , " + str(t[5]) +" )"
+    t[0] = " DECIMAL(" + str(t[3]) + "," + str(t[5]) +")"
 
 
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
@@ -2889,13 +2889,17 @@ def p_Function_2(t):
     'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR bloqueFuncion'
     a = 'salida=analizador.agregarFuncionaTS("'+t[3]+'",h.bd_enuso)\n'
 
-    vartip = t[5].split(',')
-    conttemp1 = 0
+    parametro = ""
+    for param in t[5]:
+       parametro+=param+","
+    param = parametro[:-1]
+    
+    
+    vartip = param.split(',')
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[3]+'")\n'
-        conttemp1+=1
+    
     a+= 'salida=analizador.agregarVariableaTS("'+t[8]+'",None,h.bd_enuso,"'+t[3]+'")\n\n'
     a+="@with_goto\n"
     a += "def "+t[3]+" ( "
@@ -2908,7 +2912,7 @@ def p_Function_2(t):
         
         if conttemp2 < len(vartip):
             a+=", "
-        conttemp2+=1
+
     a +=" ):\n"
     #a +='   print("FUNCTION")\n'
     j=t[12].splitlines()
@@ -2936,17 +2940,20 @@ def p_Function_3(t):
 
 def p_Function_4(t):
     'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR bloqueFuncion'
-    vartip = t[7].split(',')
+    #vartip = t[7].split(',')
     
     a = 'salida=analizador.agregarFuncionaTS("'+t[5]+'",h.bd_enuso)\n'
 
-    vartip = t[7].split(',')
-    conttemp1 = 0
+    parametro = ""
+    for param in t[7]:
+       parametro+=param+","
+    param = parametro[:-1]
+    
+    vartip = param.split(',')
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[5]+'")\n'
-        conttemp1+=1
+
     a += 'salida=analizador.agregarVariableaTS("'+t[10]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
     a+="@with_goto\n"
     a += "def "+t[5]+" ( "
@@ -2957,7 +2964,7 @@ def p_Function_4(t):
         conttemp+=1
         if conttemp < len(vartip):
             a+=", "
-        conttemp+=1
+
     a +=" ):\n"
     #a +='   print("REPLACE FUNCTION")\n'
     j=t[14].splitlines()
@@ -2995,17 +3002,20 @@ def p_Procedure_1(t):
 
 def p_Procedure_2(t):
     'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR bloque'
-    vartip = t[5].split(',')
+    #vartip = t[5].split(',')
     
     a = 'salida=analizador.agregarProcedureaTS("'+t[3]+'",h.bd_enuso)\n'
 
-    vartip = t[5].split(',')
-    conttemp1 = 0
+    parametro = ""
+    for param in t[5]:
+       parametro+=param+","
+    param = parametro[:-1]
+    print('---------',param)
+
+    vartip = param.split(',')
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[3]+'")\n'
-        conttemp1+=1
     
     a += "def "+t[3]+" ( "
     conttemp = 0
@@ -3015,7 +3025,7 @@ def p_Procedure_2(t):
         conttemp+=1
         if conttemp < len(vartip):
             a+=", "
-        conttemp+=1
+
     a +=" ):\n"
     #a +='   print("PROCEDURE")\n'
     j=t[12].splitlines()
@@ -3044,17 +3054,21 @@ def p_Procedure_3(t):
 def p_Procedure_4(t):
     'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR bloque'
 
-    vartip = t[7].split(',')
+    #vartip = t[7].split(',')
     
     a = 'salida=analizador.agregarProcedureaTS("'+t[5]+'",h.bd_enuso)\n'
 
-    vartip = t[7].split(',')
+    parametro = ""
+    for param in t[7]:
+       parametro+=param+","
+    param = parametro[:-1]
+
+    vartip = param.split(',')
     conttemp1 = 0
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[5]+'")\n'
-        conttemp1+=1
+
     a += 'salida=analizador.agregarVariableaTS("'+t[10]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
     
     a += "def "+t[5]+" ( "
@@ -3065,7 +3079,7 @@ def p_Procedure_4(t):
         conttemp+=1
         if conttemp < len(vartip):
             a+=", "
-        conttemp+=1
+
     a +=" ):\n"
     #a += '   print("REPLACE PROCEDURE")\n'
     j=t[14].splitlines()
@@ -3198,15 +3212,16 @@ def p_declaraciones_7(t):
 
 def p_parametroproc_1(t):
     'parametroproc              : parametroproc COMA paramproc'
-    t[0] = t[1] +","+ t[3]
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_parametroproc_2(t):
     'parametroproc              : paramproc'
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 def p_paramproc_1(t):
     'paramproc                  : ID tipo'
-    t[0] = t[1] + t[2]
+    t[0] = t[1] + " " + t[2]
 
 #def p_paramproc_2(t):
 #    'paramproc                  : OUT ID tipo'
@@ -3469,7 +3484,8 @@ def p_execFunction_1(t):
     for param in t[4]:
         parametro+=param+","
     param = parametro[0:-1]
-    a="print("+str(t[2])+ "(" + param + "))"  + "\n"
+    par = param.replace("\\'","\"")
+    a="print("+str(t[2])+ "(" + par + "))"  + "\n"
     t[0]= a
 
 def p_execFunction_2(t):
@@ -3488,19 +3504,13 @@ def p_execOption_2(t):
 #                                           STATEMENTS - INDEX
 #-----------------------------------------------------CREATE INDEX--------------------------------------------------------------------
 def p_createIndex(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     parametro = ""
     for param in t[7]:
-        parametro+=param+","
-    param = parametro[0:-1]
+       parametro+=param+","
+    param = parametro[:-1]
+    print(param)
     a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(param) + " )"+  ";\"\n"
-    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
-    h.conteoTemporales+=1
-    t[0]= a
-
-def p_createIndex_5(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) + " )"+  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
@@ -3513,7 +3523,7 @@ def p_createIndex_1_1(t):
     t[0]= a
 
 def p_createIndex_1_2(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     parametro = ""
     for param in t[7]:
         parametro+=param+","
@@ -3530,7 +3540,7 @@ def p_createIndex_1_1_2(t):
     h.conteoTemporales+=1
     t[0]= a
 def p_createIndex_2(t):
-    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     parametro = ""
     for param in t[9]:
         parametro+=param+","
@@ -3548,7 +3558,7 @@ def p_createIndex_2_1(t):
     t[0]= a
 
 def p_createIndex_2_2(t):
-    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     parametro = ""
     for param in t[9]:
         parametro+=param+","
@@ -3566,7 +3576,7 @@ def p_createIndex_2_1_2(t):
     t[0]= a
 
 def p_createIndex_3(t):
-    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     parametro = ""
     for param in t[8]:
         parametro+=param+","
@@ -3583,7 +3593,7 @@ def p_createIndex_3_1(t):
     t[0]= a
 
 def p_createIndex_3_2(t):
-    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     parametro = ""
     for param in t[8]:
         parametro+=param+","
@@ -3703,9 +3713,22 @@ def p_sortOptions_2_2(t):
     t[0]= a
 
 def p_lower(t):
-    'lower    : ID PARENTESISIZQUIERDA ID PARENTESISDERECHA'
-    a= t[1] + "(" + t[3] + ")"
-    t[0]= a
+    'lower    : lower COMA low'
+    t[1].append(t[3])
+    t[0]=t[1]
+
+def p_lower_1(t):
+    'lower    : low'
+    t[0] = [t[1]]
+
+
+def p_low(t):
+    'low    : ID PARENTESISIZQUIERDA ID PARENTESISDERECHA'
+    t[0] = t[1]+" ( "+t[3]+" ) "
+
+def p_low_1(t):
+    'low    : ID'
+    t[0] = t[1]
 
 
 #para manejar los errores sintacticos
