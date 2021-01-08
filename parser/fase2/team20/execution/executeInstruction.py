@@ -157,7 +157,7 @@ def executeInstruction(self, instruction,indent, main):
                 else:
                     params+=str(expcode.value)+", "
             if(main==0): 
-                code+="\n"+(indent*"\t")+"print_text('',"+instruction.name+params[:-2]+"),2)\n"
+                code+="\n"+(indent*"\t")+"print_text('"+instruction.name+"',"+instruction.name+params[:-2]+"),2)\n"
                 code+="\n"+(indent*"\t")+"print("+instruction.name+params[:-2]+"))\n"
                 archivo = open("C3D.py", 'a')
                 archivo.write(code) 
@@ -166,7 +166,7 @@ def executeInstruction(self, instruction,indent, main):
                 code+=(indent*"\t")+instruction.name+params[:-2]+")\n"
         else:
             if(main==0): 
-                code+="\n"+(indent*"\t")+"print_text('',"+instruction.name+"(),2)\n"
+                code+="\n"+(indent*"\t")+"print_text('"+instruction.name+"',"+instruction.name+"(),2)\n"
                 code+="\n"+(indent*"\t")+"print("+instruction.name+"())\n"
                 archivo = open("C3D.py", 'a')
                 archivo.write(code) 
@@ -200,7 +200,7 @@ def executeInstruction(self, instruction,indent, main):
         return code
     elif isinstance(instruction,DropFunction):
         archivo = open("C3D.py", 'a')
-        archivo.write("\n"+(indent*"\t")+"deleteFunction("+instruction.name+")\n") 
+        archivo.write("\n"+(indent*"\t")+"deleteFunction('"+instruction.name+"')\n") 
         archivo.close()
 
 def createFunction(functionname:str,functioncode:str,replace:bool):
@@ -218,11 +218,11 @@ def createFunction(functionname:str,functioncode:str,replace:bool):
 def deleteFunction(function:str):
     ans = TCdeleteFunction(function)
     if(ans == 1):
-        print("Function "+function+" droped")
-        print_success("MESSAGE","Function "+function+" droped",2)
+        print("Function "+str(function)+" droped")
+        print_success("MESSAGE","Function "+str(function)+" droped",2)
     else: 
-        print("Function "+function+" does not exist")
-        print_error("SEMANTIC","Function "+function+" does not exist",2)
+        print("Function "+str(function)+" does not exist")
+        print_error("SEMANTIC","Function "+str(function)+" does not exist",2)
 
 def getType(sqltype):
     if(sqltype=="TEXT" 

@@ -2,7 +2,7 @@ from execution.executeSentence import executeSentence
 from execution.AST.sentence import *
 from execution.AST.expression import *
 from execution.executeInstruction import createFunction, deleteFunction
-from console import print_error, print_success, print_warning
+from console import print_error, print_success, print_warning, print_text
 from goto import with_goto
 import math
 
@@ -19,15 +19,15 @@ def MYFUNCION(TEXTO: str) ->str:
 ''',False)
 
 
-	#print_text('',MYFUNCION('INICIO CALIFICACION FASE 2'),2)
+	print_text('MYFUNCION',MYFUNCION('INICIO CALIFICACION FASE 2'),2)
 
 	print(MYFUNCION('INICIO CALIFICACION FASE 2'))
 
 	executeSentence(CreateTable,CreateTable('TBPRODUCTO',[ColumnId('IDPRODUCTO',['INTEGER'],{'null': False, 'primary': True}), ColumnId('PRODUCTO',['VARCHAR', 150],{'null': False}), ColumnId('FECHACREACION',['DATE'],{'null': False}), ColumnId('ESTADO',['INTEGER'],None)],None))
 	executeSentence(CreateTable,CreateTable('TBPRODUCTOS',[ColumnId('IDPRODUCTO',['INTEGER'],{'null': False, 'primary': True}), ColumnId('PRODUCTO',['VARCHAR', 150],{'null': False}), ColumnId('FECHACREACION',['DATE'],{'null': False}), ColumnId('ESTADO',['INTEGER'],None)],None))
-	executeSentence(CreateIndex,CreateIndex('IDX_PRODUCTO','TBPRODUCTO',['IDPRODUCTO']))
+	executeSentence(CreateIndex,CreateIndex('IDX_PRODUCTO','TBPRODUCTO',[['IDPRODUCTO']]))
 	executeSentence(CreateTable,CreateTable('TBCALIFICACION',[ColumnId('IDCALIFICA',['INTEGER'],{'null': False, 'primary': True}), ColumnId('ITEM',['VARCHAR', 100],{'null': False}), ColumnId('PUNTEO',['INTEGER'],{'null': False})],None))
-	executeSentence(CreateIndex,CreateIndex('IDX_CALIFICA','TBCALIFICACION',['IDCALIFICA']))
+	executeSentence(CreateIndex,CreateIndex('IDX_CALIFICA','TBCALIFICACION',[['IDCALIFICA']]))
 	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,1), Value(3,'LAPTOP LENOVO'), MathFunction('NOW',0), Value(1,1)]))
 	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,2), Value(3,'BATERIA PARA LAPTOP LENOVO T420'), MathFunction('NOW',0), Value(1,1)]))
 	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,3), Value(3,'TECLADO INALAMBRICO'), MathFunction('NOW',0), Value(1,1)]))
@@ -37,7 +37,7 @@ def MYFUNCION(TEXTO: str) ->str:
 	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,7), Value(3,'TECLADO FLEXIBLE USB'), MathFunction('NOW',0), Value(1,1)]))
 	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,8), Value(3,'LAPTOP SAMSUNG'), Value(3,'2021-01-02'), Value(1,1)]))
 
-	#print_text('',MYFUNCION('CREA FUNCION'),2)
+	print_text('MYFUNCION',MYFUNCION('CREA FUNCION'),2)
 
 	print(MYFUNCION('CREA FUNCION'))
 
@@ -107,24 +107,24 @@ def VALIDAREGISTROS(TABLA: str, CANTIDAD: int) ->int:
 ''',False)
 
 
-	#print_text('',MYFUNCION('VALIDAREGISTROS(TBPRODUCTO,8)='),2)
+	print_text('MYFUNCION',MYFUNCION('VALIDAREGISTROS(TBPRODUCTO,8)='),2)
 
 	print(MYFUNCION('VALIDAREGISTROS(TBPRODUCTO,8)='))
 
 
-	#print_text('',VALIDAREGISTROS('TBPRODUCTO', 8),2)
+	print_text('VALIDAREGISTROS',VALIDAREGISTROS('TBPRODUCTO', 8),2)
 
 	print(VALIDAREGISTROS('TBPRODUCTO', 8))
 
 	executeSentence(InsertAll,InsertAll('TBCALIFICACION',[Value(1,1), Value(3,'CREATE TABLE AND INSERT'), Value(1,1)]))
-	executeSentence(Update,Update('TBPRODUCTO',[['ESTADO', Value(1,2)]],Relational(Value(4,'ID'),Value(1,1),'>=')))
+	executeSentence(Update,Update('TBPRODUCTO',[['ESTADO', Value(1,2)]],Relational(Value(3,'ID'),Value(1,1),'>=')))
 
-	#print_text('',MYFUNCION('VALIDAREGISTROS(TBPRODUCTO,8)='),2)
+	print_text('MYFUNCION',MYFUNCION('VALIDAREGISTROS(TBPRODUCTO,8)='),2)
 
 	print(MYFUNCION('VALIDAREGISTROS(TBPRODUCTO,8)='))
 
 
-	#print_text('',VALIDAREGISTROS('TBPRODUCTO', 8),2)
+	print_text('VALIDAREGISTROS',VALIDAREGISTROS('TBPRODUCTO', 8),2)
 
 	print(VALIDAREGISTROS('TBPRODUCTO', 8))
 
@@ -174,18 +174,18 @@ def CALCULOS():
 ''',False)
 
 
-	#print_text('',MYFUNCION('CALCULOS()='),2)
+	print_text('MYFUNCION',MYFUNCION('CALCULOS()='),2)
 
 	print(MYFUNCION('CALCULOS()='))
 
 
-	#print_text('',CALCULOS(),2)
+	print_text('CALCULOS',CALCULOS(),2)
 
 	print(CALCULOS())
 
 	executeSentence(InsertAll,InsertAll('TBCALIFICACION',[Value(1,3), Value(3,' VALIDA FUNCIONES'), Value(1,10)]))
 	executeSentence(CreateTable,CreateTable('TBBODEGA',[ColumnId('IDBODEGA',['INTEGER'],{'null': False, 'primary': True}), ColumnId('BODEGA',['VARCHAR', 100],{'null': False}), ColumnId('ESTADO',['INTEGER'],None)],None))
-	executeSentence(CreateIndex,CreateIndex('IDX_NOMBRE','TBBODEGA',[]))
+	executeSentence(CreateIndex,CreateIndex('IDX_NOMBRE','TBBODEGA',[['BODEGA']]))
 	createFunction('SP_VALIDAINSERT','''
 @with_goto
 def SP_VALIDAINSERT():
@@ -197,17 +197,17 @@ def SP_VALIDAINSERT():
 ''',False)
 
 
-	#print_text('',SP_VALIDAINSERT(),2)
+	print_text('SP_VALIDAINSERT',SP_VALIDAINSERT(),2)
 
 	print(SP_VALIDAINSERT())
 
 
-	#print_text('',MYFUNCION('VALIDAREGISTROS(TBBODEGA,5)='),2)
+	print_text('MYFUNCION',MYFUNCION('VALIDAREGISTROS(TBBODEGA,5)='),2)
 
 	print(MYFUNCION('VALIDAREGISTROS(TBBODEGA,5)='))
 
 
-	#print_text('',VALIDAREGISTROS('TBBODEGA', 5),2)
+	print_text('VALIDAREGISTROS',VALIDAREGISTROS('TBBODEGA', 5),2)
 
 	print(VALIDAREGISTROS('TBBODEGA', 5))
 
@@ -220,23 +220,23 @@ def SP_VALIDAUPDATE():
 ''',False)
 
 
-	#print_text('',SP_VALIDAUPDATE(),2)
+	print_text('SP_VALIDAUPDATE',SP_VALIDAUPDATE(),2)
 
 	print(SP_VALIDAUPDATE())
 
 
-	#print_text('',MYFUNCION('VALIDAREGISTROS(TBBODEGA,4)='),2)
+	print_text('MYFUNCION',MYFUNCION('VALIDAREGISTROS(TBBODEGA,4)='),2)
 
 	print(MYFUNCION('VALIDAREGISTROS(TBBODEGA,4)='))
 
 
-	#print_text('',VALIDAREGISTROS('TBBODEGA', 4),2)
+	print_text('VALIDAREGISTROS',VALIDAREGISTROS('TBBODEGA', 4),2)
 
 	print(VALIDAREGISTROS('TBBODEGA', 4))
 
 	executeSentence(InsertAll,InsertAll('TBCALIFICACION',[Value(1,5), Value(3,'VALIDA DELETE'), Value(1,0)]))
 	executeSentence(Select,Select([Value(3,'*')],False,[Value(3,'TBBODEGA')],None))
-	executeSentence(CreateIndex,CreateIndex('IDX_BODEGA','TBBODEGA',['ESTADO']))
+	executeSentence(CreateIndex,CreateIndex('IDX_BODEGA','TBBODEGA',[['ESTADO']]))
 	createFunction('SP_INSERTAPRODUCTO','''
 @with_goto
 def SP_INSERTAPRODUCTO(LLAVE: int, PRODUCTO: str, FECHA):
@@ -244,29 +244,29 @@ def SP_INSERTAPRODUCTO(LLAVE: int, PRODUCTO: str, FECHA):
 ''',False)
 
 
-	#print_text('',SP_INSERTAPRODUCTO(9, 'BOCINA INALAMBRICA', '2021-01-06'),2)
+	print_text('SP_INSERTAPRODUCTO',SP_INSERTAPRODUCTO(9, 'BOCINA INALAMBRICA', '2021-01-06'),2)
 
 	print(SP_INSERTAPRODUCTO(9, 'BOCINA INALAMBRICA', '2021-01-06'))
 
 
-	#print_text('',SP_INSERTAPRODUCTO(10, 'AUDIFONOS CON MICROFONO USB', '2021-01-06'),2)
+	print_text('SP_INSERTAPRODUCTO',SP_INSERTAPRODUCTO(10, 'AUDIFONOS CON MICROFONO USB', '2021-01-06'),2)
 
 	print(SP_INSERTAPRODUCTO(10, 'AUDIFONOS CON MICROFONO USB', '2021-01-06'))
 
 
-	#print_text('',SP_INSERTAPRODUCTO(11, 'BOCINA INALAMBRICA', '2021-01-06'),2)
+	print_text('SP_INSERTAPRODUCTO',SP_INSERTAPRODUCTO(11, 'BOCINA INALAMBRICA', '2021-01-06'),2)
 
 	print(SP_INSERTAPRODUCTO(11, 'BOCINA INALAMBRICA', '2021-01-06'))
 
 
-	#print_text('',SP_INSERTAPRODUCTO(12, 'MONITOR DE 17"', '2021-01-06'),2)
+	print_text('SP_INSERTAPRODUCTO',SP_INSERTAPRODUCTO(12, 'MONITOR DE 17"', '2021-01-06'),2)
 
 	print(SP_INSERTAPRODUCTO(12, 'MONITOR DE 17"', '2021-01-06'))
 
-	deleteFunction(MYFUNCION)
+	deleteFunction('MYFUNCION')
 
 
-	#print_text('',MYFUNCION('VALIDA DROP FUNCTION'),2)
+	print_text('MYFUNCION',MYFUNCION('VALIDA DROP FUNCTION'),2)
 
 	print(MYFUNCION('VALIDA DROP FUNCTION'))
 
@@ -277,27 +277,27 @@ def FN_MENSAJE(TEXTO: str) ->str:
 ''',False)
 
 
-	#print_text('',FN_MENSAJE('CREA FUNCION NUEVA DE MENSAJE'),2)
+	print_text('FN_MENSAJE',FN_MENSAJE('CREA FUNCION NUEVA DE MENSAJE'),2)
 
 	print(FN_MENSAJE('CREA FUNCION NUEVA DE MENSAJE'))
 
 
-	#print_text('',SP_INSERTAPRODUCTO(13, 'BOCINA INALAMBRICA SONY', '2021-01-06'),2)
+	print_text('SP_INSERTAPRODUCTO',SP_INSERTAPRODUCTO(13, 'BOCINA INALAMBRICA SONY', '2021-01-06'),2)
 
 	print(SP_INSERTAPRODUCTO(13, 'BOCINA INALAMBRICA SONY', '2021-01-06'))
 
 
-	#print_text('',SP_INSERTAPRODUCTO(14, 'AUDIFONOS CON MICROFONO USB LENOVO', '2021-01-06'),2)
+	print_text('SP_INSERTAPRODUCTO',SP_INSERTAPRODUCTO(14, 'AUDIFONOS CON MICROFONO USB LENOVO', '2021-01-06'),2)
 
 	print(SP_INSERTAPRODUCTO(14, 'AUDIFONOS CON MICROFONO USB LENOVO', '2021-01-06'))
 
 
-	#print_text('',SP_INSERTAPRODUCTO(15, 'MONITOR DE 21"', '2021-01-06'),2)
+	print_text('SP_INSERTAPRODUCTO',SP_INSERTAPRODUCTO(15, 'MONITOR DE 21"', '2021-01-06'),2)
 
 	print(SP_INSERTAPRODUCTO(15, 'MONITOR DE 21"', '2021-01-06'))
 
 
-	#print_text('',SP_INSERTAPRODUCTO(16, 'MONITOR DE 17" LENOVO', '2021-01-06'),2)
+	print_text('SP_INSERTAPRODUCTO',SP_INSERTAPRODUCTO(16, 'MONITOR DE 17" LENOVO', '2021-01-06'),2)
 
 	print(SP_INSERTAPRODUCTO(16, 'MONITOR DE 17" LENOVO', '2021-01-06'))
 
@@ -431,4 +431,4 @@ def SP_INSERTAPRODUCTO(LLAVE: int, PRODUCTO: str, FECHA):
 def FN_MENSAJE(TEXTO: str) ->str:
 	return TEXTO
 
-up()
+#up()

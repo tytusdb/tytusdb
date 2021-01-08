@@ -252,9 +252,7 @@ def check_type(columns_, values_) -> str:
         
         if values_[i] != None:
 
-            column_type = ((str(columns_[i].type_)).upper())        
-            print(values_[i].type)
-            print(column_type)
+            column_type = ((str(columns_[i].type_)).upper())  
             if ( column_type in type_int ) == True:
                 if values_[i].type != 1 and values_[i].type!=4:
                     return_ = "Argument " + str((i+1)) + " of wrong type. It should be a " + str(column_type) + " type."

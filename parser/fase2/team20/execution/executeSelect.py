@@ -77,7 +77,6 @@ def executeSelect(self,select):
                             y.field_names = columnsNames
                             columnsValues.append(str(len(res)))
                             y.add_row(columnsValues) 
-                            print(y)
                             print_success("QUERY","Query carried out successfully",2)
                             print_table("QUERY TABLE",y.get_string(),2)
                             cantidad = len(res)
@@ -87,7 +86,6 @@ def executeSelect(self,select):
                     columns.append(executeExpression(self,column).value)
                 if(len(columns) == 1 and columns[0]=="*"):#SELECT ALL NO OPTIONS
                     if(mode==1):
-                        print("s all no opt")
                         for table in select.tables:
                             tb = executeExpression(self,table)
                             if(not isinstance(table,Error)):
@@ -105,7 +103,6 @@ def executeSelect(self,select):
                                 print_success("QUERY","Query carried out successfully",2)
                                 print_table("QUERY TABLE",x.get_string(),2)
                 else: #SELECT SOME NO OPTIONS
-                    print("s some no opt")
                     if(mode==1):
                         for table in select.tables:
                             tb = executeExpression(self,table)
@@ -143,7 +140,6 @@ def executeSelect(self,select):
                 columns.append(executeExpression(self,column).value)
             if(len(columns) == 1 and columns[0]=="*"):
                 if(mode==1):
-                    print("s all opt")
                     tables = []
                     for table in select.tables:
                         tb = executeExpression(self,table)
@@ -170,7 +166,6 @@ def executeSelect(self,select):
                             # If both OFFSET and LIMIT appear, then OFFSET rows are skipped before starting to count the LIMIT rows that are returned.
                         # groupby -> ExpressionList
                         # having -> Expression
-                        print(select.options)
                         try:
                             select.options['where']
                             temp = []
@@ -236,7 +231,7 @@ def executeSelect(self,select):
                         print_success("QUERY","Query carried out successfully",2)
                         print_table("QUERY TABLE",x.get_string(),2)
             else:
-                print("Select some with options")
+                print("")
     # elif(select.options!=None): #SELECT ALL WITH OPTIONS
     #     if(mode==1):
     #         for table in select.tables:
