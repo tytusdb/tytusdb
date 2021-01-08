@@ -15,7 +15,7 @@ class Pantalla_AST:
         label.config(font=("Verdana", 20, "bold"))
         label.pack(anchor=W)
         self.pw = PanedWindow(self.top, orient="vertical")
-        imagen = PhotoImage(file="./test-output/round-table.gv.png")
+        imagen = PhotoImage(file="/test-output/round-table.gv.png")
         Label(self.pw, image=imagen, bd=0).pack()
         self.pw.pack()
         btn = Button(self.top, text="Regresar", command=self.close)

@@ -418,7 +418,8 @@ class createfunc(pl):
     def ejecutar(self):
         return 'Se creo la funcion o procedimiento'
 
-    def traducir(self):
+    def traducir(self,tabla):
+        ts = tabla
         global cont
         if  ts.existeF(str(self.id)):
             print('Funcion '+str(self.id) +' ya existe')
@@ -1230,9 +1231,10 @@ class math_absp(pl_mathtrig):
             resultado = 0
 
         codigo = tr1[0]+'\n'
-        valor = 'abs('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'=abs('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
    
 class math_cbrtp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1243,9 +1245,10 @@ class math_cbrtp(pl_mathtrig):
         tr1 = self.exp.traducir()
         resultado = mt.cbrt(tr1[2])
         codigo = tr1[0] +'\n'
-        valor = 'mt.cbrt('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'=mt.cbrt('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_ceilp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1256,9 +1259,10 @@ class math_ceilp(pl_mathtrig):
         tr1 = self.exp.traducir()
         resultado = round(float(tr1[2]))
         codigo = tr1[0]+'\n'
-        valor = 'round(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=round(float('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_degreesp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1269,9 +1273,10 @@ class math_degreesp(pl_mathtrig):
         tr1 = self.exp.traducir()
         resultado = mt.degrees(float(tr1[2]))
         codigo = tr1[0]
-        valor = 'mt.degrees(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.degrees(float('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_divp(pl_mathtrig):
     def __init__(self, exp1, exp2, alias):
@@ -1285,9 +1290,10 @@ class math_divp(pl_mathtrig):
         resultado = mt.div(float(tr1[2]),float(tr2[2]))
         codigo = tr1[0] + '\n'
         codigo += tr2[0] + '\n'
-        valor = 'mt.div(float('+tr1[1]+'),float('+tr2[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.div(float('+tr1[1]+'),float('+tr2[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_expp(pl_mathtrig):
     def __init__(self,exp,alias):
@@ -1298,9 +1304,10 @@ class math_expp(pl_mathtrig):
         tr1 = self.exp.traducir()
         resultado = mt.exp(int(tr1[2]))
         codigo = tr1[0]+'\n'
-        valor = 'mt.exp(int('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.exp(int('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_factorialp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1311,9 +1318,10 @@ class math_factorialp(pl_mathtrig):
         tr1 = self.exp.traducir()
         resultado = mt.factorial(int(tr1[2]))
         codigo = tr1[0]+'\n'
-        valor = 'mt.factorial(int('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.factorial(int('+tr1[1]+'))\n'
 
-        return codigo,valor
+        return codigo,tmp,resultado
     
 class math_floorp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1324,9 +1332,10 @@ class math_floorp(pl_mathtrig):
         tr1 = self.exp.traducir()
         resultado = mt.floor(float(tr1[2]))
         codigo = tr1[0] +'\n'
-        valor = 'mt.floor(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.floor(float('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_gcdp(pl_mathtrig):
     def __init__(self, exp1, exp2, alias):
@@ -1340,9 +1349,10 @@ class math_gcdp(pl_mathtrig):
         resultado = mt.gcd(int(tr1[2]),int(tr2[2]))
         codigo = tr1[0] + '\n'
         codigo += tr2[0]
-        valor = 'mt.gcd(int('+tr1[1]+'),int('+tr2[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.gcd(int('+tr1[1]+'),int('+tr2[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_lcmp(pl_mathtrig):
     def __init__(self,exp1,exp2,alias):
@@ -1356,9 +1366,10 @@ class math_lcmp(pl_mathtrig):
         resultado = mt.lcm(int(tr1[2]),int(tr2[2]))
         codigo = tr1[0] + '\n'
         codigo += tr2[0]
-        valor = 'mt.lcm(int('+tr1[1]+'),int('+tr2[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.lcm(int('+tr1[1]+'),int('+tr2[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_lnp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1371,9 +1382,10 @@ class math_lnp(pl_mathtrig):
         resultado = mt.ln(float(tr1[2]))
         codigo = tr1[0] + '\n'
         
-        valor = 'mt.ln(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.ln(float('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_logp(pl_mathtrig):
     def __init__(self, exp1, exp2, alias):
@@ -1387,9 +1399,10 @@ class math_logp(pl_mathtrig):
         resultado = mt.log(int(tr1[2]),int(tr2[2]))
         codigo = tr1[0] + '\n'
         codigo += tr2[0]
-        valor = 'mt.log(int('+tr1[1]+'),int('+tr2[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.log(int('+tr1[1]+'),int('+tr2[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_log10p(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1402,9 +1415,10 @@ class math_log10p(pl_mathtrig):
         resultado = mt.log10(float(tr1[2]))
         codigo = tr1[0] + '\n'
         
-        valor = 'mt.log10(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.log10(float('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_min_scalep(pl_mathtrig):
     def __init__(self,exp,alias):
@@ -1417,9 +1431,10 @@ class math_min_scalep(pl_mathtrig):
         resultado = mt.min_scale(int(tr1[2]))
         codigo = tr1[0] + '\n'
         
-        valor = 'mt.min_scale(int('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.min_scale(int('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_scalep(pl_mathtrig):
     def __init__(self,exp,alias):
@@ -1432,9 +1447,10 @@ class math_scalep(pl_mathtrig):
         
         codigo = tr1[0] + '\n'
         resultado = mt.scale(str(tr1[2]))
-        valor = 'mt.scale(str('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.scale(str('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_modp(pl_mathtrig):
     def __init__(self, exp1,exp2, alias):
@@ -1448,9 +1464,10 @@ class math_modp(pl_mathtrig):
         codigo = tr1[0] + '\n'
         codigo += t21[0] + '\n'
         resultado = mt.mod(float(tr1[2]),float(tr2[2]))
-        valor = 'mt.mod(float('+tr1[1]+'),float('+tr2[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.mod(float('+tr1[1]+'),float('+tr2[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_pip(pl_mathtrig):
     def __init__(self, alias):
@@ -1459,9 +1476,10 @@ class math_pip(pl_mathtrig):
 
     def traducir(self):
         codigo ='\n'
-        valor = 'mt.pi()'
+        tmp = getTemp()
+        codigo += tmp +'= mt.pi()\n'
         resultado = mt.pi()
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_powerp(pl_mathtrig):
     def __init__(self, exp1, exp2, alias):
@@ -1475,9 +1493,10 @@ class math_powerp(pl_mathtrig):
         codigo = tr1[0] + '\n'
         codigo += t21[0] + '\n'
         
-        valor = 'mt.power(int('+tr1[1]+'),int('+tr2[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.power(int('+tr1[1]+'),int('+tr2[1]+'))\n'
         resultado = mt.power(int(tr1[2]),int(tr2[2]))
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_radiansp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1488,9 +1507,10 @@ class math_radiansp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.radians(float(tr1[2]))
-        valor = 'mt.radians(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.radians(float('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_roundp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1501,9 +1521,10 @@ class math_roundp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         
-        valor = 'round(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=round(float('+tr1[1]+'))\n'
         resultado = round(float(tr1[2]))
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_signp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1514,9 +1535,10 @@ class math_signp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         
-        valor = 'mt.sign(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.sign(float('+tr1[1]+'))\n'
         resultado = mt.sign(float(tr1[2]))
-        return codigo,valor, resultado
+        return codigo,tmp, resultado
 
 class math_sqrtp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1526,9 +1548,10 @@ class math_sqrtp(pl_mathtrig):
     def traducir(self):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
-        valor = 'mt.sqrt(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.sqrt(float('+tr1[1]+'))\n'
         resultado = mt.sqrt(float(tr1[2]))
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_trim_scalep(pl_mathtrig):
     def __init__(self,exp,alias):
@@ -1538,9 +1561,10 @@ class math_trim_scalep(pl_mathtrig):
     def traducir(self):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
-        valor = 'mt.trim_scale(int('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.trim_scale(int('+tr1[1]+'))\n'
         resultado = mt.trim_scale(int(tr1[2]))
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_widthBucketp(pl_mathtrig):
     def __init__(self, exp1, exp2, exp3, exp4, alias):
@@ -1557,9 +1581,10 @@ class math_widthBucketp(pl_mathtrig):
         codigo = tr1[0] + '\n'
         codigo += tr2[0] + '\n'
         codigo += tr3[0] + '\n'
-        valor = 'mt.width_bucket(9,8,7,6)'
+        tmp = getTemp()
+        codigo += tmp +'=mt.width_bucket(9,8,7,6)\n'
         resultado = mt.width_bucket(9,8,7,6)
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_truncp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1570,9 +1595,10 @@ class math_truncp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.trunc(float(tr1[2]))
-        valor = 'mt.trunc(float('+tr1[1]+'))'
+        tmp = getTemp()
+        codigo += tmp +'=mt.trunc(float('+tr1[1]+'))\n'
         resultado = mt.trunc(float(tr1[2]))
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_randomp(pl_mathtrig):
     def __init__(self, alias):
@@ -1582,9 +1608,10 @@ class math_randomp(pl_mathtrig):
         
         codigo = '\n'
         
-        valor = 'mt.random()'
+        tmp = getTemp()
+        codigo += tmp +'= mt.random()\n'
         resultado = mt.random()
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class math_setseedp(pl_mathtrig):
     def __init__(self,exp, alias):
@@ -1595,9 +1622,10 @@ class math_setseedp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.setseed(tr1[2])
-        valor = 'mt.setseed('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'= mt.setseed('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_acosp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1608,9 +1636,10 @@ class trig_acosp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.acos(tr1[2])
-        valor = 'mt.acos('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'= mt.acos('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_acosdp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1621,9 +1650,10 @@ class trig_acosdp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.acosd(tr1[2])
-        valor = 'mt.acosd('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'= mt.acosd('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_asinp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1634,9 +1664,10 @@ class trig_asinp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.asin(tr1[2])
-        valor = 'mt.asin('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'= mt.asin('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_asindp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1647,9 +1678,10 @@ class trig_asindp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.asind(tr1[2])
-        valor = 'mt.asind('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'= mt.asind('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_atanp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1660,9 +1692,10 @@ class trig_atanp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.atan(tr1[2])
-        valor = 'mt.atan('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'= mt.atan('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_atandp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1673,9 +1706,10 @@ class trig_atandp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.atand(tr1[2])
-        valor = 'mt.atand('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'= mt.atand('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_atan2p(pl_mathtrig):
     def __init__(self, exp1, exp2, alias):
@@ -1687,9 +1721,10 @@ class trig_atan2p(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.atan2(tr1[2])
-        valor = 'mt.atan2('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +'= mt.atan2('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_atan2dp(pl_mathtrig):
     def __init__(self, exp1, exp2, alias):
@@ -1701,9 +1736,10 @@ class trig_atan2dp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.atan2d(tr1[2])
-        valor = 'mt.atan2d('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp + '= mt.atan2d('+tr1[1]+')\n'
 
-        return codigo,valor,resultado    
+        return codigo,tmp,resultado    
 
 class trig_cosp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1714,9 +1750,10 @@ class trig_cosp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.cos(tr1[2])
-        valor = 'mt.cos('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +' = mt.cos('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_cosdp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1727,9 +1764,9 @@ class trig_cosdp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.cosd(tr1[2])
-        valor = 'mt.cosd('+tr1[1]+')'
+        codigo += tmp +' = mt.cosd('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_cotp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1739,10 +1776,11 @@ class trig_cotp(pl_mathtrig):
     def traducir(self):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
+        tmp = getTemp()
         resultado = mt.cot(tr1[2])
-        valor = 'mt.cot('+tr1[1]+')'
+        codigo += tmp+ ' = mt.cot('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_cotdp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1753,9 +1791,10 @@ class trig_cotdp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.cotd(tr1[2])
-        valor = 'mt.cotd('+tr1[1]+')'
+        tmp = getTemp()
+        codigo +=tmp + ' = mt.cotd('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_sinp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1766,9 +1805,10 @@ class trig_sinp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.sin(tr1[2])
-        valor = 'mt.sin('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp+ ' = mt.sin('+tr1[1]+')'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_sindp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1779,9 +1819,10 @@ class trig_sindp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.sind(tr1[2])
-        valor = 'mt.sind('+tr1[1]+')'
+        tmp = getTemp()
+        codigo +=tmp +' = mt.sind('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
  
 class trig_tanp(pl_mathtrig):
     def __init__(self, exp, alias):
@@ -1792,9 +1833,10 @@ class trig_tanp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.tan(tr1[2])
-        valor = 'mt.tan('+tr1[1]+')'
+        tmp = getTemp()
+        codigo +=tmp +' = mt.tan('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_tandp(pl_mathtrig):
     def __init__ (self,exp,alias):
@@ -1805,9 +1847,10 @@ class trig_tandp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.tand(tr1[2])
-        valor = 'mt.tand('+tr1[1]+')'
+        tmp = getTemp()
+        codigo +=  tmp +' = mt.tand('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
     
 class trig_sinhp(pl_mathtrig):
     def __init__ (self,exp,alias):
@@ -1818,9 +1861,10 @@ class trig_sinhp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.sinh(tr1[2])
-        valor = 'mt.sinh('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +' = mt.sinh('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_coshp(pl_mathtrig):
     def __init__ (self,exp,alias):
@@ -1831,9 +1875,10 @@ class trig_coshp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.cosh(tr1[2])
-        valor = 'mt.cosh('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp +' = mt.cosh('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_tanhp(pl_mathtrig):
     def __init__ (self,exp,alias):
@@ -1844,9 +1889,10 @@ class trig_tanhp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.tanh(tr1[2])
-        valor = 'mt.tanh('+tr1[1]+')'
+        tmp = getTemp()
+        codigo +=tmp+ ' = mt.tanh('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_asinhp(pl_mathtrig):
     def __init__ (self,exp,alias):
@@ -1857,9 +1903,10 @@ class trig_asinhp(pl_mathtrig):
         tr1 = self.exp.traducir()
         codigo = tr1[0] + '\n'
         resultado = mt.asinh(tr1[2])
-        valor = 'mt.asinh('+tr1[1]+')'
+        tmp = getTemp()
+        codigo += tmp + ' = mt.asinh('+tr1[1]+')\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class trig_acoshp(pl_mathtrig):
     def __init__ (self,exp,alias):
@@ -1885,7 +1932,7 @@ class trig_atanhp(pl_mathtrig):
         codigo = tr1[0] + '\n'
         resultado = mt.atanh(tr1[2])
         tmp = getTemp()
-        codigo +=tmp +' = mt.atanh('+tr1[1]+')'
+        codigo +=tmp +' = mt.atanh('+tr1[1]+')\n'
 
         return codigo,tmp,resultado
 
@@ -1902,9 +1949,9 @@ class fun_lengthp(pl_function):
         codigo = tr1[0] + '\n'
         resultado = len(str(tr1[2]))
         tmp = getTemp()
-        resultado +=tmp +' = len(str('+tr1[1]+'))'
+        codigo += tmp +' = len(str('+tr1[1]+'))\n'
 
-        return codigo,valor,resultado
+        return codigo,tmp,resultado
 
 class fun_trimp(pl_function):
     def __init__ (self,exp,alias):
@@ -1916,7 +1963,7 @@ class fun_trimp(pl_function):
         codigo = tr1[0] + '\n'
         resultado = str(tr1[2]).strip()
         tmp = getTemp()
-        resultado += tmp +' = str('+tr1[1]+').strip()'
+        codigo += tmp +' = str('+tr1[1]+').strip()\n'
 
         return codigo,tmp,resultado
 
@@ -1937,7 +1984,7 @@ class fun_md5p(pl_function):
         codigo += 'crypt.update('+tr1[1]+'.encode(\'utf-8\'))\n'
         
         tmp = getTemp()
-        codigo +=tmp +' = crypt.hexdigest()'
+        codigo +=tmp +' = crypt.hexdigest()\n'
 
         return codigo,tmp,resultado    
 
@@ -1958,7 +2005,7 @@ class fun_sha256p(pl_function):
         codigo += 'crypt.update('+tr1[1]+'.encode(\'utf-8\'))\n'
         
         tmp = getTemp()
-        codigo += tmp +' = crypt.hexdigest()'
+        codigo += tmp +' = crypt.hexdigest()\n'
 
         return codigo,tmp,resultado  
 
@@ -2006,7 +2053,7 @@ class fun_nowp(pl_function):
         today = date.today()
         resultado = today.strftime("%Y-%m-%d %H:%M:%S")
         codigo += 'today = date.today()'
-        valor  = 'today.strftime("%Y-%m-%d %H:%M:%S")'
+        valor  = 'today.strftime("%Y-%m-%d %H:%M:%S")\n'
 
         
 
@@ -2021,3 +2068,5 @@ class queryf(instruccion):
         t0 = t[0].replace('\n','\n\t')
         return f'\t{t0}print({t[1]})\n'
         
+    def ejecutar(self):
+        return 'Se creo el select'
