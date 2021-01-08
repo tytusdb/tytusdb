@@ -1,4 +1,3 @@
-
 from re import S
 from sys import path
 from os.path import dirname as dir
@@ -8,6 +7,7 @@ from analizer_pl.C3D.operations import block
 from analizer_pl.reports import BnfGrammar
 from analizer_pl.abstract import global_env
 import analizer_pl.grammar as grammar
+
 
 def traducir(input):
     result = grammar.parse(input)
@@ -93,7 +93,7 @@ def functionsReport(env):
 s = """ 
 
 
-SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+(SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40'));
 SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
 SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
 SELECT now();
@@ -102,6 +102,9 @@ SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
 SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
 SELECT date_part('seconds', now());
 SELECT now();
+select distinct  E.primernombre,primerapellido,EXTRACT(YEAR FROM fechadenacimiento) AnioNacimiento,estado
+from tbempleado E, tbestado ES 
+where ES.idestado = E.idestado;
 """
 s2 = """
 
@@ -144,7 +147,7 @@ group by 1,2,3
 order by 1;
 
 b = texto between symmetric 2 and 3;
-	RETURN texto;
+RETURN (3+1)*-1;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -152,6 +155,20 @@ select *
 from tbventa V,tbempleado E
 where V.idempleado = E.idempleado
 group by primernombre,segundonombre,primerapellido;
+
+select (3+3)*5;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = texto
+group by 1,2,3
+order by 1;
+
 
 """
 
