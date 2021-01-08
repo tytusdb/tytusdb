@@ -6,6 +6,7 @@ from InterpreteF2.simbolo import Simbolo
 from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 from InterpreteF2.Reporteria.ReporteOptimizacion import ReporteOptimizacion
+from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 
 class var_declaracion(NodoArbol):
 
@@ -29,15 +30,36 @@ class var_declaracion(NodoArbol):
             expres = self.exp.traducir(entorno, arbol)
 
             # modulo de insercion a TS
-            val_exp:Valor = self.exp.getValueAbstract(entorno, arbol)
-            simbol:Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
-            if str(expres[1]) == '8-12' or str(expres[1]) == '9-13' or str(expres[1]) == '10-14' or \
-                    str(expres[1]) == '11-15' or str(expres[1]) == '16' or str(expres[1]) == '17' \
-                    or str(expres[1]) == '18':
-                simbol.setTemp(str(expres[0]))
-            else:
-                simbol.setTemp(str(expres))
-            entorno.insertar_variable(simbol)
+            try:
+                val_exp = self.exp.getValueAbstract(entorno, arbol)
+                simbol: Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
+                if str(expres[1]) == '8-12' or str(expres[1]) == '9-13' or str(expres[1]) == '10-14' or \
+                        str(expres[1]) == '11-15' or str(expres[1]) == '16' or str(expres[1]) == '17' \
+                        or str(expres[1]) == '18':
+                    simbol.setTemp(str(expres[0]))
+                else:
+                    simbol.setTemp(str(expres))
+                entorno.insertar_variable(simbol)
+            except:
+                val_exp = Valor(2, 'DML')
+                simbol: Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
+                if str(expres[1]) == '8-12' or str(expres[1]) == '9-13' or str(expres[1]) == '10-14' or \
+                        str(expres[1]) == '11-15' or str(expres[1]) == '16' or str(expres[1]) == '17' \
+                        or str(expres[1]) == '18':
+                    simbol.setTemp(str(expres[0]))
+                else:
+                    simbol.setTemp(str(expres))
+                entorno.insertar_variable(simbol)
+
+
+
+            # -->
+            # Modulo de rporteria:
+            reportero = ReporteTS(str(self.identificador), str(self.identificador), 'Variable', 'N/A', str(self.linea), str(self.columna))
+            arbol.ReporteTS.append(reportero)
+            # -->
+
+
             # ----------------------------------------------------------------------------------
 
             # modulo de insercion a TS optimizado
@@ -120,6 +142,14 @@ class var_declaracion(NodoArbol):
             simbol:Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
             simbol.setTemp(str(tmp))
             entorno.insertar_variable(simbol)
+
+            # -->
+            # Modulo de rporteria:
+            reportero = ReporteTS(str(self.identificador), str(self.identificador), 'Variable', 'N/A', str(self.linea),
+                                  str(self.columna))
+            arbol.ReporteTS.append(reportero)
+            # -->
+
         #self.analizar_semanticamente(entorno, arbol)
         return
 

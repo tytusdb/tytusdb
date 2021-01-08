@@ -15,11 +15,13 @@ from InterpreteF2.Reporteria.ErroresLexicos import ErroresLexicos
 from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 from InterpreteF2.Reporteria.ReporteOptimizacion import  ReporteOptimizacion
 from InterpreteF2.Reporteria.ReporteTS_forFunction import  ReporteTS_forFunction
+from InterpreteF2.Reporteria.ReporteTS_Indice import ReportIndice
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from Parser.Reportes.Nodo1 import Nodo
 from Parser.Reportes.TourTree import TourTree
 from graphviz import Source
+from Main.erroresglobales import erroresglobales
 
 #================================================================
 #======================Declaracion de variables globales========
@@ -39,11 +41,8 @@ input = ''
 COD3D ="""
 from Fase1.Sql import Sql
 from goto import with_goto
-heap = None
-def inter():
-    global  heap
-    sql:Sql = Sql()
-    sql.run(heap)
+heap = ''
+def inter() -> str:
 """
 
 #================================================================
@@ -158,6 +157,24 @@ def analizador():
 
         my_text1.insert(END, consola)
         print('SIntactico realizado con exito')
+
+        try:
+            global COD3D
+            COD3D += '\t' + 'global heap' + '\n'
+            COD3D += '\t' + 'sql: Sql = Sql()' + '\n'
+            COD3D += '\t' + 'result = str(sql.query(heap))' + '\n'
+            COD3D += '\t' + 'return result' + '\n\n'
+
+            COD3D += '@with_goto' + '\n' + 'def principal():'
+            COD3D += '\n'
+            COD3D += result.getC3D()
+
+            COD3D += '\n'
+            COD3D += '\n'
+            COD3D += """if __name__ == '__main__':\n"""
+            COD3D += '\t' + 'principal()'
+        except:
+            pass
 
         global arboAux_errores
 
@@ -283,7 +300,7 @@ def Err_Lexico():
             '''
     contador = 1
 
-    for i in arboAux_errores.ErroresLexicos:
+    for i in erroresglobales.errores_lexicos:
         Error: ErroresLexicos = i
         texto += '<tr><td> ' + str(contador) + '</td>'
         texto += '<td> ' + Error.descripcion + '</td>'
@@ -501,21 +518,25 @@ def Tabla_Simbolos_Indice():
             <h1>Reporte de Tabla de Simbolos para Indices OLC2- G17</h1>
             <table> <thead> <tr>
             <th>No.</th>
-            <th>Regla Utilizada</th>
-            <th>Codigo Original</th>
-            <th>Codigo Optimizado</th>
+            <th>Alias</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Columnas</th>
+            <th>Consideracion</th>
             <th>Fila</th>
             <th>Columna</th>
             </tr> </thead>
             '''
     contador = 1
 
-    for i in arboAux_errores.ReporteOptimizacion:
-        Error: ReporteOptimizacion = i
+    for i in arboAux_errores.ReporteTS_Indice:
+        Error:ReportIndice = i
         texto += '<tr><td> ' + str(contador) + '</td>'
-        texto += '<td> ' + Error.regla + '</td>'
-        texto += '<td> ' + Error.original + '</td>'
-        texto += '<td> ' + Error.optimizado + '</td>'
+        texto += '<td> ' + Error.alias + '</td>'
+        texto += '<td> ' + Error.nombre + '</td>'
+        texto += '<td> ' + Error.tipo + '</td>'
+        texto += '<td> ' + Error.columnas + '</td>'
+        texto += '<td> ' + Error.consideracion+ '</td>'
         texto += '<td> ' + str(Error.fila) + '</td>'
         texto += '<td> ' + str(Error.columna) + '</td></tr>'
         contador = contador + 1
@@ -582,7 +603,7 @@ def generar():
     COD3D += ''
 
     #llamando a la funcion principal
-    COD3D+= """if __name__ == '__main__':\n\tprincipal()"""
+    #COD3D+= """if __name__ == '__main__':\n\tprincipal()"""
 
     f = open("./../../Ejecucion/Codigo3DGenerado.py", "w")
     f.write(COD3D)
