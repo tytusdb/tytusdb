@@ -90,14 +90,15 @@ class Select(ASTNode):
                         rrow.append(col.execute(row, header)) #commnet fory to send all registers instad header for agragate functions
                         #rrow.append(col.execute(row, [header,megaunion]))
                     lrows.append(rrow)
-                    
+
                 #force gruop by with distinct :s
-                if AllAgregateFunc(self.col_names):
-                    temp = []
-                    for item in megaunion:
-                        if item not in temp:
-                            temp.append(item)
-                    megaunion = temp
+                if AllAgregateFunc(self.col_names) and len(self.col_names) == 1:
+                    return [resutCols, [[len(megaunion)]]]
+                    #temp = []
+                    #for item in megaunion:
+                    #    if item not in temp:
+                    #        temp.append(item)
+                    #megaunion = temp
 
                 return [resutCols, lrows]
 
