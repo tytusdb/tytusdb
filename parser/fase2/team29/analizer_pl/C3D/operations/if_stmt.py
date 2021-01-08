@@ -25,7 +25,9 @@ class If_Statement(Instruction):
                 + "\n"
             )
             grammar.optimizer_.addIF(
-                str(boolCode.temp), str("etiv" + str(grammar.current_etiq + 1)), self.row
+                str(boolCode.temp),
+                str("etiv" + str(grammar.current_etiq + 1)),
+                self.row,
             )
             cod3d += "\tgoto .etif" + str(grammar.current_etiq + 2) + "\n"
             grammar.optimizer_.addGoto(
@@ -39,7 +41,9 @@ class If_Statement(Instruction):
             for stmt in self.stmts:
                 cod3d += stmt.execute(environment).value
             self.index = (
-                grammar.optimizer_.addGoto(str("etiqS" + str(grammar.next_etiq)), self.row)
+                grammar.optimizer_.addGoto(
+                    str("etiqS" + str(grammar.next_etiq)), self.row
+                )
                 - 1
             )
             if len(self.elseif_list) > 0:
@@ -55,7 +59,9 @@ class If_Statement(Instruction):
             self.p_if_rest()
             return code.C3D(cod3d, "if", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> If Statement")
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> If Statement"
+            )
 
     def p_if_sum(self):
         if grammar.if_stmt != 0:

@@ -4,6 +4,7 @@ from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
 from analizer_pl import grammar
 
+
 class ExistsRelationalOperation(instruction.Instruction):
     def __init__(self, temp, select):
         instruction.Instruction.__init__(self, select.row, select.column)
@@ -15,7 +16,8 @@ class ExistsRelationalOperation(instruction.Instruction):
         self.groupbyCl = select.groupbyCl
         self.limitCl = select.limitCl
         self.temp = "t" + temp
-	self.s = select
+        self.s = select
+
     def execute(self, environment):
         parVal = ""
         out = self.temp + " = "
@@ -68,7 +70,7 @@ class ExistsRelationalOperation(instruction.Instruction):
                     orderbyCl += str(o[0]) + o[1] + o[2]
                 else:
                     orderbyCl += o[0].id + o[1] + o[2]
-            out +=  "ORDER BY " + orderbyCl[2:]
+            out += "ORDER BY " + orderbyCl[2:]
 
         out += ") ;"
         out += '")\n'
@@ -90,8 +92,9 @@ class ExistsRelationalOperation(instruction.Instruction):
         new.addNode(self.s.dot())
         return new
 
+
 class inRelationalOperation(instruction.Instruction):
-    def __init__(self, temp, colData, optNot , select):
+    def __init__(self, temp, colData, optNot, select):
         instruction.Instruction.__init__(self, select.row, select.column)
         self.distinct = select.distinct
         self.params = select.params
@@ -103,7 +106,7 @@ class inRelationalOperation(instruction.Instruction):
         self.optNot = optNot
         self.colData = colData
         self.temp = "t" + temp
-	self.s = select
+        self.s = select
 
     def execute(self, environment):
         colData = self.colData.execute(environment)
@@ -160,7 +163,7 @@ class inRelationalOperation(instruction.Instruction):
                     orderbyCl += str(o[0]) + o[1] + o[2]
                 else:
                     orderbyCl += o[0].id + o[1] + o[2]
-            out +=  "ORDER BY " + orderbyCl[2:]
+            out += "ORDER BY " + orderbyCl[2:]
 
         out += ") ;"
         out += '")\n'

@@ -29,7 +29,9 @@ class DropTable(instruction.Instruction):
                 grammar.optimizer_.addIgnoreString(out, self.row, False)
             return code.C3D(out, "drop_tb", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Drop Table")
-            
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Drop Table"
+            )
+
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_DROP_TABLE")

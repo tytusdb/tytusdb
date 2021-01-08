@@ -15,17 +15,16 @@ class Declaration(Instruction):
 
     def execute(self, environment: Environment):
         try:
-            verificacion = environment.addVar(self.id, self.id, self.type, self.row, self.column)
-            if verificacion ==None:
-                grammar.PL_errors.append("Error P0002: La variable "+self.id+" ya existe")
-                grammar.semantic_errors.append("La variable "+self.id+" ya existe")
+            environment.addVar(self.id, self.id, self.type, self.row, self.column)
             val = ""
             tmp = self.id
             if self.ass:
                 a = self.ass.execute(environment)
                 val = a.value
                 tmp = a.temp
-
+            else:
+                val = "\t" + self.id + " = None\n"
+                grammar.optimizer_.addIgnoreString(str(val), self.row, False)
             return code.C3D(val, tmp, self.row, self.column)
         except:
             grammar.PL_errors.append("Error P0000: plpgsql fatal error ")

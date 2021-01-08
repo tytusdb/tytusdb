@@ -24,6 +24,9 @@ class UseDataBase(Instruction):
                 grammar.optimizer_.addIgnoreString(out, self.row, False)
             return code.C3D(out, "use_database", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Use DataBase")
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Use DataBase"
+            )
+
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_USE")

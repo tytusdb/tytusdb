@@ -17,10 +17,29 @@ class Assignment(Instruction):
             # TODO: Error
             if environment.getVar(self.id) != None:
                 self.value = exp.value + "\t" + self.id + " = " + str(exp.temp) + "\n"
+                fix = (
+                    "\t"
+                    + "if isinstance("
+                    + self.id
+                    + ", str): "
+                    + self.id
+                    + ' = "\'"+'
+                    + self.id
+                    + '+"\'"'
+                    + "\n"
+                )
+                self.value += fix
                 grammar.optimizer_.addScalarAsig(self.id, exp.temp, self.row, True)
+                grammar.optimizer_.addIgnoreString(str(fix), self.row, False)
+
                 return code.C3D(self.value, self.id, self.row, self.column)
             else:
-                grammar.PL_errors.append("Error P0000: La variable "+self.id+" no esta declarada")
+                grammar.PL_errors.append(
+                    "Error P0000: La variable "
+                    + self.id
+                    + " no esta declarada en la linea: "
+                    + self.row
+                )
         except:
             grammar.PL_errors.append("Error P0000: Error en la asignacion de valor")
 

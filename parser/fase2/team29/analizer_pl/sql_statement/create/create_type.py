@@ -37,7 +37,9 @@ class CreateType(instruction.Instruction):
                 grammar.optimizer_.addIgnoreString(out, self.row, False)
             return code.C3D(out, "create_type", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Create Type")
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Create Type"
+            )
 
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_CREATE_TYPE")
