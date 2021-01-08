@@ -1,508 +1,6 @@
 <!DOCTYPE html><html lang="en" class="no-js"><head>    <meta charset="UTF-8" />    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Reporte de Gramatica Dirigida por Sintaxis </title>    <meta name="description"        content="Sticky Table Headers Revisited: Creating functional and flexible sticky table headers" />    <meta name="keywords" content="Sticky Table Headers Revisited" />    <meta name="author" content="Codrops" />    <link rel="shortcut icon" href="../favicon.ico">    <link rel="stylesheet" type="text/css" href="css/normalize.css" />    <link rel="stylesheet" type="text/css" href="css/demo.css" />    <link rel="stylesheet" type="text/css" href="css/component.css" /></head><body>    <div class="container">        <!-- Top Navigation -->        <header>            <h1>Reporte de Gramatica Dirigida por Sintaxis</h1>        </header>        <div class="component">            <table>                <thead>                    <tr>                        <th>Producciones</th>                        <th>Reglas Semanticas </th>                    </tr>                </thead>                <tbody><TR><TD> inicio -> codigo </TD><TD> inicio = t[1] </TD></TR>
 <TR><TD> codigo -> instrucciones_globales_list </TD><TD> codigo = t[1] </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> SELECT ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> SELECT ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> SELECT ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> SELECT ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> funciones -> CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA </TD><TD> instrucs = [] for instru1 in t[12]: instrucs.append(instru1) for instru2 in t[14]: instrucs.append(instru2) t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs)) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> imprimir -> RAISE lista_imprimir PTCOMA </TD><TD> t[0] = Impresion(t[2]) </TD></TR>
-<TR><TD> lista_imprimir -> sent_imprimir </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> set_imprimir -> expresionPLSQL </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ID </TD><TD> t[0] = ExpresionIdentificador(t[1]) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> sentencia_if -> IF expresionPLSQL THEN instrucciones_funct_list else END IF PTCOMA </TD><TD> t[0] = SentenciaIf(t[2], Principal(t[4]), t[5]) </TD></TR>
-<TR><TD> else ->  </TD><TD> t[0] = None </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> asignacion -> ID DOSPUNTOS IGUAL expresionPLSQL PTCOMA </TD><TD> t[0] = Asignacion(t[1], t[4]) </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> asignacion -> ID DOSPUNTOS IGUAL expresionPLSQL PTCOMA </TD><TD> t[0] = Asignacion(t[1], t[4]) </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel ->  arit IGUALIGUAL arit </TD><TD> t[0] = ExpresionBinaria(t[1], t[3], OPERADOR.IGUAL) </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> arit -> ID </TD><TD> t[0] = ExpresionIdentificador(t[1]) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> asignacion -> ID DOSPUNTOS IGUAL expresionPLSQL PTCOMA </TD><TD> t[0] = Asignacion(t[1], t[4]) </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> declaracion -> DECLARE ID tipo PTCOMA </TD><TD> t[0] = ListaDeclaraciones(t[3], [Declaracion(t[2], None)]) </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> declaracion -> DECLARE ID tipo PTCOMA </TD><TD> t[0] = ListaDeclaraciones(t[3], [Declaracion(t[2], None)]) </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> declaracion -> DECLARE ID tipo PTCOMA </TD><TD> t[0] = ListaDeclaraciones(t[3], [Declaracion(t[2], None)]) </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> parametros -> parametros COMA parametro </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> VARCHAR PARA ENTERO PARC </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> parametros -> parametros COMA parametro </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> parametros -> parametros COMA parametro </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> VARCHAR PARA ENTERO PARC </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> parametros -> parametros COMA parametro </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> VARCHAR PARA ENTERO PARC </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> parametros -> parametro </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> funciones -> CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA </TD><TD> instrucs = [] for instru1 in t[12]: instrucs.append(instru1) for instru2 in t[14]: instrucs.append(instru2) t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs)) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> imprimir -> RAISE lista_imprimir PTCOMA </TD><TD> t[0] = Impresion(t[2]) </TD></TR>
-<TR><TD> lista_imprimir -> sent_imprimir </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> set_imprimir -> expresionPLSQL </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ID </TD><TD> t[0] = ExpresionIdentificador(t[1]) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> asignacion -> ID DOSPUNTOS IGUAL expresionPLSQL PTCOMA </TD><TD> t[0] = Asignacion(t[1], t[4]) </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> declaracion -> DECLARE ID tipo PTCOMA </TD><TD> t[0] = ListaDeclaraciones(t[3], [Declaracion(t[2], None)]) </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> parametros -> parametro </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> VARCHAR PARA ENTERO PARC </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> funciones -> CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA </TD><TD> instrucs = [] for instru1 in t[12]: instrucs.append(instru1) for instru2 in t[14]: instrucs.append(instru2) t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs)) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> imprimir -> RAISE lista_imprimir PTCOMA </TD><TD> t[0] = Impresion(t[2]) </TD></TR>
-<TR><TD> lista_imprimir -> sent_imprimir </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> set_imprimir -> expresionPLSQL </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ID </TD><TD> t[0] = ExpresionIdentificador(t[1]) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> asignacion -> ID DOSPUNTOS IGUAL expresionPLSQL PTCOMA </TD><TD> t[0] = Asignacion(t[1], t[4]) </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> declaracion -> DECLARE ID tipo PTCOMA </TD><TD> t[0] = ListaDeclaraciones(t[3], [Declaracion(t[2], None)]) </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> parametros -> parametro </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> VARCHAR PARA ENTERO PARC </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> create_Table_isnrt ->  CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA  </TD><TD> cadena =  <br> for i in t[5]: <br>     cadena += str(i) <br>  create_Table_isnrt = CreateTable(t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]+ ' ' + cadena+ ' ' + t[6]+ ';') </TD></TR>
-<TR><TD> cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable </TD><TD> cuerpo_createTable_lista.append(t[2]) <br> cuerpo_createTable_lista.append(t[3]) <br> cuerpo_createTable_lista = t[1] </TD></TR>
-<TR><TD> cuerpo_createTable -> ID TIPO_DATO_DEF </TD><TD> cuerpo_createTable = ' '+ t[1] + ' '+ t[2] + ' ' </TD></TR>
-<TR><TD> TIPO_DATO_DEF -> TEXT </TD><TD> TIPO_DATO_DEF = ' ' + t[1] + ' ' </TD></TR>
-<TR><TD> cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable </TD><TD> cuerpo_createTable_lista.append(t[2]) <br> cuerpo_createTable_lista.append(t[3]) <br> cuerpo_createTable_lista = t[1] </TD></TR>
-<TR><TD> cuerpo_createTable -> ID TIPO_DATO_DEF createTable_options </TD><TD> cadena =  <br>  for i in t[4]: <br>    cadena += str(i) <br> cuerpo_createTable = ' '+ t[1] + ' '+ t[2] + ' ' + cadena + ' ' </TD></TR>
-<TR><TD> createTable_options -> cT_options </TD><TD> createTable_options = [t[1]] </TD></TR>
-<TR><TD> cT_options -> N_null </TD><TD> cT_options = ' '+ t[1] + ' ' </TD></TR>
-<TR><TD> N_null -> NOT NULL </TD><TD> N_null = ' '+ t[1] + ' '+ t[2] + ' ' </TD></TR>
-<TR><TD> TIPO_DATO_DEF -> DATE </TD><TD> TIPO_DATO_DEF = ' ' + t[1] + ' ' </TD></TR>
-<TR><TD> cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable </TD><TD> cuerpo_createTable_lista.append(t[2]) <br> cuerpo_createTable_lista.append(t[3]) <br> cuerpo_createTable_lista = t[1] </TD></TR>
-<TR><TD> cuerpo_createTable -> ID TIPO_DATO_DEF createTable_options </TD><TD> cadena =  <br>  for i in t[4]: <br>    cadena += str(i) <br> cuerpo_createTable = ' '+ t[1] + ' '+ t[2] + ' ' + cadena + ' ' </TD></TR>
-<TR><TD> createTable_options -> cT_options </TD><TD> createTable_options = [t[1]] </TD></TR>
-<TR><TD> cT_options -> N_null </TD><TD> cT_options = ' '+ t[1] + ' ' </TD></TR>
-<TR><TD> N_null -> NOT NULL </TD><TD> N_null = ' '+ t[1] + ' '+ t[2] + ' ' </TD></TR>
-<TR><TD> TIPO_DATO_DEF -> INTEGER </TD><TD> TIPO_DATO_DEF = ' ' + t[1] + ' ' </TD></TR>
-<TR><TD> cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable </TD><TD> cuerpo_createTable_lista.append(t[2]) <br> cuerpo_createTable_lista.append(t[3]) <br> cuerpo_createTable_lista = t[1] </TD></TR>
-<TR><TD> cuerpo_createTable -> ID TIPO_DATO_DEF createTable_options </TD><TD> cadena =  <br>  for i in t[4]: <br>    cadena += str(i) <br> cuerpo_createTable = ' '+ t[1] + ' '+ t[2] + ' ' + cadena + ' ' </TD></TR>
-<TR><TD> createTable_options -> cT_options </TD><TD> createTable_options = [t[1]] </TD></TR>
-<TR><TD> cT_options -> N_null </TD><TD> cT_options = ' '+ t[1] + ' ' </TD></TR>
-<TR><TD> N_null -> NOT NULL </TD><TD> N_null = ' '+ t[1] + ' '+ t[2] + ' ' </TD></TR>
-<TR><TD> TIPO_DATO_DEF -> INTEGER </TD><TD> TIPO_DATO_DEF = ' ' + t[1] + ' ' </TD></TR>
-<TR><TD> cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable </TD><TD> cuerpo_createTable_lista.append(t[2]) <br> cuerpo_createTable_lista.append(t[3]) <br> cuerpo_createTable_lista = t[1] </TD></TR>
-<TR><TD> cuerpo_createTable -> ID TIPO_DATO_DEF createTable_options </TD><TD> cadena =  <br>  for i in t[4]: <br>    cadena += str(i) <br> cuerpo_createTable = ' '+ t[1] + ' '+ t[2] + ' ' + cadena + ' ' </TD></TR>
-<TR><TD> createTable_options -> cT_options </TD><TD> createTable_options = [t[1]] </TD></TR>
-<TR><TD> cT_options -> N_null </TD><TD> cT_options = ' '+ t[1] + ' ' </TD></TR>
-<TR><TD> N_null -> NOT NULL </TD><TD> N_null = ' '+ t[1] + ' '+ t[2] + ' ' </TD></TR>
-<TR><TD> TIPO_DATO_DEF -> INTEGER </TD><TD> TIPO_DATO_DEF = ' ' + t[1] + ' ' </TD></TR>
-<TR><TD> cuerpo_createTable_lista -> cuerpo_createTable </TD><TD> cuerpo_createTable = [t[1]] </TD></TR>
-<TR><TD> cuerpo_createTable -> ID TIPO_DATO_DEF createTable_options </TD><TD> cadena =  <br>  for i in t[4]: <br>    cadena += str(i) <br> cuerpo_createTable = ' '+ t[1] + ' '+ t[2] + ' ' + cadena + ' ' </TD></TR>
-<TR><TD> createTable_options -> createTable_options cT_options </TD><TD> createTable_options.append(t[2]) <br> createTable_options = t[1] </TD></TR>
-<TR><TD> cT_options -> llave </TD><TD> cT_options = ' '+ t[1] + ' ' </TD></TR>
-<TR><TD> llave -> PRIMARY KEY <br> | PRIMARY KEY </TD><TD> llave = ' '+ t[1] + ' '+ t[2] + ' ' </TD></TR>
-<TR><TD> createTable_options -> cT_options </TD><TD> createTable_options = [t[1]] </TD></TR>
-<TR><TD> cT_options -> N_null </TD><TD> cT_options = ' '+ t[1] + ' ' </TD></TR>
-<TR><TD> N_null -> NOT NULL </TD><TD> N_null = ' '+ t[1] + ' '+ t[2] + ' ' </TD></TR>
-<TR><TD> TIPO_DATO_DEF -> INTEGER </TD><TD> TIPO_DATO_DEF = ' ' + t[1] + ' ' </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> SELECT ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> funciones -> CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA </TD><TD> t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13])) </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> imprimir -> RAISE lista_imprimir PTCOMA </TD><TD> t[0] = Impresion(t[2]) </TD></TR>
-<TR><TD> lista_imprimir -> sent_imprimir </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> set_imprimir -> expresionPLSQL </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ID </TD><TD> t[0] = ExpresionIdentificador(t[1]) </TD></TR>
-<TR><TD> tipo -> TEXT </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> parametros -> parametro </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> TEXT </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> SELECT ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> EXECUTE ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> params COMA expresionPLSQL </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> funciones ->  </TD><TD>  </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> insert_insrt -> INSERT INTO ID VALUES PARA lista_datos PARC PTCOMA </TD><TD>  cadena2 =  <br> for j in t[6]: <br>      cadena2 += str(j) <br> insert_insrt = InsertTable(t[1] + ' '+ t[2]+ ' '+ t[3]+ ' '+ t[4]+ ' '+ t[5] + ' '+ cadena2 + ' '+ t[7]+ ';')   </TD></TR>
-<TR><TD> lista_datos -> lista_datos COMA exclusiva_insert </TD><TD> lista_datos.append(t[2]) <br> lista_datos.append(t[3]) <br> lista_datos = t[1]  </TD></TR>
-<TR><TD> exclusiva_insert -> expresion </TD><TD> exclusiva_insert = ' ' + str(t[1]) + ' ' </TD></TR>
-<TR><TD> expresion -> expresion_dato </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
-<TR><TD> expresion_dato -> expresion_numero </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
-<TR><TD> expresion_numero -> ENTERO </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
-<TR><TD> lista_datos -> lista_datos COMA exclusiva_insert </TD><TD> lista_datos.append(t[2]) <br> lista_datos.append(t[3]) <br> lista_datos = t[1]  </TD></TR>
-<TR><TD> exclusiva_insert -> expresion </TD><TD> exclusiva_insert = ' ' + str(t[1]) + ' ' </TD></TR>
-<TR><TD> expresion -> expresion_dato </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
-<TR><TD> expresion_dato -> string_type </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
-<TR><TD> string_type -> ID </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> lista_datos -> lista_datos COMA exclusiva_insert </TD><TD> lista_datos.append(t[2]) <br> lista_datos.append(t[3]) <br> lista_datos = t[1]  </TD></TR>
-<TR><TD> exclusiva_insert -> expresion </TD><TD> exclusiva_insert = ' ' + str(t[1]) + ' ' </TD></TR>
-<TR><TD> expresion -> expresion_dato </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
-<TR><TD> expresion_dato -> string_type </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
-<TR><TD> string_type -> ID </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> lista_datos -> exclusiva_insert </TD><TD> lista_datos = [t[1]] </TD></TR>
-<TR><TD> exclusiva_insert -> expresion </TD><TD> exclusiva_insert = ' ' + str(t[1]) + ' ' </TD></TR>
-<TR><TD> expresion -> expresion_dato </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
-<TR><TD> expresion_dato -> string_type </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>
-<TR><TD> string_type -> ID </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
-<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> parametros -> parametros COMA parametro </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> DATE </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> parametros -> parametros COMA parametro </TD><TD> t[1].append(t[3]) t[0] = t[1] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> VARCHAR PARA ENTERO PARC </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> parametros -> parametro </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
-<TR><TD> tipo -> integer </TD><TD> t[0] = TIPO_DATO.INT </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';') </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> select_insrt PTCOMA </TD><TD> instrucciones_global_sent = SelectTable(' ' + str(t[1]) + ';') </TD></TR>
 <TR><TD> select_insrt -> SELECT opcion_select_tm </TD><TD> select_insrt = ' ' + str(t[1]) + ' '+ str(t[2]) + ' ' </TD></TR>
 <TR><TD> opcion_select_tm -> opcion_select_lista  FROM opciones_sobrenombres </TD><TD> cadena =  <br> for i in t[3]: <br>       cadena += str(i) <br> opcion_select_tm = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(cadena) + ' ' </TD></TR>
@@ -565,7 +63,7 @@
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> funciones ->  </TD><TD>  </TD></TR>
-<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
+<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
 <TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
 <TR><TD> update_insrt -> UPDATE ID SET lista_update cond_where PTCOMA </TD><TD> cadena =  <br>  for i in t[3]: <br>     cadena += str(i) <br>  drop_insrt = UpdateTable(t[1] + ' ' +t[2] + ' ' + cadena + ';') </TD></TR>
 <TR><TD> cond_where -> WHERE expresion_where </TD><TD> t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' ' </TD></TR>
@@ -588,31 +86,18 @@
 <TR><TD> string_type -> CADENA </TD><TD> t[0] = cadena </TD></TR>
 <TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
 <TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
+<TR><TD> imprimir -> RAISE lista_imprimir PTCOMA </TD><TD> t[0] = Impresion(t[2]) </TD></TR>
+<TR><TD> lista_imprimir -> sent_imprimir </TD><TD> t[0] = [t[1]] </TD></TR>
+<TR><TD> set_imprimir -> expresionPLSQL </TD><TD> t[0] = t[1] </TD></TR>
+<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
+<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
+<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
+<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
+<TR><TD> instrucciones_funct_list -> instrucciones_funct_sent </TD><TD> instrucciones_funct_list = [t[1]] </TD></TR>
+<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
 <TR><TD> empty ->  </TD><TD> pass </TD></TR>
 <TR><TD> parametros -> parametro </TD><TD> t[0] = [t[1]] </TD></TR>
 <TR><TD> parametro -> empty </TD><TD> t[0] = None </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';') </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> drop_insrt_index -> DROP INDEX <lista_drop_id_index> PTCOMA </TD><TD> t[0] = DropIndex(' ' + t[1] + ' '+ t[2] + ' '+ cadena + ';') </TD></TR>
-<TR><TD> lista_drop_id_index -> ID </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';') </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
-<TR><TD> empty ->  </TD><TD> pass </TD></TR>
 <TR><TD> empty ->  </TD><TD> pass </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
@@ -653,6 +138,15 @@
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> funciones ->  </TD><TD>  </TD></TR>
+<TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
+<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
+<TR><TD> imprimir -> RAISE lista_imprimir PTCOMA </TD><TD> t[0] = Impresion(t[2]) </TD></TR>
+<TR><TD> lista_imprimir -> sent_imprimir </TD><TD> t[0] = [t[1]] </TD></TR>
+<TR><TD> set_imprimir -> expresionPLSQL </TD><TD> t[0] = t[1] </TD></TR>
+<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
+<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
+<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
+<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
 <TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
 <TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
 <TR><TD> insert_insrt -> ID TIPO_DATO </TD><TD>  cadena =  <br> for i in t[5]: <br>       cadena += str(i) <br> cadena2 =  <br> for j in t[9]: <br>      cadena2 += str(j) <br> insert_insrt = InsertTable(t[1] + ' '+ t[2]+ ' '+ t[3]+ ' '+ t[4]+ ' '+ cadena + ' '+ t[6]+ ' '+ t[7]+ ' '+ t[8]+ ' '+ cadena2 + ' '+ t[10] + ';')  </TD></TR>
@@ -862,13 +356,7 @@
 <TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
 <TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
 <TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> PARA expresionPLSQL PARC </TD><TD> t[0] = t[2] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> arit POR arit </TD><TD> t[0] = ExpresionBinaria(t[1], t[3], OPERADOR.POR) </TD></TR>
 <TR><TD> arit -> ENTERO | FLOTANTE </TD><TD> t[0] = ExpresionNumero(t[1]) </TD></TR>
-<TR><TD> arit -> ID </TD><TD> t[0] = ExpresionIdentificador(t[1]) </TD></TR>
 <TR><TD> instrucciones_funct_list -> instrucciones_funct_list instrucciones_funct_sent </TD><TD> instrucciones_funct_list.append(t[2]) <br> instrucciones_funct_list = t[1] </TD></TR>
 <TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>
 <TR><TD> asignacion -> ID DOSPUNTOS IGUAL expresionPLSQL PTCOMA </TD><TD> t[0] = Asignacion(t[1], t[4]) </TD></TR>
@@ -1153,14 +641,6 @@
 <TR><TD> parametros -> parametro </TD><TD> t[0] = [t[1]] </TD></TR>
 <TR><TD> parametro -> ID tipo </TD><TD> t[0] = Parametro(t[2], t[1]) </TD></TR>
 <TR><TD> tipo -> VARCHAR PARA ENTERO PARC </TD><TD> t[0] = TIPO_DATO.STRING </TD></TR>
-<TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
-<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
-<TR><TD> llamada_funcion -> SELECT ID PARA params PARC PTCOMA </TD><TD> t[0] = LlamadaFuncion(t[2], t[4]) </TD></TR>
-<TR><TD> params -> expresionPLSQL | empty </TD><TD> t[0] = [t[1]] </TD></TR>
-<TR><TD> expresionPLSQL -> log </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> log -> rel </TD><TD> t[0] = t[1] </TD></TR>
-<TR><TD> rel -> <arit>  </TD><TD>  </TD></TR>
-<TR><TD> arit -> CADENA </TD><TD> t[0] = ExpresionCadena(t[1]) </TD></TR>
 <TR><TD> instrucciones_globales_list -> instrucciones_globales_list instrucciones_global_sent </TD><TD> instrucciones_globales_list.append(t[2]) <br> instrucciones_globales_list = t[1] </TD></TR>
 <TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>
 <TR><TD> insert_insrt -> INSERT INTO ID VALUES PARA lista_datos PARC PTCOMA </TD><TD>  cadena2 =  <br> for j in t[6]: <br>      cadena2 += str(j) <br> insert_insrt = InsertTable(t[1] + ' '+ t[2]+ ' '+ t[3]+ ' '+ t[4]+ ' '+ t[5] + ' '+ cadena2 + ' '+ t[7]+ ';')   </TD></TR>

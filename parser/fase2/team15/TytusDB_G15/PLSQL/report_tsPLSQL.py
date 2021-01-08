@@ -124,7 +124,7 @@ class RTablaDeSimbolosF:
                 FuncionesTipoArr.append(funcionTemp)
             elif(isinstance(instr,Parametro)):
                 #print('Parametro',instr.tipo,instr.id,ambito) 
-                funcionTemp = FuncionesTipo(instr.id,'PARAMETRO',instr.tipo,0,ambito)
+                funcionTemp = FuncionesTipo(instr.id,'PARAMETRO','PARAMETRO',0,ambito)
                 FuncionesTipoArr.append(funcionTemp)           
             elif(isinstance(instr,Principal)):
                 self.getFunciones(instr.instrucciones,ambito,tipo)
