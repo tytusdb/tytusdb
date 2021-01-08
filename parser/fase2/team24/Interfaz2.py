@@ -34,24 +34,8 @@ def analiz(input):
     #report_errors()
     #report_BNF()
     #--------------------------------------------------------
-    ListaAsignaciones = []
+    
 
-    ListaAsignaciones.append(optobj.Asignacion("x","x","0","+"))
-    ListaAsignaciones.append(optobj.Asignacion("x","x","0","-"))
-    ListaAsignaciones.append(optobj.Asignacion("x","x","1","*"))
-    ListaAsignaciones.append(optobj.Asignacion("x","x","1","/"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","0","+"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","0","-"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","1","*"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","1","/"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","2","*"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","0","*"))
-    ListaAsignaciones.append(optobj.Asignacion("x","0","y","/"))
-
-    print(optm.Optimizador(ListaAsignaciones).ejecutar())
-
-    for simbolo in ts.simbolos:
-        print("ID: " + str(ts.simbolos[simbolo].id) + " Nombre: " + ts.simbolos[simbolo].nombre + " Ambito: " + str(ts.simbolos[simbolo].ambito) + " Tipo indice: " + str(ts.simbolos[simbolo].tipoind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind))
 
     #--------------------------------------------------------
     return results
@@ -151,7 +135,7 @@ def Analizar2(texto: str):
 
 # def para escribir el archivo de 3d y mostrarlo en la interfaz
 def escribir3D(entrada):
-
+    global objopt
     a = open("c3d.py", "w")
     a.write('''
 from datetime import date
@@ -193,7 +177,7 @@ def ejecutar():
     f = open('c3d.py', 'r')
     file_contents = f.read()
     consola.insert(str(float(0)), file_contents)
-
+    optm.Optimizador(objopt).ejecutar()
 
 def Traducir():
     escribir3D(texto.get("1.0", "end-1c"))

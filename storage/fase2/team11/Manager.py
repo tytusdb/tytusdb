@@ -194,69 +194,31 @@ def get_Data(database: str, table: str, mode: str):
         return json.extractTable(database, table)
 
 
-def alterTableMode(database: str, table: str, databaseRef: str, mode: str):
-    if exist_Alter(database) and exist_Alter(databaseRef) and exist_Alter(databaseRef)[0].get_mode() == mode:
-        ModeDB, indice = exist_Alter(database)
-        if ModeDB:
-            oldMode = ModeDB.get_mode()
-            if oldMode.lower().strip() == "avl":
-                tables = avl.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)  # UNA LISTA VACIA NO EJECUTA EL FOR
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                avl.dropTable(database, table)
-            elif oldMode.lower().strip() == "b":
-                tables = b.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                b.dropTable(database, table)
-            elif oldMode.lower().strip() == "bPlus".lower():
-                tables = bPlus.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                bPlus.dropTable(database, table)
-            elif oldMode.lower().strip() == "dict":
-                tables = diccionario.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                diccionario.dropTable(database, table)
-            elif oldMode.lower().strip() == "isam":
-                tables = isam.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                isam.dropTable(database, table)
-            elif oldMode.lower().strip() == "hash":
-                tables = hash.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                hash.dropTable(database, table)
-            elif oldMode.lower().strip() == "json":
-                tables = json.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                json.dropTable(database, table)
+def alterTableMode(database: str, table: str, mode: str):
+    metadata_db, index_metadata = get_metadata_db(database) 
+    metadata_db = Database() 
+    if metadata_db:
+        oldMode = metadata_db.get_mode()
+        encoding = metadata_db.get_encondig()
+        if mode not in ["avl","b","bPlus","dict","isam","hash","json"]: return 4
+        struct = get_struct(metadata_db.get_mode())
+        tables = struct.showTables(database)
+        for tabla in tables:
+            if tabla == table:
+                listaDatos = get_Data(database, tabla, oldMode)  # UNA LISTA VACIA NO EJECUTA EL FOR
+                numberColumns = len(listaDatos[0])
+                #insertAlter(database+"_"+mode, tabla, numberColumns, mode, listaDatos)
+                if metadata_db.get_table(table).get_pk_list() != []:
+                    alterAddPK(database, table,metadata_db.get_table(table).get_pk_list())
+                createDatabase(database+"_"+mode, mode, encoding)
+                createTable(database+"_"+mode, table, numberColumns)
+                for i in listaDatos:
+                    insert(database, table,i)
+                struct.dropTable(database, table)
+                return 0
+        return 3
     else:
-        return None
+        return 2
 
 
 def alterDatabase(old_db, new_db):

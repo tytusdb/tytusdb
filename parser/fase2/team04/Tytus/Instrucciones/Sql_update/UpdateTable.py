@@ -151,6 +151,7 @@ class UpdateTable(Instruccion):
             arbol.setUpdate()
             return error
         arbol.consola.append(f"Se actualizo el registro ")
+        print("UPDATE: Se actualizó el registro")
         arbol.setUpdate()
 
     def getPrimaryKeyCol(self, columnas):
@@ -237,6 +238,49 @@ class UpdateTable(Instruccion):
         '''
         def update(database: str, table: str, register: dict, columns: list) -> int:
             '''
+
+
+    def getCodigo(self, tabla, arbol): 
+        
+        tabla = f"{self.identificador.devolverId(tabla, arbol)}"
+        lcol = f""
+        
+        for item in self.listaDeColumnas:
+            expresion = item.toString()
+
+            # if(str.isdigit(expresion) == False):
+            #             expresion = f"'{expresion}'"
+
+            lcol += f"  {expresion}{', ' if self.listaDeColumnas.index(item) < len(self.listaDeColumnas) - 1 else ''}"
+            
+        if self.insWhere == None:
+            table = f"UPDATE {tabla} SET {lcol} ;"
+        else:
+            table = f"UPDATE {tabla} SET {lcol} WHERE { self.insWhere.getCodigo(arbol,tabla)} ;"
+        
+        
+        num_params = 1
+        
+        temp_param1 = arbol.getTemporal()
+        temp_tam_func = arbol.getTemporal()
+        temp_index_param1 = arbol.getTemporal()
+        temp_return = arbol.getTemporal()
+        temp_result = arbol.getTemporal()
+        
+        codigo = f"\t#UPDATE TABLE 3D\n"
+        codigo += f"\t{temp_param1} = \"{table}\"\n"
+        codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
+        codigo += f"\t{temp_index_param1} = {temp_tam_func} + 1\n"
+        codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
+        codigo += f"\tpointer = pointer + {num_params}\n"
+        codigo += f"\tinter()\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        codigo += f"\tpointer = pointer - {num_params}\n"
+        #codigo += f"\tprint({temp_result})\n"
+        
+        #arbol.consola.append(codigo)
+        return codigo
 
 
 '''

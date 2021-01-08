@@ -12,6 +12,7 @@ import os
 import reportes.RealizarReportes
 import reportes.reportesimbolos as rs
 import reportes.reportesimbolos3D as rs3D
+import reportes.reporteoptimizacion as ropt
 import reportes.RealizarGramatica
 import reportes.reporteindex as indexs
 
@@ -23,6 +24,8 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from storageManager.jsonMode import *
 
 import sintactico3D
+
+from Optimizacion.ast import Ast
 
 #import sintacticoFake
 
@@ -83,6 +86,7 @@ class interfaz():
         mnreportes.add_command(label='Tabla de Simbolos', command=self.tblsimbolos_click)
         mnreportes.add_command(label='Tabla de Index', command=self.tbindex_click)
         mnreportes.add_command(label='Tabla de Simbolos 3D', command=self.tblsimbolos3D_click)
+        mnreportes.add_command(label='Reporte de optimización', command=self.tblopt_click)
         mnreportes.add_command(label='AST', command=self.ast_click)
         mnreportes.add_command(label='Reporte Gramatical', command=self.repDin_click)
         menu.add_cascade(label='Reportes', menu=mnreportes)
@@ -191,6 +195,11 @@ class interfaz():
         global arbol
         rs3D.crear_reporte(arbol.get_ts())  
         arbol = None      
+        
+    def tblopt_click(self):
+        global arbol
+        ropt.crear_reporte(arbol.get_topt())  
+        arbol = None 
 
     def ast_click(self):
         print("ast")   
@@ -245,19 +254,23 @@ class interfaz():
 
 
     def btnanalizar3D_click(self):
-
+        global arbol
         input=self.txtentrada[self.tab.index("current")].get(1.0,END)
-
         inst = sintactico3D.ejecutar_analisis(input)
-
 
         if len(sintactico3D.lista_lexicos)>0:
             messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico3D.lista_lexicos)
+        
+        arbol = Arbol(inst)
+        ast = Ast(inst, arbol)
+        mensaje = ast.optimizar()
+            
+        file = open("optimizado.py", "w")
+        file.write(mensaje)
+        file.close()
+
        
-     
-        
-        
 
     def btngetCodigo_click(self):
         global arbol

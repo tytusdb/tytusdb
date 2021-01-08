@@ -9,6 +9,11 @@ class Parser(object):
     ''' '''
   def parse(self,input):
     obj = execution(input)
-    print(obj['messages'])
-    return obj['value']
+    #print(obj['messages'])
+    result = None
+    try:
+      result = obj['querys'][0][1][0][0]
+    except:
+      return None
+    return result
     

@@ -36,6 +36,9 @@ class Tipo():
         self.dimension = dimension
         self.nombre = ''
         
+    def ejecutar(self, tabla, arbol):
+        return self
+        
     def toString(self):
         if self.tipo == Tipo_Dato.SMALLINT:
             return "smallint"
@@ -44,7 +47,7 @@ class Tipo():
         elif self.tipo == Tipo_Dato.BIGINT:
             return "bigint"
         elif self.tipo == Tipo_Dato.DECIMAL:
-            return "decimal"
+            return f"decimal ({self.dimension[0]},{self.dimension[1]})"
         elif self.tipo == Tipo_Dato.NUMERIC:
             return "numeric"
         elif self.tipo == Tipo_Dato.REAL:
@@ -54,13 +57,13 @@ class Tipo():
         elif self.tipo == Tipo_Dato.MONEY:
             return "money"
         elif self.tipo == Tipo_Dato.CHAR:
-            return "char"
+            return f"char ({self.dimension})"
         elif self.tipo == Tipo_Dato.VARCHAR:
-            return "varchar"
+            return f"varchar ({self.dimension})"
         elif self.tipo == Tipo_Dato.VARYING:
-            return "character varying"
+            return f"character varying ({self.dimension})"
         elif self.tipo == Tipo_Dato.CHARACTER:
-            return "character"
+            return f"character ({self.dimension})"
         elif self.tipo == Tipo_Dato.TEXT:
             return "text"
         elif self.tipo == Tipo_Dato.DATE:
@@ -79,3 +82,10 @@ class Tipo():
             return "id"
         elif self.tipo == Tipo_Dato.QUERY:
             return "query"
+        
+    def getCodigo(self, tabla, arbol):       
+        value_list = []
+        
+        value_list.append(self.tipo)
+        value_list.append(self.dimension)
+        return arbol.getExpressionCode(value_list, 'tipo')

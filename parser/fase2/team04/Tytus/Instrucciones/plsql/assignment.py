@@ -8,10 +8,15 @@ class Assignment(Instruccion):
         self.linea = linea
         self.columna = columna
         
-        print ("ESTA ES UNA ASIGNACIÓN ")
-        
     def ejecutar(self, tabla, arbol):   
         pass
 
     def getCodigo(self, tabla, arbol):
-        pass
+        temp_return = arbol.getTemporal()
+        dic_expresion = self.expresion.getCodigo(tabla, arbol)
+        symbol = arbol.getSymbol(self.id, arbol.getScope())
+        
+        codigo = f"\t{temp_return} = pointer + {symbol['pointer']}\n"
+        codigo += dic_expresion['codigo']
+        codigo += f"\tstack[{temp_return}] = {dic_expresion['dir']}\n"        
+        return codigo

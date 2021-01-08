@@ -79,9 +79,6 @@ class createdb(instruccion):
         if self.mode != "":
             traduccion += ' MODE =' + self.mode
         traduccion += ';")'
-
-
-
         return traduccion + '\n'
 
     def ejecutar(self):

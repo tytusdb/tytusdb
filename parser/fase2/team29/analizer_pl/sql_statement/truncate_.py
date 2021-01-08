@@ -11,17 +11,19 @@ class Truncate(instruction.Instruction):
         self.name = name
 
     def execute(self, environment):
-        out = "fase1.execution(dbtemp + "
-        out += '" '
-        out += "TRUNCATE "
-        out += self.name + ";"
-        out += '")\n'
-        if isinstance(environment, Environment):
-            grammar.optimizer_.addIgnoreString(out, self.row, True)
-            out = "\t" + out
-        else:
-            grammar.optimizer_.addIgnoreString(out, self.row, False)
-        return code.C3D(out, "truncate_database", self.row, self.column)
-
+        try:
+            out = "fase1.execution(dbtemp + "
+            out += '" '
+            out += "TRUNCATE "
+            out += self.name + ";"
+            out += '")\n'
+            if isinstance(environment, Environment):
+                grammar.optimizer_.addIgnoreString(out, self.row, True)
+                out = "\t" + out
+            else:
+                grammar.optimizer_.addIgnoreString(out, self.row, False)
+            return code.C3D(out, "truncate_database", self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Truncate")
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_TRUNCATE")

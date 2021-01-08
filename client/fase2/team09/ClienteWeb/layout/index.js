@@ -266,6 +266,37 @@ function Table(opcion){
       document.getElementById("myModalT7").style.display = "none";
       document.getElementById("namealterAddIndex1").value = "";
     break;
+
+    case "alterTable":
+      var contenido = "alter table " + document.getElementById("namealterTable1").value + ";"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT8").style.display = "none";
+      document.getElementById("namealterTable1").value = "";
+    break;
+
+    case "alterAddColumn":
+
+      var contenido = "alter table " + document.getElementById("namealterAddColumn1").value + ";"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT9").style.display = "none";
+      document.getElementById("namealterAddColumn1").value = "";
+    break;
+    case "alterDropColumn":
+      var contenido = "alter table " + document.getElementById("namealterDropColumn1").value + ";"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT10").style.display = "none";
+      document.getElementById("namealterDropColumn1").value = "";
+    break;
+    case "dropTable":
+      var contenido = "drop table " + document.getElementById("namedropTable1").value + ";"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT11").style.display = "none";
+      document.getElementById("namedropTable1").value = "";
+    break;
   }
 }
 
