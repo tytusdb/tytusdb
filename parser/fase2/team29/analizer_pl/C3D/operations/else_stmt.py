@@ -10,13 +10,16 @@ class ElseStmt(Instruction):
         self.stmts = stmt
 
     def execute(self, environment):
-        cod3d = self.p_fev()
-        for stmt in self.stmts:
-            cod3d += stmt.execute(environment).value
-        cod3d += self.p_fef()
-        cod3d += self.p_write_next_etiq()
-        cod3d += self.p_fev()
-        return code.C3D(cod3d, "else", self.row, self.column)
+        try:
+            cod3d = self.p_fev()
+            for stmt in self.stmts:
+                cod3d += stmt.execute(environment).value
+            cod3d += self.p_fef()
+            cod3d += self.p_write_next_etiq()
+            cod3d += self.p_fev()
+            return code.C3D(cod3d, "else", self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Else Statement")
 
     def p_fev(self):
         return grammar.back_fill.take_out_false_list(self.row)

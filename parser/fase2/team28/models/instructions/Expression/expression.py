@@ -158,6 +158,12 @@ class Relop(Expression):
     def compile(self, environment):
         value1 = self.value1.compile(environment)
         value2 = self.value2.compile(environment)
+        if isinstance(value1, PrimitiveData):
+            if value1.data_type == DATA_TYPE.STRING:
+                value1.value = f"\'{value1.value}\'"
+        if isinstance(value1, PrimitiveData):
+            if value2.data_type == DATA_TYPE.STRING:
+                value2.value = f"\'{value2.value}\'"
         try:
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(

@@ -1,0 +1,607 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    ABS
+    ACOS
+    ACOSD
+    ACOSH
+    ADD
+    ALL
+    ALTER
+    AMPERSON
+    AND
+    ANY
+    APPEND
+    AS
+    ASC
+    ASIN
+    ASIND
+    ASINH
+    ATAN
+    ATAND
+    ATANDOS
+    ATANDOSD
+    ATANH
+    AVG
+    B
+    BARRA
+    BEGIN
+    BETWEEN
+    BIGINT
+    BOLEANO
+    BRIN
+    BUCKET
+    BY
+    BYTEA
+    CADENA
+    CALCULAR
+    CALL
+    CASE
+    CBRT
+    CEIL
+    CEILING
+    CHAR
+    CHARACTER
+    CHECK
+    COLUMN
+    CONSTRAINT
+    CONVERT
+    COS
+    COSD
+    COSH
+    COT
+    COTD
+    COUNT
+    CREATE
+    CREATEDB
+    CREATETBL
+    CURRENTDATE
+    CURRENTTIME
+    CURRENT_USER
+    DATABASE
+    DATABASES
+    DATE
+    DATEPART
+    DAY
+    DECIMAL
+    DECLARE
+    DECODE
+    DEF
+    DEFAULT
+    DEGREES
+    DELETE
+    DESC
+    DIFERENTELL
+    DISTINCT
+    DOLAR
+    DOUBLE
+    DROP
+    ELSE
+    ELSIF
+    ENCODE
+    END
+    ENTERO
+    ENUM
+    EXCEPT
+    EXCEPTION
+    EXCEPTION1
+    EXECUTE
+    EXISTS
+    EXISTTABLEC3D
+    EXP
+    EXTRACT
+    FACTORIAL
+    FALSE
+    FECHA
+    FEED
+    FIRST
+    FLOOR
+    FOREIGN
+    FOUND
+    FULL
+    FUNCTION
+    GCD
+    GETBYTE
+    GIN
+    GIST
+    GREATEST
+    GROUP
+    GUION
+    HASH
+    HAVING
+    HOUR
+    IF
+    ILIKE
+    IN
+    INDEX
+    INHERITS
+    INNER
+    INSERT
+    INSERTC3D
+    INTEGER
+    INTERSECT
+    INTERVAL
+    INTO
+    IS
+    ISNULL
+    JOIN
+    KEY
+    LABEL
+    LANGUAGE
+    LAST
+    LCM
+    LEAST
+    LEFT
+    LENGTH
+    LIKE
+    LIMIT
+    LLAVEDER
+    LLAVEIZQ
+    LN
+    LOG
+    LOWER
+    MAIN
+    MAX
+    MAYORIGUALQUE
+    MAYORQUE
+    MD5
+    MENORIGUALQUE
+    MENORQUE
+    MIN
+    MINSCALE
+    MINUTE
+    MOD
+    MODE
+    MONEY
+    MONTH
+    MYFUNCION
+    NATURAL
+    NEWLINE
+    NEXT
+    NOT
+    NOTICE
+    NOTNULL
+    NOW
+    NO_DATA_FOUND
+    NULL
+    NULLS
+    NUMERAL
+    NUMERIC
+    OF
+    OFFSET
+    ON
+    ONLY
+    OR
+    ORDER
+    OUTER
+    OWNER
+    PARENDER
+    PARENIZQ
+    PERFORM
+    PI
+    PLECA
+    PLPGSQL
+    PORCENTAJE
+    POTENCIA
+    POWER
+    PRECISION
+    PRIMARY
+    PRINT
+    PRINT_STRICT_PARAMS
+    PUNTO
+    QUERY
+    RADIANS
+    RAISE
+    RANDOM
+    REAL
+    REFERENCES
+    RENAME
+    REPLACE
+    RETURN
+    RETURNING
+    RETURNS
+    RIGHT
+    ROUND
+    SCALE
+    SECOND
+    SELECT
+    SESSION_USER
+    SET
+    SETBYTE
+    SETSEED
+    SHA
+    SHOW
+    SIGN
+    SIMILAR
+    SIN
+    SIND
+    SINH
+    SMALLINT
+    SOME
+    SP
+    SQRT
+    STRICT
+    SUBSTR
+    SUBSTRING
+    SUM
+    SYMMETRIC
+    TAB
+    TABLE
+    TAN
+    TAND
+    TANH
+    TEXT
+    TEXTO
+    THEN
+    TIME
+    TIMESTAMP
+    TO
+    TOO_MANY_ROWS
+    TREE
+    TRIM
+    TRUE
+    TRUNC
+    TYPE
+    UNION
+    UNIQUE
+    UNKNOWN
+    UPDATE
+    USE
+    USEDATABASE
+    USING
+    VALUES
+    VARCHAR
+    VARYING
+    VIRGULILLA
+    WHEN
+    WHERE
+    YEAR
+
+Grammar
+
+Rule 0     S' -> init
+Rule 1     init -> inicia_file
+Rule 2     inicia_file -> FROM SENTENCIAS IMPORT ASTERISCO lineados
+Rule 3     lineados -> FROM GOTO IMPORT WITH_GOTO lineatres
+Rule 4     lineatres -> ARROBA WITH GOTO inicio_main
+Rule 5     instrucciones -> instrucciones instruccion
+Rule 6     instrucciones -> instruccion
+Rule 7     instruccion -> ARROBA WITH GOTO cuerpo_file
+Rule 8     listacols -> listacols COMA ID
+Rule 9     listacols -> ID
+Rule 10    params -> params COMA param
+Rule 11    params -> param
+Rule 12    param -> ID DOSPUNTOS INT
+Rule 13    param -> ID DOSPUNTOS STR
+Rule 14    param -> ID DOSPUNTOS FLOAT
+Rule 15    instruccion -> regla_ocho
+Rule 16    instruccion -> regla_nueve
+Rule 17    instruccion -> regla_diez
+Rule 18    instruccion -> regla_once
+Rule 19    instruccion -> regla_doce
+Rule 20    instruccion -> regla_trece
+Rule 21    instruccion -> regla_catorce
+Rule 22    instruccion -> regla_quince
+Rule 23    instruccion -> regla_dieciseis
+Rule 24    instruccion -> regla_diecisiete
+Rule 25    instruccion -> regla_dieciocho
+Rule 26    regla_ocho -> ID IGUAL ID MAS CERO PTCOMA
+Rule 27    regla_nueve -> ID IGUAL ID MENOS CERO PTCOMA
+Rule 28    regla_diez -> ID IGUAL ID POR UNO PTCOMA
+Rule 29    regla_once -> ID IGUAL ID DIV UNO PTCOMA
+Rule 30    regla_doce -> ID IGUAL ID MAS CERO PTCOMA
+Rule 31    regla_trece -> ID IGUAL ID MENOS CERO PTCOMA
+Rule 32    regla_catorce -> ID IGUAL ID POR UNO PTCOMA
+Rule 33    regla_quince -> ID IGUAL ID DIV UNO CERO PTCOMA
+Rule 34    regla_dieciseis -> ID IGUAL ID POR DOS PTCOMA
+Rule 35    regla_diecisiete -> ID IGUAL ID POR CERO PTCOMA
+Rule 36    regla_dieciocho -> ID IGUAL CERO DIV ID PTCOMA
+
+Terminals, with rules where they appear
+
+ABS                  : 
+ACOS                 : 
+ACOSD                : 
+ACOSH                : 
+ADD                  : 
+ALL                  : 
+ALTER                : 
+AMPERSON             : 
+AND                  : 
+ANY                  : 
+APPEND               : 
+ARROBA               : 4 7
+AS                   : 
+ASC                  : 
+ASIN                 : 
+ASIND                : 
+ASINH                : 
+ASTERISCO            : 2
+ATAN                 : 
+ATAND                : 
+ATANDOS              : 
+ATANDOSD             : 
+ATANH                : 
+AVG                  : 
+B                    : 
+BARRA                : 
+BEGIN                : 
+BETWEEN              : 
+BIGINT               : 
+BOLEANO              : 
+BRIN                 : 
+BUCKET               : 
+BY                   : 
+BYTEA                : 
+CADENA               : 
+CALCULAR             : 
+CALL                 : 
+CASE                 : 
+CBRT                 : 
+CEIL                 : 
+CEILING              : 
+CERO                 : 26 27 30 31 33 35 36
+CHAR                 : 
+CHARACTER            : 
+CHECK                : 
+COLUMN               : 
+COMA                 : 8 10
+CONSTRAINT           : 
+CONVERT              : 
+COS                  : 
+COSD                 : 
+COSH                 : 
+COT                  : 
+COTD                 : 
+COUNT                : 
+CREATE               : 
+CREATEDB             : 
+CREATETBL            : 
+CURRENTDATE          : 
+CURRENTTIME          : 
+CURRENT_USER         : 
+DATABASE             : 
+DATABASES            : 
+DATE                 : 
+DATEPART             : 
+DAY                  : 
+DECIMAL              : 
+DECLARE              : 
+DECODE               : 
+DEF                  : 
+DEFAULT              : 
+DEGREES              : 
+DELETE               : 
+DESC                 : 
+DIFERENTELL          : 
+DISTINCT             : 
+DIV                  : 29 33 36
+DOLAR                : 
+DOSPUNTOS            : 12 13 14
+DOUBLE               : 
+DROP                 : 
+ELSE                 : 
+ELSIF                : 
+ENCODE               : 
+END                  : 
+ENTERO               : 
+ENUM                 : 
+EXCEPT               : 
+EXCEPTION            : 
+EXCEPTION1           : 
+EXECUTE              : 
+EXISTS               : 
+EXISTTABLEC3D        : 
+EXP                  : 
+EXTRACT              : 
+FACTORIAL            : 
+FALSE                : 
+FECHA                : 
+FEED                 : 
+FIRST                : 
+FLOOR                : 
+FOREIGN              : 
+FOUND                : 
+FROM                 : 2 3
+FULL                 : 
+FUNCTION             : 
+GCD                  : 
+GETBYTE              : 
+GIN                  : 
+GIST                 : 
+GOTO                 : 3 4 7
+GREATEST             : 
+GROUP                : 
+GUION                : 
+HASH                 : 
+HAVING               : 
+HOUR                 : 
+ID                   : 8 9 12 13 14 26 26 27 27 28 28 29 29 30 30 31 31 32 32 33 33 34 34 35 35 36 36
+IF                   : 
+IGUAL                : 26 27 28 29 30 31 32 33 34 35 36
+ILIKE                : 
+IMPORT               : 2 3
+IN                   : 
+INDEX                : 
+INHERITS             : 
+INNER                : 
+INSERT               : 
+INSERTC3D            : 
+INT                  : 12
+INTEGER              : 
+INTERSECT            : 
+INTERVAL             : 
+INTO                 : 
+IS                   : 
+ISNULL               : 
+JOIN                 : 
+KEY                  : 
+LABEL                : 
+LANGUAGE             : 
+LAST                 : 
+LCM                  : 
+LEAST                : 
+LEFT                 : 
+LENGTH               : 
+LIKE                 : 
+LIMIT                : 
+LLAVEDER             : 
+LLAVEIZQ             : 
+LN                   : 
+LOG                  : 
+LOWER                : 
+MAIN                 : 
+MAS                  : 26 30
+MAX                  : 
+MAYORIGUALQUE        : 
+MAYORQUE             : 
+MD5                  : 
+MENORIGUALQUE        : 
+MENORQUE             : 
+MIN                  : 
+MINSCALE             : 
+MINUTE               : 
+MOD                  : 
+MODE                 : 
+MONEY                : 
+MONTH                : 
+MYFUNCION            : 
+NATURAL              : 
+NEWLINE              : 
+NEXT                 : 
+NOT                  : 
+NOTICE               : 
+NOTNULL              : 
+NOW                  : 
+NO_DATA_FOUND        : 
+NULL                 : 
+NULLS                : 
+NUMERAL              : 
+NUMERIC              : 
+OF                   : 
+OFFSET               : 
+ON                   : 
+ONLY                 : 
+OR                   : 
+ORDER                : 
+OUTER                : 
+OWNER                : 
+PARENDER             : 
+PARENIZQ             : 
+PERFORM              : 
+PI                   : 
+PLECA                : 
+PLPGSQL              : 
+PORCENTAJE           : 
+POTENCIA             : 
+POWER                : 
+PRECISION            : 
+PRIMARY              : 
+PRINT                : 
+PRINT_STRICT_PARAMS  : 
+PTCOMA               : 26 27 28 29 30 31 32 33 34 35 36
+PUNTO                : 
+QUERY                : 
+RADIANS              : 
+RAISE                : 
+RANDOM               : 
+REAL                 : 
+REFERENCES           : 
+RENAME               : 
+REPLACE              : 
+RETURN               : 
+RETURNING            : 
+RETURNS              : 
+RIGHT                : 
+ROUND                : 
+SCALE                : 
+SECOND               : 
+SELECT               : 
+SENTENCIAS           : 2
+SESSION_USER         : 
+SET                  : 
+SETBYTE              : 
+SETSEED              : 
+SHA                  : 
+SHOW                 : 
+SIGN                 : 
+SIMILAR              : 
+SIN                  : 
+SIND                 : 
+SINH                 : 
+SMALLINT             : 
+SOME                 : 
+SP                   : 
+SQRT                 : 
+STR                  : 13
+STRICT               : 
+SUBSTR               : 
+SUBSTRING            : 
+SUM                  : 
+SYMMETRIC            : 
+TAB                  : 
+TABLE                : 
+TAN                  : 
+TAND                 : 
+TANH                 : 
+TEXT                 : 
+TEXTO                : 
+THEN                 : 
+TIME                 : 
+TIMESTAMP            : 
+TO                   : 
+TOO_MANY_ROWS        : 
+TREE                 : 
+TRIM                 : 
+TRUE                 : 
+TRUNC                : 
+TYPE                 : 
+UNION                : 
+UNIQUE               : 
+UNKNOWN              : 
+UPDATE               : 
+USE                  : 
+USEDATABASE          : 
+USING                : 
+VALUES               : 
+VARCHAR              : 
+VARYING              : 
+VIRGULILLA           : 
+WHEN                 : 
+WHERE                : 
+WITH_GOTO            : 3
+YEAR                 : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+DOS                  : 34
+FLOAT                : 14
+MENOS                : 27 31
+POR                  : 28 32 34 35
+UNO                  : 28 29 32 33
+WITH                 : 4 7
+cuerpo_file          : 7
+inicia_file          : 1
+inicio_main          : 4
+init                 : 0
+instruccion          : 5 6
+instrucciones        : 5
+lineados             : 2
+lineatres            : 3
+listacols            : 8
+param                : 10 11
+params               : 10
+regla_catorce        : 21
+regla_dieciocho      : 25
+regla_dieciseis      : 23
+regla_diecisiete     : 24
+regla_diez           : 17
+regla_doce           : 19
+regla_nueve          : 16
+regla_ocho           : 15
+regla_once           : 18
+regla_quince         : 22
+regla_trece          : 20
+

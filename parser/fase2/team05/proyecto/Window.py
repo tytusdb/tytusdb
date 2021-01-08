@@ -523,7 +523,10 @@ class Main(tk.Tk):
     def tytus_optimizado(self):
         global GC3D
         C3D_opt = []
+        opt = 0
+        archivo = ''
         f = open("team29/ui/codigo3D.py", 'r')
+        fOpt = open("team29/ui/codigo3DOpt.py", "w")
         Lines = f.readlines()
         optimizarDesde = Lines.index('def main3d(): ' + '\n')
         while optimizarDesde < len(Lines):
@@ -531,8 +534,15 @@ class Main(tk.Tk):
             C3D_opt.append(porOptimizar)
             optimizarDesde += 1
         optimizar(C3D_opt)
+        while opt < Lines.index('def main3d(): ' + '\n'):
+            archivo += Lines[opt]
+            opt += 1
+
+        archivo += retornoOpt()
         print('*************************************')
         print(retornoOpt())
+        fOpt.write(archivo)
+        fOpt.close()
         reporteOptimizacion(reglasOpt)
 
 
@@ -681,7 +691,7 @@ class Main(tk.Tk):
         existe = p_st.get(key)
         ckey = 'CTB_'+p_inst.table+'_'
         existet = p_st.get(ckey)
-        
+
         if existe == False and existet != False:
             if isinstance(p_inst, Index):
                 if p_inst.Unique == True:
@@ -712,7 +722,7 @@ class Main(tk.Tk):
             if existe == False:
                 p_st.add(simbolo)
                 self.new_output("SE CREO CON EXITO EL INDICE:"+p_inst.name)
-        
+
         else:
             self.new_output("EL INDICE QUE SE DESEA AGREGAR YA EXISTE")
 
@@ -739,16 +749,16 @@ class Main(tk.Tk):
     def do_AlterOrden(self, p_inst, p_st):
         sKey = 'CI_' + p_inst.nombre
         objeto = p_st.get(sKey)
-        existe = objeto  
+        existe = objeto
         tabla = ""
         valores = ""
 
-        if existe != False:   
+        if existe != False:
             tabla = existe.p_Orden.split('<br>')
             tabla = str(tabla[0]).split(':')
             tabla = str(tabla[1])
-            tabla = tabla[1:]                     
-            
+            tabla = tabla[1:]
+
 
             ckey = 'CTB_'+tabla+'_'
             existe1 = p_st.get(ckey)
@@ -789,7 +799,7 @@ class Main(tk.Tk):
                 else:
                     simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',parametros,'',p_inst.declaraciones)
                     p_st.add(simbolo)
-        
+
         else:
             if not existe:
                 if p_inst.declaraciones != None:
@@ -800,7 +810,7 @@ class Main(tk.Tk):
                 else:
                     simbolo = st.Symbol(key, p_inst.id, 'FUNCTION',None,'',p_inst.declaraciones)
                     p_st.add(simbolo)
-            
+
 
 
     # CREACIÓN DE TABLAS EN BASE DE DATOS

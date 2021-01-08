@@ -79,9 +79,6 @@ class createdb(instruccion):
         if self.mode != "":
             traduccion += ' MODE =' + self.mode
         traduccion += ';")'
-
-
-
         return traduccion + '\n'
 
     def ejecutar(self):
@@ -144,7 +141,7 @@ class showdb(instruccion):
 
     def traducir(self):
         traduccion = '\t'
-        traduccion += 'sql.execute("SHOW DATABASES '+ self.nombre + ';")'
+        traduccion += 'sql.execute("SHOW DATABASES;")'
         traduccion += '\n'
 
         return traduccion

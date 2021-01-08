@@ -49,7 +49,8 @@ class Caso(Instruccion):
         self.sentencias = sentencias
 
 class Funcion(Instruccion):
-    def __init__(self, tipo, id, parametros, instrucciones):
+    def __init__(self, tipo_funcion, tipo, id, parametros, instrucciones):
+        self.tipo_funcion = tipo_funcion
         self.tipo = tipo
         self.id = id
         self. parametros = parametros

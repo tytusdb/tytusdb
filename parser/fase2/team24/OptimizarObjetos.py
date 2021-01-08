@@ -1,10 +1,11 @@
 
 class Asignacion():
-    def __init__(self, indice, operador1, operador2 = "", signo = ""):
+    def __init__(self, indice, operador1, operador2 = "", signo = "", cadena = False):
         self.indice = indice
         self.operador1 = operador1
         self.operador2 = operador2
         self.signo = signo
+        self.cadena = cadena
     """
     indice: Es el nombre del asignado
     operador1: Es el operador de la izquierda
@@ -28,3 +29,9 @@ class Optimizado():
     original: Muestra el codigo original
     resultado: Muestra el resultado de la optimizacion
     """
+
+class Temporal():
+    def __init__(self, indice, valor, cadena = False):
+        self.indice = indice
+        self.valor = valor
+        self.cadena = cadena

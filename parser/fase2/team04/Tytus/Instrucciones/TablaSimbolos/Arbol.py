@@ -19,8 +19,11 @@ class Arbol():
         self.columnaCheck = None
         self.order = None
         self.temporal = -1
+        self.label = -1
         self.index = []
         self.ts = {}
+        self.scope = None
+        self.topt = []
 
     def setEnum(self, nuevo):
         self.lEnum.append(nuevo)
@@ -227,11 +230,91 @@ class Arbol():
         self.temporal += 1
         return f"t{self.temporal}"
     
+    def getLabel(self):
+        self.label += 1
+        return f"L{self.label}"
+    
     def setIndex(self, nueva):
         self.index.append(nueva)
+    
+    def getIndex(self):
+        return self.index
+
+    def getExists(self,nombre):
+        if len(self.index) > 0:
+            for lista  in self.index:
+                for items in lista:
+                    if items['Nombre'] == nombre:
+                       return 1
+        else: 
+            return 0               
+        return 0              
+    
+    def removeIndex(self,nombre):
+        if len(self.index) > 0: 
+            for i in range(0,len(self.index)):
+                for r in self.index[i]:
+                    if(self.getBaseDatos ==  r['Base'] and  nombre == r['Nombre']):
+                         self.index.pop(i)
+                         return 1                  
+            return 0
+                   
+
     def addSymbol(self, name, dic):
         self.ts[name] = dic
         
+    def getSymbol(self, name, scope):
+        for key in self.ts:
+            symbol = self.ts[key]
+            if symbol['name'] == name and symbol['scope'] == scope:
+                return self.ts[name]
+        return {}
+    
     def get_ts(self):
         return self.ts
     
+    def setScope(self, scope):
+        self.scope = scope
+        
+    def getScope(self):
+        return self.scope
+
+    def get_topt(self):
+        return self.topt
+    
+    def addOpt(self, dic):
+        self.topt.append(dic)
+        
+    def getExpressionCode(self, value_list, call_name):
+        codigo = f"\t#{call_name} 3D\n"
+        
+        size = len(value_list)
+        temp_param_list = []
+        
+        i = 0
+        while i < size:
+            param = self.getTemporal()
+            temp_param_list.append(param)
+            codigo += f"\t{param} = {value_list[i]}\n"
+            i += 1
+        
+        temp_tam_func = self.getTemporal()
+        codigo += f"\t{temp_tam_func} = pointer + {size}\n"
+        
+        i = 1
+        while i <= size:
+            index = self.getTemporal()
+            codigo += f"\t{index} = {temp_tam_func} + {i}\n"
+            codigo += f"\tstack[{index}] = {temp_param_list[i-1]}\n"
+            i += 1
+            
+        temp_return = self.getTemporal()
+        temp_result = self.getTemporal()
+            
+        codigo += f"\tpointer = pointer + {size}\n"
+        codigo += f"\tinter_{call_name}()\n"
+        codigo += f"\t{temp_return} = pointer + 0\n"
+        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        codigo += f"\tpointer = pointer - {size}\n"
+        
+        return {'codigo': codigo, 'dir': temp_result}

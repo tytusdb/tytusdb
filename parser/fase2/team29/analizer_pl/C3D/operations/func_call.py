@@ -66,7 +66,7 @@ class FunctionCall(Expression):
             # Si es una funcion sql
             else:
                 if not self.id in sql_functions:
-                    print("Error: Funcion no definida")
+                    print("Error: Funcion "+self.id+" no definida")
                     return code.C3D("", self.temp, self.row, self.column)
                 parVal = ""
                 self.temp = "t" + self.temp
@@ -131,7 +131,7 @@ class FunctionCall(Expression):
             # Si es una funcion sql
             else:
                 if not self.id in sql_functions:
-                    print("Error: Funcion no definida")
+                    print("Error: Funcion "+self.id+" no definida")
                     return code.C3D("", "", self.row, self.column)
 
                 if self.id == "extract":

@@ -3017,7 +3017,7 @@ def p_funcion(t):
     'funciones    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     reporte_bnf.append("<funciones> ::= CREATE FUNCTION ID PARA <parametros> PARC RETURNS <tipo> AS DOLAR DOLAR BEGIN <instrucciones_funct_list> END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA")
     rep_sintaxis.append("<TR><TD> funciones -> CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA </TD><TD> t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13])) </TD></TR>")
-    t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.FUNCTION,TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_funcion2(t):
     'funciones    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
@@ -3028,13 +3028,13 @@ def p_funcion2(t):
         instrucs.append(instru1)
     for instru2 in t[14]:
         instrucs.append(instru2)
-    t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.FUNCTION,TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
 def p_funcion_r(t):
     'funciones    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     reporte_bnf.append("<funciones> ::= CREATE OR REPLACE FUNCTION ID PARA <parametros> PARC RETURNS <tipo> AS DOLAR DOLAR BEGIN <instrucciones_funct_list> END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA")
     rep_sintaxis.append("<TR><TD> funciones -> CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA </TD><TD> t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15])) </TD></TR>")
-    t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.FUNCTION,TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_funcion2_r(t):
     'funciones    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
@@ -3045,14 +3045,14 @@ def p_funcion2_r(t):
         instrucs.append(instru1)
     for instru2 in t[16]:
         instrucs.append(instru2)
-    t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.FUNCTION,TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
 
 #PROCEDURE
 def p_procedure(t):
     'funciones    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo LANGUAGE PLPGSQL DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR'
     reporte_bnf.append("<funciones> ::= ")
     rep_sintaxis.append("<TR><TD> funciones ->  </TD><TD>  </TD></TR>")
-    t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.PROCEDURE,TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_procedure2(t):
     'funciones    : CREATE PROCEDURE ID PARA parametros PARC LANGUAGE PLPGSQL AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR '
@@ -3063,13 +3063,13 @@ def p_procedure2(t):
         instrucs.append(instru1)
     for instru2 in t[14]:
         instrucs.append(instru2)
-    t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.PROCEDURE,TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
 def p_procedure_r(t):
     'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC LANGUAGE PLPGSQL AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR '
     reporte_bnf.append("<funciones> ::= ")
     rep_sintaxis.append("<TR><TD> funciones ->  </TD><TD>  </TD></TR>")
-    t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.PROCEDURE,TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_procedure2_r(t):
     'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC LANGUAGE PLPGSQL AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR'
@@ -3080,7 +3080,7 @@ def p_procedure2_r(t):
         instrucs.append(instru1)
     for instru2 in t[16]:
         instrucs.append(instru2)  
-    t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.PROCEDURE,TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
     
 
 def p_llamada_funcion(t):

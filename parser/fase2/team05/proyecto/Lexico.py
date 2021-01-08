@@ -5878,11 +5878,17 @@ def p_VALORFAtanh(t):
 # --------------------------- AGREGAR----------------
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionDegreesVF(t):
-    'VALORF  :   DEGREES PABRE LNUMF PCIERRA'
+    'VALORF  :   DEGREES PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.degree, t[3].getInstruccion()), NodoAST("DEGREE"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionDivVF(t):
     'VALORF  :   DIV PABRE LNUMF PCIERRA'
+    ret = Retorno(FuncionNativa(TipoFunNativa.div, t[3].getInstruccion()), NodoAST("DIV"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionExpVF(t):
@@ -5890,7 +5896,10 @@ def p_IdFuncionExpVF(t):
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionFactorialVF(t):
-    'VALORF  :   FACTORIAL PABRE LNUMF PCIERRA'
+    'VALORF  :   FACTORIAL PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.factorial, t[3].getInstruccion()), NodoAST("FACTORIAL"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionFloorVF(t):
@@ -5902,11 +5911,17 @@ def p_IdFuncionGcdVF(t):
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionLnVF(t):
-    'VALORF  :   LN PABRE LNUMF PCIERRA  '
+    'VALORF  :   LN PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.ln, t[3].getInstruccion()), NodoAST("LN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionLogVF(t):
-    'VALORF  :   LOG PABRE LNUMF PCIERRA  '
+    'VALORF  :   LOG PABRE LNUMF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.log, t[3].getInstruccion()), NodoAST("LOG"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionModVF(t):
@@ -6172,18 +6187,21 @@ parser = yacc.yacc()
 
 
 def parse(p_input):
-    global counter_lexical_error, counter_syntactic_error, contador, codigo_3D, contador_label
+    global counter_lexical_error, counter_syntactic_error, contador, codigo_3D, contador_label, reporte_gramatical
     codigo_3D = []
+    reporte_gramatical = []
     contador = 0
     contador_label = 0
     counter_lexical_error = 1
     counter_syntactic_error = 1
-    return parser.parse(p_input)
+    p = parser.parse(p_input)
+    gramaticaBNF(p_input)
+    return p
 
 def gramaticaBNF(input):
     global reporte_gramatical
     instrucciones_bnf = []  
-    file = open ("proyecto/gramatica.md","w")
+    file = open ("./gramatica.md","w")
     for instruccion_bnf in reversed(reporte_gramatical) :
         file.write(instruccion_bnf)
         file.write("\n")

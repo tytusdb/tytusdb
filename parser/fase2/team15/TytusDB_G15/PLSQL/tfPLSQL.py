@@ -14,7 +14,8 @@ class TIPO_DATO(Enum):
 class Funcion():
     'Esta clase representa una funcion dentro de nuestra tabla de funciones'
 
-    def __init__(self, id, tipo, parametros, temporales, instrucciones):
+    def __init__(self, tipo_funcion, id, tipo, parametros, temporales, instrucciones):
+        self.tipo_funcion = tipo_funcion
         self.id = id
         self.tipo = tipo
         self.parametros = parametros

@@ -211,6 +211,8 @@ class CreateProcedure(Instruccion):
     def generar3D(self, tabla, arbol):  
         super().generar3D(tabla,arbol)
         code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
         t0 = c3d.getTemporal()
         # code.append(c3d.asignacionString(t0, "CREATE INDEX " + self.ID))
         code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
@@ -218,6 +220,6 @@ class CreateProcedure(Instruccion):
 
         # code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
         code.append(c3d.asignacionTemporalStack(t0))
-        code.append(c3d.aumentarP())
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
 
         return code

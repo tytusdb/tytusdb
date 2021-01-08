@@ -271,7 +271,7 @@ def alterDatabaseCompress(database: str, level: int) -> int:
 Agregue compresión utilizando la biblioteca zlib de python y las funciones compress y decompress. Se debe agregar a columna tipo varchar o text de cada tabla de la base de datos. De igual manera, al extraer la información se debe descomprimir.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos que se desea modificar, debe cumplir con las reglas de identificadores de SQL.  
 Parámetro level: es el nivel de compressión definido por la función compress de la bilbioteca zlib de Python.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 level incorrecto.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 level incorrecto.  
 
 ```
 def alterDatabaseDecompress(database: str) -> int:
@@ -287,7 +287,7 @@ Agregue compresión utilizando la biblioteca zlib de python y las funciones comp
 Parámetro database: es el nombre de la base de datos que se desea modificar, debe cumplir con las reglas de identificadores de SQL.  
 Parámetro table: es el nombre de la tabla.  
 Parámetro level: es el nivel de compressión definido por la función compress de la bilbioteca zlib de Python.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 4 level incorrecto.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 level incorrecto.  
 
 ```
 def alterTableDecompress(database: str, table: str) -> int:
@@ -295,7 +295,7 @@ def alterTableDecompress(database: str, table: str) -> int:
 Quita la compresión de una base de datos especificada.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 no había compresión.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 no había compresión.  
 
 
 ### 7. Seguridad

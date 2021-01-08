@@ -39,6 +39,8 @@ class Atan2d(Instruccion):
     def generar3D(self, tabla, arbol):
         super().generar3D(tabla,arbol)
         code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
         t0 = c3d.getLastTemporal()
         t1 = c3d.getTemporal()
         code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\"ATAN2D(" + str(self.opIzq.generar3D(tabla, arbol)) + "," + str(self.opDer.generar3D(tabla, arbol)) + ")\"", "STRING"), ClassOP_ARITMETICO.SUMA))

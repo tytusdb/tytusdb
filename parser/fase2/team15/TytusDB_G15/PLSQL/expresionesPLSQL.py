@@ -33,6 +33,10 @@ class OPERADOR(Enum) :
     MENOR = 21
     MOD = 22
 
+class TIPO_DECLARACION_FUNCION(Enum) :
+    FUNCTION = 1
+    PROCEDURE= 2
+
 
 class ExpresionBinaria():
     def __init__(self, exp1, exp2, operador):
