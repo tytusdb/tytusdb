@@ -1,4 +1,5 @@
 import copy
+import pickle
 
 from views.data_window import DataWindow
 from utils.decorators import singleton
@@ -33,6 +34,8 @@ class Procedures(object):
         :param column: The instruction column
         :return: Returns nothing
         """
+        self.loadFile()
+
         db = SymbolTable().useDatabase
         # if not db:
         #    desc = f": Database not selected"
@@ -50,7 +53,7 @@ class Procedures(object):
 
         if _return is not None:
             _return = _return.compile()
-            
+
         self.__storedProcedure[key] = {
             'name': name,
             'database': db,
@@ -59,13 +62,17 @@ class Procedures(object):
             'column': column,
             'return': _return
         }
+
+        self.writeFile()
         return True
 
     def getReturnType(self, id):
         return self.__storedProcedure[id]['return']
-        
+
     def getProcedure(self, name, params, line, column):
-        db = SymbolTable().useDatabase
+        self.loadFile()
+
+        # db = SymbolTable().useDatabase
         # if not db:
         #    desc = f": Database not selected"
         #    ErrorController().add(4, 'Execution', desc,
@@ -84,6 +91,7 @@ class Procedures(object):
         return None
 
     def getParams(self, name):
+        self.loadFile()
         db = SymbolTable().useDatabase
         key = f"{name}{db}"
 
@@ -96,6 +104,8 @@ class Procedures(object):
         return self.__storedProcedure.keys()
 
     def dropProcedure(self, name, line, column):
+        self.loadFile()
+
         # db = SymbolTable().useDatabase
         # if not db:
         #    desc = f": Database not selected"
@@ -107,7 +117,26 @@ class Procedures(object):
         key = f"{name}"
         if key in self.__storedProcedure:
             DataWindow().consoleText('Query returned successfully: Function deleted')
-            return self.__storedProcedure.pop(key)
+            self.__storedProcedure.pop(key)
+            self.writeFile()
+            return True
 
-        desc = f": Function {name} does not exist"
-        ErrorController().add(39, 'Execution', desc, line, column)
+        return False
+
+    def loadFile(self):
+        try:
+            with open('data/json/functionsAndProcedures.pkl', 'rb') as input:
+                self.__storedProcedure = pickle.load(input)
+                print(self.__storedProcedure)
+        except IOError:
+            # print('Error: File does not appear to exist.')
+            pass
+
+    def writeFile(self):
+        try:
+            with open('data/json/functionsAndProcedures.pkl', 'wb') as output:
+                pickle.dump(self.__storedProcedure, output,
+                            pickle.HIGHEST_PROTOCOL)
+        except IOError:
+            # print('Error: File does not appear to exist.')
+            pass

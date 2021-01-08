@@ -1048,38 +1048,36 @@ def p_sql_functions_drop_inst(p):
                         | DROP FUNCTION DETAIL_FUNC_DROP SEMICOLON
     '''
     string = ''
-    print('TE AVS A DROPEAR LAS :')
     if len(p) == 7:
         for index, var in enumerate(p[5]):
             if index > 0: string += f', {var["_tac"]}'
             else: string += f'{var["_tac"]}'
-        p[0] = DeleteFunction(p[5], p.lineno(1), find_column(p.slice[1]))
+        p[0] = DeleteFunction(p[5], True, p.lineno(1), find_column(p.slice[1]))
         p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {string};'
     else:
         for index, var in enumerate(p[3]):
             if index > 0: string += f', {var["_tac"]}'
             else: string += f'{var["_tac"]}'
-        p[0] = DeleteFunction(p[3], p.lineno(1), find_column(p.slice[1]))
+        p[0] = DeleteFunction(p[3], False, p.lineno(1), find_column(p.slice[1]))
         p[0]._tac = f'{p[1]} {p[2]} {string};'
 
 def p_sql_procedures_drop_inst(p):
     '''SQL_DROP_PROCEDURE : DROP PROCEDURE IF EXISTS DETAIL_FUNC_DROP SEMICOLON
                           | DROP PROCEDURE DETAIL_FUNC_DROP SEMICOLON
     '''
-    print('TE AVS A DROPEAR LAS :')
     string = ''
     if len(p) == 7:
         for index, var in enumerate(p[5]):
             if index > 0: string += f', {var["_tac"]}'
             else: string += f'{var["_tac"]}'
 
-        p[0] = DeleteFunction(p[5], p.lineno(1), find_column(p.slice[1]))
+        p[0] = DeleteFunction(p[5], True, p.lineno(1), find_column(p.slice[1]))
         p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {string};'
     else:
         for index, var in enumerate(p[3]):
             if index > 0: string += f', {var["_tac"]}'
             else: string += f'{var["_tac"]}'
-        p[0] = DeleteFunction(p[3], p.lineno(1), find_column(p.slice[1]))
+        p[0] = DeleteFunction(p[3], False, p.lineno(1), find_column(p.slice[1]))
         p[0]._tac = f'{p[1]} {p[2]} {string};'
 
 def p_sql_detail_func_drop(p):
