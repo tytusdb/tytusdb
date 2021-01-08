@@ -71,7 +71,10 @@ from InterpreteF2.indices.alterindex import alterindex
 from InterpreteF2.Soporte_aFun.dropfun import dropfun
 from InterpreteF2.Soporte_aFun.lappel import lappel
 from Main.erroresglobales import erroresglobales
-
+from InterpreteF2.indices.indice import Id_Indice
+from InterpreteF2.indices.indice import Option
+from InterpreteF2.indices.indice import Index_Param
+from InterpreteF2.indices.alterindex import  alterindexColumn
 ArbolErrores: Arbol = Arbol(None)
 
 
@@ -1035,39 +1038,39 @@ def p_create_index1(t):
     '''
        create_index : CREATE        index_id_on_id             PARIZQ index_params PARDER
     '''
-    t[0] = indice(t[2], 1, 1)
+    t[0] = indice(t[2],t[4],'index' ,1, 1)
 
 def p_create_index2(t):
     '''
         create_index : CREATE        index_id_on_id             PARIZQ index_params PARDER conditions
     '''
-    t[0] = indice(t[2], 1, 1)
+    t[0] = indice(t[2],t[4],'index' ,1, 1)
 
 
 def p_create_index3(t):
     '''
         create_index : CREATE UNIQUE index_id_on_id             PARIZQ index_params PARDER conditions
     '''
-    t[0] = indice(t[3], 1, 1)
+    t[0] = indice(t[3],t[5],'unique index' ,1, 1)
 
 def p_create_index4(t):
     '''
         create_index : CREATE UNIQUE index_id_on_id             PARIZQ index_params PARDER
     '''
-    t[0] = indice(t[3], 1, 1)
+    t[0] = indice(t[3],t[5],'unique index' ,1, 1)
 
 def p_create_index5(t):
     '''
         create_index : CREATE        index_id_on_id USING HASH  PARIZQ index_params PARDER
     '''
-    t[0] = indice(t[2], 1, 1)
+    t[0] = indice(t[2],t[6],'index' ,1, 1)
 
 
 def p_create_index(t):
     '''
         create_index : CREATE        index_id_on_id USING HASH  PARIZQ index_params PARDER conditions
     '''
-    t[0] = indice(t[2], 1, 1)
+    t[0] = indice(t[2],t[6],'index' ,1, 1)
 
 # ================= INDEX_PARAMS =================
 
@@ -1077,9 +1080,9 @@ def p_index_id_on_id(t):
                        | INDEX    ON ID
     '''
     if len(t)==5:
-        t[0] = t[2]
+        t[0] = Id_Indice(t[2],t[4])
     if len(t) == 4:
-        t[0] = str(t[3])+'_idx'
+        t[0] = Id_Indice('',t[3])
 
 
 
@@ -1088,18 +1091,72 @@ def p_index_params(t):
         index_params    : index_params COMA index_param
                         | index_param
     '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
 
 def p_index_param(t):
     '''
-        index_param     :  exp
-                        |  exp options
+        index_param     :  ID       options
+                        |  call_fun options
     '''
+    t[0] = Index_Param(t[1],t[2])
+
+def p_index_param1(t):
+    '''
+        index_param     :  ID
+                        |  call_fun
+    '''
+    t[0] = Index_Param(t[1],[])
+
+def p_call_fun(t):
+    '''
+        call_fun   : LOWER PARIZQ ID            PARDER
+                   | LOWER PARIZQ CADENA        PARDER
+                   | LOWER PARIZQ CADENADOBLE   PARDER
+                   | LOWER PARIZQ ENTERO        PARDER
+    '''
+    try:
+        t[0] = str(t[3]).lower()
+    except Exception as e:
+        print(e)
+        t[0] = 'column1'
+
+def p_call_fun1(t):
+    '''
+        call_fun   : ID    PARIZQ ID            PARDER
+                   | ID    PARIZQ CADENA        PARDER
+                   | ID    PARIZQ CADENADOBLE   PARDER
+                   | ID    PARIZQ ENTERO        PARDER
+    '''
+    try:
+        t[0] = str(t[3])
+        pass
+    except Exception as e:
+        print(e)
+        t[0] = 'column1'
+
+
+def p_call_fun2(t):
+    '''
+        call_fun   :       PARIZQ call_fun      PARDER
+    '''
+    t[0] = t[2]
+
 
 def p_options(t):
     '''
         options    : options option
                    | option
     '''
+    if len(t) == 3:
+        t[0] = t[1]
+        t[0].append(t[2])
+    else:
+        t[0] = [t[1]]
 
 
 def p_option(t):
@@ -1111,6 +1168,7 @@ def p_option(t):
                   | FIRST
                   | LAST
     '''
+    t[0] = Option(t[1])
 
 
 # ================= drop index =================
@@ -1167,7 +1225,7 @@ def p_alter_index2(t):
         alter_index  : sub_alter ID ALTER COLUMN ID ID
     '''
     print('SI usamos esta produccion')
-    t[0] = alterindex(t[1],t[2],t.lineno,t.lexpos)
+    t[0] = alterindexColumn(t[2],t[5],t[6],t.lineno,t.lexpos)
 
 def p_alter_index(t):
     '''
@@ -1529,15 +1587,6 @@ def p_expF2_list(t):
 # --------------------------------------------------------------------------------------
 # ------------------------------------ EXPRESSION  --------------------------------------------
 # --------------------------------------------------------------------------------------
-def p_exp_call(t):
-    '''
-        exp   : LOWER PARIZQ exp PARDER
-              |       PARIZQ exp PARDER
-    '''
-    if len(t)==4:
-        set('<TR> \n <TD> exp → LOWER PARIZQ exp PARDER: </TD> \n <TD>  exp = lower(t[3]) </TD> \n </TR> \n')
-    else:
-        set('<TR> \n <TD> exp →  PARIZQ exp PARDER: </TD> \n <TD>  exp  = t[3] </TD> \n </TR> \n')
 
 
 def p_exp_count(t):

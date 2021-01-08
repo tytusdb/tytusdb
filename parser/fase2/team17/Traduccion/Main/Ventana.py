@@ -190,39 +190,45 @@ def Seleccionar():
         cadena = my_text.get(SEL_FIRST, SEL_LAST)
 
         result: Arbol = AnaParse(cadena)
-        #entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
-        #entornoCero.NuevoAmbito()
-        #print(result)
-        #for item in result.instrucciones:
-        #    item.traducir(entornoCero, result)
-        #print("C3D generado:")
-        #print(result.getC3D())
+        entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
+        entornoCero.NuevoAmbito()
+        print(result)
+        for item in result.instrucciones:
+            item.traducir(entornoCero, result)
+        print("C3D generado:")
+        print(result.getC3D())
 
-        #consola = result.getC3D()
-        #consola = consola + '\n\n' + result.getC3D_funciones()
+        consola = result.getC3D()
+        consola = consola + '\n\n' + result.getC3D_funciones()
 
-        #for i in result.ReporteTS:
-        #    print('Nombre: ' + str(i.nombre))
-        #    print('Tipo: ' + str(i.tipo))
-        #    print('----------------------------------------------')
+        for i in result.ReporteTS:
+            print('Nombre: ' + str(i.nombre))
+            print('Tipo: ' + str(i.tipo))
+            print('----------------------------------------------')
 
-        #for i in result.ReporteTS_Funciones:
-        #    print('Nombre: ' + str(i.nombre))
-        #    print('Tipo: ' + str(i.tipo))
-        #    print('Estado: ' + str(i.estado))
-        #    print('----------------------------------------------')
+        for i in result.ReporteTS_Funciones:
+            print('Nombre: ' + str(i.nombre))
+            print('Tipo: ' + str(i.tipo))
+            print('Estado: ' + str(i.estado))
+            print('----------------------------------------------')
 
-        #print('---------------------INDICES-------------------------')
-        #for i in result.ReporteTS_Indices:
-        #    print('Nombre: ' + str(i.nombre))
-        #    print('Tipo: ' + str(i.tipo))
-        #    print('Posicion: ' + str(i.fila)+ str(i.columna))
-        #    print('----------------------------------------------')
+        print('---------------------INDICES-------------------------')
+        for i in result.ReporteTS_Indice:
+            print('Nombre: ' + str(i.nombre))
 
-        ##for item in result.console:
-        ##    consola = consola + item
+            print('columnas ======== ')
+            for col in i.columnas:
+                print('col: ' + str(col))
 
-        #my_text1.insert(END, consola)
+            print('consideracion: ' + str(i.consideracion))
+            print('Tipo: ' + str(i.tipo))
+            print('Posicion: ' + str(i.fila)+ str(i.columna))
+            print('----------------------------------------------')
+
+        #for item in result.console:
+        #    consola = consola + item
+
+        my_text1.insert(END, consola)
         print('SIntactico realizado con exito')
 
         global arboAux_errores

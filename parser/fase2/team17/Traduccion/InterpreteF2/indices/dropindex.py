@@ -15,14 +15,14 @@ class dropindex(NodoArbol):
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         i=0
-        while i < len(arbol.ReporteTS_Indices):
-            report:ReportIndice = arbol.ReporteTS_Indices[i]
+        while i < len(arbol.ReporteTS_Indice):
+            report:ReportIndice = arbol.ReporteTS_Indice[i]
             j = 0
             while j < len(self.listid):
                 identificador = self.listid[j]
                 if str(report.nombre) == str(identificador):
                     self.listid.pop(j)
-                    arbol.ReporteTS_Indices.pop(i)
+                    arbol.ReporteTS_Indice.pop(i)
                 j += 1
             i+=1
 

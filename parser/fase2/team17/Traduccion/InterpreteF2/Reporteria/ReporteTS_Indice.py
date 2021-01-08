@@ -1,10 +1,14 @@
+from typing import List
+
+
 class ReportIndice():
 
-    def __init__(self, alias, nombre, tipo,columnas, consideracion, fila, columna):
+
+    def __init__(self, alias, nombre, tipo,columnas:List[str], consideracion, fila, columna):
         self.alias = alias
         self.nombre = nombre
         self.tipo = tipo
-        self.columnas = columnas
+        self.columnas:List[str] = columnas
         self.consideracion = consideracion
         self.fila = fila
         self.columna = columna
