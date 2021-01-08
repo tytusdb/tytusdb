@@ -51,8 +51,8 @@ class mainWindow:
         self.subMenuReportes = Menu(self.menu)
         self.menu.add_cascade(label = "Archivo", menu=self.subMenuFile)
         self.subMenuFile.add_command(label="Abrir archivo", command =  self.openDocumentMethod)
-        self.subMenuFile.add_command(label="Compilar", command =  self.compileMethod)
-        self.subMenuFile.add_command(label="Analizar ", command = self.analyzeMethod)
+        #self.subMenuFile.add_command(label="Compilar", command =  self.compileMethod)
+        self.subMenuFile.add_command(label="Analizar y Compilar", command = self.analyzeMethod)
         self.menu.add_cascade(label = "Reportes", menu=self.subMenuReportes)
         self.subMenuReportes.add_command(label="AST ", command = self.reportar_ast)
         self.subMenuReportes.add_command(label="Gramática", command = self.report_bnf)
@@ -98,7 +98,12 @@ class mainWindow:
         entrada = self.textArea.get("1.0",END)
         resp = run_method(entrada)
         self.resp = resp  #VARIABLE PARA REPORTES
-        resp.execute(None)
+        #--------------
+        self.consoleArea.delete(*self.consoleArea.get_children())
+        print("Va a compilar")
+        resp.compile(None)
+        #----------------
+        #resp.execute(None)
         self.textArea2.configure(state = 'normal')
         self.textArea2.delete('1.0',END)
         textOutput = ""
@@ -107,7 +112,7 @@ class mainWindow:
                 textOutput += x['Code'] + "\t" + x['Message'] +"\n" + x['Data'] + "\n"
             except:
                 textOutput += x['Code'] + "\t" + x['Message'] +"\n"                               
-        print(textOutput)
+        #print(textOutput)
         self.textArea2.insert("end-1c", textOutput)
         self.textArea2.configure(state = 'disabled')
         #print(arbol.generar_dot(resp))

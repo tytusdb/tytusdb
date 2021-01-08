@@ -155,6 +155,14 @@ class TypeChecker():
             else:
                 return None
 
+    def get_all_procedure(self,database : str):
+        with open(file_dir) as file:
+            data = json.load(file)
+            if database in data:
+                procedures = data[database]["procedures"]
+                return procedures
+            else:
+                return None
 
     ######################## CreateIndex
     def create_index(self, database : str, index : Index):

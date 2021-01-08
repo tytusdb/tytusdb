@@ -1839,7 +1839,8 @@ def p_sent_argmode(t):
         t[0].createTerminal(t.slice[1])
 
 def p_sent_argname(t):
-    '''arg_name : IDENTIFICADOR'''
+    '''arg_name : IDENTIFICADOR
+                |'''
     if len(t) == 2:
         t[0] = Start("NOMBRE_ARGUMENTO")
         t[0].createTerminal(t.slice[1])
