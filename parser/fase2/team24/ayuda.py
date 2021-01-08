@@ -20,12 +20,12 @@ from reportTable import *
 
 pila = []
 for i in range(100):
-    pila.append(i)
+\tpila.append(i)
 
 def ejecutar():
-    global cont
-    global ts
-    NombreDB = ts.nameDB
+\tglobal cont
+\tglobal ts
+\tNombreDB = ts.nameDB
 	\n''')
 
 
