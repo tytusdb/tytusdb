@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DatabaseService } from 'src/app/service/database/database.service';
-import { TableService } from 'src/app/service/table/table.service';
+// commit 1.3 import { TableService } from 'src/app/service/table/table.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,7 +13,7 @@ export class NavbarComponent implements OnInit {
     name: ""
   }
 
-  table = {
+  /*commit 1.3 table = {
     name: "",
     bd: "database"/*,
     cols: 
@@ -24,11 +24,11 @@ export class NavbarComponent implements OnInit {
           size: 0,
           precision: 0
         }
-      ]*/
-  }
+      ]*
+  }*/
 
 
-  constructor(private dbServs: DatabaseService, private tbServs : TableService) { }
+  constructor(private dbServs: DatabaseService) { }
 
   ngOnInit(): void {
 
@@ -47,7 +47,7 @@ export class NavbarComponent implements OnInit {
     }
   }
 
-  createTable() {
+ /* commit 1.3 createTable() {
     let tableName = this.table.name.trim()
     let dbName = this.table.bd.trim()
     if (tableName.length === 0) {
@@ -59,5 +59,5 @@ export class NavbarComponent implements OnInit {
         alert('El servidor dice: ' + msg);
       })
     }
-  }
+  }*/
 }
