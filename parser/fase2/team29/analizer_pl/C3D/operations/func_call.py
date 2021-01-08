@@ -1,5 +1,4 @@
 from analizer_pl.abstract.expression import Expression
-from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
@@ -129,7 +128,7 @@ class FunctionCall(Expression):
                     )
                     self.temp = '"+str(t' + self.temp + ')+"'
                     return code.C3D(c3d, self.temp, self.row, self.column)
-            # Si es una funcion matematica
+            # Si es una funcion sql
             else:
                 if not self.id in sql_functions:
                     print("Error: Funcion no definida")
@@ -177,7 +176,6 @@ class FunctionCall(Expression):
                     parVal += pval.value
                     c3d += pval.temp
                 c3d += ")"
-
                 return code.C3D(parVal, c3d, self.row, self.column)
 
     def dot(self):
