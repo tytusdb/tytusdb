@@ -163,6 +163,9 @@ class Expresion(Exp):
         elif isinstance(expre, Id):
                 return str(expre.id) #por el momento
         elif isinstance(expre, Llamada):
+                print("aqui estoy")
+                print(expre.listaE)
+                print(expre.caso)
                 concatena = ""
                 if  len(expre.listaE) == 0:
                     concatena += Llamada.obtenerCadena(expre,2)
@@ -407,8 +410,9 @@ class Expresion(Exp):
                         return 0
 
             elif (expre.caso == 4):
+                print(expre)
                 a = Selectp3.Selectp3.ejecutar(expre, ts, consola, exception, False)
-
+                print("veamos")
                 print(a)
                 for val in a[1]:
                     print('valor' + str(val))

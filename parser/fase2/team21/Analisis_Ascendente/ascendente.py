@@ -500,6 +500,14 @@ def p_instruccion(t):
     varGramatical.append('instrucciones ::= instrucciones instruccion')
     varSemantico.append('intrucciones=[instruccion] ')
 
+def p_alter_function(t):
+    #ALTER INDEX [ IF EXISTS ] name ALTER [ COLUMN ] column_number
+    #ALTER INDEX ind1 ALTER COLUMN nombre id
+    #ALTER INDEX ind1 ALTER COLUMN apellido numero
+    'instruccion        : ALTER INDEX ID ALTER COLUMN ID ID PTCOMA'
+
+
+
 def p_drop_function1(t):
     'instruccion        : DROP FUNCTION ID PTCOMA'
     global columna
@@ -2573,9 +2581,12 @@ def p_instselect3(t):
     varSemantico.append('select2 = Select(4, False, None, select_list, None, None, None, None, None) ')
     print("estsos son")
 
+    #Expresion.ObtenerCadenaEntrada()
     for info in t[2]:
         print(info)
     print("\n")
+
+
     concate_select_simple.append(f"SELECT  ")
     realizaobtencionexpresiones(concatena_expresiones,t[2])
     concate_select_simple.append(concatena_expresiones)
@@ -3313,7 +3324,8 @@ def realizaobtencionexpresiones(concatena,lista):
                     concatena.append(f"%{data}")
                 concatena.append(f"? = {valor.id} ")
                 print(valor.id, valor.listaE)
-
+            elif isinstance(valor,Id):
+                concatena.append(f"! = {valor.id} ")
             elif isinstance(valor,Math_):
                 consolaprovicional = []
                 try:
@@ -3476,6 +3488,7 @@ def procesar_instrucciones(instrucciones, ts):
                 except:
                     print("")
             elif (instr.caso == 4):
+                print("definitivamente")
                 data = Selectp3.ejecutar(instr, ts, consola, exceptions,True)
 
             elif (instr.caso == 5):
@@ -3646,6 +3659,7 @@ def procesar_traduccion(instrucciones, ts):
     consolaaux =[]
     concatenaAux = []
     consola2 = []
+    metodos_funciones = []
     concatenaAux = []
     #------prueba
     #no borrar
@@ -3713,6 +3727,7 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
                 Selectp3.traducir(instr,  consolaaux,TV)
                 print("ejecute select 4")
             elif (instr.caso == 5):
+                print("Aqui merito")
                 Selectp4.traducir(instr, ts, consolaaux,recolecta_funciones_procedimientos,TV)
             elif (instr.caso == 6):
                 consola.append('caso 6')
@@ -3760,15 +3775,15 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
         elif isinstance(instr, SIF):
             SIF.traducir(instr, ts,consolaaux ,metodos_funciones, exceptions, TV, concatena, regla, antes, optimizado)
         elif isinstance(instr, Function):
-            if not instr.id in obtiene_drops:
-                Function.traducir(instr, ts, metodos_funciones, exceptions, TV, concatena)
+            #if not instr.id in obtiene_drops:
+            Function.traducir(instr, ts, metodos_funciones, exceptions, TV, concatena)
         elif isinstance(instr, Return):
             Return.traducir(instr, ts, consolaaux, exceptions, TV, regla, antes, optimizado)
             #para no traducir codigo inalcanzable
             break
         elif isinstance(instr, Procedure):
-            if not instr.id in obtiene_drops:
-                Procedure.traducir(instr, ts, metodos_funciones, exceptions, TV, concatena)
+            #if not instr.id in obtiene_drops:
+             Procedure.traducir(instr, ts, metodos_funciones, exceptions, TV, concatena)
         elif isinstance(instr, Call):
             Call.traducir(instr, ts, consolaaux, exceptions, TV, regla, antes, optimizado)
         elif isinstance(instr, Execute):
@@ -3874,7 +3889,8 @@ def ejecutarTraduccion(entrada):
     concatena_createtable = []
     concatena_alter = []
 
-
+    consolaaux = []
+    consola2 = []
     instrucciones = parser.parse(entrada)
     reporte = AST.AST(instrucciones)
     reporte.ReportarAST()

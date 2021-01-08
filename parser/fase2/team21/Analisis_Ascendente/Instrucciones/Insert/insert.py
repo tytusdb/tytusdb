@@ -181,17 +181,19 @@ class InsertInto(Instruccion):
                             consola.append("\t"+str(str(datasub).replace("!", str(temporalaux))).replace("%","") + "\n")
                     elif "?" in datasub:
                         concatena_parametros = ""
-                        j =1
+                        j = 1
                         for parametro in guardar_parametros_funciones:
 
-                            if j == len(guardartemporales):
+                            if 0 == len(guardartemporales):
+                                concatena_parametros += parametro
+                            elif j == len(guardartemporales):
                                 concatena_parametros += parametro
                             else:
                                 concatena_parametros += parametro + ","
-
                             j = j + 1
                         temporal = tv.Temp()
                         guardartemporales.append(temporal)
+
                         consola.append("\t"+str(datasub).replace("?",str(temporal))+"("+concatena_parametros+")"+"\n")
                     elif "$" in datasub:
                         temporal = tv.Temp()

@@ -36,10 +36,14 @@ class AsignacionF2(Instruccion):
                 consola.append(f"\n\tT1 = T3({obtener2})")
                 consola.append(f"\n\t{asig.id} = T1[1] \n")
 
+
+
             else:
 
+                print("si sale")
+                print(asig.E.listaE)
                 e = Expresion.traducir(asig.E, ts, consola, exception, tv, regla, antes, optimizado, asig.id)
-
+                print(e)
                 consola.append(f'\t{asig.id} = {e}\n')
         except:
 
