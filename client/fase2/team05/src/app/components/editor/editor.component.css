@@ -1,6 +1,5 @@
-a + input {
-    position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0;
+.example-input-label,
+.example-add-tab-button,
+.example-delete-tab-button {
+  margin: 8px;
 }

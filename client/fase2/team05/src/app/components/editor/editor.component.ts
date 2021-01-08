@@ -1,14 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { faPlay, faFolderOpen, faSave, faAngleDown, faStop } from '@fortawesome/free-solid-svg-icons'
-
+import {ThemePalette} from '@angular/material/core';
+import {FormControl} from '@angular/forms';
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.css']
+  
+  
 })
 export class EditorComponent implements OnInit {
-
+  contador=0
   constructor() { }
+
+  links = ['First', 'Second', 'Third'];
+  activeLink = this.links[0];
+  background: ThemePalette = 'warn';
 
   ngOnInit(): void {
   }
@@ -19,6 +26,7 @@ export class EditorComponent implements OnInit {
   faAngleDown = faAngleDown;
   faStop = faStop;
   content = "SELECT * FROM PERSONA WHERE PERSONA.id = 0;"
+  content_v1 = "//hola"
 
   handleFileInput(event) {
     let fileList: FileList = event.target.files;
@@ -59,4 +67,13 @@ export class EditorComponent implements OnInit {
   stopScript() {
     alert('Detiene la ejecución de un script');
   }
+
+  toggleBackground() {
+    this.background = this.background ? undefined : 'primary';
+  }
+
+  addLink() {
+    this.links.push(`Link ${this.links.length + 1}`);
+  }
+  
 }

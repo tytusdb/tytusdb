@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import {MatTabsModule} from '@angular/material/tabs';
 import { EditorComponent } from './editor.component';
+
 
 describe('EditorComponent', () => {
   let component: EditorComponent;
