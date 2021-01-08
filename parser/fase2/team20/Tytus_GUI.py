@@ -19,40 +19,17 @@ import webbrowser
 
 from prettytable import PrettyTable
 
-class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
-    def __init__(self, *args, **kwargs):
-        tk.scrolledtext.ScrolledText.__init__(self, *args, **kwargs)
-
-        # create a proxy for the underlying widget
-        self._orig = self._w + "_orig"
-        self.tk.call("rename", self._w, self._orig)
-        self.tk.createcommand(self._w, self._proxy)
-
-    def _proxy(self, *args):
-        cmd = (self._orig,) + args        
-        try:
-            result = self.tk.call(cmd)
-        except Exception:
-            return None
-
-        # generate an event if something was added or deleted,
-        # or the cursor position changed
-        if (args[0] in ("insert", "delete") or 
-            args[0:3] == ("mark", "set", "insert")):
-            self.event_generate("<<CursorChange>>", when="tail")
-
-        return result     
-
-def _on_change(event):
-        line, column = text.index("insert").split(".") # Row starts at 1 and column starts at 0
-        message.set("Line: " + line + " Column: " + str(int(column)+1))
-
+def update_line_and_column(text_: tk.Text):
+    line, column = text_.index("insert").split(".") # Row starts at 1 and column starts at 0
+    message.set("Line: " + str(line) + " Column: " + str(int(column)+1))
 
 route = "" # will store the file path
 dotAST = ""
 dotAST += "digraph ASTTytus{ \n rankdir = TD\n node[shape = \"box\"]\n"
 dotAST += "\n }"
 content_grammar_report = ""
+
+path_c3d = "C3D.py"
 
 def new():
     global route
@@ -105,12 +82,26 @@ def save_as():
         message.set("Saved canceled")
         route = ""
 
-def compile():
+def translate_to_C3D():
     #clear console
     console.configure(state="normal")
     console.delete(1.0, "end")
     console.configure(state="disabled")
     Tytus_GUI_console.prints = []
+    #clear text editor text_c3d
+    text_c3d.delete(1.0, "end")
+    #clear console_c3d
+    console_c3d.configure(state="normal")
+    console_c3d.delete(1.0, "end")
+    console_c3d.configure(state="disabled")
+    Tytus_GUI_console.prints_c3d = []
+    #clear text editor text_c3d_optimized
+    text_c3d_optimized.delete(1.0, "end")
+    #clear console_c3d_optimized
+    console_c3d_optimized.configure(state="normal")
+    console_c3d_optimized.delete(1.0, "end")
+    console_c3d_optimized.configure(state="disabled")
+    Tytus_GUI_console.prints_c3d_optimized = []
     #get input text
     Input_text = text.get(1.0,'end-1c')    
     #analyze text
@@ -134,6 +125,8 @@ def process_results_and_display_reports(result_analyze, result_execute):
     print_symbol_table_(result_execute.printSymbolTable)
     #print_messages_(result_execute.messages)
     #print_querys_(result_execute.querys)
+    print_c3d_(result_execute.c3d)
+
 
 def generate_report(report_number: int):
     if report_number == 0:
@@ -167,7 +160,7 @@ def generate_ast_tree(dot: str, errors):
             else:
                 file_used_by_another = False
                 errors.append( Error("Unknown", "AST graphic not generated", 0, 0) )
-                print_error("Unknown Error", "AST graphic not generated")
+                print_error("Unknown Error", "AST graphic not generated", 0)
                 #print(e)
 
 def generate_grammar_report(content_grammar_report_: str):
@@ -177,7 +170,7 @@ def generate_grammar_report(content_grammar_report_: str):
         file_grammar_report.close()
         generate_grammar_report_view(content_grammar_report_)
     except Exception as e:
-        print_error("Unknown Error", "Grammar report file not generated")
+        print_error("Unknown Error", "Grammar report file not generated", 0)
         #print(e)
 
 def generate_grammar_report_view(content_grammar_report_: str):
@@ -201,7 +194,7 @@ def generate_grammar_report_view(content_grammar_report_: str):
         file_grammar_report_html.close()
         webbrowser.open("bnf.md.html", new=2, autoraise=True)
     except Exception as e:
-        print_error("Unknown Error", "Grammar report view not generated")
+        print_error("Unknown Error", "Grammar report view not generated", 0)
         #print(e)
 
 def print_error_table_(grammarerrors,executionerrors):
@@ -215,7 +208,7 @@ def print_error_table_(grammarerrors,executionerrors):
             print_ += "\n"
         print_ += errors_[i].toString()
         i += 1
-    print_error_table("Error Table", print_)
+    print_error_table("Error Table", print_, 0)
 
 def print_alternative_error_table_():
     x = PrettyTable(["Number", "Type", "Description"])
@@ -227,10 +220,10 @@ def print_alternative_error_table_():
             j += 1
         i += 1
     print_ = x.get_string(title="Error Table")
-    print_error_table("Error Table", print_)
+    print_error_table("Error Table", print_, 0)
 
 def print_symbol_table_(printSymbolTable: str):
-    print_symbol_table("Symbol Table", printSymbolTable)
+    print_symbol_table("Symbol Table", printSymbolTable, 0)
 
 def print_messages_(messages):
     print_ = "MESSAGES"
@@ -242,7 +235,7 @@ def print_messages_(messages):
             print_ += "\n"
         print_ += messages[i]
         i += 1
-    print_messages("Message", print_)
+    print_messages("Message", print_, 0)
 
 def print_querys_(querys):
     print_ = "QUERYS"
@@ -254,7 +247,54 @@ def print_querys_(querys):
             print_ += "\n"
         print_ += querys[i].toString()
         i += 1
-    print_querys("Query", print_)
+    print_querys("Query", print_, 0)
+
+def print_c3d_(c3d):
+    text_c3d.insert("1.0", c3d)
+
+
+def optimize_C3D():
+    #clear console_c3d
+    console_c3d.configure(state="normal")
+    console_c3d.delete(1.0, "end")
+    console_c3d.configure(state="disabled")
+    Tytus_GUI_console.prints_c3d = []
+    #clear text editor text_c3d_optimized
+    text_c3d_optimized.delete(1.0, "end")
+    #clear console_c3d_optimized
+    console_c3d_optimized.configure(state="normal")
+    console_c3d_optimized.delete(1.0, "end")
+    console_c3d_optimized.configure(state="disabled")
+    Tytus_GUI_console.prints_c3d_optimized = []
+    #get input text
+    Input_text = text_c3d.get(1.0,'end-1c')    
+    #optimize c3d
+    #result_optimize = optimize(Input_text)
+    #process results and display reports
+    #process_results_optimize_and_display_reports(result_optimize)
+
+
+def compile_C3D():
+    #clear console_c3d_optimized
+    console_c3d_optimized.configure(state="normal")
+    console_c3d_optimized.delete(1.0, "end")
+    console_c3d_optimized.configure(state="disabled")
+    Tytus_GUI_console.prints_c3d_optimized = []
+    #get input text
+    Input_text = text_c3d_optimized.get(1.0,'end-1c')    
+    #compile c3d
+    compile_C3D_aux(Input_text)
+    #result_compile = compile(Input_text)
+    #process results and display reports
+    #process_results_compile_and_display_reports(result_compile)
+
+def compile_C3D_aux(c3d_optimized):
+    global path_c3d
+    try:
+        exec(compile(c3d_optimized, path_c3d, 'exec'))
+    except Exception as e:
+        print_error("UNKNOWN ERROR", "Error running optimized c3d",2)
+        #print(e)
 
 
 # Root configuration
@@ -273,7 +313,9 @@ filemenu.add_command(label="Exit", command=root.quit)
 menubar.add_cascade(menu=filemenu, label="File")
 
 filemenu = Menu(menubar, tearoff=0)
-filemenu.add_command(label="Compile", command=compile)
+filemenu.add_command(label="Translate to C3D", command=translate_to_C3D)
+filemenu.add_command(label="Optimize C3D", command=optimize_C3D)
+filemenu.add_command(label="Compile C3D", command=compile_C3D)
 menubar.add_cascade(menu=filemenu, label="Analysis")
 
 filemenu = Menu(menubar, tearoff=0)
@@ -281,19 +323,82 @@ filemenu.add_command(label="Generate AST Report", command=lambda:generate_report
 filemenu.add_command(label="Generate Grammar Report", command=lambda:generate_report(1))
 menubar.add_cascade(menu=filemenu, label="Reports")
 
-# Text
-text = CustomText_follow_line_and_column_in_text()
+width_text = 50
+height_text = 20
+
+#Labels
+frame_labels = tk.Frame(root)
+frame_labels.pack(ipadx=10, ipady=10, expand=False, side="top", fill="both")
+
+label_text = Label(frame_labels, width=width_text, text="Input Text")
+label_text.pack(fill="both", expand=1)
+label_text.pack(side ="left")
+label_text.config(bd=0, padx=6, pady=4, font=("consolas",12))
+label_text_c3d = Label(frame_labels, width=width_text, text="C3D")
+label_text_c3d.pack(fill="both", expand=1)
+label_text_c3d.pack(side ="left")
+label_text_c3d.config(bd=0, padx=6, pady=4, font=("consolas",12))
+label_text_c3d_optimized = Label(frame_labels, width=width_text, text="Optimized C3D")
+label_text_c3d_optimized.pack(fill="both", expand=1)
+label_text_c3d_optimized.pack(side ="left")
+label_text_c3d_optimized.config(bd=0, padx=6, pady=4, font=("consolas",12))
+
+#Text editors
+frame_1 = tk.Frame(root)
+frame_1.pack(ipadx=10, ipady=10, expand=True, side="top", fill="both")
+
+text = scrolledtext.ScrolledText(frame_1, width=width_text, height=height_text)
 text.pack(fill="both", expand=1)
 text.configure(bg="#000000", fg="#FFFFFF", insertbackground='#FFFFFF')
-text.config(bd=0, padx=6, pady=4, font=("consolas",12))
-text.bind("<<CursorChange>>", _on_change)
+text.config(bd=0, padx=6, pady=4, font=("consolas",10))
+text.pack(side ="left")
+text.bindtags(('Text','post-class-bindings_text', '.', 'all'))
+text.bind_class("post-class-bindings_text", "<KeyPress>", lambda e: update_line_and_column(text))
+text.bind_class("post-class-bindings_text", "<Button-1>", lambda e: update_line_and_column(text))
 
-# Console
-console = scrolledtext.ScrolledText(root, width=100, height=20)
+text_c3d = scrolledtext.ScrolledText(frame_1, width=width_text, height=height_text)
+text_c3d.pack(fill="both", expand=1)
+text_c3d.configure(bg="#000000", fg="#FFFFFF", insertbackground='#FFFFFF')
+text_c3d.config(bd=0, padx=6, pady=4, font=("consolas",10))
+text_c3d.pack(side ="left")
+text_c3d.bindtags(('Text','post-class-bindings_text_c3d', '.', 'all'))
+text_c3d.bind_class("post-class-bindings_text_c3d", "<KeyPress>", lambda e: update_line_and_column(text_c3d))
+text_c3d.bind_class("post-class-bindings_text_c3d", "<Button-1>", lambda e: update_line_and_column(text_c3d))
+
+text_c3d_optimized = scrolledtext.ScrolledText(frame_1, width=width_text, height=height_text)
+text_c3d_optimized.pack(fill="both", expand=1)
+text_c3d_optimized.configure(bg="#000000", fg="#FFFFFF", insertbackground='#FFFFFF')
+text_c3d_optimized.config(bd=0, padx=6, pady=4, font=("consolas",10))
+text_c3d_optimized.pack(side ="left")
+text_c3d_optimized.bindtags(('Text','post-class-bindings_text_c3d_optimized', '.', 'all'))
+text_c3d_optimized.bind_class("post-class-bindings_text_c3d_optimized", "<KeyPress>", lambda e: update_line_and_column(text_c3d_optimized))
+text_c3d_optimized.bind_class("post-class-bindings_text_c3d_optimized", "<Button-1>", lambda e: update_line_and_column(text_c3d_optimized))
+
+#Consoles
+frame_2 = tk.Frame(root)
+frame_2.pack(ipadx=10, ipady=10, expand=True, side="top", fill="both")
+
+console = scrolledtext.ScrolledText(frame_2, width=width_text, height=height_text)
 console.pack(fill="both", expand=1)
 console.configure(bg="#434B4D", fg="#FFFFFF", insertbackground='#FFFFFF')
-console.config(bd=0, padx=6, pady=4, font=("consolas",12))
+console.config(bd=0, padx=6, pady=4, font=("consolas",10))
 console.configure(state="disabled")
+console.pack(side ="left")
+
+console_c3d = scrolledtext.ScrolledText(frame_2, width=width_text, height=height_text)
+console_c3d.pack(fill="both", expand=1)
+console_c3d.configure(bg="#434B4D", fg="#FFFFFF", insertbackground='#FFFFFF')
+console_c3d.config(bd=0, padx=6, pady=4, font=("consolas",10))
+console_c3d.configure(state="disabled")
+console_c3d.pack(side ="left")
+
+console_c3d_optimized = scrolledtext.ScrolledText(frame_2, width=width_text, height=height_text)
+console_c3d_optimized.pack(fill="both", expand=1)
+console_c3d_optimized.configure(bg="#434B4D", fg="#FFFFFF", insertbackground='#FFFFFF')
+console_c3d_optimized.config(bd=0, padx=6, pady=4, font=("consolas",10))
+console_c3d_optimized.configure(state="disabled")
+console_c3d_optimized.pack(side ="left")
+
 # Lower monitor
 message = StringVar()
 message.set("Welcome to Tytus")

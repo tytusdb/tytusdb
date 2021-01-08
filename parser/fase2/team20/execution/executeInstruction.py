@@ -168,22 +168,22 @@ def createFunction(functionname:str,functioncode:str,replace:bool):
     res = TCcreateFunction(functionname,functioncode,replace)
     if res==1:
         print("Function "+functionname+" stored")
-        print_success("MESSAGE","Function "+functionname+" stored")
+        print_success("MESSAGE","Function "+functionname+" stored",2)
     elif res==2:
         print("Function "+functionname+" replaced")
-        print_success("MESSAGE","Function "+functionname+" replaced")
+        print_success("MESSAGE","Function "+functionname+" replaced",2)
     else:
         print("Function "+functionname+" already exists")
-        print_error("SEMANTIC","Function "+functionname+" already exists")
+        print_error("SEMANTIC","Function "+functionname+" already exists",2)
 
 def deleteFunction(function:str):
     ans = TCdeleteFunction(function)
     if(ans == 1):
         print("Function "+function+" droped")
-        print_success("MESSAGE","Function "+function+" droped")
+        print_success("MESSAGE","Function "+function+" droped",2)
     else: 
         print("Function "+function+" does not exist")
-        print_error("SEMANTIC","Function "+function+" does not exist")
+        print_error("SEMANTIC","Function "+function+" does not exist",2)
 
 def getType(sqltype):
     if(sqltype=="TEXT" 
@@ -201,4 +201,3 @@ def getType(sqltype):
     or sqltype=="REAL"):
         return "float"
     return ""
-    

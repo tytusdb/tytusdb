@@ -18,10 +18,10 @@ def graphAST(self):
             for node in self.nodes:
                 dotaux += node.graphAST('','S')
     except Exception as e:
-        print_error("AST Error",e)
+        print_error("AST Error",e,0)
         print(e)
         self.errors.append( Error("Unknown", "Wrong generated AST", 0, 0) )
-        print_error("Unknown Error", "Wrong generated AST")
+        print_error("Unknown Error", "Wrong generated AST", 0)
         #print(e)
 
     if dotaux != "":

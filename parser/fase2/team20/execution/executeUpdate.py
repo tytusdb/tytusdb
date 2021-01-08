@@ -20,7 +20,7 @@ def executeUpdate(self, update_):
     tabledata = extractTable(db,table)
     fieldnames = TCgetTableColumns(db,table)
     if(type(fieldnames) is str):
-        print_error("SEMANTIC ERROR","Table does not exist")
+        print_error("SEMANTIC ERROR","Table does not exist",2)
         return
     for value in update_.values:
         res = executeExpression(self,value[1])
@@ -30,13 +30,13 @@ def executeUpdate(self, update_):
                 temp = {position:res.value}
                 register = register | temp
             except:
-                print_error("SEMANTIC ERROR","The column does not exist")    
+                print_error("SEMANTIC ERROR","The column does not exist",2)    
     try:
         print(register)
         where = executeExpression(self,update_.expression)
         if(isinstance(where,Error)): 
             self.errors.append(where)
-            print_error("SEMANTIC ERROR",str(where))
+            print_error("SEMANTIC ERROR",str(where),2)
             return
         pos = fieldnames.index(where.id) #GET PK position
         res = 0
@@ -69,18 +69,18 @@ def executeUpdate(self, update_):
                     res=update(db,table,register,[tup[pos]])
                     count+=1
         if res==0:
-            print_success("QUERY",str(count) + " rows updated successfully")
+            print_success("QUERY",str(count) + " rows updated successfully",2)
         elif res==1:
-            print_error("SEMANTIC ERROR","Operation error")
+            print_error("SEMANTIC ERROR","Operation error",2)
         elif res==2:
-            print_error("SEMANTIC ERROR","The database does not exist")
+            print_error("SEMANTIC ERROR","The database does not exist",2)
         elif res==3:
-            print_error("SEMANTIC ERROR","Table does not exist")
+            print_error("SEMANTIC ERROR","Table does not exist",2)
         elif res==4:
-            print_error("SEMANTIC ERROR","Primary key does not exist in table")
+            print_error("SEMANTIC ERROR","Primary key does not exist in table",2)
         else:
-            print_error("UNKNOWN ERROR", "Operation error")
+            print_error("UNKNOWN ERROR", "Operation error",2)
     except Exception as e:
-        print_error("UNKNOWN ERROR", "instruction not executed")
+        print_error("UNKNOWN ERROR", "instruction not executed",2)
         #print(e)
     

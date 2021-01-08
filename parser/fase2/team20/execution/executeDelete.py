@@ -145,26 +145,26 @@ def executeDelete(self, Delete_):
                                     a = 0
                                     #print(e)
                                 i += 1
-                            print_success("QUERY",str(number_of_rows_removed) + " rows removed successfully")
+                            print_success("QUERY",str(number_of_rows_removed) + " rows removed successfully",2)
                             #----------------------------------------------------------------------
 
                         else:
-                            print_error("SEMANTIC ERROR", str(relational_.value1) + " column does not exist in " + table_.name + " table")
+                            print_error("SEMANTIC ERROR", str(relational_.value1) + " column does not exist in " + table_.name + " table",2)
 
                     else:
-                        print_error("SEMANTIC ERROR", "Table does not exist")
+                        print_error("SEMANTIC ERROR", "Table does not exist",2)
 
                 else:
-                    print_error("SEMANTIC ERROR", "Database to use does not exist")
+                    print_error("SEMANTIC ERROR", "Database to use does not exist",2)
 
             else:
-                print_warning("RUNTIME ERROR", "Undefined database to use")
+                print_warning("RUNTIME ERROR", "Undefined database to use",2)
         
         else:
-            print_error("UNKNOWN ERROR", "instruction not executed")
+            print_error("UNKNOWN ERROR", "instruction not executed",2)
 
     else:
-        print_error("UNKNOWN ERROR", "instruction not executed")
+        print_error("UNKNOWN ERROR", "instruction not executed",2)
 
 
 def get_first_relational(self, expression_) -> Relational:

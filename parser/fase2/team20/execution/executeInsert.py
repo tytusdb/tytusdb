@@ -72,52 +72,52 @@ def executeInsertAll(self, InsertAll_):
                                                 replace_default(values_list, table_.columns)
                                                 result_insert = insert(database_.name, table_.name, values_list)
                                                 if result_insert == 0:
-                                                    print_success("QUERY", "Insert in " + str(table_.name) + " table, done successfully")
+                                                    print_success("QUERY", "Insert in " + str(table_.name) + " table, done successfully",2)
                                                 elif result_insert == 1:
-                                                    print_error("UNKNOWN ERROR", "Operation error")
+                                                    print_error("UNKNOWN ERROR", "Operation error",2)
                                                 elif result_insert == 2:
-                                                    print_error("SEMANTIC ERROR", "Database does not exist")
+                                                    print_error("SEMANTIC ERROR", "Database does not exist",2)
                                                 elif result_insert == 3:
-                                                    print_error("SEMANTIC ERROR", "Table does not exist")
+                                                    print_error("SEMANTIC ERROR", "Table does not exist",2)
                                                 elif result_insert == 4:
-                                                    print_error("SEMANTIC ERROR", "Duplicate primary key")
+                                                    print_error("SEMANTIC ERROR", "Duplicate primary key",2)
                                                 elif result_insert == 5:
-                                                    print_error("SEMANTIC ERROR", "Columns out of bounds")
+                                                    print_error("SEMANTIC ERROR", "Columns out of bounds",2)
                                                 else:
-                                                    print_error("UNKNOWN ERROR", "Operation error")
+                                                    print_error("UNKNOWN ERROR", "Operation error",2)
                                             except Exception as e:
-                                                print_error("UNKNOWN ERROR", "instruction not executed")
+                                                print_error("UNKNOWN ERROR", "instruction not executed",2)
                                                 #print(e)
 
                                         else:
-                                            print_error("SEMANTIC ERROR", check_checks_)
+                                            print_error("SEMANTIC ERROR", check_checks_,2)
 
                                     else:
-                                        print_error("SEMANTIC ERROR", check_maxlength_)
+                                        print_error("SEMANTIC ERROR", check_maxlength_,2)
 
                                 else:
-                                    print_error("SEMANTIC ERROR", check_null_)
+                                    print_error("SEMANTIC ERROR", check_null_,2)
 
                             else:
-                                print_error("SEMANTIC ERROR", check_type_)
+                                print_error("SEMANTIC ERROR", check_type_,2)
                         
                         else:
-                            print_error("SEMANTIC ERROR", "Wrong arguments submitted for table. " + str(len(table_.columns)) + " required and " + str(len(values)) + " received")
+                            print_error("SEMANTIC ERROR", "Wrong arguments submitted for table. " + str(len(table_.columns)) + " required and " + str(len(values)) + " received",2)
 
                     else:
-                        print_error("SEMANTIC ERROR", "Table does not exist")
+                        print_error("SEMANTIC ERROR", "Table does not exist",2)
 
                 else:
-                    print_error("SEMANTIC ERROR", "Database to use does not exist")
+                    print_error("SEMANTIC ERROR", "Database to use does not exist",2)
 
             else:
-                print_warning("RUNTIME ERROR", "Undefined database to use")
+                print_warning("RUNTIME ERROR", "Undefined database to use",2)
         
         else:
-            print_error("UNKNOWN ERROR", "instruction not executed")
+            print_error("UNKNOWN ERROR", "instruction not executed",2)
 
     else:
-        print_error("SEMANTIC ERROR", check_and_solve_values_)
+        print_error("SEMANTIC ERROR", check_and_solve_values_,2)
 
 
 def executeInsert(self, Insert_):
@@ -183,25 +183,25 @@ def executeInsert(self, Insert_):
                                     executeInsertAll(self, new_InsertAll)
 
                                 else:
-                                    print_error("SEMANTIC ERROR", str(columns[columns_exist_error]) + " column in which you want to insert does not exist") 
+                                    print_error("SEMANTIC ERROR", str(columns[columns_exist_error]) + " column in which you want to insert does not exist",2) 
                         
                             else:
-                                print_error("SEMANTIC ERROR", "Number of arguments sent is greater than the number of columns in the table")
+                                print_error("SEMANTIC ERROR", "Number of arguments sent is greater than the number of columns in the table",2)
 
                     else:
-                        print_error("SEMANTIC ERROR", "Table does not exist")
+                        print_error("SEMANTIC ERROR", "Table does not exist",2)
 
                 else:
-                    print_error("SEMANTIC ERROR", "Database to use does not exist")
+                    print_error("SEMANTIC ERROR", "Database to use does not exist",2)
 
             else:
-                print_warning("RUNTIME ERROR", "Undefined database to use")
+                print_warning("RUNTIME ERROR", "Undefined database to use",2)
         
         else:
-            print_error("UNKNOWN ERROR", "instruction not executed")
+            print_error("UNKNOWN ERROR", "instruction not executed",2)
     
     else:
-        print_error("SEMANTIC ERROR", "number of columns and values ​​are not the same size")
+        print_error("SEMANTIC ERROR", "number of columns and values ​​are not the same size",2)
 
 
 def check_and_solve_values(self, values_):

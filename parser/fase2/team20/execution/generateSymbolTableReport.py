@@ -48,7 +48,7 @@ def printSymbolTable(self):
             i += 1
         #x.add_row([a, str(Databases[i].name), "Database", "Global"])
     except Exception as e:
-        print_error("Unknown Error", "Incorrectly generated Symbol Table")
+        print_error("Unknown Error", "Incorrectly generated Symbol Table", 0)
         #print(e)
 
     print_ = x.get_string(title="Symbol Table")

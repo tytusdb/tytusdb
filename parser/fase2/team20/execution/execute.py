@@ -10,6 +10,7 @@ from .execute_result import *
 from .storageManager.TypeChecker import *
 from io import StringIO  # Python3
 import sys
+path_c3d = "C3D.py"
 class Execute():
     nodes = []
     errors = []
@@ -40,7 +41,8 @@ class Execute():
     #y se encargaran de llamar el resto de metodos
     def execute(self):
         if(self.nodes is not None):
-            archivo = open("C3D.py", 'w+')
+            global path_c3d
+            archivo = open(path_c3d, 'w+')
             archivo.write("from execution.executeSentence import executeSentence ") 
             archivo.write("\nfrom execution.AST.sentence import *")
             archivo.write("\nfrom execution.AST.expression import *")
@@ -52,7 +54,7 @@ class Execute():
             archivo.write("\n\tprint(1)\n")
             archivo.close()
             if(len(self.nodes)==0):
-                archivo = open("C3D.py", 'a')
+                archivo = open(path_c3d, 'a')
                 archivo.write("\n\tprint(1)\n")
                 archivo.close() 
             for node in self.nodes:
@@ -64,7 +66,7 @@ class Execute():
                     print(node)
                     val1 = new_stdout.getvalue()[:-1]
                     sys.stdout = old_stdout
-                    archivo = open("C3D.py", 'a')
+                    archivo = open(path_c3d, 'a')
                     archivo.write("\n\t")
                     archivo.write(val1) 
                     archivo.close()
@@ -75,14 +77,21 @@ class Execute():
         for storedproc in TCgetFunctions():
             if storedproc not in self.plcode: 
                 self.plcode+=storedproc
-        archivo = open("C3D.py", 'a')
+        archivo = open(path_c3d, 'a')
         archivo.write("\n")
         archivo.write(self.plcode)
         archivo.write("\nup()")
         archivo.close()
         dotAST = graphAST(self)
         printSymbolTable_ = printSymbolTable(self)
-        result = execute_result(dotAST, printSymbolTable_, self.errors, self.messages, self.querys)
+        contentC3D = ""
+        try:
+            f = open(path_c3d, "r")
+            contentC3D = f.read()
+            f.close()
+        except Exception as e:
+            i=0#print(e)
+        result = execute_result(dotAST, printSymbolTable_, self.errors, self.messages, self.querys, contentC3D)
         return result
     def generateTemp(self):
         self.tempcount+=1
