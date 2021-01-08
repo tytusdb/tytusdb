@@ -1691,11 +1691,12 @@ def p_concurrently_opt(t):
 
 ##########   >>>>>>>>>>>>>>>>  ALTER INDEX  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_alter_index(t):
-    '''stm_alter_index  : ALTER INDEX if_exists_opt ID ALTER column_opt numero  '''
-    childsProduction = addNotNoneChild(t, [3,6,7])
-    graph_ref = graph_node(str("stm_alter_index"), [t[1], t[2],t[3], t[4], t[5], t[6], t[7]], childsProduction)
-    addCad("**\<STM_ALTER_INDEX>** ::= tAlter tIndex [\<IF_EXISTS_OPT>] tIdentifier tAlter [\<COLUMN_OPT>] \<NUMERO> ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    '''stm_alter_index  : ALTER INDEX if_exists_opt ID ALTER COLUMN ID ID  '''
+    token = t.slice[1]
+    childsProduction = addNotNoneChild(t, [3])
+    graph_ref = graph_node(str("stm_alter_index"), [t[1], t[2],t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
+    addCad("**\<STM_ALTER_INDEX>** ::= tAlter tIndex [\<IF_EXISTS_OPT>] tIdentifier tAlter tColumn tIdentifier tIdentifier ")
+    t[0] = AlterIndex(t[3], t[4], t[7], t[8], token.lineno, token.lexpos, graph_ref)
 
 
 def p_column_opt(t):
