@@ -22,7 +22,7 @@ class DropFunction(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
 
-        print(len(arbol.lista_funciones))
+        # print(len(arbol.lista_funciones))
         i = 0
         encontrado = False
         for funcion in arbol.lista_funciones:
@@ -36,13 +36,18 @@ class DropFunction(Instruccion):
 
         if encontrado == True:
             # arbol.lista_funciones.remove(4)
-            val = arbol.lista_funciones.index(self.id)
+            try:
+                val = arbol.lista_funciones.index(self.id)
 
-            arbol.lista_funciones.pop(val)
-            arbol.lista_funciones.pop(val)
-            arbol.lista_funciones.pop(val)
-            arbol.lista_funciones.pop(val)
-            print("==>", len(arbol.lista_funciones))
+                arbol.lista_funciones.pop(val)
+                arbol.lista_funciones.pop(val)
+                arbol.lista_funciones.pop(val)
+                arbol.lista_funciones.pop(val)
+                print(f"La Funcion: {self.id} ha sido eliminada")
+                arbol.consola.append(f"Se encontro la funcion: {self.id} ha sido eliminada")
+            except:
+                arbol.consola.append(f"La Funcion: {self.id} no existe")
+            # print("==>", len(arbol.lista_funciones))
 
         self.crear_tabla(arbol)
         
@@ -108,7 +113,7 @@ class DropFunction(Instruccion):
         contador = 0
         while(contador < len(lista_funciones) ):
 
-            print(contador, "##", len(lista_funciones))
+            # print(contador, "##", len(lista_funciones))
             # if contador == 0 and len(lista_funciones) > 4:
             #     cadena += "<tr>\n"
             #     cadena += "<td><center>" + str((contador/5)+1) + "</center></td>\n"
@@ -120,7 +125,7 @@ class DropFunction(Instruccion):
             #     contador += 4
             # elif contador != 0 and len(lista_funciones) >= contador*4:
             cadena += "<tr>\n"
-             val = (contador+4)/4
+            val = (contador+4)/4
             cadena += "<td><center>" + str(val) + "</center></td>\n"
             cadena += "<td><center>" + lista_funciones[contador] + "</center></td>\n"
             cadena += "<td><center>" + lista_funciones[contador + 1] + "</center></td>\n"

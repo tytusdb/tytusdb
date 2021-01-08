@@ -38,11 +38,17 @@ class DropProcedure(Instruccion):
             # arbol.lista_funciones.remove(4)
             val = arbol.lista_funciones.index(self.id)
 
-            arbol.lista_funciones.pop(val)
-            arbol.lista_funciones.pop(val)
-            arbol.lista_funciones.pop(val)
-            arbol.lista_funciones.pop(val)
-            print("==>", len(arbol.lista_funciones))
+            try:
+                arbol.lista_funciones.pop(val)
+                arbol.lista_funciones.pop(val)
+                arbol.lista_funciones.pop(val)
+                arbol.lista_funciones.pop(val)
+                # print("==>", len(arbol.lista_funciones))
+                print(f"El procedimiento: {self.id} ha sido eliminada")
+                arbol.consola.append(f"Se encontro el procedimiento: {self.id}, ha sido eliminada")
+            except:
+                arbol.consola.append(f"El procedimiento: {self.id} no existe")
+
 
         self.crear_tabla(arbol)
         
@@ -108,7 +114,7 @@ class DropProcedure(Instruccion):
         contador = 0
         while(contador < len(lista_funciones) ):
 
-            print(contador, "##", len(lista_funciones))
+            # print(contador, "##", len(lista_funciones))
             # if contador == 0 and len(lista_funciones) > 4:
             #     cadena += "<tr>\n"
             #     cadena += "<td><center>" + str((contador/5)+1) + "</center></td>\n"
@@ -120,7 +126,7 @@ class DropProcedure(Instruccion):
             #     contador += 4
             # elif contador != 0 and len(lista_funciones) >= contador*4:
             cadena += "<tr>\n"
-             val = (contador+4)/4
+            val = (contador+4)/4
             cadena += "<td><center>" + str(val) + "</center></td>\n"
             cadena += "<td><center>" + lista_funciones[contador] + "</center></td>\n"
             cadena += "<td><center>" + lista_funciones[contador + 1] + "</center></td>\n"

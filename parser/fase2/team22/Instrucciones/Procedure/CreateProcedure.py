@@ -56,6 +56,7 @@ class CreateProcedure(Instruccion):
         arbol.lista_funciones.append('Procedimiento')
         
         self.crear_tabla(arbol)
+        arbol.consola.append(f"Se Creo la Funcion: {self.id} correctamente.")
 
 
 
@@ -190,7 +191,7 @@ class CreateProcedure(Instruccion):
         contador = 0
         while(contador < len(lista_funciones) ):
             cadena += "<tr>\n"
-             val = (contador+4)/4
+            val = (contador+4)/4
             cadena += "<td><center>" + str(val) + "</center></td>\n"
 
             cadena += "<td><center>" + lista_funciones[contador] + "</center></td>\n"
