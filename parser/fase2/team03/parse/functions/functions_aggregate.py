@@ -30,8 +30,8 @@ class Count(ASTNode):
         if self.all_results:
             if isinstance(tree, list) and isinstance(tree[1],list):
                 return len(tree[1])
-            elif isinstance(table, list):
-                return 0
+            
+        return 1
 
     def generate(self, table, tree):
         super().generate(table, tree)
