@@ -90,6 +90,12 @@ def optimizar(pOpt):
                         reglasOpt.append("Regla 5: " + valor + '\n' + str(listaOp[indiceB]) + '. Se optimiza por: ' + str(val))
                         listaOp[indiceB] = ''
                         codOpt += val
+                else:
+                    indiceIf = indice + 1
+                    if2 = listaOp[indiceIf]
+                    #if 'goto ' in if2:
+                    codOpt += valor
+
             else:
                 indiceAsig = indice + 1
                 asig2 = listaOp[indiceAsig]
