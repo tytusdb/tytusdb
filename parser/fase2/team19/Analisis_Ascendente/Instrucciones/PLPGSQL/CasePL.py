@@ -1,5 +1,4 @@
 from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 import C3D.GeneradorTemporales as GeneradorTemporales
 import Analisis_Ascendente.reportes.Reportes as Reportes

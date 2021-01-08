@@ -1,0 +1,35 @@
+$def with(form)
+<div class="form-control">
+<textarea placeholder="Escribir Query Aqui" id="floatingTextarea2" style="height: 80%"></textarea>
+</div>
+<br>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Tablas</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Consola</a>
+  </li>
+</ul>
+<div class="form-control">
+<div class="tab-content" id="myTabContent">
+  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+    <div class="form-floating">
+      
+      <!--Aca poner componente que mostrara las tablas -->
+      $form
+     
+</div>
+  </div>
+  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+    <div class="form-floating">
+       <textarea class="form-control" style="height: 30%" id="Consolatxt"></textarea>
+    </div>
+  </div>
+</div>
+</div>
+<br>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/codemirror.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/mode/sql/sql.min.js"></script>
+<script src="static/js/codemirror.js"></script>

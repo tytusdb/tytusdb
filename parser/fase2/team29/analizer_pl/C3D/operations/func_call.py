@@ -1,5 +1,4 @@
 from analizer_pl.abstract.expression import Expression
-from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
@@ -129,11 +128,40 @@ class FunctionCall(Expression):
                     )
                     self.temp = '"+str(t' + self.temp + ')+"'
                     return code.C3D(c3d, self.temp, self.row, self.column)
-            # Si es una funcion matematica
+            # Si es una funcion sql
             else:
                 if not self.id in sql_functions:
                     print("Error: Funcion no definida")
                     return code.C3D("", "", self.row, self.column)
+
+                if self.id == "extract":
+                    c3d += self.id.upper() + "("
+                    pval = self.params[0].execute(environment)
+                    c3d += pval.temp[1:-1].upper() + " FROM "
+                    parVal += pval.value
+                    pval = self.params[1].execute(environment)
+                    c3d += pval.temp[1:-1].upper() + " "
+                    parVal += pval.value
+                    pval = self.params[2].execute(environment)
+                    c3d += pval.temp + ")"
+                    parVal += pval.value
+                    return code.C3D(parVal, c3d, self.row, self.column)
+
+                if self.id == "date_part":
+                    c3d += self.id + "("
+                    pval = self.params[0].execute(environment)
+                    c3d += pval.temp + ", "
+                    parVal += pval.value
+                    pval = self.params[1].execute(environment)
+                    c3d += pval.temp[1:-1].upper() + " "
+                    parVal += pval.value
+                    pval = self.params[2].execute(environment)
+                    if pval.temp != "(":
+                        c3d += pval.temp + ")"
+                    else:
+                        c3d += "())"
+                    parVal += pval.value
+                    return code.C3D(parVal, c3d, self.row, self.column)
 
                 c3d += self.id + "("
 
@@ -148,7 +176,6 @@ class FunctionCall(Expression):
                     parVal += pval.value
                     c3d += pval.temp
                 c3d += ")"
-
                 return code.C3D(parVal, c3d, self.row, self.column)
 
     def dot(self):
@@ -225,4 +252,7 @@ sql_functions = [
     "now",
     "extract",
     "date_part",
+    "count",
+    "sum",
+    "prom",
 ]
