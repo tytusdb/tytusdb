@@ -256,3 +256,36 @@ class Parameters(ASTNode):
     #pay atention in the order to call genrate function for each childnode because it will affect the TAC list (order of eleents)
     def generate(self, table, tree): 
         pass
+
+
+class DropFunction(ASTNode):
+    def __init__(self, name_function, if_exists, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.name = name_function 
+        self.if_exists = if_exists  
+        self.graph_ref = graph_ref
+        self.line = line
+        self.column = column
+
+    def execute(self, table: SymbolTable, tree):
+        super().execute(table, tree)
+        result_name = self.name.execute(table, tree)
+        result = table.drop_function(result_name)
+        if result:
+            return "Function \'" + str(result_name) + "\' has been dropped."
+        if not result and self.if_exists:
+            return "Tried to drop Function \'" + str(result_name) + " \'it does not exist."
+        elif not result :
+             raise Error(self.line, self.column, ErrorType.RUNTIME, '42883: function_does_not_exists')
+        
+
+
+    def generate(self, table, tree):
+        super().generate(table, tree)
+        result_name = self.name.generate(table, tree)
+        if self.if_exists:
+            return Quadruple(None, 'exec_sql', f'\'DROP FUNCTION  IF EXISTS {result_name};\'', generate_tmp(), OpTAC.CALL)
+        else:
+            return Quadruple(None, 'exec_sql', f'\'DROP FUNCTION {result_name};\'', generate_tmp(), OpTAC.CALL)
+
+

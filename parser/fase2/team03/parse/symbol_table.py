@@ -109,11 +109,12 @@ class ProcedureSymbol(Symbol):
 
 
 class IndexSymbol(Symbol):
-    def __init__(self, name, table, db_id, is_unique, applied_to, where):
+    def __init__(self, name, table, db_id, is_unique, use_hash, applied_to, where):
         Symbol.__init__(self, SymbolType.INDEX, name)
         self.db_id = db_id
         self.name = name
         self.is_unique = is_unique
+        self.use_hash = use_hash
         self.table_name = table
         self.where = where
         self.applied_to = applied_to
@@ -121,7 +122,20 @@ class IndexSymbol(Symbol):
     def str_list(self):
         str_l = ''
         for item in self.applied_to:
-            str_l = f'{str_l}{item},'
+            str_l = f'{str_l}{item[0]},'
+        return f'{str_l[:-1]}' if str_l != '' else ''
+
+    def str_others(self):
+        str_l = ''
+        for item in self.applied_to:
+            str_l = f'{str_l}{item[1]},'
+        str_l = f'Fields[{str_l[:-1]}],'
+        if self.is_unique:
+            str_l = f'{str_l}UNIQUE,'
+        if self.use_hash:
+            str_l = f'{str_l}USING HASH,'
+        if self.where:
+            str_l = f'{str_l},{self.where.generate(None, None)},'
         return str_l[:-1] if str_l != '' else ''
 
 
@@ -229,6 +243,24 @@ class SymbolTable:
                 self.symbols.remove(s)
                 break
 
+    def drop_function(self, name_function):
+        found = False
+        for s in self.symbols:
+            if s.type == SymbolType.FUNCTION and str(s.name).lower() == str(name_function).lower():
+                self.symbols.remove(s)
+                found = True
+                break
+        return found
+
+
+    def drop_procedure(self, name_procedure):
+        found = False
+        for s in self.symbols:
+            if s.type == SymbolType.STOREPROCEDURE and str(s.name).lower() == str(name_procedure).lower():
+                self.symbols.remove(s)
+                found = True
+                break
+        return found
     def drop_index(self, index_name):
         for s in self.symbols:
             if s.type == SymbolType.INDEX and str(s.name).lower() == str(index_name).lower():
@@ -236,7 +268,7 @@ class SymbolTable:
                 break
 
     def report_symbols(self):
-        result2 = ["NOMBRE", "TIPO", "PERTENECE A", "COLUMNAS AFECTADAS[Indices]"]
+        result2 = ["NOMBRE", "TIPO", "PERTENECE A", "COLUMNAS AFECTADAS[Idx]", "CONSIDERACIONES[Idx]"]
         result = []
         for symbol in self.symbols:
             belongs_to = 'Root'
@@ -244,7 +276,9 @@ class SymbolTable:
                 belongs_to = f'BD: {next((sym for sym in self.symbols if sym.id == symbol.db_id), None).name}'
             elif symbol.type == SymbolType.FIELD or symbol.type == SymbolType.INDEX:
                 belongs_to = f'Tabla: {symbol.table_name}'
-            result.append([symbol.name, symbol.type, belongs_to, symbol.str_list() if symbol.type == SymbolType.INDEX else ''])
+            result.append([symbol.name, symbol.type, belongs_to,
+                           symbol.str_list() if symbol.type == SymbolType.INDEX else '',
+                           symbol.str_others() if symbol.type == SymbolType.INDEX else ''])
         print(tabulate(result, result2, tablefmt="psql"))
         return tabulate(result, result2, tablefmt="psql")
 

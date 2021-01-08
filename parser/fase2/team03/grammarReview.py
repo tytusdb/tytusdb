@@ -1492,41 +1492,22 @@ def p_expression_opt(t):
         t[0] = None
 
 def p_stm_drop_function(t):
-    '''stm_drop_function    : DROP FUNCTION if_exists_opt ID PARA list_param_function_opt PARC mode_drop_function_opt
-                            | DROP FUNCTION if_exists_opt name_list '''
-    if len(t) == 9:
-        childsProduction  = addNotNoneChild(t,[3, 6, 8])
-        graph_ref = graph_node(str("stm_drop_function"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]],  childsProduction )
-        addCad("**\<STM_DROP_FUNCTION** ::= tDrop tFunction [\<IF_EXISTS_OPT>] tIdentifier '(' \<NAME_LIST> ')'")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-    elif len(t) == 5:
-        lista = None
-        childsProduction  = addNotNoneChild(t,[3])
-        if t[4] != None:
-             lista = t[4][0]
-             childsProduction.append(lista.graph_ref)
-        graph_ref = graph_node(str("stm_drop_function"), [t[1], t[2], t[3], lista] ,childsProduction )
-        addCad("**\<STM_DROP_FUNCTION** ::= tDrop tFunction [\<IF_EXISTS_OPT>] \<NAME_LIST> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####
+    '''stm_drop_function    : DROP FUNCTION if_exists_opt ID mode_drop_function_opt'''
+    tokenID = t.slice[4]
+    childsProduction  = addNotNoneChild(t,[3,5])
+    graph_ref = graph_node(str("stm_drop_function"), [t[1],t[2],t[3],t[4], t[5]],  childsProduction )
+    addCad("**\<STM_DROP_FUNCTION** ::= tDrop tFunction [\<IF_EXISTS_OPT>] tIdentifier [\<MODE_DROP_OPT>]")
+    name_func = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos, None)
+    t[0] = DropFunction(name_func,(True if t[3] else False), t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+
 
 def p_stm_drop_procedure(t):
-    '''stm_drop_procedure   : DROP PROCEDURE if_exists_opt ID PARA list_param_function_opt PARC mode_drop_function_opt
-                            | DROP PROCEDURE if_exists_opt name_list '''
-    if len(t) == 9:
-        childsProduction  = addNotNoneChild(t,[3, 6, 8])
-        graph_ref = graph_node(str("stm_drop_procedure"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]],  childsProduction )
-        addCad("**\<STM_DROP_PROCEDURE** ::= tDrop tProcedure [\<IF_EXISTS_OPT>] tIdentifier '(' \<NAME_LIST> ')'")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-    elif len(t) == 5:
-        lista = None
-        childsProduction  = addNotNoneChild(t,[3])
-        if t[4] != None:
-             lista = t[4][0]
-             childsProduction.append(lista.graph_ref)
-        graph_ref = graph_node(str("stm_drop_procedure"), [t[1], t[2], t[3], lista] ,childsProduction )
-        addCad("**\<STM_DROP_PROCEDURE** ::= tDrop tProcedure [\<IF_EXISTS_OPT>] \<NAME_LIST> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+    '''stm_drop_procedure   : DROP PROCEDURE if_exists_opt ID mode_drop_function_opt '''
+    childsProduction  = addNotNoneChild(t,[3, 5])
+    graph_ref = graph_node(str("stm_drop_procedure"), [t[1],t[2],t[3],t[4],t[5]],  childsProduction )
+    addCad("**\<STM_DROP_PROCEDURE** ::= tDrop tProcedure [\<IF_EXISTS_OPT>] tIdentifier [\<MODE_DROP_OPT>]")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+
         
 def p_name_list(t):
     '''name_list    : name_list COMA ID
@@ -1722,11 +1703,12 @@ def p_concurrently_opt(t):
 
 ##########   >>>>>>>>>>>>>>>>  ALTER INDEX  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_alter_index(t):
-    '''stm_alter_index  : ALTER INDEX if_exists_opt ID ALTER column_opt numero  '''
-    childsProduction = addNotNoneChild(t, [3,6,7])
-    graph_ref = graph_node(str("stm_alter_index"), [t[1], t[2],t[3], t[4], t[5], t[6], t[7]], childsProduction)
-    addCad("**\<STM_ALTER_INDEX>** ::= tAlter tIndex [\<IF_EXISTS_OPT>] tIdentifier tAlter [\<COLUMN_OPT>] \<NUMERO> ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    '''stm_alter_index  : ALTER INDEX if_exists_opt ID ALTER COLUMN ID ID  '''
+    token = t.slice[1]
+    childsProduction = addNotNoneChild(t, [3])
+    graph_ref = graph_node(str("stm_alter_index"), [t[1], t[2],t[3], t[4], t[5], t[6], t[7], t[8]], childsProduction)
+    addCad("**\<STM_ALTER_INDEX>** ::= tAlter tIndex [\<IF_EXISTS_OPT>] tIdentifier tAlter tColumn tIdentifier tIdentifier ")
+    t[0] = AlterIndex(t[3], t[4], t[7], t[8], token.lineno, token.lexpos, graph_ref)
 
 
 def p_column_opt(t):
