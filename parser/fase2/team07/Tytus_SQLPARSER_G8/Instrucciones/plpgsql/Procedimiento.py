@@ -16,7 +16,7 @@ class Procedimiento(Instruccion):
         codigo = ""
 
         #Se declara la funcion con el nombre
-        codigo += "\tdef " + self.id + "(self,"
+        codigo += "\tdef " + self.id + "("
 
         #Se añaden los parametros si es que estos existen
         if self.parametros is not None:
@@ -37,8 +37,9 @@ class Procedimiento(Instruccion):
         codigo += "):\n\n"
 
         #Se agregan las declaraciones
-        for dec in self.declaraciones:
-            codigo += dec.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
+        if self.declaraciones is not None:
+            for dec in self.declaraciones:
+                codigo += dec.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
 
         #Se agrega todo el contenido de las instrucciones traducido a 3D
         for ins in self.instrucciones:
