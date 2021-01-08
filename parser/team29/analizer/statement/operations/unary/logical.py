@@ -63,7 +63,7 @@ class Logical(Expression):
                 TYPE.BOOLEAN, value, self.temp, self.row, self.column
             )
         except TypeError:
-            raise expression.list_errors.append(
+            expression.list_errors.append(
                 "Error: 42883: la operacion no existe entre: "
                 + str(exp.type)
                 + " y el operador "
@@ -72,7 +72,7 @@ class Logical(Expression):
                 + str(self.row)
             )
         except:
-            raise expression.list_errors.append(
+            expression.list_errors.append(
                 "Error: XX000: Error interno (Binary Aritmethic Operation)"
                 + "\n En la linea: "
                 + str(self.row)

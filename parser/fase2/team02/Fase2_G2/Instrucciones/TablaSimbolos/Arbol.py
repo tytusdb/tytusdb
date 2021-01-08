@@ -224,19 +224,30 @@ class Arbol():
     def get3d(self):
         return self.cadena
     
-    def addc3d(self, cadena):
-        self.cadena = self.cadena + f"\t{cadena}\n"
+    def addc3d(self, cadena,indentado="No"):
 
+        if(indentado=="No"):
+          self.cadena = self.cadena + f"\t{cadena}\n"
+        else :
+          self.cadena = self.cadena + f"\t\t{cadena}\n"
     def addComen(self, cadena):
         self.cadena = self.cadena + f"\t#{cadena}\n"
     
-    def addfunciones3d(self, cadena):
-        self.cadenaf = self.cadenaf + f"\t{cadena}\n"
+    def addfunciones3d(self, cadena,indentado="No"):
+        if(indentado=="No"):
+           self.cadenaf = self.cadenaf + f"\t{cadena}\n"
+        else  :
+           self.cadenaf = self.cadenaf + f"\t\t{cadena}\n"
     def addfunciones3dtitulo(self, cadena):
         self.cadenaf = self.cadenaf + f"{cadena}\n"
 
     def addComenfunc(self, cadena):
         self.cadenaf = self.cadenaf + f"\t#{cadena}\n"
+
+
     def get3dfunc(self):
         return self.cadenaf
+
+
+
     

@@ -47,7 +47,7 @@ def traducir(input):
         "symbols": symbols,
         "functions": functions,
     }
-    #grammar.InitTree()
+    # grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -92,59 +92,34 @@ def functionsReport(env):
 
 
 s = """ 
-CREATE function foo(i integer) RETURNS integer AS $$
-declare 
-	j integer := -i + md5(3+3-md5(4),4);
-	k integer;
-BEGIN
-	case 
-        when i > -10 then
-            k = i;
-            RETURN j * k + 1;
-        when i < 10 then
-            k = 1;
-            RETURN j * k + 2;
-        else 
-            k = 2;
-            RETURN j * k + 3;
-    end case;
-END;
-$$ LANGUAGE plpgsql;
+select * from tbCalificacion;
+select *
+from tbventa where ventaregistrada = false;
+select *
+from tbempleadopuesto
+group by departamento;
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
 
-CREATE procedure p1() AS $$
-declare 
-	k integer;
-BEGIN
-    drop function foo;
-	k = foo(5);
-    k = foo(10);
-    k = foo(15);
-END;
-$$ LANGUAGE plpgsql;
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido,fechaventa
+limit 1;
 
-drop procedure p1;
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by 1,2,3
+order by 1;
 """
 
-sql = """
-CREATE DATABASE DBFase2;
-USE DBFase2;
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$ BEGIN RETURN texto;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TABLE tbProducto (
-  idproducto integer not null primary key,
-  producto varchar(150) not null,
-  fechacreacion date not null,
-  estado integer
-);
-CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
-CREATE TABLE tbCalificacion (
-  idcalifica integer not null primary key,
-  item varchar(100) not null,
-  punteo integer not null
-);
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-execute myFuncion("Francisco");
-"""
 
 traducir(s)

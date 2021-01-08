@@ -36,3 +36,7 @@ class BaseDeDatos(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+    def analizar(self, tabla, arbol):
+        super().ejecutar(tabla,arbol)
+    def traducir(self, tabla, arbol):
+        super().ejecutar(tabla,arbol)

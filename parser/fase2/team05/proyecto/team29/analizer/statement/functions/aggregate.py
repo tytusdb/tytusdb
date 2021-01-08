@@ -110,5 +110,5 @@ class AggregateFunction(Expression):
         new.addNode(f)
         new.addNode(p)
 
-        p.addNode(self.colData.dot())
+        #p.addNode(self.colData.dot())
         return new

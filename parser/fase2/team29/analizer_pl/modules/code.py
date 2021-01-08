@@ -17,13 +17,17 @@ from analizer_pl.sql_statement.create import create_index
 from analizer_pl.sql_statement.create import create_table
 from analizer_pl.sql_statement.create import create_type
 from analizer_pl.sql_statement.alter import alter_database
+from analizer_pl.sql_statement.alter import alter_index
 from analizer_pl.sql_statement.alter import alter_table
 from analizer_pl.sql_statement.drop import drop_database
 from analizer_pl.sql_statement.drop import drop_table
 from analizer_pl.sql_statement.drop import drop_index
+from analizer_pl.sql_statement.select import select
+from analizer_pl.sql_statement.select import union
 from analizer_pl.sql_statement import use_
 from analizer_pl.sql_statement import show_
 from analizer_pl.sql_statement import truncate_
+from analizer_pl.sql_statement import insert_
 
 
 def TernaryOperation(temp, exp1, exp2, exp3, operator, row, column):
@@ -130,14 +134,36 @@ def Execute_(procedures, row, column):
     return execute_.Execute(procedures, row, column)
 
 
-def DropFunction(id,  row, column):
-    return drop_func.DropFunction(id,  row, column)
+def DropFunction(id, row, column):
+    return drop_func.DropFunction(id, row, column)
+
 
 def Identifier(id, isBlock, row, column):
     return datatype.Identifier(id, isBlock, row, column)
 
+
 def BinaryExpression(temp, exp1, exp2, operator, isBlock, row, column):
     return datatype.BinaryExpression(temp, exp1, exp2, operator, isBlock, row, column)
 
+
 def UnaryExpression(temp, exp, operator, isBlock, row, column):
     return datatype.UnaryExpression(temp, exp, operator, isBlock, row, column)
+
+
+def DropIndex(exists, idList, row, column):
+    return drop_index.DropIndex(exists, idList, row, column)
+
+
+def AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber=""):
+    return alter_index.AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber)
+
+def Insert(tabla, columns, parametros, row, column):
+    return insert_.InsertInto(tabla, columns, parametros, row, column)
+
+
+def Select(distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column):
+    return select.Select(distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column)
+
+
+def Union(type_, select1, select2, all, row, column):
+    return union.Select(type_, select1, select2, all, row, column)
