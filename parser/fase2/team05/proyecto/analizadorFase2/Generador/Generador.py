@@ -998,3 +998,13 @@ class Generador:
                 self.codigo3d.append(linea)
                 ret = RetornoOp(tag, None)
                 return ret
+        elif instruccion.tipo == TipoFunNativa.pow:
+            # Corresponde a función de POW
+            if instruccion.numparametros == 2:
+                oper1 = self.compilarOperacionAritmetica(instruccion.parametros[0])
+                oper2 = self.compilarOperacionAritmetica(instruccion.parametros[1])
+                tag = self.generarTemporal()
+                linea = self.generarTab() + str(tag) + ' = math.pow(' + str(oper1.valor) + ', ' + str(oper2.valor) + ')'
+                self.codigo3d.append(linea)
+                ret = RetornoOp(tag, None)
+                return ret

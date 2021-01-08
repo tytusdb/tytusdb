@@ -5933,6 +5933,9 @@ def p_IdFuncionModVF(t):
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionPowerVF(t):
     'VALORF  :   POWER PABRE LNUMF PCIERRA  '
+    ret = Retorno(FuncionNativa(TipoFunNativa.pow, t[3].getInstruccion()), NodoAST("POWER"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionRadiansVF(t):
