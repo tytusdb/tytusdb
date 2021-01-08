@@ -18,7 +18,9 @@ from tkinter import messagebox
 import pickle
 from graphviz import Digraph
 import cod3d as c3ddddd
-import sentencias as senttt 
+import sentencias as senttt
+
+import shutil
 
 pathFile=''
 
@@ -227,8 +229,8 @@ if __name__ == "__main__":
             if len(g.errores_sintacticos) == 0:
                 imprimir_consola("") 
                 principal.texttraduccion = ""
-                principal.texttraduccion="import principal as p3 \nfrom goto import with_goto \nstackk=[] \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n    stackk=stack\n"
-                principal.textoptimizado="import principal as p3 \nfrom goto import with_goto \nstackk=[] \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n    stackk=stack\n"
+                principal.texttraduccion="import principal as p3 \nfrom goto import with_goto \nstackk=[] \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n    global stackk\n    stackk=stack\n"
+                principal.textoptimizado="import principal as p3 \nfrom goto import with_goto \nstackk=[] \nuseActual=\"\"\n@with_goto \ndef main(stack=[]):\n    global stackk\n    stackk=stack\n"
                 data=principal.interpretar_sentencias(arbol,True)
                 #tablaSimbolos.mostrar()
                 imprimir_consola(principal.texttraduccion)
@@ -351,6 +353,43 @@ if __name__ == "__main__":
     def __funcion_AST():
             os.startfile('arbol.jpg') 
 
+    
+    def __funcion_TS2():
+        ast = Digraph('TablaSimbolosF', filename='c:/source/tsf.gv', node_attr={'color': 'black', 'fillcolor': 'aquamarine','style': 'filled', 'shape': 'record'})
+        ast.attr(rankdir='TB',ordering='in')
+        ast.edge_attr.update(arrowhead='none')
+
+        clus = 'cluster_'
+        c_clus = 0
+        con = 0
+        tag = "t"
+        for i in principal.tablaSimbolos.tabla:
+
+            base = principal.tablaSimbolos.tabla[i]
+
+            cl = clus + str(c_clus)
+            with ast.subgraph(name=cl) as c:
+                el_owner = ""
+                if base.owner != None:
+                    el_owner = base.owner.valor
+                c.attr(label= "NOMBRE BD: '%s'\\nOWNER: '%s'\\nMODE: '%s'" % (base.nombre,el_owner,base.mode))
+                c_clus += 1
+
+                for j in base.funciones:
+                    funcion = base.funciones[j]
+                    label = ""
+
+                    for k in funcion.variables:
+
+                        variable = funcion.variables[k]
+                        label += "| NOMBRE VARIABLE: " + str(variable.nombre) + " | { TIPO | " + str(variable.tipo) + " } | { VALOR | " + str(variable.valor) +" } | { ÁMBITO | " + str(variable.ambito) + " } "
+
+                    label2 = label
+                    t = tag + str(con)
+                    c.node(t, "{ NOMBRE FUNCIÓN: " + str(funcion.nombre) + " | { TIPO | " + str(funcion.tipo) + " } | { RETORNO | " + str(funcion.retorno) + " } | { ÁMBITO | " + str(funcion.ambito) + " }" + label2 + " }")
+                    con += 1
+
+        ast.render('tablaSF', format='png', view=True)
 
     def __funcion_TS():
 
@@ -368,7 +407,10 @@ if __name__ == "__main__":
 
             cl = clus + str(c_clus)
             with ast.subgraph(name=cl) as c:
-                c.attr(label= "NOMBRE BD: '%s'\\nOWNER: '%s'\\nMODE: '%s'" % (base.nombre,base.owner.valor,base.mode))
+                el_owner = ""
+                if base.owner != None:
+                    el_owner = base.owner.valor
+                c.attr(color='darkslategray', style='filled',label= "NOMBRE BD: '%s'\\nOWNER: '%s'\\nMODE: '%s'" % (base.nombre,el_owner,base.mode))
                 c_clus += 1
                 
                 for j in base.tablas:
@@ -481,6 +523,7 @@ if __name__ == "__main__":
     menu_reporte.add_command(label="Gramatical Estatico", command=__funcion_GramaticalEstatico)
     menu_reporte.add_command(label="Gramatical Dinamico", command=__funcion_GramaticalDinamico)
     menu_reporte.add_command(label="Tabla de Símbolos", command=__funcion_TS)
+    menu_reporte.add_command(label="Tabla de Funciones", command=__funcion_TS2)
     menu_reporte.add_command(label="COD3D", command=__funcion_cod3d)
 
        
@@ -538,8 +581,10 @@ if __name__ == "__main__":
         #principal.listaConstraint = pickle.load(open("lc.p","rb"))
         #principal.listaFK = pickle.load(open("lf.p","rb"))
         #tablaSimbolos.mostrar()
-        print("")
+        my_dir = os.path.dirname(os.path.abspath(__file__))
+        my_dir += "\\data"
+        shutil.rmtree(my_dir)
     except Exception as e:
-        print(e)
+        print("")
     
     root.mainloop()

@@ -95,7 +95,7 @@ def interpretar_sentencias(arbol,ejecutar3D):
                 contadoresT+=1
                 texttraduccion += identacion+Eti+"= p3.typeEnumEx(\"stack["+str(puntero)+"]\")\n"
                 #texttraduccion += identacion+Eti+"="+nodo.id +"\n"
-                puntero +=1
+                puntero += 1
             elif isinstance(nodo, SUpdateBase):
                 stack.append(nodo)
                 Eti ="t"+str(contadoresT)
@@ -888,6 +888,7 @@ def CrearFuncion(nodo,tablaSimbolos):
         texttraduccion+="("
         parametros(nodo.params,auxNodo)
         texttraduccion+="): \n"
+        texttraduccion+=identacion +"global stackk\n"
         texttraduccion+=identacion +"stack=stackk\n"
         TraducirBloque(nodo.contenido,auxNodo,tablaSimbolos)
         if base.crearF(nodo.id,auxNodo):
@@ -896,6 +897,7 @@ def CrearFuncion(nodo,tablaSimbolos):
         texttraduccion+=" (): \n"
         auxNodo=TS.SimboloFuncion(nodo.id,False,nodo.tipo,nodo.retorno,"global")
         base=tablaSimbolos.get(useActual)
+        texttraduccion+=identacion +"global stackk\n"
         texttraduccion+=identacion +"stack=stackk\n"
         TraducirBloque(nodo.contenido,auxNodo,tablaSimbolos)
         base.crearF(nodo.id,auxNodo)
@@ -5001,6 +5003,8 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
         temporal = []
 
         resultado = registros[0]
+        if resultado == None:
+            resultado = []
 
         for t in range(len(registros)-1) :
             temporal = registros[t+1]

@@ -475,8 +475,7 @@ def t_error(t):
 import ply.lex as lex
 import re
 
-lexer = lex.lex()
-lex.lex(reflags=re.IGNORECASE)
+
 
 # DEFINIENDO LA PRECEDENCIA DE LOS OPERADORES
 # ---------Modificado Edi------
@@ -6129,7 +6128,7 @@ from graphviz import Digraph
 limit = sys.getrecursionlimit()
 print(limit)
 
-parser = yacc.yacc()
+
 
 def recorrerNodo(raiz):
         cuerpo = ""
@@ -6215,6 +6214,9 @@ def ReporteGramatical():
 def analizador(input):
     global con 
     global lista
+    lexer = lex.lex()
+    lex.lex(reflags=re.IGNORECASE)
+    parser = yacc.yacc()
     lista =[] 
     con = input
     analizador=parser.parse(input)
