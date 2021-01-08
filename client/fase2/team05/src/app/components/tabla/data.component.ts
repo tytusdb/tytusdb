@@ -1,6 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import { TableDataService } from 'src/app/service/tableData/table-data.service';
+import { ShareService } from 'src/app/service/share/share.service';
+import { Subscription } from 'rxjs';
 
 const text = '{\n' +
   '    "ok": true,\n' +
@@ -43,9 +45,12 @@ const text = '{\n' +
   styleUrls: ['./data.component.css']
 })
 
-export class DataComponent implements OnInit {
+export class DataComponent implements OnInit, OnDestroy {
 
-  constructor(private servicio: TableDataService) { }
+  message: string;
+  subscription: Subscription;
+
+  constructor(private servicio: TableDataService, private data: ShareService) { }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -57,6 +62,12 @@ export class DataComponent implements OnInit {
   // const Squery = {query: 'SHOW DATABASES;'};
 
   ngOnInit(): void {
+    this.subscription = this.data.currentMessage.subscribe(message => this.message = message);
+  }
+
+  // tslint:disable-next-line:typedef
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 
   // tslint:disable-next-line:typedef
