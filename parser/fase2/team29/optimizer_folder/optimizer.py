@@ -591,6 +591,7 @@ class Optimizer:
             self.copy_propagation_optimization()
             self.optimization_elimination_of_redundant()
             self.optimization_if_jump()
+            # La regla 7 se contrandice con otras
             self.optimization_by_jump_label()
             self.optimization_by_jump_goto()
             temp = self.generatedOutput()

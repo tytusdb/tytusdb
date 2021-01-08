@@ -2083,7 +2083,9 @@ def p_columnName_id(t):
     columnName : ID
     """
     global isBlock
-    t[0] = code.Identifier(t[1], isBlock, t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.Identifier(
+        t[1], isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
+    )
     repGrammar.append(t.slice)
 
 
@@ -2093,7 +2095,7 @@ def p_columnName_table_id(t):
     """
     global isBlock
     t[0] = code.Identifier(
-        t[1] + "." + t[3], isBlock, t.slice[1].lineno, t.slice[1].lexpos
+        t[1] + "." + t[3], isBlock, newTemp(), t.slice[1].lineno, t.slice[1].lexpos
     )
     repGrammar.append(t.slice)
 

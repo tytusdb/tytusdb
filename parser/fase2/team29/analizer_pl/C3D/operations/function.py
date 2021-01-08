@@ -26,6 +26,7 @@ class FunctionDeclaration(Instruction):
                 t = p.execute(environment).temp
                 temp = t + " = stack.pop()\n"
                 cd += "\t" + t + " = stack.pop()\n"
+                """
                 fix = (
                     "\t"
                     + "if isinstance("
@@ -39,6 +40,7 @@ class FunctionDeclaration(Instruction):
                 )
                 cd += fix
                 temp += fix
+                """
                 grammar.optimizer_.addIgnoreString(str(temp), self.row, True)
             if self.params:
                 for p in self.params:

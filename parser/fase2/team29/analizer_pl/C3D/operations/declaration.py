@@ -24,7 +24,6 @@ class Declaration(Instruction):
                 tmp = a.temp
             else:
                 val = "\t" + self.id + " = None\n"
-                grammar.optimizer_.addIgnoreString(str(val), self.row, False)
             return code.C3D(val, tmp, self.row, self.column)
         except:
             grammar.PL_errors.append("Error P0000: plpgsql fatal error ")

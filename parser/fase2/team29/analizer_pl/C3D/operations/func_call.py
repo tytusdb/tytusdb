@@ -118,6 +118,22 @@ class FunctionCall(Expression):
                         grammar.optimizer_.addIgnoreString(
                             str("t" + self.temp + " = stack.pop()"), self.row, tab1
                         )
+                        fix = (
+                            tab
+                            + "if isinstance("
+                            + "t"
+                            + self.temp
+                            + ", str): "
+                            + "t"
+                            + self.temp
+                            + ' = "\'"+'
+                            + "t"
+                            + self.temp
+                            + '+"\'"'
+                            + "\n"
+                        )
+                        grammar.optimizer_.addIgnoreString(str(fix), self.row, False)
+                        c3d += fix
                         self.temp = '"+str(t' + self.temp + ')+"'
                         return code.C3D(c3d, self.temp, self.row, self.column)
                     else:

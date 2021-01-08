@@ -142,8 +142,8 @@ def DropFunction(id, row, column):
     return drop_func.DropFunction(id, row, column)
 
 
-def Identifier(id, isBlock, row, column):
-    return datatype.Identifier(id, isBlock, row, column)
+def Identifier(id, isBlock, tempS, row, column):
+    return datatype.Identifier(id, isBlock, tempS, row, column)
 
 
 def BinaryExpression(temp, exp1, exp2, operator, isBlock, row, column):
