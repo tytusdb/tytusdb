@@ -16,44 +16,39 @@ class Index(Instruccion):
 
         if ts.validar_sim(index.id1) == -1:
             if index.caso == 1:
-                concatena = "["
+                concatena = []
                 for data in index.listaId:
-                    concatena += " "+ data.id+" "
-                concatena += "]"
-                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "SIMPLE INDEX", str(index.id2) + concatena, None)
+                    concatena.append(data.id)
+                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "SIMPLE INDEX"+":"+index.id2, concatena, None)
                 ts.agregar_sim(simbolo)
                 consola.append(f"\nIndex {index.id1} creado exitosamente")
             elif index.caso == 2:
-                concatena = "["
+                concatena = []
                 for data in index.listaId:
-                    concatena += " "+ data.id+" "
-                concatena += "]"
-                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "USING HASH",  str(index.id2) + concatena, None)
+                    concatena.append(data.id)
+                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "USING HASH"+":"+index.id2, concatena, None)
                 ts.agregar_sim(simbolo)
                 consola.append(f"\nIndex {index.id1} creado exitosamente")
             elif index.caso == 3:
-                concatena = "["
+                concatena = []
                 for data in index.listaId:
-                    concatena += " "+ data.id+" "
-                concatena += "]"
-                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "UNIQUE",  str(index.id2) + concatena, None)
+                    concatena.append(data.id)
+                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "UNIQUE"+":"+index.id2, concatena, None)
                 ts.agregar_sim(simbolo)
                 consola.append(f"\nIndex {index.id1} creado exitosamente")
+
             elif index.caso == 4:
-                concatena = "["
-
-                concatena += str(index.listaId[0])
-
-                concatena += "]"
-                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "NULLS",  str(index.id2) + concatena, None)
+                concatena = []
+                for data in index.listaId:
+                    concatena.append(data.id)
+                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "NULLS"+":"+index.id2, concatena, None)
                 ts.agregar_sim(simbolo)
                 consola.append(f"\nIndex {index.id1} creado exitosamente")
             elif index.caso == 5:
-                concatena = "["
-                concatena += str(index.listaId)
-
-                concatena += "]"
-                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "NULLS", str(index.id2) + concatena, None)
+                concatena = []
+                for data in index.listaId:
+                    concatena.append(data.id)
+                simbolo = TS.Simbolo(TS.TIPO_DATO.INDEX, index.id1, "NULLS"+":"+index.id2, concatena,  None)
                 ts.agregar_sim(simbolo)
                 consola.append(f"\nIndex {index.id1} creado exitosamente")
         else:
