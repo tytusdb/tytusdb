@@ -216,5 +216,5 @@ def ExistsRelationalOperation(temp, select):
     return relational.ExistsRelationalOperation(temp, select)
 
 
-def inRelationalOperation(temp, colData, optNot , select):
-    return relational.inRelationalOperation(temp, colData, optNot , select)
+def inRelationalOperation(temp, colData, optNot, select):
+    return relational.inRelationalOperation(temp, colData, optNot, select)

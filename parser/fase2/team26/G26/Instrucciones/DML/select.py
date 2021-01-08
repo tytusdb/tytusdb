@@ -60,9 +60,11 @@ class Select(Instruccion):
                                     if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
                                     else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
                                 except:
-                                    if contadorNombre == 0: nombreTabla = nombreColumna.val
-                                    else: nombreTabla = nombreColumna.val + str(contadorNombre)
-
+                                    try:
+                                        if contadorNombre == 0: nombreTabla = nombreColumna.val
+                                        else: nombreTabla = nombreColumna.val + str(contadorNombre)
+                                    except:
+                                        return Error('Semantico', 'Ambiguedad con ' + str(nombreColumna), 0, 0)
                     try:
                         s = diccionarioColumnasAceptadas[nombreTabla]
                         contadorNombre = contadorNombre + 1
@@ -224,8 +226,11 @@ class Select(Instruccion):
                                     if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
                                     else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
                                 except:
-                                    if contadorNombre == 0: nombreTabla = nombreColumna.val
-                                    else: nombreTabla = nombreColumna.val + str(contadorNombre)
+                                    try:
+                                        if contadorNombre == 0: nombreTabla = nombreColumna.val
+                                        else: nombreTabla = nombreColumna.val + str(contadorNombre)
+                                    except:
+                                        return Error('Semantico', 'Ambiguedad con ' + str(nombreColumna), 0, 0)
 
                     try:
                         a = diccionarioColumnasAceptadas[nombreTabla]

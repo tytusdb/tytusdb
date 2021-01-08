@@ -84,6 +84,7 @@ def mediador(value):
    # Analisis sintactico
     instrucciones = g.parse(heap.pop())
     erroresS = (g.getMistakes())
+
     for instr in instrucciones['ast'] :
         if instr == None:
             erroresS = g.getMistakes()
@@ -94,11 +95,11 @@ def mediador(value):
             val = (instr.execute(datos, {}))
 
         if isinstance(val, Error):
-            'error semAntico'
+            'error semantico'
             print(val)
             semerrors.append(val)
         elif isinstance(instr, select.Select) :
-            
+
             if value == 0:
                 try:
                     print(val)
@@ -152,7 +153,7 @@ def main():
         exepy += str(prueba['text'])
         exepy += '''
     reporte.Rerrores(erroresS, semerrors, "Reporte_Errores_Semanticos.html")
-    
+
 #Ejecucion del main
 if __name__ == "__main__":
     main()
@@ -162,49 +163,25 @@ if __name__ == "__main__":
         f.write(exepy)
         f.close()
 
-        '''try:
-            f = open("./Utils/tabla.txt", "r")
-            text = f.read()
-            f.close()
-            text = text.replace('\'','"')
-            text = text.replace('False','"False"')
-            text = text.replace('None','""')
-            text = text.replace('True','"True"')
-            datos.reInsertarValores(json.loads(text))
-        except:
-            print('error')
 
-        instrucciones = g.parse(texto)
-        erroresSemanticos = []
+        l.readData(datos)
+        if 'funciones_' in datos.tablaSimbolos:
+            for funciones in datos.tablaSimbolos['funciones_']:
+                #print(funciones)
+                if funciones['drop'] == 0:
+                    try:
+                        os.remove('../G26/Funciones/' + funciones['name'] +'.py')
+                    except:
+                        ''
+
+
 
         try:
-            hacerReporteGramatica(instrucciones['reporte'])
-        except:
-            print("")
-
-        for instr in instrucciones['ast'] :
-
-                if instr != None:
-                    result = instr.execute(datos)
-                    if isinstance(result, Error):
-                        escribirEnSalidaFinal(str(result.desc))
-                        erroresSemanticos.append(result)
-                    elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
-                        escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))
-                    else:
-                        escribirEnSalidaFinal(str(result))
-
-
-        f = open("./Utils/tabla.txt", "w")
-        f.write(str(datos))
-        f.close()
-
-        '''
-        try:
+           reporte.hacerReporteGramatica(prueba['reporte'])
            errores = g2.getMistakes()
            recorrerErrores(errores)
            reporte.Rerrores(errores, [], "Reporte_Errores_Sintactico_Lexicos.html")
-            #reporteTabla()
+           reporte.reporteTabla(datos)
         except:
            ''
 
@@ -218,12 +195,18 @@ if __name__ == "__main__":
         print("No se ha podido generar el codigo ya que existen errores sintacticos")
         escribirEnSalidaFinal("No se ha podido generar el codigo ya que existen errores sintacticos")
 
+try:
+    l.readData(datos)
+    reporte.reporteTabla(datos)
+except:
+    ''
+
 def tabla():
     ruta = ".\\Reportes\\Reporte_TablaSimbolos.html"
     webbrowser.open(ruta)
 
 def ast():
-    g.grafo.showtree()
+    g2.grafo.showtree()
 
 def gramatica():
     os.system("notepad   ./Reportes/GramaticaAutomatica.md")
