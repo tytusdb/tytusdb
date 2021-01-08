@@ -12,4 +12,5 @@ class Drop_PF(Instruccion):
         pass
 
     def getCodigo(self, tabla, arbol):
-        pass
+        arbol.deleteSymbol(self, self.id, self.id)
+        return ""
