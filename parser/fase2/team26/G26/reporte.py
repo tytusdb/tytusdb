@@ -13,6 +13,8 @@ def reporteTabla( datos):
     f.write("       <p><b>Reporte Tabla de Simbolos<b></p>\n")
     f.write("       <div>\n")
     for a in datos.tablaSimbolos:
+        if a == 'funciones_':
+            continue
         f.write("           <div>\n")
         f.write("               <p class='base'>BASE DE DATOS: ")
         f.write(a)

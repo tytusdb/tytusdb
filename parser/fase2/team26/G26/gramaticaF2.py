@@ -3544,7 +3544,9 @@ def p_createprocedure(t):
     reporte += t[5]['reporte'] + t[11]['reporte']
     ftext = '@with_goto\n' + 'def ' + t[3] + '():\n'
     ftext += t[5]['text']
-    ftext += t[11]['text']
+    texxto = t[11]['text']
+    texxto = opt.optimizar(texxto)
+    ftext += texxto
     printList = ''
     try:
         if t[1].lower() == 'or' :
@@ -3587,13 +3589,11 @@ def p_orreplaceopcionalE(t):
 
 def p_body_strcpr(t):
     '''bodystrcpr : cuerpodeclare BEGIN statementspr END  PTCOMA'''
-
     grafo.newnode('bodystrcpr')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     reporte = "<bodystrcpr> ::= <cuerpodeclare> BEGIN <statementspr> END  PTCOMA\n"
     reporte += t[1]['reporte'] + t[3]['reporte']
-
     text = t[1]['text'] + '\n' + t[3]['text']
     t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
@@ -3603,7 +3603,6 @@ def p_body_strcBpr(t):
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<bodystrcpr> ::= BEGIN <statementspr> END  PTCOMA\n"
     reporte += t[2]['reporte']
-
     text = t[2]['text']
     t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
@@ -3614,7 +3613,6 @@ def p_statements_cpr(t):
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<statementspr> ::= <statementspr> <statementpr>\n"
     reporte += t[1]['reporte'] + t[2]['reporte']
-
     text = t[1]['text']
     text += t[2]['text']  + '\n'
     t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
