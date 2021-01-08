@@ -24,3 +24,7 @@ class TipoFunNativa(Enum):
     sinh = 56
     cosh = 57
     tanh = 58
+    asinh = 59
+    acosh = 60
+    atanh = 61
+    atan2 = 62
