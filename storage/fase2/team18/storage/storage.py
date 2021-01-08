@@ -10,8 +10,12 @@ from .hash import HashMode as hash
 from .isam import ISAMMode as isam
 from .json import jsonMode as json
 from . import Serializable as Serializable
+from . import blockchain as block
+from . import Criptografia as crypt
+import hashlib
 import shutil
 import os
+import re
 
 #----------------Data--------------------#
 
@@ -21,6 +25,20 @@ def checkData():
     if not os.path.isfile("./Data/Data.bin"):
         dataBaseTree = {}
         Serializable.update('./Data', 'Data', dataBaseTree)
+        Serializable.update('./Data', 'DataTables', dataBaseTree)
+        Serializable.update('./Data', 'DataTablesRef', dataBaseTree)
+    if not os.path.isdir("./Data/security"):
+        os.mkdir("./Data/security")
+    if not os.path.isdir("./Data/hash"):
+        hash.__init__()
+        hash._storage = hash.ListaBaseDatos.ListaBaseDatos()
+    if not os.path.isdir("./Data/B"):
+        os.mkdir("./Data/B")
+        b.b = b.db.DB()
+
+def validateIdentifier(identifier):
+    # Returns true if is valid
+    return re.search("^[a-zA-Z][a-zA-Z0-9#@$_]*", identifier)
 
 def dropAll():
     dict.dropAll()
@@ -245,6 +263,32 @@ def cambioTablas(modo, tablas, database, mode, db):
             os.remove("./data/change.csv")
         return 0
     return 4
+
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    checkData()
+    try:
+        data = Serializable.Read('./Data/',"Data")
+        if encoding not in ['ascii', 'iso-8859-1', 'utf8']:
+            return 3
+        db = data.get(database)
+        if db:
+            res = showTables(database)
+            if len(res):
+                for x in res:
+                    row = extractTable(database, x)
+                    if len(row):
+                        for l in row:
+                            for g in l:
+                                if type(g) == str:
+                                    g.encode(encoding)
+            db[2] == encoding
+            data[database] = db
+            Serializable.update('./Data', 'Data', data)
+            return 0
+        else:
+            return 2
+    except:
+        return 1
 
 #----------------Table-------------------#
 
