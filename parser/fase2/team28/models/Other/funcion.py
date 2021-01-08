@@ -43,20 +43,22 @@ class Funcion(Instruction):
 
     def compile(self, environment):
         params = len(self.params)
+        temporal = None
         if self.isNew:
             self.environment = environment  # TODO verificar
             if Procedures().saveProcedure(self.id, self, self.line, self.column):
                 var_array = self.print(environment)
-                self.setVariables(var_array, environment)
+                temporal = self.setVariables(var_array, environment)
         else:
             var_array = Procedures().getProcedure(self.id, params, self.line, self.column)
             if var_array:
-                self.setVariables(var_array, environment)
+                temporal = self.setVariables(var_array, environment)
 
             fun = ThreeAddressCode().searchFunction(self.id)
             if fun:
-                
-                self.setVariables(fun['variables'], environment)
+                temporal = self.setVariables(fun['variables'], environment)
+        
+        return temporal
                 #temp = ThreeAddressCode().newTemp()
 
 
@@ -84,7 +86,7 @@ class Funcion(Instruction):
         # Agregando etiqueta de salida
         ThreeAddressCode().addCode(f"label .{lbl_exit}")  
         # Imprime primera variable declarada, NO parametro
-        ThreeAddressCode().addCode(f"print(Stack[{pos}])")
+        # ThreeAddressCode().addCode(f"print(Stack[{pos}])")
 
         ThreeAddressCode().createFunction(self.id, self.params, var_array)
         return var_array
@@ -108,6 +110,8 @@ class Funcion(Instruction):
             #Obteniendo el valor de retorno de la funcion
             ThreeAddressCode().addCode("#Obteniendo valor de retorno--------")
             ThreeAddressCode().addCode(f"{temp} = Stack[P]")
+            return temp
+        return None
 
 
 class DropFuncion(Instruction):
