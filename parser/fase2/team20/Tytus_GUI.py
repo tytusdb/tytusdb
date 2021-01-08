@@ -10,15 +10,17 @@ from execution.execute import *
 from execution.execute_result import *
 
 from execution.AST.error import *
-from execution.executeOptimization import optimize
 
-from Tytus_GUI_console import print_error, print_symbol_table, print_error_table, print_messages, print_querys
+from Tytus_GUI_console import print_error, print_symbol_table, print_error_table, print_messages, print_querys, print_optimization_table
 import Tytus_GUI_console
 
 from graphviz import Source
 import webbrowser
 
 from prettytable import PrettyTable
+
+from execution.executeOptimization import *
+from execution.executeOptimization_result import *
 
 def update_line_and_column(text_: tk.Text):
     line, column = text_.index("insert").split(".") # Row starts at 1 and column starts at 0
@@ -110,7 +112,6 @@ def translate_to_C3D():
     #run analysis results
     exec = Execute(result_analyze.noderoot)
     result_execute = exec.execute()
-    optimize(exec.pila)#----------OPTIMIZATION
     #process results and display reports
     process_results_and_display_reports(result_analyze, result_execute)
     
@@ -269,11 +270,19 @@ def optimize_C3D():
     console_c3d_optimized.configure(state="disabled")
     Tytus_GUI_console.prints_c3d_optimized = []
     #get input text
-    Input_text = text_c3d.get(1.0,'end-1c')    
-    #optimize c3d
-    #result_optimize = optimize(Input_text)
+    Input_text = text_c3d.get(1.0,'end-1c')
+    #eanalyze text and xecute Optimization
+    executeOptimization_ = executeOptimization()
+    executeOptimization_result_ = executeOptimization_.optimize(Input_text)
     #process results and display reports
-    #process_results_optimize_and_display_reports(result_optimize)
+    print_c3d_optimized_(executeOptimization_result_.c3d_optimized)
+    print_optimization_table_(executeOptimization_result_.print_optimization_table)
+
+def print_c3d_optimized_(c3d):
+    text_c3d_optimized.insert("1.0", c3d)
+
+def print_optimization_table_(print_):
+    print_optimization_table("Optimization Table", print_, 1)
 
 
 def compile_C3D():

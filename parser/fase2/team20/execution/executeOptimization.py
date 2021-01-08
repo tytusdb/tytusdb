@@ -1,272 +1,308 @@
-def optimize(pila): 
-        #Obtener codigo 3D
-        #archivo = open("C3D.py", 'r')
-        #lines = archivo.readlines()
-        #optimizedCode = line
-        #optimizedCode = optimizationRules(12,optimizedCode)
+from .executeOptimization_result import *
+from prettytable import PrettyTable
 
-        #Obtener cuadruplos solo expresiones
-        test = [] #Sustituir esto con PILA
-        diccionario = {'resultado':'t0','argumento1':'t0','argumento2':'0','operacion':'+'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'t0','argumento2':'1','operacion':'+'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'t0','argumento2':'0','operacion':'-'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'t0','argumento2':'1','operacion':'*'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'t0','argumento2':'1','operacion':'/'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'t1','argumento2':'0','operacion':'+'}
-        test.append(diccionario)
 
-        diccionario = {'resultado':'t0','argumento1':'t1','argumento2':'0','operacion':'-'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'t1','argumento2':'1','operacion':'*'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'t1','argumento2':'1','operacion':'/'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'t1','argumento2':'2','operacion':'*'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'t1','argumento2':'0','operacion':'*'}
-        test.append(diccionario)
-        diccionario = {'resultado':'t0','argumento1':'0','argumento2':'t1','operacion':'/'}
-        test.append(diccionario)
+class Optimization():
 
-        test = optimizationRules(8,test)
-        test = optimizationRules(9,test)
-        test = optimizationRules(10,test)
-        test = optimizationRules(11,test)
-        test = optimizationRules(12,test)
-        test = optimizationRules(13,test)
-        test = optimizationRules(14,test)
-        test = optimizationRules(15,test)
-        test = optimizationRules(16,test)
-        test = optimizationRules(17,test)
-        test = optimizationRules(18,test)
-        print(test)
-        #pila = optimizationRules(8,pila)
-        #return pila 
-        #i = 0
-        #for line in pila:
-            #print(line['resultado'])
-            #optimizationRules(i,line)
-            #i++
+    def __init__(self, rule: int, line: int, before: str, after: str, description: str, type_):
+        self.rule = rule
+        self.line = line
+        self.before = before
+        self.after = after
+        self.description = description
+        self.type_ = type_ #0 -> Delete, 1 -> Modify
 
-def optimizationRules(rule,pila):
-    if(rule == 8):
-        return rule8(pila)
-    elif(rule == 9):
-        return rule9(pila)
-    elif(rule == 10):
-        return rule10(pila)
-    elif(rule == 11):
-        return rule11(pila)
-    elif(rule == 12):
-        return rule12(pila)
-    elif(rule == 13):
-        return rule13(pila)
-    elif(rule == 14):
-        return rule14(pila)
-    elif(rule == 15):
-        return rule15(pila)
-    elif(rule == 16):
-        return rule16(pila)
-    elif(rule == 17):
-        return rule17(pila)
-    elif(rule == 18):
-        return rule18(pila)
-    else:
-        return pila
 
-#Rules
-def rule8(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '+'):
-                if(line['argumento2'] == '0'):
-                    if(line['resultado'] == line['argumento1']):
-                        print('Rule 8, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: Se elimina la instrucción')
+class Line_data():
+
+    def __init__(self, line_number: int, text_: str, spaces_and_tabs: str, number_of_arguments: int, variable: str, operation: str, argument1: str, operator: str, argument2: str, valid: bool, remove: bool):
+        #Basic information
+        self.line_number = line_number
+        self.text_ = text_
+        self.spaces_and_tabs = spaces_and_tabs
+        #Specific information
+        self.number_of_arguments = number_of_arguments
+        self.variable = variable
+        self.operation = operation
+        self.argument1 = argument1
+        self.operator = operator
+        self.argument2 = argument2
+        self.valid = valid
+        self.remove = remove
+
+
+class executeOptimization():
+
+    def optimize(self, input_text): 
+        
+        split_input_text = input_text.split("\n")
+
+        #getting statements and assignments
+        statements_and_assignments = self.get_statements_and_assignments(split_input_text)
+
+        optimizations = []
+
+        #applying optimization rules
+        self.rule1(statements_and_assignments, optimizations)
+        self.rule8(statements_and_assignments, optimizations)
+        self.rule9(statements_and_assignments, optimizations)
+        self.rule10(statements_and_assignments, optimizations)
+        self.rule11(statements_and_assignments, optimizations)
+        self.rule12(statements_and_assignments, optimizations)
+        self.rule13(statements_and_assignments, optimizations)
+        self.rule14(statements_and_assignments, optimizations)
+        self.rule15(statements_and_assignments, optimizations)
+        self.rule16(statements_and_assignments, optimizations)
+        self.rule17(statements_and_assignments, optimizations)
+        self.rule18(statements_and_assignments, optimizations)
+
+        #getting c3d optimized
+        c3d_optimized: str = ""
+        i = 0
+        while i < len(statements_and_assignments):
+            if  statements_and_assignments[i].remove == False:
+                c3d_optimized += str(statements_and_assignments[i].spaces_and_tabs) + str(statements_and_assignments[i].text_)
+                if (i+1)!=len(statements_and_assignments):
+                    c3d_optimized += "\n"
+            i += 1
+
+        #getting print optimization table
+        x = PrettyTable(["Number", "Rule", "Line", "Before", "After", "Description"])
+        i = 0
+        while i < len(optimizations):
+            x.add_row([(i+1), str(optimizations[i].rule), str((optimizations[i].line+1)), str(optimizations[i].before), str(optimizations[i].after), str(optimizations[i].description)])
+            i += 1
+        print_ = x.get_string(title="Optimization Table")
+
+        executeOptimization_result_ = executeOptimization_result(c3d_optimized, print_)
+
+        return executeOptimization_result_
+
+
+    def get_statements_and_assignments(self, split_input_text):
+
+        statements_and_assignments = []
+        
+        i = 0
+        while i<len(split_input_text):
+            
+            line_number = i#line
+            spaces_and_tabs: str = ""
+            number_of_tabs = 0
+            number_of_arguments = None
+            variable = None
+            operation = None
+            argument1 = None
+            operator = None
+            argument2 = None
+            
+            spaces_and_tabs = self.get_spaces_and_tabs(split_input_text[i])
+
+            split_input_text[i] = split_input_text[i].strip()
+
+            if ("=" in split_input_text[i]) == True:
+                split_input_text_1 = split_input_text[i].split("=")
+                a = 0
+                while a < len(split_input_text_1):
+                    split_input_text_1[a] = split_input_text_1[a].strip()
+                    a += 1
+
+                #arithmetic
+                if len(split_input_text_1) == 2:
+                    operation = "="#operation
+                    variable = split_input_text_1[0]#variable
+                    variable = variable.strip()
+                    
+                    #binary
+                    if ("+" in split_input_text_1[1])==True:
+                        operator = "+"#operator
+                    elif ("-" in split_input_text_1[1])==True:
+                        operator = "-"#operator
+                    elif ("*" in split_input_text_1[1])==True:
+                        operator = "*"#operator
+                    elif ("/" in split_input_text_1[1])==True:
+                        operator = "/"#operator
+                    if operator != None:
+                        split_input_text_2 = split_input_text_1[1].split(operator)
+                        b = 0
+                        while b < len(split_input_text_2):
+                            split_input_text_2[b] = split_input_text_2[b].strip()
+                            b += 1
+                        if len(split_input_text_2) == 2:
+                            argument1 = split_input_text_2[0]#argument1
+                            argument1 = argument1.strip()
+                            argument2 = split_input_text_2[1]#argument2
+                            argument2 = argument2.strip()
+
+                    #unary
                     else:
-                        optimizedStack.append(line) 
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
+                        argument1 = split_input_text_1[1]#argument1
+                        argument1 = argument1.strip()
 
-def rule9(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '-'):
-                if(line['argumento2'] == '0'):
-                    if(line['resultado'] == line['argumento1']):
-                        print('Rule 9, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: Se elimina la instrucción')
-                    else:
-                        optimizedStack.append(line) 
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
+                    
+            if line_number!=None and variable!=None and operation!=None and argument1!=None and operator!=None and argument2!=None:
+                number_of_arguments=2
+                operation_ = Line_data(line_number, split_input_text[i], spaces_and_tabs, number_of_arguments, variable, operation, argument1, operator, argument2, True, False)
+                statements_and_assignments.append(operation_)
 
-def rule10(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '*'):
-                if(line['argumento2'] == '1'):
-                    if(line['resultado'] == line['argumento1']):
-                        print('Rule 10, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: Se elimina la instrucción')
-                    else:
-                        optimizedStack.append(line) 
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
+            elif line_number!=None and variable!=None and operation!=None and argument1!=None:
+                number_of_arguments=1
+                operation_ = Line_data(line_number, split_input_text[i], spaces_and_tabs, number_of_arguments, variable, operation, argument1, operator, argument2, True, False)
+                statements_and_assignments.append(operation_)
 
-def rule11(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '/'):
-                if(line['argumento2'] == '1'):
-                    if(line['resultado'] == line['argumento1']):
-                        print('Rule 11, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: Se elimina la instrucción')
-                    else:
-                        optimizedStack.append(line) 
-                else:
-                    optimizedStack.append(line) 
             else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
+                operation_ = Line_data(line_number, split_input_text[i], spaces_and_tabs, None, None, None, None, None, None, False, False)
+                statements_and_assignments.append(operation_)
 
-def rule12(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '+'):
-                if(line['argumento2'] == '0'):
-                    print('Rule 12, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: '+str(line['resultado'])+'='+str(line['argumento1']))
-                    diccionario = {'resultado':str(line['resultado']),'argumento1':str(line['argumento1']),'argumento2':None,'operacion':None}
-                    optimizedStack.append(diccionario)
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
+            i += 1
 
-def rule13(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '-'):
-                if(line['argumento2'] == '0'):
-                    print('Rule 13, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: '+str(line['resultado'])+'='+str(line['argumento1']))
-                    diccionario = {'resultado':str(line['resultado']),'argumento1':str(line['argumento1']),'argumento2':None,'operacion':None}
-                    optimizedStack.append(diccionario)
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
+        return statements_and_assignments
 
-def rule14(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '*'):
-                if(line['argumento2'] == '1'):
-                    print('Rule 14, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: '+str(line['resultado'])+'='+str(line['argumento1']))
-                    diccionario = {'resultado':str(line['resultado']),'argumento1':str(line['argumento1']),'argumento2':None,'operacion':None}
-                    optimizedStack.append(diccionario)
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
 
-def rule15(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '/'):
-                if(line['argumento2'] == '1'):
-                    print('Rule 15, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: '+str(line['resultado'])+'='+str(line['argumento1']))
-                    diccionario = {'resultado':str(line['resultado']),'argumento1':str(line['argumento1']),'argumento2':None,'operacion':None}
-                    optimizedStack.append(diccionario)
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
+    def get_spaces_and_tabs(self, input_text):
+        spaces_and_tabs: str = ""
+        i: int = 0
+        while (i<len(input_text)) and (input_text[i]==" " or input_text[i]=="\t"):
+            spaces_and_tabs += input_text[i]
+            i += 1
+        return spaces_and_tabs
 
-def rule16(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '*'):
-                if(line['argumento2'] == '2'):
-                    print('Rule 16, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento1']))
-                    diccionario = {'resultado':str(line['resultado']),'argumento1':str(line['argumento1']),'argumento2':str(line['argumento1']),'operacion':str(line['operacion'])}
-                    optimizedStack.append(diccionario)
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
 
-def rule17(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '*'):
-                if(line['argumento2'] == '0'):
-                    print('Rule 17, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: '+str(line['resultado'])+'='+str(line['argumento2']))
-                    diccionario = {'resultado':str(line['resultado']),'argumento1':str(line['argumento2']),'argumento2':None,'operacion':None}
-                    optimizedStack.append(diccionario)
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
+    def rule1(self, statements_and_assignments, optimizations):
+        i = 0
+        while i<len(statements_and_assignments):
+            data_one = statements_and_assignments[i]
+            if data_one.valid == True and data_one.remove == False and data_one.number_of_arguments == 1:
+                    j = i + 1
+                    while j<len(statements_and_assignments):
+                        data_two = statements_and_assignments[j]
+                        if data_two.valid == True and data_two.remove == False and data_two.number_of_arguments == 1:
+                            if data_one.variable == data_two.argument1 and data_one.argument1 == data_two.variable:
+                                before = str(data_one.variable) + str(data_one.operation) + str(data_one.argument1)
+                                before += "\n" + str(data_two.variable) + str(data_two.operation) + str(data_two.argument1)
+                                after = str(data_one.variable) + str(data_one.operation) + str(data_one.argument1)
+                                description = "Line " + str((data_two.line_number+1)) + " deleted"
+                                optimization_ = Optimization(1, data_one.line_number, before, after, description, 0)
+                                optimizations.append(optimization_)
+                                data_two.remove = True #equivalent to delete
+                        j += 1
+            i += 1
 
-def rule18(pila):
-    optimizedStack = []
-    for line in pila:
-        if(line['argumento2'] != None):
-            if(line['operacion'] == '/'):
-                if(line['argumento1'] == '0'):
-                    print('Rule 18, Instruccion: '+str(line['resultado'])+'='+str(line['argumento1'])+str(line['operacion'])+str(line['argumento2']) +' Optimizacion: '+str(line['resultado'])+'='+str(line['argumento1']))
-                    diccionario = {'resultado':str(line['resultado']),'argumento1':str(line['argumento1']),'argumento2':None,'operacion':None}
-                    optimizedStack.append(diccionario)
-                else:
-                    optimizedStack.append(line) 
-            else:
-                optimizedStack.append(line) 
-        else:
-            optimizedStack.append(line) 
-    return optimizedStack
+    def rule8(self, statements_and_assignments, optimizations):
+        self.rule_8_9_10_11(statements_and_assignments, optimizations, "+", "0", 8)
+
+    def rule9(self, statements_and_assignments, optimizations):
+        self.rule_8_9_10_11(statements_and_assignments, optimizations, "-", "0", 9)
+
+    def rule10(self, statements_and_assignments, optimizations):
+        self.rule_8_9_10_11(statements_and_assignments, optimizations, "*", "1", 10)
+
+    def rule11(self, statements_and_assignments, optimizations):
+        self.rule_8_9_10_11(statements_and_assignments, optimizations, "/", "1", 11)
+
+    def rule_8_9_10_11(self, statements_and_assignments, optimizations, operator_condition: str, argument2_condition, rule: int):
+        i = 0
+        while i<len(statements_and_assignments):
+            data = statements_and_assignments[i]
+            if data.valid == True and data.remove == False and data.number_of_arguments == 2:
+                variable = data.variable
+                operation = data.operation
+                argument1 = data.argument1
+                operator = data.operator
+                argument2 = data.argument2
+                if operation == "=" and variable == argument1 and operator == operator_condition and argument2 == argument2_condition:
+                    before = str(variable) + str(operation) + str(argument1) + str(operator) + str(argument2) 
+                    after = ""
+                    description = "Line " + str((data.line_number+1)) + " deleted"
+                    optimization_ = Optimization(rule, data.line_number, before, after, description, 0)
+                    optimizations.append(optimization_)
+                    data.remove = True #equivalent to delete
+            i += 1
+
+    def rule12(self, statements_and_assignments, optimizations):
+        self.rule_12_13_14_15(statements_and_assignments, optimizations, "+", "0", 12)
+
+    def rule13(self, statements_and_assignments, optimizations):
+        self.rule_12_13_14_15(statements_and_assignments, optimizations, "-", "0", 13)
+
+    def rule14(self, statements_and_assignments, optimizations):
+        self.rule_12_13_14_15(statements_and_assignments, optimizations, "*", "1", 14)
+
+    def rule15(self, statements_and_assignments, optimizations):
+        self.rule_12_13_14_15(statements_and_assignments, optimizations, "/", "1", 15)
+
+    def rule_12_13_14_15(self, statements_and_assignments, optimizations, operator_condition: str, argument2_condition, rule: int):
+        i = 0
+        while i<len(statements_and_assignments):
+            data = statements_and_assignments[i]
+            if data.valid== True and data.remove == False and data.number_of_arguments == 2:
+                variable = data.variable
+                operation = data.operation
+                argument1 = data.argument1
+                operator = data.operator
+                argument2 = data.argument2
+                if operation == "=" and variable != argument1 and operator == operator_condition and argument2 == argument2_condition:
+                    before = str(variable) + str(operation) + str(argument1) + str(operator) + str(argument2)
+                    after = str(variable) + str(operation) + str(argument1)
+                    description = "Line " + str((data.line_number+1)) + " modified"
+                    optimization_ = Optimization(rule, data.line_number, before, after, description, 1)
+                    optimizations.append(optimization_)
+                    data.text_ = after
+            i += 1
+
+    def rule16(self, statements_and_assignments, optimizations):
+        i = 0
+        while i<len(statements_and_assignments):
+            data = statements_and_assignments[i]
+            if data.valid == True and data.remove == False and data.number_of_arguments == 2:
+                variable = data.variable
+                operation = data.operation
+                argument1 = data.argument1
+                operator = data.operator
+                argument2 = data.argument2
+                if operation == "=" and operator == "*" and argument2 == "2":
+                    before = str(variable) + str(operation) + str(argument1) + str(operator) + str(argument2) 
+                    after = str(variable) + str(operation) + str(argument1) + "+" + str(argument1)
+                    description = "Line " + str((data.line_number+1)) + " modified"
+                    optimization_ = Optimization(16, data.line_number, before, after, description, 1)
+                    optimizations.append(optimization_)
+                    data.text_ = after
+            i += 1
+
+    def rule17(self, statements_and_assignments, optimizations):
+        i = 0
+        while i<len(statements_and_assignments):
+            data = statements_and_assignments[i]
+            if data.valid == True and data.remove == False and data.number_of_arguments == 2:
+                variable = data.variable
+                operation = data.operation
+                argument1 = data.argument1
+                operator = data.operator
+                argument2 = data.argument2
+                if operation == "=" and operator == "*" and argument2 == "0":
+                    before = str(variable) + str(operation) + str(argument1) + str(operator) + str(argument2)
+                    after = str(variable) + str(operation) + "0"
+                    description = "Line " + str((data.line_number+1)) + " modified"
+                    optimization_ = Optimization(17, data.line_number, before, after, description, 1)
+                    optimizations.append(optimization_)
+                    data.text_ = after
+            i += 1
+
+    def rule18(self, statements_and_assignments, optimizations):
+        i = 0
+        while i<len(statements_and_assignments):
+            data = statements_and_assignments[i]
+            if data.valid == True and data.remove == False and data.number_of_arguments == 2:
+                variable = data.variable
+                operation = data.operation
+                argument1 = data.argument1
+                operator = data.operator
+                argument2 = data.argument2
+                if operation == "=" and argument1 == "0" and operator == "/":
+                    before = str(variable) + str(operation) + str(argument1) + str(operator) + str(argument2) 
+                    after = str(variable) + str(operation) + "0"
+                    description = "Line " + str((data.line_number+1)) + " modified"
+                    optimization_ = Optimization(17, data.line_number, before, after, description, 1)
+                    optimizations.append(optimization_)
+                    data.text_ = after
+            i += 1
