@@ -1934,25 +1934,25 @@ def p_tipo_datos1(t):
 def p_tipo_datos_varchar(t):
     '''tipo : VARCHAR PARIZQ ENTERO PARDER
     '''
-    nodo = crear_nodo_general("tipo",t[1] + t[2] + t[3] + t[4],t.lexer.lineno, t.lexer.lexpos)
+    nodo = crear_nodo_general("tipo",str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]),t.lexer.lineno, t.lexer.lexpos)
     t[0] = nodo
 
 def p_tipo_datos_varchar1(t):
     '''tipo : CHAR PARIZQ ENTERO PARDER
     '''
-    nodo = crear_nodo_general("tipo",t[1] + t[2] + t[3] + t[4],t.lexer.lineno, t.lexer.lexpos)
+    nodo = crear_nodo_general("tipo",str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]),t.lexer.lineno, t.lexer.lexpos)
     t[0] = nodo
 
 def p_tipo_datos_varchar2(t):
     '''tipo : CHARACTER VARYING PARIZQ ENTERO PARDER
     '''
-    nodo = crear_nodo_general("tipo","CHARACTER VARYING" + t[3] + t[4] + t[5],t.lexer.lineno, t.lexer.lexpos)
+    nodo = crear_nodo_general("tipo","CHARACTER VARYING" + str(t[3]) + str(t[4]) + str(t[5]),t.lexer.lineno, t.lexer.lexpos)
     t[0] = nodo
 
 def p_tipo_datos_varchar3(t):
     '''tipo : CHARACTER PARIZQ ENTERO PARDER
     '''
-    nodo = crear_nodo_general("tipo",t[1] + t[2] + t[3] + t[4],t.lexer.lineno, t.lexer.lexpos)
+    nodo = crear_nodo_general("tipo",str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]),t.lexer.lineno, t.lexer.lexpos)
     t[0] = nodo
 
 def p_tipo_datos_varchar4(t):
@@ -1965,7 +1965,7 @@ def p_tipo_datos_varchar4(t):
 def p_tipo_datos_decimal(t):
     '''tipo : DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
     '''
-    nodo = crear_nodo_general("tipo",t[1] + t[2] + t[3] + t[4] + t[5] + t[6],t.lexer.lineno, t.lexer.lexpos)
+    nodo = crear_nodo_general("tipo",str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5]) + str(t[6]),t.lexer.lineno, t.lexer.lexpos)
     t[0] = nodo
 
 #def p_tipo_datos_decimal1(t):
@@ -2289,7 +2289,7 @@ def p_tabla_typerow(t):
     '''
     nodo = crear_nodo_general("tabla_typerow","",t.lexer.lineno, t.lexer.lexpos)
     if len(t) == 4:
-        nodo.hijos.append(crear_nodo_general("ID.ID",t[1] + t[2] + t[3],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("ID.ID",str(t[1]) + str(t[2]) + str(t[3]),t.lexer.lineno, t.lexer.lexpos))
     else:
         nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
     t[0] = nodo
