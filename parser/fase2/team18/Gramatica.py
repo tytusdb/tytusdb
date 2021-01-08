@@ -1806,16 +1806,16 @@ def p_liberar(t):
           t[0]=EliminarDB(t[3],Operando_ID(t[4]))
 
 def p_liberar_funtion(t):
-     '''liberar : DROP FUNCTION lnombres'''
-     t[0] = Drop_Function(t[3])
+     '''liberar : DROP FUNCTION existencia lnombres'''
+     t[0] = Drop_Function(t[4])
 
 def p_liberar_procedure(t):
-     '''liberar : DROP PROCEDURE lnombres'''
-     t[0] = Drop_Procedure(t[3])
+     '''liberar : DROP PROCEDURE existencia lnombres'''
+     t[0] = Drop_Procedure(t[4])
 
 def p_liberar_indice(t):
-     '''liberar : DROP INDEX lnombres'''
-     t[0] = Drop_Indice(t[3])
+     '''liberar : DROP INDEX existencia lnombres'''
+     t[0] = Drop_Indice(t[4])
 
 def p_existencia(t):
      '''existencia : IF EXISTS

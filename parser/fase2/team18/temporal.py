@@ -68,6 +68,9 @@ class Parametro_run:
         tipo=None
         tamano=None
         valor=None
+        def __init__(self):
+            '' 
+
 class contenido_run:
         declaraciones=[]
         contenido=None

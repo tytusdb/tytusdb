@@ -648,7 +648,7 @@ def PCreateProcedure(nombre,cuerpo,parametros,reemplazada):
     reinicar_contOP()
     txt="\t#Crear Stored  Procedure\n"
     txt+="\tt"+str(numT())+"='"+nombre+"'\n"
-    txt+="\tt"+str(numT())+"="+str(parametros)+"\n"
+    txt+="\tt"+str(numT())+"='"+str(parametros)+"'\n"
     txt+="\tt"+str(numT())+"="+str(reemplazada)+" #Reemplazar procedure\n"
     varT="t"+str(numT())
     txt+="\t"+varT+"=CD3.ECreateProcedure()\n"
@@ -683,7 +683,7 @@ def PCreateProcedure(nombre,cuerpo,parametros,reemplazada):
     txt2+="\tlabel.endProc"+str(fin)+"\n"
     agregarOptimizacion(regla,msg,txt2)
     txt+=txt2
-    data=[nombre,str(cuerpo),parametros,reemplazada]
+    data=[nombre,str(cuerpo),str(parametros),reemplazada]
     agregarInstr(data,txt)
     agregarInstr(False,'')
 
@@ -1168,7 +1168,7 @@ def EDropFuncion():
     if(len(listaMemoria)>0):
         drop_fn=listaMemoria[0]
         for fn in drop_fn:
-            print("funcion eliminada: ",fn.lower())
+            print("funcion eliminada: ",fn)
         listaMemoria.pop(0)
 
 def ECreateFuncion():

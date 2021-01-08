@@ -3317,6 +3317,7 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
             cantidadFilas =len(lfilas)
             agregarMensjae('table',"Select:"+str(cantidadFilas),'')
         else:
+            cantidadFilas=lfilas[0]
             CD3.PSelectTablas(ltablas,lcolumnas,lfilas,len(lfilas))
             result = result.get_string(fields=lcolumnas)
             agregarMensjae('table',result,'')
@@ -3554,10 +3555,14 @@ def Indexs(instr,ts):
     if instr.orden != False: orden=instr.orden
     else: orden="ASC"
     agregarMensjae('normal','Index','')
-    msg='Indice '+nombreIndex+' en tabla '+nmtabla
-    agregarMensjae('exito',msg,'')
-    agregarTSRepor('INDEX','','','','','','','')
-    agregarTSRepor('',nombreIndex,tipo,unique,nmtabla,'1',cols,orden)
+    if buscarIndice(nombreIndex)==False:
+        msg='Indice '+nombreIndex+' en tabla '+nmtabla
+        agregarMensjae('exito',msg,'')
+        agregarTSRepor('INDEX','','','','','','','')
+        agregarTSRepor('',nombreIndex,tipo,unique,nmtabla,'1',cols,orden)
+    else:
+        agregarMensjae('error','Indice '+nombreIndex+' ya registrado','')
+
 
 def Funciones(instr,ts):
     #   Pendiente
@@ -3750,24 +3755,27 @@ def EjecucionFuncion(operacion,ts):
     print('nombre_funcion',nombreFuncion,'parametros',str(lvalores))
     funcion=buscarFuncion(nombreFuncion)
     ejecucion=True
-    print("valores ",len(lvalores),"param ",len(funcion.parametros))
-    if len(lvalores) == len(funcion.parametros):
-        contval=0
-        for nm in funcion.parametros:
-            result=validarTipo(nm.tipo,lvalores[contval])
-            if result == None:
-                msg="Tipo no valido para parametro "+nm.nombre+" en la funcion"
-                agregarMensjae('error',msg,'')
-                ejecucion=False
-            else:
-                lvalores[contval]=result
-            contval+=1
-        if ejecucion:
-            result=EjecucionFuncion_Contenido(lvalores,funcion,funcion.contenido.contenido,[])
-            print(result) 
+    if funcion != None:
+        print("valores ",len(lvalores),"param ",len(funcion.parametros))
+        if len(lvalores) == len(funcion.parametros):
+            contval=0
+            for nm in funcion.parametros:
+                result=validarTipo(nm.tipo,lvalores[contval])
+                if result == None:
+                    msg="Tipo no valido para parametro "+nm.nombre+" en la funcion"
+                    agregarMensjae('error',msg,'')
+                    ejecucion=False
+                else:
+                    lvalores[contval]=result
+                contval+=1
+            if ejecucion:
+                result=EjecucionFuncion_Contenido(lvalores,funcion,funcion.contenido.contenido,[])
+                print(result) 
+        else:
+            msg = "Cantidad de parametros invalida para funcion "+nombreFuncion
+            agregarMensjae('error',msg,'')
     else:
-        msg = "Cantidad de parametros invalida para funcion "+nombreFuncion
-        agregarMensjae('error',msg,'')
+        agregarMensjae('error', 'Funcion '+nombreFuncion+' no registrada','')
     return result
 
 def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
@@ -3864,7 +3872,6 @@ def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
                     else:
                         #Resuelve ELSE
                         EjecucionFuncion_Contenido(valores,funcion,senT.sentencias,lvaloriables) 
-                
 
 
             
@@ -3878,9 +3885,53 @@ def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
                         lvalor_id.append([val.nombre,val.valor])
                 encontrada=False
                 nombrevar=resolver_operacion(i.variable,'')
+                valorvar=""
+                if isinstance(i.expresion, SELECT):
+                    print("parametros",i.expresion.parametros,"cuerpo ",i.expresion.cuerpo)
+                    if i.expresion.cuerpo != None:
+                        condicion=i.expresion.cuerpo.b_where
+                        if condicion != False :
+                            op1 = Resuelve_Exp_ID(lvalor_id,condicion.op1,'')
+                            op2 = Resuelve_Exp_ID(lvalor_id,condicion.op2,'')
+                            if isinstance(condicion.op1, Operando_ID):
+                                if op1 != condicion.op1.id:
+                                    if op1 != None:
+                                        if isinstance(op1, int):
+                                            valnum = Operando_Numerico()
+                                            valnum.valor = op1
+                                            condicion.op1 = valnum
+                                        elif isinstance(op1, str):
+                                            valstr = Operando_Cadena()
+                                            valstr.valor = op1
+                                            condicion.op1 = valstr
+                            if isinstance(condicion.op2, Operando_ID):
+                                if op2 != condicion.op2.id:
+                                    if op2 != None:
+                                        if isinstance(op2, int):
+                                            valnum = Operando_Numerico()
+                                            valnum.valor = op2
+                                            condicion.op2 = valnum
+                                        elif isinstance(op2, str):
+                                            valstr = Operando_Cadena()
+                                            valstr.valor = op2
+                                            condicion.op2 = valstr
+                            i.expresion.cuerpo.b_where=condicion
+                if isinstance(i.expresion, Funcion):
+                    if i.expresion.parametros != None:
+                        for param in i.expresion.parametros:
+                            if isinstance(param, Operando_ID):
+                                paramaux = Resuelve_Exp_ID(lvalor_id,param,'')
+                                if paramaux != None:
+                                    if isinstance(paramaux, int):
+                                        valnum = Operando_Numerico()
+                                        valnum.valor = paramaux
+                                        param = valnum
+                                    elif isinstance(paramaux, str):
+                                        valstr = Operando_Cadena()
+                                        valstr.valor = paramaux
+                                        param = valstr
                 valorvar=Resuelve_Exp_ID(lvalor_id,i.expresion,'')
                 for dec in lvaloriables:
-                    print(nombrevar)
                     if nombrevar in dec.nombre:
                         result2=validarTipo(dec.tipo,valorvar)
                         if result2 == None:
@@ -3911,6 +3962,53 @@ def EjecucionFuncion_Contenido(valores,funcion,contenido,variables):
 
         elif isinstance(i,Select_Asigacion):
             ''
+        elif isinstance(i, CrearBD) : crear_BaseDatos(i,'')
+        elif isinstance(i, CrearTabla) : crear_Tabla(i,'')
+        elif isinstance(i, CrearType) : crear_Type(i,'')
+        elif isinstance(i, EliminarDB) : eliminar_BaseDatos(i,'')
+        elif isinstance(i, EliminarTabla) : eliminar_Tabla(i,'')
+        elif isinstance(i, Insertar) : 
+            insert = copy.deepcopy(i)
+            cont=0
+            while cont < len(insert.valores):
+                if isinstance(insert.valores[cont], Operando_ID):
+                    for val2 in lvaloriables:
+                        if insert.valores[cont].id == val2.nombre:
+                            if isinstance(val2.valor, int):
+                                valnum = Operando_Numerico()
+                                valnum.valor = val2.valor
+                                insert.valores[cont]=valnum
+                                break
+                            elif isinstance(val2.valor, str):
+                                valstr = Operando_Cadena()
+                                valstr.valor = val2.valor
+                                insert.valores[cont]=valstr
+                                break    
+                cont+=1
+            insertar_en_tabla(insert,'')
+        elif isinstance(i, Actualizar) : actualizar_en_tabla(i,'')
+        elif isinstance(i, Eliminar) : eliminar_de_tabla(i,'')
+        elif isinstance(i, DBElegida) : seleccion_db(i,'')
+        elif isinstance(i, MostrarDB) : mostrar_db(i,'')
+        elif isinstance(i, ALTERDBO) : AlterDBF(i,'')
+        elif isinstance(i, ALTERTBO) : AlterTBF(i,'')
+        elif isinstance(i, MostrarTB) : Mostrar_TB(i,'')
+        elif isinstance(i, Indice) : Indexs(i,'')
+        #elif isinstance(i, Funcion): Funciones(i,ts)
+        elif isinstance(i, Drop_Function): Eliminar_Funcion(i,'')
+        elif isinstance(i, Drop_Procedure): Eliminar_Procedimientos(i,'')
+        #elif isinstance(i, Procedimiento): Crear_Procedimiento(i,ts)
+        elif isinstance(i, Drop_Indice): EliminarIndice(i,'')
+        elif isinstance(i, Alter_Index_Rename): AlterIndice_Renombrar(i,'')
+        elif isinstance(i, Call_Procedure): Execute_Procedimiento(i,'')
+        else: 
+            if i is not None:
+                for val in i:
+                    if(isinstance (val,SELECT)): 
+                        if val.funcion_alias is not None:
+                            ejecutar_select(val,'')
+                        else:
+                            select_table(val,'')
     return result
 
 def Eliminar_Funcion(instr,ts):
@@ -4038,6 +4136,51 @@ def EjecucionProc_Contenido(valores,funcion,contenido,variables,ts):
                         lvalor_id.append([val.nombre,val.valor])
                 encontrada=False
                 nombrevar=resolver_operacion(i.variable,'')
+                valorvar=""
+                if isinstance(i.expresion, SELECT):
+                    print("parametros",i.expresion.parametros,"cuerpo ",i.expresion.cuerpo)
+                    if i.expresion.cuerpo != None:
+                        condicion=i.expresion.cuerpo.b_where
+                        if condicion != False :
+                            op1 = Resuelve_Exp_ID(lvalor_id,condicion.op1,'')
+                            op2 = Resuelve_Exp_ID(lvalor_id,condicion.op2,'')
+                            if isinstance(condicion.op1, Operando_ID):
+                                if op1 != condicion.op1.id:
+                                    if op1 != None:
+                                        if isinstance(op1, int):
+                                            valnum = Operando_Numerico()
+                                            valnum.valor = op1
+                                            condicion.op1 = valnum
+                                        elif isinstance(op1, str):
+                                            valstr = Operando_Cadena()
+                                            valstr.valor = op1
+                                            condicion.op1 = valstr
+                            if isinstance(condicion.op2, Operando_ID):
+                                if op2 != condicion.op2.id:
+                                    if op2 != None:
+                                        if isinstance(op2, int):
+                                            valnum = Operando_Numerico()
+                                            valnum.valor = op2
+                                            condicion.op2 = valnum
+                                        elif isinstance(op2, str):
+                                            valstr = Operando_Cadena()
+                                            valstr.valor = op2
+                                            condicion.op2 = valstr
+                            i.expresion.cuerpo.b_where=condicion
+                if isinstance(i.expresion, Funcion):
+                    if i.expresion.parametros != None:
+                        for param in i.expresion.parametros:
+                            if isinstance(param, Operando_ID):
+                                paramaux = Resuelve_Exp_ID(lvalor_id,param,'')
+                                if paramaux != None:
+                                    if isinstance(paramaux, int):
+                                        valnum = Operando_Numerico()
+                                        valnum.valor = paramaux
+                                        param = valnum
+                                    elif isinstance(paramaux, str):
+                                        valstr = Operando_Cadena()
+                                        valstr.valor = paramaux
+                                        param = valstr
                 valorvar=Resuelve_Exp_ID(lvalor_id,i.expresion,'')
                 for dec in lvaloriables:
                     print(nombrevar)
@@ -4076,7 +4219,25 @@ def EjecucionProc_Contenido(valores,funcion,contenido,variables,ts):
         elif isinstance(i, CrearType) : crear_Type(i,ts)
         elif isinstance(i, EliminarDB) : eliminar_BaseDatos(i,ts)
         elif isinstance(i, EliminarTabla) : eliminar_Tabla(i,ts)
-        elif isinstance(i, Insertar) : insertar_en_tabla(i,ts)
+        elif isinstance(i, Insertar) : 
+            insert = copy.deepcopy(i)
+            cont=0
+            while cont < len(insert.valores):
+                if isinstance(insert.valores[cont], Operando_ID):
+                    for val2 in lvaloriables:
+                        if insert.valores[cont].id == val2.nombre:
+                            if isinstance(val2.valor, int):
+                                valnum = Operando_Numerico()
+                                valnum.valor = val2.valor
+                                insert.valores[cont]=valnum
+                                break
+                            elif isinstance(val2.valor, str):
+                                valstr = Operando_Cadena()
+                                valstr.valor = val2.valor
+                                insert.valores[cont]=valstr
+                                break    
+                cont+=1
+            insertar_en_tabla(insert,ts)
         elif isinstance(i, Actualizar) : actualizar_en_tabla(i,ts)
         elif isinstance(i, Eliminar) : eliminar_de_tabla(i,ts)
         elif isinstance(i, DBElegida) : seleccion_db(i,ts)
@@ -4190,6 +4351,7 @@ def Crear_Procedimiento(instr,ts):
         #verificar que no exista
         if(findProcedure(name)==None):
             addProcedure(name,cuerpo,parametros)
+            print(name,cuerpo,parametros)
             CD3.PCreateProcedure(name,cuerpo,parametros,0)
             msg="Todo OK"
             agregarMensjae("exito",msg,"")
@@ -4201,6 +4363,7 @@ def Crear_Procedimiento(instr,ts):
                 #eliminar la funcion
                 eliminarProcedure(name)
                 addProcedure(name,cuerpo,parametros)
+                print(name,cuerpo,parametros)
                 CD3.PCreateProcedure(name,cuerpo,parametros,1)
                 msg="Funcion reemplazada"
                 agregarMensjae("alert",msg,"")
@@ -4373,6 +4536,7 @@ def Eliminar_Procedimientos(instr,ts):
 
 def Resuelve_Exp_ID(lista,  operacion,ts):
     global ListaResExpID
+    ListaResExpID=[]
     ListaResExpID=copy.deepcopy(lista)
     #Estructura para Remplazar un ID por un Valor
     #lista es:
