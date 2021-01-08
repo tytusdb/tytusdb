@@ -119,6 +119,9 @@ def exec():
     t6 = "CREATE INDEX test2_mm_idx ON tabla(id);"
     stack[p] = t6
     p = p + 1
+    t7 = "CREATE INDEX test2_mm_idx ON tabla(id);"
+    stack[p] = t7
+    p = p + 1
 
 exec()
 call_funcion_intermedia()
