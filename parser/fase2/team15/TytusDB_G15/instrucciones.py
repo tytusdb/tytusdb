@@ -219,3 +219,10 @@ class Create_AlterIndexColumn(Instruccion):
         self.idIndex = idIndex
         self.oldColumn = oldColumn
         self.newColum = newColum
+
+class CreateIndexNew(Instruccion):
+    def __init__(self,id_index,id_tabla,restriccion,ids):
+        self.id_index = id_index
+        self.id_tabla = id_tabla
+        self.restriccion = restriccion
+        self.ids = ids

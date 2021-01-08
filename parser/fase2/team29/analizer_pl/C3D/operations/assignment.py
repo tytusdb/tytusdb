@@ -16,7 +16,7 @@ class Assignment(Instruction):
         # TODO: Error
         if environment.getVar(self.id) != None:
             self.value = exp.value + "\t" + self.id + " = " + str(exp.temp) + "\n"
-            grammar.optimizer_.addScalarAsig(self.id, exp.temp, self.row)
+            grammar.optimizer_.addScalarAsig(self.id, exp.temp, self.row, True)
             return code.C3D(self.value, self.id, self.row, self.column)
 
     def dot(self):

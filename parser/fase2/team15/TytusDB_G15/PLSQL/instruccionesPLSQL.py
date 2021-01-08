@@ -138,5 +138,8 @@ class DeleteTable(Instruccion):
     def __init__(self, cadena):
         self.cadena = cadena
 
+class CreateIndexNewNew(Instruccion):
+    def __init__(self, cadena):
+        self.cadena = cadena
 
 

@@ -359,13 +359,20 @@ def p_typeParam(t):
 def p_codeBlock(t):
     """
     codeBlock : R_DECLARE declarationList R_BEGIN plInstructions R_END
+    | R_DECLARE declarationList list_declaraciones_declere R_BEGIN plInstructions R_END
     | R_BEGIN plInstructions R_END
     """
     if len(t) == 6:
         t[0] = CodeBlock(lista_instrucciones=t[4] , lista_declaraciones=t[2] , row=t.slice[1].lineno , column=t.slice[1].lexpos)
+    elif len(t) == 7:
+        for item in t[3]:
+            t[2].append(item)
+        # t[2].append(t[3])
+        t[0] = CodeBlock(lista_instrucciones=t[5],lista_declaraciones=t[2], row=t.slice[1].lineno , column=t.slice[1].lexpos)
     else:
         t[0] = CodeBlock(lista_instrucciones=t[2] , row=t.slice[1].lineno , column=t.slice[1].lexpos)
     repGrammar.append(t.slice)
+
 
 def p_declarationList(t):
     """
@@ -377,6 +384,19 @@ def p_declarationList(t):
         t[0] = t[1]
     else:
         t[0] = [t[1]]
+    repGrammar.append(t.slice)
+
+def p_declarationList_2(t):
+    """
+    list_declaraciones_declere : list_declaraciones_declere  R_DECLARE declarationList
+        | R_DECLARE declarationList
+    """
+    if len(t) == 4:
+        for item in t[3]:
+            t[1].append(item)
+        t[0] = t[1]
+    else:
+        t[0] = t[2]
     repGrammar.append(t.slice)
 
 def p_declaration(t):
@@ -2283,11 +2303,97 @@ def C3D_INSTRUCCIONES_FASE1_CADENA(t , quitarParentesis = False)->str:
 
 
 
-# PARA PROBAR LA GENERACION DE CODIGO 3D
-# ast = parserTo3D("""
-# -- probar con el ejemplo2 de cante
-# """)
-# print("\n---------------- SALIDA: -----------------")
-# instancia_codigo3d.showCode()
-# graficador = AST()
-# graficador.makeAst(ast.dot())
+#PARA PROBAR LA GENERACION DE CODIGO 3D
+ast = parserTo3D("""
+CREATE FUNCTION CALCULOS(xd TEXT, valor decimal(10,2)) RETURNS integer AS $$
+DECLARE
+    ejemplo integer := valor;
+    example integer := ejemplo / valor;
+    test text;
+BEGIN
+    valor := 100;
+    IF valor < 1 THEN 
+        CASE valor 
+            WHEN -1 THEN
+                return False;
+            ELSE 
+                return True;
+        END CASE;
+    ELSIF valor > 100 THEN
+        return false;
+    ELSE
+        return True;
+    END IF;
+RETURN VALOR;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE FUNCTION Nacimiento(xd DATE) RETURNS integer AS $$
+BEGIN
+    IF xd = '4' THEN
+        return False;
+    ELSE
+        return True;
+    END IF;
+RETURN VALOR;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE PROCEDURE Prueba() AS $$
+BEGIN
+    RAISE 'Checha Fuma', 'Marihuano';
+RETURN hola;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE DATABASE DBFase2;
+
+USE DBFase2;
+
+CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+BEGIN
+    RETURN texto;
+END;
+$$ LANGUAGE plpgsql;
+
+select myFuncion('INICIO CALIFICACION FASE 2');
+
+CREATE TABLE tbProducto (idproducto integer not null primary key,
+                           producto varchar(150) not null,
+                           fechacreacion date not null,
+                         estado integer);
+
+CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
+
+CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
+                             item varchar(100) not null,
+                             punteo integer not null);
+
+CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
+
+INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
+INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
+INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
+INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
+INSERT INTO tbProducto values(5,'WIFI USB',now(),1);
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS int AS $$
+DECLARE resultado INTEGER; 
+        retorna   INTEGER;
+BEGIN
+    if tabla = 'tbProducto' then
+        resultado := (SELECT COUNT(*) FROM tbProducto);
+        if cantidad = resultado then
+            retorna = 1;
+        else 
+            retorna = 0;
+        end if;
+    end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+""")
+print("\n---------------- SALIDA: -----------------")
+instancia_codigo3d.showCode()
+graficador = AST()
+graficador.makeAst(ast.dot())
