@@ -212,6 +212,8 @@ class Start(Nodo):
                 nuevaBase=Database()                
                 message = nuevaBase.execute(hijo)
                 self.listaSemanticos.append(message)
+            elif hijo.nombreNodo == 'DECLARACION_VARIABLE':
+                print(hijo.compile(entornoGlobal))
             elif hijo.nombreNodo == 'SENTENCIA_USE':
                 useDB = Use()
                 message = useDB.execute(hijo)

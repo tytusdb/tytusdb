@@ -33,7 +33,7 @@ class Select_Expresion(Expresion):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)
         self.tipo = Type_Expresion(Data_Type.non)
     
-    def execute(self, eviroment, eviroment2 = None):
+    def execute(self, eviroment):
         
         dataSelect = Response()
         nodoSelect = Select_Expresion("SENTENCIA_SELECT",self.fila,self.columna,self.valor)
@@ -110,10 +110,14 @@ class Select_Expresion(Expresion):
             responseSelect.tipos = tipos
             responseSelect.tipoUnico = result.tipoUnico
             responseSelect.valorUnico = result.valorUnico
-
-            self.dataResult = responseSelect
-            self.tipo = Type_Expresion(Data_Type.listaDatos)
-            return responseSelect
+            if responseSelect.tipoUnico == None:
+                self.tipo = Type_Expresion(Data_Type.listaDatos)
+                self.dataResult = responseSelect
+            else:
+                self.tipo = Type_Expresion(responseSelect.tipoUnico)
+                self.dataResult = responseSelect
+                self.valorExpresion = responseSelect.valorUnico
+            return self.valorExpresion
 
     def compile(self, enviroment):
         temporalAsignado = instanceTemporal.getTemporal()

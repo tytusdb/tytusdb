@@ -476,6 +476,7 @@ def p_instruccion(t):
                     | sentencia_procedure
                     | sentencia_function
                     | sentencia_execute
+                    | declaracion_variable
                     | Exp
                     | error'''
     reportebnf.append(bnf["p_instruccion"])                    
@@ -1632,11 +1633,16 @@ def p_declaracion_variable_2(t):
 
 def p_asignacion_variable(t):
     '''asignacion_variable : DEFAULT Exp '''
-    t[0] = Asignacion_Variable("ASIGNACION_VARIABLE_DEFAULT")
+    t[0] = Asignacion_Variable("ASIGNACION_VARIABLE")
     t[0].hijos.append(t[2])
 
 def p_asignacion_variable_1(t):
     '''asignacion_variable : DOSPUNTOS IGUAL Exp'''
+    t[0] = Asignacion_Variable("ASIGNACION_VARIABLE")
+    t[0].hijos.append(t[3])
+
+def p_asignacion_variable_2(t):
+    '''asignacion_variable : DOSPUNTOS IGUAL sentencia_select'''
     t[0] = Asignacion_Variable("ASIGNACION_VARIABLE")
     t[0].hijos.append(t[3])
 

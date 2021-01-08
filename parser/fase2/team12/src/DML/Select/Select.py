@@ -304,7 +304,7 @@ class Select():
         if numeroFilas == 1 and numeroColumnas == 1 :
             tipoUnico = self.encabezadoRetorno[0].tipo
             valorUnico = dataTemporalAgregacion[0]
-        print(valorUnico)
+        
         
         tablaResultado = TableResult()
         tablaResultado.nombre = stringName

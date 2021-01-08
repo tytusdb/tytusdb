@@ -11,7 +11,8 @@ sys.path.append(entorno_dir)
 from Nodo import Nodo
 from Entorno import *
 from Tipo_Expresion import *
-from Tipo import *
+from Tipo import Data_Type
+from Tipo import Type
 from Label import *
 from Temporal import *
 from Simbolo import *
@@ -420,7 +421,104 @@ class Declaracion_Variable(Nodo):
     
     def compile(self, enviroment):
         
-        pass
+        codigoCompile = ''
+        cantidadHijos = len(self.hijos)
+
+        if cantidadHijos == 2 :
+            
+            identificador = self.hijos[0]
+            tipoDeclaracion = self.hijos[1].hijos[0]
+
+            nombreVariable = identificador.valor.lower()
+
+            if tipoDeclaracion.nombreNodo == 'TEXT':
+
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+                
+            elif tipoDeclaracion.nombreNodo == 'SMALLINT':
+
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+                    
+            elif tipoDeclaracion.nombreNodo == 'INTEGER':
+                    
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+                    
+            elif tipoDeclaracion.nombreNodo == 'BIGINT':
+                    
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+
+            elif tipoDeclaracion.nombreNodo == 'DECIMAL':
+                    
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+
+            elif tipoDeclaracion.nombreNodo == 'NUMERIC':
+                    
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+
+            elif tipoDeclaracion.nombreNodo == 'REAL':
+                    
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+
+            elif tipoDeclaracion.nombreNodo == 'MONEY':
+                    
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+
+            elif tipoDeclaracion.nombreNodo == 'DATE':
+                    
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+
+            elif tipoDeclaracion.nombreNodo == 'BOOLEAN':
+
+                codigoCompile += nombreVariable + ' = None\n'
+                return codigoCompile
+                
+            pass
+
+        elif cantidadHijos == 3 :
+            
+            identificador = self.hijos[0]
+            nombreVariable = identificador.valor.lower()
+
+            tipoDeclaracion = self.hijos[1].hijos[0]
+
+            expresionExecute = self.hijos[2].hijos[0]
+            value = None
+            auxiliar = False
+
+            if expresionExecute.nombreNodo == 'SENTENCIA_SELECT':
+                value = expresionExecute.execute(enviroment)
+                print('Se ejecuto la sentencia select')
+                print('Tipo result: ',expresionExecute.tipo.data_type)
+            else:
+                value = expresionExecute.compile(enviroment)
+                auxiliar = True
+
+            if auxiliar == True :
+
+                codigoCompile += value
+                codigoCompile += nombreVariable + ' = ' + expresionExecute.dir + '\n'
+                return codigoCompile
+            
+            else:
+
+                if expresionExecute.tipo.data_type == Data_Type.listaDatos :
+                    codigoCompile += nombreVariable + ' = None\n'
+                    return codigoCompile
+                else :
+                    codigoCompile += nombreVariable + ' = ' + str(value) + '\n'
+                    return codigoCompile
+            
+                
+            pass
 
     def getText(self):
         pass
