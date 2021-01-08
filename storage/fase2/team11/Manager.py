@@ -10,6 +10,7 @@ from checksum import checksum_database, checksum_table
 import criptografia as crypt
 from estruct.blockChain import BlockChain
 from metadata import Database, Table, FK
+import zlib
 
 metadata_db_list = list()
 flag_block = False
@@ -643,3 +644,152 @@ def safeModeOff(database: str, table: str):
         return 2
 
 #  ----------------------------------------------- -->  <-> <-- -------------------------------------------------------
+
+#-------------------------------------------------------------
+
+
+def alterDatabaseCompress( database: str, level: int):
+    if verify_string(database):
+        metadata_db, index_md_db = get_metadata_db(database)
+        if metadata_db:
+            if (level >= -1) and (level <= 9):
+                lista_tablas = showTables(database)
+                bandera = False
+                for tabla in lista_tablas:
+                    tabla_metadatos = metadata_db.get_table(tabla)
+                    if tabla_metadatos:
+                        if not tabla_metadatos.get_compress():
+                            registros = extractTable(database,tabla)
+                            if registros:
+                                truncate(database, tabla)
+                            for tupla in registros:
+                                lista_comprimida = []
+                                bandera = True
+                                for columna in tupla:
+                                    if type(columna) == str:
+                                        col_compress = zlib.compress(columna.encode("utf-8"), level)
+                                        lista_comprimida.append(col_compress)
+                                    else:
+                                        lista_comprimida.append(columna)
+                                insert(database,tabla,lista_comprimida)
+                            tabla_metadatos.set_compress(True)
+                if bandera:
+                    return 0
+                else:
+                    return 1
+            else:
+                return 4
+        else:
+            return 2
+    else:
+        return 1
+
+def alterDatabaseDecompress( database: str):
+    if verify_string(database):
+        metadata_db, index_md_db = get_metadata_db(database)
+        if  metadata_db:
+            lista_tablas = showTables(database)
+            bandera = False
+            bandera_descompress = True
+            for tabla in lista_tablas:
+                tabla_metadatos = metadata_db.get_table(tabla)
+                if tabla_metadatos:
+                    if not tabla_metadatos.get_compress():
+                        bandera_descompress = False
+            if bandera_descompress:
+                for tabla in lista_tablas:
+                    tabla_metadatos = metadata_db.get_table(tabla)
+                    if tabla_metadatos:
+                        registros = extractTable(database,tabla)
+                        if registros:
+                            truncate(database, tabla)
+                        for tupla in registros:
+                            lista_descomprimida = []
+                            bandera = True
+                            for columna in tupla:
+                                if type(columna) == bytes:
+                                    col_descompress = zlib.decompress(columna).decode("utf-8")
+                                    lista_descomprimida.append(col_descompress)
+                                else:
+                                    lista_descomprimida.append(columna)
+                            insert(database,tabla,lista_descomprimida)
+                        tabla_metadatos.set_compress(False)
+            else:
+                return 3
+            if bandera:
+                return 0
+            else:
+                return 1
+        else:
+            return 2
+    else:
+        return 1
+
+def alterTableCompress(database, table, level):
+    if verify_string(database):
+        metadata_db, index_md_db = get_metadata_db(database)
+        if metadata_db:
+            if (level >= -1) and (level <= 9):
+                bandera = False
+                tabla_metadatos = metadata_db.get_table(table)
+                if not tabla_metadatos.get_compress():
+                    registros = extractTable(database, table)
+                    if registros:
+                        truncate(database, table)
+                    for tupla in registros:
+                        lista_comprimida = []
+                        bandera = True
+                        for columna in tupla:
+                            if type(columna) == str:
+                                col_compress = zlib.compress(columna.encode("utf-8"), level)
+                                lista_comprimida.append(col_compress)
+                            else:
+                                lista_comprimida.append(columna)
+                        insert(database, table, lista_comprimida)
+                    tabla_metadatos.set_compress(True)
+                if bandera:
+                    return 0
+                else:
+                    return 1
+            else:
+                return 4
+        else:
+            return 2
+    else:
+        return 1
+
+def alterTableDecompress( database: str, table: str):
+    if verify_string(database):
+        metadata_db, index_md_db = get_metadata_db(database)
+        if  metadata_db:
+            bandera = False
+            tabla_metadatos = metadata_db.get_table(table)
+            if tabla_metadatos:
+                if tabla_metadatos.get_compress():
+                    registros = extractTable(database,table)
+                    if registros:
+                        truncate(database, table)
+                    for tupla in registros:
+                        lista_descomprimida = []
+                        bandera = True
+                        for columna in tupla:
+                            if type(columna) == bytes:
+                                col_descompress = zlib.decompress(columna).decode("utf-8")
+                                lista_descomprimida.append(col_descompress)
+                            else:
+                                lista_descomprimida.append(columna)
+                        insert(database,table,lista_descomprimida)
+                    tabla_metadatos.set_compress(False)
+                else:
+                    return 4
+            else:
+                return 3
+
+            if bandera:
+                return 0
+            else:
+                return 1
+        else:
+            return 2
+    else:
+        return 1
