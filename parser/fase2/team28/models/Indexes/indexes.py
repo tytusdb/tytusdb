@@ -87,8 +87,11 @@ class Indexes(Instruction):
 
     def compile(self, enviroment):
         temp = ThreeAddressCode().newTemp()
-        c3d =  ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
-       
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
 
     def searchTableIndex(self, tabla, linea, column):
         database_id = SymbolTable().useDatabase
@@ -134,7 +137,12 @@ class DropIndex(Instruction):
 
     def compile(self, enviroment):
         temp = ThreeAddressCode().newTemp()
-        c3d =  ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
+
         try:
             pass
         except:
@@ -181,7 +189,12 @@ class AlterIndex(Instruction):
         
     def compile(self, enviroment):
         temp = ThreeAddressCode().newTemp()
-        c3d =  ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
+        
         try:
             pass
         except:

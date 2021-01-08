@@ -15,17 +15,19 @@ class Delete(instruction.Instruction):
         out = "fase1.execution(dbtemp + "
         out += '" '
         out += "DELETE "
-        out += self.exists + " "
-        out += self.name + " ("
-        out += self.columns + " )"
-        out += self.inherits + ";"
-        out += '")\n'
+        out += self.fromcl + " "
+        # where
+        pval = self.wherecl.execute(environment)
+        if pval.temp != "":
+            out += "WHERE " + pval.temp + " "
+        parVal = pval.value
+        out = out.rstrip() + ';")\n'
         if isinstance(environment, Environment):
             grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
         else:
             grammar.optimizer_.addIgnoreString(out, self.row, False)
-        return code.C3D(out, "delete", self.row, self.column)
+        return code.C3D(parVal + out, "delete", self.row, self.column)
 
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_DELETE")

@@ -15,6 +15,9 @@ class Case(Instruccion):
         ts.setVariable(exp)
         print("imprimir_declaracion")
 
+    def generar3D(self, tabla, arbol):
+        super.generar3D(tabla, arbol)
+
 '''
 instruccion = Declare("hola mundo",None, 1,2)
 

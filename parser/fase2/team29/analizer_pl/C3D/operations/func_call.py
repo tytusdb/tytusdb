@@ -254,5 +254,5 @@ sql_functions = [
     "date_part",
     "count",
     "sum",
-    "prom"
+    "prom",
 ]
