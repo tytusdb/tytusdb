@@ -10,7 +10,6 @@ def inter() -> str:
 
 @with_goto
 def principal():
-	t0 = str(0)
 	t1 = 'hola ' + t0 + ' como estas'
 	print(str(t1))
 	t2 = 5

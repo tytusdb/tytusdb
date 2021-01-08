@@ -2256,6 +2256,7 @@ def p_exp(t):
             # exp IGUAL exp
             #t[0] = OperadoresCondicionales(t[1], t[3], "=")
             #t[0] = OperaRelacional(t[1], t[3], "=", 1, 1)
+            t[0] = OperaRelacional(t[1], t[3], "==", 1, 1)
             pass
         elif t[2] == '==':
             t[0] = OperaRelacional(t[1], t[3], "==", 1, 1)
