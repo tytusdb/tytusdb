@@ -1,4 +1,4 @@
-class ReporteTS():
+class ReportIndice():
 
     def __init__(self, alias, nombre, tipo,columnas, consideracion, fila, columna):
         self.alias = alias

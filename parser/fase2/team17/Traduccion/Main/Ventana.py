@@ -194,6 +194,14 @@ def Seleccionar():
         #    print('Tipo: ' + str(i.tipo))
         #    print('Estado: ' + str(i.estado))
         #    print('----------------------------------------------')
+
+        #print('---------------------INDICES-------------------------')
+        #for i in result.ReporteTS_Indices:
+        #    print('Nombre: ' + str(i.nombre))
+        #    print('Tipo: ' + str(i.tipo))
+        #    print('Posicion: ' + str(i.fila)+ str(i.columna))
+        #    print('----------------------------------------------')
+
         ##for item in result.console:
         ##    consola = consola + item
 

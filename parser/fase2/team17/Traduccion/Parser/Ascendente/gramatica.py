@@ -1195,6 +1195,12 @@ def p_alter_index1(t):
     '''
     t[0] = alterindex(t[2],t[5],t.lineno,t.lexpos)
 
+def p_alter_index2(t):
+    '''
+        alter_index  : sub_alter ID ALTER COLUMN ID ID
+    '''
+    print('SI usamos esta produccion')
+    t[0] = alterindex(t[1],t[2],t.lineno,t.lexpos)
 
 def p_alter_index(t):
     '''
@@ -1212,7 +1218,8 @@ def p_alter_index(t):
 
                      | sub_alter ALL IN TABLESPACE ID OWNED BY idlist SET TABLESPACE ID NOWAIT
     '''
-    t[0] = alterindex(t[2],'l',t.lineno,t.lexpos)
+    pass
+    #t[0] = alterindex(t[2],'l',t.lineno,t.lexpos)
 
 
 def p_sub_alter(t):
