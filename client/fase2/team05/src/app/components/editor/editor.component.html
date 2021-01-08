@@ -27,33 +27,175 @@
       </a>
     </label>
   </div>
-
-  <div class="border border-dark rounded-top mt-1">
-    <ngx-codemirror style="font-size:medium ;" [(ngModel)]="content" [options]="{
-      lineNumbers: true,
-      theme: 'material',
-      mode: 'sql'
-    }" name="inputScript"></ngx-codemirror>
+  <div class="btn-group mt-1 ml-1" role="group">
     
+    <label  class="btn btn-outline-dark">
+      <a (click)="addTab(false)">
+        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+      </a>
+    </label>
+    <label  class="btn btn-outline-dark">
+      <a (click)="get()">
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+      </a>
+    </label>
   </div>
-
-
-  <nav mat-tab-nav-bar [backgroundColor]="background">
-    <a mat-tab-link *ngFor="let link of links"
-       (click)="activeLink = link"
-       [active]="activeLink == link"> {{link}} </a>
-    <a mat-tab-link disabled>Disabled Link</a>
-  </nav>
-  
-  <button mat-raised-button class="example-action-button" (click)="toggleBackground()">
-    Toggle background
-  </button>
-  <button mat-raised-button class="example-action-button" (click)="addLink()">
-    Add link
-  </button>
- 
-
-  
-
+  <!--     
+    <div class="border border-dark rounded-top mt-1">
+      <ngx-codemirror style="font-size:medium ;" [(ngModel)]="content" [options]="{
+        lineNumbers: true,
+        theme: 'material',
+        mode: 'sql'
+      }" name="inputScript"></ngx-codemirror>
+      
+    </div>
+  -->
+    
+  <!-------------------------------------------- ------------------------------------->
+  <!------------------------------------ #region ------------------------------------->
+  <!-------------------------------------------- ------------------------------------->
   <br><br>
+    <mat-tab-group [selectedIndex]="selected.value"
+                 (selectedIndexChange)="selected.setValue($event)"
+                 >
+  
+  <mat-tab *ngFor="let tab of ['tab0']; let index = index;  " [label]="tab">
+    <!-- #region 
+      Contents for {{tab}} tab
+    -->
+
+    <div class="btn-group mt-1 ml-1" role="group">
+  
+      <label  class="btn btn-outline-dark">
+        <a (click)="removeTab(0)" >
+          <i class="fa fa-times-circle" aria-hidden="true"></i>
+        </a>
+      </label>
+    </div>
+      
+      <div id="moises" class="border border-dark rounded-top mt-1">
+        <ngx-codemirror style="font-size:medium ;" [(ngModel)]='content0' [options]="{
+          lineNumbers: true,
+          theme: 'material',
+          mode: 'sql'
+        }" name="inputScript"></ngx-codemirror>
+        
+    </div>
+
+  </mat-tab>
+
+  <mat-tab *ngFor="let tab of ['tab1']; let index = index;  " [label]="tab">
+    <!-- #region 
+      Contents for {{tab}} tab
+    -->
+
+    <div class="btn-group mt-1 ml-1" role="group">
+  
+      <label  class="btn btn-outline-dark">
+        <a (click)="removeTab(1)" >
+          <i class="fa fa-times-circle" aria-hidden="true"></i>
+        </a>
+      </label>
+    </div>
+      
+      <div id="moises" class="border border-dark rounded-top mt-1">
+        <ngx-codemirror style="font-size:medium ;" [(ngModel)]='content1' [options]="{
+          lineNumbers: true,
+          theme: 'material',
+          mode: 'sql'
+        }" name="inputScript"></ngx-codemirror>
+        
+    </div>
+
+  </mat-tab>
+
+  <mat-tab *ngFor="let tab of ['tab2']; let index = index;  " [label]="tab">
+    <!-- #region 
+      Contents for {{tab}} tab
+    -->
+
+    <div class="btn-group mt-1 ml-1" role="group">
+  
+      <label  class="btn btn-outline-dark">
+        <a (click)="removeTab(2)" >
+          <i class="fa fa-times-circle" aria-hidden="true"></i>
+        </a>
+      </label>
+    </div>
+      
+      <div id="moises" class="border border-dark rounded-top mt-1">
+        <ngx-codemirror style="font-size:medium ;" [(ngModel)]='content2' [options]="{
+          lineNumbers: true,
+          theme: 'material',
+          mode: 'sql'
+        }" name="inputScript"></ngx-codemirror>
+        
+    </div>
+
+  </mat-tab>
+
+
+  <mat-tab *ngFor="let tab of ['tab3']; let index = index;  " [label]="tab">
+    <!-- #region 
+      Contents for {{tab}} tab
+    -->
+
+    <div class="btn-group mt-1 ml-1" role="group">
+  
+      <label  class="btn btn-outline-dark">
+        <a (click)="removeTab(3)" >
+          <i class="fa fa-times-circle" aria-hidden="true"></i>
+        </a>
+      </label>
+    </div>
+      
+      <div id="moises" class="border border-dark rounded-top mt-1">
+        <ngx-codemirror style="font-size:medium ;" [(ngModel)]='content3' [options]="{
+          lineNumbers: true,
+          theme: 'material',
+          mode: 'sql'
+        }" name="inputScript"></ngx-codemirror>
+        
+    </div>
+
+  </mat-tab>
+
+
+ 
+ 
+    <mat-tab *ngFor="let tab of tabs; let index = index;  " [label]="tab">
+      <!-- #region 
+        Contents for {{tab}} tab
+      -->
+      
+      <div class="btn-group mt-1 ml-1" role="group">
+        
+        <label  class="btn btn-outline-dark">
+          <a (click)="removeTab(index)" >
+            <i class="fa fa-times-circle" aria-hidden="true"></i>
+          </a>
+        </label>
+      </div>
+      
+      <div id="moises" class="border border-dark rounded-top mt-1">
+        <ngx-codemirror style="font-size:medium ;" [(ngModel)]='content4' [options]="{
+          lineNumbers: true,
+          theme: 'material',
+          mode: 'sql'
+        }" name="inputScript"></ngx-codemirror>
+        
+      </div>
+
+    </mat-tab>
+  
+    
+
+  </mat-tab-group>
+  
+  <br><br>
+
+
+  <!-------------------------------------------- ---------------------------------------->
+  <!------------------------------------ #endregion ------------------------------------->
+  <!-------------------------------------------- ------------------------------------->
 </div>

@@ -1,23 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { faPlay, faFolderOpen, faSave, faAngleDown, faStop } from '@fortawesome/free-solid-svg-icons'
-import {ThemePalette} from '@angular/material/core';
-import {FormControl} from '@angular/forms';
+import { ThemePalette } from '@angular/material/core';
+import { FormControl } from '@angular/forms';
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.css']
-  
-  
+
+
 })
 export class EditorComponent implements OnInit {
-  contador=0
+  contador = 5
   constructor() { }
 
-  links = ['First', 'Second', 'Third'];
-  activeLink = this.links[0];
-  background: ThemePalette = 'warn';
+  tabs = ['tab4'];
+  selected = new FormControl(0);
+  background: ThemePalette = undefined;
 
   ngOnInit(): void {
+
   }
 
   faPlay = faPlay;
@@ -25,8 +26,13 @@ export class EditorComponent implements OnInit {
   faSave = faSave;
   faAngleDown = faAngleDown;
   faStop = faStop;
-  content = "SELECT * FROM PERSONA WHERE PERSONA.id = 0;"
-  content_v1 = "//hola"
+
+  content0 = ""
+  content1 = ""
+  content2 = ""
+  content3 = ""
+  content4 = ""
+  content5 = ""
 
   handleFileInput(event) {
     let fileList: FileList = event.target.files;
@@ -35,7 +41,22 @@ export class EditorComponent implements OnInit {
       let reader = new FileReader();
       reader.onload = (e) => {
         const lines = e.target.result.toString();
-        this.content = lines;
+        switch (this.selected.value) {
+          case 0:
+            this.content0=lines
+            break;
+          case 1:
+            this.content1=lines
+            break;
+          case 2:
+            this.content2=lines
+            break;
+          case 3:
+            this.content3=lines
+            break;
+        }
+
+        //this.content1 = lines;
       };
       reader.onerror = (e) => alert(e.target.error.name);
       reader.readAsText(readFile);
@@ -43,14 +64,14 @@ export class EditorComponent implements OnInit {
   }
 
   saveFile() {
-    var file = new Blob([this.content], {type: 'text/plain'});
+    var file = new Blob([this.get()], { type: 'text/plain' });
     if (window.navigator.msSaveOrOpenBlob) {
       window.navigator.msSaveOrOpenBlob(file, "script.sql");
     } else {
       var a = document.createElement("a"),
         url = URL.createObjectURL(file);
       a.href = url;
-      a.download = "script.sql"; 
+      a.download = "script.sql";
       document.body.appendChild(a);
       a.click();
       setTimeout(() => {
@@ -60,7 +81,7 @@ export class EditorComponent implements OnInit {
     }
   }
 
-  runScript(){
+  runScript() {
     alert('Ejecuta el script que se encuentre en el editor');
   }
 
@@ -68,12 +89,40 @@ export class EditorComponent implements OnInit {
     alert('Detiene la ejecución de un script');
   }
 
-  toggleBackground() {
-    this.background = this.background ? undefined : 'primary';
+  get() {
+    let mensaje
+    switch (this.selected.value) {
+      case 0:
+        alert("'" + this.content0.trim() + "'")
+        mensaje= this.content0.trim()
+        break;
+      case 1:
+        alert("'" + this.content1.trim() + "'")
+        mensaje= this.content1.trim()
+        break;
+      case 2:
+        alert("'" + this.content2.trim() + "'")
+        mensaje= this.content2.trim()
+        break;
+      case 3:
+        alert("'" + this.content3.trim() + "'")
+        mensaje= this.content3.trim()
+        break;
+    }
+    return mensaje
+  }
+  addTab(selectAfterAdding: boolean) {
+
+    this.contador++
+    this.tabs.push('tab' + this.contador);
+
+    if (selectAfterAdding) {
+      this.selected.setValue(this.tabs.length - 1);
+    }
   }
 
-  addLink() {
-    this.links.push(`Link ${this.links.length + 1}`);
+  removeTab(index: number) {
+    this.tabs.splice(index, 1);
   }
-  
+
 }
