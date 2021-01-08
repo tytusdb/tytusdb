@@ -2,6 +2,8 @@ from parse.expressions.expression_enum import *
 from TAC.tac_enum import *
 import copy
 import os
+from tabulate import tabulate
+
 
 class Quadruple(object):
     def __init__(self, op: Enum, arg1:str, arg2:str, res:str, instType:Enum):
@@ -167,74 +169,74 @@ def DoOptimization(quadL: list):
             in_str = ''
             for item in res:
                 in_str = f'{in_str}{item},'
-            str_result.append(f'Regla 1: To remove --> {in_str[:-1]}')
+            str_result.append(['#1', f'To remove --> {in_str[:-1]}', ''])
             
         res = Rule2(quadL, tmp)
         if len(res) > 0:
             in_str = ''
             for item in res:
                 in_str = f'{in_str}{item},'
-            str_result.append(f'Regla 2: To remove --> {in_str[:-1]}')
+            str_result.append(['#2', f'To remove --> {in_str[:-1]}', tmp])
         
         res = Rule3(quadL, tmp)
         if len(res) > 0:
             in_str = ''
             for item in res:
                 in_str = f'{in_str}{item},'
-            str_result.append(f'Regla 3: To remove --> {in_str[:-1]}')
+            str_result.append(['#3', f'To remove --> {in_str[:-1]}', ''])
 
         res = Rule4(quadL, tmp)
         if len(res) > 0:
             in_str = ''
             for item in res:
                 in_str = f'{in_str}{item},'
-            str_result.append(f'Regla 4: To remove --> {in_str[:-1]}')
+            str_result.append(['#4', f'To remove --> {in_str[:-1]}', ''])
 
         res = Rule5(quadL, tmp)
         if len(res) > 0:
             in_str = ''
             for item in res:
                 in_str = f'{in_str}{item},'
-            str_result.append(f'Regla 5: To remove --> {in_str[:-1]}')
+            str_result.append(['#5', f'To remove --> {in_str[:-1]}', ''])
 
         res = Rule6(quadL, tmp)
         if len(res) > 0:
             in_str = ''
             for item in res:
                 in_str = f'{in_str}{item},'
-            str_result.append(f'Regla 6: To remove --> {in_str[:-1]}')
+            str_result.append(['#6', f'To remove --> {in_str[:-1]}', ''])
 
         res = Rule7(quadL, tmp)
         if len(res) > 0:
             in_str = ''
             for item in res:
                 in_str = f'{in_str}{item},'
-            str_result.append(f'Regla 7: To remove --> {in_str[:-1]}')
+            str_result.append(['#7', f'To remove --> {in_str[:-1]}', ''])
 
         #Rule 8 - 11
         if tmp.neutralElement():
             # res.append(tmp)
-            str_result.append(f'Regla 8,9,10,11: Neutral Element -> to remove {tmp}')
+            str_result.append(['#8,9,10,11', f'Neutral Element. To remove --> {tmp}', ''])
             continue
 
         res = Rule12(tmp)
         if res:
-            str_result.append(f'Regla 12: {res} --> {tmp}')
+            str_result.append(['#12', res, tmp])
 
         res = Rule13(tmp)
         if res:
-            str_result.append(f'Regla 13: {res} --> {tmp}')
+            str_result.append(['#13', res, tmp])
 
         res = Rule14_16_17(tmp)
         if res:
-            str_result.append(f'Regla 14,16,17: {res} --> {tmp}')
+            str_result.append(['#14,16,17', res, tmp])
 
         res = Rule15_18(tmp)
         if res:
-            str_result.append(f'Regla 15,18: {res} --> {tmp}')
+            str_result.append(['#15,18', res, tmp])
 
         result.append(tmp)
-    return [result, [], str_result]
+    return [result, [], tabulate(str_result, ['Regla', 'De (Original)', 'Optimizado'], tablefmt="psql")]
 
 def printL(quadL: list):
     for q in quadL:
@@ -287,10 +289,10 @@ def Save_TAC_obj(objname: str, quadL: list):
     # Writing Report
     opt_report = optimiR[2]
     f = open(f'opt_report.txt', "a")
-    str_report = ''
-    for item_report in opt_report:
-        str_report = f'{str_report}{item_report}\n'
-    content = f'\n+------------- {objname} --------------+\n {str_report}'
+    # str_report = ''
+    # for item_report in opt_report:
+    #     str_report = f'{str_report}{item_report}\n'
+    content = f'\n+------------- {objname} --------------+\n {opt_report}'
     f.write(content)
     f.close()
 
