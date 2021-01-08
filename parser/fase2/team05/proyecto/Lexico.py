@@ -5484,6 +5484,9 @@ def p_VALORFAtan2(t):
 #TODO: AGREGAR DIEGO 
 def p_VALORFAtan2d(t):
     'VALORF  :   ATAN2 PABRE LNUMF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atan2, t[3].getInstruccion()), NodoAST("ATAN2"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFCos(t):
@@ -5549,15 +5552,24 @@ def p_VALORFTanh(t):
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAsinh(t):
-    'VALORF  :   ASINH PABRE LNUMF PCIERRA  '
+    'VALORF  :   ASINH PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.asinh, t[3].getInstruccion()), NodoAST("ASINH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAcosh(t):
-    'VALORF  :   ACOSH PABRE LNUMF PCIERRA  '
+    'VALORF  :   ACOSH PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.acosh, t[3].getInstruccion()), NodoAST("ACOSH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAtanh(t):
-    'VALORF  :   ATANH PABRE LNUMF PCIERRA  '
+    'VALORF  :   ATANH PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atanh, t[3].getInstruccion()), NodoAST("ATANH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #FIN TRIGONOMETRICAS 
 #NUEVO BLOQUE 
