@@ -6178,18 +6178,21 @@ parser = yacc.yacc()
 
 
 def parse(p_input):
-    global counter_lexical_error, counter_syntactic_error, contador, codigo_3D, contador_label
+    global counter_lexical_error, counter_syntactic_error, contador, codigo_3D, contador_label, reporte_gramatical
     codigo_3D = []
+    reporte_gramatical = []
     contador = 0
     contador_label = 0
     counter_lexical_error = 1
     counter_syntactic_error = 1
-    return parser.parse(p_input)
+    p = parser.parse(p_input)
+    gramaticaBNF(p_input)
+    return p
 
 def gramaticaBNF(input):
     global reporte_gramatical
     instrucciones_bnf = []  
-    file = open ("proyecto/gramatica.md","w")
+    file = open ("./gramatica.md","w")
     for instruccion_bnf in reversed(reporte_gramatical) :
         file.write(instruccion_bnf)
         file.write("\n")
