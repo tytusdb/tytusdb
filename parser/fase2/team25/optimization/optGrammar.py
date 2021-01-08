@@ -8,7 +8,7 @@ from optimization.optLexer import *
 # Construccion del analizador léxico
 import ply.lex as lex
 
-lexer = lex.lex()
+scanner = lex.lex()
 
 #Importaciones de optimizacion
 from optimization.instruccion.optimized.goto import OptGoto
@@ -23,14 +23,14 @@ from optimization.instruccion.normal.return_ import Return
 from optimization.abstract.optimize import TYPE, TEVAL
 
 
-def p_init(t):
+def p_optimize_init(t):
     '''
     init : stmtList
     '''
     t[0] = t[1]
 
 # STATEMENT LIST
-def p_stmt_list(t):
+def p_optimize_stmt_list(t):
     """
     stmtList : stmtList stmt
     | stmt
@@ -42,7 +42,7 @@ def p_stmt_list(t):
         t[0] = [t[1]]
 
 # STATEMENT
-def p_stmt(t):
+def p_optimize_stmt(t):
     """
     stmt : func 
         | gotoStmt
@@ -56,20 +56,20 @@ def p_stmt(t):
     """
     t[0] = t[1]
 
-def p_with_goto(t):
+def p_optimize_with_goto(t):
     """
     stmt : WITHGOTO
     """
     t[0] = f'\n{t[1]}'
 
-def p_pass(t):
+def p_optimize_pass(t):
     """
     stmt : PASS
     """
     t[0] = f'\t{t[1]}\n'
 
 # FUNCIONES
-def p_func(t):
+def p_optimize_func(t):
     """
     func : DEF ID PARIZQ valueList PARDER DOSPUNTOS
     | DEF ID PARIZQ PARDER DOSPUNTOS
@@ -89,7 +89,7 @@ def p_func(t):
 
 
 # IF STATEMENT
-def p_ifStmt(t):
+def p_optimize_ifStmt(t):
     """
     ifStmt : IF value operando value DOSPUNTOS gotoStmt
     | IF value DOSPUNTOS gotoStmt
@@ -99,20 +99,20 @@ def p_ifStmt(t):
     else:
 	    t[0] = OptIf(TEVAL.SINGLE, t[2], t[4], t.slice[1].lineno)
 # GOTO STATEMENT
-def p_gotoStmt(t):
+def p_optimize_gotoStmt(t):
     """
     gotoStmt : GOTO ETIQUETA
     """
     t[0] = OptGoto(t[2],t.slice[1].lineno)
     
-def p_labelStmt(t):
+def p_optimize_labelStmt(t):
     """
     labelStmt : LABEL ETIQUETA
     """
     t[0] = OptLabel(t[2],t.slice[1].lineno)
 
 # ASIGNACION
-def p_assignment(t):
+def p_optimize_assignment(t):
     """
     assignment : ID ASIGNACION value operando value
     | ID ASIGNACION ID PARIZQ PARDER
@@ -128,7 +128,7 @@ def p_assignment(t):
 			
 
 # Invocacion de funciones
-def p_invoke(t):
+def p_optimize_invoke(t):
     """
     invoke : ID PARIZQ PARDER
     | ID PARIZQ valueList PARDER
@@ -138,7 +138,7 @@ def p_invoke(t):
     else:
         t[0] = Invoke(t[1],t[3],t.slice[1].lineno)
 # Storage 
-def p_storage(t):
+def p_optimize_storage(t):
     """
     storage : ID CORIZQ ENTERO CORDER ASIGNACION value
     | ID PUNTO ID PARIZQ ID PARDER
@@ -149,19 +149,19 @@ def p_storage(t):
         t[0] = Return(t[6],t.slice[1].lineno)
 
 #EJecutar
-def p_execute(t):
+def p_optimize_execute(t):
     """
-    execute : ID PARIZQ ID PUNTO ID PARIZQ PARDER PARDER
+    execute : ID ID PARIZQ ID PUNTO ID PARIZQ PARDER PARDER
     """
-    t[0] = f'\t{t[1]}{t[2]}{t[3]}{t[4]}{t[5]}{t[6]}{t[7]}{t[8]}'
+    t[0] = f'\t{t[1]} {t[2]}{t[3]}{t[4]}{t[5]}{t[6]}{t[7]}{t[8]}{t[9]}'
 
-def p_initStack(t):
+def p_optimize_initStack(t):
     """
     initStack : ID ASIGNACION CORIZQ ID CORDER
     """
     t[0] = f'{t[1]} {t[2]} {t[3]}{t[4]}{t[5]}'
 # VALUE LIST
-def p_value_list(t):
+def p_optimize_value_list(t):
     """
     valueList : valueList COMA value
               | value
@@ -173,7 +173,7 @@ def p_value_list(t):
         t[0] = [t[1]]
 
 # VALUE
-def p_value(t):
+def p_optimize_value(t):
     """
     value : ID
     | CADENA
@@ -185,14 +185,14 @@ def p_value(t):
     t[0] = t[1]
 
 
-def p_value_return(t):
+def p_optimize_value_return(t):
     """
     value : ID CORIZQ ENTERO CORDER
     """
     t[0] = f'{t[1]}({t[3]})'
 
 # OPERADORES
-def p_operando(t):
+def p_optimize_operando(t):
     """
     operando : SUMA
     | RESTA
@@ -210,14 +210,14 @@ def p_operando(t):
     """
     t[0] = t[1]
 
-def p_error(t):
+def p_optimize_error(t):
     try:
         print("Error sintáctico en '%s'" % t.value, "de tipo %s" % t.type, "en linea %s" % t.lineno)
     except AttributeError:
         print("end of file")
 
 
-parser = yacc.yacc()
+parser_ = yacc.yacc()
 
 def optimize(text):
-    return parser.parse(text) 
+    return parser_.parse(text) 

@@ -8,7 +8,7 @@ class PushStack(opt.OptimizedInstruction):
         super().__init__(row)
         self.value = value
 
-    def optimize(self) -> None:
+    def optimize(self,generador) -> None:
         pass
 
     def addToCode(self, generador) -> None:
