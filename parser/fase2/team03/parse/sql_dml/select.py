@@ -5,7 +5,7 @@ from parse.plpgsql.function import FuncCall
 from TAC.quadruple import Quadruple
 from TAC.tac_enum import OpTAC
 from parse.symbol_table import generate_tmp
-
+from parse.functions.functions_aggregate import *
 class Select(ASTNode):
     def __init__(self, is_distinct, col_names, tables, where, group_by, having, order_by, limit, offset, line, column,
                  graph_ref):
@@ -60,6 +60,8 @@ class Select(ASTNode):
             if self.where:
                 megaunion = self.where.execute(megaunion, header)
             # TODO:add agregate functions
+            for col in self.col_names:
+                s = col
             # TODO:filter columns...
             # TODO:apply group by execution...
             if self.group_by:
@@ -85,8 +87,18 @@ class Select(ASTNode):
                 for row in megaunion:
                     rrow = []
                     for col in self.col_names:                        
-                        rrow.append(col.execute(row, header))
+                        rrow.append(col.execute(row, header)) #commnet fory to send all registers instad header for agragate functions
+                        #rrow.append(col.execute(row, [header,megaunion]))
                     lrows.append(rrow)
+                    
+                #force gruop by with distinct :s
+                if AllAgregateFunc(self.col_names):
+                    temp = []
+                    for item in megaunion:
+                        if item not in temp:
+                            temp.append(item)
+                    megaunion = temp
+
                 return [resutCols, lrows]
 
             else:  # there are no rows but could be a select of fuctions
@@ -154,6 +166,21 @@ class Names(ASTNode):
         else:
             return f'{self.exp.generate(table, tree)}{f" AS {self.alias}" if not self.edited else ""}'
 
+    def isAgregateFunc(self):
+        return isinstance(self.exp, Avg) or isinstance(self.exp, Count) or isinstance(self.exp, Greatest) or \
+        isinstance(self.exp, Least) or isinstance(self.exp, Max) or isinstance(self.exp, Min) or \
+        isinstance(self.exp, Sum) or isinstance(self.exp, Top)
+
+def AllAgregateFunc(lnames:list):
+    if isinstance(lnames, list):
+        if len(lnames) == 0:
+            return false
+
+        allAg = True
+        for l in lnames:
+            allAg = allAg and l.isAgregateFunc()
+        return allAg
+    return False
 
 class TableReference(ASTNode):
     def __init__(self, table, natural_join, join_type, table_to_join, subquery, line, column, graph_ref):

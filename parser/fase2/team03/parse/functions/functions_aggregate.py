@@ -18,17 +18,25 @@ class Avg(ASTNode):
 
 
 class Count(ASTNode):
-    def __init__(self, exp, all_results, line, column):
+    def __init__(self, exp, all_results, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
         self.all_results = all_results
+        self.graph_ref = graph_ref
+        #self.is_asterisk = False
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return True
+        if self.all_results:
+            if isinstance(tree, list) and isinstance(tree[1],list):
+                return len(tree[1])
+            else if isinstance(table, list)
+        return 0
 
     def generate(self, table, tree):
         super().generate(table, tree)
+        if self.all_results: 
+            return f'COUNT({self.exp.generate(table, tree)})'
         return f'COUNT({self.exp.generate(table, tree)})'
 
 

@@ -73,7 +73,7 @@ class Text(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f"'{self.val}'"
+        return f"\\'{self.val}\\'"
 
 
 class BoolAST(ASTNode):

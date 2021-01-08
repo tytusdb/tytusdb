@@ -19,6 +19,8 @@ from parse.plpgsql.declaration import *
 from parse.plpgsql.index import *
 
 from parse.plpgsql.control import *
+from parse.functions.functions_aggregate import *
+from ply.lex import LexToken
 # ===========================================================================================
 # ==================================== LEXICAL ANALYSIS ==================================
 # ===========================================================================================
@@ -2106,6 +2108,7 @@ def p_names1(t):
     '''names    :  GREATEST PARA exp_list PARC
                 |  LEAST PARA exp_list PARC
                 |  COUNT PARA expression PARC
+                |  COUNT PARA POR PARC
                 |  AVG PARA expression PARC
                 |  MAX PARA expression PARC
                 |  MIN PARA expression PARC
@@ -2127,7 +2130,8 @@ def p_names1(t):
         graph_ref = graph_node(str("names"), [t[1], t[2], t[4]], childsProduction)
         addCad("**\<NAMES>** ::= " + token_str + " '(' \<EXP> ')'  ")
         if token_str == 'COUNT':
-            t[0] = upNodo("token", 0, 0, graph_ref)
+            NodoC = Count(t[3], '*' == t[3], token.lineno, token.lexpos, graph_ref)
+            t[0] = Names(False, NodoC, None, token.lineno, token.lexpos, graph_ref)
         elif token_str == 'AVG':
             t[0] = upNodo("token", 0, 0, graph_ref)
         elif token_str == 'MAX':
