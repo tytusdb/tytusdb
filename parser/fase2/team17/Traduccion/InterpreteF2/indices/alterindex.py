@@ -1,8 +1,7 @@
 from InterpreteF2.NodoAST import NodoArbol
 from InterpreteF2.Tabla_de_simbolos import Tabla_de_simbolos
 from InterpreteF2.Arbol import Arbol
-from InterpreteF2.Reporteria.ReporteTS import ReporteTS
-
+from InterpreteF2.Reporteria.ReporteTS_Indice import ReportIndice
 
 
 class alterindex(NodoArbol):
@@ -17,13 +16,12 @@ class alterindex(NodoArbol):
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         i=0
-        while i < len(arbol.ReporteTS):
-            report:ReporteTS = arbol.ReporteTS[i]
+        while i < len(arbol.ReporteTS_Indices):
+            report:ReportIndice = arbol.ReporteTS_Indices[i]
             if str(report.nombre) == str(self.name):
-                arbol.ReporteTS[i].nombre = str(self.rename)
-                arbol.ReporteTS[i].alias = str(self.rename)
+                arbol.ReporteTS_Indices[i].nombre = str(self.rename)
+                arbol.ReporteTS_Indices[i].alias = str(self.rename)
                 return
-
             i+=1
 
 

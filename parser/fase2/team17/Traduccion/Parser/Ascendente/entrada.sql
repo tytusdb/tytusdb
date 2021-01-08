@@ -40,6 +40,8 @@ END;
 CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
 CREATE INDEX ON tbbodega ( ( lower(bodega) ) );
 CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
+CREATE INDEX index_lol ON test1 (column1.colun2,column4);
+
 
 
 ALTER INDEX mytable_cat_1 RENAME TO index1;
@@ -47,7 +49,12 @@ ALTER INDEX distributors SET (fillfactor = 75);
 ALTER INDEX coord_idx ALTER COLUMN 3 SET STATISTICS 1000;
 ALTER INDEX distributors RENAME TO suppliers;
 
+ALTER INDEX ind1 ALTER COLUMN nombre id;
+ALTER INDEX ind1 ALTER COLUMN apellido numero;
+
 DROP INDEX title_idx;
+
+
 DROP INDEX [ CONCURRENTLY ] [ IF EXISTS ] name [, ...] [ CASCADE | RESTRICT ]
 DROP INDEX  CONCURRENTLY   IF EXISTS  lol,lio  CASCADE ;
 

@@ -15,7 +15,7 @@ from InterpreteF2.Reporteria.ErroresLexicos import ErroresLexicos
 from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 from InterpreteF2.Reporteria.ReporteOptimizacion import  ReporteOptimizacion
 from InterpreteF2.Reporteria.ReporteTS_forFunction import  ReporteTS_forFunction
-from InterpreteF2.Reporteria.ReporteTS_Indice import ReporteTS_Indice
+from InterpreteF2.Reporteria.ReporteTS_Indice import ReportIndice
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from Parser.Reportes.Nodo1 import Nodo
@@ -211,6 +211,14 @@ def Seleccionar():
         #    print('Tipo: ' + str(i.tipo))
         #    print('Estado: ' + str(i.estado))
         #    print('----------------------------------------------')
+
+        #print('---------------------INDICES-------------------------')
+        #for i in result.ReporteTS_Indices:
+        #    print('Nombre: ' + str(i.nombre))
+        #    print('Tipo: ' + str(i.tipo))
+        #    print('Posicion: ' + str(i.fila)+ str(i.columna))
+        #    print('----------------------------------------------')
+
         ##for item in result.console:
         ##    consola = consola + item
 
@@ -522,12 +530,11 @@ def Tabla_Simbolos_Indice():
     contador = 1
 
     for i in arboAux_errores.ReporteTS_Indice:
-        Error: ReporteTS_Indice = i
+        Error:ReportIndice = i
         texto += '<tr><td> ' + str(contador) + '</td>'
         texto += '<td> ' + Error.alias + '</td>'
         texto += '<td> ' + Error.nombre + '</td>'
         texto += '<td> ' + Error.tipo + '</td>'
-        texto += '<td> ' + Error.optimizado + '</td>'
         texto += '<td> ' + Error.columnas + '</td>'
         texto += '<td> ' + Error.consideracion+ '</td>'
         texto += '<td> ' + str(Error.fila) + '</td>'
