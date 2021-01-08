@@ -5390,14 +5390,23 @@ def p_VALORFAvg(t):
 #TODO: AGREGAR DIEGO1
 def p_VALORFSum(t):
     'VALORF  :   SUM PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.avg,t[3].getInstruccion()), NodoAST("SUM"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
 #TODO: AGREGAR DIEGO1
 def p_VALORFMin(t):
     'VALORF  :   MIN PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.avg,t[3].getInstruccion()), NodoAST("MIN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
 #TODO: AGREGAR DIEGO1
 def p_VALORFMax(t):
     'VALORF  :   MAX PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.avg,t[3].getInstruccion()), NodoAST("MAX"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
 #TODO: AGREGAR DIEGO11
 def p_VALORFAbs(t):
@@ -5410,37 +5419,46 @@ def p_VALORFAbs(t):
 
 #TODO: AGREGAR DIEGO1
 def p_VALORFCbrt(t):
-    'VALORF  :   CBRT PABRE LNUMF PCIERRA '
+    'VALORF  :   CBRT PABRE VALORF PCIERRA '
     #RAIZ CUBICA DE UN VALOR O VARIABLE
-    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("ABS"))
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("CBRT"))
     ret.getNodo().setHijo(t[3].getNodo())
     t[0]=ret
 
 #TODO: AGREGAR DIEGO1
 def p_VALORFCeil(t):
     'VALORF  :   CEIL PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("CEIL"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
 #TODO: AGREGAR DIEGO1
 def p_VALORFCeiling(t):
     'VALORF  :   CEILING PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("CEILING"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
-#TODO: AGREGAR DIEGO1
+#TODO: AGREGAR DIEGO1 PENDIENTE
 def p_VALORFSubstring(t):
     'VALORF  :   SUBSTRING PABRE LVALOR PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("SUBSTRING"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO PENDIENTE
 def p_VALORFSubstr(t):
     'VALORF  :   SUBSTR PABRE LVALOR PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO PENDIENTE
 def p_VALORFLength(t):
     'VALORF  :   LENGTH PABRE LVALOR PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO PENDIENTE
 def p_VALORFTrim(t):
     'VALORF  :   TRIM PABRE LBOTHF CADENA FROM CADENA PCIERRA '
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO PENDIENTE
 def p_VALORFTrim1(t):
     'VALORF  :   TRIM PABRE LBOTHF FROM CADENA COMA CADENA PCIERRA '
 
