@@ -115,7 +115,7 @@ def createTable(database, table, nCols):
             for i in databases:
                 if database == i["name"]:
                     t = {"name": table, "nCols": nCols, "tuples": [], "safeMode": False,
-                        "fk": None, "iu": None, "io": None}
+                        "fk": None, "iu": None, "io": None, "indexName": None}
                     i["tables"].append(t)
                     persistence(databases)
                     return value
@@ -571,6 +571,9 @@ def alterDatabaseCompress(database, level):
 def alterDatabaseDecompress(database):
     try:
         chargePersistence()
+        global isCompressed
+        if not isCompressed:
+            return 3
         for db in databases:
             if db["name"] == database:
                 for table in db["tables"]:
@@ -588,8 +591,6 @@ def alterDatabaseDecompress(database):
                             newRegister.append(register)
                         insert(db['name'], table["name"], newRegister)
                 return 0
-        if not isCompressed:
-            return 3
     except:
         return 1
 
@@ -624,7 +625,7 @@ def alterTableCompress(database, table, level):
 
 def alterTableDecompress(database, table, level):
     try:
-        isCompressed = False
+        chargePersistence()
         for db in databases:
             if db["name"] == database:
                 for table in db["tables"]:
@@ -810,3 +811,62 @@ def changueMode(database, isPersistence = False):
             i["mod"] = json
         if isPersistence:
             databases.append(i)
+            
+"""
+    @description
+        Agrega un índice, creando una estructura adicional con el 
+        modo indicado para la base de datos.
+    @param
+        database: Nombre de la base de datos a utilizar.
+        table: Nombre de la tabla donde están las llaves foráneas.
+        indexName: Nombre único del índice manejado como metadato de la 
+                   tabla para ubicarlo fácilmente.
+        columns: Conjunto de índices de columnas que forman parte de la 
+                 llave foránea, mínimo debe ser una columna.
+    @return
+        0: Operación exitosa
+        1: Error en la operación
+        2: database no existente
+        3: table no existente
+        4: ???
+"""
+def alterTableAddIndex(database, table, indexName, columns):
+    try:
+        for i in databases:
+            #verifica si la base de datos existe
+            if i.get("name") == database:
+                #obtiene el tipo de almacenamiento en base al modo de la DB
+                modeStorage = None
+                if i.get("mode") == "b":
+                    modeStorage = b
+                elif i.get("mode") == "avl":
+                    modeStorage = avl
+                elif i.get("mode") == "bplus":
+                    modeStorage = avl
+                elif i.get("mode") == "_hash":
+                    modeStorage = _hash
+                elif i.get("mode") == "isam":
+                    modeStorage = isam
+                elif i.get("mode") == "_dict":
+                    modeStorage = _dict
+                elif i.get("mode") == "json":
+                    modeStorage = json
+                tuples = modeStorage.extractTable(database, table)
+                for j in i.get("tables"):
+                    #verifica si la tabla existe en la base de datos indicada
+                    if j.get("name") == table:
+                        j["indexName"] = indexName
+                        modeStorage.createTable(database, (table+indexName), len(columns))
+                        for tp in tuples:
+                            listaData = []
+                            for col in columns:
+                                listaData.append(tp[col]) 
+                            modeStorage.insert(database, (table+indexName), listaData)
+                        return 0
+                #Tabla no existente
+                return 3
+        #Base de datos no existente
+        return 2
+    except Exception as e:
+        #Error en la operación
+        return 1
