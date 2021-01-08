@@ -2,6 +2,7 @@ from enum import Enum
 from prettytable import PrettyTable
 from datetime import date
 from datetime import datetime
+from graphviz import render
 import math
 import random
 import cryptography
@@ -10,13 +11,14 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from graphviz import render
 
 from storageManager import jsonMode as jsonMode
 import re
 
 errors2 = ''
 output2 =''
+c3d2 = ''
+c3d = ''
 
 class Nodo:
     '''Clase que define la estructura de los nodos del AST.'''
@@ -153,7 +155,7 @@ class Column:
         isUnique        - valor (bool) para indicar si los valores en la columna deben ser únicos
         line            - línea de la instrucción
     '''
-    def __init__(self,name,index,columnType:ColType = None,isPrimaryKey = False,defaultValue = None,isNull = False, constraintValue = '',isUnique = False,line = 0):
+    def __init__(self,name,index = 0,columnType:ColType = None,isPrimaryKey = False,defaultValue = None,isNull = False, constraintValue = '',isUnique = False,line = 0):
         self.name = name
         self.index = index
         self.columnType = columnType
@@ -166,6 +168,7 @@ class Column:
     def toString(self) -> str:
         return 'Columna \"'+self.name+'\"\nTipo: '+str(self.columnType.col_type.name)+'\nPrimary Key: '+str(self.isPrimaryKey)+ '\nNull: '+str(self.isNull) + '\nUnique: '+str(self.isUnique)
 
+#---------------------------------------------------------------------------------------------------------------
 class Index:
 
     def __init__(self,name = '', isUnique = False, table = '', condition = '', type_ = '', columns = [], attribs = [], line = 0):
@@ -179,10 +182,9 @@ class Index:
         self.line = line
 
     def toString(self):
-        return self.name + ' | Unique: ' + str(self.isUnique) + ' | Table: '+ self.table + ' | Columnas: ' + str(self.columns) + ' | Atributos' + str(self.attribs) + ' | Tipo: ' + self.type_  
-    
-#---------------------------------------------------------------------------------------------------------------
+        return self.name + ' | Unique: ' + str(self.isUnique) + ' | Table: '+ self.table + ' | Columnas: ' + str(self.columns) + ' | Atributos' + str(self.attribs) + ' | Tipo: ' + self.type_
 
+#---------------------------------------------------------------------------------------------------------------
 class AST:
     '''
     Clase que contendrá todo lo referente al AST
@@ -204,7 +206,7 @@ class AST:
         self.errors = errors
         self.c3d = c3d
 
-        jsonMode.dropAll()
+        jsonMode.dropAll() 
 
     def executeAST(self, nodo):
         if nodo.etiqueta == 'CREATE DATABASE':
@@ -248,12 +250,11 @@ class AST:
         else:
             print('[!] Valor de etiqueta ('+nodo.etiqueta+') no corresponde, en L: '+str(nodo.linea))
 
-
 ################---CREATE DATABASE---##########################
     def createDB(self, nodo):
         name_db = ''
         owner = ''
-        mode = -1
+        mode = 1    # verificar valor por defecto
 
         hijo1 = ''
         hijo2 = ''
@@ -274,13 +275,42 @@ class AST:
             name_db = hijo1
             owner = hijo2
             mode = hijo3
-        
+
+        # print ('====================================')
+        # global c3d
+
+        # # C3D
+        # if nodo.valor != '':
+        #     self.c3d.append('CREATE DATABASE ' + name_db);      # t_n = 'CREATE DATABASE ' + name_db
+        #     c3d += 'CREATE DATABASE ' + name_db
+        #     if owner != '' and owner != ';':
+        #         self.c3d.append(' OWNER \'' + owner + '\'')
+        #         c3d +=  ' OWNER \'' + owner + '\''
+        #     if mode != '' and mode != ';':
+        #         self.c3d.append(' MODE ' + mode)
+        #         c3d += ' MODE ' + mode 
+        # else:
+        #     self.c3d.append('CREATE DATABASE IF NOT EXISTS ' + name_db)
+        #     c3d = 'CREATE DATABASE IF NOT EXISTS ' + name_db
+        #     if owner != '' and owner != ';':
+        #         self.c3d.append(' OWNER \'' + owner + '\'')
+        #         c3d += ' OWNER \'' + owner + '\''
+        #     if mode != '' and mode != ';':
+        #         self.c3d.append(' MODE ' + mode) 
+        #         c3d += ' MODE ' + mode
+
+        # self.c3d.append(';')
+        # c3d += ';'
+
+        # print(c3d)
+        # FIN C3D
         
         query_result = jsonMode.createDatabase(name_db)
         if query_result == 0:
             jsonMode.createDatabase(name_db)
             self.ts[name_db] = Database(owner, mode)
             self.output.append('Creación de base de datos \"'+name_db+'\" exitosa.')
+
         elif query_result == 1:
             self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
         elif query_result == 2:
@@ -288,27 +318,30 @@ class AST:
             
 #################---USE DATABASE---################################
     def useDB(self,nodo):
+        global c3d
         if nodo.valor in self.ts:
             self.usingDB = nodo.valor
             self.output.append('Usted esta ubicado en la base de datos \"'+ self.usingDB +'\".')
             # print(self.usingDB)
+            # self.c3d.append('USE ' + self.usingDB + ';')
         else:
             # agregar el error semantico con su debido codigo -> DB no existe
             self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
 
 ##################---DROP DATABASE---################################
     def dropDB(self, nodo):
-        
+        global c3d
         if nodo.valor in self.ts:
             result = jsonMode.dropDatabase(nodo.valor)
             del self.ts[nodo.valor]
             if result == 0:
-                self.output.append('Base de datos \"'+ nodo.valor+'\" botada exitosamente.')
+                self.output.append('Base de datos \"'+ nodo.valor+'\" eliminada exitosamente.')
+                # c3d += 'DROP DATABASE ' + self.usingDB + ';'
+                # print(c3d)
             elif result == 1:
                 self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
             elif result == 2:   # Base de datos inexistente
                 self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
-
 
 ##################---ALTER DATABASE---################################
     def alterDB(self,nodo):
@@ -316,7 +349,7 @@ class AST:
         databaseNew = ''
         owner = ''
         rename = 0
-
+        global c3d
         for hijos in nodo.hijos:
             databaseNew = hijos.valor
             if hijos.etiqueta == 'RENAME TO':
@@ -335,6 +368,9 @@ class AST:
                     self.ts[databaseNew] = self.ts[databaseOld]
                     del self.ts[databaseOld]
                 self.output.append('La base de datos \"'+ databaseOld+'\" ha sido renombrada a \"' + databaseNew + '\".')
+                # c3d += 'ALTER DATABASE ' + databaseOld
+                # c3d += ' RENAME TO ' + databaseNew
+                # print(c3d)
             elif query_result == 1:
                 self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
             elif query_result == 2:   # Base de datos inexistente
@@ -347,6 +383,9 @@ class AST:
             if query_result == 0:
                 self.ts[databaseOld].owner = owner
                 self.output.append('La base de datos \"'+ databaseOld+'\" ha cambiado de propietario a \"' + owner + '\".')
+                # c3d += 'ALTER DATABASE ' + databaseOld
+                # c3d += ' OWNER TO ' + owner
+                # print(c3d)
             elif query_result == 1:
                 self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
             elif query_result == 2:   # Base de datos inexistente
@@ -362,7 +401,7 @@ class AST:
         veces_mod = 0
         pos_mod1 = 0
         pos_mod2 = 0
-
+        global c3d
         if nodo.valor == '':
             self.output.append(query_result)
         else:
@@ -376,7 +415,9 @@ class AST:
                 
             #     print("====================================")
             self.output.append(filtrada)
-       
+        # c3d += 'SHOW DATABASES'
+        # print(c3d)
+
 ##################---UPDATE---################################
     def update(self,nodo):
         #print("=============================")
@@ -395,7 +436,6 @@ class AST:
         elif r == 3:   # Tabla existente
             self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
 
-        
 
 ##################---DELETE---################################
     def delete(self,nodo):
@@ -492,7 +532,7 @@ class AST:
             return
         database = self.ts[self.usingDB]
         table = {}
-        #--- Llamada a función nativa...
+
         result = jsonMode.createTable(self.usingDB,str(tb_name),col_count)
         if result == 0:     # Operación exitosa
             self.output.append('Creación de tabla \"'+tb_name+'\" exitosa.')
@@ -529,12 +569,14 @@ class AST:
             self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
         elif result == 3:   # Tabla existente
             self.errors.append(Error('42P07', EType.SEMANTICO, 'duplicate_table',nodo.linea))
-
+    
+# G E T  C O L U M N  T Y P E
     def getColType(self,nodo_tipo) -> ColType:
         # Verificación del límite
         l = 0
         if len(nodo_tipo.hijos) == 1:
-            l = nodo_tipo.hijos[0].valor        
+            l = nodo_tipo.hijos[0].valor
+        
         # Verificación del tipo
         tipo = str(nodo_tipo.valor).upper()
         if tipo == 'SMALLINT':
@@ -580,6 +622,7 @@ class AST:
         else:
             return ColType(Types.ENUM,l)
 
+# D R O P  T A B L E
     def eliminarTabla(self,nodo):
         tb_name = nodo.valor
         result = jsonMode.dropTable(self.usingDB,tb_name)
@@ -594,6 +637,7 @@ class AST:
         elif result == 3: # Tabla no existe
             self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
 
+# C R E A T E  E N U M S
     def crearEnum(self,nodo):
         nombre = nodo.valor
         valores = []
@@ -602,7 +646,9 @@ class AST:
         # Almacenar el tipo 
         self.userTypes[nombre] = valores
 
+#--------------------------------------------------------------------------------------------------
 
+# P R I N T  O U T P U T S
     def printOutputs(self):
         global output2
         print('\n--- SALIDAS ('+str(len(self.output))+') -----------------------------------------')
@@ -610,6 +656,7 @@ class AST:
             print(str(s))
             output2 = str(s)
 
+# P R I N T  E R R O R S
     def printErrors(self):
         global errors2
         print('\n--- ERRORES ('+str(len(self.errors))+') -----------------------------------------')
@@ -617,7 +664,15 @@ class AST:
             print(e.toString())
             errors2 = e.toString()
 
+# P R I N T  C 3 D
+    def printC3D(self):
+        global c3d2
+        print('\n-----C3D--------------------')
+        for c in self.c3d:
+            print(str(c))
+            c3d2 = str(c)
 
+# TS  R E P O R T
     def generateTSReport(self):
         now = datetime.now()
         fecha = 'Fecha: '+str(now.day)+'/'+str(now.month)+'/'+str(now.year)
@@ -693,9 +748,16 @@ class AST:
         file.write(tbhead)
         file.write(cont)
         file.close()
-        
+
+    def getStrings(self, lista) -> str:
+        strn = ''
+        for s in lista:
+            strn += s + ', '
+        strn = strn[:-2]
+        return strn
+
 #-----------------------------------------------------------------------------------------------------
-    # I N S E R T  -  I N T O
+# I N S E R T  -  I N T O
 
     def insertarDatos(self,nodo):
         tb_name = nodo.valor
@@ -760,38 +822,6 @@ class AST:
             tipos.append(tabla[c].columnType)
         return tipos
 
-    def erroresHTML(self):
-        now = datetime.now()
-        fecha = 'Fecha: '+str(now.day)+'/'+str(now.month)+'/'+str(now.year)
-        hora = 'Hora: '+str(now.hour)+':'+str(now.minute)
-        header = '<html><head><br><title>REPORTE DE ERRORES</title></head><body>\n<H1 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">REPORTE DE ERRORES</font></b></H1>\n<H4 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">'+fecha+' | '+hora+'</font></b></H4>\n'
-        tbhead = '<table align="center" cellpadding="20" cellspacing="0"  style="border:2px solid #1f253d">\n'
-        tbhead += '<tr>\n'
-        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">CODIGO</font></td>\n'
-        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">TIPO DE ERROR</font></td>\n'
-        tbhead += '<td bgcolor="#2d48b5" width="100" style="text-align:center"><font face="Roboto" color="white" size="4">DESCRIPCION</font></td>\n'
-        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">LINEA</font></td>\n'
-        tbhead += '</tr>\n'
-        cont = ''
-        template = open("Errores.html", "w")
-
-        for e in self.errors:
-            print(e.toString())
-
-        for comp in self.errors:
-            # Iteración sobre las tablas de la DB
-            cont += '<tr>\n'
-            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.code+'</font></td>\n'
-            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(comp.error_type.name)+'</font></td>\n'
-            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.description+'</font></td>\n'
-            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(comp.line)+'</font></td>\n'
-            cont += '</tr>\n'
-        template.write(header)
-        template.write(tbhead)
-        template.write(cont)
-        template.write("</table> \n</body> \n</html>")
-        template.close()
-        
 #------------------------------------------------------------------------------------------------------
 # I N D I C E S
  
@@ -908,6 +938,40 @@ class AST:
             self.output('Eliminación del indice \"'+name+'\" exitosa.')
         else:
             self.errors.append(Error('-----',EType.SEMANTICO,'index_non_exist',nodo.linea))
+ 
+#------------------------------------------------------------------------------------------------------
+# REPORTE DE ERRORES
+    def erroresHTML(self):
+        now = datetime.now()
+        fecha = 'Fecha: '+str(now.day)+'/'+str(now.month)+'/'+str(now.year)
+        hora = 'Hora: '+str(now.hour)+':'+str(now.minute)
+        header = '<html><head><br><title>REPORTE DE ERRORES</title></head><body>\n<H1 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">REPORTE DE ERRORES</font></b></H1>\n<H4 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">'+fecha+' | '+hora+'</font></b></H4>\n'
+        tbhead = '<table align="center" cellpadding="20" cellspacing="0"  style="border:2px solid #1f253d">\n'
+        tbhead += '<tr>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">CODIGO</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">TIPO DE ERROR</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="100" style="text-align:center"><font face="Roboto" color="white" size="4">DESCRIPCION</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">LINEA</font></td>\n'
+        tbhead += '</tr>\n'
+        cont = ''
+        template = open("Errores.html", "w")
+
+        for e in self.errors:
+            print(e.toString())
+
+        for comp in self.errors:
+            # Iteración sobre las tablas de la DB
+            cont += '<tr>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.code+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(comp.error_type.name)+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.description+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(comp.line)+'</font></td>\n'
+            cont += '</tr>\n'
+        template.write(header)
+        template.write(tbhead)
+        template.write(cont)
+        template.write("</table> \n</body> \n</html>")
+        template.close()
 
 
 ######################################## Ejecucion de Querys #########################################
@@ -1444,4 +1508,3 @@ class AST:
                 bnf += hijo.gramatica + '\n'
             bnf += self.recorrerHijo(hijo)
         return bnf
-
