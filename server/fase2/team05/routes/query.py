@@ -1,15 +1,23 @@
 from flask import Blueprint, Response, jsonify, request
 from flask_cors import CORS
-# import del interprete /// interpreter
-query = Blueprint('query', __name__)
+from Fase1.analizer import interpreter
 
-CORS(query)
+qry = Blueprint('qry', __name__)
 
-@query.route('/exec', methods=['POST'])
+CORS(qry)
+
+@qry.route('/exec', methods=['POST'])
 def exec():
-    pass
-    # recuperar el json que contiene el query
-    # recuperar el query
-    # ejecutar el query (con el interpreter)
-    # recuperar los mensajes importantes que arroje el interpreter
-    # enviar la información al cliente
+    """Ejecuta una consulta y devuelve el resultado"""
+    # Recupera la consulta a ejecutar
+    body = request.get_json()
+    query = body.get('query')
+    try:
+        # Ejecuta el query (con el interpreter)
+        result = interpreter.execution(query)
+        # TODO: Recuperar mensajes importantes
+        return {"result": result, "ok": True}, 200
+    except Exception as e:
+        #  Retorna un mensaje de error en el servidor
+        print(e)
+        return {"ok": False}, 400
