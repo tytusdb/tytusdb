@@ -23,21 +23,16 @@ from procedural import objopt
 def analiz(input):
     raiz = g.parse(input)
     results = []
-    #executeGraphTree(raiz)
+    executeGraphTree(raiz)
     for val in raiz:
         res = val.ejecutar()
         if isinstance(res,CError):
             results.append("Error "+ res.tipo+". Descripcion: " +res.descripcion)
         else:
             results.append( res)
-    #graphTable(ts)
-    #report_errors()
-    #report_BNF()
-    #--------------------------------------------------------
-    
-
-
-    #--------------------------------------------------------
+    graphTable(ts)
+    report_errors()
+    report_BNF()
     return results
 
 def traducir(input):
@@ -177,6 +172,7 @@ def ejecutar():
     f = open('c3d.py', 'r')
     file_contents = f.read()
     consola.insert(str(float(0)), file_contents)
+    #PARA OPTIMIZACION
     optm.Optimizador(objopt).ejecutar()
 
 def Traducir():

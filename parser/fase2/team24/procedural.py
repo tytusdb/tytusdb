@@ -903,7 +903,7 @@ class exp_textp(expresion):
         codigo = tmp + f' = \'{self.val}\''
         valor = tmp
         res = self.val
-        obj = oo.Temporal(tmp,self.val)
+        obj = oo.Temporal(tmp,self.val,True)
         objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
