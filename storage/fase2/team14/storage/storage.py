@@ -426,6 +426,110 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
     except:
         return 1
 
+# vincula un indice unico a la tabla
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database]:
+            result = 3
+        else:
+            if len(columns) >= 1:
+                tableColumns = databasesinfo[1][database][table]['numberColumns']
+                col1 = True
+                for values in columns:
+                    if values >= tableColumns:
+                        col1 = False
+                        break
+                if col1:
+                    registers = extractTable(database,table)
+                    if len(registers) == 0:
+                        res = createTable(database, table + 'IndexUnique', 2)
+                        if res == 0:
+                            res1 = insert(database, table + 'IndexUnique', [indexName,columns])
+                            if res1 == 0:
+                                dictIU = {indexName: {'columns': columns}}
+                                IndexU = {'IndexUnique': dictIU}
+                                databasesinfo[1][database][table].update(IndexU)
+                                commit(databasesinfo, 'databasesInfo')
+                            else:
+                                result = 1
+                        else:
+                            result = 1
+                    else:
+                        tableColumns = databasesinfo[1][database][table]['numberColumns']
+                        col1 = True
+                        for values in columns:
+                            if values >= tableColumns:
+                                col1 = False
+                                break
+                        if col1:
+                            Values1 = []
+                            Rep = True
+                            for value in registers:
+                                Fk1 = ''
+                                for i in columns:
+                                    if i == len(value) - 1:
+                                        Fk1 = Fk1 + value[i]
+                                    else:
+                                        Fk1 = Fk1 + value[i] + '_'
+                                if Fk1 in Values1:
+                                    Rep = False
+                                    break
+                                else:
+                                    Values1.append(Fk1)
+                            if Rep:
+                                res = createTable(database, table + 'IndexUnique', 2)
+                                if res == 0:
+                                    res1 = insert(database, table + 'IndexUnique', [indexName, columns])
+                                    if res1 == 0:
+                                        dictIU = {indexName: {'columns': columns}}
+                                        IndexU = {'IndexUnique': dictIU}
+                                        databasesinfo[1][database][table].update(IndexU)
+                                        commit(databasesinfo, 'databasesInfo')
+                                    else:
+                                        result = 1
+                                else:
+                                    result = 1
+                            else:
+                                result = 5
+                        else:
+                            result = 1
+                else:
+                    result = 1
+            else:
+                result = 1
+        return result
+    except:
+        return 1
+    
+# elimina el vinculo del indice unico en la tabla
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = 2
+        elif table not in databasesinfo[1][database]:
+            result = 3
+        else:
+            if 'IndexUnique' in databasesinfo[1][database][table]:
+                if indexName in databasesinfo[1][database][table]['IndexUnique']:
+                    res = dropTable(database, table + 'IndexUnique')
+                    if res == 0:
+                        del databasesinfo[1][database][table]['IndexUnique'][indexName]
+                        commit(databasesinfo, 'databasesinfo')
+                        result = 0
+                    else:
+                        result = 1
+                else:
+                    result = 4
+            else:
+                result = 1
+        return result
+    except:
+        return 1
+    
 # cambia el nombre de una tabla      
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
     try:

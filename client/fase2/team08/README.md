@@ -15,6 +15,7 @@ import tkinter as tk
 from tkinter import *
 import http.client
 import json
+from PIL.ImagePalette import load
 ```
 
 **Arbol.py**
@@ -111,7 +112,7 @@ def cerrarPestaña():
 def CrearVentana():
     ...
 ```
-> Conecta todo en un frame para crear el cliente.
+> Conecta todo en un frame para crear el cliente. Utilización de la librería PIL para la imagen del ícono del frame.
 
 ```python
 def añadir(titulo):
