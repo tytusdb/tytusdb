@@ -224,6 +224,48 @@ def alterDatabaseDecompress(database):
     except:
         return 1
     
+def alterTableCompress(database, table, level):
+    try:
+
+        if level > 9 or level < 0:
+            return 4
+
+        newTable = []
+
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        mode = dictionary.get(database)[0]
+
+        if value_db:
+            j = checkMode(mode)
+            tableEx = j.extractTable(database, table)
+            for tuple in tableEx:
+                newTuple = []
+                for register in tuple:
+                    if isinstance(register, bytes):
+                        # print("Tamaño sin comprimir %d" % len(register))
+                        compressed = zlib.compress(register, level)
+                        # print("Tamaño comprimido %d" % len(compressed))
+                        newTuple.append(compressed)
+                    else:
+                        newTuple.append(register)
+
+                newTable.append(newTuple)
+
+            j.truncate(database, table)
+
+            for tuple in newTable:
+                j.insert(database, table, tuple)
+
+            save(dictionary, 'metadata')
+            return 0
+            # print(newTable)
+
+        else:
+            return 2
+    except:
+        return 1
+    
     
 # ---------------------------------------------- AUXILIARY FUNCTIONS  --------------------------------------------------
 # SHOW DICTIONARY
