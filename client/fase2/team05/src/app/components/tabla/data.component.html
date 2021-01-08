@@ -1,20 +1,22 @@
-<button mat-raised-button (click)="addColumn()"> Add column </button>
-<button mat-raised-button (click)="removeColumn()"> Remove column </button>
-
+<button mat-raised-button> {{anuncio}} </button>
 <div class="mat-elevation-z8">
 
-<table mat-table [dataSource]="data" class="mat-elevation-z8">
-  <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns">
-    <th mat-header-cell *matHeaderCellDef> {{column}} </th>
-    <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
-  </ng-container>
+  <table id="users">
 
-  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-  <tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
-</table>
+    <tr>
+      <th *ngFor = "let column of headers">
+        {{column}}
+      </th>
+    </tr>
+
+    <tr *ngFor = "let row of rows">
+      <td *ngFor = "let column of row">
+        {{column}}
+      </td>
+    </tr>
 
 
-  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  </table>
 </div>
 
 
