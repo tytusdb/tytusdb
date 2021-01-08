@@ -92,44 +92,16 @@ def functionsReport(env):
 
 s = """ 
 
-CREATE FUNCTION myFuncion(texto text, b boolean) RETURNS text AS $$
-BEGIN
-INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(foo(texto)),1);
-SELECT 3-5>4 and -3=texto as sho, texto between symmetric 2 and 3 as alv;
-b = texto between symmetric 2 and 3;
-	RETURN texto;
-END;
-$$ LANGUAGE plpgsql;
 
-select * from tbCalificacion;
-select *
-from tbventa where ventaregistrada = false;
-select *
-from tbempleadopuesto
-group by departamento;
-select *
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by primernombre,segundonombre,primerapellido;
-
-
-
-select *
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by primernombre,segundonombre,primerapellido,fechaventa
-limit 1;
-
-select *
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by primernombre,segundonombre,primerapellido
-UNION
-select DISTINCT * 
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by 1,2,3
-order by 1;
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now();
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', now());
+SELECT now();
 """
 s2 = """
 
@@ -183,4 +155,4 @@ group by primernombre,segundonombre,primerapellido;
 
 """
 
-traducir(s2)
+traducir(s)

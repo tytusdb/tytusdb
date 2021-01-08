@@ -1628,7 +1628,7 @@ def p_extract_1(t):
     )
     repGrammar.append(t.slice)
 
-
+# TODO: Extract column
 def p_extract_2(t):
     """
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM columnName S_PARDER
