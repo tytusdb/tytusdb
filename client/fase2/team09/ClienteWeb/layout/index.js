@@ -297,6 +297,59 @@ function Table(opcion){
       document.getElementById("myModalT11").style.display = "none";
       document.getElementById("namedropTable1").value = "";
     break;
+
+    case "insert":
+      var contenido = "insert into " + document.getElementById("nameTableInsert1").value + 
+      " values("+document.getElementById("nameTableInsert2").value+");"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT12").style.display = "none";
+      document.getElementById("nameTableInsert1").value = "";
+    break;
+
+    case "loadCSV":
+      var contenido = "insert into " + document.getElementById("nameloadCSV1").value + 
+      " values("+document.getElementById("nameloadCSV2").value+");"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT13").style.display = "none";
+      document.getElementById("nameloadCSV1").value = "";
+    break;
+
+    case "extractRow":
+      var contenido = "insert into " + document.getElementById("nameextractRow1").value + 
+      " values("+document.getElementById("nameextractRow2").value+");"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT14").style.display = "none";
+      document.getElementById("nameextractRow1").value = "";
+    break;
+
+    case "update":
+      var contenido = "insert into " + document.getElementById("nameupdate1").value + 
+      " values("+document.getElementById("nameupdate2").value+");"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT15").style.display = "none";
+      document.getElementById("nameupdate1").value = "";
+    break;
+
+    case "delete":
+      var contenido = "delete " + document.getElementById("namedelete1").value + 
+      " values("+document.getElementById("namedelete2").value+");"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT16").style.display = "none";
+      document.getElementById("namedelete1").value = "";
+    break;
+
+    case "truncate":
+      var contenido = "truncate table " + document.getElementById("nametruncate1").value + ";"
+      console.log(contenido)
+      peticionQuery(contenido)
+      document.getElementById("myModalT17").style.display = "none";
+      document.getElementById("nametruncate1").value = "";
+    break;
   }
 }
 
