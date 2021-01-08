@@ -80,7 +80,8 @@ reservadas = (
 
     #### OPTIMIZACIÓN C3D
     'IMPORT', 'RETURN', 'DEF', '__INIT__', 
-    'SELF', 'CLASS', 'HEAP', 'STACK', 'H', 'P'
+    'SELF', 'CLASS', 'HEAP', 'STACK', 'H', 'P',
+    'GOTO', 'LABEL', 'WITH_GOTO'
 )
 
 tokens = reservadas + (
@@ -115,17 +116,25 @@ tokens = reservadas + (
     'ID',
     'CADENA',
     'CARACTER',
-    'ARROBA'
+    'COMENTARIO_MULTILINEA',
+    'COMENTARIO_SIMPLE',
+    'ARROBA',
+    'ETIQUETA',
+    'IGUALIGUAL',
+    'NOIGUAL',
+    'DOSP'
 )
 
 # OPTIMIZACIÓN
 t_TEMPORAL = r't[0-9]+'
+t_ETIQUETA = r'\.L[0-9]+'
+t_DOSP = r':'
 # FUNCIONES
 t_LABEL = r'\$\$'
 t_R_PAR = r'\$[0-9]+'
 t_DP_IGUAL = r':\='
 # EXPRESIONES REGULARES BASICAS
-t_ARROBA = r'@'
+t_ARROBA = r'\@'
 t_PARIZQ = r'\('
 t_PARDER = r'\)'
 t_CORIZQ = r'\['
@@ -142,6 +151,8 @@ t_EXPONENCIACION = r'\^'
 t_MODULO = r'%'
 # OPERADORES RELACIONALES
 t_DISTINTO = r'\<\>'
+t_IGUALIGUAL = r'=='
+t_NOIGUAL = r'!='
 t_IGUAL = r'\='
 t_MAYORQ = r'\>'
 t_MENORQ = r'\<'

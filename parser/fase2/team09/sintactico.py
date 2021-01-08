@@ -34,6 +34,10 @@ from Instrucciones.Execute import Execute, Llamada
 from storageManager import jsonMode as storage
 # para C3D
 import op_aritmeticas as op
+import instrucciones as inst
+import encabezado as encabezado
+import ast_op as op_ast
+import reglas as r
 
 lista_lexicos=lista_errores_lexico
 
@@ -2028,38 +2032,114 @@ def p_tipo_datos2(t):
     t[0].nombre = t[1]
 
 #FIN DE LA GRAMATICA
-
-codigo_optimizado = ""
 reglas = []
 optimizacion = []
 pendiente = []
+instrucciones2 = []
 
 def p_init2(t):
     'init : instrucciones_generales' # gramática de optimización 3D
+    global optimizacion
+    cons = op_ast.ast_op(t[1])
+    optimizacion.append(cons)
 
 def p_inst_generales(t):
-    '''instrucciones_generales  : instrucciones_generales encabezado
-                                | instrucciones_generales instruccion2
-                                | encabezado
-                                | instruccion2'''
+    '''instrucciones_generales  : instrucciones_generales encabezado'''
+    arr1 = []
+    arr1.append('encabezado')
+    arr1.append(t[2])
+    t[1].append(arr1)
+    t[0] = t[1]
+
+def p_inst_generales3(t):
+    '''instrucciones_generales  : encabezado'''
+    arr = []
+    arr1 = []
+    arr1.append('encabezado')
+    arr1.append(t[1])
+
+    arr.append(arr1)
+
+    t[0] = arr
+
+def p_inst_generales_ins(t):
+    '''instrucciones_generales  : instrucciones_generales instruccion2'''
+    t[1].append(t[2])
+    t[0] = t[1]
+    
+
+def p_inst_generales_ins2(t):
+    '''instrucciones_generales  : instruccion2'''
+    arr = []
+    arr.append(t[1])
+    #print('Valor del arr -> ' + str(arr))
+    t[0] = arr
+
+def p_inst_generales1(t):
+    '''instrucciones_generales : instrucciones_generales temporales'''
+    arr1 = []
+    arr1.append('encabezado')
+    arr1.append(t[2])
+
+    t[1].append(arr1)
+    t[0] = t[1]
+
+def p_inst_generales2(t):
+    '''instrucciones_generales : temporales'''
+    arr = []
+    arr1 = []
+    arr1.append('encabezado')
+    arr1.append(t[1])
+    arr.append(arr1)
+    
+    t[0] = arr
 
 def p_encabezado(t):
-    '''encabezado   : HEAP CORIZQ ENTERO CORDER
+    '''encabezado   : FROM GOTO IMPORT WITH_GOTO
+                    | ARROBA WITH_GOTO DEF ID PARIZQ PARDER DOSP
+                    | HEAP CORIZQ ENTERO CORDER
                     | STACK CORIZQ ENTERO CORDER
-                    | H
-                    | P'''
-    global codigo_optimizado
+                    | H IGUAL ENTERO
+                    | P IGUAL ENTERO'''
+    global optimizacion
+
+
+    n = ''
+
     if t[1] == 'HEAP':
-        codigo_optimizado = codigo_optimizado + 'heap[' + t[3] + ']\n'
+        n = 'heap[' + str(t[3]) + ']'
     elif t[1] ==  'STACK':
-        codigo_optimizado = codigo_optimizado + 'stack[' + t[3] + ']\n'
+        n = 'stack[' + str(t[3]) + ']'
     elif t[1] == 'H':
-        codigo_optimizado = codigo_optimizado + 'H\n'
+        n = 'H = ' + str(t[3])
     elif t[1] == 'P':
-        codigo_optimizado = codigo_optimizado + 'P\n'
+        n = 'P = ' + str(t[3])
+    elif t[1] == 'FROM':
+        n = 'from goto import with_goto'
+    elif t[1] == '@':
+        n = '@with_goto\ndef ' + str(t[4]) + '():'
+
+    t[0] = n
+
+def p_temporales(t):
+    '''temporales   : temporales COMA TEMPORAL
+                    | temporales COMA ID'''
+    texto = str(t[1]) + ',' + str(t[3])
+    t[0] = texto
+
+def p_temporales1(t):
+    '''temporales   : TEMPORAL
+                    | ID'''
+    
+    t[0] = t[1]
 
 def p_instruccion_2(t):
-    '''instruccion2 : asignacion'''
+    '''instruccion2 : asignacion
+                    | salto_incondicional
+                    | salto_condicional
+                    | salto'''
+
+    t[0] = t[1]
 
 def p_asignacion(t):
     '''asignacion   : literal IGUAL operacion_aritmetica'''
@@ -2069,8 +2149,14 @@ def p_asignacion(t):
         elif t[3] == 'STACK':
             print('STACK')
         else:
-            const = op.Aritmetica(t[1], t[3], t.lexer.lineno)
-            optimizacion.append(const)
+            arr = []
+            arr.append('asignacion')
+            arr.append(t[1])
+            arr.append(t[3])
+            arr.append(t.lexer.lineno)
+            t[0] = arr
+            #const = op.Aritmetica(t[1], t[3], t.lexer.lineno)
+            #optimizacion.append(const)
 
 def p_operacion_aritmetica(t):
     '''operacion_aritmetica : literal MAS literal
@@ -2121,6 +2207,72 @@ def p_literal(t):
     else:
         t[0] = t[1]
 
+def p_salto(t):
+    '''salto : LABEL ETIQUETA'''
+    #print('Entro a salto')
+    arr = []
+    arr.append('salto')
+    arr.append(t[2])
+    arr.append(t.lexer.lineno)
+    #print(arr)
+    t[0] = arr
+
+def p_salto_incondicional(t):
+    '''salto_incondicional : GOTO ETIQUETA'''
+    #print('Entro a salto_incondicional')
+    arr = []
+    arr.append('sin')
+    arr.append(t[2])
+    arr.append(t.lexer.lineno)
+    #print(arr)
+    t[0] = arr
+
+def p_salto_condicional(t):
+    '''salto_condicional : IF PARIZQ operacion_relacional PARDER DOSP GOTO ETIQUETA'''
+    #print('Entro a salto condicional')
+    arr = []
+    arr.append('sc')
+    arr.append(t[3])
+    arr.append(t[7])
+    arr.append(t.lexer.lineno)
+    #print(arr)
+    t[0] = arr
+
+def p_operacion_relacional(t):
+    '''operacion_relacional : literal MAYORQ literal
+                            | literal MENORQ literal
+                            | literal IGUALIGUAL literal
+                            | literal NOIGUAL literal
+                            | literal MAYOR_IGUALQ literal
+                            | literal MENOR_IGUALQ literal'''
+    arr = []
+    if t[2] == '>':
+        arr.append(t[1])
+        arr.append('>')
+        arr.append(t[3])
+    elif t[2] == '<':
+        arr.append(t[1])
+        arr.append('<')
+        arr.append(t[3])
+    if t[2] == '==':
+        arr.append(t[1])
+        arr.append('==')
+        arr.append(t[3])
+    elif t[2] == '!=':
+        arr.append(t[1])
+        arr.append('!=')
+        arr.append(t[3])
+    elif t[2] == '>=':
+        arr.append(t[1])
+        arr.append('>=')
+        arr.append(t[3])
+    elif t[2] == '<=':
+        arr.append(t[1])
+        arr.append('<=')
+        arr.append(t[3])
+
+    t[0] = arr
+
 # MODO PANICO ***************************************
 
 def p_error(p):
@@ -2161,17 +2313,43 @@ def ejecutar_analisis(texto):
     print("inicio")
     return parser.parse(texto)
 
+def reporte_optimizacion():
+    f = open('Optimizacion.html', 'w')
+    f.write("<html>")
+    f.write("<body>")
+    f.write("<table border=""1"" style=""width:100%""><tr><th>Regla</th><th>Anterior</th><th>Nuevo</th><th>Linea</th></tr>")
+
+    reglas = r.Reglas.reglas
+
+    for i in reglas:
+        x = i.split(',')
+        f.write("<tr><td align=""center""><font color=""black"">" + str(x[0]) + "<td align=""center""><font color=""black"">" + str(x[1]) + "</td><td align=""center""><font color=""black"">" + str(x[2]) + "</td><td align=""center""><font color=""black"">" + str(x[3]) + "</td></tr>" + '\n')
+
+    f.write("</table>")
+    f.write("</body>")
+    f.write("</html>")
+    f.close()
+
 def optimizar(texto):
     lexer.input("")
     lexer.lineno = 0
-    parse = parser.parse(texto)
     global optimizacion, reglas, pendiente
-    print('Optimizacion -> ' + str(len(optimizacion)))
-    mensaje = ''
-    for cons in optimizacion:
-        cons.optimizacion(reglas, pendiente) 
-    for i in pendiente:
-        print(i)
+    optimizacion = []
+    reglas = []
+    pendiente = []
+    parse = parser.parse(texto)
+    #print('Optimizacion -> ' + str(len(optimizacion)))
+    #vvmensaje = ''
+    if len(optimizacion) > 0:
+        
+        for cons in optimizacion:
+            cons.optimizacion() 
+
+    reporte_optimizacion()
+    
+    f = open('c3d_optimizado.py', 'w')
+    f.write(r.Reglas.optimizado)
+    f.close()
 
     #print('Las reglas que se utilizaron fueron:\n' + str(reglas))
     #LIMPIAR VARIABLES
