@@ -72,8 +72,12 @@ class CreateOrReplace(Instruccion):
             arbol.setListaBd(nueva)
         '''
 
-'''
-instruccion = CreateOrReplace("hola mundo",None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
+    def traducir(self, tabla, controlador, arbol):
+        codigo = 'CreateOrReplace.CreateOrReplace("' + self.base + '", None, "' + self.existe + '", '
+        if self.owner is None:
+            codigo += 'None, '
+        else:
+            codigo += '"' + self.owner + '", '
+        codigo += str(self.mode) + ', "' + self.strGram + '", ' + str(self.linea) + ', ' + str(self.columna) + ').ejecutar(tabla, arbol)\n'
+        #print(codigo)
+        return None

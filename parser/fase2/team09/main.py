@@ -226,7 +226,7 @@ class interfaz():
         control = controlador()
         
         for i in arbol.instrucciones:
-            resultado2 = i.traducir(tablaGlobal,control)
+            resultado2 = i.traducir(tablaGlobal,control, arbol)
 
         control.c3d += '\nejecutar_3d()'
         print (control.c3d)
