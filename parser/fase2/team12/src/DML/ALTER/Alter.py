@@ -7,6 +7,13 @@ sys.path.append(storage_dir)
 
 storage_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\typeChecker\\')
 sys.path.append(storage_dir)
+label_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))+"\\C3D\\")
+sys.path.append(label_dir)
+
+from Label import *
+from Temporal import *
+
+
 
 from typeChecker.typeChecker import *
 from Nodo import Nodo
@@ -18,6 +25,7 @@ class Alter(Nodo):
 
     def execute(self,enviroment = None):
         print('Llamar al Alter')
+        print(self.compile())
         if self.nombreNodo == 'SENTENCIA_ALTER_INDEX':
             id1 = self.hijos[0].valor
             id2 = self.hijos[1].valor
@@ -37,6 +45,7 @@ class Alter(Nodo):
         dir = f"{tmp} = \"{self.getText()}\"\n"
         dir += f'display[p] = {tmp}\n'
         dir += 'p = p + 1'
+        return dir
 
     def getText(self):
         if self.hijos[1].nombreNodo == "DATABASE":

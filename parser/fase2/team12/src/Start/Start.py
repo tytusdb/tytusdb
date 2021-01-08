@@ -212,14 +212,14 @@ class Start(Nodo):
                 nuevaBase=Database()                
                 message = nuevaBase.execute(hijo)
                 self.listaSemanticos.append(message)
-                listaInstrucciones.append("cdb = \""+nuevaBase.compile(hijo)+"\"")
+                listaInstrucciones += self.compile1(nuevaBase.compile(hijo)).splitlines()
             elif hijo.nombreNodo == 'DECLARACION_VARIABLE':
                 print(hijo.compile(entornoGlobal))
             elif hijo.nombreNodo == 'SENTENCIA_USE':
                 useDB = Use()
                 message = useDB.execute(hijo)
                 self.listaSemanticos.append(message)
-                listaInstrucciones.append("udb = \""+useDB.compile(hijo)+"\"")
+                listaInstrucciones += self.compile1(useDB.compile(hijo)).splitlines()
             elif hijo.nombreNodo == 'CREATE_TABLE':
                 nuevaTabla = Table()
                 res = nuevaTabla.execute(hijo, enviroment)
@@ -227,18 +227,26 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
                 else:
                     self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
+                listaInstrucciones += self.compile1(self.getText()).splitlines()
+
             elif hijo.nombreNodo == 'CREATE_TYPE_ENUM':
                 nuevoEnum = Type()
                 nuevoEnum.execute(hijo)
+
             elif hijo.nombreNodo == 'SENTENCIA_SELECT' or hijo.nombreNodo == 'SENTENCIA_SELECT_DISTINCT':
                 hijo.execute(entornoGlobal)
                 respuesta = hijo.dataResult
                 if respuesta.data != None:
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(respuesta.encabezados, respuesta.data)})
+
+                listaInstrucciones += self.compile1(self.getText()).splitlines()
+
             elif hijo.nombreNodo == 'E':
                 hijo.execute(entornoGlobal)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
                 print("Expresion valor: "+str(hijo.valorExpresion))
+                listaInstrucciones += self.compile1(hijo.getText()).splitlines()
+
             elif hijo.nombreNodo == 'SENTENCIA_INSERT':
                 nuevoInsert = InsertTable()
                 res = nuevoInsert.execute(hijo,enviroment)
@@ -246,34 +254,62 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
                 else:
                     self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
+                listaInstrucciones += hijo.compile().splitlines()
+                
             elif hijo.nombreNodo == "SENTENCIA_SHOW":
                 self.listaSemanticos.append(hijo.execute(None))
+                listaInstrucciones += hijo.compile().splitlines()
+
             elif hijo.nombreNodo == "SENTENCIA_ALTER_INDEX":
-                self.listaSemanticos.append(hijo.execute(None))                
+                self.listaSemanticos.append(hijo.execute(None))  
+                listaInstrucciones += hijo.compile().splitlines()
+
             elif hijo.nombreNodo == "SENTENCIA_DROP":
                 self.listaSemanticos.append(hijo.execute(None))
+                listaInstrucciones += hijo.compile().splitlines()
+
             elif hijo.nombreNodo == "SENTENCIA_DELETE":
                 self.listaSemanticos.append(hijo.execute(None))
+                listaInstrucciones += hijo.compile().splitlines()
+
+
             elif hijo.nombreNodo == 'SENTENCIA_UNION_ALL':
                 nuevoUnionAll = UnionAll()
                 resp = nuevoUnionAll.execute(hijo)
                 if resp.data != None:
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+                a = nuevoUnionAll.compile(hijo).replace(";"," ",1)
+                b = a.replace(";"," ",1)
+                listaInstrucciones += b.splitlines()
+                
             elif hijo.nombreNodo == 'SENTENCIA_UNION':
                 nuevoUnion = Union()
                 resp = nuevoUnion.execute(hijo)
                 if resp.data != None:
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+                a = nuevoUnion.compile(hijo).replace(";"," ",1)
+                b = a.replace(";"," ",1)
+                listaInstrucciones += b.splitlines()                    
+
+
             elif hijo.nombreNodo == 'SENTENCIA_INTERSECT':
                 nuevoIntersect = Intersect()
                 resp = nuevoIntersect.execute(hijo)
                 if resp.data != None:
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})
+                a = nuevoIntersect.compile(hijo).replace(";"," ",1)
+                b = a.replace(";"," ",1)
+                listaInstrucciones += b.splitlines()   
+
             elif hijo.nombreNodo == 'SENTENCIA_EXCEPT':
                 nuevoExcept = Except()
                 resp = nuevoExcept.execute(hijo)
                 if resp.data != None:
                     self.listaSemanticos.append({"Code":"0000","Message":  " rows returned", "Data" : self.tabular_data(resp.encabezados, resp.data)})            
+                a = nuevoExcept.compile(hijo).replace(";"," ",1)
+                b = a.replace(";"," ",1)
+                listaInstrucciones += b.splitlines()   
+                    
             elif hijo.nombreNodo == 'SENTENCIA_UPDATE':
                 nuevoUpdate = UpdateTable()
                 res = nuevoUpdate.execute(hijo,enviroment)
@@ -281,6 +317,11 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
                 else:
                     self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
+                try:
+                    listaInstrucciones += hijo.compile().splitlines()
+                except:
+                    pass
+
             elif hijo.nombreNodo == 'SENTENCIA_ALTER_TABLE':
                 nuevoAlterT = AlterTable()
                 res = nuevoAlterT.execute(hijo,enviroment)
@@ -288,9 +329,15 @@ class Start(Nodo):
                     self.listaSemanticos.append({"Code":res.code,"Message": res.responseObj.descripcion, "Data" : ""})
                 else:
                     self.listaSemanticos.append({"Code":"0000","Message": res.responseObj, "Data" : ""})
+
             elif hijo.nombreNodo == 'CREATE_INDEX' or hijo.nombreNodo == 'CREATE_UNIQUE_INDEX':
                 nuevoIndex = Index()
                 resp = nuevoIndex.execute(hijo)
+                try:
+                    listaInstrucciones += self.compile1(self.getText()).splitlines()
+                except:
+                    pass
+                
             elif hijo.nombreNodo == 'SENTENCIA_PROCEDURE':
                 print("Sentencia Procedure")
                 nuevoProcedure = Procedure()
@@ -437,3 +484,11 @@ class Start(Nodo):
             archivo.write(line)
             archivo.write("\n")
         archivo.close()
+
+    def compile1(self,texto):
+        tmp = instanceTemporal.getTemporal()
+        dir = f"{tmp} = \"{texto}\"\n"
+        dir += f'display[p] = {tmp}\n'
+        dir += 'p = p + 1\n'
+        print("EL TEMPORAL",dir)
+        return dir

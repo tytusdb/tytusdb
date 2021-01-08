@@ -113,6 +113,7 @@ class Select_Expresion(Expresion):
             if responseSelect.tipoUnico == None:
                 self.tipo = Type_Expresion(Data_Type.listaDatos)
                 self.dataResult = responseSelect
+                return responseSelect
             else:
                 self.tipo = Type_Expresion(responseSelect.tipoUnico)
                 self.dataResult = responseSelect
