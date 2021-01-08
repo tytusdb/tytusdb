@@ -1,7 +1,9 @@
 from parse.ast_node import ASTNode
 from jsonMode import alterDatabase, alterAddColumn, alterDropColumn
 from parse.errors import Error, ErrorType
-from parse.symbol_table import SymbolTable, FieldSymbol, SymbolType
+from parse.symbol_table import SymbolTable, FieldSymbol, SymbolType, generate_tmp
+from TAC.tac_enum import *
+from TAC.quadruple import *
 
 
 class AlterDatabaseRename(ASTNode):
@@ -15,11 +17,11 @@ class AlterDatabaseRename(ASTNode):
         super().execute(table, tree)
         result = alterDatabase(self.name, self.new_name)
         if result == 1:
-            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: old_database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: old_database_does_not_exists')
         elif result == 3:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: new_database_already_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: new_database_already_exists')
         else:
             old_symbol = table.get(self.name, SymbolType.DATABASE)
             old_symbol.name = self.new_name
@@ -28,7 +30,10 @@ class AlterDatabaseRename(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'ALTER DATABASE {self.name} RENAME TO {self.new_name};'
+        quad = Quadruple(None, 'exec_sql', f'ALTER DATABASE {self.name} RENAME TO {self.new_name};', generate_tmp(),
+                         OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 class AlterDatabaseOwner(ASTNode):
@@ -44,11 +49,15 @@ class AlterDatabaseOwner(ASTNode):
         old_symbol = table.get(self.name, SymbolType.DATABASE)
         old_symbol.owner = self.owner.val
         table.update(old_symbol)
-        return True
+        return f'You changed owner of database {self.name}'
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'ALTER DATABASE {self.name} OWNER TO {self.owner.val};'
+        quad = Quadruple(None, 'exec_sql', f'ALTER DATABASE {self.name} OWNER TO {self.owner.val};', generate_tmp(),
+                         OpTAC.CALL)
+        tree.append(quad)
+        return quad
+        
 
 
 class AlterTableAddColumn(ASTNode):
@@ -69,11 +78,11 @@ class AlterTableAddColumn(ASTNode):
         result_field_length = self.field_length
         result = alterAddColumn(table.get_current_db().name, result_table_name, None)
         if result == 1:
-            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
         elif result == 3:
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: table_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: table_does_not_exists')
         else:
             total_fields = len(table.get_fields_from_table(result_table_name))
             column_symbol = FieldSymbol(
@@ -89,12 +98,15 @@ class AlterTableAddColumn(ASTNode):
                 None
             )
             table.add(column_symbol)
-            return True
+            return f'You added column {self.field_name} to table {self.table_name}'
 
     def generate(self, table, tree):
         super().generate(table, tree)
         result_field_type = self.field_type.val
-        return f'ALTER TABLE {self.table_name} ADD COLUMN {self.field_name} {result_field_type};'
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} ADD COLUMN {self.field_name} {result_field_type};', 
+                         generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 # TODO Pending to add checks
@@ -134,19 +146,19 @@ class AlterTableDropColumn(ASTNode):
         column_symbol = next((sym for sym in all_fields_symbol if sym.field_name == result_field_name), None)
         result = alterDropColumn(table.get_current_db().name, result_table_name, column_symbol.field_index)
         if result == 1:
-            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '5800: system_error')
         elif result == 2:
             # log error, old database name does not exists
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
         elif result == 3:
             # log error, table does not exists
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: table_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: table_does_not_exists')
         elif result == 4:
             # log error, PK cannot be deleted or table to be empty
-            raise Error(0, 0, ErrorType.RUNTIME, '2300: integrity_constraint_violation')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '2300: integrity_constraint_violation')
         elif result == 5:
             # log error, column out of index
-            raise Error(0, 0, ErrorType.RUNTIME, '2300: column_out_of_index')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '2300: column_out_of_index')
         else:
             for field in all_fields_symbol:
                 # Update indexes for higher fields
@@ -156,11 +168,14 @@ class AlterTableDropColumn(ASTNode):
             # TODO just realized it's needed to check for FKs in other tables
             # finally delete symbol of column removed
             table.delete(column_symbol.id)
-            return True
+            return f'You dropped column {self.field_name} from {self.table_name}'
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'ALTER TABLE {self.table_name} DROP COLUMN {self.field_name};'
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} DROP COLUMN {self.field_name};', generate_tmp(),
+                         OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 # TODO add constraint
@@ -230,12 +245,15 @@ class AlterTableNotNull(ASTNode):
         column_symbol = next((sym for sym in all_fields_symbol if sym.field_name == result_field_name), None)
         column_symbol.allows_null = self.allows_null
         table.update(column_symbol)
-        return True
+        return f'Updated column {self.table_name} [No]Nullable'
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} ' \
-               f'SET {"NOT NULL" if self.allows_null is False else "NULL"};'
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} '
+                               f'SET {"NOT NULL" if self.allows_null is False else "NULL"};', generate_tmp(),
+                         OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 # TODO drop constraint
@@ -274,11 +292,14 @@ class AlterTableRenameColumn(ASTNode):
         column_symbol.field_name = result_new_name
         column_symbol.name = result_new_name
         table.update(column_symbol)
-        return True
+        return f'Column {self.old_name} renamed to {self.new_name}'
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'ALTER TABLE {self.table_name} RENAME COLUMN {self.old_name} TO {self.new_name};'
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} RENAME COLUMN {self.old_name} TO {self.new_name};',
+                         generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 class AlterTableChangeColumnType(ASTNode):
@@ -302,9 +323,12 @@ class AlterTableChangeColumnType(ASTNode):
         column_symbol.field_type = result_field_type
         column_symbol.length = result_field_length
         table.update(column_symbol)
-        return True
+        return f'Type of column {self.field_type} changed'
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} ' \
-               f'TYPE {self.field_type.generate(table,tree)};'
+        quad = Quadruple(None, 'exec_sql', f'ALTER TABLE {self.table_name} ALTER COLUMN {self.field_name} '
+                               f'TYPE {self.field_type.generate(table, tree)};', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
+        

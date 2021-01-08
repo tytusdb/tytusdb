@@ -35,7 +35,7 @@ Para poder hacer uso del SQL Parser te presentamos los requerimientos mínimos d
 * [Python 3](https://www.python.org/downloads/) 
 * [Graphviz](https://graphviz.org/) 
 
-* Sistema Operativo: Windows
+* Sistema Operativo: Independiente
 
 ### Hardware
 
@@ -89,8 +89,10 @@ Entre sus opciones esta:
 ### Run
 Este menú cuenta con solo una opción: 
 - **Run:** Ejecuta la interpretacioón de las sentencias SQL que se encuentran en el área de texto. Al terminar el análisis genera salidas en el área de consola.
-    ![Areas](images/run.png)
-
+- **Generate:** Genera el código de 3 direcciones para la entrada que se encuentra en el área de texto.
+- **Clear Execution:** Elimina datos almacenados de corridas anteriores para la generación de código.
+    ![Areas](images/run.jpg)
+  
 ### Reports 
 Permite tener acceso a diversos reportes, como se detalla en el apartado de [Reportería](#:bookmark_tabs:-Reportería). Las opciones que proporciona son: 
 - Symbol Table
@@ -100,6 +102,7 @@ Permite tener acceso a diversos reportes, como se detalla en el apartado de [Rep
 - Asc Grammar
 - Desc Grammar
 - Grammar Análisis
+- Optimización código 3D
 
     ![Areas](images/reports.png)
 
@@ -139,3 +142,6 @@ Acá tenemos 4 tipos de reportes en archivos Markdown al que se tiene acceso dir
 3. **Desc Grammar:** Muestra la gramática descendente en BNF.
 
 4. **Grammar Análisis:** Justificaciones de la elección de la gramática ascenente.
+
+- ### Reporte Optimizaciones código 3D
+Muestra en el área de consola las optimizaciones realizadas al código de 3 direcciones.
