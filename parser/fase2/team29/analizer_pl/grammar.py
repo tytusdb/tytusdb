@@ -236,9 +236,9 @@ def p_language_function_1(t):
 
 def p_declaration_stmt(t):
     """
-    declaration_stmt : R_DECLARE global_variable_declaration
+    declaration_stmt : declaration_list
     """
-    t[0] = t[2]
+    t[0] = t[1]
     repGrammar.append(t.slice)
 
 
@@ -250,23 +250,23 @@ def p_declaration_stmt_n(t):
     repGrammar.append(t.slice)
 
 
-'''
 def p_declaration_list(t):
     """
-    declaration_list : declaration_list R_DECLARE global_variable_declaration
+    declaration_list : declaration_list declare_var
     """
-    t[1].append(t[3])
-    t[0] = t[1]
-    repGrammar.append(t.slice)
-
+    t[0] = t[1]+t[2]
 
 def p_declaration_list_u(t):
     """
-    declaration_list : R_DECLARE global_variable_declaration
+    declaration_list : declare_var
     """
-    t[0] = [t[1]]
-    repGrammar.append(t.slice)
-'''
+    t[0] = t[1]
+
+def p_declare_var(t):
+    """
+    declare_var : R_DECLARE global_variable_declaration
+    """
+    t[0] = t[2]
 
 
 def p_global_variable_declaration(t):
@@ -489,10 +489,10 @@ def p_statement(t):
 
 def p_drop_func(t):
     """
-    drop_func : R_DROP R_FUNCTION ID S_PUNTOCOMA
-            | R_DROP R_PROCEDURE ID S_PUNTOCOMA
+    drop_func : R_DROP R_FUNCTION ifExists ID S_PUNTOCOMA
+            | R_DROP R_PROCEDURE ifExists ID S_PUNTOCOMA
     """
-    t[0] = code.DropFunction(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = code.DropFunction(t[4], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1724,7 +1724,7 @@ def p_current(t):
     current : R_CURRENT_DATE
           | R_CURRENT_TIME
     """
-
+    t[0] = expression.C3D("", t[1], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -1732,6 +1732,7 @@ def p_current_1(t):
     """
     current : timeStamp
     """
+    t[0] = expression.C3D("", t[1][0].temp[1:-1]+" "+t[1][1].temp, t[1][0].row, t[1][0].column)
     repGrammar.append(t.slice)
 
 
