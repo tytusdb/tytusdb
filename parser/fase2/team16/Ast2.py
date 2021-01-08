@@ -951,12 +951,15 @@ class Ast2:
                 self.GrafoExpresionCase(j.Reservada, j.ListaExpresiones, padre)
             # elif isinstance(j, Campo_Accedido):
             #     self.GrafoCampo_Accedido(j.NombreT, j.Columna, j.Lista_Alias, padre)
+            elif isinstance(j,ProcesoCount):
+                self.Grafo_Count(j, padre)
             else:
                 print("No Ningun Tipo  vos ")
 
+
+
     # Recorrido de la lista de Nombres de Tablas
     # ----------------------------------------------------------------------------------------------------------
-
     def RecorrerListadeNombres(self, Nombres, padre):
         for i in Nombres:
 
