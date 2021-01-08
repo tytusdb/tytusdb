@@ -9,95 +9,160 @@ import math
 def up():
 	print(1)
 
-	createFunction('CALCULOS','''
+	executeSentence(Use,Use('DBFASE2'))
+	createFunction('MYFUNCION','''
 @with_goto
-def CALCULOS():
-	HORA:int
-	SENO:float
-	VALOR:int
-	ABSOLUTO:float
-	HORA=20
-	t0=math.sin(1)
-	SENO=t0
-	t1=SENO*HORA
-	t2=math.trunc(t1)
-	VALOR=t2
-	t3=VALOR+4
-	VALOR=t3
-	t4=-1
-	t5=math.sinh(t4)
-	t6=t5>0
-	t7=t5<0
-	t8=t6-t7
-	t9=t5*t8
-	ABSOLUTO=t9
-	t10=1/2
-	t11=1**t10
-	t12=ABSOLUTO*t11
-	ABSOLUTO=t12
-	t13=VALOR+ABSOLUTO
-	t14=math.degrees(math.acos(0.5))
-	t15=t13/t14
-	VALOR=t15
-	t16=VALOR>1
-	if t16:
-		goto .lbl0
-	else:
-		goto. lbl1
-	label .lbl0
-	VALOR=20
-	goto .lbl2
-	label .lbl1
-	VALOR=10
-	label .lbl2
-	return VALOR
+def MYFUNCION(TEXTO: str) ->str:
+	return TEXTO
 ''',False)
 
 
-	print(CALCULOS())
+	print(MYFUNCION(INICIO CALIFICACION FASE 2))
+
+	executeSentence(CreateTable,CreateTable('TBPRODUCTO',[ColumnId('IDPRODUCTO',['INTEGER'],{'null': False, 'primary': True}), ColumnId('PRODUCTO',['VARCHAR', 150],{'null': False}), ColumnId('FECHACREACION',['DATE'],{'null': False}), ColumnId('ESTADO',['INTEGER'],None)],None))
+	executeSentence(CreateIndex,CreateIndex('IDX_PRODUCTO','TBPRODUCTO',['IDPRODUCTO']))
+	executeSentence(CreateTable,CreateTable('TBCALIFICACION',[ColumnId('IDCALIFICA',['INTEGER'],{'null': False, 'primary': True}), ColumnId('ITEM',['VARCHAR', 100],{'null': False}), ColumnId('PUNTEO',['INTEGER'],{'null': False})],None))
+	executeSentence(CreateIndex,CreateIndex('IDX_CALIFICA','TBCALIFICACION',['IDCALIFICA']))
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,1), Value(3,'LAPTOP LENOVO'), MathFunction('NOW',0), Value(1,1)]))
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,2), Value(3,'BATERIA PARA LAPTOP LENOVO T420'), MathFunction('NOW',0), Value(1,1)]))
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,3), Value(3,'TECLADO INALAMBRICO'), MathFunction('NOW',0), Value(1,1)]))
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,4), Value(3,'MOUSE INALAMBRICO'), MathFunction('NOW',0), Value(1,1)]))
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,5), Value(3,'WIFI USB'), MathFunction('NOW',0), Value(1,1)]))
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,6), Value(3,'LAPTOP HP'), MathFunction('NOW',0), Value(1,1)]))
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,7), Value(3,'TECLADO FLEXIBLE USB'), MathFunction('NOW',0), Value(1,1)]))
+	executeSentence(InsertAll,InsertAll('TBPRODUCTO',[Value(1,8), Value(3,'LAPTOP SAMSUNG'), Value(3,'2021-01-02'), Value(1,1)]))
+	createFunction('VALIDAREGISTROS','''
+@with_goto
+def VALIDAREGISTROS(TABLA: str, CANTIDAD: int) ->int:
+	RESULTADO:int
+	RETORNA:int
+	t0=TABLA==TBPRODUCTO
+	if t0:
+		goto .lbl0
+	else:
+		goto. lbl4
+	label .lbl0
+	RESULTADO=1
+	t1=CANTIDAD==RESULTADO
+	if t1:
+		goto .lbl1
+	else:
+		goto. lbl2
+	label .lbl1
+	RETORNA=1
+	goto .lbl3
+	label .lbl2
+	RETORNA=0
+	label .lbl3
+	label .lbl4
+	t2=TABLA==TBPRODUCTOUP
+	if t2:
+		goto .lbl5
+	else:
+		goto. lbl9
+	label .lbl5
+	RESULTADO=2
+	t3=CANTIDAD==RESULTADO
+	if t3:
+		goto .lbl6
+	else:
+		goto. lbl7
+	label .lbl6
+	RETORNA=1
+	goto .lbl8
+	label .lbl7
+	RETORNA=0
+	label .lbl8
+	label .lbl9
+	t4=TABLA==TBBODEGA
+	if t4:
+		goto .lbl10
+	else:
+		goto. lbl14
+	label .lbl10
+	RESULTADO=3
+	t5=CANTIDAD==RESULTADO
+	if t5:
+		goto .lbl11
+	else:
+		goto. lbl12
+	label .lbl11
+	RETORNA=1
+	goto .lbl13
+	label .lbl12
+	RETORNA=0
+	label .lbl13
+	label .lbl14
+	return RETORNA
+''',False)
 
 
 @with_goto
-def CALCULOS():
-	HORA:int
-	SENO:float
-	VALOR:int
-	ABSOLUTO:float
-	HORA=20
-	t0=math.sin(1)
-	SENO=t0
-	t1=SENO*HORA
-	t2=math.trunc(t1)
-	VALOR=t2
-	t3=VALOR+4
-	VALOR=t3
-	t4=-1
-	t5=math.sinh(t4)
-	t6=t5>0
-	t7=t5<0
-	t8=t6-t7
-	t9=t5*t8
-	ABSOLUTO=t9
-	t10=1/2
-	t11=1**t10
-	t12=ABSOLUTO*t11
-	ABSOLUTO=t12
-	t13=VALOR+ABSOLUTO
-	t14=math.degrees(math.acos(0.5))
-	t15=t13/t14
-	VALOR=t15
-	t16=VALOR>1
-	if t16:
+def MYFUNCION(TEXTO: str) ->str:
+	return TEXTO
+
+@with_goto
+def VALIDAREGISTROS(TABLA: str, CANTIDAD: int) ->int:
+	RESULTADO:int
+	RETORNA:int
+	t0=TABLA==TBPRODUCTO
+	if t0:
 		goto .lbl0
 	else:
-		goto. lbl1
+		goto. lbl4
 	label .lbl0
-	VALOR=20
-	goto .lbl2
+	RESULTADO=1
+	t1=CANTIDAD==RESULTADO
+	if t1:
+		goto .lbl1
+	else:
+		goto. lbl2
 	label .lbl1
-	VALOR=10
+	RETORNA=1
+	goto .lbl3
 	label .lbl2
-	return VALOR
+	RETORNA=0
+	label .lbl3
+	label .lbl4
+	t2=TABLA==TBPRODUCTOUP
+	if t2:
+		goto .lbl5
+	else:
+		goto. lbl9
+	label .lbl5
+	RESULTADO=2
+	t3=CANTIDAD==RESULTADO
+	if t3:
+		goto .lbl6
+	else:
+		goto. lbl7
+	label .lbl6
+	RETORNA=1
+	goto .lbl8
+	label .lbl7
+	RETORNA=0
+	label .lbl8
+	label .lbl9
+	t4=TABLA==TBBODEGA
+	if t4:
+		goto .lbl10
+	else:
+		goto. lbl14
+	label .lbl10
+	RESULTADO=3
+	t5=CANTIDAD==RESULTADO
+	if t5:
+		goto .lbl11
+	else:
+		goto. lbl12
+	label .lbl11
+	RETORNA=1
+	goto .lbl13
+	label .lbl12
+	RETORNA=0
+	label .lbl13
+	label .lbl14
+	return RETORNA
 
 @with_goto
 def MYFUNCION(TEXTO: str) ->str:

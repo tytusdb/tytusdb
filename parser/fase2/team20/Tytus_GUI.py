@@ -10,6 +10,7 @@ from execution.execute import *
 from execution.execute_result import *
 
 from execution.AST.error import *
+from execution.executeOptimization import optimize
 
 from Tytus_GUI_console import print_error, print_symbol_table, print_error_table, print_messages, print_querys
 import Tytus_GUI_console
@@ -109,6 +110,7 @@ def translate_to_C3D():
     #run analysis results
     exec = Execute(result_analyze.noderoot)
     result_execute = exec.execute()
+    optimize(exec.pila)#----------OPTIMIZATION
     #process results and display reports
     process_results_and_display_reports(result_analyze, result_execute)
     
@@ -287,6 +289,7 @@ def compile_C3D():
     #result_compile = compile(Input_text)
     #process results and display reports
     #process_results_compile_and_display_reports(result_compile)
+    
 
 def compile_C3D_aux(c3d_optimized):
     global path_c3d
