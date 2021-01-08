@@ -2552,7 +2552,7 @@ def p_funciones_select__15(t):
     ''' funciones_select : DIV PARA expresion COMA expresion PARC '''
     reporte_bnf.append("<funciones_select> ::= DIV PARA <expresion> COMA <expresion> PARC")
     rep_sintaxis.append("<TR><TD> funciones_select -> DIV PARA expresion COMA expresion PARC </TD><TD> t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' ' </TD></TR>")
-    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '
 
 def p_funciones_select__16(t):
     ''' funciones_select : GCD PARA expresion COMA expresion PARC

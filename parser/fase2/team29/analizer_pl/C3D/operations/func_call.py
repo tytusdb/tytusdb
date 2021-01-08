@@ -135,6 +135,35 @@ class FunctionCall(Expression):
                     print("Error: Funcion no definida")
                     return code.C3D("", "", self.row, self.column)
 
+                if self.id == "extract":
+                    c3d += self.id.upper() + "("
+                    pval = self.params[0].execute(environment)
+                    c3d += pval.temp[1:-1].upper() + " FROM "
+                    parVal += pval.value
+                    pval = self.params[1].execute(environment)
+                    c3d += pval.temp[1:-1].upper() + " "
+                    parVal += pval.value
+                    pval = self.params[2].execute(environment)
+                    c3d += pval.temp + ")"
+                    parVal += pval.value
+                    return code.C3D(parVal, c3d, self.row, self.column)
+
+                if self.id == "date_part":
+                    c3d += self.id + "("
+                    pval = self.params[0].execute(environment)
+                    c3d += pval.temp + ", "
+                    parVal += pval.value
+                    pval = self.params[1].execute(environment)
+                    c3d += pval.temp[1:-1].upper() + " "
+                    parVal += pval.value
+                    pval = self.params[2].execute(environment)
+                    if pval.temp != "(":
+                        c3d += pval.temp + ")"
+                    else:
+                        c3d += "())"
+                    parVal += pval.value
+                    return code.C3D(parVal, c3d, self.row, self.column)
+
                 c3d += self.id + "("
 
                 if self.params:
