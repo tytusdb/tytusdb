@@ -19,7 +19,8 @@ class Value(Expression):
         self.type = type
         self.value = value
     def __repr__(self):
-        v="'"+str(self.value)+"'"
+        v=str(self.value)
+        if self.type == 3:v="'"+str(self.value)+"'"
         if self.type==1:
             v=int(str(self.value))
         elif self.type==2:
@@ -39,6 +40,7 @@ class Value(Expression):
         # diccionario = {'resultado':opts.generateTemp(),'argumento1':str(self.value),'argumento2':None,'operacion':None}
         # opts.pila.append(diccionario)
         # return (indent*"\t")+diccionario['resultado']+"="+str(self.value)+"\n"
+        if self.type == 3: self.value = "'"+self.value+"'"
         return self
 
 class Arithmetic(Expression):

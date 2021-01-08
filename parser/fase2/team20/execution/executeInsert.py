@@ -253,29 +253,30 @@ def check_type(columns_, values_) -> str:
         if values_[i] != None:
 
             column_type = ((str(columns_[i].type_)).upper())        
-
+            print(values_[i].type)
+            print(column_type)
             if ( column_type in type_int ) == True:
-                if values_[i].type != 1:
+                if values_[i].type != 1 and values_[i].type!=4:
                     return_ = "Argument " + str((i+1)) + " of wrong type. It should be a " + str(column_type) + " type."
                     i = len(columns_)
         
             elif ( column_type in type_float ) == True:
-                if values_[i].type != 2:
+                if values_[i].type != 2 and values_[i].type!=4:
                     return_ = "Argument " + str((i+1)) + " of wrong type. It should be a " + str(column_type) + " type."
                     i = len(columns_)
         
             elif ( column_type in type_char ) == True:
-                if values_[i].type != 3:
+                if values_[i].type != 3 and values_[i].type!=4:
                     return_ = "Argument " + str((i+1)) + " of wrong type. It should be a " + str(column_type) + " type."
                     i = len(columns_)
         
             elif ( column_type in type_string ) == True:
-                if values_[i].type != 3:
+                if values_[i].type != 3 and values_[i].type!=4:
                     return_ = "Argument " + str((i+1)) + " of wrong type. It should be a " + str(column_type) + " type."
                     i = len(columns_)
 
             elif ( column_type in type_bool ) == True:
-                if values_[i].type != 1:
+                if values_[i].type != 1 and values_[i].type!=4:
                     return_ = "Argument " + str((i+1)) + " of wrong type. It should be a " + str(column_type) + " type."
                     i = len(columns_)
                 else:
