@@ -1,7 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import {MatTableDataSource} from '@angular/material/table';
 import {MatPaginator} from '@angular/material/paginator';
-import {MatPaginatorModule} from '@angular/material/paginator';
 import { TableDataService } from 'src/app/service/tableData/table-data.service';
 
 const text = '{\n' +
@@ -55,20 +53,24 @@ export class DataComponent implements OnInit {
   headers: string[]; // = ['ID', 'Name', 'Age', 'Gender', 'Country']
   rows: string[]; // = [[**,**],[**,**]]
 
+  //
+  // const Squery = {query: 'SHOW DATABASES;'};
+
   ngOnInit(): void {
   }
 
   // tslint:disable-next-line:typedef
   fillData(){
-    // this.servicio.create(this.query).subscribe((response) => {
-    //   const body = response.body;
-    //   const msg = body.msg;
-    // });
+    this.servicio.create({query: 'SHOW DATABASES;'}).subscribe((response) => {
+      const body = response.body;
+      const msg = body.result.messages;
+      console.log(msg);
+    }, err => console.log(err));
 
-    const obj = JSON.parse(text);
-    const arreglo = obj.result.querys;
-    this.headers = arreglo[0][0];
-    this.rows = arreglo[0][1];
+    // const obj = JSON.parse(text);
+    // const arreglo = obj.result.querys;
+    // this.headers = arreglo[0][0];
+    // this.rows = arreglo[0][1];
 
   }
 

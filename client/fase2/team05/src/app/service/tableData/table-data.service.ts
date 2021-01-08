@@ -6,10 +6,11 @@ import {AppSettings} from '../../app.settings';
   providedIn: 'root'
 })
 export class TableDataService {
-  private URL = AppSettings.API_ENDPOINT + '*************/'; // ruta por definir
+  private URL = AppSettings.API_ENDPOINT + 'query/exec';
+
   constructor(private http: HttpClient) { }
   // tslint:disable-next-line:typedef
-  public create(query: string) {
-    return this.http.get<any>(this.URL + `create/${query}`, {observe: 'response'}); // ruta por definir
+  public create(query: any) {
+    return this.http.post<any>(this.URL , query, {observe: 'response'});
   }
 }
