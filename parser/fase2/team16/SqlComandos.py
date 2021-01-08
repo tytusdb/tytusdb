@@ -19,8 +19,6 @@ class SqlComandos:
             print("Si es un drop table *")
             self.CadenaSQL = self.grafoDropTable(i.id)
 
-
-
         elif isinstance(i, Select):
             print("Es Una Instruccion Select")
             self.CadenaSQL = self.GrafoSelect(i.Lista_Campos, i.Nombres_Tablas, i.unionn)
@@ -170,10 +168,11 @@ class SqlComandos:
             pass
 
         elif isinstance(i, DropIndice):
-            self.CadenaSQL =self.Grafo_DropIndex(i)
+            self.CadenaSQL = self.Grafo_DropIndex(i)
             pass
 
         else:
+            #self.CadenaSQL = self.cadena_expresion(i)
             print("Es Una Instruccion SelectCurrentType")
             return ""
 
@@ -236,7 +235,8 @@ class SqlComandos:
                     Cadenita += self.GrafoExpresionCase(j.Reservada, j.ListaExpresiones)
                 else:
                     Cadenita += self.GrafoExpresionCase(j.Reservada, j.ListaExpresiones)+","
-
+            elif  isinstance(j,ProcesoCount):
+                   Cadenita  += self.Grafo_Count(j)
             else:
                 print("No Ningun Tipo  vos ")
 
@@ -855,7 +855,7 @@ class SqlComandos:
         return  Cadenita
 
 
-    def grafoConstraintTabla(self, contraint: constraintTabla):
+    def grafoConstraintTabla(self, contraint):
         Cadenita = ""
         '''CONSTRAINTS OPTIONS: '''
         if contraint.valor != None:
@@ -1041,7 +1041,7 @@ class SqlComandos:
 
 
 
-    def cadena_create_database(self, createDataBase: CreateDataBase):
+    def cadena_create_database(self, createDataBase):
         codigo3d = "CREATE "
 
         if createDataBase.replace == 1:
@@ -1058,7 +1058,7 @@ class SqlComandos:
 
         return codigo3d
 
-    def cadena_drop_database(self, dropDataBase: DropDataBase):
+    def cadena_drop_database(self, dropDataBase):
         codigo3d = "DROP DATABASE "
 
         if dropDataBase.existe == 1:
@@ -1447,13 +1447,13 @@ class SqlComandos:
 
 
 #============================= ALTER TABLE ============================================
-    def cadena_alter_column_set_not_null(self, alterColumn: Alter_table_Alter_Column_Set):
+    def cadena_alter_column_set_not_null(self, alterColumn):
         cadena = "ALTER TABLE " + alterColumn.id_tabla + " ALTER COLUMN " + alterColumn.id_column.val
         cadena += " SET NOT NULL;"
 
         return cadena
 
-    def cadena_alter_add_column(self, alterTable: Alter_Table_AddColumn):
+    def cadena_alter_add_column(self, alterTable):
         cadena = 'ALTER TABLE ' + alterTable.id_table + " ADD COLUMN "
 
         for index, columna in enumerate(alterTable.id_columnas):
@@ -1467,7 +1467,7 @@ class SqlComandos:
 
         return cadena
 
-    def cadena_alter_drop_column(self, alterTable: Alter_Table_Drop_Column):
+    def cadena_alter_drop_column(self, alterTable):
         cadena = "ALTER TABLE " + alterTable.id_table + " DROP COLUMN "
 
         for index, id in enumerate(alterTable.columnas):
@@ -1478,17 +1478,17 @@ class SqlComandos:
 
         return cadena
 
-    def cadena_alter_rename(self, alterTable: Alter_Table_Rename_Column):
+    def cadena_alter_rename(self, alterTable):
         cadena = 'ALTER TABLE ' + alterTable.id_table + ' RENAME COLUMN ' + alterTable.old_column.val
         cadena += ' TO ' + alterTable.new_column.val + ';'
 
         return cadena
 
-    def cadena_alter_drop_constraint(self, alterTable: Alter_Table_Drop_Constraint):
+    def cadena_alter_drop_constraint(self, alterTable):
         cadena = 'ALTER TABLE ' + alterTable.id_tabla + ' DROP CONSTRAINT ' + alterTable.id_constraint.val + ";"
         return cadena
 
-    def cadena_alter_add_foreign(self, alterTable: Alter_table_Add_Foreign_Key):
+    def cadena_alter_add_foreign(self, alterTable):
         cadena = 'ALTER TABLE ' + alterTable.id_table
 
         if alterTable.idforeign is not None:
@@ -1505,12 +1505,12 @@ class SqlComandos:
 
         return cadena
 
-    def cadena_alter_add_constraint(self, alterTable: Alter_Table_Add_Constraint):
+    def cadena_alter_add_constraint(self, alterTable):
         cadena = "ALTER TABLE " + alterTable.id_table + " ADD CONSTRAINT " + alterTable.id_constraint.val
         cadena += ' UNIQUE (' + alterTable.id_column.val + ');'
 
 
-    def cadena_alter_column(self, alterTable: Alter_COLUMN):
+    def cadena_alter_column(self, alterTable):
         cadena = "ALTER TABLE " + alterTable.idtabla
 
         for index, columna in enumerate(alterTable.columnas):
@@ -1565,3 +1565,8 @@ class SqlComandos:
         cadena += ";"
 
         return cadena
+    def Grafo_Count(self, objeto):
+        ob: ProcesoCount = objeto
+        Cadenita = "COUNT ("+ob.Columna+")"
+
+        return Cadenita
