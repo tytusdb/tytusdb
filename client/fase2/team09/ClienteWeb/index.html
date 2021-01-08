@@ -69,7 +69,29 @@
                             <a class="dropdown-item" onclick="modelTable('myModalT5','closeT5')">alterDropPK</a>  
                             <a class="dropdown-item" onclick="modelTable('myModalT6','closeT6')">alterAddFK</a>  
                             <a class="dropdown-item" onclick="modelTable('myModalT7','closeT7')">alterAddIndex</a>  
+
+
+
+                            <a class="dropdown-item" onclick="modelTable('myModalT8','closeT8')">alterTable</a>
+                            <a class="dropdown-item" onclick = "modelTable('myModalT9','closeT9')">alterAddColumn</a>       
+                            <a class="dropdown-item" onclick="modelTable('myModalT10','closeT10')">alterDropColumn</a>  
+                            <a class="dropdown-item" onclick="modelTable('myModalT11','closeT11')">dropTable</a>  
+                          
                                  
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Tuplas
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" onclick="">insert</a>
+                            <a class="dropdown-item" onclick="">loadCSV</a>   
+                            <a class="dropdown-item" onclick = "">extractRow</a>       
+                            <a class="dropdown-item" onclick="">update</a>    
+                            <a class="dropdown-item" onclick="">delete</a>       
+                            <a class="dropdown-item" onclick="">truncate</a>  
                         </div>
                     </li>
 
@@ -365,6 +387,86 @@
                 <input type="text" class="form-control" id="namealterAddIndex2">
               </div>
               <button type="button" class="btn btn-primary" onClick = "Table('alterAddIndex')">Submit</button>
+          </form>
+    </div>
+</div>
+
+
+
+<!-- The Modal alterTable -->
+<div id="myModalT8" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="closeT8">&times;</span>
+        <form>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Nombre de la Tabla</label>
+              <input type="text" class="form-control" id="namealterTable1">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">References</label>
+                <input type="text" class="form-control" id="namealteralterTable2">
+              </div>
+              <button type="button" class="btn btn-primary" onClick = "Table('alterTable')">Submit</button>
+          </form>
+    </div>
+</div>
+
+
+
+<!-- The Modal alterAddColumn -->
+<div id="myModalT9" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="closeT9">&times;</span>
+        <form>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Nombre de la Tabla</label>
+              <input type="text" class="form-control" id="namealterAddColumn1">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">Default</label>
+                <input type="text" class="form-control" id="namealterAddColumn2">
+              </div>
+              <button type="button" class="btn btn-primary" onClick = "Table('alterAddColumn')">Submit</button>
+          </form>
+    </div>
+</div>
+
+
+<!-- The Modal alterDropColumn -->
+<div id="myModalT10" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="closeT10">&times;</span>
+        <form>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Nombre de la Tabla</label>
+              <input type="text" class="form-control" id="namealterDropColumn1">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">#columna</label>
+                <input type="text" class="form-control" id="namealterDropColumn2">
+              </div>
+              <button type="button" class="btn btn-primary" onClick = "Table('alterDropColumn')">Submit</button>
+          </form>
+    </div>
+</div>
+
+
+
+<!-- The Modal dropTable -->
+<div id="myModalT11" class="modal">
+    <!-- Modal content -->
+    <div class="modal-content">
+        <span class="closeT11">&times;</span>
+        <form>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Nombre de la Tabla</label>
+              <input type="text" class="form-control" id="namedropTable1">
+            </div>
+           
+              <button type="button" class="btn btn-primary" onClick = "Table('dropTable')">Submit</button>
           </form>
     </div>
 </div>
