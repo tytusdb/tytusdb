@@ -23,26 +23,33 @@ class Example(Frame):
         
         self.columnconfigure(1, weight=1)
         self.columnconfigure(3, pad=7)
-        self.rowconfigure(3, weight=1)
-        self.rowconfigure(5, pad=7)
+        self.rowconfigure(1, weight=1)
+
 
         self.lbl = Label(self, text="TytusDB")
         self.lbl.grid(sticky=W, pady=4, padx=5)
 
 
         self.nb = CustomNotebook(self)
-        self.fm = Frame(self.nb)
-        self.fm.pack(fill=BOTH, expand=True)        
-        self.fm.columnconfigure(1, weight=1)
-        self.fm.columnconfigure(3, pad=7)
-        self.fm.rowconfigure(3, weight=1)
-        self.fm.rowconfigure(5, pad=7)
-        self.nb.add(self.fm, text='Query '+str(self.contadorQuerysTabs))
-        self.nb.grid(row=1, column=1, columnspan=2, rowspan=4,
+        self.nb.fm = Frame(self.nb)
+        self.nb.fm.pack(fill=BOTH, expand=True)
+        self.nb.fm.columnconfigure(1, weight=1)
+        self.nb.fm.columnconfigure(3, pad=7)
+        self.nb.fm.rowconfigure(3, weight=1)
+        self.nb.fm.rowconfigure(5, pad=7)
+        self.nb.add(self.nb.fm, text='Query '+str(self.contadorQuerysTabs))
+        self.nb.grid(row=1, column=1, columnspan=2, rowspan=1,
                        padx=5, sticky=E + W + S + N)
-        self.area = Text(self.fm)
-        self.area.grid(row=1, column=1, columnspan=2, rowspan=4,
+        self.nb.fm.area = Text(self.nb.fm,height=30)
+        self.nb.fm.area.grid(row=1, column=1, columnspan=2, rowspan=2,
                        padx=5, sticky=E + W + S + N)
+
+        self.lbl2 = Label(self, text="Consola")
+        self.lbl2.grid(row=2, column=1)
+        self.areaConsole = Text(self,height=10,width=20)
+        self.areaConsole.grid(row=3, column=1,padx=5, sticky=E + W )
+
+
 
         # *************************** BARRA DE MENÚ ***************************
         menubar = Menu(self.master)
@@ -109,11 +116,12 @@ class Example(Frame):
         self.nb.fm.rowconfigure(3, weight=1)
         self.nb.fm.rowconfigure(5, pad=7)
         self.nb.add(self.nb.fm, text='Query '+str(self.contadorQuerysTabs))
-        self.nb.grid(row=1, column=1, columnspan=2, rowspan=4,
+        self.nb.grid(row=1, column=1, columnspan=2, rowspan=1,
                      padx=5, sticky=E + W + S + N)
-        self.nb.fm.area = Text(self.nb.fm)
-        self.nb.fm.area.grid(row=1, column=0, columnspan=2, rowspan=4,
+        self.nb.fm.area = Text(self.nb.fm,height=30)
+        self.nb.fm.area.grid(row=1, column=1, columnspan=2, rowspan=2,
                        padx=5, sticky=E + W + S + N)
+
         #self.lbl.configure(text="Cambia")
 
     def run(self):
