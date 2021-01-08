@@ -22,7 +22,7 @@ from models.instructions.Expression.string_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
-from models.Other.funcion import Funcion, Parametro
+from models.Other.funcion import Funcion, Parametro, ProcedimientoAlmacenado
 from models.Other.declaracion import DeclaracionID, AsignacionID
 from models.procedural.clases import BodyDeclaration, ReturnFuncProce
 from models.procedural.if_statement import If,anidarIFs
@@ -994,6 +994,12 @@ def p_sql_procedures(p):
     '''SQL_PROCEDURES : CREATE PROCEDURE ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
                       | CREATE PROCEDURE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
     '''
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
+    if len(p) == 11:
+        p[0] = ProcedimientoAlmacenado(p[3], p[5], p[10], True, False, noLine, noColumn)
+    else:
+        p[0] = ProcedimientoAlmacenado(p[3], [], p[9], True, False, noLine, noColumn)
 
 def p_returns_type_func(p):
     '''typeReturns : typecol
