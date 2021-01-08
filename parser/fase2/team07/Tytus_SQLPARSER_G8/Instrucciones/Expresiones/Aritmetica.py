@@ -383,6 +383,12 @@ class Aritmetica(Instruccion):
                     codigo = codigo + "\t" + temporal + " = " + resultadoIzq.temporal + " + " + resultadoDer.temporal + "\n"              
                     nuevo = Simbolo3d(Tipo("",Tipo_Dato.CHAR),temporal,codigo,None,None)                    
                     return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    temporal = arbol.generaTemporal()
+                    codigo = codigo + "\t" + temporal + " = " + resultadoIzq.temporal + " + " + resultadoDer.temporal + "\n"              
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),temporal,codigo,None,None)                    
+                    return nuevo
                 else:
                     error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" + "+self.opDer.tipo.toString(),self.linea,self.columna)
                     arbol.excepciones.append(error)

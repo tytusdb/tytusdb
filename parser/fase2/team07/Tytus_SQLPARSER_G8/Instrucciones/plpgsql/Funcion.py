@@ -10,9 +10,10 @@ class Funcion(Instruccion):
         self.instrucciones = instrucciones
 
     def ejecutar(self, tabla, arbol):
-        tabla.setFuncion(self)
+        tabla.setFuncion(self, arbol)
 
     def traducir(self,tabla,arbol,cadenaTraducida):
+        tabla.setFuncion(self, arbol)
         codigo = ""
 
         #Se declara la funcion con el nombre
@@ -37,8 +38,9 @@ class Funcion(Instruccion):
         codigo += "):\n"
 
         #Se agregan las declaraciones
-        for dec in self.declaraciones:
-            codigo += dec.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
+        if self.declaraciones is not None:
+            for dec in self.declaraciones:
+                codigo += dec.traducir(tabla,arbol,cadenaTraducida).replace("\t", "\t\t") + "\n"
 
         #Se agrega todo el contenido de las instrucciones traducido a 3D
         for ins in self.instrucciones:

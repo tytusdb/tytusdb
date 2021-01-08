@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case, Procedimiento, DeclaracionRetorno, AsignacionVariable
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case, Procedimiento, DeclaracionRetorno, AsignacionVariable, DropFuncion, DropProcedimiento
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -2084,6 +2084,18 @@ def p_funciones(t):
     '''
     t[0] = Funcion.Funcion(t[3], t[5], t[8], t[9], t[11], "", t.lexer.lineno, t.lexer.lexpos, "")
 
+def p_funciones_drop(t):
+    '''
+    instruccion : DROP FUNCTION if_op ID PUNTO_COMA
+    '''
+    t[0] = DropFuncion.DropFuncion(t[4], "", t.lexer.lineno, t.lexer.lexpos, "")
+
+def p_procedimientos_drop(t):
+    '''
+    instruccion : DROP PROCEDURE if_op ID PUNTO_COMA
+    '''
+    t[0] = DropProcedimiento.DropProcedimiento(t[4], "", t.lexer.lineno, t.lexer.lexpos, "")
+
 def p_parametros_funcion(t):
     '''
     parametros_funcion  : lista_parametros_funcion 
@@ -2299,6 +2311,12 @@ def p_asignacion_var(t):
     '''
     t[0] = AsignacionVariable.AsignacionVariable(t[1], t[3], "", t.lexer.lineno, t.lexer.lexpos, "")
 
+def p_asignacion_var1(t):
+    '''
+    asignacion_var  :   ID IGUAL PARIZQ instruccion PARDER PUNTO_COMA
+                    |   ID DOSP_IGUAL PARIZQ instruccion PARDER PUNTO_COMA
+    '''
+    t[0] = AsignacionVariable.AsignacionVariable(t[1], t[4], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 def p_sentencia_if(t):    
     '''

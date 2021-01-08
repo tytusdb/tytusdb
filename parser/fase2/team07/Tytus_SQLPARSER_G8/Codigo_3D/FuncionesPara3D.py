@@ -15,6 +15,8 @@ global arbol
 arbol = Arbol(None)
 global tablaGlobal
 tablaGlobal = Tabla(None)
+global valores
+valores = []
 
 class FuncionesPara3D():
 
@@ -43,6 +45,7 @@ class FuncionesPara3D():
     def ejecutarsentecia(sentecia):
         global arbol
         global tablaGlobal
+        global valores
         #Elimina el Contenido de txtsalida
         #Inserta "Archivo Analizado" en txtsalida
         #self.txtsalida[self.tab.index("current")].insert(INSERT,"Archivo Analizado")
@@ -71,5 +74,8 @@ class FuncionesPara3D():
         mensaje = ''
         
         mensaje += arbol.consola[-1] + '\n'
-        print(mensaje)
-        return mensaje
+        valores = arbol.valoresActuales
+        if "SELECT" in str.upper(sentecia):
+            return valores[0][0]
+        else:
+            return mensaje

@@ -4,6 +4,7 @@ from Instrucciones.Excepcion import Excepcion
 from decimal import Decimal
 from datetime import date, datetime
 import time
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 #from dateutil.parser import parse
 
 class Convert(Instruccion):
@@ -114,4 +115,14 @@ class Convert(Instruccion):
             arbol.consola.append(error.toString())
             return error
         '''    
+    
+    def traducir(self, tabla, arbol, cadenaTraducida):
+        resultado = self.ejecutar(tabla, arbol)
+        if isinstance(resultado,Excepcion):
+            return resultado        
+        codigo = ""
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = " + str(resultado) + "\n"
+        nuevo = Simbolo3d(self.tipo, temporal, codigo, None, None)
+        return nuevo
         

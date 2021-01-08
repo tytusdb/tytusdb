@@ -21,6 +21,8 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from storageManager.jsonMode import *
 
 from Codigo_3D import FuncionesPara3D
+from Codigo_3D import Optimizacion
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 
 
 import sintactico
@@ -123,7 +125,9 @@ class interfaz():
         self.file=""
 
         self.window.mainloop()
-
+    
+    def optimizarc3d_click():
+        pass
 
     def ejecutar(self):
         print("Hello World!")
@@ -157,8 +161,11 @@ class interfaz():
         arbol = Arbol(inst)
         resultado = ""
         for i in arbol.instrucciones:
-            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
-            resultado += i.traducir(tablaGlobal,arbol,"")
+            res = i.traducir(tablaGlobal,arbol,"")
+            if isinstance(res, Simbolo3d):
+                resultado += res.codigo
+            else:
+                resultado += res
 
         FuncionesPara3D.FuncionesPara3D.GenerarArchivo(resultado)
         tablaSym = tablaGlobal
@@ -182,8 +189,16 @@ class interfaz():
 
         from Codigo_3D import Codigo3D
         #c3d.ejecutar()
-        
-        self.txtsalida[self.tab.index("current")].insert(INSERT,Codigo3D.Codigo3D.mensaje)
+        mensaje = ""
+        for m in FuncionesPara3D.arbol.consola:
+            mensaje += m + '\n'
+        self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+        pass
+
+    def optimizarc3d_click(self):
+        op = Optimizacion.Optimizacion()
+        op.Optimizar()
+        op.GenerarReporte()
         pass
 
     def abrir_click(self):
@@ -226,8 +241,7 @@ class interfaz():
         global arbol
         global tablaSym
         
-        #rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)
-        rs.crear_tabla(arbol, tablaSym)  
+        rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)  
         arbol = None         
 
     def ast_click(self):

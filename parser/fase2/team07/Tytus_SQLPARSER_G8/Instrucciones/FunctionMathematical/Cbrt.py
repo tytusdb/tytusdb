@@ -1,6 +1,7 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 import math
 import numpy as np
 
@@ -24,7 +25,19 @@ class Cbrt(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error
+        self.tipo = self.valor.tipo
         return np.cbrt(resultado)
+
+    def traducir(self, tabla, arbol, cadenaTraducida):
+        resultado = self.ejecutar(tabla, arbol)
+        if isinstance(resultado,Excepcion):
+            return resultado        
+
+        codigo = ""
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = " + str(resultado) + "\n"
+        nuevo = Simbolo3d(self.tipo, temporal, codigo, None, None)
+        return nuevo
 
 '''
 arr1 = [1, 27000, 64, -1000] 

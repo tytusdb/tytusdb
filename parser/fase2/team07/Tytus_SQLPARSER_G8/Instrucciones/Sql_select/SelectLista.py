@@ -3,6 +3,7 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select.Select import Select
 from Instrucciones.Tablas.Tablas import Tablas
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 
 
 class SelectLista(Instruccion):
@@ -61,8 +62,9 @@ class SelectLista(Instruccion):
     def traducir(self,tabla,arbol,cadenaTraducida):
         temporal = arbol.generaTemporal()
         codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
-        codigo += "\tmensaje = mensaje + FuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
-        return codigo
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = FuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return Simbolo3d(Tipo("",Tipo_Dato.INTEGER), temporal, codigo, None, None)
 
 
 
