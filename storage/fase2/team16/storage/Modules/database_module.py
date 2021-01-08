@@ -7,6 +7,7 @@
 from .Complements.checksum import *
 from .handler import Handler
 from ..path import *
+from .table_module import TableModule
 
 modes = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
 codes = ['ascii', 'iso-8859-1', 'utf8']
@@ -223,10 +224,60 @@ class DatabaseModule:
             pass
 
     def alterDatabaseCompress(self, database: str, level: int) -> int:
-        pass
+        try:
+            tm = TableModule()
+            if level not in [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+                if level == 0:
+                    return 0
+                return 4
+            if not isinstance(database, str) or self.handler.invalid(database):
+                raise Exception()
+            self.databases = self.handler.rootinstance()
+            for i in self.databases:
+                if database.upper() == i.name.upper():
+                    if i.compress:
+                        return 0
+                    for tabla in i.tables:
+                        if tabla.compress:
+                            continue
+                        tm.alterTableCompress(database, tabla.name, level)
 
-    def alterDatabaseDecompress(self, atabase: str) -> int:
-        pass
+                    databases = self.handler.rootinstance()
+                    for base in databases:
+                        if database.upper() == base.name.upper():
+                            base.compress = True
+                            # falta guardar el metadato
+                            break
+                    return 0
+            return 2
+        except:
+            return 1
+
+    def alterDatabaseDecompress(self, database: str) -> int:
+        try:
+            tm = TableModule()
+            if not isinstance(database, str) or self.handler.invalid(database):
+                raise Exception()
+            self.databases = self.handler.rootinstance()
+            for i in self.databases:
+                if database.upper() == i.name.upper():
+                    if i.compress is False:
+                        return 3
+                    for tabla in i.tables:
+                        if tabla.compress is False:
+                            continue
+                        tm.alterTableDecompress(database, tabla)
+
+                    databases = self.handler.rootinstance()
+                    for base in databases:
+                        if database.upper() == base.name.upper():
+                            base.compress = False
+                            # falta guardar el metadato
+                            break
+                    return 0
+            return 2
+        except:
+            return 1
 
     def dropAll(self):
         self.handler.reset()

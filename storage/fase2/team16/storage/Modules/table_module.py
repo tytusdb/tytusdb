@@ -8,6 +8,8 @@ from ..path import *
 from .handler import Handler
 from .Complements.checksum import *
 from .Complements.security import Blockchain
+import zlib as zl
+from .tuple_module import TupleModule
 
 
 class Table:
@@ -17,6 +19,7 @@ class Table:
         self.numberColumns = numberColumns
         self.pk = []
         self.security = None
+        self.compress = False
 
 
 class TableModule:
@@ -245,10 +248,98 @@ class TableModule:
         pass
 
     def alterTableCompress(self, database: str, table: str, level: int) -> int:
-        pass
+        try:
+            tp = TupleModule()
+            actualTable = None
+            mode = ""
+            if level not in [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+                if level == 0:
+                    return 0
+                return 4
+            if not isinstance(database, str) or self.handler.invalid(database):
+                raise Exception()
+            self.databases = self.handler.rootinstance()
+            for i in self.databases:
+                if database.upper() == i.name.upper():
+                    mode = i.mode
+                    for tabla in i.tables:
+                        if tabla.name == table:
+                            if tabla.compress:
+                                return 0
+                            actualTable = tabla
+                            break
+                    break
+
+            if actualTable != None:
+                original_content = self.extractTable(database, table)
+                tp.truncate(database, table)
+                compressContent = self._compress(original_content, level)
+                try:
+                    for tupla in compressContent:
+                        tp.insert(database, table, tupla)
+                    databases = self.handler.rootinstance()
+                    for base in databases:
+                        if database.upper() == base.name.upper():
+                            for tabla in base.tables:
+                                if tabla.name == table:
+                                    tabla.compress = True
+                                    # falta guardar el estado de la tabla
+                                    #self.handler.tableupdate(mode, database, table, actualTable)
+                                    break
+                            break
+                    return 0
+                except:
+                    for tupla in original_content:
+                        tp.insert(database, table, tupla)
+                    return 1
+            return 2
+        except:
+            return 1
 
     def alterTableDecompress(self, database: str, table: str) -> int:
-        pass
+        try:
+            tp = TupleModule()
+            actualTable = None
+            mode = ""
+            if not isinstance(database, str) or self.handler.invalid(database):
+                raise Exception()
+            self.databases = self.handler.rootinstance()
+            for i in self.databases:
+                if database.upper() == i.name.upper():
+                    mode = i.mode
+                    for tabla in i.tables:
+                        if tabla.name == table:
+                            if tabla.compress is False:
+                                return 0
+                            actualTable = tabla
+                            break
+                    break
+
+            if actualTable != None:
+                original_content = self.extractTable(database, table)
+                tp.truncate(database, table)
+                decompressContent = self._decompress(original_content)
+                try:
+                    for tupla in decompressContent:
+                        tp.insert(database, table, tupla)
+                    databases = self.handler.rootinstance()
+                    for base in databases:
+                        if database.upper() == base.name.upper():
+                            for tabla in base.tables:
+                                if tabla.name == table:
+                                    tabla.compress = True
+                                    # falta guardar el estado de la tabla
+                                    # self.handler.tableupdate(mode, database, table, actualTable)
+                                    break
+                            break
+                    return 0
+                except:
+                    for tupla in original_content:
+                        tp.insert(database, table, tupla)
+                    return 1
+            return 2
+        except:
+            return 1
 
     def safeModeOn(self, database: str, table: str) -> int:
         try:
@@ -310,3 +401,39 @@ class TableModule:
                 tmp = db
                 break
         return tmp, index
+
+    def _compress(self, content, level):
+        result = []
+        for tupla in content:
+            aux = []
+            for columna in tupla:
+                try:
+                    val = int(columna)
+                except:
+                    try:
+                        columna = zl.compress(columna.encode(), level)
+                    except:
+                        continue
+                finally:
+                    aux.append(columna)
+            result.append(aux)
+
+        return result
+
+    def _decompress(self, content):
+        result = []
+        for tupla in content:
+            aux = []
+            for columna in tupla:
+                try:
+                    val = int(columna)
+                except:
+                    try:
+                        columna = zl.decompress(columna).decode()
+                    except:
+                        continue
+                finally:
+                    aux.append(columna)
+            result.append(aux)
+
+        return result
