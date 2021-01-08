@@ -467,40 +467,51 @@ class Codigo3d:
         # Id, Lista-Parametros
         global t_global, cadena, ambitoFuncion, stack, cadenaExpresion
         cadenallamada  = ""
-        cadenallamada += "\n\t#Llamada a funcion o procedimiento."
-        temp = ambitoFuncion
-        ambitoFuncion = llamada.Id
-        listaParametros = []
-        if llamada.Parametros != None:
-            for param in llamada.Parametros:
-                c = ""
-                exp,c = self.procesar_expresion(param, t_global)
-                cadenaExpresion = ""
-                listaParametros.append(str(exp))
-        #print("lista")
-        #print(listaParametros)
+
+        baderaC = False
+
+        for recorrets in t_global.tablaSimbolos:
+                tsTemporal = t_global.obtenerSimbolo(recorrets)
+                if str(tsTemporal.nombre) == str(llamada.Id) :
+                    baderaC = True
+
+        if baderaC:
+            cadenallamada += "\n\t#Llamada a funcion o procedimiento."
+            temp = ambitoFuncion
+            ambitoFuncion = llamada.Id
+            listaParametros = []
+            if llamada.Parametros != None:
+                for param in llamada.Parametros:
+                    c = ""
+                    exp,c = self.procesar_expresion(param, t_global)
+                    cadenaExpresion = ""
+                    listaParametros.append(str(exp))
+            #print("lista")
+            #print(listaParametros)
 
 
-        cont = 0
-        for sim in t_global.tablaSimbolos:
-            s: tipoSimbolo = t_global.obtenerSimbolo(sim)
-            if s.ambito == ambitoFuncion and str(s.rol) == "parametro":
-                #print("cccccccccccccccccccccccccccccccccccccccccccccccccc"+str(cont))
-                cadenallamada += "\n\t"+str(s.temporal) +"="+ str(listaParametros[cont])
-                cont += 1
+            cont = 0
+            for sim in t_global.tablaSimbolos:
+                s: tipoSimbolo = t_global.obtenerSimbolo(sim)
+                if s.ambito == ambitoFuncion and str(s.rol) == "parametro":
+                    #print("cccccccccccccccccccccccccccccccccccccccccccccccccc"+str(cont))
+                    cadenallamada += "\n\t"+str(s.temporal) +"="+ str(listaParametros[cont])
+                    cont += 1
 
-        salto = t_global.varFuncion()
-        cadenallamada += "\n\tstack.append(\""+salto+"\")"
-        # llamada goto a la funcion
-        for met in t_global.tablaSimbolos:
-            m: tipoSimbolo = t_global.obtenerSimbolo(met)
-            if m.nombre == llamada.Id and m.rol == "Metodo":
-                cadenallamada += "\n\tgoto ."+str(m.temporal)
-        cadenallamada += "\n\tlabel ."+salto
+            salto = t_global.varFuncion()
+            cadenallamada += "\n\tstack.append(\""+salto+"\")"
+            # llamada goto a la funcion
+            for met in t_global.tablaSimbolos:
+                m: tipoSimbolo = t_global.obtenerSimbolo(met)
+                if m.nombre == llamada.Id and m.rol == "Metodo":
+                    cadenallamada += "\n\tgoto ."+str(m.temporal)
+            cadenallamada += "\n\tlabel ."+salto
 
-        ambitoFuncion = temp
-        del listaParametros[:]
-        return cadenallamada
+            ambitoFuncion = temp
+            del listaParametros[:]
+            return cadenallamada
+        else:
+            return cadenallamada
 
     def t_retornoFuncion(self, instancia):
         global ambitoFuncion, t_global, cadenaExpresion
