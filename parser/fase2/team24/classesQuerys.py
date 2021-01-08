@@ -65,7 +65,7 @@ class select_func(query):
                     con += 1
                 ptable.field_names = enc
                 ptable.add_row(results)
-                #print(ptable)
+                print(ptable)
                 return ptable
             
 
@@ -96,7 +96,7 @@ class select(query):
         serialaizer()
         traduccion = '\t'
         traduccion += 'sql.execute(\'SELECT * FROM temp\')\n'
-        print(traduccion)
+        
         return traduccion
 
     def ejecutar(self):
@@ -265,6 +265,7 @@ class select(query):
             ptable.sortby = sortby
             if self.orderby[2].lower() =='desc':
                 ptable.reversesort = True
+        print(ptable)
         return ptable
 
         

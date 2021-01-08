@@ -11,6 +11,7 @@ class CreateType(instruction.Instruction):
         self.values = values
 
     def execute(self, environment):
+        Struct.load()
         lista = []
         for value in self.values:
             lista.append(value.execute(environment).value)

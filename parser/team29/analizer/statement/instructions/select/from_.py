@@ -35,6 +35,7 @@ class FromClause(instruction.Instruction):
         return new_df
 
     def execute(self, environment):
+        Struct.load()
         tempDf = None
         for i in range(len(self.tables)):
             exec = self.tables[i].execute(environment)
