@@ -124,9 +124,10 @@ def p_expression(p):
                   | EXPRESSION BITWISE_XOR EXPRESSION
                   | BITWISE_NOT EXPRESSION %prec UREST
                   | LEFT_CORCH comparasion RIGHT_CORCH
-                  | ID LEFT_PARENTHESIS EXPRESSION RIGHT_PARENTHESIS
+                  | ID LEFT_PARENTHESIS comparasion RIGHT_PARENTHESIS
                   | ID LEFT_PARENTHESIS RIGHT_PARENTHESIS
                   | ID LEFT_CORCH comparasion RIGHT_CORCH
+                  | ID LEFT_CORCH ID COLON ID RIGHT_CORCH
                   | STRING_CADENAS
                   | INTEGER_NUMBERS'''
                   # Si ya estas ahora xd ponete vivo x2
@@ -153,7 +154,6 @@ def p_string_cadenas(p):
     '''STRING_CADENAS :  STRINGCONT
                       |  CHARCONT
                       |  ID'''
-
     p[0] = p[1]
 def p_integer_numbers(p):
     '''INTEGER_NUMBERS : INT_NUMBER

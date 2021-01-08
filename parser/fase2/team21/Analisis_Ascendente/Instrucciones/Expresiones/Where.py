@@ -184,35 +184,35 @@ class Where(Instruccion):
 
 
 
-    def ObtenerCadenaEntrada(where):
+    def ObtenerCadenaEntrada(where,listaProcFunc):
         if isinstance(where,Where):
             if where.caso == 1:
-                booleano= Where.ObtenerCadenaEntrada(where.boolean)
+                booleano= Where.ObtenerCadenaEntrada(where.boolean,listaProcFunc)
 
                 return 'NOT'+ str(booleano)+' '
             elif where.caso==2:
-                columna= Where.ObtenerCadenaEntrada(where.columna)
-                lista_valores= Where.ObtenerCadenaEntrada(where.listaValores)
+                columna= Where.ObtenerCadenaEntrada(where.columna,listaProcFunc)
+                lista_valores= Where.ObtenerCadenaEntrada(where.listaValores,listaProcFunc)
 
                 return ' '+str(columna)+' IN '+ str(lista_valores)+' '
             elif where.caso==3:
-                columna = Where.ObtenerCadenaEntrada(where.columna)
-                valores1= Where.ObtenerCadenaEntrada(where.valor1)
-                valores2 = Where.ObtenerCadenaEntrada(where.valor2)
+                columna = Where.ObtenerCadenaEntrada(where.columna,listaProcFunc)
+                valores1= Where.ObtenerCadenaEntrada(where.valor1,listaProcFunc)
+                valores2 = Where.ObtenerCadenaEntrada(where.valor2,listaProcFunc)
 
                 return ' '+ str(columna)+' BETWEEN '+str(valores1)+' AND '+ str(valores2)+ ' '
             elif where.caso==4:
-                columna = Where.ObtenerCadenaEntrada(where.columna)
-                valores1 = Where.ObtenerCadenaEntrada(where.valor1)
+                columna = Where.ObtenerCadenaEntrada(where.columna,listaProcFunc)
+                valores1 = Where.ObtenerCadenaEntrada(where.valor1,listaProcFunc)
 
                 return ' '+ str(columna)+' ILIKE '+ str(valores1)+' '
             elif where.caso == 5:
-                columna = Where.ObtenerCadenaEntrada(where.columna)
-                valores1 = Where.ObtenerCadenaEntrada(where.valor1)
+                columna = Where.ObtenerCadenaEntrada(where.columna, listaProcFunc)
+                valores1 = Where.ObtenerCadenaEntrada(where.valor1, listaProcFunc)
 
                 return ' ' + str(columna) + ' LIKE ' + str(valores1) + ' '
             elif where.caso ==6:
-                valprimbool= Where.ObtenerCadenaEntrada(where.valor1)
+                valprimbool= Where.ObtenerCadenaEntrada(where.valor1, listaProcFunc)
                 comparisonp=''
 
                 if where.comparison == 1:
@@ -238,8 +238,8 @@ class Where(Instruccion):
 
                 return ' '+str(valprimbool)+comparisonp
             elif where.caso==7:
-                varr = Where.ObtenerCadenaEntrada(where.columna)
-                valores= Where.ObtenerCadenaEntrada(where.valor1)
+                varr = Where.ObtenerCadenaEntrada(where.columna,listaProcFunc)
+                valores= Where.ObtenerCadenaEntrada(where.valor1, listaProcFunc)
 
                 return ' '+ str(varr)+' IS NOT DISTINCT FROM '+ str(valores)+' '
             elif where.caso == 8:
@@ -248,18 +248,18 @@ class Where(Instruccion):
 
                 return ' ' + str(varr) + ' IS  DISTINCT FROM ' + str(valores) + ' '
             elif where.caso == 9:
-                columna = Where.ObtenerCadenaEntrada(where.columna)
-                lista_valores = Where.ObtenerCadenaEntrada(where.listaValores)
+                columna = Where.ObtenerCadenaEntrada(where.columna, listaProcFunc)
+                lista_valores = Where.ObtenerCadenaEntrada(where.listaValores, listaProcFunc)
 
                 return ' ' + str(columna) + ' NOT IN ' + str(lista_valores) + ' '
             elif where.caso == 10:
-                columna = Where.ObtenerCadenaEntrada(where.columna)
-                lista_valores = Where.ObtenerCadenaEntrada(where.listaValores)
+                columna = Where.ObtenerCadenaEntrada(where.columna, listaProcFunc)
+                lista_valores = Where.ObtenerCadenaEntrada(where.listaValores, listaProcFunc)
 
                 return ' ' + str(columna) + ' NOT EXISTS ' + str(lista_valores) + ' '
             elif where.caso == 11:
-                columna = Where.ObtenerCadenaEntrada(where.columna)
-                lista_valores = Where.ObtenerCadenaEntrada(where.listaValores)
+                columna = Where.ObtenerCadenaEntrada(where.columna, listaProcFunc)
+                lista_valores = Where.ObtenerCadenaEntrada(where.listaValores, listaProcFunc)
 
                 return ' ' + str(columna) + ' EXISTS ' + str(lista_valores) + ' '
 
@@ -282,7 +282,7 @@ class Where(Instruccion):
                 else:
                     return ' ( '+str(where.concatena).replace(";","")+' ) '
         else:
-            return  Expresion.Expresion.ObtenerCadenaEntrada(where,False)
+            return  Expresion.Expresion.ObtenerCadenaEntradaWhere(where,listaProcFunc)
 
 
 

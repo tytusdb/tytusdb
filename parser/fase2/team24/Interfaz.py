@@ -17,24 +17,30 @@ import OptimizarMirilla as optm
 import OptimizarObjetos as optobj
 # Esta es la lista de objetos
 from procedural import objopt
-
+a = open('c3d.py','w')
 
 
 def analiz(input):
+    writeToFile()
     raiz = g.parse(input)
     results = []
+    res = ''
     #executeGraphTree(raiz)
     for val in raiz:
-        res = val.ejecutar()
-        if isinstance(res,CError):
-            results.append("Error "+ res.tipo+". Descripcion: " +res.descripcion)
-        else:
-            results.append( res)
+        res += val.traducir()
+    global a
+    a.write(res)
+    a.write('\tgraphTable(ts)\n')
+    for fa in g.funciones:   
+        a.write(fa)
+
+    a.write('''ejecutar()''')
+    a.close()
     #graphTable(ts)
     #report_errors()
     #report_BNF()
     #--------------------------------------------------------
-    ListaAsignaciones = []
+    '''ListaAsignaciones = []
 
     ListaAsignaciones.append(optobj.Asignacion("x","x","0","+"))
     ListaAsignaciones.append(optobj.Asignacion("x","x","0","-"))
@@ -54,7 +60,7 @@ def analiz(input):
         print("ID: " + str(ts.simbolos[simbolo].id) + " Nombre: " + ts.simbolos[simbolo].nombre + " Ambito: " + str(ts.simbolos[simbolo].ambito) + " Tipo indice: " + str(ts.simbolos[simbolo].tipoind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind))
 
     #--------------------------------------------------------
-    return results
+    return results'''
 
 def traducir(input):
     global STACK_INSTRUCCIONES
@@ -68,6 +74,31 @@ def traducir(input):
         else:
             results.append(res)
     return results
+
+def writeToFile():
+    content =   '''
+    from datetime import date
+    from variables import tabla as ts
+    from variables import NombreDB 
+    from variables import cont 
+    import tablaDGA as TAS
+    import sql as sql 
+    import mathtrig as mt
+    from reportTable import *
+
+
+    pila = []
+    for i in range(100):
+        pila.append(i)
+
+    def ejecutar():
+        global cont
+        global ts
+        NombreDB = ts.nameDB
+	\n'''
+    global a
+    a.write(content)
+
 root = Tk()
 cont = 1
 
@@ -124,15 +155,15 @@ def LimpiarConsola():
     cont = 1
 
 def Analizar():
-    results = analiz(texto.get("1.0", "end-1c"))
-    global cont
+    analiz(texto.get("1.0", "end-1c"))
+    '''global cont
     for res in results:
         consola.insert(str(float(cont)), res)
         if isinstance(res,pt.PrettyTable):
             cont += (res.get_string().count('\n')+2)
         else:
             cont += (res.count('\n')+2)
-        consola.insert(str(float(cont)), '\n')
+        consola.insert(str(float(cont)), '\n')'''
 
 def Analizar2(texto: str):
     results = traducir(texto)

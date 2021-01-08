@@ -42,6 +42,7 @@ def funcion_intermedia():
     texto_parser = ''
     label .agregar_texto_para_parser
     t1 = top_stack
+    if top_stack < 0: goto .fin_agregar_texto_consola
     top_stack = top_stack - 1
     t2 = stack[t1]
     texto_parser = t2 + texto_parser
@@ -97,6 +98,7 @@ def main():
 
 
 if __name__ == "__main__":
+    dropAll()
     main()
 '''
         try:

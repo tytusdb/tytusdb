@@ -49,7 +49,9 @@ class Pantalla:
         navMenu.add_command(label="REPORTE GRAMATICAL",
                             command=self.reporteGramatical)
         navMenu.add_command(label="REPORTE DE ERRORES",
-                            command=self.open_Reporte,)
+                            command=self.open_Reporte)
+        navMenu.add_command(label="OPTIMIZAR",
+                    command=self.optimizar)
 
         self.window.config(menu=navMenu)
         frame_btn = Frame(self.window)
@@ -64,7 +66,8 @@ class Pantalla:
         frame_btn.pack()
         # Creacion del notebook
         self.tabControl = ttk.Notebook(self.window, width=650, height=300)
-        console_frame = Frame(self.tabControl, height=20,width=150, bg="#d3d3d3")
+        console_frame = Frame(self.tabControl, height=20,
+                              width=150, bg="#d3d3d3")
         self.text_Consola = tk.Text(console_frame, height=20, width=150)
         self.text_Consola.pack(fill=BOTH)
         console_frame.pack(fill=BOTH)
@@ -78,7 +81,8 @@ class Pantalla:
             for consult in consults:
                 i += 1
                 if consult != None:
-                    frame = Frame(self.tabControl, height=300,width=450, bg="#d3d3d3")
+                    frame = Frame(self.tabControl, height=300,
+                                  width=450, bg="#d3d3d3")
                     # Creacion del scrollbar
                     table_scroll = Scrollbar(frame, orient="vertical")
                     table_scrollX = Scrollbar(frame, orient="horizontal")
@@ -230,7 +234,7 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        info = self.read('Databases.json')
+        info = self.read('../analizer/Databases.json')
         f = open("tb.html", "w")
         f.write(json2html.convert(json=info))
         f.close()
@@ -240,13 +244,15 @@ class Pantalla:
         with open(path) as file:
             return json.load(file)
     def open_AST(self):  # Abre la pantalla del AST
-        os.system('cd test-output & round-table.gv.svg')
-        #windowTableS = Pantalla_AST(self.window)
+        os.system('cd ./test-output & round-table.gv.svg')
+
 
     def open_Reporte(self):  # Abre la pantalla de los reportes de errores
         windowTableS = Pantalla_Error(
             self.window, self.lexicalErrors, self.syntacticErrors, self.semanticErrors
         )
+    def optimizar(self):
+        pass#metodo cante :v
 
     def reporteGramatical(self):
         os.system('cd test-output & ReporteGramatica.bnf')

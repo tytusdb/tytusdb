@@ -220,6 +220,60 @@ class Intermedio():
 
 	def procesar_funcionInsert11(self):
 		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('INSERT INTO tbProducto values (     6    ,   \'Laptop HP\'   , now ( ) ,    1     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert12(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('INSERT INTO tbProducto values (     7    ,   \'Teclado Flexible USB\'   , now ( ) ,    1     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert13(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('INSERT INTO tbProducto values (     8    ,   \'Laptop Samsung\'   ,   \'2021-01-02\'   ,    1     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert14(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
 		instrucciones = g.parse('insert into tbCalificacion values (     1    ,   \'Create Table and Insert\'   ,    2     );')
 		erroressss = ErrorHTML()
 		if  erroressss.getList()== []:
@@ -236,9 +290,261 @@ class Intermedio():
 			print('Parser Error')
 
 
-	def procesar_funcionSelect12(self):
+	def procesar_funcionUpdate15(self):
 		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
-		instrucciones = g.parse('  select    *   from  tbCalificacion   ;')
+		instrucciones = g.parse(' update tbProducto set  estado =     2       where       estado    =     1        ;')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert16(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('insert into tbCalificacion values (     2    ,   \'Update\'   ,    2     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert17(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('insert into tbCalificacion values (     3    ,   \' Valida Funciones\'   ,    2     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionCreateTable18(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('create table tbbodega (  idbodega  integer    not null    primary key   , bodega  varchar ( 100 )    not null   , estado  integer   );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionCreateIndex19(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse(' CREATE   INDEX tbbodegaIndex ON tbbodega   (  lower ( bodega )       );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert20(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('insert into tbCalificacion values (     4    ,   \'Valida Store Procedure\'   ,    5     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionDelete21(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse(' delete from tbbodega  where       idbodega    =     4        ;')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert22(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('insert into tbCalificacion values (     5    ,   \'Valida Delete\'   ,    2     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionSelect23(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('  select    *   from  tbbodega   ;')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert24(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('insert into tbbodega values (     1    ,   \'BODEGA CENTRAL\'   ,    1     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert25(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('insert into tbbodega ( idbodega,bodega ) values (     2    ,   \'BODEGA ZONA 12\'    );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert26(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('insert into tbbodega ( idbodega,bodega,estado ) values (     3    ,   \'BODEGA ZONA 11\'   ,    1     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert27(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('insert into tbbodega ( idbodega,bodega,estado ) values (     4    ,   \'BODEGA ZONA 1\'   ,    1     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionInsert28(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse('insert into tbbodega ( idbodega,bodega,estado ) values (     5    ,   \'BODEGA ZONA 10\'   ,    1     );')
+		erroressss = ErrorHTML()
+		if  erroressss.getList()== []:
+			instrucciones_Global = instrucciones
+			ts_global = TS.TablaDeSimbolos()
+			ts_globalIndex = TSINDEX.TablaDeSimbolos()
+			tc_global = TC.TablaDeTipos()
+			tc_global1 = tc_global
+			ts_global1 = ts_global
+			ts_globalIndex1 = ts_globalIndex
+			salida = procesar_instrucciones(instrucciones, ts_global,tc_global,ts_globalIndex)
+			print(salida)
+		else:
+			print('Parser Error')
+
+
+	def procesar_funcionUpdate29(self):
+		global instrucciones_Global,tc_global1,ts_global1,listaErrores,erroressss,ts_globalIndex1
+		instrucciones = g.parse(' update tbbodega set  bodega =    \'bodega zona 9\'      where       idbodega    =     4        ;')
 		erroressss = ErrorHTML()
 		if  erroressss.getList()== []:
 			instrucciones_Global = instrucciones
