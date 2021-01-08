@@ -191,6 +191,8 @@ class FuncCall(ASTNode):
             from grammarReview import ST
             funcObj = ST.get(self.func_name, self.is_fun_proc)
         tac_modue = __import__(funcObj.tac_file_name)
+        from importlib import reload
+        reload(tac_modue)
         
         #set parms to pseudo tack? ore heap? i don't now how is it
         #TODO maybe some type validation ?¿        
