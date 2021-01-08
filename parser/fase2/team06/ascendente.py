@@ -27,6 +27,9 @@ from storageManager import jsonMode as j
 import pandas as pd
 import time
 
+import os
+import sys
+
 from decimal import Decimal, getcontext
 getcontext().prec = 8
 
@@ -384,6 +387,7 @@ def procesar_select(query,ts):
                     if isinstance(query.operacion[0], ExpresionFuncionBasica): 
                         if procesar_operacion_basica(query.operacion[0],ts)==None:
                             h.textosalida+="TYTUS>> La tabla consultada no existe\n"
+                            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontro la tabla consultada</td></tr>\n"
                         else:
                             a=str(procesar_operacion_basica(query.operacion[0],ts))
                             print("---------------------------------------------RESULTADO SELECT 1A-------------------------------------------------")
@@ -397,6 +401,7 @@ def procesar_select(query,ts):
                             print(str(c))
                             if str(c)=="0":
                                 h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(c)+"\n"
+                                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
                             else:
                                 h.textosalida+="TYTUS>>El resultado de su consulta es \n"
                                 h.textosalida+=str(c)+"\n"
@@ -463,6 +468,7 @@ def procesar_select_Tipo2(query,ts):
         else:
             if procesar_operacion_basica(query.operacion2[0],ts)==None:
                 h.textosalida+="TYTUS>> La tabla consultada no existe\n"
+                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
             else:
                 a=str(procesar_operacion_basica(query.operacion2[0],ts))
                 b=procesar_select2_obtenerColumnas(query.operacion1,ts)
@@ -478,6 +484,7 @@ def procesar_select_Tipo2(query,ts):
                 print(d)
                 if d=="0":
                     h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+                    h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
                 else:
                     h.textosalida+="TYTUS>>El resultado de su consulta es \n"
                     h.textosalida+=str(d)+"\n"    
@@ -496,6 +503,7 @@ def procesar_select_Tipo2(query,ts):
         print(d)
         if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
         else:
             h.textosalida+="TYTUS>>El resultado de su consulta es \n"
             h.textosalida+=str(d)+"\n"
@@ -622,6 +630,7 @@ def procesar_select_Tipo3(query,ts):
         print(d)
         if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
         else:
             b=procesar_where(query.operacion2,ts,d,procesar_operacion_basica(query.operacion1[0],ts))
             print("EL OBJETO WHERE: \n",b)
@@ -669,6 +678,7 @@ def procesar_select_Tipo4(query,ts):
     print(d)
     if d=="0":
         h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
     else:
         c=procesar_where(query.operacion3,ts,d,a)
         print("La sentencia Where sera \n",c)
@@ -689,6 +699,7 @@ def procesar_select_Tipo5(query,ts):
         print(d)
         if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
         else:
             c=procesar_where(query.operacion3,ts,d,a)
             print("La sentencia Where sera \n",c)
@@ -709,6 +720,7 @@ def procesar_select_Tipo5(query,ts):
         print(d)
         if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
         else:
             c=procesar_where(query.operacion3,ts,d,a)
             print("La sentencia Where sera \n",c)
@@ -4528,9 +4540,10 @@ def procesar_select_Tipo5A(query,ts):
         h.textosalida+="TYTUS>>Se ha ejecutado EL SUBQUERY\n"+str(e)+"\n"
         return e
 
-    
+
 def procesar_dropFunction(BD,ambito):
     print("eliminando una funcion")
+    print(ambito)
     a = ""
     if TS.TablaDeSimbolos().verificarFuncion(ambito,BD)==1:
         conttemp = 0
@@ -4543,12 +4556,19 @@ def procesar_dropFunction(BD,ambito):
         if TS.TablaDeSimbolos().eliminarFunction(ambito,BD)==1:
             #a += 'print("Se elimino funcion",'+'"'+ambito+'")\n'
             h.textosalida+="TYTUS>> Se eliminaron funcion "+ambito+"\n"
+            #tronarMetodos(ambito)
         else:
             #a += 'print("No se encontro ninguna funcion")'
             h.textosalida+="TYTUS>> No se encontro ninguna funcion"+ambito+"\n"
     else:
         #a += 'print("No se encontro ninguna funcion")'
         h.textosalida+="TYTUS>> No se encontro ninguna funcion "+ambito+"\n"
+
+
+
+
+
+
 
 
 def agregarFuncionaTS(nombre,BD):
@@ -4562,3 +4582,36 @@ def agregarProcedureaTS(nombre,BD):
 def agregarVariableaTS(nombre,tipo,BD,ambito):
     simbolo = TS.Simbolo(None,nombre,tipo,None,BD,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,ambito,'Variable local')
     TS.TablaDeSimbolos().agregarVariable(simbolo)
+
+
+def tronarMetodos(metodo):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        direction = script_dir + "\\codigo3D.py"
+        archivo= open(direction, "r")
+        cadena=archivo.read()
+        elMatch="def "+str(metodo)
+        print("el metodo a eliminar es: ",elMatch)
+        print("en el codigo:\n",cadena)
+        j=cadena.splitlines()
+        salida=""
+        tam=len(j)
+        x=0
+        while x<tam:
+            if j[x].find(elMatch)==-1:
+                print("NO lo contiene")
+                
+            else:
+                print("si lo contiene",j[x])
+                while j[x].find("#fin")==-1:
+                    print("esto se elimina: ",j[x])
+                    del(j[x])
+                    tam=tam-1
+                    
+            x=x+1
+        for y in range(0,len(j)):
+            salida+=str(j[y])+"\n"
+        salida+="\n"
+        print(salida)
+        with open(direction, "w") as f:
+            f.write(salida)
+            f.closed

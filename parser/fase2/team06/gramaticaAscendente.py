@@ -239,7 +239,8 @@ reservadas = {
     'plpgsql' : 'PLPGSQL',
     'rowtype' : 'ROWTYPE',
     'alias' : 'ALIAS',
-    'return' : 'RETURN'
+    'return' : 'RETURN',
+    'count' : 'COUNT'
 # revisar funciones de tiempo y fechas
 }
 
@@ -1175,6 +1176,7 @@ def p_funcion_basica(t):
                         | ID PARENTESISIZQUIERDA operacion COMA INTERVAL operacion PARENTESISDERECHA
                         | CURRENT_TIME 
                         | CURRENT_DATE
+                        | COUNT PARENTESISIZQUIERDA POR PARENTESISDERECHA
     '''
     if t[1].upper()=="ABS":
         h.reporteGramatical1 +="funcionBasica    ::=      ABS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
@@ -1421,6 +1423,10 @@ def p_funcion_basica(t):
         h.reporteGramatical1 +="funcionBasica    ::=      CURRENT_TIME\n"
         h.reporteGramatical2 +="t[0]=ExpresionCurrentTime(1)\n"
         t[0]=ExpresionCurrentTime(1)
+    if t[1].upper()=="COUNT":
+        h.reporteGramatical1 +="funcionBasica    ::=      COUNT PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        h.reporteGramatical2 +="t[0]=ExpresionABS(t[3])\n"
+        t[0]=ExpresionCOUNT(t[3])
     else:
         print("no entra a ninguna en funcionBasica")
 

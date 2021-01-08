@@ -88,7 +88,13 @@ class AlterIndex(Instruccion):
         super().generar3D(tabla,arbol)
         code = []
         t0 = c3d.getTemporal()
-        code.append(c3d.asignacionString(t0, "DROP INDEX "  + ";"))
+        column = ''
+        if type(self.columnaNew) == 'int':
+            column = self.columnaNew
+        else:
+            column = self.columnaNew
+
+        code.append(c3d.asignacionString(t0, "ALTER INDEX " + self.idIndex.id + " " + self.columnaOld + " " + str(column) + ";"))
         code.append(c3d.asignacionTemporalStack(t0))
         code.append(c3d.aumentarP())
         

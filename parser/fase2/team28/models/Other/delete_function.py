@@ -1,11 +1,14 @@
 from controllers.error_controller import ErrorController
+from controllers.procedures import Procedures
+from controllers.three_address_code import ThreeAddressCode
 from models.instructions.shared import Instruction
 
 
 class DeleteFunction(Instruction):
-    
-    def __init__(self, id, line, column):
+
+    def __init__(self, id, ifExists, line, column):
         self.id = id
+        self.ifExists = ifExists
         self.line = line
         self.column = column
         self._tac = ''
@@ -14,11 +17,13 @@ class DeleteFunction(Instruction):
         return str(vars(self))
 
     def process(self, environment):
-        pass
+        for name in self.id:
+            name = name['value']
+            drop = Procedures().dropProcedure(name, self.line, self.column)
+            if not drop and not self.ifExists:
+                desc = f": Function {name} does not exist"
+                ErrorController().add(39, 'Execution', desc, self.line, self.column)
 
     def compile(self, environment):
-        try:
-            pass
-        except:
-            desc = "FATAL ERROR, No existe la funcion o ya fue eliminada "
-            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+        temp = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")

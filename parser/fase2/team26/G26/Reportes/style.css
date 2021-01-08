@@ -6,7 +6,8 @@ body {
 
 p{
     margin: auto;
-    margin-left: 40rem;
+    align-content: center;
+    text-align: center;
     padding: 1em;
     font-size: 1.5em;
     font: 1em sans-serif bolder;
@@ -14,9 +15,13 @@ p{
 
 table{
     margin-top: 2rem;
-    margin-left: 38rem;
     border-spacing: 1.5em;
     align-items: center;
+    border: white 1px solid;
+}
+
+.i{
+  border: yellow 1px solid;
 }
 
 .titulo{

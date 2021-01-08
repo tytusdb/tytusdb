@@ -561,7 +561,8 @@ def p_instrucciones_global_sent(t):
                                     | delete_insrt
                                     | createIndex2
                                     | drop_insrt_index
-                                    | alterindex_insrt'''
+                                    | alterindex_insrt
+                                    | drop_insrt_function'''
     reporte_bnf.append("<instrucciones_global_sent> ::= <funciones> | <llamada_funcion> | <createDB_insrt> | <show_databases_instr> ")
     rep_sintaxis.append("<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>")
     t[0] = t[1]
@@ -631,6 +632,30 @@ def p_instrucciones_funct_sent2(t):
 
 def p_instrucciones_funct_sent_error(t):
     'instrucciones_funct_sent    : error'
+
+#? ####################################################################
+# TODO          DROP FUNCTION
+#? ####################################################################
+def p_drop_function(t):
+    '''drop_insrt_function : DROP FUNCTION ID PTCOMA'''
+    t[0] = DropFunction(t[3],False)
+
+def p_drop_function2(t):
+    '''drop_insrt_function : DROP FUNCTION IF EXISTS ID PTCOMA'''
+    t[0] = DropFunction(t[5],True)
+
+#? ####################################################################
+# TODO          DROP PROCEDURE
+#? ####################################################################
+def p_drop_procedure(t):
+    '''drop_insrt_function : DROP PROCEDURE  ID PTCOMA'''
+    t[0] = DropProcedure(t[3],False)
+
+def p_drop_procedure1(t):
+    '''drop_insrt_function : DROP PROCEDURE  IF EXISTS ID PTCOMA'''
+    t[0] = DropProcedure(t[5],True)
+
+
 
 #CREATE DATABASE
 def p_createDB(t):
