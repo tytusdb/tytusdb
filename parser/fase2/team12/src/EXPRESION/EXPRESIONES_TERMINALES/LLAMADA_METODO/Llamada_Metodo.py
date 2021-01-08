@@ -25,6 +25,8 @@ class Llamada_Metodo(Expresion):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)    
     
     def execute(self, enviroment):
+
+        print('Llamada a Métodos')
         identificador = self.hijos[0]
         listaParams = self.hijos[1]
         self.tipo = Type_Expresion(Data_Type.non)
@@ -69,15 +71,58 @@ class Llamada_Metodo(Expresion):
                             declaracion.execute(entornoLocal)
                             valorBloque = bloque.execute(entornoLocal)
 
-                            # Validación Return
+                            #Validacion Return
+                            if valorBloque != None :
+
+                                if simbolo.data_type == valorBloque.tipo.data_type :
+                                    print('Va todo bien crack n.n')
+
+                                pass
+                            else:
+
+                                if simbolo.data_type == Data_Type.non:
+
+                                    self.tipo = Type_Expresion(Data_Type.non)
+                                    self.valorExpresion = None
+                                    return self.valorExpresion
+                                
+                                else:
+
+                                    self.tipo = Type_Expresion(Data_Type.error)
+                                    self.valorExpresion = None
+                                    return self.valorExpresion
+
                             pass
                             
                         else:
                             
                             bloque = valorMetodo.bloqueEjecutar.hijos[0]
-                            valorBloque =bloque.execute(entornoLocal)
+                            valorBloque = bloque.execute(entornoLocal)
 
-                            #Validacion Return
+                            if valorBloque != None :
+
+                                print('El valor de bloque no fue none')
+                                print(simbolo.data_type.data_type)
+                                print(valorBloque.tipoReturn.data_type)
+
+                                if simbolo.data_type.data_type == valorBloque.tipoReturn.data_type :
+                                    self.tipo = valorBloque.tipoReturn
+                                    self.valorExpresion = valorBloque.valorReturn
+                                    return self.valorExpresion
+                                pass
+                            else:
+                                
+                                if simbolo.data_type == Data_Type.non:
+
+                                    self.tipo = Type_Expresion(Data_Type.non)
+                                    self.valorExpresion = None
+                                    return self.valorExpresion
+                                
+                                else:
+
+                                    self.tipo = Type_Expresion(Data_Type.error)
+                                    self.valorExpresion = None
+                                    return self.valorExpresion                                
 
                             pass
 
@@ -89,6 +134,7 @@ class Llamada_Metodo(Expresion):
 
                 else :
 
+                    print('Vienen parametros')
                     cantParametrosMetodo = len(valorMetodo.listaParametros.hijos)
                     
                     if cantParametros == cantParametrosMetodo :
@@ -100,10 +146,13 @@ class Llamada_Metodo(Expresion):
 
                         if self.insertParametros(listaParams, valorMetodo.listaParametros, entornoLocal, enviroment) :
                             
+                            print('Se insertaron bien los parametros')
                             cantidadHijos = len(valorMetodo.bloqueEjecutar.hijos)
                             # print('cant hijos: ',cantidadHijos)
 
                             if cantidadHijos == 2 :
+
+                                print('Viene declaración y bloque')
 
                                 declaracion = valorMetodo.bloqueEjecutar.hijos[0]
                                 bloque = valorMetodo.bloqueEjecutar.hijos[1]
@@ -111,8 +160,34 @@ class Llamada_Metodo(Expresion):
                                 # Ejecutamos la declaracion de variables
                                 declaracion.execute(entornoLocal)
                                 valorBloque = bloque.execute(entornoLocal)
+                                
 
-                                # Validacion Return 
+                                #Validacion Return
+                                if valorBloque != None :
+
+                                    print('El valor de bloque no fue none')
+                                    print(simbolo.data_type.data_type)
+                                    print(valorBloque.tipoReturn.data_type)
+
+                                    if simbolo.data_type.data_type == valorBloque.tipoReturn.data_type :
+                                        self.tipo = valorBloque.tipoReturn
+                                        self.valorExpresion = valorBloque.valorReturn
+                                        return self.valorExpresion
+                                    pass
+                                else:
+                                
+                                    if simbolo.data_type == Data_Type.non:
+
+                                        self.tipo = Type_Expresion(Data_Type.non)
+                                        self.valorExpresion = None
+                                        return self.valorExpresion
+                                
+                                    else:
+
+                                        self.tipo = Type_Expresion(Data_Type.error)
+                                        self.valorExpresion = None
+                                        return self.valorExpresion                                
+
 
                                 pass
                             
@@ -120,9 +195,32 @@ class Llamada_Metodo(Expresion):
 
                                 bloque = valorMetodo.bloqueEjecutar.hijos[0]
                                 valorBloque = bloque.execute(entornoLocal)
-                                # Validacion Return
+                                
+                                #Validacion Return
+                                if valorBloque != None :
 
+                                    print('El valor de bloque no fue none')
+                                    print(simbolo.data_type.data_type)
+                                    print(valorBloque.tipoReturn.data_type)
 
+                                    if simbolo.data_type.data_type == valorBloque.tipoReturn.data_type :
+                                        self.tipo = valorBloque.tipoReturn
+                                        self.valorExpresion = valorBloque.valorReturn
+                                        return self.valorExpresion
+                                    pass
+                                else:
+                                
+                                    if simbolo.data_type == Data_Type.non:
+
+                                        self.tipo = Type_Expresion(Data_Type.non)
+                                        self.valorExpresion = None
+                                        return self.valorExpresion
+                                
+                                    else:
+
+                                        self.tipo = Type_Expresion(Data_Type.error)
+                                        self.valorExpresion = None
+                                        return self.valorExpresion                                
 
                             pass
                         
@@ -152,10 +250,7 @@ class Llamada_Metodo(Expresion):
         except:
             pass
 
-        return self.valorExpresion
-
-    def getText(self):
-        pass
+        return self.valorExpresion    
 
     def insertParametros(self, listaExpresiones, listaParametros, entornoLocal, entorno):
 
@@ -974,3 +1069,19 @@ class Llamada_Metodo(Expresion):
             pass
 
         return True
+    
+    def compile(self, enviroment):
+        pass
+
+    def getText(self):
+
+        identificador = self.hijos[0]
+        listaParams = self.hijos[1]
+
+        stringParametros = ''
+        for par in listaParams.hijos:
+            stringParametros += par.getText()
+
+
+        stringLlamada = str(identificador.valor) + '(' + str(stringParametros) + ')'
+        return stringLlamada

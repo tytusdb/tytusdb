@@ -55,7 +55,14 @@ class Bloque(Nodo):
                 hijo.execute(enviroment)
             
             elif hijo.nombreNodo == 'SENTENCIA_IF':
-                hijo.execute(enviroment)
+                valor = hijo.execute(enviroment)
+
+                if valor != None :
+                    return valor
+            
+            elif hijo.nombreNodo == 'SENTENCIA_RETURN':
+                #print('Vino Return')
+                return hijo.execute(enviroment)
                         
         pass
 

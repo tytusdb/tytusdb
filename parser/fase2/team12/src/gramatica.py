@@ -1,4 +1,5 @@
 from Start.Start import * 
+from SENTENCIA_RETURN.Sentencia_Return import *
 from VARIABLES.Instrucciones_Asignacion import *
 from VARIABLES.Declaracion_Variable import *
 from VARIABLES.Asignacion_Variable import *
@@ -1770,7 +1771,7 @@ def p_instruccion_procedure(t):
 
 def p_sentencia_return(t):
     'sentencia_return : RETURN Exp '
-    t[0] = Start('SENTENCIA_RETURN',-1,-1,None)
+    t[0] = Sentencia_Return('SENTENCIA_RETURN',-1,-1,None)
     t[0].hijos.append(t[2])
 
 def p_argumentos_retorno(t):
