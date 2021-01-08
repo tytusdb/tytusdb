@@ -1,4 +1,4 @@
-import os   
+import os
 def reporteTabla( datos):
     f = open("./Reportes/Reporte_TablaSimbolos.html", "w")
     f.write("<!DOCTYPE html>\n")
@@ -13,6 +13,8 @@ def reporteTabla( datos):
     f.write("       <p><b>Reporte Tabla de Simbolos<b></p>\n")
     f.write("       <div>\n")
     for a in datos.tablaSimbolos:
+        if a == 'funciones_':
+            continue
         f.write("           <div>\n")
         f.write("               <p class='base'>BASE DE DATOS: ")
         f.write(a)
@@ -54,11 +56,19 @@ def reporteTabla( datos):
 
                     gg = ""
                     try:
-                        gg = column['fk']
+                        for fkAS in column['fk']:
+                            if fkAS == None:
+                                gg = False
+                            else:
+                                gg = True
                     except:
-                        gg = column.fk
-                    if gg != None:
-                        c.setFK()
+                        for fkAS in column.fk:
+                            if fkAS == None:
+                                gg = False
+                            else:
+                                gg = True
+                    c.setFK()
+                    c.FK = gg
 
                     aa = ""
                     try:
@@ -109,34 +119,44 @@ def reporteTabla( datos):
                     f.write(col.default)
                 f.write("</td></tr>\n")
                 f.write("               </table>\n")
-                for column in datos.tablaSimbolos[a]['tablas'][table]['index']:
-                    f.write("<p class='i'>Indice :")
-                    f.write(column.name)
-                    f.write("</p>\n")
-                    f.write("<li>")
-                    f.write("<ol>Nombre: ")
-                    f.write(column.name)
-                    f.write("</ol></li><li>Columnas: ")
-                    for h in column.columns:
-                        f.write("<ul>")
-                        f.write("Tabla ->")
-                        if h.table != None:
-                            f.write(h.table)
-                        else:
-                            f.write("None")
-                        f.write("Columna ->")
-                        f.write(h.column)
-                        f.write("</ul>\n")
-                    f.write("</li><li>Condiciones: ")
-                    if column.conditions != None:
-                        for h in column.conditions:
-                            f.write("<ul>")
-                            f.write(h)
-                            f.write("</ul>")
+        if 'index' in datos.tablaSimbolos[a]:
+            for column in datos.tablaSimbolos[a]['index']:
+                f.write("<p class='i'>Indice :")
+                f.write(column.name)
+                f.write("</p>\n")
+                f.write("<li>")
+                f.write("<ol>Nombre: ")
+                f.write(column.name)
+                f.write("</ol></li><li>Columnas: ")
+                try:
+                    tc = ("<ul>")
+                    tc += ("Tabla ->")
+                    tc += (column.table)
+                    tc += (" Columna ->")
+                    tc += (column.columns.id)
+                    tc += (" Tipo ->")
+                    if column.columns.option:
+                        tc += ('Hash')
                     else:
-                        f.write("<ul>SIN CONDICIONES</ul>\n</li>")
-                f.write("           </div>\n")
-                f.write("         </div>\n")
+                        tc += ('lower')
+                    tc += ("</ul>\n")
+                    f.write(tc)
+                except:
+                    for h in column.columns:
+                        tc = ("<ul>")
+                        tc += ("Tabla ->")
+                        tc += (column.table)
+                        tc += (" Columna ->")
+                        tc += (h.column)
+                        tc += ("</ul>\n")
+                        f.write(tc)
+
+                f.write("</li><li>Orden: ")
+                f.write("<ul>")
+                f.write(column.order)
+                f.write("</ul>")
+            f.write("           </div>\n")
+            f.write("         </div>\n")
     f.write("   </body>\n")
     f.write("</html>\n")
     f.close()

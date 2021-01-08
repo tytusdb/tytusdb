@@ -2061,7 +2061,7 @@ def p_AlterIndex(t):
     reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"IF\" \"EXIST\" \"ID\" \"DO\" \"RENAME\" \"TO\" \"ID\" \";\" ")
     ret = Retorno(AlterRenameIn(t[5],t[8],None), NodoAST('ALTER INDEX'))
     ret.getNodo().setHijo(NodoAST(t[5]))
-    Ret.getNodo().setHijo(NodoAST(t[8]))
+    ret.getNodo().setHijo(NodoAST(t[8]))
     t[0] = ret
 
 def p_AlterIndex2(t):
@@ -5446,94 +5446,156 @@ def p_VALORFTrim1(t):
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAcos(t):
-    'VALORF  :   ACOS  PABRE LNUMF PCIERRA '
+    'VALORF  :   ACOS  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.acos, t[3].getInstruccion()), NodoAST("ACOS"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAcosd(t):
-    'VALORF  :   ACOSD PABRE LNUMF PCIERRA  '
+    'VALORF  :   ACOSD PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.acosd, t[3].getInstruccion()), NodoAST("ACOSD"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAsin(t):
-    'VALORF  :   ASIN  PABRE LNUMF PCIERRA '
+    'VALORF  :   ASIN  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.asin, t[3].getInstruccion()), NodoAST("ASIN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAsind(t):
-    'VALORF  :   ASIND PABRE LNUMF PCIERRA  '
+    'VALORF  :   ASIND PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.asind, t[3].getInstruccion()), NodoAST("ASIND"))
+    ret.getNodo().setHijo(t[3].getNodo())
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAtan(t):
-    'VALORF  :   ATAN  PABRE LNUMF PCIERRA '
+    'VALORF  :   ATAN  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atan, t[3].getInstruccion()), NodoAST("ATAN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAtand(t):
-    'VALORF  :   ATAND PABRE LNUMF PCIERRA  '
+    'VALORF  :   ATAND PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atand, t[3].getInstruccion()), NodoAST("ATAND"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAtan2(t):
     'VALORF  :   ATAN2D PABRE LNUMF PCIERRA  '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atan2d, t[3].getInstruccion()), NodoAST("ATAN2D"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAtan2d(t):
     'VALORF  :   ATAN2 PABRE LNUMF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atan2, t[3].getInstruccion()), NodoAST("ATAN2"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFCos(t):
-    'VALORF  :   COS PABRE LNUMF PCIERRA '
+    'VALORF  :   COS PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cos, t[3].getInstruccion()), NodoAST("COS"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFCosd(t):
-    'VALORF  :   COSD  PABRE LNUMF PCIERRA '
+    'VALORF  :   COSD  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cosd, t[3].getInstruccion()), NodoAST("COSD"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFCot(t):
-    'VALORF  :   COT PABRE LNUMF PCIERRA '
+    'VALORF  :   COT PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cot, t[3].getInstruccion()), NodoAST("COT"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFCotd(t):
-    'VALORF  :   COTD PABRE LNUMF PCIERRA '
+    'VALORF  :   COTD PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cotd, t[3].getInstruccion()), NodoAST("COTD"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFSin(t):
     'VALORF  :   SIN PABRE VALORF PCIERRA '
-    ret = Retorno(FuncionNativa(TipoFunNativa.seno, t[3].getInstruccion()), NodoAST("SIN"))
+    ret = Retorno(FuncionNativa(TipoFunNativa.sin, t[3].getInstruccion()), NodoAST("SIN"))
     ret.getNodo().setHijo(t[3].getNodo())
     t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFSind(t):
-    'VALORF  :   SIND  PABRE LNUMF PCIERRA '
+    'VALORF  :   SIND  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.sind, t[3].getInstruccion()), NodoAST("SIND"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFTan(t):
-    'VALORF  :   TAN PABRE LNUMF PCIERRA '
+    'VALORF  :   TAN PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.tan, t[3].getInstruccion()), NodoAST("TAN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFTand(t):
-    'VALORF  :   TAND  PABRE LNUMF PCIERRA '
+    'VALORF  :   TAND  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.tand, t[3].getInstruccion()), NodoAST("TAND"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFSinh(t):
-    'VALORF  :   SINH  PABRE LNUMF PCIERRA '
+    'VALORF  :   SINH  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.sinh, t[3].getInstruccion()), NodoAST("SINH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
-#TODO: AGREGAR DIEGO 
+#TODO: AGREGAR DIEGO
 def p_VALORFCosh(t):
-    'VALORF  :   COSH  PABRE LNUMF PCIERRA '
+    'VALORF  :   COSH  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cosh, t[3].getInstruccion()), NodoAST("COSH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFTanh(t):
-    'VALORF  :   TANH  PABRE LNUMF PCIERRA '
+    'VALORF  :   TANH  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.tanh, t[3].getInstruccion()), NodoAST("TANH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAsinh(t):
-    'VALORF  :   ASINH PABRE LNUMF PCIERRA  '
+    'VALORF  :   ASINH PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.asinh, t[3].getInstruccion()), NodoAST("ASINH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAcosh(t):
-    'VALORF  :   ACOSH PABRE LNUMF PCIERRA  '
+    'VALORF  :   ACOSH PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.acosh, t[3].getInstruccion()), NodoAST("ACOSH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_VALORFAtanh(t):
-    'VALORF  :   ATANH PABRE LNUMF PCIERRA  '
+    'VALORF  :   ATANH PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atanh, t[3].getInstruccion()), NodoAST("ATANH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #FIN TRIGONOMETRICAS 
 #NUEVO BLOQUE 

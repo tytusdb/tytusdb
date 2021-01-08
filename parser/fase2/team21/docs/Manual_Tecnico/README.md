@@ -223,6 +223,28 @@ class Index(Instruccion):
 ```
 
 ```python
+def p_createIndex1(t):
+    'instruccion : CREATE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA'
+    global columna
+    global concatena_index
+    t[0] = Index(1, t[3], t[5], t[7],concatena_index ,lexer.lineno, columna)
+    concatena_index.append(f"CREATE UNIQUE INDEX {t[3]} ON {t[5]}  (")
+    print("salida index")
+    print(t[8])
+    i = 1
+    for data in t[7]:
+        if i == len(t[7]):
+            concatena_index.append(data.id)
+        else:
+            concatena_index.append(f"{data.id},")
+        i = i + 1
+    concatena_index.append(f")")
+
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(1, ID, ID, listaID)')
+```
+
+```python
 class Function(Instruccion):
     def __init__(self, caso, replace, id, parametros, tipo, E, declareInst, beginInst, linea, columna):
         self.caso = caso
@@ -235,6 +257,21 @@ class Function(Instruccion):
         self.beginInst = beginInst
         self.linea = linea
         self.columna = columna
+```
+
+```python
+def p_createfunction1(t):
+    '''instruccion : CREATE orreplace FUNCTION ID PARIZQ parametros PARDR RETURNS tipo AS E \
+    DECLARE \
+        instrucciones \
+    BEGIN \
+        instrucciones \
+    END PTCOMA'''
+    global columna
+    t[0] = Function(1, t[2], t[4], t[6], t[9], t[11], t[13], t[15], lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE orreplace FUNCTION ID PARIZQ parametros PARDR RETURNS tipo AS E DECLARE instrucciones BEGIN instrucciones END PTCOMA')
+    varSemantico.append('asignacionvariable = Function(1, orreplace, ID, parametros, tipo, E, instrucciones, instrucciones)')
+    concatena_funciones_procedimientos.append(Function(1, t[2], t[4], t[6], t[9], t[11], t[13], t[15], lexer.lineno, columna))
 ```
 
 ```python
@@ -252,6 +289,46 @@ class Procedure(Instruccion):
         self.beginInst = beginInst
         self.linea = linea
         self.columna = columna
+```
+
+```python
+def p_createProcedure1(t):
+    ''' instruccion : CREATE orreplace PROCEDURE ID PARIZQ parametros PARDR \
+    LANGUAGE E \
+    AS E \
+        instrucciones \
+    ID PTCOMA
+    '''
+    global columna
+    t[0] = Procedure(1, t[2], t[4], t[6], t[9], t[11], t[12], t[13], None, None, lexer.lineno, columna)
+    concatena_funciones_procedimientos.append(t[0])
+    varGramatical.append('instruccion ::= CREATE orreplace PROCEDURE ID PARIZQ parametros PARDR LANGUAGE E AS E instrucciones ID PTCOMA')
+    varSemantico.append('instruccion = Procedure(1, orreplace, ID, parametros, E, E, instrucciones, ID, None, None)')
+```
+
+```python
+def p_callProcedure1(t):
+    '''instruccion : CALL ID PARIZQ listaExpresiones PARDR PTCOMA'''
+    global columna
+    t[0] = Call(1, t[2], t[4], lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CALL ID PARIZQ listaExpresiones PARDR PTCOMA')
+    varSemantico.append('instruccion = Call(1, ID, listaExpresiones)')
+```
+
+```python
+def p_LoopSimple(t):
+    '''instruccion : LOOP \
+    instrucciones \
+    END LOOP PTCOMA '''
+    global columna
+    t[0] = Loop(t[2], lexer.lineno, columna)
+
+def p_whileLoop(t):
+    '''instruccion : WHILE opcionNot E LOOP \
+    instrucciones \
+    END LOOP PTCOMA'''
+    global columna
+    t[0] = While(t[2], t[3], t[5], lexer.lineno, columna)
 ```
 
 ## Código tres direcciones
@@ -314,7 +391,7 @@ Su finalidad es producir un código objeto lo mas eficiente posible optimizando 
 
 La optimización que se utilizo fue la de mirilla esta trata de estructurar de manera mas eficiente el flujo del programa, sobre todo en instrucciones de bifurcación como son las decisiones, ciclos y saltos de rutinas. 
 
-Este se implemento de en el mismo método traducir.
+Este se implemento en el mismo método traducir.
 
 ```python
 class CaseF2(Instruccion):
