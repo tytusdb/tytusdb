@@ -14,6 +14,7 @@ from InterpreteF2.Reporteria.ErroresSintacticos import ErroresSintacticos
 from InterpreteF2.Reporteria.ErroresLexicos import ErroresLexicos
 from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 from InterpreteF2.Reporteria.ReporteOptimizacion import  ReporteOptimizacion
+from InterpreteF2.Reporteria.ReporteTS_forFunction import  ReporteTS_forFunction
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from Parser.Reportes.Nodo1 import Nodo
@@ -258,7 +259,7 @@ def Err_Lexico():
         tr:hover td{background-color: black;color: white;}"""
     texto += '''</style> </head> </body>
             <div id=\"main-container\">
-            <h1>Reporte de errores Lexicos OLC2- G17</h1>
+            <h1>Reporte de errores Lexicos OLC2- G17 F2</h1>
             <table> <thead> <tr>
             <th>#</th>
             <th>Descripcion</th>
@@ -389,10 +390,12 @@ def Tabla_Simbolos():
                 <h1>Reporte de Tabla de Simbolos OLC2- G17</h1>
                 <table> <thead> <tr>
                 <th>#</th>
-                <th>identificador</th>
-                <th>tipo</th>
-                <th>declarada_en</th>
+                <th>Alias</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Consideracion</th>
                 <th>linea</th>
+                <th>Columna</th>
                 </tr> </thead>
                 '''
 
@@ -401,10 +404,12 @@ def Tabla_Simbolos():
     for i in arboAux_errores.ReporteTS:
         Simbolo: ReporteTS = i
         texto += '<tr><td> ' + str(contador) + '</td>'
-        texto += '<td> ' + Simbolo.identificador + '</td>'
+        texto += '<td> ' + Simbolo.alias + '</td>'
+        texto += '<td> ' + Simbolo.nombre + '</td>'
         texto += '<td> ' + Simbolo.tipo + '</td>'
-        texto += '<td> ' + Simbolo.declarada_en + '</td>'
-        texto += '<td> ' + str(Simbolo.linea) + '</td></tr>'
+        texto += '<td> ' + Simbolo.consideracion + '</td>'
+        texto += '<td> ' + str(Simbolo.fila) + '</td>'
+        texto += '<td> ' + str(Simbolo.columna) + '</td></tr>'
         contador = contador + 1
     texto += "</table> </div> </body> </html>"
 
@@ -461,6 +466,101 @@ def Optimizacion():
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
+def Tabla_Simbolos_Indice():
+
+    global arboAux_errores
+
+    texto = '''
+            <!DOCTYPE html>
+            <html lang=\"es\">
+            <head><meta charset=\"UTF-8\">  <title> Indices</title> 
+            <style type=\"text/css\"> \n'''
+    texto += """body{ background-color: white; font-family: Arial;} 
+        #main-container{ margin: 170px auto; width: 500px;}
+        table{ background-color: white; text-align: center; border-collapse: collapse; width: 100%;}
+        th, td{padding: 10px;}
+        thead{background-color: #2464333;border-bottom: solid 5px #0F3543; color: black;}
+        tr:nth-child(even){ background-color: #ddd;}
+        tr:hover td{background-color: black;color: white;}"""
+    texto += '''</style> </head> </body>
+            <div id=\"main-container\">
+            <h1>Reporte de Tabla de Simbolos para Indices OLC2- G17</h1>
+            <table> <thead> <tr>
+            <th>No.</th>
+            <th>Regla Utilizada</th>
+            <th>Codigo Original</th>
+            <th>Codigo Optimizado</th>
+            <th>Fila</th>
+            <th>Columna</th>
+            </tr> </thead>
+            '''
+    contador = 1
+
+    for i in arboAux_errores.ReporteOptimizacion:
+        Error: ReporteOptimizacion = i
+        texto += '<tr><td> ' + str(contador) + '</td>'
+        texto += '<td> ' + Error.regla + '</td>'
+        texto += '<td> ' + Error.original + '</td>'
+        texto += '<td> ' + Error.optimizado + '</td>'
+        texto += '<td> ' + str(Error.fila) + '</td>'
+        texto += '<td> ' + str(Error.columna) + '</td></tr>'
+        contador = contador + 1
+    texto += "</table> </div> </body> </html>"
+
+    try:
+        with open('ReporteTS_indices.html', 'w') as tsindices:
+            tsindices.write(texto)
+    except Exception as e:
+        print("No fue posible escribir el html: " + str(e))
+
+def Tabla_Simbolos_Funciones():
+
+    global arboAux_errores
+
+    texto = '''
+            <!DOCTYPE html>
+            <html lang=\"es\">
+            <head><meta charset=\"UTF-8\">  <title>  Funciones</title> 
+            <style type=\"text/css\"> \n'''
+    texto += """body{ background-color: white; font-family: Arial;} 
+        #main-container{ margin: 170px auto; width: 500px;}
+        table{ background-color: white; text-align: center; border-collapse: collapse; width: 100%;}
+        th, td{padding: 10px;}
+        thead{background-color: #2464333;border-bottom: solid 5px #0F3543; color: black;}
+        tr:nth-child(even){ background-color: #ddd;}
+        tr:hover td{background-color: black;color: white;}"""
+    texto += '''</style> </head> </body>
+            <div id=\"main-container\">
+            <h1>Reporte de Tabla de Simbolos para Funciones OLC2- G17</h1>
+            <table> <thead> <tr>
+            <th>No.</th>
+            <th>Alias</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Fila</th>
+            <th>Columna</th>
+            </tr> </thead>
+            '''
+    contador = 1
+
+    for i in arboAux_errores.ReporteTS_Funciones:
+        Error: ReporteTS_forFunction = i
+        texto += '<tr><td> ' + str(contador) + '</td>'
+        texto += '<td> ' + Error.alias + '</td>'
+        texto += '<td> ' + Error.nombre + '</td>'
+        texto += '<td> ' + Error.tipo + '</td>'
+        texto += '<td> ' + Error.estado + '</td>'
+        texto += '<td> ' + str(Error.fila) + '</td>'
+        texto += '<td> ' + str(Error.columna) + '</td></tr>'
+        contador = contador + 1
+    texto += "</table> </div> </body> </html>"
+
+    try:
+        with open('ReporteTS_Funciones.html', 'w') as tsfunciones:
+            tsfunciones.write(texto)
+    except Exception as e:
+        print("No fue posible escribir el html: " + str(e))
 def generar():
     global COD3D
 
@@ -553,5 +653,7 @@ edit_menu.add_command(label='Lexico', command=Err_Lexico)
 edit_menu.add_command(label='Sintactico', command=Err_Sintactico)
 edit_menu.add_command(label='Semantico', command=Err_Semantico)
 edit_menu.add_command(label='Tabla Simbolos', command=Tabla_Simbolos)
+edit_menu.add_command(label='Tabla Simbolos Funciones', command=Tabla_Simbolos_Funciones)
+edit_menu.add_command(label='Tabla Simbolos Indices', command=Tabla_Simbolos_Indice)
 edit_menu.add_command(label='Optimizacion', command=Optimizacion)
 file_menu.add_separator()
