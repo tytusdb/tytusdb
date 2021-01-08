@@ -130,6 +130,8 @@ s2 = """
 
 CREATE FUNCTION foo(texto text, b boolean) RETURNS text AS $$
 BEGIN
+update tbbodega set bodega = texto||"fr", id = 1 where idbodega = 4; 
+update tbbodega set bodega = "fr" where idbodega = 4; 
 return texto;
 END;
 $$ LANGUAGE plpgsql;
@@ -192,4 +194,26 @@ order by 1;
 
 """
 
-traducir(s)
+s3 = """
+select E.* from tabla;
+select departamento,count(*) CantEmpleados 
+from tbempleadopuesto
+group by departamento;
+select primernombre,segundonombre,primerapellido,sum(montoventa) 
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+create table tblibrosalario
+( idempleado integer not null,
+  aniocalculo integer not null CONSTRAINT aniosalario CHECK (aniocalculo > 0),
+  mescalculo  integer not null CONSTRAINT mescalculo CHECK (mescalculo > 0),
+  salariobase  money not null,
+  comision     decimal,
+  primary key(idempleado)
+ );
+EXECUTE md5("francisco");
+update tbbodega set bodega = 'bodega zona 9' where idbodega = 4; 
+update tbbodega set bodega = DEFAULT where idbodega = 4; 
+"""
+
+traducir(s3)
