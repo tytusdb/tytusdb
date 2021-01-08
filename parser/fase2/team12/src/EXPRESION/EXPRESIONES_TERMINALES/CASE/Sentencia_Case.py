@@ -125,6 +125,8 @@ class Sentencia_Case(Expresion):
         self.dir = instanceTemporal.getTemporal()
         self.cod = self.dir + ' = 0\n'
 
+        e1 = instanceLabel.getLabel()
+
         for case in listaCase.hijos:
 
             condicional = case.hijos[0]
@@ -132,22 +134,19 @@ class Sentencia_Case(Expresion):
 
             codigoCondicional = condicional.compile(enviroment)
             self.cod += codigoCondicional
-            if contador == 0 :
-                self.cod += 'if ' + condicional.dir + ' == 1 : \n'
-            else:
-                self.cod += 'elif ' + condicional.dir + ' == 1 : \n'
-
+            self.cod += 'if ' + condicional.dir + ' == 1 : \n'            
             valorExp = exp.compile(enviroment)
-            self.cod += '\t' + valorExp
-            self.cod += '\t' + self.dir + ' = ' + exp.dir + '\n'
-            contador = contador + 1
+            self.cod += '\t' + valorExp + '\n'
+            self.cod += '\t' + self.dir + ' = ' + exp.dir + '\n'            
+            self.cod += '\tgoto ' + e1 + '\n'
 
         if len(self.hijos) == 2 :
             sentenciaCase = self.hijos[1].hijos[0]
-            self.cod += 'else :\n'
             codigoCase = sentenciaCase.compile(enviroment)
-            self.cod += '\t' + codigoCase
-            self.cod += '\t' + self.dir + ' = ' + sentenciaCase.dir + '\n'
+            self.cod += codigoCase
+            self.cod += self.dir + ' = ' + sentenciaCase.dir + '\n'
+        
+        self.cod += 'label ' + e1 + '\n'
 
         return self.cod
 

@@ -66,13 +66,17 @@ class Bloque(Nodo):
         for hijo in self.hijos:
 
             if hijo.nombreNodo == 'SENTENCIA_INSERT':
-                hijo.compile(enviroment)
+                textoCompile += hijo.compile().splitlines()
+                textoCompile.append("execute()")
 
             elif hijo.nombreNodo == 'SENTENCIA_UPDATE':
-                hijo.compile(enviroment)
+                textoCompile += hijo.compile().splitlines()
+                textoCompile.append("execute()")
             
             elif hijo.nombreNodo == 'SENTENCIA_DELETE':
-                hijo.compile(enviroment)
+                textoCompile += hijo.compile().splitlines()
+                textoCompile.append("execute()")
+
             
             elif hijo.nombreNodo == 'SENTENCIA_SELECT':
                 textoCompile += hijo.compile(enviroment)
@@ -95,7 +99,7 @@ class Bloque(Nodo):
                 #resp = nuevoExcept.execute(hijo)                    
 
             elif hijo.nombreNodo == 'SENTENCIA_ASIGNACION':
-                hijo.compile(enviroment)
+                textoCompile += hijo.compile(enviroment)
             
             elif hijo.nombreNodo == 'SENTENCIA_IF':
                 textoCompile += hijo.compile(enviroment)

@@ -48,8 +48,7 @@ class Execute():
 
     #endregion
 
-    def compile(self, parent, enviroment = None):
-        self.enviroment = enviroment
+    def compile(self, parent):
         self.dbUsada = self.verificarDBActiva()
         if self.dbUsada == None:
             return ""

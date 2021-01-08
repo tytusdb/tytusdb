@@ -259,14 +259,7 @@ class Select():
         
         
         self.ejecutarSelect(parent.hijos[0])
-        numeroFilas = len(self.tablaRetorno)
-        numeroColumnas = len(self.encabezadoRetorno)
-        tipoUnico = None
-        valorUnico = None
 
-        if numeroFilas == 1 and numeroColumnas == 1 :
-            tipoUnico = self.encabezadoRetorno[0].tipo
-            valorUnico = self.tablaRetorno[0][0]
                 
         
         
@@ -303,6 +296,15 @@ class Select():
             dataTemporalGlobal = self.tablaRetorno
         #endregion
         
+        numeroFilas = len(dataTemporalAgregacion)
+        numeroColumnas = len(self.encabezadoRetorno)
+        tipoUnico = None
+        valorUnico = None
+
+        if numeroFilas == 1 and numeroColumnas == 1 :
+            tipoUnico = self.encabezadoRetorno[0].tipo
+            valorUnico = dataTemporalAgregacion[0]
+        print(valorUnico)
         
         tablaResultado = TableResult()
         tablaResultado.nombre = stringName

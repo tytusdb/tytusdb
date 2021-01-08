@@ -191,6 +191,18 @@ class Start(Nodo):
         
         #region Declaracion de las variables
         listaInstrucciones = []
+        listaInstrucciones.append("")
+        listaInstrucciones.append("")
+        listaInstrucciones.append("def execute():")
+        listaInstrucciones.append("\tglobal p")
+        listaInstrucciones.append("\tp=p-1")
+        #listaInstrucciones.append("\tprint(display[p])")
+        listaInstrucciones.append("\tresp = run_method(display[p])")
+        listaInstrucciones.append("\tresp.execute(None)")
+        listaInstrucciones.append("\tp=p+1")
+        listaInstrucciones.append("")
+        listaInstrucciones.append("")
+
         #endregion
 
         #region Execute de las sentencias no PLSQL y algunas PLSQL 
@@ -282,12 +294,20 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'EXECUTE':
                 nuevoExecute = Execute()
                 listaInstrucciones = listaInstrucciones +  nuevoExecute.compile(hijo)
+            elif hijo.nombreNodo == 'SENTENCIA_CASE':
+                cod = hijo.compile(enviroment)
+                listaInstrucciones = listaInstrucciones + cod.splitlines()
             entornoGlobal.recorrerEntorno()
         #endregion
 
+        
+
         encabezados = self.crearEncabezado()
         procedimientos = self.crearListaProcedimientos()
-        finalList = encabezados + procedimientos + listaInstrucciones
+        if procedimientos != None:
+            finalList = encabezados + procedimientos + listaInstrucciones
+        else:
+            finalList = encabezados + listaInstrucciones
         self.crearArchivo(finalList)
 
     '''def compile(self,enviroment = None):
@@ -384,7 +404,7 @@ class Start(Nodo):
             config = json.load(file)
         dbUse = config['databaseIndex']
         if dbUse == None:
-            print("Se debe seleccionar una base de datos")
+            #print("Se debe seleccionar una base de datos")
             return None
         listaProcedimientos = []
         res = tc.get_all_procedure(dbUse.upper())
