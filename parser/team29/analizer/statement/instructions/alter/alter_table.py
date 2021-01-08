@@ -15,6 +15,7 @@ class AlterTable(instruction.Instruction):
         self.params = params
 
     def execute(self, environment):
+        Struct.load()
         alter = Struct.alterColumnsTable(instruction.dbtemp, self.table, self.params)
         if alter == None:
             alter = Checker.checkValue(instruction.dbtemp, self.table)

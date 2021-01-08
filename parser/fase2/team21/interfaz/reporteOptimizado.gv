@@ -1,8 +1,0 @@
-digraph structs {
-	node [shape=plaintext]
-stack [label =  <<TABLE><TR>
-<TD>REGLA</TD>
-<TD align="left" balign="left">SIN OPTIMIZAR</TD>
-<TD align="left" balign="left">OPTIMIZADO</TD>
-</TR></TABLE>>, ];
-}

@@ -1,4 +1,3 @@
-
 from gramatica import parse
 from principal import * 
 import ts as TS

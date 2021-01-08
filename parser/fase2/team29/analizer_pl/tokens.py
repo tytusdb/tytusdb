@@ -279,14 +279,16 @@ def t_INTEGER(t):
 # Funcion para evaluar si el token reconocido es un CHARACTER
 def t_CHARACTER(t):
     r"(\"\\?.\"|\'\\?.\')"
-    # t.value = t.value[1:-1]
+    t.value = t.value[1:-1]
+    t.value = "'" + t.value + "'"
     return t
 
 
 # Funcion para evaluar si el token reconocido es un STRING
 def t_STRING(t):
     r"(\'.*?\'|\".*?\")"
-    # t.value = t.value[1:-1]  # remuevo las comillas
+    t.value = t.value[1:-1]  # remuevo las comillas
+    t.value = "'" + t.value + "'"
     return t
 
 

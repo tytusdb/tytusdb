@@ -9,8 +9,9 @@ def main():
 	arr = [0] * 10000
 
 	inter.procesar_funcionCreateDatabase0()
-	inter.procesar_funcionUseDatabase1()	
-	ta0 = 'INICIO CALIFICACION FASE 2'	
+	inter.procesar_funcionUseDatabase1()
+	print('\nCREATE FUNCTION')	
+	tp0 = 'INICIO CALIFICACION FASE 2'	
 	pos = pos + 1	
 	arr[pos] = 1	
 	goto. myFuncion	
@@ -26,47 +27,51 @@ def main():
 	inter.procesar_funcionInsert10()
 	inter.procesar_funcionInsert11()
 	inter.procesar_funcionInsert12()
-	inter.procesar_funcionInsert13()	
-	ta1 = 'tbProducto'	
-	ta2 = 8	
+	inter.procesar_funcionInsert13()
+	print('\nCREATE FUNCTION')	
+	tp1 = 'tbProducto'	
+	tp2 = 8	
 	pos = pos + 1	
 	arr[pos] = 2	
 	goto. ValidaRegistros	
 	label. retorno2
 	inter.procesar_funcionInsert14()
 	inter.procesar_funcionUpdate15()	
-	ta1 = 'tbProductoUp'	
-	ta2 = 8	
+	tp1 = 'tbProductoUp'	
+	tp2 = 8	
 	pos = pos + 1	
 	arr[pos] = 3	
 	goto. ValidaRegistros	
 	label. retorno3
-	inter.procesar_funcionInsert16()	
+	inter.procesar_funcionInsert16()
+	print('\nCREATE FUNCTION')	
 	pos = pos + 1	
 	arr[pos] = 4	
 	goto. CALCULOS	
 	label. retorno4
 	inter.procesar_funcionInsert17()
 	inter.procesar_funcionCreateTable18()
-	inter.procesar_funcionCreateIndex19()	
+	inter.procesar_funcionCreateIndex19()
+	print('\nCREATE FUNCTION')	
 	pos = pos + 1	
 	arr[pos] = 5	
 	goto. sp_validainsert	
 	label. retorno5	
-	ta1 = 'tbbodega'	
-	ta2 = 5	
+	tp1 = 'tbbodega'	
+	tp2 = 5	
 	pos = pos + 1	
 	arr[pos] = 6	
 	goto. ValidaRegistros	
 	label. retorno6
-	inter.procesar_funcionInsert20()	
+	inter.procesar_funcionInsert20()
+	print('\nCREATE FUNCTION')	
 	pos = pos + 1	
 	arr[pos] = 7	
 	goto. sp_validaupdate	
 	label. retorno7
 	inter.procesar_funcionDelete21()	
-	ta1 = 'tbbodega'	
-	ta2 = 4	
+	tp1 = 'tbbodega'	
+	tp2 = 4	
 	pos = pos + 1	
 	arr[pos] = 8	
 	goto. ValidaRegistros	
@@ -77,18 +82,18 @@ def main():
 	goto. end	
 	
 	label. myFuncion	
-	print(ta0 )	
+	print(tp0 )	
 	goto. retorno	
 	
 	label. ValidaRegistros	
 	t0 = 0	
 	t1 = 0	
-	t2 = ta1 == 'tbProducto'	
+	t2 = tp1 == 'tbProducto'	
 	if  t2 : goto. L0	
 	goto. L1	
 	label. L0	
 	t0 = 2	
-	t3 = ta2 == t0	
+	t3 = tp2 == t0	
 	if  t3 : goto. L3	
 	goto. L4	
 	label. L3	
@@ -98,12 +103,12 @@ def main():
 	t1 = 0	
 	label. L5	
 	label. L1	
-	t4 = ta1 == 'tbProductoUp'	
+	t4 = tp1 == 'tbProductoUp'	
 	if  t4 : goto. L6	
 	goto. L7	
 	label. L6	
 	t0 = 2	
-	t5 = ta2 == t0	
+	t5 = tp2 == t0	
 	if  t5 : goto. L9	
 	goto. L10	
 	label. L9	
@@ -113,12 +118,12 @@ def main():
 	t1 = 0	
 	label. L11	
 	label. L7	
-	t6 = ta1 == 'tbbodega'	
+	t6 = tp1 == 'tbbodega'	
 	if  t6 : goto. L12	
 	goto. L13	
 	label. L12	
 	t0 = 2	
-	t7 = ta2 == t0	
+	t7 = tp2 == t0	
 	if  t7 : goto. L15	
 	goto. L16	
 	label. L15	

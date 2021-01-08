@@ -20,11 +20,11 @@ class FunctionDeclaration(Instruction):
             self.proc, self.id, self.returns, len(self.params)
         )
         cd = "\n@with_goto\ndef " + self.id + "():\n"
-        grammar.optimizer_.addIgnoreString(str(cd), self.row,False)
+        grammar.optimizer_.addIgnoreString(str(cd), self.row, False)
         for p in self.params:
             cd += "\t" + p.execute(environment).temp + " = stack.pop()\n"
             grammar.optimizer_.addIgnoreString(
-                str(p.execute(environment).temp + " = stack.pop()"), self.row,True
+                str(p.execute(environment).temp + " = stack.pop()"), self.row, True
             )
         if self.params:
             for p in self.params:

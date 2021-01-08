@@ -16,6 +16,16 @@ import re
 import codificar
 from random import randint
 
+#Para la password
+import base64
+import os
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+#para encriptar y desencriptar
+from cryptography.fernet import Fernet
+
 MODES = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
 HEX_SYMBOLS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]
 VALID_ENCODING = ["utf8", "iso-8859-1", "ascii"]
@@ -435,6 +445,221 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
             break
     return result
 
+# Descripción:
+#      Inserta un registro en la estructura de datos asociada a la tabla y la base de datos
+# Parámetros:
+#      database:str - El nombre de la base de datos a utilizar
+#      table:str - El nombre de la tabla a utilizar
+#      register:list - Es una lista de elementos que represent un registro
+# Valores de retorno:
+#      0 - Operación exitosa
+#      1 - Error en la operación
+#      2 - database no existente
+#      3 - table no existente
+#      4 - Llave primaria duplicada
+#      5 - Columnas fuera de límites
+def insert(database: str, table: str, register: list):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    for db in dbs:
+        if db.mode == "avl":
+            result = avlMode.insert(database, table, register)
+        elif db.mode == "b":
+            result = BMode.insert(database, table, register)
+        elif db.mode == "bplus":
+            result = BPlusMode.insert(database, table, register)
+        elif db.mode == "dict":
+            result = DictMode.insert(database, table, register)
+        elif db.mode == "isam":
+            result = ISAMMode.insert(database, table, register)
+        elif db.mode == "json":
+            result = jsonMode.insert(database, table, register)
+        elif db.mode == "hash":
+            result = HashMode.insert(database, table, register)
+        if result != 3:
+            break
+    return result
+
+# Descripción:
+#      Inserta un registro en la estructura de datos asociada a la tabla y la base de datos con el modo indicado
+# Parámetros:
+#      database:str - El nombre de la base de datos a utilizar
+#      table:str - El nombre de la tabla a utilizar
+#      register:list - Es una lista de elementos que represent un registro
+#      mode:str - El modo de la base de datos en la que se desea insertar
+# Valores de retorno:
+#      0 - Operación exitosa
+#      1 - Error en la operación
+#      2 - database no existente
+#      3 - table no existente
+#      4 - Llave primaria duplicada
+#      5 - Columnas fuera de límites
+#      6 - Modo incorrecto
+def __insert_sp(database: str, table: str, register: list, mode: str):
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb = databases.find_table(database, table)
+    if tb == None:
+        return 3
+    if len(register) != tb.columns:
+        return 5
+    if mode not in MODES:
+        return 6
+    for db in dbs:
+        if db.mode != mode:
+            continue
+        if db.mode == "avl":
+            result = avlMode.insert(database, table, register)
+        elif db.mode == "b":
+            result = BMode.insert(database, table, register)
+        elif db.mode == "bplus":
+            result = BPlusMode.insert(database, table, register)
+        elif db.mode == "dict":
+            result = DictMode.insert(database, table, register)
+        elif db.mode == "isam":
+            result = ISAMMode.insert(database, table, register)
+        elif db.mode == "json":
+            result = jsonMode.insert(database, table, register)
+        elif db.mode == "hash":
+            result = HashMode.insert(database, table, register)
+        else:
+            continue
+        if result != 3:
+            break
+    return result
+
+# Descripción:
+#     Carga un archivo CSV de una ruta especificada indicando la base de datos y tabla donde será almacenado
+# Parámetros:
+#     file:str - Ruta del archivo CSV a utilizar
+#     database:str - El nombre de la base de datos a utilizar
+#     table:str - El nombre de la tabla a utilizar
+# Valores de retorno:
+#     Lista con los valores enteros que devuelve el insert por cada fila del CSV
+#     Si ocurrió un error o el archivo CSV no tiene filas devuelve una lista vacía
+def loadCSV(file: str, database: str, table: str) -> list:
+    try:
+        result = []
+        dbs = databases.find_all(database)
+        for db in dbs:
+            tb = db.tables.search(table)
+            if tb == None:
+                continue
+            if db.mode == "avl":
+                result = avlMode.loadCSV(file, database, table)
+            elif db.mode == "b":
+                result = BMode.loadCSV(file, database, table)
+            elif db.mode == "bplus":
+                result = BPlusMode.loadCSV(file, database, table)
+            elif db.mode == "dict":
+                result = DictMode.loadCSV(file, database, table)
+            elif db.mode == "isam":
+                result = ISAMMode.loadCSV(file, database, table)
+            elif db.mode == "json":
+                result = jsonMode.loadCSV(file, database, table)
+            elif db.mode == "hash":
+                result = HashMode.loadCSV(file, database, table)
+        return result
+    except:
+        return []
+
+# Descripción:
+#     Devuelve una lista con las rutas de todos los archivos binarios relacionados a la base
+#     de datos indicada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+# Valores de retorno:
+#     Si existen binarios para la base de datos, un lista con todas las rutas
+#     Si no existe ningún binario relacionado a la base de datos, una lista vacía
+def get_routes(database: str) -> list:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return []
+    routes = []
+    for db in dbs:
+        if db.mode == "bplus":
+            routes.append(".\\data\\BPlusMode\\{0}\\{1}.bin".format(db.name, db.name))
+
+        tables = []
+        aux = db.tables.first
+        while aux != None:
+            tables.append(aux)
+            aux = aux.next
+        
+        if db.mode == "avl":
+            for table in tables:
+                route = ".\\data\\avlMode\\{0}_{1}.tbl".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "b":
+            for table in tables:
+                route = ".\\data\\b\\{0}-{1}-b.bin".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "bplus":
+            for table in tables:
+                route = ".\\data\\BPlusMode\\{0}\\{1}\\{2}.bin".format(db.name, table.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "dict":
+            for table in tables:
+                route = ".\\data\\{0}\\{1}.bin".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "isam":
+            for table in tables:
+                route = ".\\data\\ISAMMode\\tables\\{0}{1}.bin".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "json":
+            for table in tables:
+                route = ".\\data\\json\\{0}-{1}".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+        elif db.mode == "hash":
+            for table in tables:
+                route = ".\\data\\hash\\{0}\\{1}.bin".format(db.name, table.name)
+                if os.path.exists(route):
+                    routes.append(route)
+    return routes
+
+# Descripción:
+#     Devuelve una lista con la ruta del archivo binario correspondiente a la tabla indicada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+#     table:str - El nombre de la tabla
+# Valores de retorno:
+#     str - La ruta del archivo binario de la tabla
+#     None - Si no existe archivo binario para la tabla
+def get_route_table(database: str, table: str) -> list:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return None
+    route = None
+    for db in dbs:
+        tb = db.tables.search(table)
+        if tb == None:
+            continue
+        if db.mode == "avl":
+            route = ".\\data\\avlMode\\{0}_{1}.tbl".format(db.name, tb.name)
+        elif db.mode == "b":
+            route = ".\\data\\b\\{0}-{1}-b.bin".format(db.name, tb.name)
+        elif db.mode == "bplus":
+            route = ".\\data\\BPlusMode\\{0}\\{1}\\{2}.bin".format(db.name, tb.name, tb.name)
+        elif db.mode == "dict":
+            route = ".\\data\\{0}\\{1}.bin".format(db.name, tb.name)
+        elif db.mode == "isam":
+            route = ".\\data\\ISAMMode\\tables\\{0}{1}.bin".format(db.name, tb.name)
+        elif db.mode == "json":
+            route = ".\\data\\json\\{0}-{1}".format(db.name, tb.name)
+        elif db.mode == "hash":
+            route = ".\\data\\hash\\{0}\\{1}.bin".format(db.name, tb.name)
+    if route != None and os.path.exists(route):
+        return route
+    return None
+
 def delete(database: str, table: str, columns: list):
     db = databases.search(database)
     if db == None:
@@ -705,3 +930,80 @@ def alterAddPK(database, table, columns):
                 return 1
             break
     return result
+
+#Descripcion:
+#	Crifra el texto backup con la llave password y devuelve el criptograma. Se puede utilizar cualquier método y biblioteca. (UPDATE)
+#Parámetro
+#	backup: es el nombre de la base de datos a utilizar.
+#Valor de retorno:
+#	0 operación exitosa
+#	1 error en la operación.
+def encrypt(backup: str, password: str):
+	try:
+		if type(backup) == bytes:
+			#Generar una llave con el password ingresado
+			password_provided = password
+			passwordB = password_provided.encode() #convertido a byte
+
+			salt = b"\x1c(\xe8\xe0J^\xd9\x81~f\n\xc9\xe3'\xdb\xf3" # este salt = os.urandom(16)
+
+			kdf = PBKDF2HMAC(
+				algorithm=hashes.SHA256(),
+				length=32,
+				salt=salt,
+				iterations=100000,
+				backend=default_backend()
+			)
+
+			#Llave generada
+			key = base64.urlsafe_b64encode(kdf.derive(passwordB))#solo se puede usar kdf una vez
+
+			#Cifrar el mensaje
+			f = Fernet(key)
+			encrip = f.encrypt(backup)
+
+			return encrip
+
+		else:
+
+			return None #error
+	except:
+		return None #error
+
+# Descripcion:
+# 	Descrifra el texto cipherBackup con la llave password y devuelve el texto plano. Se puede utilizar cualquier método y biblioteca. (UPDATE)
+# Parámetros:
+# 	cipherBackup: es el nombre de la base de datos a utilizar.
+# Valor de retorno:
+#	0 operación exitosa
+#	1 error en la operación.
+def decrypt(cipherBackup: str, password: str):
+
+	try:
+		#Generar una llave con el password ingresado
+		password_provided = password
+		passwordB = password_provided.encode() #convertido a byte
+
+		salt = b"\x1c(\xe8\xe0J^\xd9\x81~f\n\xc9\xe3'\xdb\xf3" # este salt = os.urandom(16)
+
+		kdf = PBKDF2HMAC(
+			algorithm=hashes.SHA256(),
+			length=32,
+			salt=salt,
+			iterations=100000,
+			backend=default_backend()
+		)
+
+		#Llave generada
+		key = base64.urlsafe_b64encode(kdf.derive(passwordB))#solo se puede usar kdf una vez
+
+		#Desencriptar el mensaje
+		f2 = Fernet(key)
+		desen = f2.decrypt(cipherBackup)
+		#desen_str = desen.decode()
+		#print("Mensaje Desencriptado:\n",desen_str)
+		return desen
+
+	except:
+		return None #error
+

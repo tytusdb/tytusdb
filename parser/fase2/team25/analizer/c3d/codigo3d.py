@@ -139,18 +139,20 @@ class Codigo3d:
                         objPattern = re.search(patron , parametro)
                         coincidencia = objPattern.string[objPattern.span()[0] : objPattern.span()[1]]
                         #  Y REEMPLAZO EL CODIGO 3D como un str(tn)
+                        if coincidencia == 'count(*)':
+                            continue
                         if getOnlyId(coincidencia).upper() in funcionesDefinidas:
                             # es de la fase 1 asi que se queda normal
                             pass
                         else:# REPLACE
-                                # * SI SALE TODO BIEN
                                 tn = self.getNewTemporal()
-                                salida = f'\t{tn} = {coincidencia}\n\t{tn} = RETURN[0]'
+                                salida = f'\t{coincidencia}\n\t{tn} = RETURN[0]'
                                 if goToMain:
                                     self.addToMain(salida)
                                 else:
                                     tn_previos+= salida+'\n'
                                 instruccionOK = instruccionOK.replace(coincidencia,f'\"+str({tn})+\"')
+
 
 
         elif tipoFuncion == "insert":
@@ -187,7 +189,7 @@ class Codigo3d:
                         else:# REPLACE
                             # * SI SALE TODO BIEN
                             tn = self.getNewTemporal()
-                            salida = f'\t{tn} = {coincidencia}\n\t{tn} = RETURN[0]'
+                            salida = f'\t{coincidencia}\n\t{tn} = RETURN[0]'
                             if goToMain:
                                 self.addToMain(salida)
                             else:
@@ -211,7 +213,7 @@ class Codigo3d:
         """
         ESTE METODO GENERA UN ARCHIVO .PY PARA PODER EJECUTAR EL CODIGO 3 DIRECCIONES QUE SE ADJUNTO
         """
-        RUTA = '../analizer/'
+        RUTA = './analizer/'
         with open(F"{RUTA}SALIDA_C3D.py", "w") as archivo:
             # librerias
             archivo.write(self.getCodigo())
@@ -304,7 +306,8 @@ funcionesDefinidas = [
     'MAX',
     'MIN',
     'GREATEST',
-    'LEAST'
+    'LEAST',
+    'COUNT'
 ]
 
 def quitarEspacios(arreglo)->list:

@@ -48,20 +48,14 @@ selected = False
 def analizar(txt):
     global instrucciones_GlobalPL
     instruccionesPL = TRADUC.runC3D(txt)
-    
-
-    if erroressss.getList() == []:
-        instrucciones_GlobalPL = instruccionesPL
-        ts_globalPL = TSPL.TablaDeSimbolos()
-        codigo3D = ""
-        codigo3D = TRADUC.generarC3D(instruccionesPL, ts_globalPL)
-        salida3D = open("./salida3D.py", "w")
-        salida3D.write(codigo3D)
-        salida3D.close()
-        salida_table(2,'3D GENERADO CON EXITO')
-    else:
-        salida_table(2,"PARSER ERROR")
-    
+    instrucciones_GlobalPL = instruccionesPL
+    ts_globalPL = TSPL.TablaDeSimbolos()
+    codigo3D = ""
+    codigo3D = TRADUC.generarC3D(instruccionesPL, ts_globalPL)
+    salida3D = open("./salida3D.py", "w")
+    salida3D.write(codigo3D)
+    salida3D.close()
+    salida_table(2,'3D GENERADO CON EXITO')    
 
 
 def analizar_select(e):
@@ -71,19 +65,14 @@ def analizar_select(e):
         global instrucciones_GlobalPL
         selected = my_text.selection_get()
         instruccionesPL = TRADUC.runC3D(selected)
-        
-
-        if erroressss.getList() == []:
-            instrucciones_GlobalPL = instruccionesPL
-            ts_globalPL = TSPL.TablaDeSimbolos()
-            codigo3D = ""
-            codigo3D = TRADUC.generarC3D(instruccionesPL, ts_globalPL)
-            salida3D = open("./salida3D.py", "w")
-            salida3D.write(codigo3D)
-            salida3D.close()
-            salida_table(2,'3D GENERADO CON EXITO')
-        else:
-            salida_table(2,"PARSER ERROR")
+        instrucciones_GlobalPL = instruccionesPL
+        ts_globalPL = TSPL.TablaDeSimbolos()
+        codigo3D = ""
+        codigo3D = TRADUC.generarC3D(instruccionesPL, ts_globalPL)
+        salida3D = open("./salida3D.py", "w")
+        salida3D.write(codigo3D)
+        salida3D.close()
+        salida_table(2,'3D GENERADO CON EXITO')
             
 
 def generarReporteAST():

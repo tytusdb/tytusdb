@@ -6,7 +6,7 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter import *
 from ui.Pantalla_TS import *
-from ui.Pantalla_AST import *
+#from ui.Pantalla_AST import *
 from ui.Pantalla_Error import *
 import tkinter.messagebox
 from analizer import interpreter
@@ -49,7 +49,9 @@ class Pantalla:
         navMenu.add_command(label="REPORTE GRAMATICAL",
                             command=self.reporteGramatical)
         navMenu.add_command(label="REPORTE DE ERRORES",
-                            command=self.open_Reporte,)
+                            command=self.open_Reporte)
+        navMenu.add_command(label="OPTIMIZAR",
+                    command=self.optimizar)
 
         self.window.config(menu=navMenu)
         frame_btn = Frame(self.window)
@@ -232,7 +234,7 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        info = self.read('Databases.json')
+        info = self.read('../analizer/Databases.json')
         f = open("tb.html", "w")
         f.write(json2html.convert(json=info))
         f.close()
@@ -242,13 +244,15 @@ class Pantalla:
         with open(path) as file:
             return json.load(file)
     def open_AST(self):  # Abre la pantalla del AST
-        os.system('cd test-output & round-table.gv.svg')
-        windowTableS = Pantalla_AST(self.window)
+        os.system('cd ./test-output & round-table.gv.svg')
+
 
     def open_Reporte(self):  # Abre la pantalla de los reportes de errores
         windowTableS = Pantalla_Error(
             self.window, self.lexicalErrors, self.syntacticErrors, self.semanticErrors
         )
+    def optimizar(self):
+        pass#metodo cante :v
 
     def reporteGramatical(self):
         os.system('cd test-output & ReporteGramatica.bnf')
