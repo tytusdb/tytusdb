@@ -28,3 +28,12 @@ class TipoFunNativa(Enum):
     acosh = 60
     atanh = 61
     atan2 = 62
+    asind = 63
+    acosd = 64
+    atand = 65
+    sind = 66
+    cosd = 67
+    tand = 68
+    atan2d = 69
+    cot = 70
+    cotd = 71
