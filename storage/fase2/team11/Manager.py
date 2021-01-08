@@ -82,109 +82,35 @@ def createDatabase(database: str, mode: str, encoding: str):
 
 
 def alterDatabaseMode(database: str, mode: str):
-    ModeDB, indexDB = exist_Alter(database)
-    mode_list.pop(indexDB)
-    createDatabase(database, mode, ModeDB.get_encondig())
-    if ModeDB:
-
-        oldMode = ModeDB.get_mode()
-        if oldMode.lower().strip() == "avl":
-            tables = avl.showTables(database)
-            for tabla in tables:
-                listaDatos = get_Data(database, tabla, oldMode)
-                numberColumns = len(listaDatos[0])
-                insertAlter(database, tabla, numberColumns, mode, listaDatos)
-            avl.dropDatabase(database)
-        elif oldMode.lower().strip() == "b":
-            tables = b.showTables(database)
-            for tabla in tables:
-                listaDatos = get_Data(database, tabla, oldMode)
-                numberColumns = len(listaDatos[0])
-                insertAlter(database, tabla, numberColumns, mode, listaDatos)
-            b.dropDatabase(database)
-        elif oldMode.lower().strip() == "bPlus".lower():
-            tables = bPlus.showTables(database)
-            for tabla in tables:
-                listaDatos = get_Data(database, tabla, oldMode)
-                numberColumns = len(listaDatos[0])
-                insertAlter(database, tabla, numberColumns, mode, listaDatos)
-            bPlus.dropDatabase(database)
-        elif oldMode.lower().strip() == "dict":
-            tables = diccionario.showTables(database)
-            for tabla in tables:
-                listaDatos = get_Data(database, tabla, oldMode)
-                numberColumns = len(listaDatos[0])
-                insertAlter(database, tabla, numberColumns, mode, listaDatos)
-            diccionario.dropDatabase(database)
-        elif oldMode.lower().strip() == "isam":
-            tables = isam.showTables(database)
-            for tabla in tables:
-                listaDatos = get_Data(database, tabla, oldMode)
-                numberColumns = len(listaDatos[0])
-                insertAlter(database, tabla, numberColumns, mode, listaDatos)
-            isam.dropDatabase(database)
-        elif oldMode.lower().strip() == "hash":
-            tables = hash.showTables(database)
-            for tabla in tables:
-                listaDatos = get_Data(database, tabla, oldMode)
-                numberColumns = len(listaDatos[0])
-                insertAlter(database, tabla, numberColumns, mode, listaDatos)
-            hash.dropDatabase(database)
-        elif oldMode.lower().strip() == "json":
-            tables = json.showTables(database)
-            for tabla in tables:
-                listaDatos = get_Data(database, tabla, oldMode)
-                numberColumns = len(listaDatos[0])
-                insertAlter(database, tabla, numberColumns, mode, listaDatos)
-            json.dropDatabase(database)
+    metadata_db,index=get_metadata_db(database)
+    metadata_db_list.pop(index)
+    createDatabase(database, mode, metadata_db.get_encondig())
+    if metadata_db:
+        oldMode = metadata_db.get_mode()
+        mode_struct = get_struct(mode)
+        tables = mode_struct.showTables(database)
+        for tabla in tables:
+            listaDatos = get_Data(database, tabla, oldMode)
+            numberColumns = metadata_db.get_table(tabla).get_nums_colums()
+            insertAlter(database, tabla, numberColumns, mode, listaDatos)
+        metadata_db.dropDatabase(database)
+        
 
 
 def insertAlter(database, tabla, numberColumns, mode, listaDatos):
-    if mode.lower().strip() == "avl":
-        avl.createTable(database, tabla, numberColumns)
+    metadata_db, index_metadata = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())        
+        struct.createTable(database, tabla, numberColumns)
         for data in listaDatos:
-            avl.insert(database, tabla, data)
-    elif mode.lower().strip() == "b":
-        b.createTable(database, tabla, numberColumns)
-        for data in listaDatos:
-            b.insert(database, tabla, data)
-    elif mode.lower().strip() == "bPlus".lower():
-        bPlus.createTable(database, tabla, numberColumns)
-        for data in listaDatos:
-            bPlus.insert(database, tabla, data)
-    elif mode.lower().strip() == "dict":
-        diccionario.createTable(database, tabla, numberColumns)
-        for data in listaDatos:
-            diccionario.insert(database, tabla, data)
-    elif mode.lower().strip() == "isam":
-        isam.createTable(database, tabla, numberColumns)
-        for data in listaDatos:
-            isam.insert(database, tabla, data)
-    elif mode.lower().strip() == "hash":
-        hash.createTable(database, tabla, numberColumns)
-        for data in listaDatos:
-            hash.insert(database, tabla, data)
-    elif mode.lower().strip() == "json":
-        json.createTable(database, tabla, numberColumns)
-        for data in listaDatos:
-            json.insert(database, tabla, data)
+            struct.insert(database, tabla, data)
 
 
 def get_Data(database: str, table: str, mode: str):
-    if mode.lower().strip() == "avl":
-        return avl.extractTable(database, table)
-    elif mode.lower().strip() == "b":
-        return b.extractTable(database, table)
-    elif mode.lower().strip() == "bPlus".lower():
-        return bPlus.extractTable(database, table)
-    elif mode.lower().strip() == "dict":
-        return diccionario.extractTable(database, table)
-    elif mode.lower().strip() == "isam":
-        return isam.extractTable(database, table)
-    elif mode.lower().strip() == "hash":
-        return hash.extractTable(database, table)
-    elif mode.lower().strip() == "json":
-        return json.extractTable(database, table)
+    metadata_db, index_metadata = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())         
+        return struct.extractTable(database, table)
 
 
 def alterTableMode(database: str, table: str, mode: str):
@@ -308,21 +234,25 @@ def alterDropPK(database, name_table):
 
 
 def alterTable(database, old_table, new_table):
-    metadata_db, index_metadata = get_metadata_db(database)  
+    metadata_db, indexDB = get_metadata_db(database)
     if metadata_db:
-        retorno = metadata_db.alter_table(old_table, new_table) 
-        if retorno==0:
-            struct = get_struct(metadata_db.get_mode())
-            status = struct.alterTable(database, old_table, new_table)
-            return status
-    else:
-        return 2
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.alterTable(database, old_table, new_table)
+        if status==0:
+            metadata_db.get_table(old_table).fk.alterForeign(new_table)
+            metadata_db.alter_table(old_table,new_table)
+            
+        return status
+    else: return 2
 
 def alterAddColumn(database, name_table, default):
     metadata_db, index_metadata = get_metadata_db(database)  # verificar metadata
     if metadata_db:
         struct = get_struct(metadata_db.get_mode())
         status = struct.alterAddColumn(database, name_table, default)
+        if status==0:
+            x = metadata_db.get_table(name_table)
+            x.set_nums_colums(x.get_nums_colums()+1)
         return status
     else:
         return 2
@@ -332,19 +262,24 @@ def alterDropColumn(database, name_table, number_column): # verificar metadata
     if metadata_db:
         struct = get_struct(metadata_db.get_mode())
         status = struct.alterDropColumn(database, name_table, number_column)
+        if status==0:
+            x = metadata_db.get_table(name_table)
+            x.set_nums_colums(x.get_nums_colums()-1)
         return status
     else:
         return 2
 
 def dropTable(database, name_table):
-    metadata_db, index_metadata = get_metadata_db(database)
+    metadata_db, indexDB = get_metadata_db(database)
     if metadata_db:
-        retorno = metadata_db.drop_table(name_table)
-        if retorno!=1:
-            struct = get_struct(metadata_db.get_mode())
-            status = struct.dropTable(database, name_table)
-            return status
-    else:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.dropTable(database, name_table)
+        if status==0:
+            metadata_db.get_table(name_table).fk.dropForeign()
+            metadata_db.drop_table(name_table)
+                  
+        return status
+    else: 
         return 2
 
 def insert(database, name_table, register: list):
@@ -445,25 +380,12 @@ def encodi_iso_decod(lista: list ,encoding: str):
 
 
 def extractRow(database, name_table, columns):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.extractRow(database, name_table, columns)
-        elif mode.lower().strip() == "b":
-            return b.extractRow(database, name_table, columns)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.extractRow(database, name_table, columns)
-        elif mode.lower().strip() == "dict":
-            return diccionario.extractRow(database, name_table, columns)
-        elif mode.lower().strip() == "hash":
-            return hash.extractRow(database, name_table, columns)
-        elif mode.lower().strip() == "isam":
-            return isam.extractRow(database, name_table, columns)
-        elif mode.lower().strip() == "json":
-            return json.extractRow(database, name_table, columns)
-    # return db.extractRow(database, name_table, columns) Revisar persona quien lo realizo
-    return None
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.extractRow(database, name_table, columns)       
+        return status
+    else: return []
 
 
 def update(database, name_table, register, columns):
@@ -486,23 +408,12 @@ def update(database, name_table, register, columns):
 
 
 def loadCSV(file, database, name_table):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.loadCSV(file, database, name_table)
-        elif mode.lower().strip() == "b":
-            return b.loadCSV(file, database, name_table)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.loadCSV(file, database, name_table)
-        elif mode.lower().strip() == "dict":
-            return diccionario.loadCSV(file, database, name_table)
-        elif mode.lower().strip() == "hash":
-            return hash.loadCSV(file, database, name_table)
-        elif mode.lower().strip() == "isam":
-            return isam.loadCSV(file, database, name_table)
-        elif mode.lower().strip() == "json":
-            return json.loadCSV(file, database, name_table)
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.loadCSV(file, database, name_table)
+        return status
+    else: return 2
 
 
 def delete(database, name_table, columns):
@@ -524,23 +435,12 @@ def delete(database, name_table, columns):
 
 
 def truncate(database, name_table):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.truncate(database, name_table)
-        elif mode.lower().strip() == "b":
-            return b.truncate(database, name_table)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.truncate(database, name_table)
-        elif mode.lower().strip() == "dict":
-            return diccionario.truncate(database, name_table)
-        elif mode.lower().strip() == "hash":
-            return hash.truncate(database, name_table)
-        elif mode.lower().strip() == "isam":
-            return isam.truncate(database, name_table)
-        elif mode.lower().strip() == "json":
-            return json.truncate(database, name_table)
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.truncate(database, name_table)
+        return status
+    else: return 2
 
 
 
@@ -793,3 +693,19 @@ def alterTableDecompress( database: str, table: str):
             return 2
     else:
         return 1
+
+#--------------------------------------------------------<INDICES>--------------------------------------------------
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list):
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:       
+        if metadata_db.get_table(table):
+            if len(columns) != len(columnsRef):
+                return 4                
+                
+            return metadata_db.get_table(table).fk.insert([indexName, table, columns,tableRef,columnsRef])
+
+def alterTableDropFK(database: str, table: str, indexName: str):
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:       
+        if metadata_db.get_table(table):                        
+            return metadata_db.get_table(table).fk.delete(indexName)
