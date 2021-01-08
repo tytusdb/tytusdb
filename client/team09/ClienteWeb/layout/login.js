@@ -1,9 +1,13 @@
-function login(login,password){
-    ruta = 'http://localhost:8888/login/' + login + "-" + password 
+function login(){
+    var user = document.getElementById("username").value;
+    var pass = document.getElementById("password").value;
+    ruta = 'http://localhost:8888/login/' + user + "-" + pass
     fetch(ruta)
     .then(response => response.json())
-    .then(data => validar(data));
+    .then(data => validar(data));  
+   
 }
+
 
 function validar(data){
     console.log(data)
