@@ -23,7 +23,7 @@ class Procedures(object):
             return True
         return False
 
-    def saveProcedure(self, name, tac, line, column):
+    def saveProcedure(self, name, tac, _return, line, column):
         """
         Method to create a stored procedure in the structure
 
@@ -48,15 +48,22 @@ class Procedures(object):
 
         newTac = copy.deepcopy(tac)
 
+        if _return is not None:
+            _return = _return.compile()
+            
         self.__storedProcedure[key] = {
             'name': name,
             'database': db,
             'tac': newTac,
             'line': line,
-            'column': column
+            'column': column,
+            'return': _return
         }
         return True
 
+    def getReturnType(self, id):
+        return self.__storedProcedure[id]['return']
+        
     def getProcedure(self, name, params, line, column):
         db = SymbolTable().useDatabase
         # if not db:
@@ -84,6 +91,9 @@ class Procedures(object):
             return self.__storedProcedure[key]['tac'].params
 
         return []
+
+    def getProceduresIDs(self):
+        return self.__storedProcedure.keys()
 
     def dropProcedure(self, name, line, column):
         # db = SymbolTable().useDatabase

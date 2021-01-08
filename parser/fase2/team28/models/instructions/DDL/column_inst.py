@@ -97,3 +97,6 @@ class ColumnTipo(Instruction):
 
     def process(self,instruction):
         pass
+
+    def compile(self):
+        return self._tipoColumna
