@@ -1,0 +1,585 @@
+/*INICIO DE LA GRAMATICA */
+<stmtList> ::= <stmtList> <stmt>
+                | <stmt>
+
+<stmt> ::=  <fase1_stmt>
+          | <fase2_stmt>
+
+<fase1_stmt> ::= <showStmt> S_PUNTOCOMA
+        | <alterStmt> S_PUNTOCOMA
+        | <dropStmt> S_PUNTOCOMA
+        | <insertStmt> S_PUNTOCOMA
+        | <updateStmt> S_PUNTOCOMA
+        | <deleteStmt> S_PUNTOCOMA
+        | <truncateStmt> S_PUNTOCOMA
+        | <useStmt> S_PUNTOCOMA
+        | <selectStmt> S_PUNTOCOMA
+        | <dml_index> S_PUNTOCOMA
+
+<dml_index> : R_CREATE R_INDEX ID R_ON ID S_PARIZQ ID <orderOpts> <orderNull> S_PARDER whereCl
+    | R_CREATE R_INDEX ID R_ON ID R_USING R_HASH S_PARIZQ ID S_PARDER
+    | R_CREATE R_INDEX ID R_ON ID S_PARIZQ ID S_COMA ID S_PARDER
+    | R_CREATE R_INDEX ID R_ON ID S_PARIZQ <funcCall> S_PARDER
+    | R_CREATE R_UNIQUE R_INDEX ID R_ON ID S_PARIZQ <idList> S_PARDER
+    | R_ALTER R_INDEX R_IF R_EXISTS ID R_ALTER R_COLUMN INTEGER
+    | R_ALTER R_INDEX R_IF R_EXISTS ID R_ALTER INTEGER 
+    | R_ALTER R_INDEX ID R_ALTER R_COLUMN INTEGER
+    | R_ALTER R_INDEX ID R_ALTER INTEGER
+    | R_DROP R_INDEX ID
+
+<fase2_stmt> ::=  <createStmt>                     S_PUNTOCOMA
+                | <llamadaProcedimiento_o_funcion> S_PUNTOCOMA
+                | <pl_drop>                        S_PUNTOCOMA
+
+
+<llamadaProcedimiento_o_funcion> ::=  R_EXECUTE ID S_PARIZQ <paramsList> S_PARDER
+        | R_EXECUTE ID S_PARIZQ S_PARDER
+        | R_EXECUTE ID
+        | R_EXECUTE STRING
+
+<pl_drop> ::= R_DROP R_FUNCTION R_IF R_EXISTS <detalle_drop>
+        | R_DROP R_FUNCTION <detalle_drop>
+        | R_DROP R_PROCEDURE R_IF R_EXISTS <detalle_drop>
+        | R_DROP R_PROCEDURE <detalle_drop>
+
+<detalle_drop> ::= <detalle_drop> S_COMA <drop_argumentos>
+               | <drop_argumentos>
+
+<drop_argumentos> ::= ID S_PARIZQ  <typeParamsList> S_PARDER
+                | ID S_PARIZQ  S_PARDER
+                | ID
+
+
+<raise_procedural> : R_RAISE R_NOTICE STRING S_COMA datatype
+                | R_RAISE  STRING S_COMA datatype
+
+<selectStmt> ';'
+        | <createStmt> ';'
+        | <showStmt> ';'
+        | <alterStmt> ';'
+        | <dropStmt> ';'
+        | <insertStmt> ';'
+        | <updateStmt> ';'
+        | <deleteStmt> ';'
+        | <truncateStmt> ';'
+        | <useStmt> ';'
+
+idOrString : ID
+    | STRING
+    | CHARACTER
+/*Expresiones*/
+<expresion> ::= <datatype>
+            | <expBool>
+            | '(' <selectStmt> ')'
+
+<datatype> ::=  <colName>
+            | <literal>
+            | <funcCall>
+            | <extract>
+            | <datePart>
+            | <current>
+            | <datatype> '+' <datatype>
+            | <datatype> '-' <datatype>
+            | <datatype> '/' <datatype>
+            | <datatype> '*' <datatype> 
+            | <datatype> '%' <datatype>
+            | <datatype> '^' <datatype>
+            | <datatype> '||' <datatype>
+            | '(' <datatype> ')'
+            |'-' datatype
+            |'+' datatype 
+
+<funcCall> ::= ID '(' <paramList> ')'
+
+<funcCall> ::= ID '(' ')'
+            | R_NOW '(' ')'
+<assignment> ::= ID S_ASIGNACION <expresion>
+            | ID S_IGUAL <expresion>
+
+<executeStmt> ::= R_EXECUTE ID S_PARIZQ <paramsList> S_PARDER
+        | R_EXECUTE ID S_PARIZQ S_PARDER
+        | R_EXECUTE ID
+        | R_EXECUTE STRING
+
+
+ifStmt ::=  R_IF <expresion> R_THEN <plInstructions> <elsifList> R_ELSE <plInstructions> R_END R_IF
+    | R_IF <expresion> R_THEN <plInstructions> <elsifList> R_END R_IF
+    | R_IF expresion R_THEN <plInstructions> R_ELSE <plInstructions> R_END R_IF
+    | R_IF expresion R_THEN <plInstructions> R_END R_IF
+
+<codeBlock> ::= R_DECLARE <declarationList> R_BEGIN <plInstructions> R_END
+    | R_DECLARE declarationList <list_declaraciones_declere> R_BEGIN <plInstructions> R_END
+    | R_BEGIN <plInstructions> R_END
+
+<declarationList> ::= <declarationList> <declaration>
+                | <declaration>
+
+
+
+<list_declaraciones_declere> : <list_declaraciones_declere>  R_DECLARE <declarationList>
+        | R_DECLARE <declarationList>
+
+<declaration> : ID <types> S_PUNTOCOMA
+        | ID <types> S_ASIGNACION <expresion> S_PUNTOCOMA
+        | ID <types> S_IGUAL <expresion> S_PUNTOCOMA
+
+<reservada_elseif> ::= R_ELSEIF
+                | R_ELSIF
+
+
+<elsifList> ::= elsifList <elsifStmt>
+    | <elsifStmt>
+
+ <elsifStmt> : <reservada_elseif> <expresion> R_THEN <plInstructions>
+
+
+
+<funcCall> ::= R_COUNT '(' <paramsList> ')'
+            | R_COUNT '(' O_PRODUCTO ')'
+            | R_SUM   '(' <paramsList> ')'
+            | R_SUM   '(' O_PRODUCTO ')'
+            | R_PROM  '(' <paramsList> ')'
+            | R_PROM  '(' O_PRODUCTO ')'
+
+<paramsList> ::= <paramList> ',' <datatype>
+            | <datatype>
+
+<extract> ::= EXTRACT '(' <optsExtract> FROM <timeStamp> ')'
+            | EXTRACT '(' <optsExtract> FROM <colName> ')'
+
+<timeStamp> ::= TIMESTAMP stringLit
+        | INTERVAL stringLit
+
+<optsExtract> ::= YEAR
+                | MONTH
+                | DAY
+                | HOUR 
+                | MINUTE
+                | SECOND
+
+<datePart> ::= DATE_PART '(' stringLit ',' <dateSource> ')'
+
+<dateSource> ::= TIMESTAMP STRING
+        | DATE STRING
+        | TIME STRING
+        | INTERVAL <intervalFields> STRING
+        | NOW '(' ')'
+
+<current> ::= CURRENT_DATE
+        | CURRENT_TIME
+        | <timeStamp>
+
+<expComp> ::= <datatype> '<' <datatype>
+            | <datatype> '>' <datatype>
+            | <datatype> '>=' <datatype>
+            | <datatype> '<=' <datatype>
+            | <datatype> '=' <datatype>
+            | <datatype> '!=' <datatype>
+            | <datatype> '<>' <datatype>
+            | <datatype> BETWEEN <datatype> AND <datatype>
+            | <datatype> NOT BETWEEN <datatype> AND <datatype>
+            | <datatype> BETWEEN SYMMETRIC <datatype> AND <datatype>
+            | <datatype> IS DISTINCT FROM <datatype>
+            | <datatype> IS NOT DISTINCT FROM <datatype>
+            | <datatype> IS NULL
+            | <datatype> IS NOT NULL
+            | <datatype> ISNULL
+            | <datatype> NOTNULL
+            | <datatype> IS TRUE
+            | <datatype> IS NOT TRUE
+            | <datatype> IS FALSE
+            | <datatype> IS NOT FALSE
+            | <datatype> IS UNKNOWN
+            | <datatype> IS NOT UNKNOWN
+
+<expSubq> ::= <datatype> '<'  <subqValues> '(' <selectStmt> ')'
+            | <datatype> '>'  <subqValues> '(' <selectStmt> ')'
+            | <datatype> '>=' <subqValues> '(' <selectStmt> ')'
+            | <datatype> '<=' <subqValues> '(' <selectStmt> ')'
+            | <datatype> '='  <subqValues> '(' <selectStmt> ')'
+            | <datatype> '!=' <subqValues> '(' <selectStmt> ')'
+            | <datatype> '<>' <subqValues> '(' <selectStmt> ')'
+            | <datatype> BETWEEN <datatype> AND <datatype> <subqValues> '(' <selectStmt> ')'
+            | <datatype> NOT BETWEEN <datatype> AND <datatype> <subqValues> '(' <selectStmt> ')'
+            | <datatype> BETWEEN SYMMETRIC <datatype> AND <datatype> <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS DISTINCT FFROM <datatype> <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS NOT DISTINCT FROM <datatype> <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS NULL <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS NOT NULL <subqValues> '(' <selectStmt> ')'
+            | <datatype> ISNULL <subqValues> '(' <selectStmt> ')'
+            | <datatype> NOTNULL <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS TRUE <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS NOT TRUE <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS FALSE <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS NOT FALSE <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS UNKNOWN <subqValues> '(' <selectStmt> ')'
+            | <datatype> IS NOT UNKNOWN <subqValues> '(' <selectStmt> ')'
+            | <stringExp> LIKE pattern 
+
+<stringExp> ::= STRING
+        | <colName>
+
+<subqValues> ::= ALL
+                | ANY
+                | SOME
+
+<boolean> ::= <expComp>
+            | EXISTS '(' <selectStmt> ')'
+            | <datatype> IN '(' <selectStmt> ')'
+            | <datatype> NOT IN '(' <selectStmt> ')'
+            | <expSubq>
+
+<expBool> ::= <expBool> AND <expBool>
+            | <expBool> OR <expBool>
+            | NOT <expBool>
+            |'(' <expBool>')'
+            | <boolean>
+            | <expBool> <optBoolPredicate>
+
+<optBoolPredicate> ::= IS TRUE
+    | IS FALSE
+    | IS UNKNOWN
+    | IS NOT TRUE 
+    | IS NOT FALSE
+    | IS NOT UNKNOWN
+
+
+<booleanCheck> ::= <idOrLiteral> '<' <idOrLiteral>
+    | <idOrLiteral> '>' <idOrLiteral>
+    | <idOrLiteral> '>=' <idOrLiteral>
+    | <idOrLiteral> '<=' <idOrLiteral>
+    | <idOrLiteral> '=' <idOrLiteral>
+    | <idOrLiteral> '!=' <idOrLiteral>
+    | <idOrLiteral> IS DISTINCT FROM <idOrLiteral>
+    | <idOrLiteral> IS NOT DISTINCT FROM <idOrLiteral>
+
+
+<idOrLiteral> ::= ID
+    | INTEGER
+    | STRING
+    | DECIMAL
+    | CHARACTER
+    | TRUE
+    | FALSE
+
+<expBoolCheck> ::= <expBoolCheck> AND <expBoolCheck>
+            | <expBoolCheck> OR <expBoolCheck>
+            | NOT <expBoolCheck>
+            | <booleanCheck>
+
+<literal> ::= INTEGER
+            | STRING
+            | DECIMAL
+            | CHARACTER
+            | TRUE
+            | FALSE
+            | NULL
+
+/*DDL*/
+<createStmt> ::= CREATE <createBody>
+
+<createBody> ::=  <createOpts>
+
+
+<createOpts> ::= TABLE <ifNotExists> <idOrString> '(' <createTableList> ')' <inheritsOpt>
+            |<orReplace> DATABASE <ifNotExists> <idOrString> <createOwner> <createMode>
+            | TYPE <ifNotExists> id AS ENUM '(' <paramList> ')'
+            | R_PROCEDURE ID S_PARIZQ S_PARDER R_AS S_DOBLEDOLAR <codeBlock> S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
+            | R_PROCEDURE ID S_PARIZQ <typeParamsList> S_PARDER R_AS S_DOBLEDOLAR <codeBlock> S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
+            | R_FUNCTION ID S_PARIZQ S_PARDER R_RETURNS <types> R_AS S_DOBLEDOLAR <codeBlock> S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
+            |R_FUNCTION ID S_PARIZQ <typeParamsList> S_PARDER R_RETURNS <types> R_AS S_DOBLEDOLAR <codeBlock> S_PUNTOCOMA S_DOBLEDOLAR R_LANGUAGE R_PLPGSQL
+
+<typeParamsList> ::= <typeParamsList> S_COMA <typeParam>
+        | <typeParam>
+
+<typeParam> ::= ID <types>
+
+
+
+
+<caseStmt> : R_CASE <expresion> <caseListStmt> R_ELSE <plInstructions> R_END R_CASE
+        | R_CASE <expresion> <caseListStmt> R_END R_CASE
+
+
+<caseListStmt> : <caseListStmt> <caseWhenStmt>
+            | <caseWhenStmt>
+
+<caseWhenStmt> : R_WHEN <expresion> R_THEN <plInstructions>
+
+
+<returnStmt> : R_RETURN <expresion>
+
+
+<plInstruction> ::= <assignment> S_PUNTOCOMA
+    | <executeStmt> S_PUNTOCOMA
+    | <ifStmt> S_PUNTOCOMA
+    | <caseStmt> S_PUNTOCOMA
+    | <codeBlock> S_PUNTOCOMA
+    | <returnStmt> S_PUNTOCOMA
+    | <raise_procedural> S_PUNTOCOMA
+    | <insertStmt> S_PUNTOCOMA
+    | <updateStmt> S_PUNTOCOMA
+    | <deleteStmt> S_PUNTOCOMA
+    | <selectStmt> S_PUNTOCOMA
+
+
+
+<orReplace> ::= R_OR R_REPLACE
+               |
+
+<inheritsOpt> ::= INHERITS '(' id ')'
+                |
+
+<ifNotExists> ::= IF NOT EXISTS
+                |
+
+<createTableList> ::= <createTableList> ',' <createTable>
+                    | <createTable>
+
+<createTable> ::= id <type> <createColumns>
+                | <createConstraint>
+                | <createUnique>
+                | <createPrimary>
+                | <createForeign>
+
+<createColumns> : colOptionsList
+                 |
+
+
+<type> ::= id
+        | SMALLINIT
+        | INTEGER
+        | BIGINIT 
+        | DECIMAL<optParams>
+        | NUMERIC <optParams>
+        | REAL
+        | DOUBLE PRECISION
+        | MONEY
+        | CHARACTER VARYING <optParams>
+        | VARCHAR <optParams>
+        | CHARACTER <optParams>
+        | CHAR <optParams>
+        | TEXT
+        |TIMESTAMP <optParams>
+        | DATE
+        | TIME <optParams>
+        | INTERVAL <intervalFields> 
+
+<intervalFields> ::= YEAR
+                | MONTH
+                | DAY
+                | HOUR
+                | MINUTE
+                | SECOND
+                |
+
+<optParams> ::= '(' <literalList> ')'
+            |
+
+<literalList> ::= <literalList> ',' <literal>
+                | <literal>
+
+<createOpts> ::= <colOptionsList>
+            | 
+
+<createConstraint> ::= <constrName> CHECK '(' <expBoolCheck> ')'
+
+<createUnique> ::= UNIQUE '(' <idList> ')'
+
+<idList> ::= <idList> ',' id
+        | id
+
+<createPrimary> ::= PRIMARY KEY '(' <idList> ')'
+
+<createForeign> ::= FOREIGN KEY '(' <idList> ')' REFERENCES id '(' <idList> ')'
+
+<constrName> ::= CONSTRAINT id 
+            |
+
+<colOptionsList> ::= <colOptionsList> <colOptions>
+                | <colOptions>
+
+<colOptions> ::= <defaultVal>
+            | <nullOpt>
+            | <constraintOpt>
+            | <primaryOpt>
+            | <referencesOpt>
+
+<defaultVal> ::= DEFAULT <datatype>
+
+<nullOpt> ::= NOT NULL
+            | NULL
+
+<constraintOpt> ::= <constrName> UNIQUE
+                | <constrName> CHECK '(' <booleanCheck> ')'
+
+<primaryOpt> ::= PRIMARY KEY
+
+<referencesOpt> ::= REFERENCES id
+
+<createOwner> ::= OWNER id
+                | OWNER '=' id
+                |OWNER string
+                |OWNER '=' string 
+                |
+
+<createMode> ::= MODE number
+             | MODE '=' number
+             |
+
+<alterStmt> ::= ALTER DATABASE <idOrString> <alterDb>
+            | ALTER TABLE <idOrString> <alterTableList>
+
+<alterDb> ::= RENAME TO <idOrString>
+            | OWNER TO <ownerOPts>
+
+<ownerOPts> ::= <idOrString>
+            | CURRENT_USER
+            | SESSION_USER
+
+<alterTableList> ::= <alterTableList> ',' <alterTable>
+                | <alterTable>
+
+<alterTable> ::= ADD <alterConstraint>
+            | <alterCol>
+            | DROP CONSTRAINT id
+            | DROP COLUMN id
+            | RENAME COLUMN id TO id
+
+<alterConstraint> ::= CHECK '(' <booleanCheck> ')'
+                    | CONSTRAINT id UNIQUE '(' id ')'
+                    | <createForeign>
+                    | COLUMN id <type>
+
+<alterCol> ::= ALTER COLUMN id SET NOT NULL
+            | ALTER COLUMN id SET NULL
+            | ALTER COLUMN id TYPE <type>
+
+<dropStmt> ::= DROP TABLE <ifExists> <idOrString>
+            | DROP DATABASE <ifExists> <idOrString>
+
+<ifExists> ::= IF EXISTS 
+            |
+
+/*DML*/
+<selectStmt> ::= SELECT <selectParams> <fromCl> <whereCl> 
+            | SELECT DISTINCT <selectParams> FROM <tableExp> <whereCl> <groupByCl> <limitCl>
+            | <selectStmt> UNION <allOpt> <selectStmt>
+            | <selectStmt> INTERSECT <allOpt> <selectStmt>
+            | <selectStmt> EXCEPT <allOpt> <selectStmt>
+            | '(' <selectStmt> ')'
+            |SELECT <selectParams>
+
+<fromCl> : R_FROM tableExp
+
+<allOpt> ::= ALL
+            |
+
+<selectParams> ::= '*'
+                | <selectList>
+
+<selectList> ::= <selectList> ',' <expresion> <optAlias>
+            | <selectListParams> <optAlias>
+         
+<selectListParams> ::= <expresion>
+                |ID '.' '*'
+
+<optAlias> ::= AS <idOrString>
+            | <idOrString>
+            |
+
+<tableExp> ::= <tableExp> ',' <fromBody> 
+            | <fromBody> 
+
+<colName> ::= id
+            | id.id
+
+<fromBody> ::= ID <optAlias>
+            | '(' <selectStmt> ')' AS <idOrString>
+
+<joinList> ::= <joinList2>
+          |
+
+<joinList2> ::= <joinList2> <joinCl>
+            | <joinCl>
+
+<joinCl> ::= <joinOpt> JOIN <colName> ON <expBool>
+        | <joinOpt> JOIN <colName> USING '(' <nameList> ')'
+        | NATURAL <joinOpt> JOIN <colName>
+        |
+
+<nameList> ::= <nameList> ',' <colName>
+            | <colName>
+
+<joinOpt> ::= INNER
+            | LEFT 
+            | LEFT OUTER
+            | RIGHT
+            | RIGHT OUTER
+            | FULL
+            | FULL OUTER
+
+<whereCl> ::= WHERE <expBool>
+            | /*epsilon*/
+
+<groupByCl> ::= GROUP BY <groupList> <havingCl>
+            | 
+
+<groupList> ::=  <groupList> ',' <colName>
+            | <colName>
+
+<havingCl> ::= HAVING <expBool>
+            |
+
+<orderByCl> ::= ORDER BY <orderList>
+
+<orderList> ::= <orderList> ',' <orderByElem>
+            | <orderByElem>
+
+<orderByElem> ::= <colName> <orderOpts> <orderNull>
+
+<orderOpts> ::= ASC
+            | DESC
+            |
+
+<orderNull> ::= NULL FIRST
+            | NULL LAST
+            |
+
+<limitCl> ::= LIMIT INTEGER <offsetLimit>
+            | LIMIT ALL <offsetLimit>
+            |
+
+<offsetLimit> ::= OFFSET INTEGER
+                |
+
+<insertStmt> ::= INSERT INTO ID <paramsColumn> VALUES '(' <paramList> ')'
+
+<paramsColumn< ::= '(' <idList> ')'
+                |
+
+<updateStmt> ::= UPDATE <fromBody> SET <updateCols> <whereCl>
+
+<updateCols> ::=  <updateCols> ',' <updateVals>
+                | <updateVals>
+
+<updateVals> ::= ID '=' <updateExp>
+    
+
+<updateExp> ::= <datatype>
+                | DEFAULT
+
+<deleteStmt> ::= DELETE <fromCl> <whereCl>
+
+<truncateStmt> ::= TRUNCATE <tableOpt> ID
+
+<tableOpt> ::= TABLE
+        | 
+
+
+<showStmt> ::= SHOW DATABASES <likeOpt>
+
+<likeOpt> ::= LIKE STRING
+            |
+
+<useStmt> ::= USE DATABSE ID

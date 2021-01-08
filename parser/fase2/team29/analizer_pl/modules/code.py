@@ -22,6 +22,8 @@ from analizer_pl.sql_statement.alter import alter_table
 from analizer_pl.sql_statement.drop import drop_database
 from analizer_pl.sql_statement.drop import drop_table
 from analizer_pl.sql_statement.drop import drop_index
+from analizer_pl.sql_statement.select import select
+from analizer_pl.sql_statement.select import union
 from analizer_pl.sql_statement import use_
 from analizer_pl.sql_statement import show_
 from analizer_pl.sql_statement import truncate_
@@ -155,5 +157,26 @@ def DropIndex(exists, idList, row, column):
 def AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber=""):
     return alter_index.AlterIndex(exists, idIndex, columnIndex, row, column, idOrNumber)
 
+
 def Insert(tabla, columns, parametros, row, column):
     return insert_.InsertInto(tabla, columns, parametros, row, column)
+
+
+def Select(distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column):
+    return select.Select(distinct, params, fromcl, wherecl, groupbyCl, limitCl, orderByCl, row, column)
+
+
+def Union(type_, select1, select2, all, row, column):
+    return union.Select(type_, select1, select2, all, row, column)
+
+
+def SelectOnlyParams(params, row, column):
+    return select.SelectOnlyParams(params, row, column)
+
+
+def SelecctParam(exp, alias, row, column):
+    return select.SelectParam(exp, alias, row, column)
+
+
+def TernaryExpression(temp, exp1, exp2, exp3, operator, isBlock, row, column):
+    return datatype.TernaryExpression(temp, exp1, exp2, exp3, operator, isBlock, row, column)
