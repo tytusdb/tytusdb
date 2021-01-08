@@ -11,6 +11,7 @@ class Parametro(Instruction):
         self.data_type = data_type
         self.line = line
         self.column = column
+        self._tac = ''
 
     def compile(self):
         pass

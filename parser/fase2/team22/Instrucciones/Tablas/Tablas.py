@@ -13,6 +13,7 @@ class Tablas():
         #self.lista_constraint = []
         self.orden = 0
         self.lista_de_indices = [] 
+        self.lista_funciones = []    
 
     def setIndice(self, indice):
         self.lista_de_indices.append(indice)

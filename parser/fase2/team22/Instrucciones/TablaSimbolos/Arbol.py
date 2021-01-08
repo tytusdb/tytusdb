@@ -18,6 +18,7 @@ class Arbol():
         self.comprobacionCreate = False
         self.columnaCheck = None
         self.order = None
+        self.lista_funciones = []
 
     def setEnum(self, nuevo):
         self.lEnum.append(nuevo)

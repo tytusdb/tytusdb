@@ -5,7 +5,11 @@ class DropTable(Instruccion):
     def __init__(self, id, tipo, strGram, linea, columna):
         Instruccion.__init__(self,tipo,linea,columna, strGram)
         self.valor = id
+    def analizar(self, tabla, arbol):
+        pass
+    def traducir(self, tabla, arbol):
 
+        pass
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         bd = arbol.getBaseDatos()
@@ -44,3 +48,6 @@ instruccion = DropTable("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
 '''
+
+
+    

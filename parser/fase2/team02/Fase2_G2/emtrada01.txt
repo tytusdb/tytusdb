@@ -1,0 +1,16 @@
+CREATE DATABASE DBFase2;
+
+USE DBFase2;
+
+CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+BEGIN
+	RETURN texto;
+END;
+$$ LANGUAGE plpgsql;
+
+select myFuncion('INICIO CALIFICACION FASE 2');
+
+CREATE TABLE tbProducto (idproducto integer not null primary key,
+  						 producto varchar(150) not null,
+  						 fechacreacion date not null,
+						 estado integer);
