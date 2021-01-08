@@ -212,12 +212,14 @@ class Start(Nodo):
                 nuevaBase=Database()                
                 message = nuevaBase.execute(hijo)
                 self.listaSemanticos.append(message)
+                listaInstrucciones.append("cdb = \""+nuevaBase.compile(hijo)+"\"")
             elif hijo.nombreNodo == 'DECLARACION_VARIABLE':
                 print(hijo.compile(entornoGlobal))
             elif hijo.nombreNodo == 'SENTENCIA_USE':
                 useDB = Use()
                 message = useDB.execute(hijo)
                 self.listaSemanticos.append(message)
+                listaInstrucciones.append("udb = \""+useDB.compile(hijo)+"\"")
             elif hijo.nombreNodo == 'CREATE_TABLE':
                 nuevaTabla = Table()
                 res = nuevaTabla.execute(hijo, enviroment)
@@ -424,8 +426,9 @@ class Start(Nodo):
             return None
         listaProcedimientos = []
         res = tc.get_all_procedure(dbUse.upper())
-        for pro in res:
-            listaProcedimientos = listaProcedimientos + pro['C3D']
+        if res != None:
+            for pro in res:
+                listaProcedimientos = listaProcedimientos + pro['C3D']
         return listaProcedimientos
 
     def crearArchivo(self,listaTexto):
