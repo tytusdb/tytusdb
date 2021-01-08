@@ -6,6 +6,7 @@ from InterpreteF2.simbolo import Simbolo
 from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 from InterpreteF2.Reporteria.ReporteOptimizacion import ReporteOptimizacion
+from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 
 class var_declaracion(NodoArbol):
 
@@ -38,6 +39,14 @@ class var_declaracion(NodoArbol):
             else:
                 simbol.setTemp(str(expres))
             entorno.insertar_variable(simbol)
+
+            # -->
+            # Modulo de rporteria:
+            reportero = ReporteTS(str(self.identificador), str(self.identificador), 'Variable', 'N/A', str(self.linea), str(self.columna))
+            arbol.ReporteTS.append(reportero)
+            # -->
+
+
             # ----------------------------------------------------------------------------------
 
             # modulo de insercion a TS optimizado
@@ -120,6 +129,14 @@ class var_declaracion(NodoArbol):
             simbol:Simbolo = Simbolo(str(self.identificador), val_exp.tipo, val_exp)
             simbol.setTemp(str(tmp))
             entorno.insertar_variable(simbol)
+
+            # -->
+            # Modulo de rporteria:
+            reportero = ReporteTS(str(self.identificador), str(self.identificador), 'Variable', 'N/A', str(self.linea),
+                                  str(self.columna))
+            arbol.ReporteTS.append(reportero)
+            # -->
+
         #self.analizar_semanticamente(entorno, arbol)
         return
 
