@@ -4,6 +4,7 @@ from Analisis_Ascendente.Instrucciones.PLPGSQL.CasePL import CasePL
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Declaracion import Declaracion
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Ifpl import Ifpl
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Return import Return
+from Analisis_Ascendente.Instrucciones.PLPGSQL.SelectCount import SelectCount
 from Analisis_Ascendente.Instrucciones.PLPGSQL.plasignacion import Plasignacion
 from Analisis_Ascendente.Instrucciones.Select import SelectDist, selectInst
 from Analisis_Ascendente.Instrucciones.Select.Select2 import Selectp3
@@ -14,6 +15,7 @@ from Analisis_Ascendente.Instrucciones.expresion import *
 import Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonometrica
 import Analisis_Ascendente.Instrucciones.Expresiones.Math as Math
 from Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
+from Analisis_Ascendente.storageManager.jsonMode import extractTable
 
 #PARA DEJAR VACIA LA FUNCION PARA SU PROXIMA EJECUCION
 def limpiarFuncion(expr,tsglobal):
@@ -43,7 +45,6 @@ def vaciarFuncion(simboloFuncion):
 def ResolverFuncion(expr,tsglobal,Consola,exception):
     if isinstance(expr, Funcion):
         return ejecutarFuncion(expr,tsglobal,Consola,exception)
-
 
 def ejecutarFuncion(expr,tsglobal,consola,expection):
         bdactual = tsglobal.buscar_sim("usedatabase1234")
@@ -101,9 +102,9 @@ def ejecutarSentencias(tsglobal,simboloFuncion,consola,exceptions):
                 elif instr.caso == 6:
                     consola.append('caso 6')
             elif isinstance(instr, Ifpl):
-                Ifpl.ejecutar(instr, tsglobal, consola, exceptions)
+                Ifpl.ejecutar(instr,tsglobal,simboloFuncion.Entorno,consola,exceptions)
             elif isinstance(instr, CasePL):
-                CasePL.ejecutar(instr, tsglobal, consola, exceptions)
+                CasePL.ejecutar(instr,simboloFuncion.Entorno, consola, exceptions)
 
 def ejecutarDeclaracion(declaracion,simboloFuncion,ts,consola,exception):
     entornoFN = simboloFuncion.Entorno
@@ -120,11 +121,10 @@ def ejecutarPlasignacion(plasignacion,ts,simboloFuncion,consola,exception):
     entornoFN =  simboloFuncion.Entorno
     if entornoFN.validar_sim(plasignacion.id) == 1:
         simvariable = entornoFN.buscar_sim(plasignacion.id)
-        valorRetorno = ResolverReturn(plasignacion.expresion,ts,entornoFN,consola,exception)
-        if valorRetorno == 'TRUE':
-            valorRetorno = True
-        elif valorRetorno == 'FALSE':
-            valorRetorno = False
+        if isinstance(plasignacion.expresion,SelectCount):
+            valorRetorno = resolverSelectCount(plasignacion.expresion,ts)
+        else:
+            valorRetorno = ResolverReturn(plasignacion.expresion,ts,entornoFN,consola,exception)
         #verifico que concuerde el tipo de la expresion con el tipo de la variable
         correcto = verificarRetorno(valorRetorno,simvariable.tipo.tipo)
         if correcto:
@@ -133,6 +133,42 @@ def ejecutarPlasignacion(plasignacion,ts,simboloFuncion,consola,exception):
             consola.append(f"Error: El valor a asignar a la variable: {simvariable.id} no coincide con su tipo")
     else:
         consola.append(f"Error: No existe la variable: {plasignacion.id} en la función: {simboloFuncion.id}")
+
+def ejecutarPlasignacionIf(plasignacion,ts,consola,exception,tsglobal):
+    #Validamos que la variable exista en la función
+    entornoFN = ts
+    if entornoFN.validar_sim(plasignacion.id) == 1:
+        simvariable = entornoFN.buscar_sim(plasignacion.id)
+        if isinstance(plasignacion.expresion,SelectCount):
+            valorRetorno = resolverSelectCount(plasignacion.expresion,tsglobal)
+        else:
+            valorRetorno = ResolverReturn(plasignacion.expresion,ts,entornoFN,consola,exception)
+        #verifico que concuerde el tipo de la expresion con el tipo de la variable
+        correcto = verificarRetorno(valorRetorno,simvariable.tipo.tipo)
+        if correcto:
+            simvariable.valor = valorRetorno
+        else:
+            consola.append(f"Error: El valor a asignar a la variable: {simvariable.id} no coincide con su tipo")
+    else:
+        consola.append(f"Error: No existe la variable: {plasignacion.id} ")
+
+
+def resolverSelectCount(expresion,ts):
+    bdactual = ts.buscar_sim("usedatabase1234")
+    BD = ts.buscar_sim(bdactual.valor)
+    entornoBD = BD.Entorno
+    count = 0
+    try:
+        if entornoBD.validar_sim(expresion.idtabla) == 1:
+            simtabla = entornoBD.buscar_sim(expresion.idtabla)
+            registros = extractTable(BD.id,simtabla.id)
+            count = len(registros)
+            return count
+        else:
+            return count
+    except:
+        return count
+
 
 def ejecutarReturn(Retu,ts,simfuncion,Consola,exception):
     valorRetorno = ResolverReturn(Retu.expr,ts,simfuncion.Entorno,Consola,exception)
@@ -222,11 +258,11 @@ def ResolverReturn(expr, ts, entornoFuncion, Consola, exception):
                 boole = exp1 <= exp2
                 return boole
         elif isinstance(expr, Id):
-            if ts.validar_sim(expr.id) == 1:  # Esta opción no debería de ejecutarse normalmente
+            #VERIFICAMOS SI ES UNA VARIABLE DE LA FUNCION
+            if ts.validar_sim(expr.id) == 1:
                 simbolo = ts.buscar_sim(expr.id)
                 return simbolo.valor
             else:
-                # VERIFICAMOS SI ES UNA VARIABLE DE LA FUNCION
                 if entornoFuncion.validar_sim(expr.id) == 1:
                     simbolo = entornoFuncion.buscar_sim(expr.id)
                     return simbolo.valor
