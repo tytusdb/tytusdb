@@ -1,36 +1,32 @@
 #IMPORTS
+from Instrucciones import Relaciones
+from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
 from Instrucciones.Excepcion import Excepcion
-from Instrucciones.Identificador import Identificador
-from Instrucciones.TablaSimbolos.Instruccion import Instruccion
-from tkinter.constants import HORIZONTAL
-from ply import *
-from lexico import *
-from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
+from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional, Between
 from Instrucciones.FunctionAgregate import Avg, Count, Greatest, Least, Max, Min, Sum, Top
+from Instrucciones.FunctionBinaryString import Convert, Decode, Encode, GetByte, Length, Md5, SetByte, Sha256, Substr, Substring, Trim
 from Instrucciones.FunctionMathematical import Abs, Cbrt, Ceil, Ceiling, Degrees, Div, Exp, Factorial, Floor, Gcd, Lcm, Ln, Log, Log10, MinScale, Mod, PI, Power, Radians, Random, Round, Scale, SetSeed, Sign, Sqrt, TrimScale, Trunc, WidthBucket
 from Instrucciones.FunctionTrigonometric import Acos, Acosd, Acosh, Asin, Asind, Asinh, Atan, Atan2, Atan2d, Atand, Atanh, Cos, Cosd, Cosh, Cot, Cotd, Sin, Sind, Sinh, Tan, Tand, Tanh
-from Instrucciones.FunctionBinaryString import Convert, Decode, Encode, GetByte, Length, Md5, SetByte, Sha256, Substr, Substring, Trim
-from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional, Between
-from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
-from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck
-from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set
+from Instrucciones.Identificador import Identificador
+from Instrucciones.PLpgSQL import Body, CaseWhen, Continue, CreateFunction, Execute, Exit, For, IfElse, Llamada, Loop, Parametro, Variable, While
+from Instrucciones.Sql_alter import AlterDatabase, AlterDBOwner, AlterIndex, AlterTable, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck
+from Instrucciones.Sql_create import CreateDatabase, CreateIndex, Campo, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set
+from Instrucciones.Sql_create import Columna as CColumna
+from Instrucciones.Sql_create.Tipo_Constraint import *
 from Instrucciones.Sql_declare import Declare
 from Instrucciones.Sql_delete import DeleteTable
-from Instrucciones.Sql_drop import DropDatabase, DropTable
+from Instrucciones.Sql_drop import DropDatabase, DropIndex, DropTable
 from Instrucciones.Sql_insert import insertTable
 from Instrucciones.Sql_Joins import Join, JoinFull, JoinInner, JoinLeft, JoinRight
 from Instrucciones.Sql_select import GroupBy, Having, Limit, OrderBy, Select, Where, SelectLista
 from Instrucciones.Sql_truncate import Truncate
 from Instrucciones.Sql_update import UpdateTable
-from Instrucciones.Sql_create import Columna as CColumna
-from Instrucciones import Relaciones
-from Instrucciones.Sql_create.Tipo_Constraint import *
-from Instrucciones.Sql_create import CreateIndex, Campo
+from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 from Instrucciones.Undefined import Undefined
-from Instrucciones.Sql_drop import DropIndex
-from Instrucciones.Sql_alter import AlterIndex
-from Instrucciones.Sql_create import Parametro, Variable, Body
-from Instrucciones.Execute import Execute, Llamada
+from lexico import *
+from ply import *
+from tkinter.constants import HORIZONTAL
 from storageManager import jsonMode as storage
 # para C3D
 import op_aritmeticas as op
@@ -279,55 +275,115 @@ def p_list_exp2(t):
 def p_instruccion_create_database1(t):
     '''instruccion : CREATE DATABASE if_not_exists ID PUNTO_COMA
     '''
-    #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID PUNTO_COMA"
-    t[0] =CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, 1, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_create_database2(t):
     '''instruccion : CREATE DATABASE if_not_exists ID OWNER IGUAL cowner PUNTO_COMA
     '''
-    #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> ID PUNTO_COMA"
-    t[0] =CreateDatabase.CreateDatabase(t[4],None,t[3].valor, t[7], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, t[7], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_create_database3(t):
     '''instruccion : CREATE DATABASE if_not_exists ID OWNER IGUAL cowner MODE IGUAL ENTERO PUNTO_COMA
     '''
-    #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> MODE IGUAL ENTERO PUNTO_COMA"
-    t[0] =CreateDatabase.CreateDatabase(t[4],None,t[3].valor, t[7], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, t[7], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_create_database4(t):
     '''instruccion : CREATE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
     '''
-    #                     ID    tipo  opcion ID2  ENTERO
     strGram  = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID MODE IGUAL ENTERO PUNTO_COMA"
-    t[0] =CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, t[7], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_database5(t):
+    '''instruccion : CREATE DATABASE if_not_exists ID OWNER cowner PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER <cowner> ID PUNTO_COMA"
+    t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, t[6], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_database6(t):
+    '''instruccion : CREATE DATABASE if_not_exists ID OWNER cowner MODE IGUAL ENTERO PUNTO_COMA
+    '''
+    #                     ID  tipo  opcion ID2  ENTERO
+    strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER <cowner> MODE IGUAL ENTERO PUNTO_COMA"
+    t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, t[6], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_database7(t):
+    '''instruccion : CREATE DATABASE if_not_exists ID OWNER IGUAL cowner MODE ENTERO PUNTO_COMA
+    '''
+    #                     ID  tipo  opcion ID2  ENTERO
+    strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> MODE ENTERO PUNTO_COMA"
+    t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, t[7], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_database8(t):
+    '''instruccion : CREATE DATABASE if_not_exists ID OWNER cowner MODE ENTERO PUNTO_COMA
+    '''
+    #                     ID  tipo  opcion ID2  ENTERO
+    strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER <cowner> MODE ENTERO PUNTO_COMA"
+    t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, t[6], t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_database9(t):
+    '''instruccion : CREATE DATABASE if_not_exists ID MODE ENTERO PUNTO_COMA
+    '''
+    #                     ID    tipo  opcion ID2  ENTERO
+    strGram  = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID MODE ENTERO PUNTO_COMA"
+    t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 # CREATE OR REPLACE DATABASE
 def p_instruccion_create_or_database1(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID PUNTO_COMA"
-    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, None, 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, None, 1, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_create_or_database2(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL cowner PUNTO_COMA
     '''
-    strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> PUNTO_COMA"
-    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> ID PUNTO_COMA"
+    t[0] = CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_create_or_database3(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL cowner MODE IGUAL ENTERO PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> MODE IGUAL ENTERO PUNTO_COMA"
-    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], t[12], strGram ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] = CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], t[12], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_create_or_database4(t):
     '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
     '''
     strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID MODE IGUAL ENTERO PUNTO_COMA"
-    t[0] =CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, None, t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_or_database5(t):
+    '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER cowner PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER <cowner> ID PUNTO_COMA"
+    t[0] = CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[8], 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_or_database6(t):
+    '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER cowner MODE IGUAL ENTERO PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER <cowner> MODE IGUAL ENTERO PUNTO_COMA"
+    t[0] = CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[8], t[11], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_or_database7(t):
+    '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL cowner MODE ENTERO PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> MODE ENTERO PUNTO_COMA"
+    t[0] = CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[9], t[11], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_or_database8(t):
+    '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER cowner MODE ENTERO PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID OWNER <cowner> MODE ENTERO PUNTO_COMA"
+    t[0] = CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, t[8], t[10], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_create_or_database9(t):
+    '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID MODE ENTERO PUNTO_COMA
+    '''
+    strGram = "<instruccion> ::= CREATE OR REPLACE DATABASE <if_not_exists> ID MODE ENTERO PUNTO_COMA"
+    t[0] = CreateOrReplace.CreateOrReplace(t[6], None, t[5].valor, None, t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_owner(t):
     '''cowner : ID
@@ -507,15 +563,15 @@ def p_par2(t):
     t[0] = Parametro.Parametro(t[1], None, None, None, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_body1(t):
-    '''body : LABEL l_dec BEGIN statements END PUNTO_COMA LABEL
+    '''body : PLABEL l_dec BEGIN statements END PUNTO_COMA PLABEL
     '''
-    strGram = "<body> ::= LABEL <l_dec> BEGIN statements END PUNTO_COMA LABEL"
+    strGram = "<body> ::= PLABEL <l_dec> BEGIN statements END PUNTO_COMA PLABEL"
     t[0] = Body.Body(t[2], t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_body2(t):
-    '''body : LABEL BEGIN statements END PUNTO_COMA LABEL
+    '''body : PLABEL BEGIN statements END PUNTO_COMA PLABEL
     '''
-    strGram = "<body> ::= LABEL BEGIN statements END PUNTO_COMA LABEL"
+    strGram = "<body> ::= PLABEL BEGIN statements END PUNTO_COMA PLABEL"
     t[0] = Body.Body([], t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_l_dec1(t):
@@ -661,12 +717,14 @@ def p_statement2(t):
                  | ID DP_IGUAL expre PUNTO_COMA
     '''
     strGram = "<statement> ::= ID IGUAL <expre> PUNTO_COMA"
+    t[0] = Asignacion.Asignacion(t[1], t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_statement3(t):
     '''statement : ID IGUAL query PUNTO_COMA
                  | ID DP_IGUAL query PUNTO_COMA
     '''
     strGram = "<statement> ::= ID IGUAL <query> PUNTO_COMA"
+    t[0] = Asignacion.Asignacion(t[1], None, t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_statement4(t):
     '''statement : RETURN expre PUNTO_COMA
@@ -675,29 +733,62 @@ def p_statement4(t):
     t[0] = t[1]
 
 def p_statement5(t):
-    '''statement : IF st_if
+    '''statement : st_if END IF PUNTO_COMA
     '''
-    strGram = "<statement> ::= IF <st_if>"
+    strGram = "<statement> ::= <st_if> END IF PUNTO_COMA"
 
 def p_st_if1(t):
-    '''st_if : expre THEN statements END IF PUNTO_COMA
+    '''st_if : st_si 
     '''
-    strGram = "<st_if> ::= <expre> THEN <statements> END IF PUNTO_COMA"
+    strGram = "<st_if> ::= <st_si>"
 
 def p_st_if2(t):
-    '''st_if : expre THEN statements ELSE statements END IF PUNTO_COMA
+    '''st_if : st_si sts_sino_si
     '''
-    strGram = "<st_if> ::= <expre> THEN <statements> ELSE <statements> END IF PUNTO_COMA"
+    strGram = "<st_if> ::= <st_si> <sts_sino_si>"
 
 def p_st_if3(t):
-    '''st_if : expre THEN statements ELSIF st_if
+    '''st_if : st_si sts_sino_si st_sino
     '''
-    strGram = "<st_if> ::= <expre> THEN <statements> ELSIF <st_if>"
+    strGram = "<st_if> ::= <st_si> <sts_sino_si> <st_sino>"
+
+def p_st_if4(t):
+    '''st_if : st_si st_sino
+    '''
+    strGram = "<st_if> ::= <st_si> <st_sino>"
+
+def p_st_if1_1(t):
+    '''st_si : IF expre THEN statements 
+    '''
+    strGram = "<st_if> ::= IF <expre> THEN <statements>"
+
+#----> esto es una lista de elseif's
+def p_st_if2_1(t):
+    '''sts_sino_si : sts_sino_si st_sino_si
+    '''
+    strGram = "<sts_sino_si> ::= <sts_sino_si> <st_sino_si>"
+
+def p_st_if2_2(t):
+    '''sts_sino_si : st_sino_si
+    '''
+    strGram = "<sts_sino_si> ::= <st_sino_si>"
+#----fin lista
+
+def p_st_if2_3(t):
+    '''st_sino_si : ELSIF expre THEN statements 
+    '''
+    strGram = "<st_sino_si> ::= ELSIF <expre> THEN <statements>"
+
+def p_st_if2_4(t):
+    '''st_sino : ELSE statements
+    '''
+    strGram = "<st_sino> ::= ELSE <statements>"
 
 def p_statement6(t):
     '''statement : CASE ID st_case
     '''
     strGram = "<statement> ::= CASE ID <st_case>"
+    #t[0] = t[2]
 
 def p_st_case1(t):
     '''st_case : WHEN list_exp THEN statements END CASE PUNTO_COMA
@@ -718,6 +809,7 @@ def p_statement7(t):
     '''statement : CASE st_case_s
     '''
     strGram = "<statement> ::= CASE <st_case_s>"
+    t[0] = t[1]
 
 def p_st_case_s1(t):
     '''st_case_s : WHEN expre THEN statements END CASE PUNTO_COMA
@@ -733,7 +825,127 @@ def p_st_case_s3(t):
     '''st_case_s : WHEN expre THEN statements st_case_s
     '''
     strGram = "<st_case_s> ::=  WHEN <expre> THEN <statements> <st_case_s>"
-    
+
+def p_statement8(t):
+    '''statement : LOOP statements END LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= LOOP <statements> END LOOP PUNTO_COMA"
+    t[0] = Loop.Loop(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement9(t):
+    '''statement : LBL_LOOP LOOP statements END LOOP LBL_LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= LBL_LOOP LOOP <statements> END LOOP LBL_LOOP PUNTO_COMA"
+    t[0] = Loop.Loop(t[3], [t[1], t[6]], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement10(t):
+    '''statement : WHILE expre LOOP statements END LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= WHILE <expre> LOOP <statements> END LOOP PUNTO_COMA"
+    t[0] = While.While(t[2], t[4], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement11(t):
+    '''statement : LBL_LOOP WHILE expre LOOP statements END LOOP LBL_LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= LBL_LOOP WHILE <expre> LOOP <statements> END LOOP LBL_LOOP PUNTO_COMA"
+    t[0] = While.While(t[3], t[5], [t[1], t[8]], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement12(t):
+    '''statement : FOR ID ENTERO P_RANGO ENTERO LOOP statements END LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= FOR ID ENTERO P_RANGO ENTERO LOOP <statements> END LOOP PUNTO_COMA"
+    t[0] = For.For(t[2], False, [t[3], t[5]], 1, t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement13(t):
+    '''statement : FOR ID REVERSE ENTERO P_RANGO ENTERO LOOP statements END LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= FOR ID REVERSE ENTERO P_RANGO ENTERO LOOP <statements> END LOOP PUNTO_COMA"
+    t[0] = For.For(t[2], True, [t[4], t[6]], 1, t[8], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement14(t):
+    '''statement : FOR ID ENTERO P_RANGO ENTERO BY ENTERO LOOP statements END LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= FOR ID ENTERO P_RANGO ENTERO BY ENTERO LOOP <statements> END LOOP PUNTO_COMA"
+    t[0] = For.For(t[2], False, [t[3], t[5]], t[7], t[9], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement15(t):
+    '''statement : FOR ID REVERSE ENTERO P_RANGO ENTERO BY ENTERO LOOP statements END LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= FOR ID REVERSE ENTERO P_RANGO ENTERO BY ENTERO LOOP <statements> END LOOP PUNTO_COMA"
+    t[0] = For.For(t[2], True, [t[4], t[6]], t[8], t[10], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement16(t):
+    '''statement : LBL_LOOP FOR ID ENTERO P_RANGO ENTERO LOOP statements END LOOP LBL_LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= LBL_LOOP FOR ID ENTERO P_RANGO ENTERO LOOP <statements> END LOOP LBL_LOOP PUNTO_COMA"
+    t[0] = For.For(t[3], False, [t[4], t[6]], 1, t[8], [t[1], t[11]], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement17(t):
+    '''statement : LBL_LOOP FOR ID REVERSE ENTERO P_RANGO ENTERO LOOP statements END LOOP LBL_LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= LBL_LOOP FOR ID REVERSE ENTERO P_RANGO ENTERO LOOP <statements> END LOOP LBL_LOOP PUNTO_COMA"
+    t[0] = For.For(t[3], True, [t[5], t[7]], 1, t[9], [t[1], t[12]], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement18(t):
+    '''statement : LBL_LOOP FOR ID ENTERO P_RANGO ENTERO BY ENTERO LOOP statements END LOOP LBL_LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= LBL_LOOP FOR ID ENTERO P_RANGO ENTERO BY ENTERO LOOP <statements> END LOOP LBL_LOOP PUNTO_COMA"
+    t[0] = For.For(t[3], False, [t[4], t[6]], t[8], t[10], [t[1], t[13]], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement19(t):
+    '''statement : LBL_LOOP FOR ID REVERSE ENTERO P_RANGO ENTERO BY ENTERO LOOP statements END LOOP LBL_LOOP PUNTO_COMA
+    '''
+    strGram = "<statement> ::= LBL_LOOP FOR ID REVERSE ENTERO P_RANGO ENTERO BY ENTERO LOOP <statements> END LOOP LBL_LOOP PUNTO_COMA"
+    t[0] = For.For(t[3], True, [t[5], t[7]], t[9], t[11], [t[1], t[14]], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement20(t):
+    '''statements : EXIT PUNTO_COMA
+    '''
+    strGram = "<statements> ::= EXIT PUNTO_COMA"
+    t[0] = Exit.Exit(None, None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement21(t):
+    '''statements : EXIT ID PUNTO_COMA
+    '''
+    strGram = "<statements> ::= EXIT ID PUNTO_COMA"
+    t[0] = Exit.Exit(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement22(t):
+    '''statements : EXIT WHEN expre PUNTO_COMA
+    '''
+    strGram = "<statements> ::= EXIT WHEN <expre> PUNTO_COMA"
+    t[0] = Exit.Exit(None, t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement23(t):
+    '''statements : EXIT ID WHEN expre PUNTO_COMA
+    '''
+    strGram = "<statements> ::= EXIT ID WHEN <expre> PUNTO_COMA"
+    t[0] = Exit.Exit(t[2], t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement24(t):
+    '''statement : CONTINUE PUNTO_COMA
+    '''
+    strGram = "<statement> ::= CONTINUE PUNTO_COMA"
+    t[0] = Continue.Continue(None, None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement25(t):
+    '''statement : CONTINUE ID PUNTO_COMA
+    '''
+    strGram = "<statement> ::= CONTINUE ID PUNTO_COMA"
+    t[0] = Continue.Continue(t[2], None, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement26(t):
+    '''statement : CONTINUE WHEN expre PUNTO_COMA
+    '''
+    strGram = "<statement> ::= CONTINUE WHEN <expre> PUNTO_COMA"
+    t[0] = Continue.Continue(None, t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_statement27(t):
+    '''statement : CONTINUE ID WHEN expre PUNTO_COMA
+    '''
+    strGram = "<statement> ::= CONTINUE ID WHEN <expre> PUNTO_COMA"
+    t[0] = Continue.Continue(t[2], t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
+
 def p_set(t):
     ''' instruccion : SET expresion IGUAL expre PUNTO_COMA
     '''

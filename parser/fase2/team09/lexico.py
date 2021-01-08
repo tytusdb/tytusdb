@@ -75,7 +75,7 @@ reservadas = (
     # FUNCTIONS
     'FUNCTION', 'PROCEDURE', 'RETURNS', 'LANGUAGE', 'PLPGSQL', 
     'DECLARE', 'CONSTANT', 'ALIAS', 'FOR', 'BEGIN', 'END',
-    'ELSIF', #'LOOP',
+    'ELSIF', 'LOOP', 'WHILE', 'REVERSE', 'EXIT', 'CONTINUE',
     'EXECUTE',
 
     #### OPTIMIZACIÓN C3D
@@ -88,9 +88,11 @@ tokens = reservadas + (
     # OPTIMIZACIÓN C3D
     'TEMPORAL',
     # FUNCIONES
-    'LABEL',
+    'PLABEL',
     'R_PAR',
     'DP_IGUAL',
+    'LBL_LOOP',
+    'P_RANGO',
     # OPERADORES COMPARADORES
     'IGUAL',
     'MAYORQ',
@@ -130,9 +132,11 @@ t_TEMPORAL = r't[0-9]+'
 t_ETIQUETA = r'\.L[0-9]+'
 t_DOSP = r':'
 # FUNCIONES
-t_LABEL = r'\$\$'
+t_PLABEL = r'\$\$'
 t_R_PAR = r'\$[0-9]+'
 t_DP_IGUAL = r':\='
+t_LBL_LOOP = r'<<[a-zA-Z][a-zA-Z_0-9_]*>>'
+t_P_RANGO = r'\.\.'
 # EXPRESIONES REGULARES BASICAS
 t_ARROBA = r'\@'
 t_PARIZQ = r'\('

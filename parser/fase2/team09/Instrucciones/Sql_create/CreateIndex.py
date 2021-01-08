@@ -77,6 +77,23 @@ class CreateIndex(Instruccion):
                         arbol.consola.append("\nSe ha creado el índice «" + self.nombre + "» correctamente.")
                         return
 
+    def traducir(self, tabla, controlador, arbol):
+        codigo = 'CreateIndex.CreateIndex('
+        codigo += self.unique.traducir(tabla, controlador, arbol) + ', "'
+        codigo += self.nombre + '", "' + self.tabla + '", '
+        codigo += self.using.traducir(tabla, controlador, arbol) + ', ['
+        for i in range(len(self.campos)):
+            c = self.campos[i]
+            codigo += c.traducir(tabla, controlador, arbol)
+            if i == len(self.campos) - 1:
+                codigo += '], '
+            else:
+                codigo += ', '
+        codigo += self.condicion.traducir(tabla, controlador, arbol) + ', "'
+        codigo += self.strGram + '", ' + str(self.linea) + ', ' + str(self.columna) + ').ejecutar(tabla, arbol)\n'
+        #print(codigo)
+        return None
+
 class Cons():
     def __init__(self, id, rindex):
         self.id = id

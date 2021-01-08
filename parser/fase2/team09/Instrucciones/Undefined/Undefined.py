@@ -11,3 +11,12 @@ class Undefined(Instruccion):
         if self.valor != None:
             self.valor = self.tipo + self.valor
         return self.valor
+
+    def traducir(self, tabla, controlador, arbol):
+        codigo = 'Undefined.Undefined("' + self.tipo + '", '
+        if self.valor is None:
+            codigo += 'None'
+        else:
+            codigo += '"' + self.valor + '"'
+        codigo += ', "' + self.strGram + '", ' + str(self.linea) + ', ' + str(self.columna) + ')'
+        return codigo
