@@ -122,14 +122,21 @@ def analizador():
         result: Arbol = AnaParse(cadena)
         entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
         entornoCero.NuevoAmbito()
+        print('Nodo abstracto < ARBOL > :')
         print(result)
+        print('------------------------------------- > Buen viaje tytus-G17')
+
         for item in result.instrucciones:
             if item == None:
                 pass
             else:
-                item.traducir(entornoCero, result)
-        print("C3D generado:")
-        print(result.getC3D())
+                try:
+                    item.traducir(entornoCero, result)
+                except:
+                    pass
+
+        #print("C3D generado:")
+        #print(result.getC3D())
 
         consola = 'def main(): \n'
         consola = consola + result.getC3D()
