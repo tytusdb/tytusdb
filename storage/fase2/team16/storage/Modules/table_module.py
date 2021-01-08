@@ -6,7 +6,7 @@
 
 from ..path import *
 from .handler import Handler
-from .Complements import checksum
+from .Complements.checksum import *
 from .Complements.security import Blockchain
 
 
@@ -280,30 +280,26 @@ class TableModule:
                 if _table:
                     if not _table.security:
                         return 4
-                    _table.security = _table.security.destruction(database, table)
+                    _table.security = _table.security.destruction()
                     self.handler.rootupdate(self.dbs)
                     return 0
                 return 3
             return 2
         except:
             return 1
-    
+
     def checksumTable(self, database: str, table: str, mode: str) -> str:
         try:
-            if not isinstance(database, str) or not isinstance(table, str):
-                raise Exception('Se esperaba una cadena str')
-            if not mode.upper() in checksum.ALGORITMOS:
-                raise Exception('Algoritmo no válido: {}'.format(mode))
-            self.databases = self.handler.rootinstance()
-            for db in self.databases:
-                if db.name.upper() == database.upper():
-                    _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
-                    if _table:
-                        return checksum.checksum_TBL(database, table, db.mode, mode)
-                    raise Exception('Tabla no encontrada')
-            raise Exception('Base de datos no encontrada')
+            if not isinstance(database, str) or not isinstance(table, str) or not mode.upper() in algorithms:
+                raise Exception()
+            self.dbs = self.handler.rootinstance()
+            db, index = self._exist(database)
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            if db and _table:
+                return checksum_TBL(database, table, _table.mode, mode.upper())
+            raise Exception()
         except:
-            return None
+            pass
 
     def _exist(self, database: str):
         tmp = None

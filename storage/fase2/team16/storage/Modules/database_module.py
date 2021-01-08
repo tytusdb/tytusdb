@@ -4,24 +4,16 @@
 # Developers: SG#16
 
 
-from .Complements import checksum
+from .Complements.checksum import *
 from .handler import Handler
 from ..path import *
 
-MODES = ['AVL',
-        'B',
-        'BPLUS',
-        'DICT',
-        'ISAM',
-        'JSON',
-        'HASH']
-CODES = ['ASCII',
-        'ISO-8859-1',
-        'UTF8']
+modes = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
+codes = ['ascii', 'iso-8859-1', 'utf8']
 
 
 class Database:
-    def __init__(self, name, mode, encoding='ASCII'):
+    def __init__(self, name, mode, encoding='ascii'):
         self.name = str(name)
         self.mode = mode
         self.encoding = encoding
@@ -29,7 +21,7 @@ class Database:
 
     def __repr__(self) -> str:
         return str(self.name)
-    
+
 
 class DatabaseModule:
     def __init__(self):
@@ -44,9 +36,9 @@ class DatabaseModule:
             for i in self.databases:
                 if database.upper() == i.name.upper():
                     return 2
-            if not mode.upper() in MODES:
+            if not mode.lower() in modes:
                 return 3
-            if not encoding.upper() in CODES:
+            if not encoding.lower() in codes:
                 return 4
             self.databases.append(Database(database, mode, encoding))
             self.handler.rootupdate(self.databases)
@@ -112,7 +104,7 @@ class DatabaseModule:
         try:
             if not isinstance(database, str):
                 raise Exception()
-            if not mode.upper() in MODES:
+            if not mode.lower() in modes:
                 return 4
             self.databases = self.handler.rootinstance()
             db, index = self._exist(database)
@@ -157,7 +149,7 @@ class DatabaseModule:
         try:
             if not isinstance(database, str):
                 raise Exception()
-            if not mode.upper() in MODES:
+            if not mode.lower() in modes:
                 return 4
             self.databases = self.handler.rootinstance()
             db, index = self._exist(database)
@@ -197,33 +189,39 @@ class DatabaseModule:
 
     def alterDatabaseEncoding(self, database: str, encoding: str) -> int:
         try:
-            if not isinstance(database, str) or self.handler.invalid(database):
-                raise Exception('Base de datos no válida')
-            if not encoding.upper() in CODES:
+            if not isinstance(database, str):
+                raise Exception()
+            if not encoding.lower() in codes:
                 return 3
             self.databases = self.handler.rootinstance()
-            for db in self.databases:
-                if db.name.upper() == database.upper():
-                    db.encoding = encoding.upper()
-                    return 0
-            return 2
+            db, index = self._exist(database)
+            if not db:
+                return 2
+            if encoding == db.encoding:
+                return 1
+            tables = db.tables[:]
+            for table in tables:
+                tuples = result = eval(actionCreator(table.mode, 'extractTable', ['database', 'table.name']))
+                if result:
+                    [str(x).encode(encoding) for x in tuples]
+            db.encoding = encoding
+            self.handler.rootupdate(self.databases)
+            return 0
         except:
             return 1
 
     def checksumDatabase(self, database: str, mode: str) -> str:
         try:
-            if not mode.upper() in checksum.ALGORITMOS:
-                raise Exception('Algoritmo no válido: {}'.format(mode))
-            if not isinstance(database, str) or self.handler.invalid(database):
-                raise Exception('Base de datos no válida')
+            if not isinstance(database, str) or not mode.upper() in algorithms:
+                raise Exception()
             self.databases = self.handler.rootinstance()
-            for db in self.databases:
-                if db.name.upper() == database.upper():
-                    return checksum.checksum_DB(database, db.mode, mode)
-            raise Exception('Base de datos no encontrada')
+            db, index = self._exist(database)
+            if db:
+                return checksum_DB(database, db.mode, mode.upper())
+            raise Exception()
         except:
-            return None
-        
+            pass
+
     def alterDatabaseCompress(self, database: str, level: int) -> int:
         pass
 

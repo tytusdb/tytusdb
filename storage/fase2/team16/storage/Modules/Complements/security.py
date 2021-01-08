@@ -40,41 +40,44 @@ def _generateKey(password: str):
 
 class Blockchain:
     def __init__(self, database: str, table: str):
+        self.database = database
+        self.table = table
         self.current = ""
         self.previous = '0000000000000000000000000000000000000000000000000000000000000000'
         self.blocks = []
         self.number = 1
+        self.rape = False
         handler.modeinstance(mode)
         handler.writeJSON(database, table, [])
 
-    @staticmethod
-    def destruction(database: str, table: str):
-        handler.delete('./data/security/' + database + "_" + table + ".json")
+    def destruction(self):
+        handler.delete('./data/security/' + self.database + "_" + self.table + ".json")
         handler.clean(mode)
         return None
 
-    def insert(self, database: str, table: str, register: list):
+    def insert(self, register: list):
         try:
             self.current = self.hash(register)
-            blocks = handler.readJSON(database, table)
+            blocks = handler.readJSON(self.database, self.table)
+            color = 'red' if self.rape else 'green'
             newblock = {
                 'id': self.number,
                 'content': register,
                 'previous': self.previous,
                 'hash': self.current,
-                'color': 'green'
+                'color': color
             }
             self.number += 1
             self.previous = self.current
             blocks.append(newblock)
-            handler.writeJSON(database, table, blocks)
+            handler.writeJSON(self.database, self.table, blocks)
         except:
             print("Error en la operación")
 
-    def update(self, database: str, table: str, register: dict, row: list):
+    def update(self, register: dict, row: list):
         try:
             rape = False
-            blocks = handler.readJSON(database, table)
+            blocks = handler.readJSON(self.database, self.table)
             for block in blocks:
                 if row == block['content']:
                     for value in register:
@@ -83,17 +86,18 @@ class Blockchain:
                     block['color'] = 'red'
                     rape = True
                 if rape:
+                    self.rape = True
                     block['color'] = 'red'
-            handler.writeJSON(database, table, blocks)
+            handler.writeJSON(self.database, self.table, blocks)
             if rape:
-                self.draw(database, table, blocks)
+                print("Violación de seguridad")
         except:
             print("Error en la operación")
 
-    def delete(self, database: str, table: str, row: list):
+    def delete(self, row: list):
         try:
             rape = False
-            blocks = handler.readJSON(database, table)
+            blocks = handler.readJSON(self.database, self.table)
             for block in blocks:
                 if row == block['content']:
                     block['content'] = []
@@ -101,17 +105,17 @@ class Blockchain:
                     block['color'] = 'red'
                     rape = True
                 if rape:
+                    self.rape = True
                     block['color'] = 'red'
-            handler.writeJSON(database, table, blocks)
+            handler.writeJSON(self.database, self.table, blocks)
             if rape:
-                self.draw(database, table, blocks)
+                print("Violación de seguridad")
         except:
             print("Error en la operación")
 
-    @staticmethod
-    def draw(database: str, table: str, blocks=None):
+    def draw(self, blocks=None):
         if not blocks:
-            blocks = handler.readJSON(database, table)
+            blocks = handler.readJSON(self.database, self.table)
         diag = "digraph G{\n{rank=\"same\"}\n"
         first = True
         count = 0
@@ -124,7 +128,7 @@ class Blockchain:
                 diag += str(blocks[count - 1]['id']) + "->" + str(block['id']) + "\n"
             count += 1
         diag += "}"
-        generate(database + "_" + table, diag)
+        generate(self.database + "_" + self.table, diag)
 
     @staticmethod
     def hash(register: list):

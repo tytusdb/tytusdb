@@ -23,17 +23,13 @@ class TupleModule:
             if tmp:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
-                    try:
-                        [str(x).encode(tmp.encoding) for x in register]
-                    except:
-                        raise Exception('Registro no codificable')
-                    else:
-                        action = actionCreator(_table.mode, 'insert', ['database', 'table', 'register'])
-                        result = eval(action)
-                        if result == 0 and _table.security:
-                            _table.security.insert(database, table, register)
-                            self.handler.rootupdate(self.dbs)
-                        return result
+                    [str(x).encode(tmp.encoding) for x in register]
+                    action = actionCreator(_table.mode, 'insert', ['database', 'table', 'register'])
+                    result = eval(action)
+                    if result == 0 and _table.security:
+                        _table.security.insert(register)
+                        self.handler.rootupdate(self.dbs)
+                    return result
                 return 3
             return 2
         except:
@@ -78,21 +74,17 @@ class TupleModule:
             if tmp:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
-                    try:
-                        [str(x).encode(tmp.encoding) for x in register]
-                    except:
-                        raise Exception('Registro no codificable')
-                    else:
-                        if _table.security:
-                            row = self.extractRow(database, table, columns)
-                            if not row:
-                                raise Exception()
-                        action = actionCreator(_table.mode, 'update', ['database', 'table', 'register', 'columns'])
-                        result = eval(action)
-                        if result == 0 and _table.security:
-                            _table.security.update(database, table, register, row)
-                            self.handler.rootupdate(self.dbs)
-                        return result
+                    [str(x).encode(tmp.encoding) for x in register]
+                    if _table.security:
+                        row = self.extractRow(database, table, columns)
+                        if not row:
+                            raise Exception()
+                    action = actionCreator(_table.mode, 'update', ['database', 'table', 'register', 'columns'])
+                    result = eval(action)
+                    if result == 0 and _table.security:
+                        _table.security.update(register, row)
+                        self.handler.rootupdate(self.dbs)
+                    return result
                 return 3
             return 2
         except:
@@ -114,7 +106,7 @@ class TupleModule:
                     action = actionCreator(_table.mode, 'delete', ['database', 'table', 'columns'])
                     result = eval(action)
                     if result == 0 and _table.security:
-                        _table.security.delete(database, table, row)
+                        _table.security.delete(row)
                         self.handler.rootupdate(self.dbs)
                     return result
                 return 3
