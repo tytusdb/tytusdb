@@ -4,6 +4,7 @@ from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.PL import Func, Declaracion,Execute,Asignacion,Return,If,Drop
 from Instrucciones.Identificador import Identificador
+from Instrucciones.Sql_insert import insertTable
 
 class Func(Instruccion):
     def __init__(self, nameid,id, replace, parametros, instrucciones,declare, strGram, linea, columna):
@@ -17,6 +18,7 @@ class Func(Instruccion):
         self.my_dic=[]
         self.linea=linea
         self.columna=columna
+        self.j=0
 
         self.nameid=nameid
 
@@ -24,7 +26,7 @@ class Func(Instruccion):
     def getparam(self):
          return self.my_dic
 
-    def addvalues(self, queue,tabla):
+    def addvalues(self,k, queue,tabla):
   
         print("entro a diccionerio ")         
 
@@ -32,33 +34,35 @@ class Func(Instruccion):
            #  self.my_dict.update({"name":queue.id,"value" :queue.val})
              print("agrego a diccionario : ")
   
-             self.my_dic.append({"name":queue.id,"value" :queue.val,"tipo" :""})      
+             self.my_dic.append({"name":queue.id,"value" :queue.val,"tipo" :"","j" :k})      
              print(self.my_dic)
 
         except Exception as e:
               print(e)
 
-    def actualizaalaprimera(self,valor1,valor2, tabla,arbol):
+    def actualizaalaprimera(self,valor1,valor2,j, tabla,arbol):
          print("ya selfalor",self.my_dic) 
 
          k=0
+         temp=""
          for key in self.my_dic:
-            k=k+1
+           
          
-                #cadena es mi id de retorno           
-            if(key["tipo"]=="var"):
-
-                    print("ya existe se sustituira su valor") 
+                #cadena es mi id de retorno 
+            if( str(key["j"])==str(j) ):  
+                 k=k+1 
+                 if(key["tipo"]=="var" ):
+           
                     if(k==1) :key["name"]=valor1
                     if(k==2): key["name"]=valor2
-                   
-         print("ya self.my_dicu valor",self.my_dic) 
+                    
+         print("ya act valor",self.my_dic) 
 
      # my_dict.update({lst[i] :str(y)})
          
 
 
-    def addvalues2(self, name,value,tipo):
+    def addvalues2(self, name,value,tipo,k):
   
         print("entro a add  "+name+" value="+value)         
         Pase2=False
@@ -71,7 +75,7 @@ class Func(Instruccion):
             #  self.my_dict.update({"name":queue.id,"value" :queue.val})
                 print("agrego a diccionario : ")
     
-                self.my_dic.append({"name":name,"value" :value,"tipo" :"var"})      
+                self.my_dic.append({"name":name,"value" :value,"tipo" :"var","j" :k})      
 
             except Exception as e:
                 print(e)     
@@ -79,15 +83,15 @@ class Func(Instruccion):
         print("agrego a diccionario1'02 : ",self.my_dic)
       
 
-    def versiexisteyactualiza(self,valuestable,objeto, tabla,arbol):
+    def versiexisteyactualiza(self,valuestable,objeto, k,tabla,arbol):
        
          for key in valuestable:
            
             nam=key["name"]
             
-            
+            f=str(key["j"]).replace(" ","")
                 #cadena es mi id de retorno           
-            if(objeto.id==str(nam)):
+            if(objeto.id==str(nam) and str(k)==f):
                     print("ya existe se sustituira su valor") 
 
                     cadena = ""
@@ -124,7 +128,7 @@ class Func(Instruccion):
 
 
 
-    def obtienesiexiste(self,name,valuestable, tabla,arbol):
+    def obtienesiexiste(self,name,valuestable, j,tabla,arbol):
         print("obendra name= "+name+"con valuestable= ",valuestable)        
 
     
@@ -134,9 +138,9 @@ class Func(Instruccion):
         for key in valuestable:
            
             nam=key["name"]
+            f=str(key["j"]).replace(" ","")
             
-            
-            if(name==str(nam)):
+            if(name==str(nam)and str(j)==f):
                     return key["value"]          
             
         return None   
@@ -148,19 +152,25 @@ class Func(Instruccion):
         passWelcome2
 
     def analizar(self, tabla, arbol):
-        super().analizar(tabla,arbol)
+        """   super().analizar(tabla,arbol)
         resultado = self.expresion.analizar(tabla,arbol)
         if not isinstance(resultado, Excepcion):
             self.tipo = resultado
-        return resultado
-        
+        return resultado """
+        pass
     def traducir(self, tabla, arbol):
-        tabla.setFuncion(self)
+        pass
+
+    def traducir(self,k, tabla, arbol):
+        self.j=k
+        # tabla.aum()
+        if k==0 : tabla.setFuncion(self)
         cadena = ""
         funcname = ""
+        print("j es  -------------------------------------"+str(self.j)+"----")         
 
 
-        self.valtable(self.my_dic)
+        if k==0 : self.valtable(self.my_dic)
 
         h=0
         val2param=""
@@ -176,24 +186,23 @@ class Func(Instruccion):
                     #    self.agregar(self,"",param,cadena)
 
                         h=h+1 
-                print("actualizaalaprimera ",val1param,val2param) 
-                print("start") 
+                """     print("actualizaalaprimera ",val1param,val2param) 
+                print("start")  """
 
-                self.actualizaalaprimera(val1param,val2param, tabla,arbol)
+                self.actualizaalaprimera(val1param,val2param,k, tabla,arbol)
 
         except Exception as e:
             print(e) 
         
 
 
-
-
-
+        print("dicc actuslizafo es",self.my_dic) 
 
 
         valuestable=self.getparam()
-        try: 
+        try:
               funcname = "def "+self.id
+              if k>0 : funcname += str(k)
 
               print("entro con namefuncion: ",self.id)         
 
@@ -249,15 +258,18 @@ class Func(Instruccion):
                                   arbol.addComenfunc("Comienza instruccion de expresion")
 
                                   ele.traducir("No",tabla,arbol)
-                                  if self.versiexisteyactualiza(self.my_dic,ele, tabla,arbol):
+                                  if self.versiexisteyactualiza(self.my_dic,ele, k,tabla,arbol):
+                                    print("si existe ") 
+
                                     pass
                                   else:
-                                     self.addvalues(ele,tabla) 
+                                    print("no existe ") 
+                                    self.addvalues(k,ele,tabla) 
                             elif isinstance(ele, If.If):
                                   print("es insta If ") 
                                   arbol.addComenfunc("Comienza instruccion de expresion")
 
-                                  ele.traducir(self.my_dic,0,tabla,arbol)
+                                  ele.traducir(self.my_dic,k,tabla,arbol)
                                  
                             elif isinstance(ele, Drop.Drop):
                                   print("es insta Drop ") 
@@ -276,7 +288,8 @@ class Func(Instruccion):
                                   if isinstance(ele.expresion, Identificador):
                         
                                     valu = ele.expresion.devolverId(tabla,arbol)                      
-                                    value1 =self.obtienesiexiste(valu,valuestable, tabla,arbol)
+                                    value1 =self.obtienesiexiste(valu,valuestable,k, tabla,arbol)
+
                                     print("obtuvoe el valor retun= ",value1)
 
                                     if value1==None:
@@ -292,7 +305,10 @@ class Func(Instruccion):
                                
                                   
                             else:
-                                    cadena = ele.extraer(tabla,arbol) 
+                                    if isinstance(ele, insertTable.insertTable):
+                                         cadena = ele.extraer(0,tabla,arbol) 
+                                    else:
+                                         cadena = ele.extraer(tabla,arbol) 
                                     print("cadena ES ",cadena)  
 
                                         
@@ -354,6 +370,7 @@ class Func(Instruccion):
                 name=""
                 value=""
                 tipo="var"
+                no=""
                 h= 0
                 for num in line.strip().split('ý'):
                       print("num split es= ",num)  
@@ -361,9 +378,10 @@ class Func(Instruccion):
                       if(h==0):name=num
                       if(h==1):value=num
                       if(h==2):tipo=num
+                      if(h==3):no=num
                       h=h+1
                 if(tipo==nam)  :        
-                    self.addvalues2(name,value,tipo)
+                    self.addvalues2(name,value,tipo,no)
         except Exception as e:
               print(e)
     
