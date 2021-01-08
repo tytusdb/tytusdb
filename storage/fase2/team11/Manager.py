@@ -406,6 +406,57 @@ def insert(database, name_table, register: list):
     else:
         return 2
 
+#-------------------ENCODING--------------------------------
+def alterDatabaseEncoding(database: str, encoding: str):
+    metadata_db, index_metadata = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        tables = struct.showTables(database)
+        state = 0
+        if encoding not in ["ascii","utf-8","iso-8859-1"]: return 3
+        for e in tables:
+            tuplas = struct.extractTable(database,e)
+            for n in tuplas:
+                if encoding == "ascii" and encodi_ascii_decod(n,encoding) !=1:
+                    pass
+                elif encoding == "utf-8" and encodi_utf_decod(n,encoding) !=1:
+                    pass
+                elif encoding == "iso-8859-1" and encodi_iso_decod(n,encoding) !=1:
+                    pass
+                else:
+                    return 1
+        if state == 0:
+             metadata_db.set_encondig(encoding)
+             return 0
+    else:
+        return 2
+
+
+
+def encodi_ascii_decod(lista: list ,encoding: str):
+    try:
+        for i in lista:
+            str(i).encode(f'{encoding}').decode(f'{encoding}')
+        return 0
+    except:
+        return 1
+
+def encodi_utf_decod(lista: list ,encoding: str):
+    try:
+        for i in lista:
+            str(i).encode('utf-8').decode('utf-8')
+        return 0
+    except:
+        return 1
+
+def encodi_iso_decod(lista: list ,encoding: str):
+    try:
+        for i in lista:
+            str(i).encode('iso-8859-1').decode('iso-8859-1')
+        return lista
+    except:
+        return 1
+
 
 def extractRow(database, name_table, columns):
     ModeDB, indexDB = exist_Alter(database)
