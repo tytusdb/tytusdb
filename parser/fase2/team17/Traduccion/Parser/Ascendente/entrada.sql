@@ -40,7 +40,10 @@ END;
 CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
 CREATE INDEX ON tbbodega ( ( lower(bodega) ) );
 CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-CREATE INDEX index_lol ON test1 (column1.colun2,column4);
+
+
+CREATE INDEX index_lol ON test1 (column1,colun2,column4);
+CREATE INDEX index_lol ON test1 (column1 asc nulls);
 
 
 

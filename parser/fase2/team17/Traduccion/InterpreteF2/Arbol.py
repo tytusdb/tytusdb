@@ -1,3 +1,7 @@
+from typing import List
+from InterpreteF2.Reporteria.ReporteTS_Indice import ReportIndice
+
+
 class Arbol:
 
     def __init__(self, instructions):
@@ -8,7 +12,7 @@ class Arbol:
         self.ErroresSintacticos: list = []
         self.ReporteTS: list = []
         self.ReporteTS_Funciones: list = []
-        self.ReporteTS_Indice: list = []
+        self.ReporteTS_Indice:List[ReportIndice] = []
         self.ReporteOptimizacion: list = []
 
         # Soporte de temporales
