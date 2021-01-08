@@ -14,7 +14,7 @@ import os.path
 from os import path
 import webbrowser
 
-class Funcion(Instruccion):
+class CreateProcedure(Instruccion):
     def __init__(self, id, replace, parametros, declaraciones, instrucciones, tipo, strGram, linea, columna):
         Instruccion.__init__(self,tipo,linea,columna,strGram)
         self.id = id
@@ -53,7 +53,7 @@ class Funcion(Instruccion):
 
         arbol.lista_funciones.append(parametros_rep)
         arbol.lista_funciones.append(self.id)
-        arbol.lista_funciones.append('Funcion')
+        arbol.lista_funciones.append('Procedimiento')
         
         self.crear_tabla(arbol)
 
@@ -190,7 +190,7 @@ class Funcion(Instruccion):
         contador = 0
         while(contador < len(lista_funciones) ):
             cadena += "<tr>\n"
-            val = (contador+4)/4
+             val = (contador+4)/4
             cadena += "<td><center>" + str(val) + "</center></td>\n"
 
             cadena += "<td><center>" + lista_funciones[contador] + "</center></td>\n"
