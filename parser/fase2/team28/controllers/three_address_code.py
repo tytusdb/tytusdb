@@ -55,6 +55,12 @@ class ThreeAddressCode(object):
         # self.__stackCounter += 1
         return stackCounter
 
+    @property
+    def tempCounter(self):
+        tempCounter = self.__tempCounter
+        # self.__stackCounter += 1
+        return tempCounter
+
     def addStack(self, value):
         """
         Method to add to stack
@@ -97,6 +103,7 @@ class ThreeAddressCode(object):
         """
         self.__content = 'from goto import with_goto'
         self.__content += '\nfrom math import *'
+        self.__content += "\nfrom hashlib import *"
         self.__content += '\nfrom models.procedural.intermedia import parse'
         self.__content += '\n\nStack = [None]*10000\nP = 0'
 

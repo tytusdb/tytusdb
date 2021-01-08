@@ -498,42 +498,6 @@ def p_query(t):
     t[0] = nodeFather
 #-----------------------------------------------------CREATE INDEX--------------------------------------------------------------------
 def p_createIndex_1(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
-    nodeFather = nodeAst()
-    nodeFather.token = 'CREATE_INDEX'
-
-    nodeSon1 = nodeAst()
-    nodeSon1.token = 'CREATE'
-    nodeSon1.lexeme = t[1]
-    nodeFather.son.append(nodeSon1)
-
-    nodeSon2 = nodeAst()
-    nodeSon2.token = 'INDEX'
-    nodeSon2.lexeme = t[2]
-    nodeFather.son.append(nodeSon2)
-
-    nodeSon3 = nodeAst()
-    nodeSon3.token = 'ID'
-    nodeSon3.lexeme = t[3]
-    nodeFather.son.append(nodeSon3)
-
-    nodeSon4 = nodeAst()
-    nodeSon4.token = 'ON'
-    nodeSon4.lexeme = t[4]
-    nodeFather.son.append(nodeSon4)
-
-    nodeSon5 = nodeAst()
-    nodeSon5.token = 'ID'
-    nodeSon5.lexeme = t[5]
-    nodeFather.son.append(nodeSon5)
-
-    nodeSon7 = t[7]
-    nodeFather.son.append(nodeSon7)
-
-    t[0] = nodeFather
-
-
-def p_createIndex_5(t):
     'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'CREATE_INDEX'
@@ -611,7 +575,7 @@ def p_createIndex_1_1(t):
     t[0] = nodeFather
 
 def p_createIndex_1_2(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'CREATE_INDEX'
 
@@ -702,7 +666,7 @@ def p_createIndex_1_1_2(t):
     t[0] = nodeFather
 
 def p_createIndex_2(t):
-    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'CREATE_INDEX'
 
@@ -797,7 +761,7 @@ def p_createIndex_2_1(t):
     t[0] = nodeFather
 
 def p_createIndex_2_2(t):
-    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'CREATE_INDEX'
 
@@ -908,7 +872,7 @@ def p_createIndex_2_1_2(t):
     t[0] = nodeFather
 
 def p_createIndex_3(t):
-    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'CREATE_INDEX'
 
@@ -993,7 +957,7 @@ def p_createIndex_3_1(t):
     t[0] = nodeFather
 
 def p_createIndex_3_2(t):
-    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'CREATE_INDEX'
 
@@ -1563,9 +1527,33 @@ def p_sortOptions_2_2(t):
     t[0] = nodeFather
 
 def p_lower(t):
-    'lower    : ID PARENTESISIZQUIERDA ID PARENTESISDERECHA'
+    'lower    : lower COMA low'
     nodeFather = nodeAst()
-    nodeFather.token = 'SORT'
+    nodeFather.token = 'LISTA_ID'
+        
+    nodeSon1  = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon3 = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0]=nodeFather
+
+def p_lower_1(t):
+    'lower    : low'
+    nodeFather = nodeAst()
+    nodeFather.token = 'LISTA_ID'
+        
+    nodeSon1  = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0]=nodeFather
+
+
+def p_low(t):
+    'low    : ID PARENTESISIZQUIERDA ID PARENTESISDERECHA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'IDS'
 
     nodeSon1 = nodeAst()
     nodeSon1.token = 'ID'
@@ -1576,6 +1564,18 @@ def p_lower(t):
     nodeSon3.token = 'ID'
     nodeSon3.lexeme = t[3]
     nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
+
+def p_low_1(t):
+    'low    : ID'
+    nodeFather = nodeAst()
+    nodeFather.token = 'IDS'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ID'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
 
     t[0] = nodeFather
 #-----------------------------------------------------CREATE DB--------------------------------------------------------------------

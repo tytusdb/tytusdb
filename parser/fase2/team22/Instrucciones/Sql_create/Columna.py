@@ -16,8 +16,11 @@ class Columna(Instruccion):
         super().generar3D(tabla,arbol)
         code = []
         t0 = c3d.getTemporal()
-        code.append(c3d.asignacionString(t0, self.nombre + ' ' + self.tipo.toString()))
-        
+        if self.tipo.toString() != "enum":
+            code.append(c3d.asignacionString(t0, self.nombre + ' ' + self.tipo.toString()))
+        else:
+            code.append(c3d.asignacionString(t0, self.nombre + ' ' + self.tipo.nombre))
+
         if self.tipo.dimension != None:
             t1 = c3d.getTemporal()
             if not isinstance(self.tipo.dimension, list):

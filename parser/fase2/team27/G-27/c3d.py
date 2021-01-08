@@ -14,6 +14,7 @@ import sys
 from Instrucciones.instruction import *
 from Instrucciones.ins_if import *
 from Instrucciones.ins_case import *
+from environment import temporales
 from prettytable import PrettyTable
 from copy import copy
 from environment import arregloFunciones,arregloF
@@ -30,6 +31,9 @@ consid.append('none')
 consid.append('false')
 consid.append('false')
 executing = False
+banderaFunction = False
+banderaFunction2 = False
+listaParametros = []
 auxiliarTable = []
 bandexp = list()
 bandexp.append('prim')
@@ -152,29 +156,21 @@ def t_NUMERO(t):
 # EXPRESION REGULAR PARA FORMATO HORA
 def t_F_HORA(t):
     r'\'\s*(\d+\s+(hours|HOURS))?(\s*\d+\s+(minutes|MINUTES))?(\s*\d+\s+(seconds|SECONDS))?\s*\''
-    t.value = t.value[1:-1]
-    return t.replace('\'','\"')
+    t.value = t.value.replace('\'','\"')
+    return t
 
 # EXPRESION REGULAR PARA FORMATO FECHA HORA
 def t_FECHA_HORA(t):
     r'\'\d+-\d+-\d+\s\d+:\d+:\d+\''
     t.value = t.value[1:-1]
-    from datetime import datetime
-    try:
-        t.value = datetime.strptime(t.value,'%Y-%m-%d %H:%M:%S')
-    except ValueError:
-        t.value = datetime(1900,1,1)
+    t.value = '"'+t.value+'"'
     return t
 
 # EXPRESION REGULAR PARA FORMATO FECHA
 def t_FECHA(t):
     r'\'\d\d\d\d-\d\d-\d\d\''
     t.value = t.value[1:-1]
-    from datetime import datetime
-    try:
-        t.value = datetime.strptime(t.value,'%Y-%m-%d')
-    except ValueError:
-        t.value = datetime(1900,1,1)
+    t.value = '"'+t.value+'"'
     return t
 
 # EXPRESION REGULAR PARA FORMATO HORA
@@ -265,7 +261,7 @@ def p_inicio(t):
     '''inicio : instrucciones '''
     arreglo = []
     for value in ListaFunciones:
-        arreglo.append(value)
+        arreglo.append(value['cod'])
     ListaFunciones.clear()
     t[0]= resFinal(arreglo,t[1].code)
 
@@ -1123,11 +1119,14 @@ def p_table_list(t):
 
 def p_arg_where(t):
     '''arg_where    :   WHERE PARABRE exp PARCIERRE
-                    | WHERE exp
+                    |   WHERE exp
                     |    '''
     if len(t) == 5: 
         t[0] = GenerarC3D()
         t[0].code += str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].code + ' ' + str(t[4])
+    elif len(t) == 3: 
+        t[0] = GenerarC3D()
+        t[0].code += str(t[1]) + ' ' + str(t[2].code)
     else:
         t[0] = GenerarC3D()
         t[0].code += ''
@@ -1143,13 +1142,25 @@ def p_arg_having(t):
         t[0].code += ''
 
 def p_exp_aux(t):
-    ''' exp : ID PARABRE list_vls PARCIERRE'''
+    ''' exp : prod list_vls PARCIERRE'''
+    global banderaFunction
+    global banderaFunction2
     global executing
     t[0] = GenerarC3D()
     if not executing:
-        t[0].code = '\' + ' + t[1] + t[2] + t[3].code + t[4] + '+ \''
+        t[0].code = '\' + str(' + t[1] + t[2].code + t[3] + ')+ \''
     else:
-        t[0].code = t[1] + t[2] + t[3].code + t[4] 
+        t[0].code = t[1]+ t[2].code + t[3] 
+    banderaFunction = banderaFunction2
+    
+
+def p_prod (t):
+    ''' prod : ID PARABRE '''
+    global banderaFunction
+    global banderaFunction2
+    banderaFunction2 = banderaFunction
+    banderaFunction = False
+    t[0] = str(t[1])+str(t[2])
 
 def p_exp(t):
     '''exp  : exp SIGNO_MAS exp
@@ -1268,6 +1279,7 @@ def p_predicates(t):
                    | data IS NOT UNKNOWN'''
     if len(t) == 3:
         t[0] = GenerarC3D()
+
         t[0].code += t[1].code + ' ' + str(t[2])
     if len(t) == 4:
         t[0] = GenerarC3D()
@@ -1295,6 +1307,22 @@ def p_predicates(t):
 
 def p_data(t):
     '''data  : ID table_at''' 
+    print('pasa en data')
+    global banderaFunction
+    global listaParametros
+    if banderaFunction:
+        if t[2].code == '':
+            band = False
+            for item in listaParametros:
+                if item == t[1]:
+                    band = True                 
+                    break
+            if band:
+                t[1] = '\'+str('+str(t[1])+')+\''
+            elif t[1] in temporales:
+                t[1]='\'+str('+str(temporales[t[1]])+')+\''
+
+                
     t[0] = GenerarC3D()
     t[0].code += str(t[1]) + ' ' + t[2].code
    
@@ -1476,8 +1504,8 @@ def p_ins_delete(t):
 # ======================================================================
 
 def p_drop_pf(t):
-    ''' drop_pf : DROP drop_case opt_exist ID PARABRE arg_list_opt PARCIERRE PUNTO_COMA'''
-    result = deleteProcFunc(t[2], t[4], t[6])
+    ''' drop_pf : DROP drop_case opt_exist ID PUNTO_COMA'''
+    result = deleteProcFunc(t[2], t[4], ListaFunciones)
 
     t[0] = GenerarC3D()
     t[0].code = str(result)
@@ -1488,7 +1516,7 @@ def p_drop_case(t):
     t[0] = t[1]
 
 def p_opt_exist(t):
-    ''' opt_exist : IF EXIST
+    ''' opt_exist : IF EXISTS
                   |'''
     if len(t)== 3:
         t[0] = True
@@ -1516,34 +1544,44 @@ def p_ins_create_pl(t):
     '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameteropt PARCIERRE returns AS block LANGUAGE ID PUNTO_COMA
                      | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE LANGUAGE ID AS  block 
                      '''
+    global banderaFunction
+    global listaParametros
     t[0] = GenerarC3D()
     if len(t) == 14:
         meta = {'id':t[4], 'parametros':t[6],'estado': 'ALMACENADO', 'tipo': t[3]}
         func = funcion(meta,t[10])
-        ListaFunciones.append(func)
+        ListaFunciones.append({'id':t[4], 'cod':func})
         genTable(t[4])
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
     else: 
         meta = {'id':t[4], 'parametros':t[6], 'estado': 'ALMACENADO', 'tipo':t[3]}
         func = funcion(meta,t[11])
-        ListaFunciones.append(func)
+        ListaFunciones.append({'id':t[4], 'cod':func})
         genTable(t[4])
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
+    banderaFunction = False
+    listaParametros.clear()
 
 def p_op_replace(t):
     '''op_replace :  OR REPLACE
                     | '''
+    global banderaFunction
+
+    banderaFunction = True
 
 def p_parameteropt(t):
     '''parameteropt : parameters
                    |
     '''
+    global listaParametros
     if len(t)== 2:
         t[0] = t[1]
     else:
         t[0] = []
+    
+    listaParametros = t[0]
 
 def p_parameters(t):
     '''parameters : parameters COMA parameter
@@ -2208,11 +2246,17 @@ def p_drop_index(t):
     '''drop_index : DROP INDEX ID arg_punto_coma'''
     indici = str(t[3])
     iterador = 0
+    existe = True
     for it in ListaIndices:
         if it['name'] == indici:
             del ListaIndices[iterador]
+            existe = False
             break
         iterador = iterador + 1
+    if existe:
+        err = 'SEMANTICO: no se elimino el indice ya que no existe ningun indice con ese identificador. ERROR SEMANTICO en la linea: '+ str(t.slice[1].lineno) +' y columna: '+str(t.slice[1].lexpos)
+        TokenError.append(err)
+        print('no se elimino el indice ya que no existe ningun indice con ese identificador')
 
     t[0] = GenerarC3D()
     t[0].statement = 'INDEX'
@@ -2221,7 +2265,16 @@ def p_drop_index(t):
 
 def p_create_index(t):
     '''create_index : CREATE arg_unique INDEX ID ON ID arg_hash PARABRE param_index PARCIERRE arg_include arg_where_index arg_punto_coma'''
-    guardarIndice(t[4],t[6],copy(ListaAux),t.slice[1].lineno,consid[0],consid[1],consid[2],consid[3])
+    existe = False
+    for item in ListaIndices:
+        if item['name'] == str(t[4]):
+            existe = True
+            err = 'SEMANTICO: ya existe un indice con ese identificador. ERROR SEMANTICO en la linea: '+ str(t.slice[1].lineno) +' y columna: '+str(t.slice[1].lexpos)
+            TokenError.append(err)
+            print('ya existe un indice con ese nombre')
+            break
+    if not existe:
+        guardarIndice(t[4],t[6],copy(ListaAux),t.slice[1].lineno,consid[0],consid[1],consid[2],consid[3])
     ListaAux.clear()
     consid[0]='none'
     consid[1]='none'
@@ -2375,13 +2428,14 @@ def p_arg_where_param(t):
 
 def p_error(t):
     if t != None:
-        err = 'SINTACTICO: Token = \"' + str(t.value), '\". ERROR SINTÁCTICO en la linea: '+ str(t.lineno) +' y columna: '+str(t.lexpos)
+        err = 'SINTACTICO: Token = \"' + str(t.value)+ '\". ERROR SINTÁCTICO en la linea: '+ str(t.lineno) +' y columna: '+str(t.lexpos)
         TokenError.append(err)
 
 def get_errores():
     aux = ""
     for index in range(len(TokenError)):
         aux += '\n'+str(index)+'. Error: ' + str(TokenError[index]) 
+        print(aux)
     TokenError.clear()
     return aux
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal

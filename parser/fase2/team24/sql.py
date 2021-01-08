@@ -1,15 +1,14 @@
+import tablaDGA as TS
 
-#import Interfaz
-from InstruccionesDGA import tabla
-import tablaDGA as TabladeSimbolos
+from variables import tabla as ts
 from reportAST import *
 from reportAST import *
 import grammar2 as g
 import pickle
+from reportTable import *
 
 
-default_db = 'DB1'
-ts = TabladeSimbolos.Tabla()
+
 
 pila = ''
 Listaselects = []
@@ -18,6 +17,29 @@ contador = -1
 jsonObject = None
 
 def execute(script: str):
+
+    global ts
+    if 'SELECT * FROM temp' in script:
+        try:
+            cargar()
+            s = Listaselects.pop()
+            s.ejecutar()
+            serialaizer()
+        except:
+            '''Error'''
+    else:
+        raiz = g.parse(script)
+
+        try:
+            for a in raiz:
+                a.ejecutar()
+        except:
+            print('Error' + script)
+    return
+
+
+
+def execute1(script: str):
     global contador
     global pila
     contador = contador+1
@@ -32,6 +54,9 @@ def execute(script: str):
                 except:
                     '''No hay selects'''
         executeGraphTree(raiz)
+        for a in raiz:
+            print(a)
+            a.ejecutar()
     elif 'SELECT * FROM temp' in script:
         correlativos.append(contador)
     else:
@@ -48,3 +73,12 @@ def insertarS(s):
 def cargar():
     with open('data.pickle', 'rb') as f:
         return pickle.load(f)
+
+
+def carga():
+    with open('table.pickle', 'rb') as f:
+        return pickle.load(f)
+
+def guarda():
+    with open('table.pickle', 'wb') as f:
+        pickle.dump(ts, f, pickle.DEFAULT_PROTOCOL)

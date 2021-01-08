@@ -27,6 +27,9 @@ from storageManager import jsonMode as j
 import pandas as pd
 import time
 
+import os
+import sys
+
 from decimal import Decimal, getcontext
 getcontext().prec = 8
 
@@ -86,25 +89,32 @@ def procesar_showdb(query,ts):
         return h.textosalida
 
 def procesar_createindex(query,ts):
-    parametro = []
-    print("TIPO:",query.tipo)
-    print(query.id1)
-    print(query.id2)
-    print(query.listaid)
+    column = ""
+    sort = ""
+    option = ""
+    columns = []
+    sorts = []
     tipo = query.tipo
     idIndex = query.id1
     idTabla = query.id2
-    ids = query.listaid
-    for val in ids:
-        parametro.append(val.id)
-    print(parametro)
+    for lista in query.listaid:
+        if isinstance(lista,SortOptions):
+            sort = lista.sort
+            sorts.append(sort)
+            option = lista.option
+            columns.append(option)
+        else:
+            column = lista
+            columns.append(column)
+    print("COLUMNS:",columns)
+    print("SORTS:",sorts)
     
     verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
-    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,parametro)
-    verificacionColumna = ts.obtenerColumnaIndex(verificacionTabla,h.bd_enuso,parametro)
+    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,columns)
+    verificacionColumna = ts.obtenerColumnaIndex(verificacionTabla,h.bd_enuso,columns)
     if verificacion == 0:
         if verificacionColumna == 0:
-            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,parametro,None,None,None,tipo,None,None,None)
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,columns,None,None,None,tipo,sorts,None,None)
             ts.agregarnuevoIndex(simbolo)
             print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
@@ -113,30 +123,39 @@ def procesar_createindex(query,ts):
             h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
-        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
-        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
+        h.textosalida+="TYTUS>> Error 22000 data_exception"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 
 
 def procesar_createindexlow(query,ts):
-    print("TIPO:",query.tipo)
-    print(query.id1)
-    print(query.id2)
-    print(query.listaid.sort)
-    print(query.listaid.option)
+    column = ""
+    sort = ""
+    option = ""
+    columns = []
+    sorts = []
     tipo = query.tipo
     idIndex = query.id1
     idTabla = query.id2
-    idColumn = query.listaid.option
-    idSort = query.listaid.sort
-    
+    for lista in query.listaid:
+        if isinstance(lista,SortOptions):
+            sort = lista.sort
+            sorts.append(sort)
+            option = lista.option
+            columns.append(option)
+        else:
+            column = lista
+            columns.append(column)
+    print("COLUMNS:",columns)
+    print("SORTS:",sorts)
+
     verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
-    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,idColumn)
-    verificacionColumna = ts.obtenerColumnaUnicaIndex(verificacionTabla,h.bd_enuso,idColumn)
+    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,columns)
+    verificacionColumna = ts.obtenerColumnaIndex(verificacionTabla,h.bd_enuso,columns)
     if verificacion == 0:
         if verificacionColumna == 0:
-            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,idColumn,None,None,None,tipo,idSort,None,None)
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,columns,None,None,None,tipo,sorts,None,None)
             ts.agregarnuevoIndex(simbolo)
             print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
@@ -145,8 +164,8 @@ def procesar_createindexlow(query,ts):
             h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
-        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
-        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
+        h.textosalida+="TYTUS>> Error 22000 data_exception"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 def procesar_createindexParams(query,ts):
@@ -180,33 +199,39 @@ def procesar_createindexParams(query,ts):
             h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
-        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
-        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
+        h.textosalida+="TYTUS>> Error 22000 data_exception"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 
 
 def procesar_createindexWhere(query,ts):
-    parametro = []
-    print(query.tipo)
-    print(query.id1)
-    print(query.id2)
-    print(query.id3)
-    print(query.whereOptions)
+    column = ""
+    sort = ""
+    option = ""
+    columns = []
+    sorts = []
     tipo = query.tipo
     idIndex = query.id1
     idTabla = query.id2
-    ids = query.id3
-    for val in ids:
-        parametro.append(val.id)
-    print(parametro)    
+    for lista in query.id3:
+        if isinstance(lista,SortOptions):
+            sort = lista.sort
+            sorts.append(sort)
+            option = lista.option
+            columns.append(option)
+        else:
+            column = lista
+            columns.append(column)
+    print("COLUMNS:",columns)
+    print("SORTS:",sorts)   
 
     verificacion = ts.verificarIndex(idIndex,h.bd_enuso,idTabla)
-    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,parametro)
-    verificacionColumna = ts.obtenerColumnaIndex(verificacionTabla,h.bd_enuso,parametro)
+    verificacionTabla = ts.verificarTablaIndex(idTabla,h.bd_enuso,columns)
+    verificacionColumna = ts.obtenerColumnaIndex(verificacionTabla,h.bd_enuso,columns)
     if verificacion == 0:
         if verificacionColumna == 0:
-            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,parametro,None,None,None,tipo,None,None,None)
+            simbolo = TS.Simbolo(None,idIndex,None,None,h.bd_enuso,idTabla,None,None,None,None,None,None,None,None,None,None,columns,None,None,None,tipo,sorts,None,None)
             ts.agregarnuevoIndex(simbolo)
             print("TYTUS>> Se creo nuevo Index: "+idIndex + " en la tabla " + idTabla)
             h.textosalida+="TYTUS>> Se creo nuevo Index: "+str(idIndex) + " en la tabla " + str(idTabla) + "\n"
@@ -215,8 +240,8 @@ def procesar_createindexWhere(query,ts):
             h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
-        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
-        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
+        h.textosalida+="TYTUS>> Error 22000 data_exception"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 
@@ -254,8 +279,8 @@ def procesar_createindexParamsWhere(query,ts):
             h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La tabla o la columna no existe</td></tr>\n"
             return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
     else:
-        h.textosalida+="TYTUS>> El indice ya existe"+ "\n"
-        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>El indice ya existe</td></tr>\n"
+        h.textosalida+="TYTUS>> Error 22000 data_exception"+ "\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>Error 22000 data_exception</td></tr>\n"
         return "La tabla o BD no existen o el nombre de su indice esta repetido, revise por favor"
 
 def procesar_alterindex(query,ts):
@@ -293,14 +318,15 @@ def procesar_altercolumnindex(query,ts):
     elif isinstance(new_column,ExpresionIdentificador):
         print("ENTRO A STRING")
         verificacion_Tabla = ts.verificacionAlterStringColumIndex(index,h.bd_enuso,old_column)
-        verificacion = ts.obtenerTablasStringIndex(verificacion_Tabla,h.bd_enuso,old_column)        
+        verificacion = ts.obtenerTablasStringIndex(verificacion_Tabla,h.bd_enuso,new_column.id)  
+        print(verificacion)      
     if verificacion!=0:               
         verificacion_Columna = ts.verificacionColumnaIndex(index,h.bd_enuso,verificacion_Tabla,old_column,verificacion)
         if verificacion_Columna == 1:
             h.textosalida+="TYTUS>> "+"Una de las columnas no existe" + "\n"
             return "Una de las columnas no existe"
         else:
-            h.textosalida+="TYTUS>> "+"se actualizo la bd: "+str(index) + " por " +str(verificacion) + "\n"
+            h.textosalida+="TYTUS>> "+"se actualizo el indice: "+str(index) + " por " +str(verificacion) + "\n"
             return "se actualizo la bd: "+str(index) + "por" +str(verificacion)
 
     elif verificacion==0:
@@ -361,6 +387,7 @@ def procesar_select(query,ts):
                     if isinstance(query.operacion[0], ExpresionFuncionBasica): 
                         if procesar_operacion_basica(query.operacion[0],ts)==None:
                             h.textosalida+="TYTUS>> La tabla consultada no existe\n"
+                            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se encontro la tabla consultada</td></tr>\n"
                         else:
                             a=str(procesar_operacion_basica(query.operacion[0],ts))
                             print("---------------------------------------------RESULTADO SELECT 1A-------------------------------------------------")
@@ -374,6 +401,7 @@ def procesar_select(query,ts):
                             print(str(c))
                             if str(c)=="0":
                                 h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(c)+"\n"
+                                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
                             else:
                                 h.textosalida+="TYTUS>>El resultado de su consulta es \n"
                                 h.textosalida+=str(c)+"\n"
@@ -440,6 +468,7 @@ def procesar_select_Tipo2(query,ts):
         else:
             if procesar_operacion_basica(query.operacion2[0],ts)==None:
                 h.textosalida+="TYTUS>> La tabla consultada no existe\n"
+                h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
             else:
                 a=str(procesar_operacion_basica(query.operacion2[0],ts))
                 b=procesar_select2_obtenerColumnas(query.operacion1,ts)
@@ -455,6 +484,7 @@ def procesar_select_Tipo2(query,ts):
                 print(d)
                 if d=="0":
                     h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+                    h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
                 else:
                     h.textosalida+="TYTUS>>El resultado de su consulta es \n"
                     h.textosalida+=str(d)+"\n"    
@@ -473,6 +503,7 @@ def procesar_select_Tipo2(query,ts):
         print(d)
         if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
         else:
             h.textosalida+="TYTUS>>El resultado de su consulta es \n"
             h.textosalida+=str(d)+"\n"
@@ -599,6 +630,7 @@ def procesar_select_Tipo3(query,ts):
         print(d)
         if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
         else:
             b=procesar_where(query.operacion2,ts,d,procesar_operacion_basica(query.operacion1[0],ts))
             print("EL OBJETO WHERE: \n",b)
@@ -646,6 +678,7 @@ def procesar_select_Tipo4(query,ts):
     print(d)
     if d=="0":
         h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+        h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
     else:
         c=procesar_where(query.operacion3,ts,d,a)
         print("La sentencia Where sera \n",c)
@@ -666,6 +699,7 @@ def procesar_select_Tipo5(query,ts):
         print(d)
         if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
         else:
             c=procesar_where(query.operacion3,ts,d,a)
             print("La sentencia Where sera \n",c)
@@ -686,6 +720,7 @@ def procesar_select_Tipo5(query,ts):
         print(d)
         if d=="0":
             h.textosalida+="TYTUS>>No se han encontrado los datos consultados:  "+str(d)+"\n"
+            h.errores+=  "<tr><td>N/A</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>No se han encontrado los datos consultados</td></tr>\n"
         else:
             c=procesar_where(query.operacion3,ts,d,a)
             print("La sentencia Where sera \n",c)
@@ -4505,9 +4540,10 @@ def procesar_select_Tipo5A(query,ts):
         h.textosalida+="TYTUS>>Se ha ejecutado EL SUBQUERY\n"+str(e)+"\n"
         return e
 
-    
+
 def procesar_dropFunction(BD,ambito):
     print("eliminando una funcion")
+    print(ambito)
     a = ""
     if TS.TablaDeSimbolos().verificarFuncion(ambito,BD)==1:
         conttemp = 0
@@ -4520,12 +4556,19 @@ def procesar_dropFunction(BD,ambito):
         if TS.TablaDeSimbolos().eliminarFunction(ambito,BD)==1:
             #a += 'print("Se elimino funcion",'+'"'+ambito+'")\n'
             h.textosalida+="TYTUS>> Se eliminaron funcion "+ambito+"\n"
+            #tronarMetodos(ambito)
         else:
             #a += 'print("No se encontro ninguna funcion")'
             h.textosalida+="TYTUS>> No se encontro ninguna funcion"+ambito+"\n"
     else:
         #a += 'print("No se encontro ninguna funcion")'
         h.textosalida+="TYTUS>> No se encontro ninguna funcion "+ambito+"\n"
+
+
+
+
+
+
 
 
 def agregarFuncionaTS(nombre,BD):
@@ -4539,3 +4582,36 @@ def agregarProcedureaTS(nombre,BD):
 def agregarVariableaTS(nombre,tipo,BD,ambito):
     simbolo = TS.Simbolo(None,nombre,tipo,None,BD,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,ambito,'Variable local')
     TS.TablaDeSimbolos().agregarVariable(simbolo)
+
+
+def tronarMetodos(metodo):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        direction = script_dir + "\\codigo3D.py"
+        archivo= open(direction, "r")
+        cadena=archivo.read()
+        elMatch="def "+str(metodo)
+        print("el metodo a eliminar es: ",elMatch)
+        print("en el codigo:\n",cadena)
+        j=cadena.splitlines()
+        salida=""
+        tam=len(j)
+        x=0
+        while x<tam:
+            if j[x].find(elMatch)==-1:
+                print("NO lo contiene")
+                
+            else:
+                print("si lo contiene",j[x])
+                while j[x].find("#fin")==-1:
+                    print("esto se elimina: ",j[x])
+                    del(j[x])
+                    tam=tam-1
+                    
+            x=x+1
+        for y in range(0,len(j)):
+            salida+=str(j[y])+"\n"
+        salida+="\n"
+        print(salida)
+        with open(direction, "w") as f:
+            f.write(salida)
+            f.closed
