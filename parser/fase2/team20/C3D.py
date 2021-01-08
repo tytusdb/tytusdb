@@ -9,6 +9,7 @@ import math
 def up():
 	print(1)
 
+	executeSentence(CreateDatabase,CreateDatabase('DBFASE2',False,False,[None, None]))
 	executeSentence(Use,Use('DBFASE2'))
 	createFunction('MYFUNCION','''
 @with_goto
@@ -97,6 +98,101 @@ def VALIDAREGISTROS(TABLA: str, CANTIDAD: int) ->int:
 ''',False)
 
 
+	print(VALIDAREGISTROS(TBPRODUCTO, 1))
+
+
+	print(VALIDAREGISTROS(TBPRODUCTO, 2))
+
+
+	print(VALIDAREGISTROS(TBPRODUCTOUP, 2))
+
+
+	print(VALIDAREGISTROS(TBPRODUCTOUP, 1))
+
+
+	print(VALIDAREGISTROS(TBBODEGA, 3))
+
+
+	print(VALIDAREGISTROS(TBBODEGA, 1))
+
+
+	print(VALIDAREGISTROS(TBPRODUCTO, 8))
+
+	executeSentence(InsertAll,InsertAll('TBCALIFICACION',[Value(1,1), Value(3,'CREATE TABLE AND INSERT'), Value(1,0)]))
+	executeSentence(Update,Update('TBPRODUCTO',[['ESTADO', Value(1,2)]],Relational(Value(4,'ESTADO'),Value(1,1),'=')))
+
+	print(VALIDAREGISTROS(TBPRODUCTOUP, 8))
+
+	executeSentence(InsertAll,InsertAll('TBCALIFICACION',[Value(1,2), Value(3,'UPDATE'), Value(1,1)]))
+	createFunction('CALCULOS','''
+@with_goto
+def CALCULOS():
+	HORA:int
+	SENO:float
+	VALOR:int
+	ABSOLUTO:float
+	HORA=20
+	SENO=1
+	t6=SENO*HORA
+	VALOR=t6
+	t7=VALOR+3
+	VALOR=t7
+	ABSOLUTO=1
+	t8=ABSOLUTO*225
+	ABSOLUTO=t8
+	t9=VALOR+ABSOLUTO
+	VALOR=t9
+	t10=VALOR>1
+	if t10:
+		goto .lbl15
+	else:
+		goto. lbl16
+	label .lbl15
+	VALOR=20
+	goto .lbl17
+	label .lbl16
+	VALOR=10
+	label .lbl17
+	return VALOR
+''',False)
+
+
+	print(CALCULOS())
+
+	executeSentence(CreateTable,CreateTable('TBBODEGA',[ColumnId('IDBODEGA',['INTEGER'],{'null': False, 'primary': True}), ColumnId('BODEGA',['VARCHAR', 100],{'null': False}), ColumnId('ESTADO',['INTEGER'],None)],None))
+	createFunction('SP_VALIDAINSERT','''
+@with_goto
+def SP_VALIDAINSERT():
+	executeSentence(InsertAll,InsertAll('TBBODEGA',[Value(1,1), Value(3,'BODEGA CENTRAL'), Value(1,1)]))
+	executeSentence(Insert,Insert('TBBODEGA',['IDBODEGA', 'BODEGA'],[Value(1,2), Value(3,'BODEGA ZONA 12')]))
+	executeSentence(Insert,Insert('TBBODEGA',['IDBODEGA', 'BODEGA', 'ESTADO'],[Value(1,3), Value(3,'BODEGA ZONA 11'), Value(1,1)]))
+	executeSentence(Insert,Insert('TBBODEGA',['IDBODEGA', 'BODEGA', 'ESTADO'],[Value(1,4), Value(3,'BODEGA ZONA 1'), Value(1,1)]))
+	executeSentence(Insert,Insert('TBBODEGA',['IDBODEGA', 'BODEGA', 'ESTADO'],[Value(1,5), Value(3,'BODEGA ZONA 10'), Value(1,1)]))
+''',False)
+
+
+	print(SP_VALIDAINSERT())
+
+
+	print(VALIDAREGISTROS(TBBODEGA, 5))
+
+	executeSentence(InsertAll,InsertAll('TBCALIFICACION',[Value(1,4), Value(3,'VALIDA STORE PROCEDURE'), Value(1,1)]))
+	createFunction('SP_VALIDAUPDATE','''
+@with_goto
+def SP_VALIDAUPDATE():
+	executeSentence(Update,Update('TBBODEGA',[['BODEGA', Value(3,'BODEGA ZONA 9')]],Relational(Value(4,'IDBODEGA'),Value(1,4),'=')))
+''',False)
+
+
+	print(SP_VALIDAUPDATE())
+
+	executeSentence(Delete,Delete('TBBODEGA',Relational(Value(4,'IDBODEGA'),Value(1,4),'=')))
+
+	print(VALIDAREGISTROS(TBBODEGA, 4))
+
+	executeSentence(InsertAll,InsertAll('TBCALIFICACION',[Value(1,5), Value(3,'VALIDA DELETE'), Value(1,1)]))
+	executeSentence(Select,Select([Value(6,'*')],False,[Value(4,'TBBODEGA')],None))
+
 @with_goto
 def MYFUNCION(TEXTO: str) ->str:
 	return TEXTO
@@ -163,6 +259,48 @@ def VALIDAREGISTROS(TABLA: str, CANTIDAD: int) ->int:
 	label .lbl13
 	label .lbl14
 	return RETORNA
+
+@with_goto
+def CALCULOS():
+	HORA:int
+	SENO:float
+	VALOR:int
+	ABSOLUTO:float
+	HORA=20
+	SENO=1
+	t6=SENO*HORA
+	VALOR=t6
+	t7=VALOR+3
+	VALOR=t7
+	ABSOLUTO=1
+	t8=ABSOLUTO*225
+	ABSOLUTO=t8
+	t9=VALOR+ABSOLUTO
+	VALOR=t9
+	t10=VALOR>1
+	if t10:
+		goto .lbl15
+	else:
+		goto. lbl16
+	label .lbl15
+	VALOR=20
+	goto .lbl17
+	label .lbl16
+	VALOR=10
+	label .lbl17
+	return VALOR
+
+@with_goto
+def SP_VALIDAINSERT():
+	executeSentence(InsertAll,InsertAll('TBBODEGA',[Value(1,1), Value(3,'BODEGA CENTRAL'), Value(1,1)]))
+	executeSentence(Insert,Insert('TBBODEGA',['IDBODEGA', 'BODEGA'],[Value(1,2), Value(3,'BODEGA ZONA 12')]))
+	executeSentence(Insert,Insert('TBBODEGA',['IDBODEGA', 'BODEGA', 'ESTADO'],[Value(1,3), Value(3,'BODEGA ZONA 11'), Value(1,1)]))
+	executeSentence(Insert,Insert('TBBODEGA',['IDBODEGA', 'BODEGA', 'ESTADO'],[Value(1,4), Value(3,'BODEGA ZONA 1'), Value(1,1)]))
+	executeSentence(Insert,Insert('TBBODEGA',['IDBODEGA', 'BODEGA', 'ESTADO'],[Value(1,5), Value(3,'BODEGA ZONA 10'), Value(1,1)]))
+
+@with_goto
+def SP_VALIDAUPDATE():
+	executeSentence(Update,Update('TBBODEGA',[['BODEGA', Value(3,'BODEGA ZONA 9')]],Relational(Value(4,'IDBODEGA'),Value(1,4),'=')))
 
 @with_goto
 def MYFUNCION(TEXTO: str) ->str:
