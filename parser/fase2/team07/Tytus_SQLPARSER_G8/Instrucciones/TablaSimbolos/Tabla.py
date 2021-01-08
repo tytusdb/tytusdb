@@ -6,6 +6,7 @@ class Tabla():
         self.variables = []
         self.funciones = []
         self.indices = []
+        self.procedimientos = []
         
     def setVariable(self,simbolo):
         tabla = self
@@ -24,14 +25,70 @@ class Tabla():
             tabla = tabla.anterior
         return None
 
-    def setFuncion(self, funcion):
+    def setFuncion(self, funcion, arbol):
         tabla = self
         for f in tabla.funciones:
             if f.id == funcion.id:
-                print("La variable " + f.id + " ya ha sido declarada.")
-                return "La variable " + f.id + " ya ha sido declarada."
+                print("La funcion " + f.id + " ya ha sido declarada.")
+                error = Exception("XX000", "Semantico", "Error la función ya fue declarada", self.linea, self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return None
         print("se agrego la funcion")
+        arbol.consola.append(f"La función {funcion.id} fue creada.")
         self.funciones.append(funcion)
+        return None
+    
+    def dropFuncion(self, funcion, arbol):
+        tabla = self
+        toDelete = None
+        for f in tabla.funciones:
+            if f.id == funcion.id:
+                toDelete = f
+                print(f"La función {funcion.id} fue encontrada")
+                break
+        if toDelete != None:
+            tabla.funciones.remove(toDelete)
+            print("La funcion fue eliminada")
+            arbol.consola.append(f"La función {funcion.id} fue eliminada.")
+        else:
+            print("La funcion no fue encontrado")
+            error = Exception("XX000", "Semantico", "Error la función no fue encontrada", self.linea, self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+        return None
+    
+    def setProcedimiento(self, procedimiento, arbol):
+        tabla = self
+        for f in tabla.procedimientos:
+            if f.id == procedimiento.id:
+                print("El procedimiento " + f.id + " ya ha sido declarado.")
+                error = Exception("XX000", "Semantico", "Error el procedimiento ya fue declarado", self.linea, self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return None
+        print("se agrego el procedimiento")
+        arbol.consola.append(f"El procedimiento {procedimiento.id} fue creado.")
+        self.procedimientos.append(procedimiento)
+        return None
+    
+    def dropProcedimiento(self, procedimiento, arbol):
+        tabla = self
+        toDelete = None
+        for f in tabla.procedimientos:
+            if f.id == procedimiento.id:
+                toDelete = f
+                print(f"La función {procedimiento.id} fue encontrada")
+                break
+        if toDelete != None:
+            tabla.procedimiento.remove(toDelete)
+            print("El procedimiento fue eliminado")
+            arbol.consola.append(f"El procedimiento {procedimiento.id} fue eliminado.")
+        else:
+            print("El procedimiento no fue encontrado")
+            error = Exception("XX000", "Semantico", "ErrorEl procedimiento no fue encontrado", self.linea, self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
         return None
     
     def getFuncion(self, nombre):
@@ -43,17 +100,21 @@ class Tabla():
             tabla = tabla.anterior
         return None
     
-    def setIndice(self, indice):
+    def setIndice(self, indice, arbol):
         tabla = self
         for i in tabla.indices:
             if i.nombre == indice.nombre:
                 print("El indice " + i.nombre + " ya ha sido declarado.")
-                return "El indice " + i.nombre + " ya ha sido declarado."
+                error = Exception("XX000", "Semantico", "Error el indice ya fue declarado", self.linea, self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return None
         print("se agrego el indice")
+        arbol.consola.append(f"El indice {indice.nombre} fue creado.")
         self.indices.append(indice)
         return None
     
-    def removeIndice(self, indice):
+    def removeIndice(self, indice, arbol):
         tabla = self
         toDelete = None
         for i in tabla.indices:
@@ -64,8 +125,12 @@ class Tabla():
         if toDelete != None:
             tabla.indices.remove(toDelete)
             print("El indice fue eliminado")
+            arbol.consola.append(f"El indice {indice.nombre} fue eliminado.")
         else:
             print("El indice no fue encontrado")
+            error = Exception("XX000", "Semantico", "Error el indice no fue encontrado", self.linea, self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
         return None
     
     def alterIndice(self, indice, arbol):
@@ -94,12 +159,15 @@ class Tabla():
                             temp = toAlter.columnas.replace(indice.actual, indice.reemplazo)
                             toAlter.columnas = temp
                         else:
-                            print("No existe el indice")
+                            arbol.consola.append(f"Las columnas {indice.actual} o {indice.reemplazo} no fueron encontradas en la tabla.")
+        else:
+            arbol.consola.append(f"El indice {indice.nombre} no fue encontrado.")
+            return None
         for j in tabla.indices:
             if j.nombre == indice.nombre:
                 print("El indice " + j.nombre + " fue encontrado")
                 j.columnas = toAlter.columnas
-                print("Las columnas fueron reemplazadas")
+                arbol.consola.append(f"El atributo columna del indice {indice.nombre} fue actualizado")
                 break
         return None
                         

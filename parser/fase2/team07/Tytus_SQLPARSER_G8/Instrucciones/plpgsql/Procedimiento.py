@@ -9,9 +9,10 @@ class Procedimiento(Instruccion):
         self.instrucciones = instrucciones
 
     def ejecutar(self, tabla, arbol):
-        tabla.setFuncion(self)
+        tabla.setProcedimiento(self, arbol)
 
     def traducir(self,tabla,arbol,cadenaTraducida):
+        tabla.setProcedimiento(self, arbol)
         codigo = ""
 
         #Se declara la funcion con el nombre

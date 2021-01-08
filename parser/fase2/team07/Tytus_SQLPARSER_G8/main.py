@@ -123,7 +123,9 @@ class interfaz():
         self.file=""
 
         self.window.mainloop()
-
+    
+    def optimizarc3d_click():
+        pass
 
     def ejecutar(self):
         print("Hello World!")

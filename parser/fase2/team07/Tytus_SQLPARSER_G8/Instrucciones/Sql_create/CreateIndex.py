@@ -10,7 +10,7 @@ class CreateIndex(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         #super().ejecutar(tabla,arbol)
-        tabla.setIndice(self)
+        tabla.setIndice(self, arbol)
     
     def traducir(self,tabla,arbol,cadenaTraducida):
         temporal = arbol.generaTemporal()
