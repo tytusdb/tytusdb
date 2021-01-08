@@ -4,7 +4,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import scrolledtext
 import grammar2 as g
-import tablaDGA as TabladeSimbolos
+from variables import tabla as ts
 from reportAST import *
 from reportError import *
 from reportBNF import *
@@ -17,8 +17,8 @@ import OptimizarMirilla as optm
 import OptimizarObjetos as optobj
 # Esta es la lista de objetos
 from procedural import objopt
-default_db = 'DB1'
-ts = TabladeSimbolos.Tabla()
+
+
 
 def analiz(input):
     raiz = g.parse(input)
@@ -172,7 +172,7 @@ def escribir3D(entrada):
     input = entrada
 
     raiz = g.parse(input)
-
+    print(raiz)
     results = []
     res =''
     #executeGraphTree(raiz)
