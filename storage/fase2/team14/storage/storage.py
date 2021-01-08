@@ -222,6 +222,17 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
     if database not in databasesinfo[0]:
         return 2
     else:
+        #verificando si toda la base de datos esta compresa
+        tablas = showTables(database)
+        if len(tablas)>0:
+            descompresos=0
+            for tabla in tablas:
+                print(tabla,' estado ',databasesinfo[1][database][tabla]['Compress'])
+                if databasesinfo[1][database][tabla]['Compress'] == False:
+                    descompresos += 1
+        else:
+            descompresos=1
+        #creando tablas
         if databasesinfo[0][database]['mode'] == 'avl':
             result = AVLM.createTable(database, table, numberColumns)
         elif databasesinfo[0][database]['mode'] == 'b':
@@ -237,10 +248,17 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
         elif databasesinfo[0][database]['mode'] == 'hash':
             result = HashM.createTable(database, table, numberColumns)
     if result == 0:
-        databasesinfo[1][database].update(
-            {table: {'mode': databasesinfo[0][database]['mode'], 'numberColumns': numberColumns, 'PK': None,
-                     'safeMode': False, 'Compress': False}})
-        commit(databasesinfo, 'databasesinfo')
+        #guardando informacion de las tablas
+        if descompresos!=0:
+            databasesinfo[1][database].update(
+                {table: {'mode': databasesinfo[0][database]['mode'], 'numberColumns': numberColumns, 'PK': None,
+                         'safeMode': False, 'Compress': False}})
+            commit(databasesinfo, 'databasesinfo')
+        else:
+            databasesinfo[1][database].update(
+                {table: {'mode': databasesinfo[0][database]['mode'], 'numberColumns': numberColumns, 'PK': None,
+                         'safeMode': False, 'Compress': True}})
+            commit(databasesinfo, 'databasesinfo')
     return result
 
 
