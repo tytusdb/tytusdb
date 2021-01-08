@@ -404,12 +404,12 @@ def insertVerifyUnique(database, table,tupla ):
             return False
         else:
             for estructura in structs: 
-                    value = estructura.extractRow(database,indiceTbl,uniqueIndices)
-                    if value[0] == uniqueIndices[0]:
+                value = estructura.extractTable(database,indiceTbl)
+                if value != None :
+                    if uniqueIndices in value:
                         return False
-                    else:    
+                    else:
                         return True
-            
     except: 
         return True
 
