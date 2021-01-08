@@ -59,9 +59,9 @@ class Generador:
 
     def generarAsignacion(self, id, valor):
         if isinstance(valor, str):
-            inst = self.generarTab() + id + "=" + valor
+            inst = self.generarTab() + id + " = " + valor
         else:
-            inst = self.generarTab() + id + "=" + str(valor)
+            inst = self.generarTab() + id + " = " + str(valor)
         self.codigo3d.append(inst)
 
     def agregarIf(self, condicion, etiqueta):
@@ -693,26 +693,208 @@ class Generador:
                 return ret
         elif instruccion.tipo == TipoFunNativa.substring:
             # Corresponde a función de SUBSTRING
-            
-        
-        
-        
-
-
-#-------------------FUNCIONES TRIGONOMETRICAS---------------
-        elif instruccion.tipo == TipoFunNativa.seno:
-            # Corresponde a función de SENO
-            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
-                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+            pass
+        elif instruccion.tipo == TipoFunNativa.sin:
+            # Corresponde a función de SIN
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.sin(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.sinh:
+            # Corresponde a función de SINH
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.sinh(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.sind:
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag1 = self.generarTemporal()
+            linea = self.generarTab() + str(tag1) + ' = math.sin(' + str(oper.valor) + ')'
+            tag2 = self.generarTemporal()
+            linea += '\n'
+            linea += self.generarTab() + str(tag2) + ' = math.degrees(' + str(tag1) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag2, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.asin:
+            # Corresponde a función de ASIN
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.asin(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.asinh:
+            # Corresponde a función de ASINH
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.asinh(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.asind:
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag1 = self.generarTemporal()
+            linea = self.generarTab() + str(tag1) + ' = math.asin(' + str(oper.valor) + ')'
+            tag2 = self.generarTemporal()
+            linea += '\n'
+            linea += self.generarTab() + str(tag2) + ' = math.degrees(' + str(tag1) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag2, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.cos:
+            # Corresponde a función de COS
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.cos(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.cosh:
+            # Corresponde a función de COSH
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.cosh(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.cosd:
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag1 = self.generarTemporal()
+            linea = self.generarTab() + str(tag1) + ' = math.cos(' + str(oper.valor) + ')'
+            tag2 = self.generarTemporal()
+            linea += '\n'
+            linea += self.generarTab() + str(tag2) + ' = math.degrees(' + str(tag1) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag2, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.acos:
+            # Corresponde a función de ACOS
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.acos(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.acosh:
+            # Corresponde a función de ACOSH
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.acosh(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.acosd:
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag1 = self.generarTemporal()
+            linea = self.generarTab() + str(tag1) + ' = math.acos(' + str(oper.valor) + ')'
+            tag2 = self.generarTemporal()
+            linea += '\n'
+            linea += self.generarTab() + str(tag2) + ' = math.degrees(' + str(tag1) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag2, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.tan:
+            # Corresponde a función de TAN
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.tan(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.tanh:
+            # Corresponde a función de TANH
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.tanh(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.tand:
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag1 = self.generarTemporal()
+            linea = self.generarTab() + str(tag1) + ' = math.tan(' + str(oper.valor) + ')'
+            tag2 = self.generarTemporal()
+            linea += '\n'
+            linea += self.generarTab() + str(tag2) + ' = math.degrees(' + str(tag1) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag2, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.atan:
+            # Corresponde a función de ATAN
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.atan(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.atanh:
+            # Corresponde a función de ATANH
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag = self.generarTemporal()
+            linea = self.generarTab() + str(tag) + ' = math.atanh(' + str(oper.valor) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.atan2:
+            # Corresponde a función de ATAN2
+            if instruccion.numparametros == 2:
+                oper1 = self.compilarOperacionAritmetica(instruccion.parametros[0])
+                oper2 = self.compilarOperacionAritmetica(instruccion.parametros[1])
                 tag = self.generarTemporal()
-                lineaSeno = self.generarTab() + str(tag) + ' = math.sin(' + str(retorno.valor) + ')'
-                self.codigo3d.append(lineaSeno)
+                linea = self.generarTab() + str(tag) + ' = math.atan2(' + str(oper1.valor) + ', ' + str(oper2.valor) + ')'
+                self.codigo3d.append(linea)
                 ret = RetornoOp(tag, None)
                 return ret
-            elif isinstance(instruccion.parametros, Primitivo):
-                retorno = self.compilarPrimitivo(instruccion.parametros)
-                tag = self.generarTemporal()
-                lineaSeno = self.generarTab() + str(tag) + ' = math.sin(' + str(retorno.valor) + ')'
-                self.codigo3d.append(lineaSeno)
-                ret = RetornoOp(tag, None)
+        elif instruccion.tipo == TipoFunNativa.atand:
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag1 = self.generarTemporal()
+            linea = self.generarTab() + str(tag1) + ' = math.atan(' + str(oper.valor) + ')'
+            tag2 = self.generarTemporal()
+            linea += '\n'
+            linea += self.generarTab() + str(tag2) + ' = math.degrees(' + str(tag1) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag2, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.atan2d:
+            # Corresponde a función de ATAN2
+            if instruccion.numparametros == 2:
+                oper1 = self.compilarOperacionAritmetica(instruccion.parametros[0])
+                oper2 = self.compilarOperacionAritmetica(instruccion.parametros[1])
+                tag1 = self.generarTemporal()
+                linea = self.generarTab() + str(tag1) + ' = math.atan2(' + str(oper1.valor) + ', ' + str(oper2.valor) + ')'
+                tag2 = self.generarTemporal()
+                linea += '\n'
+                linea += self.generarTab() + str(tag2) + ' = math.degrees(' + str(tag1) + ')'
+                self.codigo3d.append(linea)
+                ret = RetornoOp(tag2, None)
                 return ret
+        elif instruccion.tipo == TipoFunNativa.cot:
+            # Corresponde a función de COT
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag1 = self.generarTemporal()
+            linea = self.generarTab() + str(tag1) + ' = math.tan(' + str(oper.valor) + ')'
+            tag2 = self.generarTemporal()
+            linea += '\n'
+            linea += self.generarTab() + str(tag2) + ' = 1 / ' + tag1
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag2, None)
+            return ret
+        elif instruccion.tipo == TipoFunNativa.cotd:
+            # Corresponde a función de COTD
+            oper = self.compilarOperacionAritmetica(instruccion.parametros)
+            tag1 = self.generarTemporal()
+            linea = self.generarTab() + str(tag1) + ' = math.tan(' + str(oper.valor) + ')'
+            tag2 = self.generarTemporal()
+            linea += '\n'
+            linea += self.generarTab() + str(tag2) + ' = 1 / ' + tag1
+            tag3 = self.generarTemporal()
+            linea += '\n'
+            linea += self.generarTab() + str(tag3) + ' = math.degrees(' + str(tag2) + ')'
+            self.codigo3d.append(linea)
+            ret = RetornoOp(tag2, None)
+            return ret

@@ -46,6 +46,7 @@ def execution(input):
     PostgresErrors = grammar.returnPostgreSQLErrors()
     symbols = symbolReport()
     indexes = indexReport()
+    value = querys[0][1][0][0]
     obj = {
         "messages": messages,
         "querys": querys,
@@ -55,6 +56,7 @@ def execution(input):
         "postgres": PostgresErrors,
         "symbols": symbols,
         "indexes": indexes,
+        "value": value
     }
     printTable_PT(querys)
     return obj

@@ -17,12 +17,15 @@ class Execute(Instruccion):
             temporales = []
             for e in exec.listaE:
                 t = Expresion.traducir(e, ts, consola, exception, tv, regla, antes, optimizado, None)
-                temporales.append(t)
-
+                try:
+                    data = int(t)
+                    temporales.append(t)
+                except:
+                    temporales.append("\'\\\'"+str(t).replace("\'","")+"\\\'\'")
             i = 0
             params = ""
             for te in temporales:
-                params += te
+                params += str(te)
                 if i + 1 != len(temporales):
                     params += ', '
                 i = i + 1

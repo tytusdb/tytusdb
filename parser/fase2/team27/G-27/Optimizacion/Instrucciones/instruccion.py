@@ -5,5 +5,8 @@ class Instruccion(object):
 
     def execute(self):
         raise NotImplementedError 
+
+    def toString(self,tab):
+        raise NotImplementedError 
     
 print('Instruccion')

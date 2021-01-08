@@ -133,7 +133,7 @@ class Lista:
 
                             self.tablaSimbolos[llave]['tablas'][tabla]['constraint'].append(ConstraintData(const['name'], type, const['tipo']))
 
-                        print(const)
+                        #print(const)
             if data['tablaSimbolos'][llave]['enum'] != {}:
                 for enums in data['tablaSimbolos'][llave]['enum']:
                     self.tablaSimbolos[llave]['enum'][enums] = []

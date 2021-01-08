@@ -7,11 +7,15 @@ from storage.dict import DictMode as dict_mode
 from storage.json import jsonMode as json_mode
 import hashlib
 import zlib
+import pickle
 # AVL: AVLMode
 # B: BMode
 # B+: BPlusMode
 # ISAM: ISAMMode
 # TablasHash: HashMode
+
+Bases = {}
+Tablas = {}
 
 def createDatabase(database, mode, encoding):
     val = 1
@@ -41,6 +45,23 @@ def createDatabase(database, mode, encoding):
             val = hash_mode.createDatabase(database)
         else:
             val = 3
+        if val == 0:
+            global Bases
+            try:
+                # Leemos el archivo binario de los registros de bases de datos
+                fichero_lectura = open("BD_register", "rb")
+                Bases = pickle.load(fichero_lectura)
+                Bases.update({database: {"mode": mode, "encoding": encoding}})
+                # Actualizamos el archivo binario de los registros de bases de datos
+                fichero_escritura = open("BD_register", "wb")
+                pickle.dump(Bases, fichero_escritura)
+                fichero_escritura.close()
+            except:
+                Bases.update({database: {"mode": mode, "encoding": encoding}})
+                # Actualizamos el archivo binario de los registros de bases de datos
+                fichero_escritura = open("BD_register", "wb")
+                pickle.dump(Bases, fichero_escritura)
+                fichero_escritura.close()
     return val
 
 def dropDatabase(database):
@@ -90,6 +111,66 @@ def dropDatabase(database):
         val = hash_mode.dropDatabase(database)
     else:
         val = 3
+    if val == 0:
+        global Bases
+        global Tablas
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            fichero_lectura = open("BD_register", "rb")
+            Bases = pickle.load(fichero_lectura)
+            Bases.pop(database)
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("BD_register", "wb")
+            pickle.dump(Bases, fichero_escritura)
+            fichero_escritura.close()
+            try:
+                # Leemos el archivo binario de los registros de tablas
+                fichero_lectura = open("TB_register", "rb")
+                Tablas = pickle.load(fichero_lectura)
+                try:
+                    Tablas.pop(database)
+                except:
+                    """"""
+                # Actualizamos el archivo binario de los registros de tablas
+                fichero_escritura = open("TB_register", "wb")
+                pickle.dump(Tablas, fichero_escritura)
+                fichero_escritura.close()
+            except:
+                try:
+                    Tablas.pop(database)
+                except:
+                    """"""
+                # Actualizamos el archivo binario de los registros de tablas
+                fichero_escritura = open("TB_register", "wb")
+                pickle.dump(Tablas, fichero_escritura)
+                fichero_escritura.close()
+        except:
+            Bases.pop(database)
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("BD_register", "wb")
+            pickle.dump(Bases, fichero_escritura)
+            fichero_escritura.close()
+            try:
+                # Leemos el archivo binario de los registros de tablas
+                fichero_lectura = open("TB_register", "rb")
+                Tablas = pickle.load(fichero_lectura)
+                try:
+                    Tablas.pop(database)
+                except:
+                    """"""
+                # Actualizamos el archivo binario de los registros de tablas
+                fichero_escritura = open("TB_register", "wb")
+                pickle.dump(Tablas, fichero_escritura)
+                fichero_escritura.close()
+            except:
+                try:
+                    Tablas.pop(database)
+                except:
+                    """"""
+                # Actualizamos el archivo binario de los registros de tablas
+                fichero_escritura = open("TB_register", "wb")
+                pickle.dump(Tablas, fichero_escritura)
+                fichero_escritura.close()
     return val
 
 def extractTable(database, table):
@@ -310,6 +391,99 @@ def createTable(database, table, numColumns):
         val = hash_mode.createTable(database, table, numColumns)
     else:
         val = 3
+    if val == 0:
+        global Tablas
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            lectura = open("TB_register", "rb")
+            Tablas = pickle.load(lectura)
+            try:
+                Tablas[database].update({table: {"PK": None, "FK": None}})
+            except:
+                Tablas.update({database:{table: {"PK": None, "FK": None}}})
+            # Actualizamos el archivo binario de los registros de bases de datos
+            escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, escritura)
+            escritura.close()
+        except:
+            try:
+                Tablas[database].update({table: {"PK": None, "FK": None}})
+            except:
+                Tablas.update({database: {table: {"PK": None, "FK": None}}})
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, fichero_escritura)
+            fichero_escritura.close()
+    return val
+
+def dropTable(database, table):
+    mode = None
+    for i in range(7):
+        mode = obtenerBase(database,i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.dropTable(database, table)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.dropTable(database, table)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.dropTable(database, table)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.dropTable(database, table)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.dropTable(database, table)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.dropTable(database, table)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.dropTable(database, table)
+    else:
+        val = 3
+    if val == 0:
+        global Tablas
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            fichero_lectura = open("TB_register", "rb")
+            Tablas = pickle.load(fichero_lectura)
+            Tablas[database].pop(table)
+            if len(Tablas[database])==0:
+                Tablas.pop(database)
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, fichero_escritura)
+            fichero_escritura.close()
+        except:
+            Tablas[database].pop(table)
+            if len(Tablas[database])==0:
+                Tablas.pop(database)
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, fichero_escritura)
+            fichero_escritura.close()
     return val
 
 def loadCSV(file,database,table):
@@ -399,8 +573,8 @@ def checksumDatabase(database, mode):
 def showDatabases():
     print("AVL")
     print(avl_mode.showDatabases())
-    #print("b")
-    #print(b_mode.showDatabases())
+    print("b")
+    print(b_mode.showDatabases())
     print("b+")
     print(bplus_mode.showDatabases())
     print("dict")
@@ -413,15 +587,15 @@ def showDatabases():
     print(hash_mode.showDatabases())
 
 def showTables():
-    val = isam_mode.showTables("Base1ISAM")
+    val = dict_mode.showTables("Base1AVL")
     print(val)
 
 def obtenerBase(database,estructura):
+    val = []
     if estructura == 0:
         val = avl_mode.showDatabases()
     elif estructura == 1:
-        val = []
-        #val = b_mode.showDatabases()
+        val = b_mode.showDatabases()
     elif estructura == 2:
         val = bplus_mode.showDatabases()
     elif estructura == 3:
@@ -441,6 +615,7 @@ def obtenerBase(database,estructura):
     return []
 
 def obtenerContenidoTabla(database, table, estructura):
+    val = []
     if estructura == 0:
         val = avl_mode.extractTable(database,table)
     elif estructura == 1:
@@ -463,6 +638,7 @@ def obtenerContenidoTabla(database, table, estructura):
     return contenido
 
 def obtenerTablas(database, estructura):
+    val = []
     if estructura == 0:
         val = avl_mode.showTables(database)
     elif estructura == 1:
@@ -555,20 +731,25 @@ def alterDatabaseDecompress(database):
         return None
     else:
         try:
+            comprimido = False
             for i in range(len(tables)):
                 contenidoTabla = extractTable(database, tables[i])
                 for j in range(len(contenidoTabla)):
                     tupla = contenidoTabla[j]
                     for k in range(len(tupla)):
                         if type(tupla[k]) == str or type(tupla[k]) == int or type(tupla[k]) == float or type(tupla[k]) == bool:
-                            return 3
+                            continue
                         else:
                             valor = zlib.decompress(tupla[k])
                             tupla[k] = valor.decode()
+                            comprimido = True
                     contenidoTabla[j] = tupla
-                truncate(database, tables[i])
-                for registro in contenidoTabla:
-                    insert(database, tables[i], registro)
+                if comprimido == True:
+                    truncate(database, tables[i])
+                    for registro in contenidoTabla:
+                        insert(database, tables[i], registro)
+                else:
+                    return 3
             return 0
         except:
             return 1
@@ -619,19 +800,24 @@ def alterTableDecompress(database, table):
     if tabla == []:
         return None
     else:
+        comprimido = False
         try:
             for i in range(len(tabla)):
                 tupla = tabla[i]
                 for j in range(len(tupla)):
                     if type(tupla[j]) == str or type(tupla[j]) == int or type(tupla[j]) == float or type(tupla[j]) == bool:
-                        return 3
+                        continue
                     else:
                         valor = zlib.decompress(tupla[j])
                         tupla[j] = valor.decode()
+                        comprimido = True
                 tabla[i] = tupla
-            truncate(database, table)
-            for registro in tabla:
-                insert(database, table, registro)
-            return 0
+            if comprimido == True:
+                truncate(database, table)
+                for registro in tabla:
+                    insert(database, table, registro)
+                return 0
+            else:
+                return 3
         except:
             return 1

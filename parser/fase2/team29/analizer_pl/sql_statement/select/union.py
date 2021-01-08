@@ -23,7 +23,7 @@ class Select(instruction.Instruction):
         out += '" (' + select1.strip() + ") "
         out += self.type + " "
         out += self.all + " "
-        out += '(' + select2.strip() + ");"
+        out += "(" + select2.strip() + ");"
         out += '")\n'
         if isinstance(environment, Environment):
             grammar.optimizer_.addIgnoreString(out, self.row, True)
