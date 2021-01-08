@@ -63,8 +63,14 @@ class SymbolTable:
         else:
             self.symbols[symbol.id] = symbol
 
-    def destroy(self, p_id):
-        if p_id not in self.symbols:
+    def update1(self, symbol):
+        if symbol.tId not in self.symbols:
+            print('ERROR :: Variable no definida.')
+        else:
+            self.symbols[symbol.tId] = symbol
+
+    def destroy(self, tId):
+        if tId not in self.symbols:
             print('ERROR :: Variable ', id, 'no definida.')
         else:
-            self.symbols[p_id] = None
+            del self.symbols[tId]

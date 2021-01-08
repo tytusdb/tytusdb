@@ -20,7 +20,7 @@ loginOn = False
 jsonTree = None
 jsonDB = None
 myQuery = ""
-
+_words=None
 #Variables para simular credenciales
 ActiveUsername = ""
 ActivePassword = ""
@@ -350,6 +350,8 @@ def CrearVentana():
     ###### CREAMOS EL PANEL PARA LAS PESTAÑAS ########
     global notebook
     global control
+    global textos
+    global _words
     style = ttk.Style()
     style.theme_use("classic")
     style.configure("TNotebook.Tab", background="gray21", font="helvetica 14",foreground='white')
@@ -357,12 +359,22 @@ def CrearVentana():
     notebook=ttk.Notebook(raiz)
     notebook.pack(side="right", fill="both", expand=True)
     añadir('Nuevo')
+    
+    b=notebook.select()
+    a=notebook.index(b)
+    textos[a].text.bind("<KeyRelease>",Spellcheck)
+    textos[a].text.bind("<Key>", Spellcheck)
+    # initialize the spell checking dictionary. YMMV.
+    _words=open("/home/josselyn/Escritorio/clave").read().split("\n")
     raiz.mainloop()
+
+
 
 def añadir(titulo):
     global consola
     global control
     global notebook
+    global textos
     if control > 0:
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\nSe creo una nueva Pestaña")
@@ -378,6 +390,30 @@ def añadir(titulo):
     textos.append(valor)
     contador=control+1
     control=contador
+    b=notebook.select()
+    a=notebook.index(b)
+    textos[a].text.bind("<KeyRelease>", Spellcheck)
+    textos[a].text.bind("<Key>", Spellcheck)
+
+def Spellcheck(self):
+    global notebook
+    global control
+    global textos
+    global _words
+    b=notebook.select()
+    a=notebook.index(b)
+    
+    index = textos[a].text.search(r'\s', "insert", backwards=True, regexp=True)
+    if index == "":
+        index ="1.0"
+    else:
+        index = textos[a].text.index("%s+1c" % index)
+    word =  textos[a].text.get(index, "insert")
+    # print(word)
+    if word in _words:
+        textos[a].text.tag_add("reserve", index, "%s+%dc" % (index, len(word)))
+    else:
+        textos[a].text.tag_remove("reserve", index, "%s+%dc" % (index, len(word)))  
 
 def cerrarPestaña():
     global notebook

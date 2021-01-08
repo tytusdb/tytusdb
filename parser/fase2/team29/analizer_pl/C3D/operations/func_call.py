@@ -252,4 +252,7 @@ sql_functions = [
     "now",
     "extract",
     "date_part",
+    "count",
+    "sum",
+    "prom"
 ]
