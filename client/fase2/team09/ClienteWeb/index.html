@@ -76,6 +76,8 @@
                             <a class="dropdown-item" onclick = "modelTable('myModalT9','closeT9')">alterAddColumn</a>       
                             <a class="dropdown-item" onclick="modelTable('myModalT10','closeT10')">alterDropColumn</a>  
                             <a class="dropdown-item" onclick="modelTable('myModalT11','closeT11')">dropTable</a>  
+
+
                           
                                  
                         </div>
@@ -86,12 +88,12 @@
                             Tuplas
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" onclick="">insert</a>
-                            <a class="dropdown-item" onclick="">loadCSV</a>   
-                            <a class="dropdown-item" onclick = "">extractRow</a>       
-                            <a class="dropdown-item" onclick="">update</a>    
-                            <a class="dropdown-item" onclick="">delete</a>       
-                            <a class="dropdown-item" onclick="">truncate</a>  
+                            <a class="dropdown-item" onclick="modelTable('myModalT12','closeT12')">insert</a>
+                            <a class="dropdown-item" onclick="modelTable('myModalT13','closeT13')">loadCSV</a>   
+                            <a class="dropdown-item" onclick = "modelTable('myModalT14','closeT14')">extractRow</a>       
+                            <a class="dropdown-item" onclick="modelTable('myModalT15','closeT15')">update</a>    
+                            <a class="dropdown-item" onclick="modelTable('myModalT16','closeT16')">delete</a>       
+                            <a class="dropdown-item" onclick="modelTable('myModalT17','closeT17')">truncate</a>  
                         </div>
                     </li>
 
@@ -470,6 +472,132 @@
           </form>
     </div>
 </div>
+
+
+
+
+  <!-- ------------------------modales de tuplas ------------------------------------ -->
+         <!-- The Modal insert -->
+         <div id="myModalT12" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="closeT12">&times;</span>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Nombre de la Tabla</label>
+                      <input type="text" class="form-control" id="nameTableInsert1">
+                    </div>
+                      <div class="form-group">
+                      <label for="exampleInputEmail1">Valores</label>
+                      <input type="text" class="form-control" id="nameTableInsert2">
+                    </div>
+                    <button type="button" class="btn btn-primary" onClick = "Table('insert')">Submit</button>
+                  </form>
+            </div>
+        </div>
+
+
+
+        <!-- ------------------------modales de tuplas ------------------------------------ -->
+         <!-- The Modal loadCSV -->
+         <div id="myModalT13" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="closeT13">&times;</span>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Nombre de la Tabla</label>
+                      <input type="text" class="form-control" id="nameloadCSV1">
+                    </div>
+                      <div class="form-group">
+                      <label for="exampleInputEmail1">Ruta CSV</label>
+                      <input type="text" class="form-control" id="nameloadCSV2">
+                    </div>
+                    <button type="button" class="btn btn-primary" onClick = "Table('loadCSV')">Submit</button>
+                  </form>
+            </div>
+        </div>
+
+          <!-- The Modal extractRow -->
+          <div id="myModalT14" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="closeT14">&times;</span>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Nombre de la Tabla</label>
+                      <input type="text" class="form-control" id="nameextractRow1">
+                    </div>
+                      <div class="form-group">
+                      <label for="exampleInputEmail1">Columns</label>
+                      <input type="text" class="form-control" id="nameextractRow2">
+                    </div>
+                    <button type="button" class="btn btn-primary" onClick = "Table('extractRow')">Submit</button>
+                  </form>
+            </div>
+        </div>
+
+
+         <!-- The Modal update -->
+         <div id="myModalT15" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="closeT15">&times;</span>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Nombre de la Tabla</label>
+                      <input type="text" class="form-control" id="nameupdate1">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Register</label>
+                        <input type="text" class="form-control" id="nameupdate2">
+                      </div>
+                      <div class="form-group">
+                      <label for="exampleInputEmail1">Columns</label>
+                      <input type="text" class="form-control" id="nameupdate3">
+                    </div>
+                    <button type="button" class="btn btn-primary" onClick = "Table('update')">Submit</button>
+                  </form>
+            </div>
+        </div>
+
+
+        <!-- The Modal delete -->
+        <div id="myModalT16" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="closeT16">&times;</span>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Nombre de la Tabla</label>
+                      <input type="text" class="form-control" id="namedelete1">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Columns</label>
+                      <input type="text" class="form-control" id="namedelete2">
+                    </div>
+                    <button type="button" class="btn btn-primary" onClick = "Table('delete')">Submit</button>
+                  </form>
+            </div>
+        </div>
+
+
+        
+        <!-- The Modal truncate -->
+        <div id="myModalT17" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class="closeT17">&times;</span>
+                <form>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Nombre de la Tabla</label>
+                      <input type="text" class="form-control" id="nametruncate1">
+                    </div>
+                  
+                    <button type="button" class="btn btn-primary" onClick = "Table('truncate')">Submit</button>
+                  </form>
+            </div>
+        </div>
 
     </body>  
 </html>
