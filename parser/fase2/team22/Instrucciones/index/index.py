@@ -48,12 +48,12 @@ class index(Instruccion):
         if self.where:
             listaMods = self.where.ejecutar(tabla, arbol)
 
-
         for x in range(0, len(self.lcol)):
             var = self.lcol[x]
             objetoTabla = arbol.devolviendoTablaDeBase(val)
             try:
                 for variable in var:
+
                     if 'Identificador' in str(variable):
                         idcol = variable.id
 
@@ -83,7 +83,7 @@ class index(Instruccion):
                                 ind.lRestricciones.append(self.tipoIndex)
                             
                             objetoTabla.lista_de_indices.append(ind)
-                            arbol.consola.append("Indice agregado con la columna: " + variable.id)    
+                            arbol.consola.append("Indice agregado con la columna: " + variable.id) 
                         else:
                             print("La columna indicada no pertenece a la tabla: " + self.idTabla)
             except:
@@ -133,6 +133,15 @@ class index(Instruccion):
         code = []
         t0 = c3d.getTemporal()
         # code.append(c3d.asignacionString(t0, "CREATE INDEX " + self.ID))
+        params = ''
+        for x in range(0, len(self.lcol)):
+            var = self.lcol[x]
+            if params != '':
+                params += ', '
+            if 'Identificador' in str(var):
+                params += var.id
+
+        code.append(c3d.asignacionString(t0, "CREATE INDEX" + str(self.idIndex.id) + " ON " + str(self.idTabla.id) + " ( " + params + " ) ;"))
         code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
         #CREATE INDEX test2_mm_idx ON tabla(id);
 
