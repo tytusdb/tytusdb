@@ -279,14 +279,16 @@ def t_INTEGER(t):
 # Funcion para evaluar si el token reconocido es un CHARACTER
 def t_CHARACTER(t):
     r"(\"\\?.\"|\'\\?.\')"
-    # t.value = t.value[1:-1]
+    t.value = t.value[1:-1]
+    t.value = "'" + t.value + "'"
     return t
 
 
 # Funcion para evaluar si el token reconocido es un STRING
 def t_STRING(t):
     r"(\'.*?\'|\".*?\")"
-    # t.value = t.value[1:-1]  # remuevo las comillas
+    t.value = t.value[1:-1]  # remuevo las comillas
+    t.value = "'" + t.value + "'"
     return t
 
 
@@ -303,7 +305,19 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
+lexer_errors = list()
+
 # Funcion de error para el lexer
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
+    lexer_errors.insert(
+        len(lexer_errors), ["Illegal character '%s'" % t.value[0], t.lineno]
+    )
     t.lexer.skip(1)
+
+
+def returnLexicalErrors():
+    global lexer_errors
+    temp = lexer_errors
+    lexer_errors = list()
+    return temp

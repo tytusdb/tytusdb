@@ -31,7 +31,7 @@ class plinsert(Instruccion):
                 entornoTabla = simbolo_tabla.Entorno
                 indices_a_buscar=[]
                 if plinsert.caso==1:
-                    print("caso1")
+                    #print("caso1")
                     for data in plinsert.listaId:
                         contador = 1
                         for columna in entornoTabla.simbolos:
@@ -39,12 +39,12 @@ class plinsert(Instruccion):
                                 indices_a_buscar.append(contador)
                                 break
                             contador=contador+1
-                    print(indices_a_buscar)
+                    #print(indices_a_buscar)
                     lista = entornoTabla.simbolos
                     contador = 1
                     for columna in lista:
                         if not contador in indices_a_buscar:
-                            print("((((((((((((((((((((((((((((((((((((((")
+                            #print("((((((((((((((((((((((((((((((((((((((")
                             if "NOTNULL" in lista.get(columna).valor:
                                 global todoBien
                                 todoBien = False
@@ -60,7 +60,7 @@ class plinsert(Instruccion):
                             todoBien = False
 
                     for data in plinsert.values:
-                        print("val :",data.valor)
+                        pass#print("val :",data.valor)
 
                     if todoBien:
                         contadoraux= 1
@@ -118,7 +118,7 @@ class plinsert(Instruccion):
                         consola.append(f"datos dectectados como no nulos")
                     todoBien=True
                 else:
-                    print("caso 2")
+                    #print("caso 2")
                     if len(plinsert.values) == len(entornoTabla.simbolos):
                         i =0
                         todobien = True
@@ -178,12 +178,12 @@ class plinsert(Instruccion):
 
 
 def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consola,exception,bd,tabla,globall):
-    print("estoy aqui !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    #print("estoy aqui !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     todobien = False
-#    print(lista_valores[index].valor)
-#    print(date.fromisoformat(lista_valores[index].valor))
-#    print(isinstance(date.fromisoformat(lista_valores[index].valor),date))
-#    print('DATE' in str(lista_tabla.get(campo).tipo).upper())
+#    #print(lista_valores[index].valor)
+#    #print(date.fromisoformat(lista_valores[index].valor))
+#    #print(isinstance(date.fromisoformat(lista_valores[index].valor),date))
+#    #print('DATE' in str(lista_tabla.get(campo).tipo).upper())
     datafinal = None
     if isinstance(lista_valores[index],Instruccion):
         datafinal = Expresion.Resolver(lista_valores[index],ts,Consola,exception)
@@ -191,7 +191,7 @@ def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consol
     else:
         datafinal = lista_valores[index].valor
         datainsertar.append(datafinal)
-    print(datafinal)
+    #print(datafinal)
 
     if isinstance(datafinal,int) and 'INTEGER' in str(lista_tabla.get(campo).tipo).upper():
         todobien = True
@@ -248,25 +248,25 @@ def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consol
                 todobien = comprobar_caracteristicas(lista_tabla.get(campo).valor, datafinal, Consola, exception, bd,
                                                      tabla, index)
         except:
-            print("error de tipo")
+            #print("error de tipo")
             todobien = False
     else:
         try:
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5")
-            print(lista_tabla.get(campo).tipo)
+            #print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5")
+            #print(lista_tabla.get(campo).tipo)
             for data in globall.simbolos:
-                print(":: ",data)
+                pass#print(":: ",data)
             if globall.validar_sim(str(lista_tabla.get(campo).tipo).lower()) == 1:
-                print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4")
+                #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4")
                 for data in ts.simbolos:
-                    print(";;; ",data)
+                    pass#print(";;; ",data)
                 simbolo_enumo = globall.buscar_sim(str(lista_tabla.get(campo).tipo).lower())
 
                 if datafinal in simbolo_enumo.valor:
                     todobien = True
                     Consola.append("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11")
             else:
-                print("no encotrado")
+                pass#print("no encotrado")
         except:
             todobien= False
     return todobien
@@ -274,9 +274,9 @@ def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consol
 
 def comprobarcheck(expresion,data,valor,nombre_columna,ts,Consola,exception):
     valor_retorno=True
-    print("que pedo",data)
+    #print("que pedo",data)
     #if data == 1:
-    print("-> ",expresion)
+    #print("-> ",expresion)
     if expresion != None:
 
         for datos in expresion:
@@ -293,24 +293,24 @@ def comprobarcheck(expresion,data,valor,nombre_columna,ts,Consola,exception):
 
 def comprobar_caracteristicas(tipo_caracteristica,data,Consola,Exception,nombre_bd,nombre_tabla,posicion):
     devolver=True
-    print("->>>>>",tipo_caracteristica)
+    #print("->>>>>",tipo_caracteristica)
     if tipo_caracteristica != None:
-        print("aqui estamos")
+        #print("aqui estamos")
         for caracteristica in tipo_caracteristica:
-            print(caracteristica)
+            #print(caracteristica)
             if "NOTNULL" in str(caracteristica):
                 if data == None:
                     Consola.append("Dato encontrado con not null, debe llevar un valor")
                     devolver=False
                     break
             elif "UNIQUE" in str(caracteristica) or "PRIMARYKEY" in str(caracteristica):
-                print(nombre_bd.id,nombre_tabla.id)
+                #print(nombre_bd.id,nombre_tabla.id)
                 datas = extractTable(nombre_bd.id,nombre_tabla.id)
-                print("unique or primary ->  ",posicion)
+                #print("unique or primary ->  ",posicion)
                 for fila in datas:
                     if str(fila[posicion])== str(data):
                         devolver= False
                         Consola.append("Constraint unique active")
-                    print(fila[posicion])
-                print(data)
+                    #print(fila[posicion])
+                #print(data)
     return devolver

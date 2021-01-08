@@ -1,5 +1,6 @@
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
 import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Function.Llamada import Llamada
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import *
 from tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
 import tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
@@ -43,7 +44,15 @@ class Selectp3(Instruccion):
                 Consola.append('what -- ' + type(columna).__name__ + '\n')
 
                 exceptions.append('Error semantico - 42703 - no existe la columna, error en '+' - '+str(Select.fila)+' - '+str(Select.columna)+'')
+                '''           
+                elif isinstance(columna,Llamada):
+                    #rowpp.append(Llamada.obtenerCadena(columna,1)
+                    Llamada.obtenerCadena(columna)'''
+
+
             elif isinstance(columna, IdAsId):
+
+
                 # no porque no tiene from
                 if(isinstance(columna.id2,Primitivo)):
                     en.append(columna.id2.valor)
@@ -117,7 +126,7 @@ class Selectp3(Instruccion):
                         consola.append("\t"+str(str(datasub).replace("!", str(temporalaux))).replace("%","") + "\n")
                     elif "?" in datasub:
                         concatena_parametros = ""
-                        j =0
+                        j =1
                         for parametro in guardar_parametros_funciones:
 
                             if j == len(guardartemporales):
@@ -176,5 +185,5 @@ class Selectp3(Instruccion):
 
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({obtenerTemporal})")
-        consola.append(f"\n\tstack.append({contador2})\n")
-
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")

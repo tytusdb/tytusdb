@@ -1,70 +1,47 @@
-from InstruccionesDGA import tabla 
+
 from datetime import date
-from InstruccionesDGA import cont 
-from InstruccionesDGA import NombreDB
-from tablaDGA import *
-from sql import * 
+from variables import tabla as ts
+from variables import NombreDB 
+from variables import cont 
+import tablaDGA as TAS
+import sql as sql 
 import mathtrig as mt
-#Funcion sql.execute
+from reportTable import *
+
 
 pila = []
 for i in range(100):
     pila.append(i)
 
-def ejecutar(): 
-	n_db = tabla.id_db(NombreDB)
-	NuevoSimbolo = Simbolo(cont,myFuncion,TIPO.FUNCTION,n_db)
+def ejecutar():
+    global cont
+    global ts
+    NombreDB = ts.nameDB
+	
+	sql.execute("CREATE DATABASE DBFase2;")
+	sql.execute("USE DATABASE DBFase2;")
+	NombreDB = ts.nameDB
+	sql.execute("CREATE TABLE tbProducto(idproducto integer NOT NULL PRIMARY KEY,producto varchar(150) NOT NULL,fechacreacion date NOT NULL,estado integer);")
+	sql.execute("CREATE TABLE tbCalificacion(idcalifica integer NOT NULL PRIMARY KEY,item varchar(100) NOT NULL,punteo integer NOT NULL);")
+	sql.execute("INSERT INTO tbProducto VALUES('1.0',''Laptop Lenovo'',2021-01-07 00:00:00,'1.0');")
+	sql.execute("INSERT INTO tbProducto VALUES('2.0',''Bateria para Laptop Lenovo T420'',2021-01-07 00:00:00,'1.0');")
+	sql.execute("INSERT INTO tbProducto VALUES('3.0',''Teclado Inalambrico'',2021-01-07 00:00:00,'1.0');")
+	sql.execute("INSERT INTO tbProducto VALUES('4.0',''Mouse Inalambrico'',2021-01-07 00:00:00,'1.0');")
+	sql.execute("INSERT INTO tbProducto VALUES('5.0',''WIFI USB'',2021-01-07 00:00:00,'1.0');")
+	sql.execute("INSERT INTO tbProducto VALUES('6.0',''Laptop HP'',2021-01-07 00:00:00,'1.0');")
+	sql.execute("INSERT INTO tbProducto VALUES('7.0',''Teclado Flexible USB'',2021-01-07 00:00:00,'1.0');")
+	sql.execute("INSERT INTO tbProducto VALUES('8.0',''Laptop Samsung'',''2021-01-02'','1.0');")
+	n_db = ts.buscarIDTB(NombreDB)
+	NuevoSimbolo = TAS.Simbolo(cont,'myFuncion',TAS.TIPO.FUNCTION,n_db)
+	ts.agregar(NuevoSimbolo)
 	cont+=1
 
-	tabla.modificar_valor(res, t15)
-	tabla.modificar_valor(color, t16)
-	tabla.modificar_valor(identificador, today.strftime("%Y-%m-%d %H:%M:%S"))
-	tabla.modificar_valor(res, t25)
-
+	sql.execute('SELECT * FROM temp')
+	graphTable(ts)
 def myFuncion():
-	
 	texto = pila[0]
-	color = pila[1]
-	nombre = pila[2]
-	identificador = pila[3]
-	t9 = identificador
+	t0 = texto
 	
-	t10 = 0
-	t11 = t9 < t10
+	pila[10] = t0
 	
-	t12 = color
-	
-	t13 = negative
-	t14 = t12 == t13
-	
-	if t11:
-		t15 = 0
-		res = t15
-		
-	elif t14 :
-		t16 = positive
-		color = t16
-		
-	else:
-		
-		today = date.today()
-		identificador = today.strftime("%Y-%m-%d %H:%M:%S")
-		
-	
-	t17 = 9
-	t18 = 8
-	t19 = t17 + t18
-	t20 = 7
-	t21 = t19 - t20
-	t22 = 6
-	t23 = t21 * t22
-	t24 = 5
-	t25 = t23 / t24
-	
-	res = t25
-	
-	t26 = texto
-	
-	pila[10] = t26
-	
-ejecutar() 
+ejecutar()

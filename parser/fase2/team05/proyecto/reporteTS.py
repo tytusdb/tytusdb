@@ -31,14 +31,14 @@ def generarTablaSimbolos(tabladeSimbolos) :
     for key, v in tabladeSimbolos.symbols.items():
         if v.type == "INDEX":
             v.value = str(v.value).replace(' ',',')
-        elif v.type == "create table":
-            v.value = str(v.value).replace(' ,','<br>')
-        html += '''  <tr>
-                    <td>''' + str(v.type) + '''</td>
-                    <td>''' + str(v.id) + '''</td>
-                    <td>''' + str(v.value) + '''</td>
-                    <td>''' + str(v.p_Orden) + '''</td>
-                </tr>'''
+        if v.id != "" and v.type != "":
+            html += '''  <tr>
+                        <td>''' + str(v.type) + '''</td>
+                        <td>''' + str(v.id) + '''</td>
+                        <td>''' + str(v.value) + '''</td>
+                        <td>''' + str(v.p_Orden) + '''</td>
+                        <td>''' + str(v.p_Declaracion) + '''</td>
+                    </tr>'''
     html += fin
     f.write(html)
     f.close()
@@ -80,6 +80,7 @@ def reporteOptimizacion(lOpt):
     f.write ( html )
     f.close ( )
     os.startfile ( 'optimizacion.html' )
+
 
 def reporteErrores() :
     try :

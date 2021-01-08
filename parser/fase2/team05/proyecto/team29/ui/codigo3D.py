@@ -174,36 +174,99 @@ def analize(entrada):
             i += 1
     text_Consola.insert(INSERT, "\n")
     tabControl.pack()
-
+    retorno = querys
+    for ret in retorno:
+        for i in range(0, len(ret)):
+            if i == len(ret) - 1:
+                return len(ret[i])
 
 def funcionIntermedia(): 
 	global lista
 	entrada = lista.pop()
-	analize(entrada)
+	return analize(entrada)
 
 
 @with_goto
 def main3d(): 
 	global lista
+	T1 = a
+	a = T1
+	t50=False
+	label .L1
+
+@with_goto
+def C3D_myFuncion():
+	global lista
+	t45=0
+	texto=simulador_pila[t45]
+	t45=t45 + 1
+	t46=texto
+	t47=0
+	simulador_pila[t47]=t46
+@with_goto
+def C3D_ValidaRegistros():
+	global lista
+	goto .L1
+	t50=True
+	t50=False
+	label .L1
+
+@with_goto
+def C3D_CALCULOS():
+	global lista
+	t30 = "SELECT extract (HOUR from timestamp '2001-02-16 20:38:40' ) ;"
+	lista=[t30 ]
+	t69=funcionIntermedia()
+	hora=t69
+	t31 = "SELECT SIN(1);"
+	lista=[t31 ]
+	t70=funcionIntermedia()
+	SENO=t70
+	t71=VALOR
+	if t71>1: goto .L33
+	goto .L34
+	label .L33
+	t72=True
+	goto .L35
+	label .L34
+	t72=False
+	label .L35
+	if t72 == True: goto .L36
+	goto .L37
+	label .L36
+	VALOR=20
+	goto .L38
+	label .L37
+	VALOR=10
+	label .L38
+	t73=VALOR
+	t74=0
+	simulador_pila[t74]=t73
+@with_goto
+def C3D_sp_validainsert():
+	global lista
+	t33 = "insert into tbbodega values (   1,'BODEGA CENTRAL',1);"
+	lista=[t33 ]
+	t75=funcionIntermedia()
+	t34 = "insert into tbbodega (  idbodega,bodega) values ( 2,'BODEGA ZONA 12');"
+	lista=[t34 ]
+	t76=funcionIntermedia()
+	t35 = "insert into tbbodega (   idbodega,bodega,estado) values (  3,'BODEGA ZONA 11',1);"
+	lista=[t35 ]
+	t77=funcionIntermedia()
+	t36 = "insert into tbbodega (   idbodega,bodega,estado) values (  4,'BODEGA ZONA 1',1);"
+	lista=[t36 ]
+	t78=funcionIntermedia()
+	t37 = "insert into tbbodega (   idbodega,bodega,estado) values (  5,'BODEGA ZONA 10',1);"
+	lista=[t37 ]
+	t79=funcionIntermedia()
+@with_goto
+def C3D_sp_validaupdate():
+	global lista
+	t40 = "update tbbodega set bodega = 'bodega zona 9' where idbodega = 4;"
+	lista=[t40 ]
+	t80=funcionIntermedia()
 
 
-def ValidaRegistros():
-    t0 = t0 + 0
-    t4 = t5 + 0
-
-    t1 = t1 - 0
-    t6 = t5 - 0
-
-    t2 = t2 * 1
-    t7 = t5 * 1
-
-    t3 = t3 / 1
-    t8 = t5 / 1
-    t11 = 0 / t5
-
-    t9 = t5 * 2
-    t10 = t5 * 0
-
-
-if __name__ == "__main__":
+if __name__ == "__main__": 
 	 main()

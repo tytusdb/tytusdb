@@ -1,19 +1,19 @@
 # from Instrucciones.instruccion import Instruccion
 # from storageManager.jsonMode import *
 # import Tabla_simbolos.TablaSimbolos as TS
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.Campo import Campo
-from Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import Simbolo
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from  tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Create.Campo import Campo
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import Simbolo
 
 
 # CREATE TABLE
 #from Instrucciones.instruccion import Instruccion
 #from storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as TS
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from  tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import  tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 
 #from Instrucciones.instruccion import Instruccion
 tipos_de_dato = {
@@ -226,7 +226,8 @@ class CreateTable(Instruccion):
 
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({obtenerTemporal})")
-        consola.append(f"\n\tstack.append({contador2})\n")
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")
 
 class Acompaniamiento(Instruccion):
     def __init__(self, tipo, valorDefault,fila,columna):

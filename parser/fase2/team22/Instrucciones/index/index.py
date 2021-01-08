@@ -48,12 +48,47 @@ class index(Instruccion):
         if self.where:
             listaMods = self.where.ejecutar(tabla, arbol)
 
-
         for x in range(0, len(self.lcol)):
             var = self.lcol[x]
             objetoTabla = arbol.devolviendoTablaDeBase(val)
-            for variable in var:
-                if 'Identificador' in str(variable):
+            try:
+                for variable in var:
+
+                    if 'Identificador' in str(variable):
+                        idcol = variable.id
+
+                        if self.validar_columna(variable.id, res):
+                            if objetoTabla:
+                                for indices in objetoTabla.lista_de_indices:
+                                    if indices.obtenerNombre == variable.id :
+                                        error = Excepcion('42P01',"Semántico","el indice «"+variable.id+"» ya fue creado.",self.linea,self.columna)
+                                        arbol.excepciones.append(error)
+                                        arbol.consola.append(error.toString())
+                                        return error
+                                
+                            ind = Indice(self.idIndex, "Indice")
+                            tipo = ''
+                            # try:
+                            #     if 'Identificador' in self.lcol[x+1]:
+                            #         tipo = ''
+                            #         print("===>", self.lcol[x+1])
+                            #     else:
+                            #         print(">==>", self.lcol[x+1])
+                            #         tipo = self.lcol[x+1]
+                            # except :
+                            #     pass
+                            
+                            ind.lRestricciones.append(variable.id + '#' + str(self.lcol[x]))
+                            if self.tipoIndex:
+                                ind.lRestricciones.append(self.tipoIndex)
+                            
+                            objetoTabla.lista_de_indices.append(ind)
+                            arbol.consola.append("Indice agregado con la columna: " + variable.id) 
+                        else:
+                            print("La columna indicada no pertenece a la tabla: " + self.idTabla)
+            except:
+                if 'Identificador' in str(var):
+                    variable = var
                     idcol = variable.id
 
                     if self.validar_columna(variable.id, res):
@@ -66,7 +101,15 @@ class index(Instruccion):
                                     return error
                             
                         ind = Indice(self.idIndex, "Indice")
-                        ind.lRestricciones.append(variable.id + '#' + str(self.lcol[x]))
+                        tipo = ''
+                        try:
+                            if 'Identificador' in self.lcol[x+1]:
+                                tipo = ''
+                            else:
+                                tipo = self.lcol[x+1]
+                        except :
+                            pass
+                        ind.lRestricciones.append(variable.id + '#' + str(tipo))
                         if self.tipoIndex:
                             ind.lRestricciones.append(self.tipoIndex)
                         
@@ -90,6 +133,15 @@ class index(Instruccion):
         code = []
         t0 = c3d.getTemporal()
         # code.append(c3d.asignacionString(t0, "CREATE INDEX " + self.ID))
+        params = ''
+        for x in range(0, len(self.lcol)):
+            var = self.lcol[x]
+            if params != '':
+                params += ', '
+            if 'Identificador' in str(var):
+                params += var.id
+
+        code.append(c3d.asignacionString(t0, "CREATE INDEX" + str(self.idIndex.id) + " ON " + str(self.idTabla.id) + " ( " + params + " ) ;"))
         code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
         #CREATE INDEX test2_mm_idx ON tabla(id);
 

@@ -27,8 +27,11 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
 # from Instrucciones.Imprimir import Imprimir
-from Instrucciones.index import index
+from Instrucciones.index import index, DropIndex, AlterIndex
 from Instrucciones import Funcion, Declaracion,  Retorno
+from Instrucciones.Function import DropFunction
+
+from Instrucciones.Procedure import CreateProcedure, DropProcedure
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -42,6 +45,10 @@ import Instrucciones.AST as AST
 
 # Variable almacenada reporte gramatical dinamico
 lsStrGram = []
+
+# LISTA PARA GUARDAR LOS INDICES CON SUS TABLAS
+almacenar_tabla_indices = []
+
 
 #Funcion para validar reporte gramatical dinamico
 def agregaGram(grama):
@@ -278,42 +285,42 @@ def p_columunas_delete(t):
     strGram = "<instruccion> ::= DELETE FROM ID <instructionWhere> PUNTO_COMA"
     t[0] = DeleteTable.DeleteTable(t[3],None, t[4], strGram, t.lexer.lineno, t.lexer.lexpos)
 
-#FUNCIONES
-def p_funciones(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], [], [], t[8], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+# #FUNCIONES
+# def p_funciones(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], [], [], t[8], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones1(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[9], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones1(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[9], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones2(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[13], t[9], "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones2(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], [], t[13], t[9], "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones3(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], [], t[8], t[10], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones3(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], [], t[8], t[10], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones4(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], t[6], t[9], t[11], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones4(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], t[9], t[11], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
-def p_funciones5(t):
-    '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion DECLARE ldec BEGIN instrucciones END PUNTO_COMA
-    '''
-    t[0] = Funcion.Funcion(t[4], t[2], t[6], t[13], t[15], t[9], "", t.lexer.lineno, t.lexer.lexpos)
+# def p_funciones5(t):
+#     '''
+#      instruccion : CREATE orreplace FUNCTION ID PARIZQ parametro_func PARDER RETURNS tipo AS expresion DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+#     '''
+#     t[0] = Funcion.Funcion(t[4], t[2], t[6], t[13], t[15], t[9], "", t.lexer.lineno, t.lexer.lexpos)
 
 # PARAMETROS PARA LAS FUNCIONES
 def p_remplazar(t):
@@ -1730,6 +1737,10 @@ def p_instruccion_creacion(t) :
     '''instruccion  : CREATE INDEX ID ON ID PARIZQ l_expresiones PARDER params_crt_indx can_where
                     | CREATE INDEX ID ON ID USING HASH PARIZQ l_expresiones PARDER params_crt_indx can_where'''
     
+    global almacenar_tabla_indices
+    almacenar_tabla_indices.append(t[5])
+    almacenar_tabla_indices.append(t[3])
+
     if len(t) == 11:
         strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ <l_expresiones> PARDER <params_crt_indx> <can_where>"
         strGram2 = ""
@@ -1739,6 +1750,7 @@ def p_instruccion_creacion(t) :
         agregaGram(strGram)
         strGram = obtenerGram()
         t[0] = index.index( id1, id2, t[7], t[10], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
+
         # global lsStrGram
         # lsStrGram = []
     else:
@@ -1884,12 +1896,71 @@ def p_params_crt_indx(t) :
 
 def p_instruccion_drop_index(t) :
     '''instruccion  : DROP INDEX ID PUNTO_COMA'''
+
+    tabla = ''
+    indice = ''
+    temp = ''
+    for id_tab in almacenar_tabla_indices:
+        if id_tab == str(t[3]):
+            tabla = temp
+            indice = t[3]
+        temp = id_tab
+
     strGram = "<instruccion> ::= DROP INDEX ID PUNTO_COMA\n"
-    agregaGram(strGram)
-    strGram = obtenerGram()
-    t[0] = indexFunction.indexFunction(strGram)
-    global lsStrGram
-    lsStrGram = []
+    strGram2 = ""
+
+    if indice != '':
+        id1 = Identificador(tabla, strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+        t[0] =DropIndex.DropIndex(id1,indice, 0, strGram, t.lexer.lineno, t.lexer.lexpos)
+    else:
+        t[0] =DropIndex.DropIndex('','', 1, strGram, t.lexer.lineno, t.lexer.lexpos)
+
+    
+    # agregaGram(strGram)
+    # strGram = obtenerGram()
+    # t[0] = indexFunction.indexFunction(strGram)
+    # global lsStrGram
+    # lsStrGram = []
+
+def p_instruccion_alter_index(t) :
+    '''instruccion  : ALTER INDEX ID ID ID PUNTO_COMA
+                    | ALTER INDEX ID ID ENTERO PUNTO_COMA'''
+    strGram = "<instruccion> ::= ALTER INDEX ID ID ID PUNTO_COMA\n"
+    strGram2 = ""
+    id1 = Identificador(t[3], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    existe = 1
+    tabla = ''
+    temp = ''
+    for a in almacenar_tabla_indices:
+        if a == str(t[3]):
+            existe = 0
+            tabla = temp
+        temp = a
+
+    strGram3 = ""
+    id_tab = Identificador(tabla, strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] =AlterIndex.AlterIndex(id_tab, id1, t[4], t[5], existe, strGram, t.lexer.lineno, t.lexer.lexpos)
+   
+
+def p_instruccion_alter_index2(t) :
+    '''instruccion  : ALTER INDEX IF EXISTS ID ID ID PUNTO_COMA
+                    | ALTER INDEX IF EXISTS ID ID ENTERO PUNTO_COMA'''
+    strGram = "<instruccion> ::= ALTER INDEX IF EXISTS ID ID PUNTO_COMA\n"
+    strGram2 = ""
+    id1 = Identificador(t[5], strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+    existe = 1
+    tabla = ''
+    temp = ''
+    for a in almacenar_tabla_indices:
+        if a == str(t[5]):
+            existe = 0
+            tabla = temp
+        temp = a
+
+    strGram3 = ""
+    id_tab = Identificador(tabla, strGram3 ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] =AlterIndex.AlterIndex(id_tab, id1, t[6], t[7], existe, strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_lista_or(t) :
     '''expre     : expre PIPE PIPE expre'''
@@ -1922,6 +1993,12 @@ def p_instruccion_creacion_funct(t) :
     # # t[0] = indexFunction.indexFunction(strGram)
     # # global lsStrGram
     # # lsStrGram = []
+
+def p_drop_function(t) :
+    '''instruccion :    DROP FUNCTION ID PUNTO_COMA'''
+    strGram = "<instruccion> ::= DROP FUNCTION ID PUNTO_COMA\n"
+    t[0] = DropFunction.DropFunction(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_return_funct(t) :
     '''return_funct     : RETURNS tipo
@@ -2334,6 +2411,11 @@ def p_asign(t) :
     strGram = "<asign> ::= <expre> DOS_PUNTOS IGUAL <expre>\n"
     agregaGram(strGram)
 
+def p_asign2(t):
+    '''asign   : expre IGUAL expre'''
+    strGram = "<asign> ::= <expre> IGUAL <expre>\n"
+    agregaGram(strGram)
+
 def p_list_exception(t) :
     '''list_exception   : list_exception except
                         | except'''
@@ -2426,13 +2508,21 @@ def p_instruccion_creacion_procedure(t):
     strGram = ""
     if len(t) > 13:
         strGram = "<instruccion> ::= CREATE PROCEDURE ID PARIZQ <list_params_funct> PARDER LANGUAGE PLPGSQL <as_def> PROC <def_procedure> PROC PUNTO_COMA\n"
+        t[0] = CreateProcedure.CreateProcedure(t[3], None, t[5], [], t[11], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
     else:
         strGram = "<instruccion> ::= CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE PLPGSQL <as_def> PROC <def_procedure> PROC PUNTO_COMA\n"
-    agregaGram(strGram)
-    strGram = obtenerGram()
-    t[0] = indexFunction.indexFunction(strGram)
-    global lsStrGram
-    lsStrGram = []
+        t[0] = CreateProcedure.CreateProcedure(t[3], None, [], [], t[10], t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
+    # agregaGram(strGram)
+    # strGram = obtenerGram()
+    # t[0] = indexFunction.indexFunction(strGram)
+    # global lsStrGram
+    # lsStrGram = []
+
+def p_drop_procedure(t) :
+    '''instruccion :    DROP PROCEDURE ID PUNTO_COMA'''
+    strGram = "<instruccion> ::= DROP PROCEDURE ID PUNTO_COMA\n"
+    t[0] = DropProcedure.DropProcedure(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_def_procedure(t) :
     '''def_procedure    : dec_def beg_def_procedure END PUNTO_COMA

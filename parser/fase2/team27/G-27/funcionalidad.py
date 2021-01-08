@@ -1,5 +1,10 @@
 from environment import *
 
+fp = {
+      'FUNCTION':'LA FUNCION',
+      'PROCEDURE': 'EL PROCEDIMIENTO'
+}
+
 """
 Clase enum DBType:
 _____________________________________________________________
@@ -258,6 +263,7 @@ def funcion(diccionarioFuncion, codigo3D):
       codigo3D = '\n' +  codigo3D
       codigo3D = codigo3D.replace('\n', '\n\t')
       codigo3D = codigo3D[:-1]
+      temporales.clear()
       return codigoGenerado +"\t#INICIA DECLARE"+ codigo3D
 """
 ______________________________________________________________
@@ -322,12 +328,17 @@ def assignQ(identificador,valor):
 ______________________________________________________________
 
 """
+
+
 def resFinal(funciones, codigo):
-      resultado = 'from goto import with_goto\nfrom parser import parser\n\n'
+      resultado = 'from goto import with_goto\nfrom parser_ import Parser\nfrom libraries.bstring_functions import *\n'
+      resultado += 'from libraries.datetime_functions import *\nfrom libraries.math_functions import *\nfrom libraries.trigonometric_functions import *\n\n' 
+      resultado += 'parser = Parser()\n'
       for f in funciones:
             resultado += f +'\n'
       resultado += codigo 
-      return resultado     
+      funciones = []
+      return resultado  
 
 
 """
@@ -344,7 +355,7 @@ dict_Func = {
       'SUBSTR':'substr',
       'GET_BYTE':'get_byte',
       'SET_BYTE':'set_byte',
-      'CONVERT':'convert'
+      'CONVERT':'convert',
       'DECODE':'decode',
       'ENCODE':'encode',
       'NOW':'now',
@@ -392,7 +403,8 @@ dict_Func = {
       'TANH':'tanh',
       'ASINH':'asinh',
       'ACOSH':'acosh',
-      'ATANH':'atanh'
+      'ATANH':'atanh',
+      'ABS':'abs'
 }
 
 
@@ -404,3 +416,55 @@ funcion para castear un strig de mayusculas a minusculas
 
 def get_lower(name_func):
      return dict_Func.get(name_func, name_func)
+
+"""
+______________________________________________________________
+
+"""
+def deleteProcFunc(tipo, id, ListaFunciones):
+      for v in arregloFunciones:
+            if v['tipo'] == tipo and v['id'] == id:
+                  for element in ListaFunciones:
+                        if element['id'] == id:
+                              element['cod'] = '\'\'\'\n' + element['cod'] + '\n\'\'\''
+                  v['estado'] = 'ELIMINADO'
+                  return 'SELECT "SE HA ELIMINADO ' + fp[tipo] + ' CON EXITO.";'
+      return 'SELECT "ERROR NO SE HA ENCONTRADO' + fp[tipo] + ' QUE DESEA ELIMINAR";'
+
+
+
+"""______________________________________________________________
+
+"""
+def AddTs(id, tipo, operacion):
+      #else variable .-      if id in temporales:
+      if id in temporales:
+            variable = {'id':id, 'tipo':tipo, 'temporal': temporales[id],'operacion':operacion}
+      else:
+            variable = {'id':id, 'tipo':tipo, 'temporal': 'None','operacion':operacion}
+      funcionAux.append(variable)
+
+
+"""
+_______________________________________________________________
+"""
+def modifyTs(id,valor, operacion):
+      encontrada = {}
+      for i in range(len(funcionAux)):
+            if id == funcionAux[i]['id']:
+                  encontrada['id'] = funcionAux[i]['id']
+                  encontrada['tipo'] = funcionAux[i]['tipo']
+                  encontrada['temporal'] = valor
+                  encontrada['operacion'] = operacion
+                  funcionAux.append(encontrada)
+                  break
+
+"""
+_______________________________________________________________
+"""
+def genTable(functionId):
+      aux = []
+      for v in funcionAux:
+            aux.append(v)
+      arregloF.append({'id':functionId,'valor':aux})
+      funcionAux.clear()

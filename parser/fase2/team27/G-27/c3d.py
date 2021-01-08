@@ -13,8 +13,11 @@ import sys
 #imports instrucciones
 from Instrucciones.instruction import *
 from Instrucciones.ins_if import *
+from Instrucciones.ins_case import *
+from environment import temporales
 from prettytable import PrettyTable
 from copy import copy
+from environment import arregloFunciones,arregloF
 # ======================================================================
 #                          ENTORNO Y PRINCIPAL
 # ======================================================================
@@ -28,6 +31,12 @@ consid.append('none')
 consid.append('false')
 consid.append('false')
 executing = False
+banderaFunction = False
+banderaFunction2 = False
+listaParametros = []
+auxiliarTable = []
+bandexp = list()
+bandexp.append('prim')
 # ======================================================================
 #                        PALABRAS RESERVADAS DEL LENGUAJE
 # ======================================================================
@@ -147,29 +156,21 @@ def t_NUMERO(t):
 # EXPRESION REGULAR PARA FORMATO HORA
 def t_F_HORA(t):
     r'\'\s*(\d+\s+(hours|HOURS))?(\s*\d+\s+(minutes|MINUTES))?(\s*\d+\s+(seconds|SECONDS))?\s*\''
-    t.value = t.value[1:-1]
-    return t.replace('\'','\"')
+    t.value = t.value.replace('\'','\"')
+    return t
 
 # EXPRESION REGULAR PARA FORMATO FECHA HORA
 def t_FECHA_HORA(t):
     r'\'\d+-\d+-\d+\s\d+:\d+:\d+\''
     t.value = t.value[1:-1]
-    from datetime import datetime
-    try:
-        t.value = datetime.strptime(t.value,'%Y-%m-%d %H:%M:%S')
-    except ValueError:
-        t.value = datetime(1900,1,1)
+    t.value = '"'+t.value+'"'
     return t
 
 # EXPRESION REGULAR PARA FORMATO FECHA
 def t_FECHA(t):
     r'\'\d\d\d\d-\d\d-\d\d\''
     t.value = t.value[1:-1]
-    from datetime import datetime
-    try:
-        t.value = datetime.strptime(t.value,'%Y-%m-%d')
-    except ValueError:
-        t.value = datetime(1900,1,1)
+    t.value = '"'+t.value+'"'
     return t
 
 # EXPRESION REGULAR PARA FORMATO HORA
@@ -202,7 +203,8 @@ def t_newline(t):
 
 # EXPRESION REGULAR PARA RECONOCER ERRORES
 def t_error(t):
-    print('LEXICO' + ' ' + str(t.value) + ' ' + 'TOKEN DESCONOCIDO' + ' ' + str(t.lineno) + ' ' + str(t.lexpos))
+    err = 'LÉXICO. Token = \"' + str(t.value) + '\". TOKEN DESCONOCIDO' + ' ' + str(t.lineno) + ' ' + str(t.lexpos)
+    TokenError.append(err)
     t.lexer.skip(1)
 
 # ======================================================================
@@ -257,7 +259,11 @@ def nuevo_temporal():
 # DEFINICION GRAMATICA
 def p_inicio(t):
     '''inicio : instrucciones '''
-    t[0]= resFinal(ListaFunciones,t[1].code)
+    arreglo = []
+    for value in ListaFunciones:
+        arreglo.append(value['cod'])
+    ListaFunciones.clear()
+    t[0]= resFinal(arreglo,t[1].code)
 
 def p_instrucciones_lista(t):
     '''instrucciones : instrucciones instruccion 
@@ -282,6 +288,7 @@ def p_instrucciones_evaluar(t):
                    | exp
                    | execute
                    | ins_create_pl
+                   | drop_pf
                    | create_index
                    | drop_index
                    | alter_index'''
@@ -1112,11 +1119,14 @@ def p_table_list(t):
 
 def p_arg_where(t):
     '''arg_where    :   WHERE PARABRE exp PARCIERRE
-                    | WHERE exp
+                    |   WHERE exp
                     |    '''
     if len(t) == 5: 
         t[0] = GenerarC3D()
         t[0].code += str(t[1]) + ' ' + str(t[2]) + ' ' + t[3].code + ' ' + str(t[4])
+    elif len(t) == 3: 
+        t[0] = GenerarC3D()
+        t[0].code += str(t[1]) + ' ' + str(t[2].code)
     else:
         t[0] = GenerarC3D()
         t[0].code += ''
@@ -1132,13 +1142,25 @@ def p_arg_having(t):
         t[0].code += ''
 
 def p_exp_aux(t):
-    ''' exp : ID PARABRE list_vls PARCIERRE'''
+    ''' exp : prod list_vls PARCIERRE'''
+    global banderaFunction
+    global banderaFunction2
     global executing
     t[0] = GenerarC3D()
     if not executing:
-        t[0].code = '\' + ' + t[1] + t[2] + t[3].code + t[4] + '+ \''
+        t[0].code = '\' + str(' + t[1] + t[2].code + t[3] + ')+ \''
     else:
-        t[0].code = t[1] + t[2] + t[3].code + t[4] 
+        t[0].code = t[1]+ t[2].code + t[3] 
+    banderaFunction = banderaFunction2
+    
+
+def p_prod (t):
+    ''' prod : ID PARABRE '''
+    global banderaFunction
+    global banderaFunction2
+    banderaFunction2 = banderaFunction
+    banderaFunction = False
+    t[0] = str(t[1])+str(t[2])
 
 def p_exp(t):
     '''exp  : exp SIGNO_MAS exp
@@ -1257,6 +1279,7 @@ def p_predicates(t):
                    | data IS NOT UNKNOWN'''
     if len(t) == 3:
         t[0] = GenerarC3D()
+
         t[0].code += t[1].code + ' ' + str(t[2])
     if len(t) == 4:
         t[0] = GenerarC3D()
@@ -1284,6 +1307,22 @@ def p_predicates(t):
 
 def p_data(t):
     '''data  : ID table_at''' 
+    print('pasa en data')
+    global banderaFunction
+    global listaParametros
+    if banderaFunction:
+        if t[2].code == '':
+            band = False
+            for item in listaParametros:
+                if item == t[1]:
+                    band = True                 
+                    break
+            if band:
+                t[1] = '\'+str('+str(t[1])+')+\''
+            elif t[1] in temporales:
+                t[1]='\'+str('+str(temporales[t[1]])+')+\''
+
+                
     t[0] = GenerarC3D()
     t[0].code += str(t[1]) + ' ' + t[2].code
    
@@ -1464,34 +1503,85 @@ def p_ins_delete(t):
 #                        INSTRUCCIONES PL/SQL
 # ======================================================================
 
+def p_drop_pf(t):
+    ''' drop_pf : DROP drop_case opt_exist ID PUNTO_COMA'''
+    result = deleteProcFunc(t[2], t[4], ListaFunciones)
+
+    t[0] = GenerarC3D()
+    t[0].code = str(result)
+
+def p_drop_case(t):
+    ''' drop_case : FUNCTION
+                  | PROCEDURE'''
+    t[0] = t[1]
+
+def p_opt_exist(t):
+    ''' opt_exist : IF EXISTS
+                  |'''
+    if len(t)== 3:
+        t[0] = True
+    else:
+        t[0] = False
+
+def p_arg_list_opt(t):
+    ''' arg_list_opt : arg_list 
+                     |'''
+    if len(t)== 2:
+        t[0] = t[1]
+    else:
+        t[0] = []
+
+def p_arg_list(t):
+    ''' arg_list : arg_list COMA ID
+             	| ID'''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+
 def p_ins_create_pl(t):
     '''ins_create_pl : CREATE op_replace FUNCTION ID PARABRE parameteropt PARCIERRE returns AS block LANGUAGE ID PUNTO_COMA
                      | CREATE op_replace PROCEDURE ID PARABRE parameteropt PARCIERRE LANGUAGE ID AS  block 
                      '''
+    global banderaFunction
+    global listaParametros
     t[0] = GenerarC3D()
     if len(t) == 14:
-        func = funcion({'id':t[4], 'parametros':t[6]},t[10])
-        ListaFunciones.append(func)
+        meta = {'id':t[4], 'parametros':t[6],'estado': 'ALMACENADO', 'tipo': t[3]}
+        func = funcion(meta,t[10])
+        ListaFunciones.append({'id':t[4], 'cod':func})
+        genTable(t[4])
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
     else: 
-        func = funcion({'id':t[4], 'parametros':t[6]},t[11])
-        ListaFunciones.append(func)
+        meta = {'id':t[4], 'parametros':t[6], 'estado': 'ALMACENADO', 'tipo':t[3]}
+        func = funcion(meta,t[11])
+        ListaFunciones.append({'id':t[4], 'cod':func})
+        genTable(t[4])
         t[0].code = ""
         t[0].statement = 'CREATE_FUNCTION'
+    banderaFunction = False
+    listaParametros.clear()
 
 def p_op_replace(t):
     '''op_replace :  OR REPLACE
                     | '''
+    global banderaFunction
+
+    banderaFunction = True
 
 def p_parameteropt(t):
     '''parameteropt : parameters
                    |
     '''
+    global listaParametros
     if len(t)== 2:
         t[0] = t[1]
     else:
         t[0] = []
+    
+    listaParametros = t[0]
 
 def p_parameters(t):
     '''parameters : parameters COMA parameter
@@ -1504,15 +1594,20 @@ def p_parameters(t):
         t[0] = [t[1]]
 
 def p_parameter(t):
-    '''parameter : idopt tipo_dato
+    '''parameter : idopt t_dato
                 | ID ANYELEMENT
                 | ID ANYCOMPATIBLE
-                | OUT ID tipo_dato
+                | OUT ID t_dato
                 | ID
     '''   
     if len(t) == 4:
+        AddTs(t[2], 'None', 'DECLARACION PARÁMETRO')
         t[0] = t[2]
+    elif len(t) == 2:
+        AddTs(t[1], 'None', 'DECLARACION PARÁMETRO')
+        t[0] = t[1]
     else:
+        AddTs(t[1], t[2], 'DECLARACION PARÁMETRO')
         t[0] = t[1]
 
 def p_idopt(t):
@@ -1546,18 +1641,26 @@ def p_t_dato(t):
                  | ID '''
     if t[1] == 'SMALLINT':
         t[0]= DBType.smallint
-    elif t[1] == 'BIGING':
+    elif t[1] == 'BIGINT':
         t[0]= DBType.bigint
     elif t[1] == 'DOUBLE':
         t[0] = DBType.double_precision
     elif t[1] == 'NUMERIC':
         t[0] = DBType.numeric
+    elif t[1] == 'DECIMAL':
+        t[0] = DBType.decimal
+    elif t[1] == 'INTEGER':
+        t[0] = DBType.integer
     elif t[1] == 'CHAR':
         t[0] = DBType.char
     elif t[1] == 'VARCHAR':
         t[0] = DBType.varchar
     elif t[1] == 'CHARACTER':
         t[0] = DBType.character
+    elif t[1] == 'REAL':
+        t[0] = DBType.real
+    elif t[1] == 'INT':
+        t[0] = DBType.integer
     elif t[1] == 'TEXT':
         t[0] = DBType.text
     elif t[1] == 'TIMESTAMP':
@@ -1636,6 +1739,7 @@ def p_declaracion(t):
         temp = t[5]['temp']
         v2 = t[5]['c3d']
     v1 = declare(t[1],t[3],temp)
+    AddTs(t[1], t[3], 'DECLARACIÓN')
     t[0] = v2 + v1
 
 def p_internal_blockopt(t):
@@ -1712,18 +1816,23 @@ def p_declaracionre_record(t):
 def p_asignacion(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL exp_plsql PUNTO_COMA'''
     valor = traduct(t[4])
-    codigo = assign(t[1], valor['temp'])
+    temporal = valor['temp']
+    codigo = assign(t[1], temporal)
     if codigo == None: codigo = ""
+    modifyTs(t[1],temporal, 'ASIGNACION')
     t[0] = '\n' + valor['c3d'] + codigo
 
 def p_asignacion_igual(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL ins_select_parentesis PUNTO_COMA
     '''
-    t[0] = assignQ(t[1],t[4].code)
+    v = assignQ(t[1],t[4].code)
+    modifyTs(t[1],t[4].code, 'ASIGNACION')
+    t[0] = v 
 
 def p_asignacion_igual_parentesis(t):
     '''asignacion : ID referencia_id SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA
     '''
+    modifyTs(t[1],t[5].code, 'ASIGNACION')
     t[0] = assignQ(t[1],t[5].code)
 
 def p_asignacion_dos(t):
@@ -1731,14 +1840,17 @@ def p_asignacion_dos(t):
     valor = traduct(t[5])
     codigo = assign(t[1], valor['temp'])
     if codigo == None: codigo = ""
+    modifyTs(t[1],valor['temp'], 'ASIGNACION')
     t[0] ='\n' + valor['c3d'] + codigo
 
 def p_asignacion_dos_signo_(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL ins_select_parentesis PUNTO_COMA'''
+    modifyTs(t[1],t[5].code, 'ASIGNACION')
     t[0] = assignQ(t[1], t[5].code)
 
 def p_asignacion_dos_signo(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
+    modifyTs(t[1],t[6].code, 'ASIGNACION')
     t[0] = assignQ(t[1], t[6].code)
 
 def p_referencia_id(t):
@@ -1806,40 +1918,51 @@ def p_then(t):
     else: 
         t[0] = ''
 
-def p_else(t):
-    '''else : ELSE sentencia  '''
-
-def p_else_null(t):
-    '''else : '''
-
 def p_sentencia(t):
-    '''sentencia : statements'''
+    '''sentencia : statements
+                 | '''
+    if len(t) == 2:
+        t[0] = t[1]
+    else: 
+        t[0] = ''
 
 def p_instruccion_case(t):
-    '''instruccion_case : CASE exp_plsql cases else END CASE PUNTO_COMA'''
+    '''instruccion_case : CASE exp_plsql cases END CASE PUNTO_COMA'''
+    codi = ''
+    condi = traduct(t[2])
+    if isinstance(t[3],Ins_Case):
+        t[3].case = condi['temp']
+        codi = t[3].Traduct()
+
+    t[0] = condi['c3d']+'\n'+t[1]+' '+condi['temp']+'\n'+codi+' '+t[4]+' '+t[5]+' '+t[6]+'\n'
 
 def p_cases(t):
-    '''cases : cases instruccion_case_only '''
-
-def p_cases_ins(t):
-    '''cases : instruccion_case_only'''
-
-def p_cases_ins_null(t):
-    '''cases : '''
-
-def p_instruccion_case_only(t):
-    '''instruccion_case_only : WHEN multiple then'''
+    '''cases : WHEN multiple then cases
+             | WHEN multiple then ELSE sentencia
+             | WHEN multiple then '''
+    
+    if len(t) == 6:
+        print('when else')
+        insif = Ins_Case(t[2],t[3],t[5],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    elif len(t) == 5:
+        print('when when')
+        insif = Ins_Case(t[2],t[3],t[4],t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
+    else:
+        print('when solo ')
+        insif = Ins_Case(t[2],t[3],None,t.slice[1].lexpos, t.slice[1].lineno)
+        t[0] = insif
 
 def p_multiple(t):
     '''multiple : multiple COMA exp_plsql
-                    | exp_plsql'''
-
-def p_lista_exp(t):
-    ''' lista_exp : lista_exp COMA exp_plsql'''
-
-def p_lista_exp_only(t):
-    ''' lista_exp : exp_plsql'''
-
+                | exp_plsql'''
+    
+    if len(t) == 4:
+        t[1].append({'valor':t[3],'tipo':copy(bandexp[0])})
+        t[0] = t[1]
+    else:       
+        t[0] = [{'valor':t[1],'tipo':copy(bandexp[0])}]
 def p_statements(t):
     ''' statements : statements statement
                    | statement'''
@@ -2085,27 +2208,27 @@ def p_fparametros(t):
 # ======================================================================
 
 def p_alter_index(t):
-    '''alter_index : ALTER INDEX ID ID argcol arg_punto_coma'''
+    '''alter_index : ALTER INDEX if_exists ID ID argcol arg_punto_coma'''
     bandera = False
     for it in ListaIndices:
-        if it['name'] == str(t[3]):
+        if it['name'] == str(t[4]):
             iterador = 0
             for ite in it['columns']:
-                if ite == str(t[4]):
+                if ite == str(t[5]):
                     bandera = True
                     del it['columns'][iterador]
                     break
                 iterador = iterador + 1
             if bandera == True:
-                if isinstance(t[5],str):
-                    it['columns'].append(str(t[5]))
+                if isinstance(t[6],str):
+                    it['columns'].append(str(t[6]))
                 else:
-                    it['columns'].append('column('+str(t[5])+')')
+                    it['columns'].append('column('+str(t[6])+')')
                 break
     t[0] = GenerarC3D()
     t[0].statement = 'INDEX'
-    t[0].code = t[1] +' '+ t[2]  +' '+t[3]+' '+ t[4]  +' '+str(t[5])
-    
+    t[0].code = t[1] +' '+ t[2]  +' '+t[4]+' '+ t[5]  +' '+str(t[6])
+
 def p_argcol(t):
     '''argcol : ID
               | NUMERO'''
@@ -2123,11 +2246,17 @@ def p_drop_index(t):
     '''drop_index : DROP INDEX ID arg_punto_coma'''
     indici = str(t[3])
     iterador = 0
+    existe = True
     for it in ListaIndices:
         if it['name'] == indici:
             del ListaIndices[iterador]
+            existe = False
             break
         iterador = iterador + 1
+    if existe:
+        err = 'SEMANTICO: no se elimino el indice ya que no existe ningun indice con ese identificador. ERROR SEMANTICO en la linea: '+ str(t.slice[1].lineno) +' y columna: '+str(t.slice[1].lexpos)
+        TokenError.append(err)
+        print('no se elimino el indice ya que no existe ningun indice con ese identificador')
 
     t[0] = GenerarC3D()
     t[0].statement = 'INDEX'
@@ -2136,7 +2265,16 @@ def p_drop_index(t):
 
 def p_create_index(t):
     '''create_index : CREATE arg_unique INDEX ID ON ID arg_hash PARABRE param_index PARCIERRE arg_include arg_where_index arg_punto_coma'''
-    guardarIndice(t[4],t[6],copy(ListaAux),t.slice[1].lineno,consid[0],consid[1],consid[2],consid[3])
+    existe = False
+    for item in ListaIndices:
+        if item['name'] == str(t[4]):
+            existe = True
+            err = 'SEMANTICO: ya existe un indice con ese identificador. ERROR SEMANTICO en la linea: '+ str(t.slice[1].lineno) +' y columna: '+str(t.slice[1].lexpos)
+            TokenError.append(err)
+            print('ya existe un indice con ese nombre')
+            break
+    if not existe:
+        guardarIndice(t[4],t[6],copy(ListaAux),t.slice[1].lineno,consid[0],consid[1],consid[2],consid[3])
     ListaAux.clear()
     consid[0]='none'
     consid[1]='none'
@@ -2287,10 +2425,19 @@ def p_arg_where_param(t):
         t[0] = t[1] +' '+ str(t[2]) +' '+ t[3]
     else: 
         t[0] = str(t[1])
+
 def p_error(t):
     if t != None:
-        print('SINTACTICO ' + str(t.value )+ ' ERROR SINTÁCTICO ' + 'Fila: ' + str(t.lineno) + ' Columna: ' + str(t.lexpos))
+        err = 'SINTACTICO: Token = \"' + str(t.value)+ '\". ERROR SINTÁCTICO en la linea: '+ str(t.lineno) +' y columna: '+str(t.lexpos)
+        TokenError.append(err)
 
+def get_errores():
+    aux = ""
+    for index in range(len(TokenError)):
+        aux += '\n'+str(index)+'. Error: ' + str(TokenError[index]) 
+        print(aux)
+    TokenError.clear()
+    return aux
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal
 #"texto" -> en este parametro enviaremos el texto que deseamos analizar
 def analizarSin(texto):
@@ -2323,3 +2470,25 @@ def tab_string():
         x.add_row(tupla)
     return '\n'+ x.get_string() +'\n'
 
+def tab_func():
+    x = PrettyTable()
+    x.field_names = ['ID', 'PARAMETROS', 'ESTADO', 'TIPO']
+    for value in arregloFunciones:
+        tupla = [value['id'], value['parametros'], value['estado'], value['tipo']]
+        x.add_row(tupla)
+    arregloFunciones.clear()
+    return '\n' + x.get_string() + '\n'
+
+def tab_simbolos():
+    master = ""
+    for function in arregloF:
+        slave = '===== TABLA DE SIMBOLOS EN <<' + function['id'] + '>> ====='
+        x = PrettyTable()
+        x.field_names = ['ID','TIPO','VALOR', 'OPERACION']
+        x.fields
+        for v in function['valor']:
+            tupla = [v['id'], v['tipo'], v['temporal'], v['operacion']]
+            x.add_row(tupla)
+        slave += '\n'+x.get_string() + '\n\n'
+        master+= slave
+    return master

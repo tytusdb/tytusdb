@@ -49,7 +49,9 @@ class Pantalla:
         navMenu.add_command(label="REPORTE GRAMATICAL",
                             command=self.reporteGramatical)
         navMenu.add_command(label="REPORTE DE ERRORES",
-                            command=self.open_Reporte,)
+                            command=self.open_Reporte)
+        navMenu.add_command(label="OPTIMIZAR",
+                    command=self.optimizar)
 
         self.window.config(menu=navMenu)
         frame_btn = Frame(self.window)
@@ -174,12 +176,12 @@ class Pantalla:
         res = interpreter.generar_codigo_3d(entrada)
         self.lexicalErrors = res["err_lexicos"]
         self.syntacticErrors = res["err_sintacticos"]
-        #self.semanticErrors = res["semantic"]
+        self.semanticErrors = res["semantic"]
         self.ts = res["symbols"]
         if (
             len(self.lexicalErrors)
             + len(self.syntacticErrors)
-           # + len(self.semanticErrors)
+           + len(self.semanticErrors)
            # + len(self.postgreSQL)
             > 0
            ):
@@ -232,7 +234,7 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        info = self.read('Databases.json')
+        info = self.read('../analizer/Databases.json')
         f = open("tb.html", "w")
         f.write(json2html.convert(json=info))
         f.close()
@@ -249,6 +251,8 @@ class Pantalla:
         windowTableS = Pantalla_Error(
             self.window, self.lexicalErrors, self.syntacticErrors, self.semanticErrors
         )
+    def optimizar(self):
+        pass#metodo cante :v
 
     def reporteGramatical(self):
         os.system('cd test-output & ReporteGramatica.bnf')

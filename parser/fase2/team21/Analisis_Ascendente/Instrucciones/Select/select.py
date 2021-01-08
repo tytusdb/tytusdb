@@ -1,5 +1,5 @@
 #from Instrucciones.instruccion import Instruccion
-from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,ColCase,Case
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,ColCase,Case,Parametro
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import  IdAsId,Id,IdId
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
@@ -8,6 +8,8 @@ import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.E
 import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario as Binario
 import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Where as Where
 import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time as Time
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Function.Function as Function
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Procedure.Procedure as Procedure
 
 class Select(Instruccion):
     '''#1 time
@@ -31,13 +33,39 @@ class Select(Instruccion):
         self.columna = columna
         self.concatena = concatena
 
-    def obtenerCadenalistColumna(lista):
+    def obtenerCadenalistColumna(lista,listaProcFunc):
         select_list=''
         cont=0
         for columna in lista:
             if isinstance(columna, Id):
                 print(columna.id)
-                select_list+=' '+str(columna.id)+' '
+                if listaProcFunc==None:
+                    select_list+=' '+str(columna.id)+' '
+                else:
+                    encontrado=False
+                    for func in listaProcFunc:
+                        if isinstance(func,Function.Function):
+                            if isinstance(func.parametros,list):
+                                for param in func.parametros:
+                                    if isinstance(param,Parametro):
+                                        if param.id == str(columna.id):
+                                            select_list+=' {'+str(columna.id)+'} '
+                                            encontrado=True
+                                            break;
+                            if encontrado:
+                                break;
+                        elif isinstance(func,Procedure.Procedure):
+                            if isinstance(func.parametros,list):
+                                for param in func.parametros:
+                                    if isinstance(param, Parametro):
+                                        if param.id == str(columna.id):
+                                            select_list += ' {' + str(columna.id) + '} '
+                                            break;
+                            if encontrado:
+                                break;
+                    if not encontrado:
+                        select_list += ' ' + str(columna.id) + ' '
+
             elif isinstance(columna,IdId):
                 select_list+= IdId.ObtenerCadenaEntrada(columna)+' '
             elif isinstance(columna, IdAsId):
@@ -61,27 +89,27 @@ class Select(Instruccion):
                 select_list+=' '
         return select_list
 
-    def obtenerCadenaInner(inner):
+    def obtenerCadenaInner(inner,listaProcFunc):
         print(type(inner).__name__)
         if isinstance(inner,list):
-            valrs= Select.obtenerCadenalistColumna(inner)
+            valrs= Select.obtenerCadenalistColumna(inner,listaProcFunc)
             return valrs
         elif isinstance(inner,GroupBy):
-            valrs = GroupBy.ObtenerCadenaGroupBy(inner)
+            valrs = GroupBy.ObtenerCadenaGroupBy(inner,listaProcFunc)
             return valrs
 
-    def obtenerCadenaWhere(complementS):
+    def obtenerCadenaWhere(complementS,listaProcFunc):
         if isinstance(complementS,Expresion.Expresion):
-            condicion = Expresion.Expresion.ObtenerCadenaEntrada(complementS,False);
+            condicion = Expresion.Expresion.ObtenerCadenaEntradaWhere(complementS,listaProcFunc);
         elif isinstance(complementS,GroupBy):
-            condicion = GroupBy.ObtenerCadenaGroupBy(complementS)
+            condicion = GroupBy.ObtenerCadenaGroupBy(complementS,listaProcFunc)
         elif isinstance(complementS, Where.Where ):
             print(type(complementS).__name__) #esto es un caso where
-            condicion = Where.Where.ObtenerCadenaEntrada(complementS)
+            condicion = Where.Where.ObtenerCadenaEntrada(complementS, listaProcFunc)
 
         return condicion
 
-    def ObtenerCadenaEntradaCase(case):
+    def ObtenerCadenaEntradaCase(case,listaProcFunc):
 
         if isinstance(case, Case):
             asign = str(Select.ObtenerCadenaEntradaCase(case.asignacion))
@@ -90,21 +118,21 @@ class Select(Instruccion):
             cadena += ' WHEN ' + asign + ' THEN ' + val
             return cadena
         else:
-            return str(Expresion.Expresion.ObtenerCadenaEntrada(case, False))
+            return str(Expresion.Expresion.ObtenerCadenaEntradaWhere(case, listaProcFunc))
 
-    def ObtenerCadenaEntradaColCase(Cases):  # CASE cases END ID
+    def ObtenerCadenaEntradaColCase(Cases,listaProcFunc):  # CASE cases END ID
 
         if isinstance(Cases, list):
             listaCases = ' CASE '
             for casee in Cases:
-                c = str(Select.ObtenerCadenaEntradaCase(casee))
+                c = str(Select.ObtenerCadenaEntradaCase(casee,listaProcFunc))
                 listaCases += c + ' '
 
             listaCases += ' END '
             return listaCases
 
         elif isinstance(Cases, Case):
-            return str(Select.ObtenerCadenaEntradaCase(Cases))
+            return str(Select.ObtenerCadenaEntradaCase(Cases,listaProcFunc))
 
 class Limit(Instruccion):
     def __init__(self, all, e1, e2,fila,columna):
@@ -127,9 +155,9 @@ class Having(Instruccion):
         self.fila = fila
         self.columna = columna
 
-    def ObtenerCadenaHaving(hav):
+    def ObtenerCadenaHaving(hav,listaProcFunc):
         if isinstance(hav.lista,list):
-            camposagrupar = Select.obtenerCadenalistColumna(hav.lista)
+            camposagrupar = Select.obtenerCadenalistColumna(hav.lista,listaProcFunc)
 
         if hav.andOr == None:
             #solo es un group by sencillo
@@ -143,7 +171,7 @@ class Having(Instruccion):
         else: #tiene having
             andor=''
             if isinstance(hav.andOr,Expresion.Expresion):
-                andor= Expresion.Expresion.ObtenerCadenaEntrada(hav.andOr,False)
+                andor= Expresion.Expresion.ObtenerCadenaEntradaWhere(hav.andOr,listaProcFunc)
 
             havCad=''
             if hav.ordenar != None:
@@ -161,16 +189,16 @@ class GroupBy(Instruccion):
         self.fila = fila
         self.columna = columna
 
-    def ObtenerCadenaGroupBy(group):
+    def ObtenerCadenaGroupBy(group,listaProcFunc):
         tablas=''
         camposagrupar=''
         if isinstance(group.listaC,list) and group.listaC!=None: #verificamos las tablas antes del group by
-            tablas = Select.obtenerCadenalistColumna(group.listaC)
+            tablas = Select.obtenerCadenalistColumna(group.listaC,listaProcFunc)
         elif isinstance(group.listaC,Expresion.Expresion) and group.listaC!=None:
-            tablas = Expresion.Expresion.ObtenerCadenaEntrada(group.listaC, False)
+            tablas = Expresion.Expresion.ObtenerCadenaEntradaWhere(group.listaC, listaProcFunc)
 
         if isinstance(group.compGroup,Having):
-            camposagrupar= ' GROUP BY  '+Having.ObtenerCadenaHaving(group.compGroup)
+            camposagrupar= ' GROUP BY  '+Having.ObtenerCadenaHaving(group.compGroup,listaProcFunc)
 
         cadenaFinal= tablas+camposagrupar
         return cadenaFinal

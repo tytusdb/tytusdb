@@ -12,7 +12,7 @@ consola = []
 consola2 = []
 metodos_funciones = []
 consolaaux = []
-
+obtiene_drops = []
 exceptions = []
 columna = 0
 contador = 0
@@ -21,7 +21,7 @@ concatena_use = []
 concatena_alter = []
 concatena_insert = []
 concatena_index = []
-concatena_funciones_procedimientos = []
+recolecta_funciones_procedimientos = []
 concate_select_simple = []
 
 concatena = []
@@ -454,7 +454,7 @@ from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Sentencias_De_C
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Sentencias_De_Control.While import While
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Sentencias_De_Control.If import SIF, SElseIf
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Sentencias_De_Control.Case import When, CaseF2
-
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Function.DropFunction import DropFunctionProcedure
 
 precedence = (
     ('left', 'OR'),
@@ -499,6 +499,28 @@ def p_instruccion(t):
     t[0] = [t[1]]
     varGramatical.append('instrucciones ::= instrucciones instruccion')
     varSemantico.append('intrucciones=[instruccion] ')
+
+def p_alter_function(t):
+    #ALTER INDEX [ IF EXISTS ] name ALTER [ COLUMN ] column_number
+    #ALTER INDEX ind1 ALTER COLUMN nombre id
+    #ALTER INDEX ind1 ALTER COLUMN apellido numero
+                                                    #vieja nueva
+    'instruccion        : ALTER INDEX ID ALTER COLUMN ID ID PTCOMA'
+
+
+
+def p_drop_function1(t):
+    'instruccion        : DROP FUNCTION ID PTCOMA'
+    global columna
+    t[0] = DropFunctionProcedure(str(t[2]),str(t[3]),lexer.lineno,columna)
+
+def p_drop_procedure(t):
+    'instruccion        : DROP PROCEDURE ID PTCOMA'
+    t[0] = DropFunctionProcedure(str(t[2]),str(t[3]),lexer.lineno,columna)
+
+def p_drop_index(t):
+    'instruccion        : DROP INDEX ID PTCOMA'
+    t[0] = DropFunctionProcedure(str(t[2]),str(t[3]),lexer.lineno,columna)
 #------------------------------------------------------------------------------------------------------
 
 
@@ -557,7 +579,7 @@ def p_createIndex1(t):
     concatena_index.append(f")")
 
 
-
+    concatena_index = []
 
 
     varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA')
@@ -584,7 +606,7 @@ def p_createIndex2(t):
     concatena_index.append(f")")
 
 
-
+    concatena_index = []
     varGramatical.append('instruccion ::= CREATE INDEX ID ON ID USING HASH PARIZQ listaID  PARDR PTCOMA')
     varSemantico.append('instruccion = Index(2, ID, ID, listaID)')
 
@@ -652,9 +674,14 @@ def p_createIndex5(t):
 def p_asignacionpl1(t):
     'instruccion : ID DOSPUNTOS IGUAL E PTCOMA'
     global columna
+    concatena_cosas = []
     t[0] = AsignacionF2(1, t[1], t[4], lexer.lineno, columna)
     varGramatical.append('instruccion ::= ID DOSPUNTOS IGUAL E PTCOMA')
     varSemantico.append('instruccion = AsignacionF2(1, ID, E)')
+
+    print("holahola")
+    print(t[4]);
+
 
 def p_asignacionpl2(t):
     'instruccion : ID IGUAL E PTCOMA'
@@ -759,7 +786,7 @@ def p_createfunction1(t):
     t[0] = Function(1, t[2], t[4], t[6], t[9], t[11], t[13], t[15], lexer.lineno, columna)
     varGramatical.append('instruccion ::= CREATE orreplace FUNCTION ID PARIZQ parametros PARDR RETURNS tipo AS E DECLARE instrucciones BEGIN instrucciones END PTCOMA')
     varSemantico.append('asignacionvariable = Function(1, orreplace, ID, parametros, tipo, E, instrucciones, instrucciones)')
-    concatena_funciones_procedimientos.append(Function(1, t[2], t[4], t[6], t[9], t[11], t[13], t[15], lexer.lineno, columna))
+    recolecta_funciones_procedimientos.append(Function(1, t[2], t[4], t[6], t[9], t[11], t[13], t[15], lexer.lineno, columna))
 
 def p_createfunction2(t):
     #case 2
@@ -771,7 +798,7 @@ def p_createfunction2(t):
     t[0] = Function(2, t[2], t[4], t[6], t[9], t[11], None, t[13], lexer.lineno, columna)
     varGramatical.append('instruccion ::= CREATE orreplace FUNCTION ID PARIZQ parametros PARDR RETURNS tipo AS E BEGIN instrucciones END PTCOMA')
     varSemantico.append('asignacionvariable = Function(1, orreplace, ID, parametros, tipo, E, instrucciones)')
-    concatena_funciones_procedimientos.append(t[0])
+    recolecta_funciones_procedimientos.append(t[0])
 
 # tambien se usa para los store procedure
 def p_createorreplacefunction(t):
@@ -2498,15 +2525,15 @@ def p_instselect(t):
     global columna
     global concatenaTime
 
-    fromt = Select.obtenerCadenaInner(t[5])
+    fromt = Select.obtenerCadenaInner(t[5],None)
     order=''
     if t[6] !=None:
-        order= ' ORDER BY '+str(Select.obtenerCadenalistColumna(t[6]))
+        order= ' ORDER BY '+str(Select.obtenerCadenalistColumna(t[6],None))
 
     if isinstance(t[3],str):
         concatenaTime.append(f"SELECT DISTINCT * FROM  {fromt} {order};")
     else:
-        cols = Select.obtenerCadenalistColumna(t[3])
+        cols = Select.obtenerCadenalistColumna(t[3],None)
 
         concatenaTime.append(f"SELECT DISTINCT {cols} FROM {fromt} {order};")
 
@@ -2522,11 +2549,11 @@ def p_instselect2(t):
     global columna
     global concatenaTime
 
-    fromt = Select.obtenerCadenaInner(t[5])
+    fromt = Select.obtenerCadenaInner(t[5],None)
     order = ''
     subq=''
     if t[6] != None:
-        order = ' ORDER BY ' + str(Select.obtenerCadenalistColumna(t[6]))
+        order = ' ORDER BY ' + str(Select.obtenerCadenalistColumna(t[6],None))
 
     if t[4]!=None and t[4].caso!=4:
         subq= '( '+(t[4]).concatena[0].replace(";","") + ' ) '
@@ -2534,7 +2561,7 @@ def p_instselect2(t):
     if isinstance(t[2], str):
         concatenaTime.append(f"SELECT  * FROM  {subq}{fromt} {order};")
     else:
-        cols = Select.obtenerCadenalistColumna(t[2])
+        cols = Select.obtenerCadenalistColumna(t[2],None)
 
         concatenaTime.append(f"SELECT  {cols} FROM  {subq}{fromt}{order};")
 
@@ -2555,9 +2582,12 @@ def p_instselect3(t):
     varSemantico.append('select2 = Select(4, False, None, select_list, None, None, None, None, None) ')
     print("estsos son")
 
+    #Expresion.ObtenerCadenaEntrada()
     for info in t[2]:
         print(info)
     print("\n")
+
+
     concate_select_simple.append(f"SELECT  ")
     realizaobtencionexpresiones(concatena_expresiones,t[2])
     concate_select_simple.append(concatena_expresiones)
@@ -2572,14 +2602,14 @@ def p_instselect4(t):
     global columna
     global concatenaTime
 
-    fromt = Select.obtenerCadenaInner(t[5])
+    fromt = Select.obtenerCadenaInner(t[5],None)
     order = ''
     subq = ''
 
     where=''
-    where = ' WHERE ' +str(Select.obtenerCadenaWhere(t[7]))+' '
+    where = ' WHERE ' +str(Select.obtenerCadenaWhere(t[7],None))+' '
     if t[8] != None:
-        order = ' ORDER BY ' + str(Select.obtenerCadenalistColumna(t[6]))+' '
+        order = ' ORDER BY ' + str(Select.obtenerCadenalistColumna(t[6],None))+' '
 
     if t[4] != None and t[4].caso != 4:
         subq = '( ' + (t[4]).concatena[0].replace(";","") + ' ) '
@@ -2587,7 +2617,7 @@ def p_instselect4(t):
     if isinstance(t[2], str):
         concatenaTime.append(f"SELECT  * FROM  {subq}{fromt} {where}{order};")
     else:
-        cols = Select.obtenerCadenalistColumna(t[2])
+        cols = Select.obtenerCadenalistColumna(t[2],None)
 
         concatenaTime.append(f"SELECT  {cols} FROM  {subq}{fromt}{where}{order};")
     t[0] = Select(5, False, None, t[2], t[4], t[5], t[8], t[9], t[7],concatenaTime, lexer.lineno, columna)
@@ -3107,7 +3137,7 @@ def p_createProcedure1(t):
     '''
     global columna
     t[0] = Procedure(1, t[2], t[4], t[6], t[9], t[11], t[12], t[13], None, None, lexer.lineno, columna)
-    concatena_funciones_procedimientos.append(t[0])
+    recolecta_funciones_procedimientos.append(t[0])
     varGramatical.append('instruccion ::= CREATE orreplace PROCEDURE ID PARIZQ parametros PARDR LANGUAGE E AS E instrucciones ID PTCOMA')
     varSemantico.append('instruccion = Procedure(1, orreplace, ID, parametros, E, E, instrucciones, ID, None, None)')
 def p_createProcedure2(t):
@@ -3122,7 +3152,7 @@ def p_createProcedure2(t):
     '''
     global columna
     t[0] = Procedure(2, t[2], t[4], t[6], t[9], t[11], None, None, t[13], t[15], lexer.lineno, columna)
-    concatena_funciones_procedimientos.append(t[0])
+    recolecta_funciones_procedimientos.append(t[0])
     varGramatical.append(
         'instruccion ::= CREATE orreplace PROCEDURE ID PARIZQ parametros PARDR LANGUAGE E AS E DECLARE instrucciones BEGIN instrucciones END PTCOMA')
     varSemantico.append('instruccion = Procedure(1, orreplace, ID, parametros, E, E, None, None, instrucciones, instrucciones)')
@@ -3150,7 +3180,7 @@ def p_createProcedure3(t):
     '''
     global columna
     t[0] = Procedure(3, t[2], t[4], t[6], t[9], t[11], None, None, None, t[13], lexer.lineno, columna)
-    concatena_funciones_procedimientos.append(t[0])
+    recolecta_funciones_procedimientos.append(t[0])
     varGramatical.append('instruccion ::= CREATE orreplace PROCEDURE ID PARIZQ parametros PARDR LANGUAGE E AS E BEGIN instrucciones END PTCOMA')
     varSemantico.append('instruccion = Procedure(3, orreplace, ID, parametros, E, E, None, None, None, instrucciones)')
 def p_inicioDo1(t):
@@ -3290,11 +3320,13 @@ def realizaobtencionexpresiones(concatena,lista):
             elif isinstance(valor,Llamada):
                 concatena2 = []
                 realizaobtencionexpresiones(concatena2,valor.listaE)
+
                 for data in concatena2:
                     concatena.append(f"%{data}")
                 concatena.append(f"? = {valor.id} ")
                 print(valor.id, valor.listaE)
-
+            elif isinstance(valor,Id):
+                concatena.append(f"! = {valor.id} ")
             elif isinstance(valor,Math_):
                 consolaprovicional = []
                 try:
@@ -3439,12 +3471,53 @@ def procesar_instrucciones(instrucciones, ts):
                 #print("Estas en el caso 2")
             elif (instr.caso == 3):
                 variable = selectInst.Select_inst()
-                selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
+                #selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
+                try:
+                    data = selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
+                    data = str(data[0]).replace("\'","")
+                    data = str(data).replace("[", "")
+                    data = str(data).replace("]", "")
+
+                    print("data3 ", data)
+                    ret = None
+                    try:
+                        ret = int(data)
+                    except:
+                        ret =data
+
+                    return ret
+                except:
+                    print("")
             elif (instr.caso == 4):
-                Selectp3.ejecutar(instr, ts, consola, exceptions,True)
-                print("ejecute select 4")
+                print("definitivamente")
+                data = Selectp3.ejecutar(instr, ts, consola, exceptions,True)
+
             elif (instr.caso == 5):
-                Selectp4.ejecutar(instr, ts, consola, exceptions,True)
+                print("data5")
+                data =Selectp4.ejecutar(instr, ts, consola, exceptions,True)
+                print("data5",data)
+                try:
+
+                    data = str(data[1][0]).replace("['","")
+                    data = str(data).replace("']","")
+                    print("->data5 ", data)
+
+                    ret = None
+                    try:
+                        if "[" in str(data):
+                            data = str(data).replace("[","")
+                            data = str(data).replace("]", "")
+                            ret = int(data)
+                            print("sisi",ret)
+                        else:
+                            ret = int(data)
+                    except:
+                        ret =data
+
+                    return ret
+                except:
+                    print("")
+
             elif (instr.caso == 6):
                 consola.append('caso 6')
 
@@ -3479,13 +3552,100 @@ def procesar_instrucciones(instrucciones, ts):
             Index.ejecutar(instr,ts,consola,exceptions)
         elif isinstance(instr,Function):
             print("aqui estoy bien")
-
+        elif isinstance(instr,Procedure):
+            Procedure.ejecutar(instr,ts,consola,exceptions)
+            print("")
+        elif isinstance(instr,DropFunctionProcedure):
+            DropFunctionProcedure.ejecutar(instr,ts,consola,exceptions)
 
 
 
 
         else:
             print('Error: instrucción no válida')
+
+
+def procesar_instrucciones2(instrucciones, ts):
+    ## lista de instrucciones recolectadas
+    global consola
+    global exceptions
+
+
+    if (instrucciones == None):
+        MessageBox.showinfo("Errores Sintacticos", "Revisa el reporte de errores sintacticos")
+        return
+
+    for instr in instrucciones:
+
+        print(isinstance(instr, CreateReplace), " - ", instr )
+        if isinstance(instr, CreateReplace):
+            CreateReplace.ejecutar(instr, ts, consola, exceptions)
+            print("ejecute create")
+        elif isinstance(instr, Select):
+            print('*****' + str(instr.caso))
+            if (instr.caso == 1):
+
+                selectTime.ejecutar(instr, ts, consola,exceptions,True)
+            elif (instr.caso == 2):
+                variable = SelectDist.Select_Dist()
+                SelectDist.Select_Dist.ejecutar(variable, instr, ts, consola, exceptions)
+                #print("Estas en el caso 2")
+            elif (instr.caso == 3):
+                variable = selectInst.Select_inst()
+                selectInst.Select_inst.ejecutar(variable, instr, ts, consola,exceptions)
+            elif (instr.caso == 4):
+                Selectp3.ejecutar(instr, ts, consola, exceptions,True)
+
+            elif (instr.caso == 5):
+                print("data5")
+                data =Selectp4.ejecutar(instr, ts, consola, exceptions,True)
+
+            elif (instr.caso == 6):
+                consola.append('caso 6')
+
+        elif isinstance(instr, CreateTable):
+            CreateTable.ejecutar(instr, ts, consola, exceptions)
+            print("ejecute create table")
+        elif isinstance(instr, Use):
+            Use.ejecutar(instr,ts , consola, exceptions)
+            print("ejecute use")
+        elif isinstance(instr, InsertInto):
+            InsertInto.ejecutar(instr,ts,consola,exceptions)
+            print("Ejecute un insert")
+        elif isinstance(instr, Drop):
+            Drop.ejecutar(instr, ts, consola, exceptions)
+            print("Ejecute drop")
+        elif isinstance(instr, AlterDatabase):
+            AlterDatabase.ejecutar(instr, ts, consola, exceptions)
+            print("Ejecute alter database")
+        elif isinstance(instr, AlterTable):
+            AlterTable.ejecutar(instr, ts, consola, exceptions)
+            print("Ejecute alter table")
+        elif isinstance(instr, Delete):
+            Delete.ejecutar(instr, ts, consola, exceptions)
+            print("Ejecute delete")
+        elif isinstance(instr, Update):
+            Update.ejecutar(instr, ts, consola, exceptions)
+        elif isinstance(instr,CreateType):
+            CreateType.ejecutar(instr,ts,consola,exceptions)
+        elif isinstance(instr,Show):
+            Show.ejecutar(instr,ts,consola,exceptions)
+        elif isinstance(instr, Index):
+            Index.ejecutar(instr,ts,consola,exceptions)
+        elif isinstance(instr,Function):
+            print("aqui estoy bien")
+        elif isinstance(instr,Procedure):
+            Procedure.ejecutar(instr,ts,consola,exceptions)
+            print("")
+        elif isinstance(instr,DropFunctionProcedure):
+            DropFunctionProcedure.ejecutar(instr,ts,consola,exceptions)
+
+
+
+
+        else:
+            print('Error: instrucción no válida')
+
 
 #------prueba
 #no borrar
@@ -3494,16 +3654,19 @@ import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.TablaValores 
 
 
 def procesar_traduccion(instrucciones, ts):
+
     ## lista de instrucciones recolectadas
     global consola2
     global exceptions
     global concatena
     global concatenaTime
     global consolaaux
+    global obtiene_drops
     global metodos_funciones
-
+    consolaaux =[]
     concatenaAux = []
     consola2 = []
+    metodos_funciones = []
     concatenaAux = []
     #------prueba
     #no borrar
@@ -3519,6 +3682,9 @@ def procesar_traduccion(instrucciones, ts):
         MessageBox.showinfo("Errores Sintacticos", "Revisa el reporte de errores sintacticos")
         return
 #---------MODIFICACION
+    print("Obtiene dros")
+    print(obtiene_drops)
+    traduccion2(instrucciones, ts,consolaaux,metodos_funciones, exceptions, concatena, TV)
     traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, concatena, TV)
     consola2.append(consolaaux)
     consola2.append(metodos_funciones)
@@ -3529,10 +3695,27 @@ def procesar_traduccion(instrucciones, ts):
     print(optimizado)
 
 
-def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, concatena, TV):
-#---------FIN MODIFICACION
+def traduccion2(instrucciones, ts, consolaaux, metodos_funciones, exceptions, concatena, TV):
+    global obtiene_drops
     for instr in instrucciones:
 
+        if isinstance(instr, DropFunctionProcedure):
+            #DropFunctionProcedure.traducir(instr, ts, consolaaux, exceptions, TV)
+            print("marcos")
+            print(instr.tipo)
+            if str(instr.tipo).upper() == "PROCEDURE":
+                obtiene_drops.append(instr.id)
+            elif str(instr.tipo).upper() == "FUNCTION":
+                obtiene_drops.append(instr.id)
+        # ---------prueba
+
+
+def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, concatena, TV):
+    #---------FIN MODIFICACION
+    global  obtiene_drops
+    global recolecta_funciones_procedimientos
+    print('ENTRAAAAAAAAAA')
+    for instr in instrucciones:
 
         if isinstance(instr, CreateReplace):
             CreateReplace.traducir(instr, ts, consolaaux, exceptions,TV)
@@ -3552,7 +3735,11 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
                 Selectp3.traducir(instr,  consolaaux,TV)
                 print("ejecute select 4")
             elif (instr.caso == 5):
-                Selectp4.traducir(instr, ts, consolaaux, exceptions,TV)
+
+                print("Aqui merito")
+                print('CASO 5 :(')
+
+                Selectp4.traducir(instr, ts, consolaaux,recolecta_funciones_procedimientos,TV)
             elif (instr.caso == 6):
                 consola.append('caso 6')
 
@@ -3588,21 +3775,26 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
             print("ejecute show")
         elif isinstance(instr,Index):
             Index.traducir(instr,consolaaux,TV)
+        elif isinstance(instr,DropFunctionProcedure):
+
+            DropFunctionProcedure.traducir(instr, ts, consolaaux, exceptions,TV)
 
         #---------prueba
         #no borrar
         elif isinstance(instr, AsignacionF2):
-            AsignacionF2.traducir(instr, ts, consolaaux, exceptions, TV, regla, antes, optimizado)
+            AsignacionF2.traducir(instr, ts, consolaaux, exceptions, TV, regla, antes, optimizado,recolecta_funciones_procedimientos)
         elif isinstance(instr, SIF):
             SIF.traducir(instr, ts,consolaaux ,metodos_funciones, exceptions, TV, concatena, regla, antes, optimizado)
         elif isinstance(instr, Function):
+            #if not instr.id in obtiene_drops:
             Function.traducir(instr, ts, metodos_funciones, exceptions, TV, concatena)
         elif isinstance(instr, Return):
             Return.traducir(instr, ts, consolaaux, exceptions, TV, regla, antes, optimizado)
             #para no traducir codigo inalcanzable
             break
         elif isinstance(instr, Procedure):
-            Procedure.traducir(instr, ts, metodos_funciones, exceptions, TV, concatena)
+            #if not instr.id in obtiene_drops:
+             Procedure.traducir(instr, ts, metodos_funciones, exceptions, TV, concatena)
         elif isinstance(instr, Call):
             Call.traducir(instr, ts, consolaaux, exceptions, TV, regla, antes, optimizado)
         elif isinstance(instr, Execute):
@@ -3617,21 +3809,23 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
 
 
 
+inicial2 = {}
 def T3(entrada):
+    global inicial2
     global L_errores_lexicos
     global L_errores_sintacticos
     global consola
     global exceptions
     global lexer
-    global concatena_funciones_procedimientos
+    global recolecta_funciones_procedimientos
     # limpiar
     lexer.input("")
     lexer.lineno = 0
-    dropAll()
-    consola = []
-    exceptions = []
-    L_errores_lexicos = []
-    L_errores_sintacticos = []
+    #dropAll()
+    #consola = []
+    #exceptions = []
+    #L_errores_lexicos = []
+    #L_errores_sintacticos = []
     # f = open("./entrada2.txt", "r")
     # input = f.read()
     # print(input)
@@ -3643,34 +3837,39 @@ def T3(entrada):
     reporte = AST.AST(entrada)
     reporte.ReportarAST()
     # inicia analisis semantico
-    inicial = {}
-    ts_global = TablaDeSimbolos(inicial)
-    print("analizando........")
-    #print(instrucciones)
-    #print("instrucciones " ,entrada)
-    print("#######################################################")
-    for funciones_metodos in concatena_funciones_procedimientos:
-        print("->",funciones_metodos)
-        #procesar_instrucciones(funciones_metodos,ts_global)
-    print("#######################################################")
-    for arbolito in entrada:
-        procesar_instrucciones(arbolito, ts_global)
 
+    ts_global = TablaDeSimbolos(inicial2)
+    print("analizando........")
+    valor = None
+    try:
+        valor = procesar_instrucciones(entrada, ts_global)
+    except:
+        procesar_instrucciones(entrada, ts_global)
 
 
     print("Lista Lexico\n", L_errores_lexicos)
     print("Lista Sintactico\n", L_errores_sintacticos)
     # Reporte de analisis lexico y sintactico
-    reportes = RealizarReportes()
-    reportes.generar_reporte_lexicos(L_errores_lexicos)
-    reportes.generar_reporte_sintactico(L_errores_sintacticos)
-    reportes.generar_reporte_tablaSimbolos(ts_global.simbolos)
-    reportes.generar_reporte_semanticos(exceptions)
+    #reportes = RealizarReportes()
+    #reportes.generar_reporte_lexicos(L_errores_lexicos)
+    #reportes.generar_reporte_sintactico(L_errores_sintacticos)
+    #reportes.generar_reporte_tablaSimbolos(ts_global.simbolos)
+    #reportes.generar_reporte_semanticos(exceptions)
 
     print("Fin de analisis")
     print("Realizando reporte gramatical")
-    graphstack(varGramatical, varSemantico)
-    return consola
+    #graphstack(varGramatical, varSemantico)
+
+    vectoraux = []
+
+    print("vectoraux")
+    print(consola)
+    print(valor)
+    print("fin")
+    vectoraux.append(consola)
+    vectoraux.append(valor)
+
+    return vectoraux
 
 
 def ejecutarTraduccion(entrada):
@@ -3681,7 +3880,7 @@ def ejecutarTraduccion(entrada):
     global consola2
     global exceptions
     global lexer
-
+    global concatenaAux
     global concatena_createtable
     global concatena_alter
     global consolaaux
@@ -3701,7 +3900,8 @@ def ejecutarTraduccion(entrada):
     concatena_createtable = []
     concatena_alter = []
 
-
+    consolaaux = []
+    consola2 = []
     instrucciones = parser.parse(entrada)
     reporte = AST.AST(instrucciones)
     reporte.ReportarAST()
@@ -3711,8 +3911,27 @@ def ejecutarTraduccion(entrada):
     print("analizando........")
     print(instrucciones)
 
-    procesar_instrucciones(instrucciones,ts_global)
+
+    #procesar_instrucciones(instrucciones,ts_global)
+
     procesar_traduccion(instrucciones, ts_global)
+
+    print("################################################################")
+
+    for data in recolecta_funciones_procedimientos:
+        print(data.id)
+
+        if ts_global.validar_sim(data.id) == -1:
+            if isinstance(data,Function):
+                funciones = TS.Simbolo(TS.TIPO_DATO.FUNCION,data.id,"return","Expresion",None)
+                ts_global.agregar_sim(funciones)
+            elif isinstance(data,Procedure):
+                procedimiento = TS.Simbolo(TS.TIPO_DATO.PROCEDIMIENTO,data.id,"SQL",None,None)
+                ts_global.agregar_sim(procedimiento)
+
+    print("################################################################")
+
+    procesar_instrucciones2(instrucciones,ts_global)
 
     print("Lista Lexico\n", L_errores_lexicos)
     print("Lista Sintactico\n", L_errores_sintacticos)
@@ -3725,7 +3944,7 @@ def ejecutarTraduccion(entrada):
 
     #print("Fin de analisis")
     #print("Realizando reporte gramatical")
-    #graphstack(varGramatical, varSemantico)
+    graphstack(varGramatical, varSemantico)
     reporteOptimizacion(regla, antes, optimizado) #-----> NO Borrar reporte optimizacion de codigo
     return consola2
 
@@ -3739,7 +3958,6 @@ def ejecutarAnalisis2(entrada):
     global L_errores_sintacticos
     global consola
     global exceptions
-    global consola2
     global lexer
     # limpiar
     lexer.input("")
@@ -3750,10 +3968,7 @@ def ejecutarAnalisis2(entrada):
 
     L_errores_lexicos = []
     L_errores_sintacticos = []
-    # f = open("./entrada2.txt", "r")
-    # input = f.read()
-    # print(input)
-    #consola2 = []
+
     # realiza analisis lexico y semantico
     instrucciones = parser.parse(entrada)  #
     reporte = AST.AST(instrucciones)
@@ -3763,18 +3978,23 @@ def ejecutarAnalisis2(entrada):
     ts_global = TablaDeSimbolos(inicial)
     print("analizando........")
     print(instrucciones)
-    procesar_instrucciones(instrucciones, ts_global)
+
 
     print("################################################################")
 
-    for data in concatena_funciones_procedimientos:
+    for data in recolecta_funciones_procedimientos:
         print(data.id)
 
         if ts_global.validar_sim(data.id) == -1:
-            funciones = TS.Simbolo(TS.TIPO_DATO.FUNCION,data.id,"return","Expresion",None)
-            ts_global.agregar_sim(funciones)
-    print("################################################################")
+            if isinstance(data,Function):
+                funciones = TS.Simbolo(TS.TIPO_DATO.FUNCION,data.id,"return","Expresion",None)
+                ts_global.agregar_sim(funciones)
+            elif isinstance(data,Procedure):
+                procedimiento = TS.Simbolo(TS.TIPO_DATO.PROCEDIMIENTO,data.id,"SQL",None,None)
+                ts_global.agregar_sim(procedimiento)
 
+    print("################################################################")
+    procesar_instrucciones(instrucciones, ts_global)
     print("Lista Lexico\n", L_errores_lexicos)
     print("Lista Sintactico\n", L_errores_sintacticos)
     # Reporte de analisis lexico y sintactico

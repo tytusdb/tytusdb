@@ -145,25 +145,13 @@ class Update(Instruccion):
         #print(instr.concatena)
         for data in instr.concatena:
             info += " " + data
-        #regex = r'\((.*?)\)'
-        #paramaetros = re.findall(regex, instr.concatena)
-        #index = 0
-        #contador = 0
-        #regex2 = r'(=.*?\()'
-        #funciones = re.findall(regex2, instr.concatena)
-        #matches2[0].replace("=", "").replace("(", "").replace(" ", "")
-        #matches2[1].replace("=", "").replace("(", "").replace(" ", "")
-        #if funciones:
 
-         #   if paramaetros:
-         #       pass
-
-        #else:
         contador = tv.Temp()
         consola.append(f"\n\t{contador} = \"{info}\"")
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({contador})")
-        consola.append(f"\n\tstack.append({contador2})\n")
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")
 
 def ListaCampos(asignaciones, consola, exceptions, updateinst) -> list:
     campos = []

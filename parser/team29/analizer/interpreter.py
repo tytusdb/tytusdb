@@ -1,10 +1,15 @@
 from sys import path
 from os.path import dirname as dir
+from numpy.lib.arraysetops import isin
 from prettytable import PrettyTable
 
 path.append(dir(path[0]))
 
 from analizer.statement.instructions.select.select import Select
+from analizer.statement.functions.call import FunctionCall, TYPE
+from analizer.statement.functions.extract import ExtractDate
+from analizer.statement.functions.part import DatePart
+from analizer.statement.expressions.primitive import Primitive
 from analizer.abstract import instruction
 from analizer import grammar
 from analizer.reports import BnfGrammar
@@ -33,8 +38,6 @@ def execution(input):
                 else:
                     querys.append(None)
                     messages.append("Error: Select.")
-                # print(r[0].iloc[0].iloc[0])
-                # print(r)
             else:
                 r = v.execute(None)
                 print(r)
@@ -42,6 +45,7 @@ def execution(input):
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
     symbols = symbolReport()
+    indexes = indexReport()
     obj = {
         "messages": messages,
         "querys": querys,
@@ -50,6 +54,7 @@ def execution(input):
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
         "symbols": symbols,
+        "indexes": indexes,
     }
     printTable_PT(querys)
     astReport()
@@ -116,9 +121,6 @@ def selectFirstValue(input):
     return result
 
 
-print(selectFirstValue("SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');"))
-
-
 def indexReport():
     index = File.importFile("Index")
     enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
@@ -126,12 +128,38 @@ def indexReport():
     for (name, Index) in index.items():
         columns = ""
         for column in Index["Columns"]:
-            columns += ", " + column["Name"]
+            columns += ", " + column["Name"] + " "  + column["Order"] + " "  + column["Nulls"] 
         filas.append(
             [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
         )
     enc.append(filas)
-    return [enc]
+    return enc
+
+
+def invokeFunction(id, *params):
+    temp = None
+    list_ = params
+    params = []
+    for p in list_:
+        if isinstance(p, str):
+            p = p.strip('"')
+            p = p.strip("'")
+        params.append(p)
+    if id == "extract":
+        temp = ExtractDate(params[0], params[1], params[2], 0, 0)
+        temp = temp.execute(None)
+    elif id == "date_part":
+        temp = DatePart(params[0], params[1], params[2], 0, 0)
+        temp = temp.execute(None)
+    else:
+        parameters = []
+        for p in params:
+            parameters.append(Primitive(TYPE.NULL, p, p, 0, 0))
+        temp = FunctionCall(id, parameters, 0, 0)
+        temp = temp.execute(None)
+    if temp:
+        return temp.value
+    return temp
 
 
 def printTable_PT(tables):

@@ -895,3 +895,22 @@ class SelectFun(Instruccion):
         self.parametros = parametros
         self.instruccion3d = instruccion3d
 
+class DropIndex(Instruccion):
+    def __init__(self,idI,instruccion3d):
+        self.idI = idI
+        self.instruccion3d = instruccion3d
+
+class AlterRenameIn(Instruccion):
+    def __init__(self,nombreIn,nuevoNom,instruccion3d):
+        self.nombreIn = nombreIn
+        self.nuevoNom = nuevoNom
+        self.instruccion3d = instruccion3d
+
+
+class AlterIndex(Instruccion):
+    def __init__(self,nombre,columna,columnaCambio,tipoC,instruccion3d):
+        self.nombre = nombre
+        self.columna = columna
+        self.columnaCambio = columnaCambio
+        self.tipoC = tipoC
+        self.instruccion3d = instruccion3d

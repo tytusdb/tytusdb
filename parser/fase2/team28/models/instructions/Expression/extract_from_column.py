@@ -13,6 +13,7 @@ class ExtractFromIdentifiers(Expression):
         self.line = line
         self.column = column
         self.alias = f'{name_date2}({self.name_opt.alias})'
+        self._tac = ''
 
 
     def __repr__(self):

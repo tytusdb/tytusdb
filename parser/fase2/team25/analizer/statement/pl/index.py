@@ -5,7 +5,7 @@ from analizer.abstract import instruction
 from analizer.reports import Nodo
 from analizer.symbol.environment import Environment
 
-indexEnv = Environment(None)
+indexEnv = Environment(None,for3d=True)
 indicesReg = dict()
 
 class Index(instruction.Instruction):
@@ -17,9 +17,6 @@ class Index(instruction.Instruction):
         super().__init__(row, column)
 
     def execute(self, environment):
-        if not indexEnv in instruction.envVariables:
-            instruction.envVariables.append(indexEnv)
-
         campos = 'Campos: '
         if isinstance(self.fields, list):
             for index in range(len(self.fields)):
@@ -35,7 +32,9 @@ class Index(instruction.Instruction):
         if indexEnv.addVar(self.index,  valor, tipo, self.row, self.column):
             indicesReg[self.index] = self
         else:
-            pass
+            instruction.semanticErrors.append(
+                ("ERROR: El indice ya existe",self.row)
+            )
 
     def dot(self):
         texto = "CREATE_INDEX"
@@ -73,25 +72,28 @@ class Index(instruction.Instruction):
 
 #TODO Implementar errores semanticos
 def dropIndex(id):
-    if not indexEnv in instruction.envVariables:
-        instruction.envVariables.append(indexEnv)
 
     if id in indexEnv.variables:
         indexEnv.variables.pop(id)
         return indicesReg.pop(id)
     else:
-        pass
+        instruction.semanticErrors.append(
+            ("ERROR: El indice no existe",0)
+        )
 
-def alterIndex(id, indice):
-    if not indexEnv in instruction.envVariables:
-        instruction.envVariables.append(indexEnv)
-
+def alterIndex(id, indice, existencia = False):
     if id in indexEnv.variables:
         mod = dropIndex(id)
         try:
+            if len(mod.fields) == 1:
+                raise Exception()
             mod.fields.pop(indice)
             mod.execute(None)
         except:
-            pass 
-    else:
-        pass
+            instruction.semanticErrors.append(
+                ("ERROR: Fuera de los limites de los indices",0)
+            )  
+    elif not existencia:
+        instruction.semanticErrors.append(
+            ("ERROR: El indice no existe",0)
+        ) 

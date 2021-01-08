@@ -11,6 +11,7 @@ from ui.Pantalla_Error import *
 import tkinter.messagebox
 from analizer import interpreter
 from prettytable import PrettyTable
+from Optimizador import gramatica as g
 
 class Pantalla:
     def __init__(self):
@@ -54,16 +55,31 @@ class Pantalla:
         btn_1.pack(side=LEFT, anchor=E, padx=25, pady=20)
         btn = Button(frame_btn, text="Consultar", command=self.analize)
         btn.pack(side=LEFT, anchor=E, padx=25, pady=20)
+        btn2 = Button(frame_btn, text="Optimizar", command=self.optimizarSis)
+        btn2.pack(side=LEFT, anchor=E, padx=25, pady=20)
         frame_btn.pack()
         # Creacion del notebook
         self.tabControl = ttk.Notebook(self.window, width=650, height=300)
-        console_frame = Frame(self.tabControl, height=20, width=150, bg="#d3d3d3")
+        console_frame = Frame(self.tabControl, height=20, width=150, bg="#d3d3d3")  
         self.text_Consola = tk.Text(console_frame, height=20, width=150)
         self.text_Consola.pack(fill=BOTH)
         console_frame.pack(fill=BOTH)
         self.tabControl.add(console_frame, text="Codigo 3 Direcciones")
         self.tabControl.pack()
         self.window.mainloop()
+
+    def optimizarSis(self):
+        vairableSis = (self.text_Consola.get(
+            "1.0", END
+            ) )
+        instrucciones = g.parse(vairableSis)
+        tempSis=[[['reglas','antes','despues'],g.reporte_optimizar]]
+        self.show_result(tempSis)
+        for e in g.respuesta:
+            print(e,end="")
+
+        print('\n Reporte--\n')
+        print(g.reporte_optimizar)
 
     def show_result(self, consults):
         if consults != None:
@@ -119,8 +135,8 @@ class Pantalla:
         entrada = self.txt_entrada.get(
             "1.0", END
         )  # variable de almacenamiento de la entrada
-        result = interpreter.execution(entrada)
         result_c3d = interpreter.getc3d(entrada)
+        result = interpreter.execution(entrada)
         self.lexicalErrors = result["lexical"]
         self.syntacticErrors = result["syntax"]
         self.semanticErrors = result["semantic"]
@@ -153,6 +169,8 @@ class Pantalla:
             print("\n")
             print("\n")
         '''
+        #print('Imprimiendo querys')
+        #print(querys)
         self.show_result(querys)
         #messages = result["messages"]
         #if len(messages) > 0:
