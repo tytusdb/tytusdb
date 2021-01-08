@@ -1670,10 +1670,11 @@ def p_using_hash_opt(t):
 ##########   >>>>>>>>>>>>>>>>  DROP INDEX  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_drop_index(t):
     '''stm_drop_index   : DROP INDEX  concurrently_opt if_exists_opt ID mode_drop_function_opt'''
+    token = t.slice[1]
     childsProduction = addNotNoneChild(t, [3,4,6])
     graph_ref = graph_node(str("stm_drop_index"), [t[1], t[2],t[3], t[4], t[5],t[6]], childsProduction)
     addCad("**\<STM_DROP_INDEX>** ::= tDrop tIndex [\<IF_EXISTS_OPT>] tIdentifier [\<MODE_DROP_FUNCTION_OPT>] ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
+    t[0] = DropIndex(t[3], t[4], t[5], t[6], token.lineno, token.lexpos, graph_ref)
     #####
 
 def p_concurrently_opt(t):

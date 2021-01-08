@@ -238,6 +238,11 @@ class SymbolTable:
                 found = True
                 break
         return found
+    def drop_index(self, index_name):
+        for s in self.symbols:
+            if s.type == SymbolType.INDEX and str(s.name).lower() == str(index_name).lower():
+                self.symbols.remove(s)
+                break
 
     def report_symbols(self):
         result2 = ["NOMBRE", "TIPO", "PERTENECE A", "COLUMNAS AFECTADAS[Indices]"]
