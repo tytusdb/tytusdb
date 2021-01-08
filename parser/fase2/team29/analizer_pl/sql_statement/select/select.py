@@ -57,13 +57,33 @@ class Select(instruction.Instruction):
         self.limitCl = limitCl
 
     def execute(self, environment):
+        parVal = ""
         out = "fase1.execution(dbtemp + "
         out += '" '
         out += "SELECT "
         out += self.distinct + " "
-        out += self.params + " "
-        out += self.fromcl + " "
-        out += self.wherecl + " "
+
+        # SelectParams
+        j = 0
+        for i in range(len(self.params) - 1):
+            j = i + 1
+            pval = self.params[i].execute(environment)
+            parVal += pval.value
+            out += pval.temp + ", "
+        pval = self.params[j].execute(environment)
+        parVal += pval.value
+        out += pval.temp
+
+        # From
+        out += " " + self.fromcl + " "
+
+        # where
+        pval = self.wherecl.execute(environment)
+        if pval.temp != "":
+            out += "WHERE "+pval.temp + " "
+        parVal += pval.value
+
+        # group by
         if self.groupbyCl:
             groupbyCl = ""
             for g in self.groupbyCl[0]:
@@ -74,17 +94,28 @@ class Select(instruction.Instruction):
                     groupbyCl += g.id
 
             out += "GROUP BY " + groupbyCl[2:] + self.groupbyCl[1] + " "
-        out += self.limitCl + " "
-        out += self.orderByCl + " ;"
-        out += '")\n'
 
+        # limit
+        out += self.limitCl + " "
+
+        # order by
+        out += self.orderByCl + " "
+
+        out += ";"
+        out += '")\n'
+        if isinstance(environment, Environment):
+            out = "\t" + out
+
+        # TODO: optimizacion
+        '''
         if isinstance(environment, Environment):
             grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
         else:
             grammar.optimizer_.addIgnoreString(out, self.row, False)
+        '''
+        return code.C3D(parVal+out, "select", self.row, self.column)
 
-        return code.C3D(out, "select", self.row, self.column)
 
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_SELECT")

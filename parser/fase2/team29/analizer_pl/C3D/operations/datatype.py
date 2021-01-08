@@ -2,7 +2,7 @@ from analizer_pl.abstract.expression import Expression
 from analizer_pl.modules.expressions import C3D
 from analizer_pl.C3D.operations import operation
 from analizer_pl.reports.Nodo import Nodo
-
+from analizer_pl.abstract.global_env import GlobalEnvironment
 
 class Identifier(Expression):
     def __init__(self, id, isBlock, row, column) -> None:
@@ -15,8 +15,9 @@ class Identifier(Expression):
             return C3D("", self.id, self.row, self.column)
         if environment.isBlock:
             return C3D("", self.id, self.row, self.column)
-        if environment.getVar(self.id):
-            return C3D("", '"+str(' + self.id + ')+"', self.row, self.column)
+        if not isinstance(environment, GlobalEnvironment):
+            if environment.getVar(self.id):
+                return C3D("", '"+str(' + self.id + ')+"', self.row, self.column)
 
         return C3D("", self.id, self.row, self.column)
 

@@ -2399,7 +2399,7 @@ def p_allOpt_none(t):
 #TODO :  agregar selectParams
 def p_selectparams_all(t):
     """selectParams : O_PRODUCTO"""
-    t[0] = t[1]
+    t[0] = [expression.C3D("", "*", t.slice[1].lineno, t.slice[1].lexpos)]
     repGrammar.append(t.slice)
 
 
@@ -2434,6 +2434,7 @@ def p_selectListParams_1(t):
 
 def p_selectListParams_2(t):
     """selectListParams : ID S_PUNTO O_PRODUCTO"""
+    expression.C3D("", t[1]+".*", t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
@@ -2473,7 +2474,7 @@ def p_tableexp_u(t):
 
 def p_fromBody(t):
     """fromBody : ID optAlias"""
-    t[0] = t[1] + t[2]
+    t[0] = t[1] +" AS "+t[2]
     repGrammar.append(t.slice)
 
 
@@ -2485,13 +2486,13 @@ def p_tableexp_subq(t):
 
 def p_whereCl(t):
     """whereCl : R_WHERE expBool"""
-    t[0] = "" #TODO: agregar el where
+    t[0] = t[2]
     repGrammar.append(t.slice)
 
 
 def p_whereCl_none(t):
     """whereCl : """
-    t[0] = ""
+    t[0] = expression.C3D("", "", 0,0)
     repGrammar.append(t.slice)
 
 

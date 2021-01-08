@@ -132,14 +132,55 @@ group by 1,2,3
 order by 1;
 """
 s2 = """
+
+CREATE FUNCTION foo(texto text, b boolean) RETURNS text AS $$
+BEGIN
+return texto;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE FUNCTION myFuncion(texto text, b boolean) RETURNS text AS $$
 BEGIN
 INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(texto),1);
 SELECT 3-5>4 and -3=texto as sho, texto between symmetric 2 and 3 as alv;
+
+select * from tbCalificacion;
+select * from tbventa where ventaregistrada = false;
+select * from tbempleadopuesto group by departamento;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+
+
+select v.id+foo(texto, 3)
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido,fechaventa
+limit 1;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido
+UNION
+select DISTINCT * 
+from tbventa V,tbempleado E
+where V.idempleado = texto
+group by 1,2,3
+order by 1;
+
 b = texto between symmetric 2 and 3;
 	RETURN texto;
 END;
 $$ LANGUAGE plpgsql;
+
+select *
+from tbventa V,tbempleado E
+where V.idempleado = E.idempleado
+group by primernombre,segundonombre,primerapellido;
+
 """
 
 traducir(s2)
