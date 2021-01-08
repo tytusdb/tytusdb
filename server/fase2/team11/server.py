@@ -3,6 +3,7 @@ from flask import jsonify
 from flask import request
 from flask_cors import CORS
 from analizer.interpreter import execution
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -19,6 +20,16 @@ def ejecucion():
     resp = execution(texto)
     return jsonify(
         response = resp
+    )
+
+@app.route('/data', methods=['GET'])
+def data():
+    databases = open('Databases.json','r')
+    data = databases.read()
+    databases.close()
+    js = json.loads(data)
+    return jsonify(
+        js
     )
 
 @app.route('/grupo5', methods=['GET'])
