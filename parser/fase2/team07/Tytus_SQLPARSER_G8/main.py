@@ -70,7 +70,7 @@ class interfaz():
         #img = PhotoImage(file='img/icons/Postgresql.ico')
         #self.window.tk.call('wm', 'iconphoto', self.window._w, img)
         self.window.configure(background="#6a8d92")
-        self.window.title("Query Tool - Grupo 8")
+        self.window.title("Query Tool - Grupo 7")
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
         w, h = 1370,670
         self.window.geometry("%dx%d+0+0" % (w, h))

@@ -57,8 +57,9 @@
 ## Barra_de_Menú 
 <div style="text-align: justify">
 <p align="center">
-  <img src="img/menu1.png" width="200" alt="Menu">
-  <img src="img/menu2.png" width="200" alt="Menu">
+  <img src="img/menu1.png" width="150" alt="Menu">
+  <img src="img/menu2.png" width="150" alt="Menu">
+  <img src="img/menu3.png" width="150" alt="Menu">
 </p>
 </div>
 
@@ -124,6 +125,58 @@ En este Reporte se puede apreciar la gramatica en formato BNF.
 </div>
 <br>
 
+## AST 
+<div style="text-align: justify">
+En este Reporte se genera el AST.
+<br>
+<br>
+<p align="center">
+  <img src="img/Arbol.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
+
+## TRADUCIR C3D
+<div style="text-align: justify">
+Con este boton se traduce cualquier instrucción SQL o PL/pgsql a codigo tres direcciones.
+<br>
+<br>
+<p align="center">
+  <img src="img/c3d.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
 
 
+## Ejecutar C3D
+<div style="text-align: justify">
+Se ejecutan las sentencias del codigo 3 direcciones.
+<br>
+<br>
+<p align="center">
+  <img src="img/consola.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
 
+## Optimizar C3D
+<div style="text-align: justify">
+Se aplican las reglas de mirilla y se genera un codigo de tres direcciones optimizado.
+<br>
+<br>
+<p align="center">
+  <img src="img/c3d_optimizado.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
+
+## Reporte de optimizacion
+<div style="text-align: justify">
+Al aplicarse las reglas de mirilla y generar el codigo optimizado, se genera un reporte de las reglas de mirilla aplicadas en la optimizacion.
+<br>
+<br>
+<p align="center">
+  <img src="img/opt_reporte.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
