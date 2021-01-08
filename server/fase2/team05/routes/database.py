@@ -1,6 +1,7 @@
 from flask import Blueprint, Response, jsonify, request
 from flask_cors import CORS
 from Fase1.storage.storageManager import jsonMode
+from Fase1.analizer import interpreter
 
 dbs = Blueprint('dbs', __name__)
 
@@ -9,11 +10,9 @@ CORS(dbs)
 @dbs.route('/create/<name>', methods=['GET'])
 def create(name):
     try:
-        result = jsonMode.createDatabase(name)
-        if result == 0:
-            return {"ok": True}, 200
-        else:
-            return {"ok": False}, 400
+        query = f'CREATE DATABASE IF NOT EXISTS {name};'
+        result = interpreter.execution(query)
+        return {"result": result, "ok": True}, 200
     except Exception as e:
         print(e)
         return {"ok": False}, 400
