@@ -1253,3 +1253,23 @@ def encrypt(backup: str, password: str) -> str:
 # devuelve un texto descifrado
 def decrypt(cipherBackup: str, password: str) -> str:
     return _decrypt(cipherBackup, password)
+
+
+# activa el modo seguro de una tabla y crea un archivo json para ello
+def safeModeOn(database: str, table: str) -> int:
+    try:
+        databasesinfo[1][database][table]['safeMode'] = True
+        turn_on_safe_mode(database, table)
+        return 0
+    except:
+        return 1
+
+
+# desactiva el modo seguro de la tabla y elimina su archivo json
+def safeModeOff(database: str, table: str) -> int:
+    try:
+        databasesinfo[1][database][table]['safeMode'] = False
+        turn_off_safe_mode(database, table)
+        return 0
+    except:
+        return 1
