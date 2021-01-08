@@ -14,27 +14,27 @@
     <th>Carnet</th>
   </tr>
   <tr>
-    <td>Edgar Orlando Guamuch Zárate</td>
-    <td>201314632</td>
+    <td>ROMARIO DAVID CASTILLO ECHEVERRIA</td>
+    <td>201314064</td>
   </tr>
   <tr>
-    <td>Glen Abraham Calel Robledo</td>
-    <td>201314642</td>
+    <td>ROBERTO EDUARDO CASEROS REYNOSO</td>
+    <td>201314177</td>
   </tr>
   <tr>
-    <td>Katherine Mishelle Serrano del Cid</td>
-    <td>201314697</td>
+    <td>CARLOS ENRIQUE CANTÉ LÓPEZ</td>
+    <td>201314448</td>
   </tr>
   <tr>
-    <td>Alan Jeremías Pérez Tomas</td>
-    <td>201314817</td>
+    <td>CARLOS GABRIEL PERALTA CAMBRAN</td>
+    <td>201314556</td>
   </tr>
 </table>
 </div>
 <br>
 
 ## Índice
-- [SQL PARSER Grupo 8 - TytusDB](#SQL_PARSER_Grupo_8-TytusDB) 
+- [SQL PARSER Grupo 7 - TytusDB](#SQL_PARSER_Grupo_7-TytusDB) 
 - [Barra de Menú](#Barra_de_Menú)
 - [Consola de Salida](#Consola_Salida)
 - [Tabla de Errores](#Tabla_Errores)
@@ -43,7 +43,7 @@
 
 <br>
 
-# SQL_PARSER_Grupo_8-TytusDB
+# SQL_PARSER_Grupo_7-TytusDB
 
 <div style="text-align: justify">Cuando se inicia la aplicacion, se podrá ver toda la interfaz QueryTool con todos sus módulos que la componen e igualmente las operaciones encargadas del funcionamiento del proyecto, tales como las opciones siguientes: guardar, guardar como, ver árbol, Analizar, entre otros que se detallaran mas adelante.  
 <br>
