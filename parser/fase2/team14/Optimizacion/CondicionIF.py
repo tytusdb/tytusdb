@@ -24,3 +24,6 @@ class CondicionIF(Instruccion):
             print('IF----------------------------------',self.valorizq)
             return self.valorizq
  
+
+
+      

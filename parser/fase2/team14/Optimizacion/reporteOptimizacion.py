@@ -6,3 +6,4 @@ class reporteOptimizacion:
         self.linea = str(linea)
         self.codigooptimizado = str(codigoptimizado)
 repOptimizado = []
+

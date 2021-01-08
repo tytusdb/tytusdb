@@ -61,6 +61,7 @@ class DropProcedure(Instruccion):
             variables.consola.insert(INSERT, 'Se elimino el Procedimiento ' + self.nombre + '\n')
 
     def traducir(self, entorno):
+        self.ejecutar(entorno)
         cad = 'ci.ejecutarsql(\"DROP procedure ' + self.nombre + ';\")\n'
         self.codigo3d = cad
         return self

@@ -9,7 +9,7 @@ class Extract(Expresion):
     def __init__(self,field=None,timestamp=None):
         self.field=field
         self.timestamp=timestamp
-
+        self.stringsql = 'EXTRACT( ' + field + ' from timestamp \'' + timestamp + '\') '
 
     def getval(self,entorno):
         'spliteo el timestamp'
@@ -36,3 +36,8 @@ class Extract(Expresion):
         elif self.field == 'second':
             tipo = Tipo('integer', None, -1, -1)
             return Terminal(tipo,splitedhora[2])
+
+
+    def traducir(self,entorno):
+        self.temp=self.getval(entorno).valor
+        return self

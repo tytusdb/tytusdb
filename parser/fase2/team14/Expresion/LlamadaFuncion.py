@@ -22,7 +22,7 @@ class LLamadaFuncion(Expresion):
         self.stringsql=sql
 
 
-    def getval(self, ent:Entorno):
+    def getval(self, ent:Entorno,err=1):
         'ejecucion llamada funcinon'
         sim=ent.buscarSimbolo('_f'+self.nombre)
         if sim != None:
@@ -44,11 +44,11 @@ class LLamadaFuncion(Expresion):
                                 return v
                             else:
                                 reporteerrores.append(Lerrores("Error Semantico", "Error el tipo devuelto no coincide con el de la funcion",  0, 0))
-                                variables.consola.insert(INSERT, "Error el tipo devuelto no coincide con el de la funcion")
+                                variables.consola.insert(INSERT, "Error el tipo devuelto no coincide con el de la funcion\n")
 
                 else:
                     reporteerrores.append(Lerrores("Error Semantico","Error Los parametros no coinciden con la definicion de la funcion",0, 0))
-                    variables.consola.insert(INSERT,"Error Los parametros no coinciden con la definicion de la funcion")
+                    variables.consola.insert(INSERT,"Error Los parametros no coinciden con la definicion de la funcion\n")
                     return
             else:
                 for inst in instrucciones:
@@ -61,12 +61,13 @@ class LLamadaFuncion(Expresion):
                             reporteerrores.append(
                                 Lerrores("Error Semantico", "Error el tipo devuelto no coincide con el de la funcion",
                                          0, 0))
-                            variables.consola.insert(INSERT, "Error el tipo devuelto no coincide con el de la funcion")
+                            variables.consola.insert(INSERT, "Error el tipo devuelto no coincide con el de la funcion\n")
         else:
-            reporteerrores.append(
-                Lerrores("Error Semantico", "Error la funcion no existe",
-                         0, 0))
-            variables.consola.insert(INSERT, "Error la funcion no existe")
+            if err==1:
+                reporteerrores.append(
+                    Lerrores("Error Semantico", "Error la funcion '"+self.nombre+"' no existe",
+                             0, 0))
+                variables.consola.insert(INSERT, "Error la funcion '"+self.nombre+"' no existe\n")
 
 
 
@@ -97,3 +98,4 @@ class LLamadaFuncion(Expresion):
         self.stringsql=strsql
 
         return self
+

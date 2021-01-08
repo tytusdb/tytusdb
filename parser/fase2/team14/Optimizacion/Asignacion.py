@@ -27,21 +27,21 @@ class Asignacion(Instruccion):
                     if(self.id==self.valorizq):
                         if(self.operador=="+"):
                             if(self.valorder=="0"):
-                                optimizado="";
+                                optimizado="Eliminado";
                                 anterior =self.id + '='+ self.valorizq +" "+self.operador+" "+ self.valorder
                                 repOptimizado.append(reporteOptimizacion('Mirilla','Regla 8', anterior,optimizado,self.linea))
                                 return self.valorizq
 
                         elif(self.operador=="-"):
                             if(self.valorder=="0"):
-                                optimizado="";
+                                optimizado="Eliminado";
                                 anterior =self.id + '='+ self.valorizq +" "+self.operador+" "+ self.valorder
                                 repOptimizado.append(reporteOptimizacion('Mirilla','Regla 9', anterior,optimizado,self.linea))
                                 return self.valorizq
 
                         elif(self.operador=="*"):
                             if(self.valorder=="1"):
-                                optimizado="";
+                                optimizado="Eliminado";
                                 anterior =self.id + '='+ self.valorizq +" "+self.operador+" "+ self.valorder
                                 repOptimizado.append(reporteOptimizacion('Mirilla','Regla 10', anterior,optimizado,self.linea))
                                 print("anterior",anterior)
@@ -49,7 +49,7 @@ class Asignacion(Instruccion):
                             
                         elif(self.operador=="/"):
                             if(self.valorder=="1"):
-                                optimizado="";
+                                optimizado="Eliminado";
                                 anterior =self.id + '='+ self.valorizq +" "+self.operador+" "+ self.valorder
                                 repOptimizado.append(reporteOptimizacion('Mirilla','Regla 11', anterior,optimizado,self.linea))
                                 return self.valorizq
@@ -57,14 +57,14 @@ class Asignacion(Instruccion):
                     if(self.id==self.valorder):
                         if(self.operador=="+"):
                             if(self.valorizq=="0"):
-                                optimizado="";
+                                optimizado="Eliminado";
                                 anterior =self.id + '='+ self.valorizq +" "+self.operador+" "+ self.valorder
                                 repOptimizado.append(reporteOptimizacion('Mirilla','Regla 8', anterior,optimizado,self.linea))
                                 return self.valorder
 
                         elif(self.operador=="*"):
                             if(self.valorizq=="1"):
-                                optimizado="";
+                                optimizado="Eliminado";
                                 anterior =self.id + '='+ self.valorizq +" "+self.operador+" "+ self.valorder
                                 repOptimizado.append(reporteOptimizacion('Mirilla','Regla 10', anterior,optimizado,self.linea))
                                 print("anterior",anterior)
@@ -149,3 +149,5 @@ class Asignacion(Instruccion):
                                 return optimizado
                          
                         
+                        
+                               
