@@ -1,6 +1,6 @@
 from controllers.symbol_table import SymbolTable
 from models.instructions.Expression.expression import PrimitiveData, Expression
-
+from controllers.error_controller import ErrorController
 
 class Variable(PrimitiveData):
     def __init__(self, position, data_type, value, line, column):
@@ -18,6 +18,10 @@ class Ambito:
     def __init__(self, padre):
         self.variables = dict()
         self.padre = padre
+        self.lbl_return = None
+
+    def getReturn(self):
+        return self.lbl_return
 
     def addVar(self, id, _type, value, pos, line, col):
         id = id.lower()
@@ -27,8 +31,9 @@ class Ambito:
             self.variables[id] = newVar
             return newVar
         else:
-            print("VARIABLE DECLARADA ------ ERROR")
-        return None
+            print("VARIABLE DECLARADA ------ ERROR", id)
+            ErrorController().add(33, 'Execution', f"VARIABLE {id} YA DECLARADA", line, col)
+        return self.getVar(id)
 
     def getVar(self, id):
         ambito_actual = self
@@ -37,7 +42,7 @@ class Ambito:
             if ambito_actual.variables.get(id) is not None:
                 return ambito_actual.variables.get(id)
             ambito_actual = ambito_actual.padre
-        print("VARIABLE NO DECLARADA ------ ERROR") 
+        print("VARIABLE NO DECLARADA ------ ERROR", id) 
         return None
 
     def getAllVarIds(self):
