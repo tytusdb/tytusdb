@@ -41,11 +41,8 @@ input = ''
 COD3D ="""
 from Fase1.Sql import Sql
 from goto import with_goto
-heap = None
-def inter():
-    global  heap
-    sql:Sql = Sql()
-    sql.run(heap)
+heap = ''
+def inter() -> str:
 """
 
 #================================================================
@@ -160,6 +157,24 @@ def analizador():
 
         my_text1.insert(END, consola)
         print('SIntactico realizado con exito')
+
+        try:
+            global COD3D
+            COD3D += '\t' + 'global heap' + '\n'
+            COD3D += '\t' + 'sql: Sql = Sql()' + '\n'
+            COD3D += '\t' + 'result = str(sql.query(heap))' + '\n'
+            COD3D += '\t' + 'return result' + '\n\n'
+
+            COD3D += '@with_goto' + '\n' + 'def principal():'
+            COD3D += '\n'
+            COD3D += result.getC3D()
+
+            COD3D += '\n'
+            COD3D += '\n'
+            COD3D += """if __name__ == '__main__':\n"""
+            COD3D += '\t' + 'principal()'
+        except:
+            pass
 
         global arboAux_errores
 
@@ -581,7 +596,7 @@ def generar():
     COD3D += ''
 
     #llamando a la funcion principal
-    COD3D+= """if __name__ == '__main__':\n\tprincipal()"""
+    #COD3D+= """if __name__ == '__main__':\n\tprincipal()"""
 
     f = open("./../../Ejecucion/Codigo3DGenerado.py", "w")
     f.write(COD3D)

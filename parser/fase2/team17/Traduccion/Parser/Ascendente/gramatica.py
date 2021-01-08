@@ -1000,7 +1000,10 @@ def p_callfunction(t):
                      | SELECT ID PARIZQ PARDER
     '''
     if len(t) == 6:
-        t[0] = callfunction(t[2], t[4], 1, 1)
+        if t[2].lower() == "trunc":
+            pass
+        else:
+            t[0] = callfunction(t[2], t[4], 1, 1)
     else:
         t[0] = callfunction(t[2], None, 1, 1)
     set('<TR> \n <TD> callfunction → SELECT ID PARIZQ exp_list PARDER: </TD> \n <TD> callfunction = call_function(t[2], t[4]) </TD> \n </TR> \n')
