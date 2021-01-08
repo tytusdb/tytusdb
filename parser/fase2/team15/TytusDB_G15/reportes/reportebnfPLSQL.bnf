@@ -772,6 +772,10 @@
  
 <instrucciones_global_sent> ::= <funciones> | <llamada_funcion> | <createDB_insrt> | <show_databases_instr> 
  
+<instrucciones_globales_list> ::= <instrucciones_globales_list><instrucciones_global_sent>
+ 
+<instrucciones_global_sent> ::= <funciones> | <llamada_funcion> | <createDB_insrt> | <show_databases_instr> 
+ 
 <llamada_funcion> ::= EXECUTE ID PARA <params> PARC PTCOMA
  
 <params> ::= <params> COMA <expresionPLSQL>
