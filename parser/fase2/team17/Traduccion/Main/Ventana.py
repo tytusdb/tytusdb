@@ -264,18 +264,18 @@ def ReporteSelect():
 
 def Reporte():
      global dotString
-     #cadena = my_text.get("1.0", END)
-     #result: Nodo = ReportParse(cadena)
-     #tour:TourTree = TourTree()
-     #dotString = tour.getDot(result)
-     #graph = Source(dotString)
-    ##graph.render(view=True, format='svg')
+     cadena = my_text.get("1.0", END)
+     result: Nodo = ReportParse(cadena)
+     tour:TourTree = TourTree()
+     dotString = tour.getDot(result)
+     graph = Source(dotString)
+     #graph.render(view=True, format='svg')
 
-     #try:
-     #   graph.render(format='svg')
-     #   print('Reporte Generado Con exito')
-     #except:
-     #   print('No se genero el reporte:w')
+     try:
+        graph.render(format='svg')
+        print('Reporte Generado Con exito')
+     except:
+        print('No se genero el reporte:w')
 
 
 

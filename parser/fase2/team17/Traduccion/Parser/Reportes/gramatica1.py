@@ -449,15 +449,20 @@ precedence = (
 
 
 def p_init(t):
-    'init : definitions'
+    'init : inter'
     t[0] = Nodo("init")
+    addSimple(t, 0, 1)
+
+def p_inter(t):
+    'inter : definitions'
+    t[0] = Nodo("inter")
     addSimple(t, 0, 1)
 
 
 def p_definitions(t):
     '''
         definitions   : definitions definition
-                    | definition
+                      | definition
     '''
     if len(t) == 3:
         t[1].add(t[2])
@@ -496,56 +501,7 @@ def p_cierreplpgsql(t):
         statements : DOLAR DOLAR LANGUAGE ID
     '''
     t[0] = Nodo("statements")
-    add(t, 0, node(t, 1, 4))
-
-
-def p_plpgsql1(t):
-    '''
-        plpgsql : functions_or_procedures BEGIN definitions plpgsql_ending
-    '''
-    t[0] = Nodo("plpgsql")
-    addList(t, 0, 1)
-    add(t, 0, node(t, 2))
-    addList(t, 0, 3, 4)
-
-
-def p_plpgsql2(t):
-    '''
-        plpgsql : label BEGIN definitions plpgsql_ending
-    '''
-    t[0] = Nodo("plpgsql")
-    addList(t, 0, 1)
-    add(t, 0, node(t, 2))
-    addList(t, 0, 3, 4)
-
-
-def p_plpgsql3(t):
-    '''
-        plpgsql : definitions BEGIN definitions plpgsql_ending
-    '''
-    t[0] = Nodo("plpgsql")
-    addList(t, 0, 1)
-    add(t, 0, node(t, 2))
-    addList(t, 0, 3, 4)
-
-
-def p_plpgsql4(t):
-    '''
-        plpgsql : DECLARE ID BEGIN definitions plpgsql_ending
-    '''
-    t[0] = Nodo("plpgsql")
-    add(t, 0, node(t, 1, 2))
-    addList(t, 0, 3, 4)
-
-
-def p_plpgsql5(t):
-    '''
-        plpgsql : BEGIN definitions plpgsql_ending
-    '''
-    t[0] = Nodo("plpgsql")
-    add(t, 0, node(t, 1))
-    addList(t, 0, 2, 3)
-
+    add(t, 0, node(t,1, 4))
 
 def p_plpgsql(t):
     '''
@@ -615,7 +571,7 @@ def p_procedure(t):
         add(t, 0, node(t, 1, 5))
         addList(t, 0, 7)
         add(t, 0, node(t, 9, 10))
-    if len(t) == 11:
+    elif len(t) == 11:
         # CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
         add(t, 0, node(t, 1, 3))
         add(t, 0, node(t, 6, 7))
@@ -795,9 +751,9 @@ def p_statements_conditionals(t):
         statements : conditionals
                    | return
                    | execute_procedure
+                   | PRAISE
                    | callfunction
                    | exit
-                   | PRAISE
                    | asignacionvar
                    | declarer
                    | drop_function
@@ -839,7 +795,7 @@ def p_execute_procedure(t):
     if len(t) == 6:
         # EXECUTE ID PARIZQ exp_list PARDER
         add(t, 0, node(t, 1, 2))
-        addList(t, 0, 3)
+        addList(t, 0,4)
 
     else:
         # EXECUTE ID PARIZQ PARDER
@@ -855,6 +811,7 @@ def p_statements_return(t):
                | RETURN QUERY select
                | RETURN QUERY EXECUTE exp
                | RETURN QUERY EXECUTE exp USING exp_list
+               | RETURN
     '''
     t[0] = Nodo("return")
     if len(t) == 3:
@@ -898,8 +855,7 @@ def p_ifheader(t):
     t[0] = Nodo("ifheader")
     add(t, 0, node(t, 1))
     addList(t, 0, 2)
-    add(t, 0, node(t, 3))
-    addList(t, 0, 4)
+    add(t, 0, node(t, 3,4))
 
 
 def p_if(t):
@@ -909,16 +865,17 @@ def p_if(t):
            | exp THEN definitions ELSIF if
     '''
     t[0] = Nodo("if")
-    if len(t) == 6:
+
+    if len(t) == 4:
+        addList(t, 0, 1)
+        add(t, 0, node(t, 2))
+        addList(t, 0, 3)
+    elif len(t) == 6:
         addList(t, 0, 1)
         add(t, 0, node(t, 2))
         addList(t, 0, 3)
         add(t, 0, node(t, 4))
         addList(t, 0, 5)
-    else:
-        addList(t, 0, 1)
-        add(t, 0, node(t, 2))
-        addList(t, 0, 3)
 
 
 # ================= CASE =================
@@ -964,6 +921,7 @@ def p_case(t):
 def p_drop_function(t):
     '''
         drop_function : DROP FUNCTION ID
+                      | DROP FUNCTION IF EXISTS ID
     '''
     t[0] = Nodo("drop_function")
     add(t, 0, node(t, 1, 3))
@@ -971,7 +929,8 @@ def p_drop_function(t):
 
 def p_drop_procedure(t):
     '''
-        drop_procedure : DROP PROCEDURE ID
+        drop_procedure : DROP PROCEDURE IF EXISTS ID
+                       | DROP PROCEDURE ID
     '''
     t[0] = Nodo("drop_procedure")
     add(t, 0, node(t, 1, 3))
@@ -1095,15 +1054,22 @@ def p_statements_perfom(t):
 def p_callfunction(t):
     '''
         callfunction : SELECT ID PARIZQ exp_list PARDER
+                     | SELECT ID PARIZQ PARDER
     '''
-    t[0] = Nodo("callfunction")
-    add(t, 0, node(t, 1, 2))
-    addList(t, 0, 4)
+    if len(t)==6:
+        t[0] = Nodo("callfunction")
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 4)
+
+    elif len(t)==5:
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 4)
 
 
 def p_callfunction_lappel(t):
     '''
         callfunction : ID PARIZQ exp_list PARDER
+                     | ID PARIZQ PARDER
     '''
     t[0] = Nodo("callfunction")
     add(t, 0, node(t, 1))
@@ -1300,8 +1266,8 @@ def p_drop_index4(t):
         drop_index    : DROP INDEX            list_cascade
     '''
     t[0] = Nodo("drop_index")
-    add(t, 0, node(t, 1, 4))
-    addList(t, 0, 5)
+    add(t, 0, node(t, 1, 2))
+    addList(t, 0, 3)
 
 
 def p_list_cascade(t):
@@ -1720,10 +1686,10 @@ def p_exp_call(t):
     '''
     t[0] = Nodo("exp")
     if len(t) == 4:
+        addList(t, 0, 2)
+    else:
         add(t, 0, node(t, 1))
         addList(t, 0, 3)
-    else:
-        addList(t, 0, 2)
 
 
 def p_exp_count(t):
@@ -3346,7 +3312,7 @@ def node(t, inicio: int, fin: int = -1) -> Nodo:
 
     value = ''
     for i in range(inicio, fin + 1):
-        value += str(t[i]) + ' '
+        value += str(t[i]).replace('"',"'") + ' '
     result = Nodo(value)
     return result
 
