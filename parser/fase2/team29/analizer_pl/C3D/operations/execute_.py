@@ -14,11 +14,10 @@ class Execute(Instruction):
     def execute(self, environment):
         cd = "\n"
         p = self.procedures
-        cd += p.execute(environment).value
+        temp = p.execute(environment).value
+        cd += temp
         cd += "\n"
-        grammar.optimizer_.addIgnoreString(
-            str(p.execute(environment).value), self.row, False
-        )
+        grammar.optimizer_.addIgnoreString(str(temp), self.row, False)
         return code.C3D(cd, "execute", self.row, self.column)
 
     def dot(self):
