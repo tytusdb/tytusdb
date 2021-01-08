@@ -17,7 +17,7 @@ class Update(Nodo):
         
     def compile(self):
         tmp = instanceTemporal.getTemporal()
-        dir = f"{tmp} = '{self.getText()}'\n"
+        dir = f"{tmp} = \"{self.getText()}\"\n"
         dir += f'display[p] = {tmp}\n'
         dir += 'p = p + 1'
     

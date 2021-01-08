@@ -17,6 +17,8 @@ def reporte_ts(arbol):
                 cadena += "DATABASE: "+db +"\n"
                 dbactual = data[db]["tables"]
                 indexes = data[db]["indexes"]
+                procedimientos = data[db]["procedures"]
+                cadena += "\t\t\t\t"+"LISTA DE INDICES:\n"
                 for indx in indexes:
                     cadena += "\t"+"INDICE: "+str(indx["name"])+"\n"
                     cadena += "\t\t"+"table: "+str(indx["table"])+"\n"
@@ -25,6 +27,12 @@ def reporte_ts(arbol):
                         cadena += "\t\t\t"+"Column: "+str(columns["column"])+"\n"
                         cadena += "\t\t\t"+"Order: "+str(columns["order"])+"\n"
                         cadena += "\t\t\t"+"Nulls: "+str(columns["nulls"])+"\n"
+
+                cadena += "\t\t\t\t"+"LISTA DE PROCEDIMIENTOS\n"
+                for proce in procedimientos:
+                    cadena += "\t"+"PROCEDIMIENTO: "+str(proce["nombre"])+"\n"
+                    cadena += "\t\t"+"Parametros: "+str(proce["parametros"])+"\n\n"
+                cadena += "\t\t\t\t"+"LISTA DE TABLAS:\n"                        
                 for table in dbactual:
                     cadena += "\t"+"TABLA: "+table+"\n"
                     columnas = data[db]["tables"][table]["columnas"]

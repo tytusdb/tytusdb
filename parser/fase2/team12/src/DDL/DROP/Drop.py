@@ -27,7 +27,7 @@ class Drop(Nodo):
 
     def compile(self):
         tmp = instanceTemporal.getTemporal()
-        dir = f"{tmp} = '{self.getText()}'\n"
+        dir = f"{tmp} = \"{self.getText()}\"\n"
         dir += f'display[p] = {tmp}\n'
         dir += 'p = p + 1\n'
         return dir
@@ -111,8 +111,20 @@ class Drop(Nodo):
                     else:
                         return {"Code":"0000","Message": "The index  <"+identificador+"> has been successfully dropped"}
         elif(self.hijos[1].hijos[0].nombreNodo == "PROCEDURE"):  
-            identificador = self.hijos[1].hijos[1].valor                         
-            return {"Code":"0000","Message": "The procedure  <"+identificador+"> has been successfully dropped"}
+            identificador = self.hijos[1].hijos[1].valor 
+            with open('src/Config/Config.json') as file:
+                config = json.load(file)
+                dbUse = config['databaseIndex']
+                if dbUse == None:
+                    return {"Code":"42P12","Message": "invalid_database_definition: There is no selected database "}              
+                else:
+                    dbUse = config['databaseIndex'].upper()
+                    resp = tc.drop_procedure(dbUse,identificador)                       
+                    if resp:
+                        return {"Code":"0000","Message": "The procedure  <"+identificador+"> has been successfully dropped"}
+                    else:
+                        return {"Code":"42P12","Message": "invalid_database_definition: There is no procedure to delete "}              
+
 
 
 
