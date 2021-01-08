@@ -6,70 +6,85 @@ stack = Stack()
 RETURN=[None]
 
 @with_goto
-def fvalidaregistros(tabla,cantidad):
-	nomnbre =  'test'
-	absolute =  52
-	t0 =  -5
-	numero =  t0
-	indice =  5
-	t1 = indice * 5
-	t2 = numero + t1
-	final =  t2
-	t3 = 9 > 0
-	t4 = 9 + 5
-	t5 = t4 == 14
-	t6 = t3 and t5
-	if t6: goto .L1
-	goto .L2
-	label .L1 #etiqueta true
-	RETURN[0] = final
+def myfuncion(texto):
+	RETURN[0] = texto
 	goto .L0
-	goto .L3 #EXIT
+	label .L0
 
-	label .L2 #etiqueta false
-	t7 = 97 == 90
-	if t7: goto .L4
+@with_goto
+def validaregistros(tabla,cantidad):
+	resultado =  0
+	retorna =  0
+	t0 = tabla == 'tbProducto'
+	if t0: goto .L2
+	goto .L3
+	label .L2 #etiqueta true
+	resultado =  5
+	t1 = cantidad == resultado
+	if t1: goto .L4
 	goto .L5
 	label .L4 #etiqueta true
-	RETURN[0] = 0
-	goto .L0
-	goto .L3 #EXIT
+	retorna =  1
+	goto .L6 #EXIT
 
 	label .L5 #etiqueta false
-	t8 = 99 == 90
-	if t8: goto .L6
-	goto .L7
-	label .L6 #etiqueta true
-	RETURN[0] = 80
-	goto .L0
-	goto .L3 #EXIT
+	retorna =  0
 
-	label .L7 #etiqueta false
-	t9 = 100 == 100
-	if t9: goto .L8
-	goto .L9
-	label .L8 #etiqueta true
-	RETURN[0] = 100
-	goto .L0
-	goto .L3 #EXIT
+	label .L6 # SALE DEL IF
+	label .L3 #etiqueta false
+	t2 = tabla == 'tbProductoUp'
+	if t2: goto .L7
+	goto .L8
+	label .L7 #etiqueta true
+	resultado =  10
+	t3 = cantidad == resultado
+	if t3: goto .L9
+	goto .L10
+	label .L9 #etiqueta true
+	retorna =  1
+	goto .L11 #EXIT
 
-	label .L9 #etiqueta false
-	RETURN[0] = 60
-	goto .L0
+	label .L10 #etiqueta false
+	retorna =  0
 
-	label .L3 # SALE DEL IF
-	label .L0
+	label .L11 # SALE DEL IF
+	label .L8 #etiqueta false
+	t4 = tabla == 'tbbodega'
+	if t4: goto .L12
+	goto .L13
+	label .L12 #etiqueta true
+	resultado =  15
+	t5 = cantidad == resultado
+	if t5: goto .L14
+	goto .L15
+	label .L14 #etiqueta true
+	retorna =  1
+	goto .L16 #EXIT
+
+	label .L15 #etiqueta false
+	retorna =  0
+
+	label .L16 # SALE DEL IF
+	label .L13 #etiqueta false
+	RETURN[0] = retorna
+	goto .L1
+	label .L1
+
+@with_goto
+def hola(tabla,cantidad):
+	resultado =  0
+	retorna =  0
+	RETURN[0] = 50
+	goto .L17
+	label .L17
 
 
 
 @with_goto
 def principal():
-	pass
+
 
 
 def funcionIntermedia():
-	execution(stack.pop())
+	return execution(stack.pop())
 principal()
-fvalidaregistros('test',50)
-
-print(RETURN[0])
