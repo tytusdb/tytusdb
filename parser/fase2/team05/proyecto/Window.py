@@ -525,7 +525,7 @@ class Main(tk.Tk):
         C3D_opt = []
         f = open("team29/ui/codigo3D.py", 'r')
         Lines = f.readlines()
-        optimizarDesde = Lines.index(str(GC3D[0]) + '\n')
+        optimizarDesde = Lines.index('def main3d(): ' + '\n')
         while optimizarDesde < len(Lines):
             porOptimizar = Lines[optimizarDesde]
             C3D_opt.append(porOptimizar)
