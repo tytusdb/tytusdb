@@ -12,10 +12,9 @@ class Now(Instruccion):
         todays_date = datetime.now()
         current_time = todays_date.strftime("%Y-%m-%d %H:%M:%S")
         return current_time
-    def analizar(self, ts, arbol):      
-        pass
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
     def traducir(self, ts, arbol):
-        #self.identificador = id
-        #self.valor = id2
+        super().traducir(ts, arbol)
         cadena = f"now()"
         return cadena

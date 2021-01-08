@@ -1,4 +1,5 @@
 
+from Instrucciones.Expresiones.Relacional import Relacional
 from enum import Enum
 
 class Tipo_Dato_Constraint(Enum):
@@ -42,10 +43,10 @@ class Tipo_Constraint():
             return "check"
     
     def traducir(self, arbol, tabla):
-        print(self.id)
-        print(self.tipo)
-        print(self.expresion)
-        print(self.referencia)
+        #print(self.id)
+        #print(self.tipo)
+        #print(self.expresion)
+        #print(self.referencia)
         cadena = " "
         if self.tipo == Tipo_Dato_Constraint.PRIMARY_KEY:
             cadena += "primary key"
@@ -68,8 +69,17 @@ class Tipo_Constraint():
 
         if(self.expresion != None):
             cadena += "(" 
-            for x in range(0,len(self.expresion)):
-                cadena += self.expresion[x] 
+            '''if(self.expresion):
+                cadena += self.expresion.traducir(arbol,tabla) 
+            else:
+            '''
+            if isinstance(self.expresion, Relacional):
+                cadena += self.expresion.concatenar(tabla, arbol)
+            else:
+                for x in range(0,len(self.expresion)):
+                    if(x>0):
+                        cadena+=", "
+                    cadena += self.expresion[x]
             cadena += ")"
         
         return cadena        

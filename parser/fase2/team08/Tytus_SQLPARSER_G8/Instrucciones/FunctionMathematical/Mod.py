@@ -3,6 +3,7 @@ import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Primitivo import Primitivo
 
 class Mod(Instruccion):
     def __init__(self, opIzq, opDer, strGram, linea, columna):
@@ -39,21 +40,27 @@ class Mod(Instruccion):
             return error
         
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        cadena ="MOD("
-        if(isinstance(self.opIzq, Aritmetica)):
-            cadena += f"{self.opIzq.concatenar(tabla,arbol)}"
+        super().traducir(tabla, arbol)
+        resultadoIzq=""
+        resultadoDer=""
+        if isinstance(self.opIzq, Primitivo):
+            resultadoIzq = self.opIzq.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.opIzq, Aritmetica):
+            resultadoIzq = self.opIzq.concatenar(tabla,arbol)
         else:
-            cadena += f"{self.opIzq.traducir(tabla,arbol).temporalAnterior}"
-        cadena+= ","
-        if(isinstance(self.opDer, Aritmetica)):
-            cadena += f"{self.opDer.concatenar(tabla,arbol)}"
+            resultadoIzq=self.opIzq.traducir(tabla,arbol)
+        
+        if isinstance(self.opDer, Primitivo):
+            resultadoDer = self.opDer.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.opDer, Aritmetica):
+            resultadoDer = self.opDer.concatenar(tabla,arbol)
         else:
-            cadena += f"{self.opDer.traducir(tabla,arbol).temporalAnterior}"
-        cadena += ")"
-        return cadena
+            resultadoDer= self.opDer.traducir(tabla,arbol)
+
+        return f"MOD({resultadoIzq},{resultadoDer})"
 
 '''
 instruccion = Mod(12.5, 5.5, None, 1,2)

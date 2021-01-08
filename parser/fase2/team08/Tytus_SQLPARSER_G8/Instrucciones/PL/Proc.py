@@ -6,15 +6,13 @@ from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.PL.Return import Return
 
-class Func(Instruccion):
-    def __init__(self, id, replace, parametros, declaraciones, instrucciones, tipo, strGram, linea, columna):
+class Proc(Instruccion):
+    def __init__(self, id, replace, parametros, instrucciones, tipo, strGram, linea, columna):
         Instruccion.__init__(self,tipo,linea,columna,strGram)
         self.id = id
         self.replace = replace
         self.parametros = parametros
-        self.declaraciones = declaraciones
         self.instrucciones = instrucciones
-        self.size = 0
         self.activa = True
 
     def ejecutar(self, tabla, arbol):
@@ -31,15 +29,9 @@ class Func(Instruccion):
                 # Espacio para los parámetros
                 arbol.contador += len(self.parametros)
 
-                # Espacio para los parámetros
-                arbol.contador += len(self.declaraciones)
-
-                #print("tamaño de la función ------------>",arbol.contador)
-
                 existe.rol = "Metodo"
                 existe.funcion = self
                 existe.tamanio = arbol.contador 
-                self.size = existe.tamanio
                 arbol.contador = 0
                 #print("se limpió? ------------>",arbol.contador, existe.tamanio)
                 return 
@@ -56,28 +48,18 @@ class Func(Instruccion):
         # Espacio para los parámetros
         arbol.contador += len(self.parametros)
 
-        # Espacio para los parámetros
-        arbol.contador += len(self.declaraciones)
-
-        #print("tamaño de la función ------------>",arbol.contador)
-
         f = Simbolo(self.id, self.tipo, "", self.linea, self.columna)
         f.rol = "Metodo"
         f.funcion = self
         f.tamanio = arbol.contador
-        self.size = f.tamanio
         tabla.agregarSimbolo(f) 
-        arbol.contador = 0
-        #print("se limpió? ------------>",arbol.contador, f.tamanio)       
+        arbol.contador = 0     
 
     def analizar(self, tabla, arbol):
         super().analizar(tabla,arbol)
         tablaLocal = Tabla(None)
 
         for i in self.parametros:
-            i.analizar(tablaLocal, arbol)
-
-        for i in self.declaraciones:
             i.analizar(tablaLocal, arbol)
 
         tablaLocal.anterior = tabla
@@ -87,15 +69,13 @@ class Func(Instruccion):
             esFuncion = True
         
         hayReturn = False
-        re = None
         for i in self.instrucciones:
             resultado = i.analizar(tablaLocal, arbol)
-            if isinstance(resultado, Return):
+            if isinstance(i, Return):
                 if isinstance(resultado, Excepcion):
                     return resultado
                 hayReturn = True
-                re = resultado
-        
+
         if esFuncion and not hayReturn:
             error = Excepcion("42723", "Semantico", f"La función {self.id} requiere un valor de retorno", self.linea, self.columna)
             arbol.excepciones.append(error)
@@ -107,13 +87,6 @@ class Func(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error  
-        
-        if hayReturn:
-            if re.tipo.tipo != self.tipo.tipo:
-                error = Excepcion("42723", "Semantico", f"El tipo de retorno {re.tipo.toString()} no coincide con el tipo de la función {self.tipo.toString()}", self.linea, self.columna)
-                arbol.excepciones.append(error)
-                arbol.consola.append(error.toString())
-                return error
         #print("finaliza funcion")    
         
         
@@ -124,8 +97,7 @@ class Func(Instruccion):
         arbol.addc3d(f"\rdef {self.id}():")
         arbol.addc3d("global P")
         arbol.addc3d("global Pila")
-        arbol.tamanio_actual = self.size
-        arbol.etiqueta_fin = tablaLocal.getEtiqueta()
+    
         if self.tipo.tipo != Tipo_Dato.VOID:
             variable = Simbolo("return", self.tipo, None, self.linea, self.columna)
             variable.rol = "Variable Local"
@@ -138,9 +110,6 @@ class Func(Instruccion):
             i.traducir(tablaLocal, arbol)
         tablaLocal.anterior = tabla
 
-        for i in self.declaraciones:
-            i.traducir(tablaLocal, arbol)
-
         for i in self.instrucciones:
             i.traducir(tablaLocal, arbol)
         
@@ -149,8 +118,7 @@ class Func(Instruccion):
             i.ambito = self.id
             tabla.agregarReporteSimbolo(i)
 
-        arbol.addComen("Etiqueta de salida función")
-        arbol.addc3d(f"label .{arbol.etiqueta_fin}\n")
-        arbol.tamanio_actual = None
+        arbol.addc3d(f"\n\treturn\n")
+
         return
         

@@ -2,6 +2,8 @@ import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
+from Instrucciones.Expresiones.Primitivo import Primitivo
 
 class Ceil(Instruccion):
     def __init__(self, valor, strGram, linea, columna):
@@ -31,18 +33,12 @@ class Ceil(Instruccion):
             return math.ceil(resultado)
     
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        
-        retorno = self.valor.traducir(tabla,arbol)
-        #print(retorno.temporalAnterior)
-        #print(type(self.valor))
-        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
-        return f"CEIL({self.valor.traducir(tabla,arbol).temporalAnterior})"
-#el ceil solo permite que sean tipo float :D
-'''
-instruccion = Ceil(0.50,None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
+        super().traducir(tabla, arbol)
+        if isinstance(self.valor, Primitivo):
+            return f"CEIL({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"CEIL({self.valor.concatenar(tabla,arbol)})"
+        return f"CEIL({self.valor.traducir(tabla,arbol)})"
