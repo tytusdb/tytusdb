@@ -1069,3 +1069,21 @@ def alterTableCompress(database: str, table: str, level: int) -> int:
         return 0
     except:
         return 1
+    
+#comprime una base de datos completa
+def alterDatabaseCompress(database: str, level: int) -> int:
+    if database not in databasesinfo[0]:
+        return 2
+    if level<-1 or level>9:
+        return 4
+    try:
+        tablas=showTables(database)
+        compreso=0
+        for tabla in tablas:
+            compreso+=alterTableCompress(database,tabla,level)
+        if compreso==0:
+            return 0
+        else:
+            return 1
+    except:
+        return 1
