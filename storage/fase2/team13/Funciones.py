@@ -353,6 +353,25 @@ def checkMode(mode):
     elif mode == 'hash':
         from storage.hash import hash_mode as j
         return j
+    
+# If tuple is compressed
+def tupleIsnotCompressed(array):
+    flag = True
+
+    for tuple in array:
+        for register in tuple:
+            if iscompressed(register):
+                return False
+
+    return flag
+
+def iscompressed(data):
+    result = True
+    try:
+        s = zlib.decompress(data)
+    except:
+        result = False
+    return result
 
 
 def insertAgain(database, mode, newMode):
