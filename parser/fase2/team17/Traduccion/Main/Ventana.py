@@ -1,6 +1,7 @@
 import traceback
 from tkinter import *
 from tkinter import filedialog
+from tkinter import messagebox as MessageBox
 
 sys.path.append('.')
 sys.path.append('../')
@@ -312,6 +313,7 @@ def Err_Lexico():
     try:
         with open('ErroresLexicos.html', 'w') as lexicos:
             lexicos.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte lexico generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -354,6 +356,7 @@ def Err_Sintactico():
     try:
         with open('ErroresSintacticos.html', 'w') as sintacticos:
             sintacticos.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte sintactico generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -397,6 +400,7 @@ def Err_Semantico():
     try:
         with open('ErroresSemanticos.html', 'w') as semanticos:
             semanticos.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte semantico generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -447,6 +451,7 @@ def Tabla_Simbolos():
     try:
         with open('tabladesimbolos.html', 'w') as ts:
             ts.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte TS generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -494,6 +499,7 @@ def Optimizacion():
     try:
         with open('ReporteOptimizacion.html', 'w') as optimizacion:
             optimizacion.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte de optimizacion generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -545,6 +551,7 @@ def Tabla_Simbolos_Indice():
     try:
         with open('ReporteTS_indices.html', 'w') as tsindices:
             tsindices.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte TS para indices generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -594,6 +601,7 @@ def Tabla_Simbolos_Funciones():
     try:
         with open('ReporteTS_Funciones.html', 'w') as tsfunciones:
             tsfunciones.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte TS para funciones generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 def generar():
@@ -608,6 +616,7 @@ def generar():
     f = open("./../../Ejecucion/Codigo3DGenerado.py", "w")
     f.write(COD3D)
     f.close()
+    MessageBox.showinfo("TYTUS << G17 >>", "C3D generado exitosamente!")
 
 
 # ############################################################################################

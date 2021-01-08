@@ -56,11 +56,11 @@ class funexecute(NodoArbol):
                 item.traducir(entorno, arbol)
 
         if self.stmt_body == None:
-            pass
+            arbol.addC3D('pass')
         else:
             for item in self.stmt_body:
                 item.traducir(entorno, arbol)
-        arbol.addC3D('pass')
+
         arbol.resetIdentacion_funciones()
         arbol.switchC3Dmain()
 

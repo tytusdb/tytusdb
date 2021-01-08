@@ -71,10 +71,21 @@ class SI(NodoArbol):
         Bv = arbol.getLabel()
         Bf = arbol.getLabel()
         validacion = str(self.exp.traducir(entorno, arbol))
+
+        arbol.addC3D("if " + validacion + ':')
+        arbol.addIdentacion()
+        arbol.addC3D("goto ." + str(Bv))
+        arbol.popIdentacion()
+
+        arbol.addC3D('else:')
+        arbol.addIdentacion()
+        arbol.addC3D("goto ." + Bf)
+        arbol.popIdentacion()
+
         arbol.addC3D('label .' + Bv)
-        # arbol.addC3D(self.body.traducir(entorno, arbol))
         for item in self.body:
             item.traducir(entorno, arbol)
+        arbol.addC3D('label .' + Bf)
 
         # optimizacion ---------------------------
         # Regla no.4:
@@ -91,6 +102,20 @@ class SI(NodoArbol):
         Bv = arbol.getLabel()
         Bf = arbol.getLabel()
         validacion = str(self.exp.traducir(entorno, arbol))
+
+        arbol.addC3D("if " + validacion + ':')
+        arbol.addIdentacion()
+        arbol.addC3D("goto ." + str(Bv))
+        arbol.popIdentacion()
+
+        arbol.addC3D('else:')
+        arbol.addIdentacion()
+        arbol.addC3D("goto ." + Bf)
+        arbol.popIdentacion()
+
+        arbol.addC3D('label .' + Bv)
+        for item in self.body:
+            item.traducir(entorno, arbol)
         arbol.addC3D('label .' + Bf)
 
         # optimizacion ---------------------------
