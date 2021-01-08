@@ -387,7 +387,77 @@ def alterDatabaseMode(database, mode):
 
 # 3. ADMINISTRACION DE INDICES
 def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
-    pass
+    tabla = {}
+    indicePK = []
+    table_dic = {}
+    for db in databases: 
+        if database == db["name"]: 
+            for t in db["tables"]:
+                if tableRef in t["name"]: 
+                    indicePK  = t["pk"]
+                    if indicePK != [] : 
+                       pass
+                    else: 
+                        alterAddPK(database,tableRef,columnsRef)
+                        indicePK = columnsRef
+    for item in structs:
+        tuplas = item.extractTable(database, tableRef)
+        if tuplas != None:
+            if len(tuplas)>0:
+                if database in list(fkIndex.keys()):
+                    tablasReferenciadas = fkIndex[database]
+                    tupladetablas = (table,tableRef)
+                    if tupladetablas in list(tablasReferenciadas.keys()):
+                        indice = (indexName , columns , columnsRef)
+                        tablasReferenciadas[tupladetablas] = indice
+                        fkIndex[database] = tablasReferenciadas
+                    else: 
+                        indice = (indexName , columns , columnsRef)
+                        tablasReferenciadas[tupladetablas] = indice
+                        fkIndex[database] = tablasReferenciadas
+                else: 
+                    indice = (indexName , columns , columnsRef)
+                    tup_tbl = (table , tableRef)
+                    table_dic[tup_tbl] = indice
+                    fkIndex[database] = table_dic
+                if len(columnsRef) == len(columns) :
+                    createtbl =  item.createTable(database, table+tableRef+indexName, len(columnsRef))
+                    createNewpk = item.alterAddPK(database, table+tableRef+indexName ,columnsRef)
+                    if ( createtbl == 0 or createtbl ==3) and (createNewpk == 0 or createtbl == 3):
+                        contador = 0
+                        for i in tuplas:
+                            datos_Referenciados = [i[x] for x in columnsRef]
+                            if None in datos_Referenciados: 
+                                return 2 
+                            else: 
+                                value = item.insert(database, table+tableRef+indexName, datos_Referenciados)
+                                if value != 0 and value !=4  : 
+                                    return value
+                            contador +=1
+                        if contador == len(tuplas)-1:
+                            return 0 
+                else: 
+                    return "error columnas no son iguales"
+            elif tuplas ==[]: 
+                if database in list(fkIndex.keys()):
+                    tablasReferenciadas = fkIndex[database]
+                    tupladetablas = (table,tableRef)
+                    if tupladetablas in list(tablasReferenciadas.keys()):
+                        indice = (indexName , columns , columnsRef)
+                        tablasReferenciadas[tupladetablas] = indice
+                        fkIndex[database] = tablasReferenciadas
+                    else: 
+                        indice = (indexName , columns , columnsRef)
+                        tablasReferenciadas[tupladetablas] = indice
+                        fkIndex[database] = tablasReferenciadas
+                else: 
+                    indice = (indexName , columns , columnsRef)
+                    tup_tbl = (table , tableRef)
+                    table_dic[tup_tbl] = indice
+                    fkIndex[database] = table_dic
+                if len(columnsRef) == len(columns) :
+                    if item.createTable(database, table+tableRef+indexName, len(columnsRef))!=3 and item.alterAddPK(database, table+tableRef+indexName , len(columns)):
+                        return 0
 
 def alterTableDropFK(database, table, indexName):
     pass
@@ -404,12 +474,12 @@ def insertVerifyUnique(database, table,tupla ):
             return False
         else:
             for estructura in structs: 
-                value = estructura.extractTable(database,indiceTbl)
-                if value != None :
-                    if uniqueIndices in value:
+                    value = estructura.extractRow(database,indiceTbl,uniqueIndices)
+                    if value[0] == uniqueIndices[0]:
                         return False
-                    else:
+                    else:    
                         return True
+            
     except: 
         return True
 
@@ -425,16 +495,13 @@ def Unique(database, table,  tupla):
         else:
             for estructura in structs: 
                     value = estructura.insert(database,indiceTbl,uniqueIndices)
-                    if value !=2 :
+                    if value != 2 or value != 3 or value!= 4 :
                         return False
                     else:    
                         return True
             
     except: 
         return True
-
-
-
 
 
 def alterTableaddUnique(database , table,  indexName, colums): 
@@ -468,6 +535,7 @@ def alterTableaddUnique(database , table,  indexName, colums):
                     
             else: 
                 return 2
+
 
 # 4. ADMINISTRACION DE LA CODIFICACION
 def alterDatabaseEncoding(database,encoding):
