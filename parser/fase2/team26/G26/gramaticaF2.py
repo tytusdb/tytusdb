@@ -1,7 +1,7 @@
 from error import error
 import optimizar as opt 
 errores = list()
-
+errorrr = False
 reservadas = {
     'smallint' : 'SMALLINT',
     'integer' : 'INTEGER',
@@ -392,7 +392,11 @@ def p_instrucciones_lista(t) :
     if 'valSelectPrint' in t[2]:
         texto += '    valSelectPrint = 1\n'
 
-    text = t[1]['text'] + "\n" + texto + t[2]['text']
+    text = t[1]['text'] + "\n" + texto 
+    if t[2]['text'] == ";":
+        ''
+    else:
+        text += t[2]['text']
     try:
         printList = t[1]['printList'] + t[2]['printList']
     except:
@@ -421,6 +425,8 @@ def p_instruciones(t):
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = '<instrucciones> ::= <instruccion>\n' + t[1]['reporte']
     
+    if t[1]['text'] == ";":
+        text = ""
     t[0] =  {'text': text, 'c3d' : '', 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -502,14 +508,19 @@ def p_instruccion_ccreateindpr(t):
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
-    text = t[1]['c3d']
-    text += '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
-    text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
-    text += '    ' + tempos.getcurrent()+ ' = mediador(' + 'valSelectPrint' + ')\n'
-    grafo.newnode('INSTRUCCION')
-    grafo.newchildrenF(grafo.index, t[1]['graph'])
-    reporte = '<instruccion> ::=  <select>\n' + t[1]['reporte']+ 'PTCOMA\n'
-    t[0] =  {'text': text, 'c3d' : '', 'printList':'', 'valSelectPrint': 0, 'graph' : grafo.index, 'reporte': reporte}
+    global errorrr
+    if errorrr:
+        t[0] = {'text': '', 'c3d' : '', 'printList':'', 'valSelectPrint': 0, 'graph' : grafo.index, 'reporte': ''}
+        errorrr = False
+    else:
+        text = t[1]['c3d']
+        text += '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
+        text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
+        text += '    ' + tempos.getcurrent()+ ' = mediador(' + 'valSelectPrint' + ')\n'
+        grafo.newnode('INSTRUCCION')
+        grafo.newchildrenF(grafo.index, t[1]['graph'])
+        reporte = '<instruccion> ::=  <select>\n' + t[1]['reporte']+ 'PTCOMA\n'
+        t[0] =  {'text': text, 'c3d' : '', 'printList':'', 'valSelectPrint': 0, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionQuerys(t):
     'instruccion  : querys PTCOMA'
@@ -543,7 +554,7 @@ def p_stament_a(t):
 
 def p_instruccionError(t):
     'instruccion  : problem'
-    text = "\n"
+    text = ";"
     reporte ="<instruccion> ::= <problem>\n" + t[1]['reporte']
     t[0] =  {'text': text, 'c3d' : '', 'printList': '' , 'graph' : grafo.index, 'reporte': reporte}
 
@@ -609,6 +620,9 @@ def p_createindex(t):
         reporte = "<createindex> ::= INDEX ID ON ID <predicadoindex> PTCOMA\n" + t[5]['reporte']
     t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
+def p_pcreateindex(t):
+    'createindex :  problem'
+    t[0] = {'text' : '', 'c3d': '', 'graph' : grafo.index, 'reporte': ''}
 
 def p_indexPredicateU(t):
     'predicadoindexU   : PARENIZQ listaids PARENDER WHERE condiciones'
@@ -695,7 +709,7 @@ def p_asdcordesc(t):
 def p_asdcordescE(t):
     'asdcordesc   : '
     grafo.newnode('ASCORDESC')
-    t[0] = {'text' : '', 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'text' : '', 'c3d': '', 'graph' : grafo.index, 'reporte': ''}
 
 def p_firstorlast(t):
     '''firstorlast   : FIRST
@@ -756,7 +770,9 @@ def p_select(t):
 
 def p_select_err(t):
     'select : problem'
-    text = ""
+    text = ";"
+    global errorrr
+    errorrr = True
     reporte = "<select> ::= <problem>"
     t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
@@ -1034,7 +1050,8 @@ def p_lista_de_seleccionados_funcion_params(t):
     arr = []
     c3d = ''
     grafo.newnode('F_LLAMADA')
-    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenF(grafo.index, t[3]['graph'])
     reporte = "<listadeargumentos> ::= ID PARENIZQ <params> PARENDER\n" + t[3]['reporte']
     for val in t[3]['extra']:
         if val != '':
@@ -1076,7 +1093,7 @@ def p_lista_de_seleccionados_funcion(t):
     text = ''
     grafo.newnode('F_LLAMADA')
     grafo.newchildrenE(t[1].upper())
-    reporte = "<listadeargumentos> ::= ID PARENIZQ <params> PARENDER\n" + t[3]['reporte']
+    reporte = "<funcionesLlamada> ::= ID PARENIZQ PARENDER\n" 
     l.readData(datos)
     if 'funciones_' in datos.tablaSimbolos:
         for nombres in datos.tablaSimbolos['funciones_']:
@@ -2355,7 +2372,7 @@ def p_create_instruccion(t) :
     else :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        reporte = "<create> ::="+ str(t[2].upper())+"<createenum>\n"  + t[2]['reporte']
+        reporte = "<create> ::="+ str(t[1].upper())+"<creates>\n"  + t[2]['reporte']
         txt = ' ' + t[1] + ' ' + t[2]['text']
         t[0] = {'text' : txt, 'c3d': '', 'graph' : grafo.index, 'reporte': reporte}
 
@@ -2792,6 +2809,7 @@ def p_tipo(t):
             | ID'''
     txt = t[1]
     c3 = ' \'\''
+    reporte = ""
     grafo.newnode('TIPO')
     if t[1].lower() == 'character' :
         grafo.newchildrenE(t[1].upper())
@@ -2832,6 +2850,10 @@ def p_tipo(t):
         grafo.newchildrenE(t[1].upper())
         reporte = "<tipo> ::="+ str(t[1].upper())+"\n"
         c3 = ' 0'
+    else:
+        grafo.newchildrenE(t[1].upper())
+        reporte ="<tipo> ::= " + t[1].upper() + "\n"
+        c3 = ''
     t[0] = {'text' : txt, 'c3d': c3, 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -2902,7 +2924,7 @@ def p_use(t):
 
 def p_useE(t):
     'use    : problem'
-    text = ""
+    text = ";"
     reporte = "<use> ::= "
     reporte += "<problem>\n"
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
@@ -2921,7 +2943,7 @@ def p_show(t):
 
 def p_showw(t):
     '''show   :  problem'''
-    text = ""
+    text = ";"
     reporte = "<show> ::= <problem>\n"
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
@@ -2964,8 +2986,8 @@ def p_drop(t):
 
 def p_drop_e(t):
     '''drop : problem'''
-    text = ""
-    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
+    text = ";"
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': ''}
 
 def p_dropdb(t):
     '''dropdb   : IF EXISTS ID
@@ -3061,7 +3083,7 @@ def p_alterpicoluem(t):
 
 def p_alterp_err(t):
     "alter : problem"
-    text = "\n"
+    text = ";"
     reporte = "<alter> ::= <problem>\n" + t[1]['reporte']
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
@@ -3316,7 +3338,7 @@ def p_instrucciones_insert(t):
 
 def p_instrucciones_insert_err(t):
     "insert : problem"
-    text = "\n"
+    text = ";"
     reporte = "<insert> ::= <problem>\n" + t[1]['reporte']
     t[0] =  {'text': text, 'c3d' : '', 'graph' : grafo.index, 'reporte': reporte}
 
@@ -3515,18 +3537,14 @@ def p_createprocedure(t):
     'createprocedure : orreplaceopcional PROCEDURE ID PARENIZQ argumentosp PARENDER LANGUAGE ID AS DOLARS bodystrcpr DOLARS '
 
     grafo.newnode('CREATEPROCEDURE')
-    grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenE(t[2].upper() + ' ' + t[3])
     grafo.newchildrenF(grafo.index, t[5]['graph'])
     grafo.newchildrenF(grafo.index, t[11]['graph'])
-    grafo.newchildrenE(t[1])
     reporte = "<createprocedure> ::= <orreplaceopcional> PROCEDURE ID PARENIZQ <argumentosp> PARENDER LANGUAGE ID AS DOLARS <bodystrcpr> DOLARS\n"
     reporte += t[5]['reporte'] + t[11]['reporte']
-
     ftext = '@with_goto\n' + 'def ' + t[3] + '():\n'
     ftext += t[5]['text']
     ftext += t[11]['text']
-
     printList = ''
     try:
         if t[1].lower() == 'or' :
@@ -3551,9 +3569,13 @@ def p_createprocedure(t):
             #-------------------------------
         else :
             printList = 'La funcion ' + t[3] + ' ya esta creada.\n'
-
+        print(datos)
         l.writeData(datos)
     t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
+
+def p_pcreateindex(t):
+    'createprocedure :  problem'
+    t[0] = {'text' : '', 'c3d': '', 'graph' : grafo.index, 'reporte': ''}
 
 def p_orreplaceopcional(t):
     '''orreplaceopcional :  OR REPLACE'''
@@ -3561,7 +3583,7 @@ def p_orreplaceopcional(t):
 
 def p_orreplaceopcionalE(t):
     '''orreplaceopcional : '''
-    t[0] =  {'text':'' , 'c3d' : '' }
+    t[0] = None
 
 def p_body_strcpr(t):
     '''bodystrcpr : cuerpodeclare BEGIN statementspr END  PTCOMA'''
@@ -3601,7 +3623,6 @@ def p_statements_cpr_a(t):
     'statementspr : statementpr'
     grafo.newnode('statementspr')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<statementspr> ::= <statementpr>\n"
     reporte += t[1]['reporte']
 
@@ -3705,6 +3726,10 @@ def p_createfunction(t):
     l.writeData(datos)
     t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
 
+def p_createfunp(t):
+    'createfunction : problem'
+    t[0] =  {'text':'' , '' : '',  'graph' : grafo.index, 'reporte': ''}
+
 
 def p_argumento_p(t):
     '''argumentosp : argumentos'''
@@ -3717,7 +3742,7 @@ def p_argumento_p(t):
 def p_argumento_p_ep(t):
     'argumentosp : '
     grafo.newnode('ARGUMENTOSP')
-    reporte = "<argumentosp> ::= NULL \n" + t[1]['reporte']
+    reporte = "<argumentosp> ::= NULL \n"
     t[0] =  {'text': '', 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -3743,7 +3768,8 @@ def p_argumento_cf(t):
     '''argumento : ID tipo'''
     text = '    ' + t[1] + ' = heap.pop()'
     grafo.newnode('ARGUMENTOS')
-    grafo.newchildrenF(grafo.index, t[1]['graph'])
+    grafo.newchildrenE(t[1].upper())
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<argumento> ::= "+str(t[1].upper())+"<tipo>  \n" + t[2]['reporte']
     t[0] =  {'text': text, 'c3d' : ''  , 'graph' : grafo.index, 'reporte': reporte}
 
@@ -3757,7 +3783,7 @@ def p_body_cf(t):
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_body_strc(t):
-    '''bodystrc : cuerpodeclare BEGIN statements   PTCOMA'''
+    '''bodystrc : cuerpodeclare BEGIN statements END PTCOMA'''
     text = t[1]['text'] + '\n' + t[3]['text']
     grafo.newnode('BODYSTR')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
@@ -3772,6 +3798,10 @@ def p_body_strcB(t):
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<argumento> ::=  BEGIN <statements> END PTCOMA \n" + t[2]['reporte']
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
+
+def p_createfunp(t):
+    'bodystrc : problem'
+    t[0] =  {'text':'' , '' : '',  'graph' : grafo.index, 'reporte': ''}
 
 def p_cuerpodeclare(t):
     'cuerpodeclare : DECLARE declarations'
@@ -3806,7 +3836,7 @@ def p_declartion_cf(t):
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
-    reporte = "<declaration> ::= "+str(t[1].uppper())+" <tipo> <declarationc>  \n" + t[2]['reporte']+ t[3]['reporte']
+    reporte = "<declaration> ::= "+str(t[1].upper())+" <tipo> <declarationc>  \n" + t[2]['reporte']+ t[3]['reporte']
     if t[3]['text'] == '' :
         text = '    ' + t[1] + ' = ' + t[2]['c3d']
     else :
@@ -3815,6 +3845,10 @@ def p_declartion_cf(t):
     text += ''
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
+def p_createfunp(t):
+    'declaration : problem'
+    t[0] =  {'text':'' , '' : '',  'graph' : grafo.index, 'reporte': ''}
+    
 def p_declarationc_a(t):
     '''declarationc :   defaultop PTCOMA'''
     grafo.newnode('DECLARATIONC')
@@ -3886,6 +3920,10 @@ def p_stament_cf(t):
         text = t[2]['c3d']
         #print(text)
     t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
+
+#def p_createfunp(t):
+ #   'statement : problem'
+  #  t[0] =  {'text':'' , '' : '',  'graph' : grafo.index, 'reporte': ''}
 
 def p_stament_if(t):
     'statement : if'
@@ -4021,6 +4059,11 @@ def p_if_(t):
     #print(c3d)
     t[0] = {'text': text, 'c3d': c3d, 'graph' : grafo.index, 'reporte': reporte}
 
+
+def p_createfunp(t):
+    'if : problem'
+    t[0] =  {'text':'' , '' : '',  'graph' : grafo.index, 'reporte': ''}
+
 def p_if_end(t):
     '''ifend : ELSEIF condiciones THEN statements ifend
             | END IF
@@ -4096,6 +4139,10 @@ def p_casecf(t):
     #print(code)
     t[0] = {'text': text, 'c3d': code, 'graph' : grafo.index, 'reporte': reporte}
 
+def p_createfunp(t):
+    'case : problem'
+    t[0] =  {'text':'' , '' : '',  'graph' : grafo.index, 'reporte': ''}
+
 def p_elsecase(t):
     '''elsecase : ELSE statements END CASE
                 | END CASE'''
@@ -4164,11 +4211,18 @@ def p_casewhens(t):
 #---------------------------------------------------------------------------------------------------- fffffff
 
 def p_error(t):
-    description = "Error sintactico con: " + str(t.value)
-    mistake = error("Sintactico", description, str(t.lineno))
-    errores.append(mistake)
-    print(mistake.toString())
-    return None
+    try:
+        description = "Error sintactico con: " + str(t.value)
+        mistake = error("Sintactico", description, str(t.lineno))
+        errores.append(mistake)
+        print(mistake.toString())
+        return ''
+    except:
+        description = "Error sintactico <f>"
+        mistake = error("Sintactico", description, 0)
+        errores.append(mistake)
+        print(mistake.toString())
+        return ''
 
 def getMistakes():
     return errores
