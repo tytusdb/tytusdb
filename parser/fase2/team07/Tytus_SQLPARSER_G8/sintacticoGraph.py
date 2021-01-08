@@ -904,6 +904,7 @@ def p_instruccion_case(t):
     case    : WHEN expre THEN expre
             | ELSE expre
     '''
+    t[0] = crear_nodo_general("CASE","",t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_lrows(t):
     '''lrows : lrows rows
@@ -1101,7 +1102,7 @@ def p_operadores_like(t):
             | expre NOT LIKE expre
     '''
     nodo = crear_nodo_general("expre","",t.lexer.lineno, t.lexer.lexpos)
-    if t[2] = "LIKE":
+    if t[2] == "LIKE":
         nodo.hijos.append(t[1])
         nodo.hijos.append(crear_nodo_general("LIKE","",t.lexer.lineno, t.lexer.lexpos))
         nodo.hijos.append(t[3])
@@ -1183,66 +1184,46 @@ def p_operadores_agregacion(t):
             | SUM PARIZQ expre PARDER
             | TOP PARIZQ expre PARDER
     '''
+    nodo = crear_nodo_general("expre","",t.lexer.lineno, t.lexer.lexpos)
     if t[1] == 'AVG':
-        strGram = "<expre> ::= AVG PARIZQ <expre> PARDER"
-        strSent = "AVG (" + t[3].strSent + ")"
-        t[0] = Avg.Avg(t[3], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("AVG",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
         pass
     elif t[1] == 'COUNT':
-        strGram = "<expre> ::= COUNT PARIZQ <expre> PARDER"
-        strSent = "COUNT (" + t[3].strSent + ")"
-        t[0] = Count.Count(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("COUNT",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
         pass
     elif t[1] == 'GREATEST':
-        strGram = "<expre> ::= GREATEST PARIZQ <lcol> PARDER"
-        strSent = "GREATEST ("
-        for col in t[3]:
-            if isinstance(col, str):
-                strSent = strSent + col + ","
-            else:
-                strSent = strSent + col.strSent + ","
-        strSent = strSent[:-1]
-        strSent = strSent + ")"
-        t[0] = Greatest.Greatest(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("GREATEST",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
         pass
     elif t[1] == 'LEAST':
-        strGram = "<expre> ::= LEAST PARIZQ <lcol> PARDER"
-        strSent = "LEAST ("
-        for col in t[3]:
-            if isinstance(col, str):
-                strSent = strSent + col + ","
-            else:
-                strSent = strSent + col.strSent + ","
-        strSent = strSent[:-1]
-        strSent = strSent + ")"
-        t[0] = Least.Least(t[3], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("LEAST",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
         pass
     elif t[1] == 'MAX':
-        strGram = "<expre> ::= MAX PARIZQ <expre> PARDER"
-        strSent = "MAX (" + t[3].strSent + ")"
-        t[0] = Max.Max(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("MAX",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
         pass
     elif t[1] == 'MIN':
-        strGram = "<expre> ::= MIN PARIZQ <expre> PARDER"
-        strSent = "MIN (" + t[3].strSent + ")"
-        t[0] = Min.Min(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("MIN",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
         pass
     elif t[1] == 'SUM':
-        strGram = "<expre> ::= MAX PARIZQ <expre> PARDER"
-        strSent = "SUM (" + t[3].strSent + ")"
-        t[0] = Sum.Sum(t[3], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("SUM",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
         pass
     elif t[1] == 'TOP':
-        strGram = "<expre> ::= TOP PARIZQ <lcol> PARDER"
-        strSent = "TOP ("
-        for col in t[3]:
-            if isinstance(col, str):
-                strSent = strSent + col + ","
-            else:
-                strSent = strSent + col.strSent + ","
-        strSent = strSent[:-1]
-        strSent = strSent + ")"
-        t[0] = Top.Top(t[3], Tipo("",Tipo_Dato.INTEGER), strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("TOP",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
         pass
 
 def p_operadores_matematica(t):
@@ -1275,119 +1256,124 @@ def p_operadores_matematica(t):
             | TRUNC PARIZQ expre PARDER 
             | WIDTH_BUCKET PARIZQ expresion COMA expresion COMA expresion COMA expresion PARDER 
     '''
-    
+    nodo = crear_nodo_general("expre","",t.lexer.lineno, t.lexer.lexpos)
     if t[1] == 'ABS':
-        strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        strSent = "ABS(" + t[3].strSent + ")"
-        t[0] = Abs.Abs(t[3], strGram,t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("ABS",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'CBRT':
-        strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        strSent = "CBRT(" + t[3].strSent + ")"
-        t[0] = Cbrt.Cbrt(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("CBRT",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'CEIL':
-        strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        strSent = "CEIL(" + t[3].strSent + ")" 
-        t[0] = Ceil.Ceil(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("CEIL",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'CEILING':
-        strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        strSent = "CEILING(" + t[3].strSent + ")"
-        t[0] = Ceiling.Ceiling(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("CEILING",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'DEGREES':
-        strGram = "<expre> :: = "+ t[1] +" PARIZQ <expre> PARDER"
-        strSent = "DEGREES(" + t[3].strSent + ")"
-        t[0] = Degrees.Degrees(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("DEGREES",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'DIV':
-        strGram = "<expre> ::= DIV PARIZQ <expre> COMA <expre>  PARDER"
-        strSent = "DIV(" + t[3].strSent + "," + t[5].strSent + ")"
-        t[0] = Div.Div(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("DIV",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(t[5])
+        t[0] = nodo
     elif t[1] == 'EXP':
-        strGram = "<expre> ::= EXP PARIZQ <expre> PARDER"
-        strSent = "EXP(" + t[3].strSent + ")"
-        t[0] = Exp.Exp(t[3], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("EXP",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'FACTORIAL':
-        strGram = "<expre> ::= FACTORIAL PARIZQ <expre> PARDER"
-        strSent = "FACTORIAL(" + t[3].strSent + ")"
-        t[0] = Factorial.Factorial(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("FACTORIAL",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'FLOOR':
-        strGram = "<expre> ::= FLOOR PARIZQ <expre> PARDER"
-        strSent = "FLOOR(" + t[3].strSent + ")"
-        t[0] = Floor.Floor(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("FLOOR",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'GCD':
-        strGram = "<expre> ::= GCD PARIZQ <expre> COMA <expre> PARDER"
-        strSent = "GDC(" + t[3].strSent + "," + t[5].strSent + ")"
-        t[0] = Gcd.Gcd(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("GCD",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(t[5])
+        t[0] = nodo
     elif t[1] == 'LCM':
-        strGram = "<expre> ::= LCM PARIZQ <expre> PARDER"
-        strSent = "LCM(" + t[3].strSent + ")"
-        t[0] = Lcm.Lcm(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("LCM",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'LN':
-        strGram = "<expre> ::= LN PARIZQ <expre> PARDER"
-        strSent = "LN(" + t[3].strSent + ")"
-        t[0] = Ln.Ln(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("LN",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'LOG':
-        strGram = "<expre> ::= LOG PARIZQ <expre> PARDER"
-        strSent = "LOG(" + t[3].strSent + ")"
-        t[0] = Log.Log(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("LOG",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'LOG10':
-        strGram = "<expre> ::= LOG10 PARIZQ <expre> PARDER"
-        strSent = "LOG10(" + t[3].strSent + ")"
-        t[0] = Log10.Log10(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("LOG10",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'MIN_SCALE':
-        strGram = "<expre> ::= MIN_SCALE PARIZQ <expre> PARDER"
-        strSent = "MIN_SCALE(" + t[3].strSent + ")"
-        t[0] = MinScale.MinScale(t[3], t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("MIN_SCALE",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'MOD':
-        strGram = "<expre> ::= MOD PARIZQ <expre> COMA <expre> PARDER"
-        strSent = "MOD(" + t[3].strSent + "," + t[5].strSent + ")"
-        t[0] = Mod.Mod(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("MOD",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(t[5])
+        t[0] = nodo
     elif t[1] == 'PI':
-        strGram = "PI PARIZQ PARDER "
-        strSent = "PI()"
-        t[0] = PI.PI(strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("PI",t[1],t.lexer.lineno, t.lexer.lexpos))
+        t[0] = nodo
     elif t[1] == 'POWER':
-        strGram = "<expre> ::= POWER PARIZQ <expre> COMA <expre> PARDER"
-        strSent = "POWER(" + t[3].strSent + "," + t[5].strSent + ")"
-        t[0] = Power.Power(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("POWER",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(t[5])
+        t[0] = nodo
     elif t[1] == 'RADIANS':
-        strGram = "<expre> ::= RADIANS PARIZQ <expre> PARDER "
-        strSent = "RADIANS(" + t[3].strSent + ")"
-        t[0] = Radians.Radians(t[3], strGram ,t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("RADIANS",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'RANDOM':
-        strGram = "RANDOM PARIZQ PARDER"
-        strSent = "RANDOM()"
-        t[0] = Random.Random(strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("RANDOM",t[1],t.lexer.lineno, t.lexer.lexpos))
+        t[0] = nodo
     elif t[1] == 'ROUND':
-        strGram = "<expre> ::= ROUND PARIZQ <expre> PARDER "
-        strSent = "ROUND(" + t[3].strSent + ")"
-        t[0] = Round.Round(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("ROUND",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'SCALE':
-        strGram = "<expre> ::= SCALE PARIZQ <expre> PARDER "
-        strSent = "SCALE(" + t[3].strSent + ")"
-        t[0] = Scale.Scale(t[3], strGram ,t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("SCALE",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'SETSEED':
-        strGram = "<expre> ::= SETSEED PARIZQ <expre> PARDER"
-        strSent = "SETSEED(" + t[3].strSent + ")"
-        t[0] = SetSeed.SetSeed(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("SETSEED",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'SIGN':
-        strGram = "<expre> ::= SIGN PARIZQ <expre> PARDER"
-        strSent = "SIGN(" + t[3].strSent + ")"
-        t[0] = Sign.Sign(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("SIGN",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'SQRT':
-        strGram = "<expre> ::= SQRT PARIZQ <expre> PARDER"
-        strSent = "SQRT(" + t[3].strSent + ")"
-        t[0] = Sqrt.Sqrt(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("SQRT",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'TRIM_SCALE':
-        strGram = "<expre> ::= TRIM_SCALE PARIZQ <expre> PARDER"
-        strSent = "TRIM_SCALE(" + t[3].strSent + ")"
-        t[0] = TrimScale.TrimScale(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+        nodo.hijos.append(crear_nodo_general("TRIM_SCALE",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'TRUNC':
-        strGram = "<expre> ::= TRUNC PARIZQ <expre> PARDER"
-        strSent = "TRUNC(" + t[3].strSent + ")"
-        t[0] = Trunc.Trunc(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("TRUNC",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'WIDTH_BUCKET':
-        strGram = "<expre> ::= WIDTH_BUCKET PARIZQ <expresion> COMA <expresion> COMA <expresion> COMA <expresion> PARDER "
-        strSent = "WIDTH_BUCKET(" + t[3].strSent + "," + t[5].strSent + "," + t[7].strSent + "," + t[9].strSent + ")"
-        t[0] = WidthBucket.WidthBucket(t[3], t[5], t[7], t[9], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("WIDTH_BUCKET",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(t[5])
+        nodo.hijos.append(t[7])
+        nodo.hijos.append(t[9])
+        t[0] = nodo
 
 def p_operadores_binarias(t):  
     ''' expre : CONVERT PARIZQ expre AS tipo PARDER
@@ -1402,61 +1388,59 @@ def p_operadores_binarias(t):
             | SUBSTRING PARIZQ expre COMA ENTERO COMA ENTERO PARDER
             | TRIM PARIZQ expre PARDER
     '''
-
+    nodo = crear_nodo_general("expre","",t.lexer.lineno, t.lexer.lexpos)
     if t[1] == 'CONVERT':
-        strGram = "<expre> ::= CONVERT PARIZQ <expre> AS <tipo> PARDER"
-        strSent = "CONVERT(" + t[3].strSent + " AS " + t[5].strSent + ")"
-        t[0] = Convert.Convert(t[3], None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("CONVERT",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(t[5])
+        t[0] = nodo
     elif t[1] == 'DECODE':
-        strGram = "<expre> ::= DECODE PARIZQ <expre> PARDER"
-        strSent = "DECODE(" + t[3].strSent + ")"
-        t[0] = Decode.Decode(t[3],  None, t[5],strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("DECODE",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'ENCODE':
-        strGram = "<expre> ::= ENCODE PARIZQ <expre> PARDER"
-        strSent = "ENCODE(" + t[3].strSent + ")"
-        t[0] = Encode.Encode(t[3],  None, t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("ENCODE",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'GET_BYTE':
-        strGram = "<expre> ::= GET_BYTE PARIZQ <expre> COMA ENTERO PARDER"
-        strSent = "GET_BYTE(" + t[3].strSent + "," + str(t[5]) + ")"
-        t[0] = GetByte.GetByte(t[3], None,t[5], strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("GET_BYTE",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(crear_nodo_general("ENTERO",t[5],t.lexer.lineno, t.lexer.lexpos))
+        t[0] = nodo
     elif t[1] == 'LENGTH':
-        strGram = "<expre> ::= LENGTH PARIZQ <expre> PARDER"
-        strSent = "LENGTH(" + t[3].strSent + ")"
-        t[0] = Length.Length(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("LENGTH",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'MD5':
-        strGram = "<expre> ::= MD5 PARIZQ <expre> PARDER"
-        strSent = "MD5(" + t[3].strSent + ")"
-        t[0] = Md5.Md5(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("MD5",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'SET_BYTE':
-        strGram = "<expre> ::= SET_BYTE PARIZQ <expre> COMA ENTERO COMA ENTERO PARDER"
-        strSent = "SET_BYTE(" + t[3].strSent + "," + str(t[5]) + "," + str(t[7]) +")"
-        t[0] = SetByte.SetByte(t[3], None, t[5], t[7], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("GET_BYTE",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(crear_nodo_general("ENTERO",t[5],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("ENTERO",t[7],t.lexer.lineno, t.lexer.lexpos))
+        t[0] = nodo
     elif t[1] == 'SHA256':
-        strGram = "<expre> ::= SHA256 PARIZQ <expre> PARDER"
-        strSent = "SHA256(" + t[3].strSent + ")"
-        t[0] = Sha256.Sha256(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("SHA256",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
     elif t[1] == 'SUBSTR':
-        strGram = "<expre> ::= SUBSTR PARIZQ <expre> COMA ENTERO COMA ENTERO PARDER"
-        strSent = "SUBSTR(" + t[3].strSent + "," + str(t[5]) + "," + str(t[7]) +")"
-        t[0] = Substring.Substring(t[3], t[5], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("SUBSTR",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(crear_nodo_general("ENTERO",t[5],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("ENTERO",t[7],t.lexer.lineno, t.lexer.lexpos))
+        t[0] = nodo
     elif t[1] == 'SUBSTRING':
-        strGram = "<expre> ::= SUBSTRING PARIZQ <expre> COMA ENTERO COMA ENTERO PARDER"
-        strSent = "SUBSTRING(" + t[3].strSent + "," + str(t[5]) + "," + str(t[7]) +")"
-        t[0] = Substring.Substring(t[3], t[5], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("SUBSTRING",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(crear_nodo_general("ENTERO",t[5],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("ENTERO",t[7],t.lexer.lineno, t.lexer.lexpos))
+        t[0] = nodo
     elif t[1] == 'TRIM':
-        strGram = "<expre> ::= TRIM PARIZQ <expre> PARDER"
-        strSent = "TRIM(" + t[3].strSent + ")"
-        t[0] = Trim.Trim(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-        pass
+        nodo.hijos.append(crear_nodo_general("TRIM",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
 
 def p_operadores_trigonometricas(t):  
     ''' expre : ACOS PARIZQ expre PARDER
@@ -1482,57 +1466,16 @@ def p_operadores_trigonometricas(t):
             | TAND PARIZQ expre PARDER
             | TANH PARIZQ expre PARDER
     '''
-    strGram = "<expre> ::= "+ t[1] +" PARIZQ <expre> PARDER"
-    strSent = t[1] + "(" + t[3].strSent + ")"
-    if t[1] == 'ACOS':
-        t[0] = Acos.Acos(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
-    elif t[1] == 'ACOSD':
-        t[0] = Acosd.Acosd(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
-    elif t[1] == 'ACOSH':
-        t[0] = Acosh.Acosh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
-    elif t[1] == 'ASIN':
-        t[0] = Asin.Asinh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'ASIND':
-        t[0] = Asind.Asind(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'ASINH':
-        t[0] = Asinh.Asinh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'ATAN':
-        
-        t[0] = Atan.Atan(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'ATAN2':
-        strGram = "<expre> ::= ATAN2 PARIZQ <expre> COMA <expre> PARDER"
-        strSent = t[1] + "(" + t[3].strSent + "," + t[5].strSent + ")"
-        t[0] = Atan2.Atan2(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'ATAN2D':
-        strGram = "<expre> ::= ATAN2D PARIZQ <expre> COMA <expre> PARDER"
-        strSent = t[1] + "(" + t[3].strSent + "," + t[5].strSent + ")"
-        t[0] = Atan2d.Atan2d(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'ATAND':
-        t[0] = Atand.Atand(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'ATANH':
-        t[0] = Atanh.Atanh(t[3], strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'COS':
-        t[0] = Cos.Cos(t[3], strGram,t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'COSD':
-        t[0] = Cosd.Cosd(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'COSH':
-        t[0] = Cosh.Cosh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'COT':
-        t[0] = Cot.Cot(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'COTD':
-        t[0] = Cotd.Cotd(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'SIN':
-        t[0] = Sin.Sin(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'SIND':
-        t[0] = Sind.Sind(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'SINH':
-        t[0] = Sinh.Sinh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'TAN':
-        t[0] = Tan.Tan(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'TAND':
-        t[0] = Tand.Tand(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'TANH':
-        t[0] = Tanh.Tanh(t[3], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+    nodo = crear_nodo_general("expre","",t.lexer.lineno, t.lexer.lexpos)
+    if len(t) == 5:
+        nodo.hijos.append(crear_nodo_general(t[1],t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        t[0] = nodo
+    else:
+        nodo.hijos.append(crear_nodo_general(t[1],t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(t[5])
+        t[0] = nodo
             
 def p_operadores_otros(t):
     ''' expre : EXTRACT PARIZQ tiempo FROM TIMESTAMP CARACTER PARDER
@@ -1543,100 +1486,99 @@ def p_operadores_otros(t):
             | TIMESTAMP CARACTER
             | CASE lcase END 
     '''
+    nodo = crear_nodo_general("expre","",t.lexer.lineno, t.lexer.lexpos)
     if t[1] == 'EXTRACT':
-        strGram = "<expre> ::= EXTRACT PARIZQ <tiempo> FROM TIMESTAMP CARACTER PARDER"
-        strSent = "EXTRACT(" + t[3] + " FROM TIMESTAMP " + t[6] + ")"
-        t[0] = Extract.Extract(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("EXTRACT",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(crear_nodo_general("FROM TIMESTAMP","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("CARACTER",t[6]))
+        t[0] = nodo
     elif t[1] == 'NOW':
-        strGram = "<expre> ::= NOW PARIZQ PARDER"
-        strSent = "NOW()"
-        t[0] = Now.Now( strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("NOW",t[1],t.lexer.lineno, t.lexer.lexpos))
+        t[0] = nodo
     elif t[1] == 'DATE_PART':
-        strGram = "<expre> ::= DATE_PART PARIZQ CARACTER COMA INTERVAL CARACTER PARDER"
-        strSent = "DATE_PART(" + t[3] + "," + t[5] + " " + t[6] + ")"
-        t[0] = DatePart.DatePart(t[3], t[6], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("DATE_PART",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("CARACTER",t[3]))
+        nodo.hijos.append(crear_nodo_general("CARACTER",t[6]))
+        t[0] = nodo
     elif t[1] == 'CURRENT_DATE':
-        strGram = "<expre> ::= CURRENT_DATE"
-        strSent = "CURRENT_DATE"
-        t[0] = CurrentDate.CurrentDate(strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("CURRENT_DATE",t[1],t.lexer.lineno, t.lexer.lexpos))
+        t[0] = nodo
     elif t[1] == 'CURRENT_TIME':
-        strGram = "<expre> ::= CURRENT_TIME"
-        strSent = "CURRENT_TIME"
-        t[0] = CurrentTime.CurrentTime(strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+        nodo.hijos.append(crear_nodo_general("CURRENT_TIME",t[1],t.lexer.lineno, t.lexer.lexpos))
+        t[0] = nodo
     elif t[1] == 'TIMESTAMP':
-        strGram = "<expre> ::= TIMESTAMP CARACTER"
-        strSent = "TIMESTAMP " + t[2]
-        t[0] = TimeStamp.TimeStamp(t[2], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
-    elif t[1] == 'POR':
-        t[0] = 'Pendiente'
+        nodo.hijos.append(crear_nodo_general("TIMESTAMP",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("CARACTER",t[2]))
+        t[0] = nodo
     elif t[1] == 'CASE':
-        strGram = "<expre> ::= CASE <lcase> END "
-        t[0] = Case.Case(t[2], strGram, t.lexer.lineno, t.lexer.lexpos, strSent, "")
+        nodo.hijos.append(crear_nodo_general("CASE","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[2])
+        t[0] = nodo
 
 def p_operadores_parentesis(t):
     ''' expre : PARIZQ expre PARDER
             | PARIZQ query PARDER
     '''
-    t[2].strSent = "(" + t[2].strSent + ")"
-    t[0] = t[2]
+    nodo = crear_nodo_general("expre","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
  
 def p_operadores_logicos5(t):
     ''' expre :  expresion
     '''
-    #print("entro a expre - expresion")
-    t[0] = t[1]
+    nodo = crear_nodo_general("expre","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
+    t[0] = nodo
 
 def p_tiempo1(t):
     ''' tiempo :  YEAR
     '''
-    t[0] = "YEAR"
+    t[0] = crear_nodo_general("tiempo",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 def p_tiempo2(t):
     ''' tiempo :  MONTH
     '''
-    t[0] = "MONTH"
+    t[0] = crear_nodo_general("tiempo",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 def p_tiempo3(t):
     ''' tiempo :  DAY
     '''
-    t[0] = "DAY"
+    t[0] = crear_nodo_general("tiempo",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 def p_tiempo4(t):
     ''' tiempo :  HOUR
     '''
-    t[0] = "HOUR"
+    t[0] = crear_nodo_general("tiempo",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 def p_tiempo5(t):
     ''' tiempo :  MINUTE
     '''
-    t[0] = "MINUTE"
+    t[0] = crear_nodo_general("tiempo",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 def p_tiempo6(t):
     ''' tiempo :  SECOND
     '''
-    t[0] = "SECOND"
+    t[0] = crear_nodo_general("tiempo",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 def p_campos_tablas(t):
     '''campos : campos COMA ID tipo lista_op
     '''
     #ESTOY HACIENDO ESTA
-    strGram = "<campos> ::= <campos> COMA ID <tipo> <lista_op>"
-    
-    strSent = t[3] + " " + t[4].strSent
-    for col in t[5]:
-        strSent = strSent + " " + col.strSent
-    
-    t[1].append(CColumna.Columna(t[3],t[4],t[5], strGram, t.lineno,t.lexpos,strSent))
-    t[0] =t[1]
+    nodo = t[1]
+    nodo.hijos.append(crear_nodo_general("ID",t[3],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[4])
+    nodo.hijos.append(t[5])
+    t[0] = nodo
 
 def p_campos_tablas1(t):
     '''campos : campos COMA ID tipo
     '''
-    strGram = "<campos> ::= <campos> COMA ID tipo"
-    strSent = t[3] + " " + t[4].strSent
-    t[1].append(CColumna.Columna(t[3],t[4],None,strGram,t.lineno,t.lexpos, strSent))
-    t[0] =t[1]
+    nodo = t[1]
+    nodo.hijos.append(crear_nodo_general("ID",t[3],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[4])
+    t[0] = nodo
 
 #def p_campos_tablas2(t):
 #    '''campos : campos COMA CHECK expre
@@ -1654,325 +1596,312 @@ def p_campos_tablas1(t):
 def p_campos_tablas4(t):
     '''campos : campos COMA UNIQUE PARIZQ lista_id PARDER
     '''
-    strGram = "<campos> ::= <campos> COMA UNIQUE PARIZQ <lista_id> PARDER"
-    
-    strSent = "UNIQUE("
-    for col in t[5]:
-        strSent = strSent + col + ","
-    strSent = strSent[:-1]
-    strSent = strSent + ")"
-
-    t[1].append(Tipo_Constraint(None,Tipo_Dato_Constraint.UNIQUE,t[5],strSent))
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(crear_nodo_general("UNIQUE","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[5])
+    t[0] = nodo
 
 def p_campos_tablas5(t):
     '''campos : campos COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
     '''
-    strGram = "<campos> ::= <campos> COMA FOREIGN KEY PARIZQ <lista_id> PARDER REFERENCES ID PARIZQ <lista_id> PARDER"
-    
-    strSent = "FOREIGN KEY("
-    for col in t[6]:
-        strSent = strSent + col + ","
-    strSent = strSent[:-1]
-    strSent = strSent + ") REFERENCES " + t[9] + "("
-    for col in t[11]:
-        strSent = strSent + col + ","
-    strSent = strSent[:-1]
-    strSent = strSent + ")"
-
-    t[1].append(Tipo_Constraint(t[6],Tipo_Dato_Constraint.FOREIGN_KEY,Tipo_Constraint([9],Tipo_Dato_Constraint.REFERENCES,t[11]),strSent))
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(crear_nodo_general("FOREIGN KEY","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[6])
+    nodo.hijos.append(crear_nodo_general("REFERENCES","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("ID",t[9],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[11])
+    t[0] = nodo
 
 def p_campos_tablas6(t):
     '''campos : campos COMA PRIMARY KEY PARIZQ lista_id PARDER
     '''
-    strSent = "PRIMARY KEY("
-    for col in t[6]:
-        strSent = strSent + col + ","
-    strSent = strSent[:-1]
-    strSent = strSent + ")"
-
-    t[1].append(Tipo_Constraint(None,Tipo_Dato_Constraint.PRIMARY_KEY,t[6],strSent))
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(crear_nodo_general("PRIMARY KEY","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[6])
+    t[0] = nodo
 
 def p_campos_tablas7(t):
     '''campos : ID tipo lista_op
     '''
-    strGram = "<campos> ::= ID <tipo> <lista_op>"
-    strSent = t[1] + " " + t[2].strSent
-    for col in t[3]:
-        strSent = strSent + " " + col.strSent
-    
-    t[0] = [CColumna.Columna(t[1],t[2],t[3], strGram, t.lineno,t.lexpos, strSent)]
+    nodo = crear_nodo_general("campos","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[2])
+    nodo.hijos.append(t[3])
+    t[0] = nodo
 
 def p_campos_tablas8(t):
     '''campos : ID tipo
     '''
-    strGram = "<campos> ::= ID <tipo>"
-    strSent = t[1] + " " + t[2].strSent
-    t[0] = [CColumna.Columna(t[1],t[2],None,strGram,t.lineno,t.lexpos,strSent)]
+    nodo = crear_nodo_general("campos","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_lista_id1(t):
     '''lista_id : lista_id COMA ID
     '''
-    t[1].append(t[3])
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[3])
+    t[0] = nodo
 
 def p_lista_id2(t):
     '''lista_id : ID
     '''
-    t[0] = [t[1]]
+    nodo = crear_nodo_general("lista_id","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
+    t[0] = nodo
 
 
 def p_lista_op1(t):
     '''lista_op : lista_op opcion
     '''
-    t[1].append(t[2])
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 
 def p_lista_op2(t):
     '''lista_op : opcion
     '''
-    t[0] = [t[1]]
+    nodo = crear_nodo_general("lista_op","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
+    t[0] = nodo
 
 def p_opcion(t):
     '''opcion : PRIMARY KEY
     '''
-    strSent = "PRIMARY KEY"
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.PRIMARY_KEY, None, strSent)
+    nodo = crear_nodo_general("opcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("PRIMARY KEY","",t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_opcion1(t):
     '''opcion : REFERENCES ID PARIZQ lista_id PARDER
     '''
-    strSent = "REFERENCES " + t[2] + "("
-    for col in t[4]:
-        strSent = strSent + col + ","
-    strSent = strSent[:-1]
-    strSent = strSent + ")"
-
-    t[0] = Tipo_Constraint(t[2], Tipo_Dato_Constraint.REFERENCES, t[4],strSent)
+    nodo = crear_nodo_general("opcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("REFERENCES","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("ID",t[2],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[4])
+    t[0] = nodo
 
 def p_opcion2(t):
     '''opcion : DEFAULT expresion
     '''
-    strSent = "DEFAULT " + t[2].strSent
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.DEFAULT, t[2],strSent)
+    nodo = crear_nodo_general("opcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("DEFAULT","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_opcion3(t):
     '''opcion : NOT NULL
     '''
-    strSent = "NOT NULL"
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.NOT_NULL, None, strSent)
+    nodo = crear_nodo_general("opcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("NOT NULL","",t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_opcion4(t):
     '''opcion : NULL
     '''
-    strSent = "NULL"
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.NULL, None, strSent)
+    nodo = crear_nodo_general("opcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("NULL","",t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_opcion5(t):
     '''opcion : UNIQUE
     '''
-    strSent = "UNIQUE"
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.UNIQUE, None, strSent)
+    nodo = crear_nodo_general("opcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("UNIQUE","",t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_opcion6(t):
     '''opcion : CONSTRAINT ID UNIQUE
     '''
-    strSent = "CONSTRAINT " + t[2] + " UNIQUE"
-    t[0] = Tipo_Constraint(t[2], Tipo_Dato_Constraint.UNIQUE, None, strSent)
+    nodo = crear_nodo_general("opcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("CONSTRAINT","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("ID",t[2],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("UNIQUE","",t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_opcion7(t):
     '''opcion : CONSTRAINT ID CHECK expre
     '''
-    strSent = "CONSTRAINT " + t[2] + " CHECK " + t[4].strSent
-    t[0] = Tipo_Constraint(t[2], Tipo_Dato_Constraint.CHECK, t[4], strSent)
+    nodo = crear_nodo_general("opcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("CONSTRAINT","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("ID",t[2],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("CHECK","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[4])
+    t[0] = nodo
 
 def p_opcion8(t):
     '''opcion : CHECK expre
     '''
-    strSent = "CHECK " + t[2].strSent
-    t[0] = Tipo_Constraint(None, Tipo_Dato_Constraint.CHECK, t[2], strSent)
+    nodo = crear_nodo_general("opcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("CHECK","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_lista_expresiones(t):
     '''
     l_expresiones : l_expresiones COMA expre
     '''
-    t[1].append(t[3])
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[3])
+    t[0] = nodo
 
 def p_lista_expresiones1(t):
     '''
     l_expresiones : expre
     '''
-    t[0] = [t[1]]
+    nodo = crear_nodo_general("l_expresiones","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
+    t[0] = nodo
 
 def p_expresion(t):
     '''
     expresion : CADENA
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= CADENA"
-    strSent = t[1]
-    t[0] = Primitivo.Primitivo(t[1],Tipo("",Tipo_Dato.TEXT), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("CADENA",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_expresion1(t):
     '''expresion : CARACTER
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= CARACTER"
-    strSent = t[1]
-    t[0] = Primitivo.Primitivo(t[1],Tipo("",Tipo_Dato.CHAR), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
-    
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("CARACTER",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_expresion2(t):
     '''expresion : ENTERO
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= ENTERO"
-    strSent = str(t[1])
-    t[0] = Primitivo.Primitivo(t[1], Tipo("",Tipo_Dato.INTEGER), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ENTERO",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
     
 def p_expresion3(t):
     '''expresion : FDECIMAL
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= FDECIMAL"
-    strSent = str(t[1])
-    t[0] = Primitivo.Primitivo(t[1],Tipo("",Tipo_Dato.NUMERIC), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("FDECIMAL",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_expresion4(t):
     '''expresion : DOUBLE
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram +"<expresion> ::= DOUBLE"
-    strSent = str(t[1])
-    t[0] = Primitivo.Primitivo(t[1],Tipo("",Tipo_Dato.DOUBLE_PRECISION), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("DOUBLE",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_expresion5(t):
     '''expresion : ID
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= ID"
-    #t[0] = Primitivo.Primitivo(t[1],Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
-    strSent = t[1]
-    t[0] = Identificador(t[1], strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_expresion61(t):
     '''expresion : ID PUNTO ID
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= ID PUNTO ID"
-    strSent = t[1] + "." + t[3]
-    t[0] = SelectLista.Alias(t[1],t[3],strSent)
-    #t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, strGram,t.lexer.lineno, t.lexer.lexpos)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID.ID",t[1] + "." + t[3],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_expresion62(t):
     '''expresion : ID PUNTO POR
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= ID PUNTO POR"
-    strSent = t[1] + ".*"
-    t[0] = SelectLista.Alias(t[1],t[3],strSent)
-    #t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, strGram, t.lexer.lineno, t.lexer.lexpos)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID.*",t[1] + ".*",t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 
 def p_expresion7(t):
     '''expresion : ARROBA ID
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= ARROBA ID"
-    strSent = "@" + t[2]
-    t[0] = Primitivo.Primitivo(t[1],Tipo_Dato.ARROBA, strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("@ID","@" + t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_expresion8(t):
     '''expresion : ID PARIZQ lcol PARDER
     '''
-    strGram = "<expresion> ::= ID PARIZQ <lcol> PARDER\n"
-    strSent = t[1] + "("
-    for col in t[3]:
-        if isinstance(col, str):
-            strSent = strSent + col + ","
-        else:
-            strSent = strSent + col.strSent + ","
-    strSent = strSent[:-1]
-    strSent = strSent + ")"
-    t[0] = LlamadoFuncion.LlamadoFuncion(strGram, t.lexer.lineno, t.lexer.lexpos, strSent)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[3])
+    t[0] = nodo
 
 def p_expresion9(t):
     '''expresion : TRUE
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= TRUE"
-    strSent = "TRUE"
-    t[0] = Primitivo.Primitivo(True,Tipo("",Tipo_Dato.BOOLEAN), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("TRUE",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_expresion10(t):
     '''expresion : FALSE
     '''
-    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
-    strGram = strGram + "<l_expresiones> ::= <expre>\n"
-    strGram = strGram + "<expresion> ::= FALSE"
-    strSent = "FALSE"
-    t[0] = Primitivo.Primitivo(False,Tipo("",Tipo_Dato.BOOLEAN), strGram, t.lexer.lineno, t.lexer.lexpos,strSent)
+    nodo = crear_nodo_general("expresion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("FALSE",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_lista_columas(t):
     '''lcol : lcol COMA expre
     '''
-    #print("entro aqui 1")
-    t[1].append(t[3])
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[3])
+    t[0] = nodo
 
 def p_lista_columas1(t):
     '''lcol : lcol COMA expre nombre
     '''
-    t[1].append(SelectLista.Alias(t[4],t[3], t[3].strSent + " " + t[4]))
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[3])
+    nodo.hijos.append(t[4])
+    t[0] = nodo
 
 def p_lista_columas2(t):
     '''lcol : lcol COMA expre AS nombre
     '''
-    t[1].append(SelectLista.Alias(t[5],t[3], t[3].strSent + " AS " + t[5]))
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[3])
+    nodo.hijos.append(t[5])
+    t[0] = nodo
 
 
 def p_lista_columas01(t):
     '''lcol : POR
     '''
-    t[0] = t[1]
+    nodo = crear_nodo_general("lcol",t[1],t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("POR",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_lista_columas3(t):
     '''lcol : expre
     '''
-    t[0] = [t[1]]
+    nodo = crear_nodo_general("lcol",t[1],t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
+    t[0] = nodo
     
 def p_lista_columas4(t):
     '''lcol : expre nombre
     '''
-    t[0] = [SelectLista.Alias(t[2],t[1], t[1].strSent + " " + t[2])]
+    nodo = crear_nodo_general("lcol",t[1],t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_lista_columas5(t):
     '''lcol : expre AS nombre
     '''
-    t[0] = [SelectLista.Alias(t[3],t[1], t[1].strSent + " AS " + t[3])]
+    nodo = crear_nodo_general("lcol",t[1],t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_nombre(t):
     '''nombre : ID
         | CADENA
         | CARACTER
     '''
-    t[0] = t[1]
+    t[0] = crear_nodo_general("nombre",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 #----------------------TIPO DE DATOS---------------------------------
 def p_tipo_datos(t):
@@ -1996,26 +1925,26 @@ def p_tipo_datos1(t):
 def p_tipo_datos_varchar(t):
     '''tipo : VARCHAR PARIZQ ENTERO PARDER
     '''
-    strSent = "VARCHAR(" + str(t[3]) + ")"
-    t[0] = Tipo(strSent, Tipo_Dato.VARCHAR,t[3])
+    nodo = crear_nodo_general("tipo",t[1] + t[2] + t[3] + t[4],t.lexer.lineno, t.lexer.lexpos)
+    t[0] = nodo
 
 def p_tipo_datos_varchar1(t):
     '''tipo : CHAR PARIZQ ENTERO PARDER
     '''
-    strSent = "CHAR(" + str(t[3]) + ")"
-    t[0] = Tipo(strSent, Tipo_Dato.CHAR,t[3])
+    nodo = crear_nodo_general("tipo",t[1] + t[2] + t[3] + t[4],t.lexer.lineno, t.lexer.lexpos)
+    t[0] = nodo
 
 def p_tipo_datos_varchar2(t):
     '''tipo : CHARACTER VARYING PARIZQ ENTERO PARDER
     '''
-    strSent = "CHARACTER VARYING(" + str(t[4]) + ")"
-    t[0]= Tipo(strSent, Tipo_Dato.VARYING,t[4])
+    nodo = crear_nodo_general("tipo","CHARACTER VARYING" + t[3] + t[4] + t[5],t.lexer.lineno, t.lexer.lexpos)
+    t[0] = nodo
 
 def p_tipo_datos_varchar3(t):
     '''tipo : CHARACTER PARIZQ ENTERO PARDER
     '''
-    strSent = "CHARACTER(" + str(t[3]) + ")"
-    t[0]= Tipo(strSent, Tipo_Dato.CHARACTER,t[3])
+    nodo = crear_nodo_general("tipo",t[1] + t[2] + t[3] + t[4],t.lexer.lineno, t.lexer.lexpos)
+    t[0] = nodo
 
 def p_tipo_datos_varchar4(t):
     '''tipo : TEXT
@@ -2027,8 +1956,8 @@ def p_tipo_datos_varchar4(t):
 def p_tipo_datos_decimal(t):
     '''tipo : DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
     '''
-    strSent = "DECIMAL(" + str(t[3]) + "," + str(t[5]) + ")"
-    t[0]= Tipo(strSent, Tipo_Dato.DECIMAL,[t[3],t[5]])
+    nodo = crear_nodo_general("tipo",t[1] + t[2] + t[3] + t[4] + t[5] + t[6],t.lexer.lineno, t.lexer.lexpos)
+    t[0] = nodo
 
 #def p_tipo_datos_decimal1(t):
 #    '''tipo : DOUBLE
@@ -2132,11 +2061,25 @@ def p_tipo_datos2(t):
 
 ########################################### GRAMATICA FASE 2 ########################################
 
+def p_exect_func_pro(t):
+    '''
+    instruccion     :   EXECUTE ID PARDER l_expresiones PARIZQ PUNTO_COMA
+    '''
+    nodo = crear_nodo_general("EXECUTE","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[2],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[4])
+    t[0] = nodo
+
 def p_procedimiento(t):
     '''
     instruccion     :   CREATE PROCEDURE ID PARIZQ parametros_funcion PARDER LANGUAGE PLPGSQL AS DOLLAR DOLLAR declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR
     '''
-    t[0] = Procedimiento.Procedimiento(t[3], t[5], t[12], t[14], "", t.lexer.lineno, t.lexer.lexpos, "")
+    nodo = crear_nodo_general("CREATE PROCEDURE","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[3],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[5])
+    nodo.hijos.append(t[12])
+    nodo.hijos.append(t[14])
+    t[0] = nodo
 
 
 #DECLARACION DE UNA FUNCION
@@ -2144,7 +2087,32 @@ def p_funciones(t):
     '''
     instruccion    :   CREATE FUNCTION ID PARIZQ parametros_funcion PARDER returns_n retorno_funcion declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
-    t[0] = Funcion.Funcion(t[3], t[5], t[8], t[9], t[11], "", t.lexer.lineno, t.lexer.lexpos, "")
+    nodo = crear_nodo_general("CREATE FUNCTION","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[3],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[5])
+    nodo.hijos.append(t[7])
+    nodo.hijos.append(t[8])
+    nodo.hijos.append(t[9])
+    nodo.hijos.append(t[11])
+    t[0] = nodo
+
+def p_funciones_drop(t):
+    '''
+    instruccion : DROP FUNCTION if_op ID PUNTO_COMA
+    '''
+    nodo = crear_nodo_general("DROP FUNCTION","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[3])
+    nodo.hijos.append(crear_nodo_general("ID",t[4],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
+
+def p_procedimientos_drop(t):
+    '''
+    instruccion : DROP PROCEDURE if_op ID PUNTO_COMA
+    '''
+    nodo = crear_nodo_general("DROP PROCEDURE","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[3])
+    nodo.hijos.append(crear_nodo_general("ID",t[4],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_parametros_funcion(t):
     '''
@@ -2162,36 +2130,44 @@ def p_lista_parametros_funcion(t):
     '''
     lista_parametros_funcion    :   lista_parametros_funcion COMA parametro_fucion
     '''
-    t[1].append(t[3])
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[3])
+    t[0] = nodo
+
 
 def p_lista_parametros_funcion2(t):
     '''
     lista_parametros_funcion    :   parametro_fucion
     '''
-    t[0] = [t[1]]
+    nodo = crear_nodo_general("lista_parametros_funcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
+    t[0] = nodo
 
 def p_parametro_fucion(t):
     '''
     parametro_fucion 	: 	ID tipo
 					    |	tipo
     '''
+    nodo = crear_nodo_general("parametro_fucion","",t.lexer.lineno, t.lexer.lexpos)
     if len(t) == 3:
-        t[0] = t[1]
+        nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[2])
     else:
-        t[0] = "$"
+        nodo.hijos.append(t[2])
+    t[0] = nodo
 
 
 def p_returns(t):
     '''
     returns_n 	:	RETURNS 
     '''
-
+    t[0] = crear_nodo_general("RETURNS","",t.lexer.lineno, t.lexer.lexpos)
 
 def p_returns_e(t):
     '''
     returns_n   :
     '''
+    t[0] = None
 
 def p_retorno_funcion(t):
     '''
@@ -2199,31 +2175,43 @@ def p_retorno_funcion(t):
 				    |   TABLE PARIZQ lista_campos_tabla PARDER AS DOLLAR DOLLAR
 				    |   AS DOLLAR DOLLAR
     '''
+    nodo = crear_nodo_general("retorno_funcion","",t.lexer.lineno, t.lexer.lexpos)
     if len(t) == 4:
-        t[0] = "NO ESPECIFICADO"
+        nodo.hijos.append(crear_nodo_general("AS $$","",t.lexer.lineno, t.lexer.lexpos))
     elif len(t) == 5:
-        t[0] = t[1].strSent
+        nodo.hijos.append(t[1])
+        nodo.hijos.append(crear_nodo_general("AS $$","",t.lexer.lineno, t.lexer.lexpos))
     else:
-        t[0] = "TABLA"
+        nodo.hijos.append(crear_nodo_general("TABLA","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(crear_nodo_general("AS $$","",t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_lista_campos_tabla(t):
     '''
     lista_campos_tabla  :	lista_campos_tabla COMA ID tipo
     '''
-    t[1].append(t[3] + " " + t[4].strSent)
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(crear_nodo_general("ID",t[3],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[4])
+    t[0] = nodo
 
 def p_lista_campos_tabla2(t):
     '''
     lista_campos_tabla  :	ID tipo
     '''
-    t[0] = [t[1] + " " + t[2].strSent]
+    nodo = crear_nodo_general("lista_campos_tabla","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_declaraciones_funcion(t):
     '''
     declaraciones_funcion 	: 	DECLARE list_dec_var_funcion
-    '''
-    t[0] = t[2]
+    ''' 
+    nodo = crear_nodo_general("DECLARE","",t.lexer.lineno, t.lexer.lexpos) 
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_declaraciones_funcion_e(t):
     '''
@@ -2235,45 +2223,67 @@ def p_list_dec_var_funcion(t):
     '''
     list_dec_var_funcion 	:	list_dec_var_funcion dec_var_funcion PUNTO_COMA
     '''
-    t[1].append(t[2])
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_list_dec_var_funcion2(t):
     '''
     list_dec_var_funcion 	:	dec_var_funcion PUNTO_COMA
     '''
-    t[0] = [t[1]]
+    nodo = crear_nodo_general("list_dec_var_funcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
 
 def p_dec_var_funcion(t):
     '''
     dec_var_funcion : 	ID constant_n tipo nnull aisgnacion_valor 
     '''
-    t[0] = DeclaracionVariable.DeclaracionVariable(t[1], t[2], t[3], t[4], t[5], "", t.lexer.lineno, t.lexer.lexpos, "")
+    nodo = crear_nodo_general("dec_var_funcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[2])
+    nodo.hijos.append(t[3])
+    nodo.hijos.append(t[4])
+    nodo.hijos.append(t[5])
+    t[0] = nodo
     
 def p_dec_var_funcion2(t):
     '''
     dec_var_funcion : 	ID ALIAS FOR DOLLAR ENTERO
 				    |	ID ALIAS FOR ID
     '''
-
+    nodo = crear_nodo_general("dec_var_funcion","",t.lexer.lineno, t.lexer.lexpos)
     if len(t) == 5:
-        t[0] = DeclaracionAlias.DeclaracionAlias(t[1], t[4], None, "", t.lexer.lineno, t.lexer.lexpos, "")
+        nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("ALIAS FOR","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("ID",t[4],t.lexer.lineno, t.lexer.lexpos))
     else:
-        t[0] = DeclaracionAlias.DeclaracionAlias(t[1], None, t[5], "", t.lexer.lineno, t.lexer.lexpos, "")
-
+        nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("ALIAS FOR $","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(crear_nodo_general("ENTERO",t[5],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_dec_var_funcion3(t):
     '''
     dec_var_funcion : 	ID tabla_typerow MODULO type_row
     '''
-
-
+    nodo = crear_nodo_general("dec_var_funcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[2])
+    nodo.hijos.append(crear_nodo_general("MODULO","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[4])
+    t[0] = nodo
 
 def p_tabla_typerow(t):
     '''
     tabla_typerow   :   ID PUNTO ID
                     |   ID
     '''
+    nodo = crear_nodo_general("tabla_typerow","",t.lexer.lineno, t.lexer.lexpos)
+    if len(t) == 4:
+        nodo.hijos.append(crear_nodo_general("ID.ID",t[1] + t[2] + t[3],t.lexer.lineno, t.lexer.lexpos))
+    else:
+        nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 
 def p_type_row(t):
@@ -2281,13 +2291,14 @@ def p_type_row(t):
     type_row 	:	TYPE
 			    |	ROWTYPE
     '''
+    t[0] = crear_nodo_general("type_row",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 
 def p_constant(t):
     '''
     constant_n  :   CONSTANT
     '''
-    t[0] = t[1]
+    t[0] = crear_nodo_general("CONSTANT",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 def p_constant_e(t):
     '''
@@ -2299,7 +2310,7 @@ def p_nnull(t):
     '''
     nnull : NOT NULL
     '''
-    t[0] = "NOT NULL"
+    t[0] = crear_nodo_general("NOT NULL",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 def p_nnull_e(t):
     '''
@@ -2313,8 +2324,10 @@ def p_aisgnacion_valor(t):
 					    |	DOSP_IGUAL expre 
 					    |	IGUAL expre 
     '''
+    nodo = crear_nodo_general("aisgnacion_valor","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general(t[1],"",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[2])
     t[0] = t[2]
-
 
 
 def p_aisgnacion_valor_e(t):
@@ -2326,14 +2339,16 @@ def p_aisgnacion_valor_e(t):
 def p_contenido_funcion(t):
     '''
     contenido_funcion   : contenido_funcion cont_funcion''' 
-    t[1].append(t[2])
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_contenido_funcion2(t):
     '''
     contenido_funcion   : cont_funcion '''
-    t[0] = [t[1]]
-    
+    nodo = crear_nodo_general("contenido_funcion","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[1])
+    t[0] = nodo
     
 def p_cont_funcion(t):
     '''
@@ -2349,17 +2364,24 @@ def p_sentencia_retorno(t):
     sentencia_retorno   :  RETURN PUNTO_COMA
                         | RETURN expre PUNTO_COMA
     '''
+    nodo = crear_nodo_general("sentencia_retorno","",t.lexer.lineno, t.lexer.lexpos)
     if len(t) == 3:
-        t[0] = DeclaracionRetorno.DeclaracionRetorno(None, "", t.lexer.lineno, t.lexer.lexpos, "")
+        nodo.hijos.append(crear_nodo_general("RETURN","",t.lexer.lineno, t.lexer.lexpos))
     else:
-        t[0] = DeclaracionRetorno.DeclaracionRetorno(t[2], "", t.lexer.lineno, t.lexer.lexpos, "")
+        nodo.hijos.append(crear_nodo_general("RETURN","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[2])
+    t[0] = nodo
 
 def p_asignacion_var(t):
     '''
     asignacion_var  :   ID IGUAL expre PUNTO_COMA
                     |   ID DOSP_IGUAL expre PUNTO_COMA
     '''
-    t[0] = AsignacionVariable.AsignacionVariable(t[1], t[3], "", t.lexer.lineno, t.lexer.lexpos, "")
+    nodo = crear_nodo_general("asignacion_var","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("IGUAL",t[2],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[3])
+    t[0] = nodo
 
 
 def p_sentencia_if(t):    
@@ -2375,36 +2397,64 @@ def p_sentencia_if(t):
 				  | BEGIN instrucciones_if EXCEPTION WHEN l_identificadores THEN instrucciones_if END PUNTO_COMA
 				  | BEGIN instrucciones_if EXCEPTION WHEN sql_states THEN instrucciones_if END PUNTO_COMA
     '''
+    nodo = crear_nodo_general("sentencia_if","",t.lexer.lineno, t.lexer.lexpos)
     if t[1] == "IF" and len(t) == 11:
-        print("Llega")
-        t[0] = condicional_if.IfElseIfElse(t[2],t[4],t[5],t[7],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent") 
-    elif t[1] == "IF" and  len(t) == 8:
-        print("Llega")
-        t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
-    elif t[1] == "IF" and len(t) == 10:
-        print("Llega")
-        t[0] = condicional_if.Ifelse(t[2],t[4],t[6],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
-    elif t[1] == "IF" and len(t) == 9:
-        t[0] = condicional_if.IfElseIf(t[2],t[4],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
-    elif t[1] == "CASE" and len(t) == 6:
-        t[0] = condicional_case.Case(t[2],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
-    elif t[1] == "CASE" and len(t) == 8:
-        t[0] = condicional_case.CaseElse(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
-    elif t[1] == "CASE" and len(t) == 7:
-        t[0] = condicional_case.CaseID(t[2],t[3],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
-    elif t[1] == "CASE" and len(t) == 9:
-        t[0] = condicional_case.CaseIDElse(t[2],t[3],t[5],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+        nodo.hijos.append(t[2])
+        nodo.hijos.append(t[4])
+        nodo.hijos.append(t[5])
+        nodo.hijos.append(crear_nodo_general("ELSE","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[7])
 
+    elif t[1] == "IF" and  len(t) == 8:
+        nodo.hijos.append(t[2])
+        nodo.hijos.append(t[4])
+
+    elif t[1] == "IF" and len(t) == 10:
+        nodo.hijos.append(t[2])
+        nodo.hijos.append(t[4])
+        nodo.hijos.append(crear_nodo_general("ELSE","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[6])
+
+    elif t[1] == "IF" and len(t) == 9:
+        nodo.hijos.append(t[2])
+        nodo.hijos.append(t[4])
+        nodo.hijos.append(t[5])
+
+    elif t[1] == "CASE" and len(t) == 6:
+        nodo.hijos.append(t[2])
+        
+    elif t[1] == "CASE" and len(t) == 8:
+        nodo.hijos.append(t[2])
+        nodo.hijos.append(crear_nodo_general("ELSE","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[4])
+        
+    elif t[1] == "CASE" and len(t) == 7:
+        nodo.hijos.append(crear_nodo_general("ID",t[2],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        
+    elif t[1] == "CASE" and len(t) == 9:
+        nodo.hijos.append(crear_nodo_general("ID",t[2],t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[3])
+        nodo.hijos.append(crear_nodo_general("ELSE","",t.lexer.lineno, t.lexer.lexpos))
+        nodo.hijos.append(t[5])
+    else:
+        nodo.hijos.append(crear_nodo_general("EXCEPTION","",t.lexer.lineno, t.lexer.lexpos))
+        
+    t[0] = nodo
+    
 def p_instrucciones_if(t):
     ''' 
     instrucciones_if : instrucciones_if instruccion_if 
                      | instruccion_if
     '''
     if len(t) == 3:
-        t[1].append(t[2])
-        t[0] = t[1]
+        nodo = t[1]
+        nodo.hijos.append(t[2])
+        t[0] = nodo
     else:
-        t[0] = [t[1]]
+        nodo = crear_nodo_general("instrucciones_if","",t.lexer.lineno, t.lexer.lexpos)
+        nodo.hijos.append(t[1])
+        t[0] = nodo
     
 def p_instruccion_if(t):
     '''
@@ -2423,17 +2473,23 @@ def p_condiciones_if(t):
 			      | condicionif
     '''
     if len(t) == 3:
-        t[1].append(t[2])
-        t[0] = t[1]
+        nodo = t[1]
+        nodo.hijos.append(t[2])
+        t[0] = nodo
     else:
-        t[0] = [t[1]]
+        nodo = crear_nodo_general("condicionesif","",t.lexer.lineno, t.lexer.lexpos)
+        nodo.hijos.append(t[1])
+        t[0] = nodo
 
 def p_condicion_if(t):
     '''
     condicionif : ELSIF expre THEN instrucciones_if 
 			    | ELSEIF expre THEN instrucciones_if  
     '''
-    t[0] = condicional_if.If(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    nodo = crear_nodo_general(t[1],"",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[2])
+    nodo.hijos.append(t[4])
+    t[0] = nodo
     
 def p_condiciones_cuando(t):
     '''
@@ -2441,17 +2497,23 @@ def p_condiciones_cuando(t):
 				       | condicion_cuando
     '''
     if len(t) == 3:
-        t[1].append(t[2])
-        t[0] = t[1]
+        nodo = t[1]
+        nodo.hijos.append(t[2])
+        t[0] = nodo
     else:
-        t[0] = [t[1]]
+        nodo = crear_nodo_general("condiciones_cuando","",t.lexer.lineno, t.lexer.lexpos)
+        nodo.hijos.append(t[1])
+        t[0] = nodo
 
 def p_condicion_cuando(t):
     '''
     condicion_cuando : WHEN l_expresiones THEN instrucciones_if
 
     '''
-    t[0] = condicional_case.condicion_caseID(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    nodo = crear_nodo_general("condicion_cuando","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[2])
+    nodo.hijos.append(t[4])
+    t[0] = nodo
 
 def p_condiciones_cuando_B(t):
     '''
@@ -2459,208 +2521,233 @@ def p_condiciones_cuando_B(t):
 					    | condicion_cuandoB
     '''
     if len(t) == 3:
-        t[1].append(t[2])
-        t[0] = t[1]
+        nodo = t[1]
+        nodo.hijos.append(t[2])
+        t[0] = nodo
     else:
-        t[0] = [t[1]]
+        nodo = crear_nodo_general("condiciones_cuandoB","",t.lexer.lineno, t.lexer.lexpos)
+        nodo.hijos.append(t[1])
+        t[0] = nodo
 
 def p_condicion_cuando_B(t):
     '''
     condicion_cuandoB : WHEN expre THEN instrucciones_if
     '''
-    print("regresando")
-    t[0] = condicional_case.condicion_case(t[2],t[4],"strGram",t.lexer.lineno, t.lexer.lexpos,"strSent")
+    nodo = crear_nodo_general("condicion_cuandoB","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[2])
+    nodo.hijos.append(t[4])
+    t[0] = nodo
 
 def p_sql_states(t):
     '''
     sql_states : sql_states OR sql_state
 			   | sql_state
     '''
+    if len(t) == 4:
+        nodo = t[1]
+        nodo.hijos.append(t[3])
+        t[0] = nodo
+    else:
+        nodo = crear_nodo_general("sql_states","",t.lexer.lineno, t.lexer.lexpos)
+        nodo.hijos.append(t[1])
+        t[0] = nodo
 
 def p_sql_state(t):
     '''
     sql_state : SQLSTATE CADENA
     '''
+    t[0] = crear_nodo_general("SQLSTATE",t[2],t.lexer.lineno, t.lexer.lexpos)
 
 def p_identificadores(t):
     '''
     l_identificadores : l_identificadores OR ID
                       | ID
     '''
+    if len(t) == 4:
+        nodo = t[1]
+        nodo.hijos.append(t[3])
+        t[0] = nodo
+    else:
+        nodo = crear_nodo_general("l_identificadores","",t.lexer.lineno, t.lexer.lexpos)
+        nodo.hijos.append(t[1])
+        t[0] = nodo
 
 def p_instruccion_index(t):
     '''
     instruccion : CREATE unique_op INDEX nombre_op ON ID hash_op PARIZQ l_indexes PARDER where_op PUNTO_COMA
     '''
-    strId = ""
-    if isinstance(t[9] , list):
-        for i in t[9][:-1]:
-            strId += i + ","
-        strId += t[9][-1]
-    else:
-        strId = t[9]
-    strTipo = t[2] + " INDEX " + t[7]
-    strSent = "CREATE " + t[2] + " INDEX " + t[4] + " ON " + t[6] + " " + t[7] + " (" + strId +") " + t[11] + ";"
-    t[0] = CreateIndex.CreateIndex(t[4], strTipo, t[6], strId, "", t.lexer.lineno, t.lexer.lexpos, strSent)
+    nodo = crear_nodo_general("CREATE INDEX","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[2])
+    nodo.hijos.append(t[4])
+    nodo.hijos.append(crear_nodo_general("ID",t[6],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[7])
+    nodo.hijos.append(t[9])
+    nodo.hijos.append(t[11])
+    t[0] = nodo
 
 def p_instruccion_del_index(t):
     '''
     instruccion : DROP INDEX if_op ID PUNTO_COMA
     '''
-    strSent = "DROP " + "INDEX " + t[3] + t[4] + ";"
-    t[0] = DropIndex.DropIndex(t[4],None, "", t.lexer.lineno, t.lexer.lexpos, strSent)
+    nodo = crear_nodo_general("DROP INDEX","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[3])
+    nodo.hijos.append(crear_nodo_general("ID",t[4],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_instruccion_alter_index(t):
     '''
     instruccion : ALTER INDEX if_op ID ALTER column_op ID ID PUNTO_COMA
     '''
-    strSent = "ALTER INDEX " + t[3] + t[4] + " ALTER " + t[6] + t[7] + " " + t[8] + ";"
-    t[0] = AlterIndex.AlterIndex(t[4], None, t[7], t[8], "", t.lexer.lineno, t.lexer.lexpos, strSent)
+    nodo = crear_nodo_general("ALTER INDEX","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(t[3])
+    nodo.hijos.append(crear_nodo_general("ID",t[4],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("ALTER","",t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[6])
+    nodo.hijos.append(crear_nodo_general("ID",t[7],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("ID",t[8],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 
 def p_index_column(t):
     '''
     column_op : COLUMN
     '''
-    t[0] = "COLUMN "
+    t[0] = crear_nodo_general("COLUMN","",t.lexer.lineno, t.lexer.lexpos)
 
 def p_index_column_e(t):
     '''
     column_op : 
     '''
-    t[0] = ""
+    t[0] = None
 
 def p_index_if_exists(t):
     '''
     if_op : IF EXISTS
     '''
-    t[0] = "IF EXISTS "
+    t[0] = crear_nodo_general("IF EXISTS","",t.lexer.lineno, t.lexer.lexpos)
 
 def p_index_if_e(t):
     '''
     if_op : 
     '''
-    t[0] = ""
+    t[0] = None
 
 def p_index_nombre(t):
     '''
     nombre_op : ID
     '''
-    t[0] = t[1]
+    t[0] = crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos)
 
 def p_index_nombre_e(t):
     '''
     nombre_op : 
     '''
-    t[0] = ""
+    t[0] = None
 
 def p_index_unique(t):
     '''
     unique_op : UNIQUE
     '''
-    t[0] = "UNIQUE"
+    t[0] = crear_nodo_general("UNIQUE","",t.lexer.lineno, t.lexer.lexpos)
 
 def p_index_unique_e(t):
     '''
     unique_op : 
     '''
-    t[0] = ""
+    t[0] = None
 
 def p_index_hash(t):
     '''
     hash_op : USING HASH
     '''
-    t[0] = "USING HASH"
+    t[0] = crear_nodo_general("USING HASH","",t.lexer.lineno, t.lexer.lexpos)
 
 def p_index_hash_e(t):
     '''
     hash_op : 
     '''
-    t[0] = ""
+    t[0] = None
 
 def p_index_indexes(t):
     '''
     l_indexes : l_indexes COMA ID order_op null_op first_last_op
     '''
-    cadena = t[3]
-    if t[4] != "":
-        cadena += " " + t[4]
-    if t[5] != "":
-        cadena += " " + t[5]
-    if t[6] != "":
-        cadena += " " + t[6]
-    t[1].append(cadena)
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(crear_nodo_general("ID",t[3],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[4])
+    nodo.hijos.append(t[5])
+    nodo.hijos.append(t[6])
+    t[0] = nodo
 
 def p_index_index(t):
     '''
     l_indexes : ID order_op null_op first_last_op
     '''
-    cadena = t[1]
-    if t[2] != "":
-        cadena += " " + t[2]
-    if t[3] != "":
-        cadena += " " + t[3]
-    if t[4] != "":
-        cadena += " " + t[4]
-    t[0] = [cadena]
+    nodo = crear_nodo_general("l_indexes","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(t[2])
+    nodo.hijos.append(t[3])
+    nodo.hijos.append(t[4])
+    t[0] = nodo
 
 def p_index_func(t):
     '''
     l_indexes : ID PARIZQ ID PARDER
     '''
-    cadena = t[1] + " (" + t[3] + ")"
-    t[0] = cadena
+    nodo = crear_nodo_general("l_indexes","",t.lexer.lineno, t.lexer.lexpos)
+    nodo.hijos.append(crear_nodo_general("ID",t[1],t.lexer.lineno, t.lexer.lexpos))
+    nodo.hijos.append(crear_nodo_general("ID",t[3],t.lexer.lineno, t.lexer.lexpos))
+    t[0] = nodo
 
 def p_index_order(t):
     '''
     order_op : ASC
             | DESC
     '''
-    t[0] = t[1]
+    t[0] = crear_nodo_general(t[1],"",t.lexer.lineno, t.lexer.lexpos)
 
 def p_index_order_e(t):
     '''
     order_op : 
     '''
-    t[0] = ""
+    t[0] = None
 
 def p_index_null(t):
     '''
     null_op : NULLS
     '''
-    t[0] = "NULLS"
+    t[0] = crear_nodo_general("NULLS","",t.lexer.lineno, t.lexer.lexpos)
 
 def p_index_null_e(t):
     '''
     null_op : 
     '''
-    t[0] = ""
+    t[0] = None
 
 def p_index_first_last(t):
     '''
     first_last_op : FIRST
                 | LAST
     '''
-    t[0] = t[1]
+    t[0] = crear_nodo_general(t[1],"",t.lexer.lineno, t.lexer.lexpos)
 
 def p_index_first_last_e(t):
     '''
     first_last_op : 
     '''
-    t[0] = ""
+    t[0] = None
 
 def p_index_where(t):
     '''
     where_op : instructionWhere
     '''
-    t[0] = t[1].strSent
+    t[0] = t[1]
 
 def p_index_where_e(t):
     '''
     where_op : 
     '''
-    t[0] = ""
+    t[0] = None
 
 #FIN DE LA GRAMATICA
 # MODO PANICO ***************************************

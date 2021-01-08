@@ -45,7 +45,7 @@ class condicion_case(Instruccion):
         expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
         if isinstance(expresion_logica, Excepcion):
                 return expresion_logica
-        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN:
+        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN or expresion_logica.tipo.tipo == Tipo_Dato.ID:
             #Inicia traduccion
             codigo = expresion_logica.codigo
             etiquetaSalida = cadenaTraducida

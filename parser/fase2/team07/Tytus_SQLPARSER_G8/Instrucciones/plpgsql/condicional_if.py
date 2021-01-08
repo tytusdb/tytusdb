@@ -21,7 +21,7 @@ class If(Instruccion):
         expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
         if isinstance(expresion_logica, Excepcion):
                 return expresion_logica
-        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN:
+        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN or expresion_logica.tipo.tipo == Tipo_Dato.ID:
             #Inicia traduccion
             codigo = expresion_logica.codigo
 
@@ -73,7 +73,7 @@ class Ifelse(Instruccion):
         expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
         if isinstance(expresion_logica, Excepcion):
                 return expresion_logica
-        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN:
+        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN or expresion_logica.tipo.tipo == Tipo_Dato.ID:
             #Inicia traduccion
             codigo = expresion_logica.codigo
 
@@ -134,7 +134,7 @@ class IfElseIf(Instruccion):
         expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
         if isinstance(expresion_logica, Excepcion):
                 return expresion_logica
-        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN:
+        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN or expresion_logica.tipo.tipo == Tipo_Dato.ID:
             #Inicia traduccion
             etiquetaSalida = arbol.generaEtiqueta()
             codigo = expresion_logica.codigo
@@ -206,7 +206,7 @@ class IfElseIfElse(Instruccion):
         expresion_logica = self.expLogica.traducir(tabla, arbol,cadenaTraducida)
         if isinstance(expresion_logica, Excepcion):
                 return expresion_logica
-        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN:
+        if expresion_logica.tipo.tipo == Tipo_Dato.BOOLEAN or expresion_logica.tipo.tipo == Tipo_Dato.ID:
             #Inicia traduccion
             codigo = expresion_logica.codigo
             etiquetaF = arbol.generaEtiqueta()
