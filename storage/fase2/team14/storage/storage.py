@@ -1179,7 +1179,53 @@ def alterDatabaseCompress(database: str, level: int) -> int:
             return 1
     except:
         return 1
-    
+#descomprime una tabla de datos
+def alterTableDecompress(database: str, table: str) -> int:
+    if database not in databasesinfo[0]:
+        return 2
+    if databasesinfo[1][database][table]['Compress']!=True:
+        return 3
+    if databasesinfo[1][database][table]['mode'] == 'json':
+        return 1
+    tablas = showTables(database)
+    if table not in tablas:
+        return 1
+    try:
+        tabla=extractTable(database,table)
+        for i in range(0,len(tabla)):
+            tupla=tabla[i]
+            for j in range(0,len(tupla)):
+                if type(tupla[j])==bytes:
+                    # ------------------------------------aqui es donde se descomprime----------------------------
+                    tupla[j]=zlib.decompress(tupla[j]).decode()
+            tabla[i]=tupla
+        databasesinfo[1][database][table]['Compress'] = False
+        commit(databasesinfo, 'databasesinfo')
+        truncate(database,table)
+        for tupla in tabla:
+            insert(database,table,tupla)
+
+        return 0
+    except:
+        return 1
+#Descomprime una base de datos entera
+def alterDatabaseDecompress(database: str) -> int:
+    if database not in databasesinfo[0]:
+        return 2
+    tablas=showTables(database)
+    compresion = False
+    for table in tablas:
+        if databasesinfo[1][database][table]['Compress']==True:
+            compresion=True
+    if compresion==False:
+        return 3
+    try:
+        for table in tablas:
+            if databasesinfo[1][database][table]['Compress'] == True:
+                alterTableDecompress(database,table)
+        return 0
+    except:
+        return 1
     
 # devuelve un text cifrado
 def encrypt(backup: str, password: str) -> str:
