@@ -2299,6 +2299,12 @@ def p_asignacion_var(t):
     '''
     t[0] = AsignacionVariable.AsignacionVariable(t[1], t[3], "", t.lexer.lineno, t.lexer.lexpos, "")
 
+def p_asignacion_var1(t):
+    '''
+    asignacion_var  :   ID IGUAL PARIZQ instruccion PARDER PUNTO_COMA
+                    |   ID DOSP_IGUAL PARIZQ instruccion PARDER PUNTO_COMA
+    '''
+    t[0] = AsignacionVariable.AsignacionVariable(t[1], t[4], "", t.lexer.lineno, t.lexer.lexpos, "")
 
 def p_sentencia_if(t):    
     '''

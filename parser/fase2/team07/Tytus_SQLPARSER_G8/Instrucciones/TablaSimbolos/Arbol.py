@@ -20,6 +20,7 @@ class Arbol():
         self.order = None
         self.numeroTemporal = 0
         self.numeroEtiqueta = 0
+        self.valoresActuales = []
 
     def setEnum(self, nuevo):
         self.lEnum.append(nuevo)
@@ -173,6 +174,7 @@ class Arbol():
             cad += '+---'+'-'*lf[s]
         cad += '+\n'
         self.consola.append(cad)
+        self.valoresActuales = tuplas
 
     def setColumnasActual(self, valor):
         self.columnasActual = valor
