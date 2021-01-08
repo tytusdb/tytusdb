@@ -59,9 +59,9 @@ class Generador:
 
     def generarAsignacion(self, id, valor):
         if isinstance(valor, str):
-            inst = self.generarTab() + id + "=" + valor
+            inst = self.generarTab() + id + " = " + valor
         else:
-            inst = self.generarTab() + id + "=" + str(valor)
+            inst = self.generarTab() + id + " = " + str(valor)
         self.codigo3d.append(inst)
 
     def agregarIf(self, condicion, etiqueta):
@@ -560,8 +560,8 @@ class Generador:
                 self.codigo3d.append(lineaAbs)
                 self.agregarEtiqueta(etiquetaverdadero)
                 return retorno
-        elif instruccion.tipo == TipoFunNativa.seno:
-            # Corresponde a función de SENO
+        elif instruccion.tipo == TipoFunNativa.sin:
+            # Corresponde a función de SIN
             if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
                 retorno = self.compilarOperacionAritmetica(instruccion.parametros)
                 tag = self.generarTemporal()
@@ -573,6 +573,134 @@ class Generador:
                 retorno = self.compilarPrimitivo(instruccion.parametros)
                 tag = self.generarTemporal()
                 lineaSeno = self.generarTab() + str(tag) + ' = math.sin(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+        elif instruccion.tipo == TipoFunNativa.sinh:
+            # Corresponde a función de SINH
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.sinh(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.sinh(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+        elif instruccion.tipo == TipoFunNativa.asin:
+            # Corresponde a función de ASIN
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.asin(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.asin(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+        elif instruccion.tipo == TipoFunNativa.cos:
+            # Corresponde a función de COS
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.cos(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.cos(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+        elif instruccion.tipo == TipoFunNativa.cosh:
+            # Corresponde a función de COSH
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.cosh(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.cosh(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+        elif instruccion.tipo == TipoFunNativa.acos:
+            # Corresponde a función de ACOS
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.acos(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.acos(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+        elif instruccion.tipo == TipoFunNativa.tan:
+            # Corresponde a función de TAN
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.tan(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.tan(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+        elif instruccion.tipo == TipoFunNativa.tanh:
+            # Corresponde a función de TANH
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.tanh(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.tanh(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+        elif instruccion.tipo == TipoFunNativa.atan:
+            # Corresponde a función de ATAN
+            if isinstance(instruccion.parametros, Operaciones_Aritmeticas):
+                retorno = self.compilarOperacionAritmetica(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.atan(' + str(retorno.valor) + ')'
+                self.codigo3d.append(lineaSeno)
+                ret = RetornoOp(tag, None)
+                return ret
+            elif isinstance(instruccion.parametros, Primitivo):
+                retorno = self.compilarPrimitivo(instruccion.parametros)
+                tag = self.generarTemporal()
+                lineaSeno = self.generarTab() + str(tag) + ' = math.atan(' + str(retorno.valor) + ')'
                 self.codigo3d.append(lineaSeno)
                 ret = RetornoOp(tag, None)
                 return ret
