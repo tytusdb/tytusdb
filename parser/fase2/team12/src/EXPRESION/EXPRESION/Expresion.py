@@ -192,854 +192,343 @@ class Expresion(Nodo):
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
-
-                    self.dir = instanceTemporal.getTemporal()
-                    self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '+' + exp2.dir + '\n'
-                    self.tipo = Type_Expresion(Data_Type.numeric)
-                    return self.cod
-
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.dir = instanceTemporal.getTemporal()
+                self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '+' + exp2.dir + '\n'
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                return self.cod
             
             elif op.nombreNodo == '-':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
-
-                    self.dir = instanceTemporal.getTemporal()
-                    self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '-' + exp2.dir + '\n'
-                    self.tipo = Type_Expresion(Data_Type.numeric)
-                    return self.cod
-
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.dir = instanceTemporal.getTemporal()
+                self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '-' + exp2.dir + '\n'
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                return self.cod            
             
             elif op.nombreNodo == '*':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
-
-                    self.dir = instanceTemporal.getTemporal()
-                    self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '*' + exp2.dir + '\n'
-                    self.tipo = Type_Expresion(Data_Type.numeric)
-                    return self.cod
-
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.dir = instanceTemporal.getTemporal()
+                self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '*' + exp2.dir + '\n'
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                return self.cod
             
             elif op.nombreNodo == '/':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
-
-                    self.dir = instanceTemporal.getTemporal()                    
-                    self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '/' + exp2.dir + '\n'
-                    self.tipo = Type_Expresion(Data_Type.numeric)
-                    return self.cod
-
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.dir = instanceTemporal.getTemporal()                    
+                self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '/' + exp2.dir + '\n'
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                return self.cod
             
             elif op.nombreNodo == '^':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
-
-                    self.dir = instanceTemporal.getTemporal()
-                    self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '**' + exp2.dir + '\n'
-                    self.tipo = Type_Expresion(Data_Type.numeric)
-                    return self.cod
-
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.dir = instanceTemporal.getTemporal()
+                self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '**' + exp2.dir + '\n'
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                return self.cod
             
             elif op.nombreNodo == '%':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
-
-                    self.dir = instanceTemporal.getTemporal()
-                    self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '%' + exp2.dir + '\n'
-                    self.tipo = Type_Expresion(Data_Type.numeric)
-                    return self.cod
-
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.dir = instanceTemporal.getTemporal()
+                self.cod = cod1 + cod2 + self.dir + ' = ' + exp.dir + '%' + exp2.dir + '\n'
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                return self.cod
             
             elif op.nombreNodo == '<=':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
+                self.tipo = Type_Expresion(Data_Type.boolean)
 
-                    self.tipo = Type_Expresion(Data_Type.boolean)
+                # Generando Temporal
+                self.dir = instanceTemporal.getTemporal()
 
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
+                # Generando Etiqueta 1
+                e1 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
+                # Generando Etiqueta 2
+                e2 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' <= ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.character and exp2.tipo.data_type == Data_Type.character :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' <= ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' <= ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-                
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                # Generando Etiqueta 3
+                e3 = instanceLabel.getLabel()
+                self.cod = cod1 + cod2 + 'if ' + exp.dir + ' <= ' + exp2.dir + ' :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += 'goto ' + e2
+                self.cod += '\n'
+                self.cod +=  'label ' + e1 + '\n'
+                #self.cod += '\t' + self.dir + ' = 1\n'
+                #self.cod += '\t' + 'goto ' + e3 + '\n'
+                #self.cod += 'label ' + e2 + '\n'
+                #self.cod += '\t' + self.dir + ' = 0\n'
+                self.cod += self.dir + ' = 1\n'
+                self.cod += 'goto ' + e3 + '\n'
+                self.cod += 'label ' + e2 + '\n'
+                self.cod += self.dir + ' = 0\n'
+                self.cod += 'label ' + e3 + '\n'
+                return self.cod                
             
             elif op.nombreNodo == '<':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
+                self.tipo = Type_Expresion(Data_Type.boolean)
 
-                    self.tipo = Type_Expresion(Data_Type.boolean)
+                # Generando Temporal
+                self.dir = instanceTemporal.getTemporal()
 
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
+                # Generando Etiqueta 1
+                e1 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
+                # Generando Etiqueta 2
+                e2 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
+                # Generando Etiqueta 3
+                e3 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' < ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.character and exp2.tipo.data_type == Data_Type.character :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' < ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' < ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-                
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod            
+                self.cod = cod1 + cod2 + 'if ' + exp.dir + ' < ' + exp2.dir + ' :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += 'goto ' + e2
+                self.cod += '\n'
+                self.cod +=  'label ' + e1 + '\n'
+                #self.cod += '\t' + self.dir + ' = 1\n'
+                #self.cod += '\t' + 'goto ' + e3 + '\n'
+                #self.cod += 'label ' + e2 + '\n'
+                #self.cod += '\t' + self.dir + ' = 0\n'
+                self.cod += self.dir + ' = 1\n'
+                self.cod += 'goto ' + e3 + '\n'
+                self.cod += 'label ' + e2 + '\n'
+                self.cod += self.dir + ' = 0\n'
+                self.cod += 'label ' + e3 + '\n'
+                return self.cod                
             
             elif op.nombreNodo == '>=':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
+                self.tipo = Type_Expresion(Data_Type.boolean)
 
-                    self.tipo = Type_Expresion(Data_Type.boolean)
+                # Generando Temporal
+                self.dir = instanceTemporal.getTemporal()
 
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
+                # Generando Etiqueta 1
+                e1 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
+                # Generando Etiqueta 2
+                e2 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
+                # Generando Etiqueta 3
+                e3 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' >= ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod +=  self.dir + ' = 1\n'
-                    self.cod +=  'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod +=  self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.character and exp2.tipo.data_type == Data_Type.character :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' >= ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' >= ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-                
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.cod = cod1 + cod2 + 'if ' + exp.dir + ' >= ' + exp2.dir + ' :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += 'goto ' + e2
+                self.cod += '\n'
+                self.cod +=  'label ' + e1 + '\n'
+                #self.cod += '\t' + self.dir + ' = 1\n'
+                #self.cod += '\t' + 'goto ' + e3 + '\n'
+                #self.cod += 'label ' + e2 + '\n'
+                #self.cod += '\t' + self.dir + ' = 0\n'
+                self.cod +=  self.dir + ' = 1\n'
+                self.cod +=  'goto ' + e3 + '\n'
+                self.cod += 'label ' + e2 + '\n'
+                self.cod +=  self.dir + ' = 0\n'
+                self.cod += 'label ' + e3 + '\n'
+                return self.cod
             
             elif op.nombreNodo == '>':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
+                self.tipo = Type_Expresion(Data_Type.boolean)
 
-                    self.tipo = Type_Expresion(Data_Type.boolean)
+                # Generando Temporal
+                self.dir = instanceTemporal.getTemporal()
 
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
+                # Generando Etiqueta 1
+                e1 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
+                # Generando Etiqueta 2
+                e2 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
+                # Generando Etiqueta 3
+                e3 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' > ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod +='goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod +=self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.character and exp2.tipo.data_type == Data_Type.character :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' > ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' > ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod +=  self.dir + ' = 1\n'
-                    self.cod +=  'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod +=  self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-                
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.cod = cod1 + cod2 + 'if ' + exp.dir + ' > ' + exp2.dir + ' :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += 'goto ' + e2
+                self.cod += '\n'
+                self.cod +=  'label ' + e1 + '\n'
+                #self.cod += '\t' + self.dir + ' = 1\n'
+                #self.cod += '\t' + 'goto ' + e3 + '\n'
+                #self.cod += 'label ' + e2 + '\n'
+                #self.cod += '\t' + self.dir + ' = 0\n'
+                self.cod += self.dir + ' = 1\n'
+                self.cod +='goto ' + e3 + '\n'
+                self.cod += 'label ' + e2 + '\n'
+                self.cod +=self.dir + ' = 0\n'
+                self.cod += 'label ' + e3 + '\n'
+                return self.cod                
             
             elif op.nombreNodo == '<>':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
+                self.tipo = Type_Expresion(Data_Type.boolean)
 
-                    self.tipo = Type_Expresion(Data_Type.boolean)
+                # Generando Temporal
+                self.dir = instanceTemporal.getTemporal()
 
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
+                # Generando Etiqueta 1
+                e1 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
+                # Generando Etiqueta 2
+                e2 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
+                # Generando Etiqueta 3
+                e3 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' != ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod +=  self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label '+ e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.character and exp2.tipo.data_type == Data_Type.character :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' != ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' != ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-                
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.cod = cod1 + cod2 + 'if ' + exp.dir + ' != ' + exp2.dir + ' :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += 'goto ' + e2
+                self.cod += '\n'
+                self.cod +=  'label ' + e1 + '\n'
+                #self.cod += '\t' + self.dir + ' = 1\n'
+                #self.cod += '\t' + 'goto ' + e3 + '\n'
+                #self.cod += 'label ' + e2 + '\n'
+                #self.cod += '\t' + self.dir + ' = 0\n'
+                self.cod +=  self.dir + ' = 1\n'
+                self.cod += 'goto ' + e3 + '\n'
+                self.cod += 'label '+ e2 + '\n'
+                self.cod += self.dir + ' = 0\n'
+                self.cod += 'label ' + e3 + '\n'
+                return self.cod                
             
             elif op.nombreNodo == '=':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
+                self.tipo = Type_Expresion(Data_Type.boolean)
 
-                    self.tipo = Type_Expresion(Data_Type.boolean)
+                # Generando Temporal
+                self.dir = instanceTemporal.getTemporal()
 
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
+                # Generando Etiqueta 1
+                e1 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
+                # Generando Etiqueta 2
+                e2 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
+                # Generando Etiqueta 3
+                e3 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' == ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.character and exp2.tipo.data_type == Data_Type.character :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' == ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-
-                elif exp.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean :
-
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
-
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
-
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
-
-                    self.cod = cod1 + cod2 + 'if ' + exp.dir + ' == ' + exp2.dir + ' :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2
-                    self.cod += '\n'
-                    self.cod +=  'label ' + e1 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 1\n'
-                    #self.cod += '\t' + 'goto ' + e3 + '\n'
-                    #self.cod += 'label ' + e2 + '\n'
-                    #self.cod += '\t' + self.dir + ' = 0\n'
-                    self.cod += self.dir + ' = 1\n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 0\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    return self.cod
-                
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.cod = cod1 + cod2 + 'if ' + exp.dir + ' == ' + exp2.dir + ' :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += 'goto ' + e2
+                self.cod += '\n'
+                self.cod +=  'label ' + e1 + '\n'
+                #self.cod += '\t' + self.dir + ' = 1\n'
+                #self.cod += '\t' + 'goto ' + e3 + '\n'
+                #self.cod += 'label ' + e2 + '\n'
+                #self.cod += '\t' + self.dir + ' = 0\n'
+                self.cod += self.dir + ' = 1\n'
+                self.cod += 'goto ' + e3 + '\n'
+                self.cod += 'label ' + e2 + '\n'
+                self.cod += self.dir + ' = 0\n'
+                self.cod += 'label ' + e3 + '\n'
+                return self.cod                
             
             elif op.nombreNodo == 'AND':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean :
+                self.tipo = Type_Expresion(Data_Type.boolean)
 
-                    self.tipo = Type_Expresion(Data_Type.boolean)
+                # Generando Temporal
+                self.dir = instanceTemporal.getTemporal()
 
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
+                # Generando Etiqueta 1
+                e1 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
+                # Generando Etiqueta 2
+                e2 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 2
-                    e2 = instanceLabel.getLabel()
+                # Generando Etiqueta 3
+                e3 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 3
-                    e3 = instanceLabel.getLabel()
+                # Generando Etiqueta 4
+                e4 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 4
-                    e4 = instanceLabel.getLabel()
-
-                    self.cod = cod1
-                    self.cod += 'if ' + exp.dir + ' ==  1 :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2 + '\n'
-                    self.cod += 'label ' + e1 + '\n'
-                    self.cod += cod2
-                    self.cod += 'if ' + exp2.dir + ' ==  1 :\n'
-                    self.cod += '\tgoto ' + e3 + '\n'
-                    self.cod += 'goto ' + e2 + '\n'
-                    self.cod += 'label ' + e3 + '\n'
-                    self.cod += self.dir + ' = 1 \n'
-                    self.cod += 'goto ' + e4 + '\n'
-                    self.cod += 'label ' + e2
-                    self.cod += self.dir + ' = 0 \n'
-                    self.cod += 'label ' + e4 + '\n'
-                    return self.cod
-                
-                else : 
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.cod = cod1
+                self.cod += 'if ' + exp.dir + ' ==  1 :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += 'goto ' + e2 + '\n'
+                self.cod += 'label ' + e1 + '\n'
+                self.cod += cod2
+                self.cod += 'if ' + exp2.dir + ' ==  1 :\n'
+                self.cod += '\tgoto ' + e3 + '\n'
+                self.cod += 'goto ' + e2 + '\n'
+                self.cod += 'label ' + e3 + '\n'
+                self.cod += self.dir + ' = 1 \n'
+                self.cod += 'goto ' + e4 + '\n'
+                self.cod += 'label ' + e2
+                self.cod += self.dir + ' = 0 \n'
+                self.cod += 'label ' + e4 + '\n'
+                return self.cod            
 
             elif op.nombreNodo == 'OR':
 
                 cod1 = exp.compile(enviroment)
                 cod2 = exp2.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.boolean and exp2.tipo.data_type == Data_Type.boolean :
+                self.tipo = Type_Expresion(Data_Type.boolean)
 
-                    self.tipo = Type_Expresion(Data_Type.boolean)
+                # Generando Temporal
+                self.dir = instanceTemporal.getTemporal()
 
-                    # Generando Temporal
-                    self.dir = instanceTemporal.getTemporal()
+                # Generando Etiqueta 1
+                e1 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 1
-                    e1 = instanceLabel.getLabel()
+                # Generando Etiqueta 2
+                e4 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 2
-                    e4 = instanceLabel.getLabel()
+                # Generando Etiqueta 3
+                e5 = instanceLabel.getLabel()
 
-                    # Generando Etiqueta 3
-                    e5 = instanceLabel.getLabel()
-
-                    self.cod = cod1
-                    self.cod += 'if ' + exp.dir + ' ==  1 :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += cod2
-                    self.cod += 'if ' + exp2.dir + ' ==  1 :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e4 + '\n'
-                    self.cod += 'label ' + e1 + '\n'
-                    self.cod += self.dir + ' = 1 \n'
-                    self.cod += 'goto ' + e5 + '\n'
-                    self.cod += 'label ' + e4 + '\n'
-                    self.cod += self.dir + ' = 0 \n'
-                    self.cod += 'label ' + e5 + '\n'
-                    return self.cod                
-                
-                else :
-
-                    self.dir = ''
-                    self.cod = ''
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    return self.cod
+                self.cod = cod1
+                self.cod += 'if ' + exp.dir + ' ==  1 :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += cod2
+                self.cod += 'if ' + exp2.dir + ' ==  1 :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += 'goto ' + e4 + '\n'
+                self.cod += 'label ' + e1 + '\n'
+                self.cod += self.dir + ' = 1 \n'
+                self.cod += 'goto ' + e5 + '\n'
+                self.cod += 'label ' + e4 + '\n'
+                self.cod += self.dir + ' = 0 \n'
+                self.cod += 'label ' + e5 + '\n'
+                return self.cod                                            
             
-
         elif cantHijos == 2 :
 
             op = self.hijos[0]
@@ -1049,59 +538,37 @@ class Expresion(Nodo):
                 
                 cod = exp.compile(enviroment)
 
-                if exp.tipo.data_type == Data_Type.boolean :
+                # Etiqueta 1
+                e1 = instanceLabel.getLabel()                    
 
-                    # Etiqueta 1
-                    e1 = instanceLabel.getLabel()                    
+                # Etiqueta 2
+                e2 = instanceLabel.getLabel()
 
-                    # Etiqueta 2
-                    e2 = instanceLabel.getLabel()
+                # Etiqueta Salida
+                e3 = instanceLabel.getLabel()
 
-                    # Etiqueta Salida
-                    e3 = instanceLabel.getLabel()
-
-                    # Temporal
-                    self.dir = instanceTemporal.getTemporal()
-                    self.cod =  '# Expresión Not\n'
-                    self.cod += cod
-                    self.cod += 'if ' + exp.dir + ' == 1 :\n'
-                    self.cod += '\tgoto ' + e1 + '\n'
-                    self.cod += 'goto ' + e2 + '\n'
-                    self.cod += 'label ' + e1 + '\n'
-                    self.cod += self.dir + ' = 0 \n'
-                    self.cod += 'goto ' + e3 + '\n'
-                    self.cod += 'label ' + e2 + '\n'
-                    self.cod += self.dir + ' = 1 \n'
-                    self.cod += 'label ' + e3 + '\n'
-                    self.cod += '#--------------\n'
-                    return self.cod
-
-                else :
-                    self.cod = ''
-                    self.dir = ''
-                    self.tipo = Type_Expresion(Data_Type.boolean)
-                    return self.cod
+                # Temporal
+                self.dir = instanceTemporal.getTemporal()
+                self.cod += cod
+                self.cod += 'if ' + exp.dir + ' == 1 :\n'
+                self.cod += '\tgoto ' + e1 + '\n'
+                self.cod += 'goto ' + e2 + '\n'
+                self.cod += 'label ' + e1 + '\n'
+                self.cod += self.dir + ' = 0 \n'
+                self.cod += 'goto ' + e3 + '\n'
+                self.cod += 'label ' + e2 + '\n'
+                self.cod += self.dir + ' = 1 \n'
+                self.cod += 'label ' + e3 + '\n'
+                return self.cod
 
             elif op.nombreNodo == '-':
                 
                 cod = exp.compile(enviroment)
-
-                if exp.tipo.data_type == Data_Type.numeric :
-
-                    self.tipo = Type_Expresion(Data_Type.numeric)
-                    self.dir = instanceTemporal.getTemporal()
-                    self.cod = cod
-                    self.cod += '# Expresión negativa\n'
-                    self.cod += self.dir + ' = ' + exp.dir + ' * -1' + '\n'
-                    self.cod += '# ------------------\n'
-                    return self.cod
-                
-                else :
-
-                    self.tipo = Type_Expresion(Data_Type.error)
-                    self.dir = ''
-                    self.cod = ''
-                    return self.cod
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                self.dir = instanceTemporal.getTemporal()
+                self.cod = cod
+                self.cod += self.dir + ' = ' + exp.dir + ' * -1' + '\n'
+                return self.cod
 
             pass
         elif cantHijos == 1 :
@@ -1110,7 +577,6 @@ class Expresion(Nodo):
             codExp = exp.compile(enviroment)
             self.dir = exp.dir
             self.cod = codExp
-            self.tipo = exp.tipo
             return self.cod
     
     def getText(self):

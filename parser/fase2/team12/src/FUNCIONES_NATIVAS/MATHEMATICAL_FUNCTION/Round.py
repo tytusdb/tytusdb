@@ -45,20 +45,11 @@ class Function_Round(Expresion):
         res1 = op1.compile(enviroment)
         res2 = op2.compile(enviroment)
 
-        if op1.tipo.data_type == Data_Type.numeric and op2.tipo.data_type == Data_Type.numeric :
-
-            self.tipo = Type_Expresion(Data_Type.numeric)
-            self.dir = instanceTemporal.getTemporal()
-            self.cod = res1 + res2
-            self.cod += self.dir + ' = round(' + op1.dir + ',' + op2.dir + ')\n'
-            return self.cod
-
-        else :
-
-            self.tipo = Type_Expresion(Data_Type.error)
-            self.cod = ''
-            self.dir = ''
-            return self.cod
+        self.tipo = Type_Expresion(Data_Type.numeric)
+        self.dir = instanceTemporal.getTemporal()
+        self.cod = res1 + res2
+        self.cod += self.dir + ' = round(' + op1.dir + ',' + op2.dir + ')\n'
+        return self.cod
     
     def getText(self):
         exp = self.hijos[0]

@@ -7,9 +7,14 @@ sys.path.append(nodo_dir)
 nodo_ast = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','..','..')) + '\\ENTORNO\\')
 sys.path.append(nodo_ast)
 
+c3d_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','..','..')) + '\\C3D\\')
+sys.path.append(c3d_dir)
+
 from Expresion import Expresion
 from Tipo import Data_Type
 from Tipo_Expresion import Type_Expresion
+from Temporal import *
+from Label import *
 
 class Current_Date_Expresion(Expresion):
     
@@ -24,7 +29,9 @@ class Current_Date_Expresion(Expresion):
         return self.valorExpresion
     
     def compile(self, eviroment):
-        print("text")
+        self.dir = instanceTemporal.getTemporal()
+        self.cod = self.dir + ' = datatime.date.today()\n' 
+        return self.cod
 
     def getText(self):
         return "CURRENT_DATE"

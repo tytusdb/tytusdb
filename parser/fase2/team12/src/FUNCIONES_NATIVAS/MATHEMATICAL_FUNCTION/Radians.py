@@ -40,20 +40,11 @@ class Function_Radians(Expresion):
         op1 = self.hijos[0]
         res1 = op1.compile(enviroment)
 
-        if op1.tipo.data_type == Data_Type.numeric :
-
-            self.tipo = Type_Expresion(Data_Type.numeric)
-            self.dir = instanceTemporal.getTemporal()
-            self.cod = res1
-            self.cod += self.dir + ' = ' + op1.dir + '*( math.pi / 180 )\n'
-            return self.cod
-            
-        else :
-
-            self.tipo = Type_Expresion(Data_Type.error)
-            self.cod = ''
-            self.dir = ''
-            return self.cod
+        self.tipo = Type_Expresion(Data_Type.numeric)
+        self.dir = instanceTemporal.getTemporal()
+        self.cod = res1
+        self.cod += self.dir + ' = ' + op1.dir + '*( math.pi / 180 )\n'
+        return self.cod
     
     def getText(self):
         exp = self.hijos[0]

@@ -45,20 +45,11 @@ class Function_Div(Expresion):
         res = hijo.compile(enviroment)
         res2 = hijo2.compile(enviroment)
 
-        if hijo.tipo.data_type == Data_Type.numeric and hijo.tipo.data_type == Data_Type.numeric :
-
-            self.tipo = Type_Expresion(Data_Type.numeric)
-            self.dir = instanceTemporal.getTemporal()
-            self.cod = res + res2
-            self.cod = self.dir + ' = ' + str(hijo.dir) + ' // ' + str(hijo2.dir) + '\n'
-            return self.cod
-
-        else :
-            
-            self.tipo = Type_Expresion(Data_Type.error)
-            self.dir = ''
-            self.cod = ''
-            return self.cod
+        self.tipo = Type_Expresion(Data_Type.numeric)
+        self.dir = instanceTemporal.getTemporal()
+        self.cod = res + res2
+        self.cod = self.dir + ' = ' + str(hijo.dir) + ' // ' + str(hijo2.dir) + '\n'
+        return self.cod
     
     def getText(self):
         exp = self.hijos[0]

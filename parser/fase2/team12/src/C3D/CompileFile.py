@@ -34,7 +34,6 @@ def holamundo_5():
 	t3 = 'Select * from usuarios;'
 	display[p] = t3
 	p = p + 1
-	#execute()
 	goto .L6
 	label .L5
 	t4 = 'Select * from usuarios;'

@@ -50,20 +50,11 @@ class Function_Acos(Expresion):
         exp = self.hijos[0]
         cod = exp.compile(enviroment)
 
-        if exp.tipo.data_type == Data_Type.numeric :
-
-            self.tipo = Type_Expresion(Data_Type.numeric)
-            self.dir = instanceTemporal.getTemporal()
-            self.cod = cod
-            self.cod += self.dir + '= math.acos(' + exp.dir + ')\n'
-            return self.cod
-        
-        else :
-
-            self.tipo = Type_Expresion(Data_Type.error)
-            self.cod = ''            
-            self.dir = ''
-            return self.cod
+        self.tipo = Type_Expresion(Data_Type.numeric)
+        self.dir = instanceTemporal.getTemporal()
+        self.cod = cod
+        self.cod += self.dir + '= math.acos(' + exp.dir + ')\n'
+        return self.cod
     
     def getText(self):
         exp = self.hijos[0]

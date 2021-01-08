@@ -49,20 +49,11 @@ class Function_Asin(Expresion):
         exp = self.hijos[0]
         valueExp = exp.compile(enviroment)
 
-        if exp.tipo.data_type == Data_Type.numeric :
-
-            self.tipo = Type_Expresion(Data_Type.numeric)
-            self.dir = instanceTemporal.getTemporal()
-            self.cod = valueExp
-            self.cod += self.dir + ' = math.asin(' + exp.dir + ')\n'
-            return self.cod
-        
-        else :
-
-            self.tipo = Type_Expresion(Data_Type.error)
-            self.dir = ''
-            self.cod = ''
-            return self.cod
+        self.tipo = Type_Expresion(Data_Type.numeric)
+        self.dir = instanceTemporal.getTemporal()
+        self.cod = valueExp
+        self.cod += self.dir + ' = math.asin(' + exp.dir + ')\n'
+        return self.cod
     
     def getText(self):
         exp = self.hijos[0]
