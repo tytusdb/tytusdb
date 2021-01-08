@@ -10,7 +10,7 @@ class OptIf(opt.OptimizedInstruction):
         self.condition = condition
         self.goto = goto
         
-    def optimize(self):
+    def optimize(self,generador):
         if self.type == opt.TEVAL.SINGLE:
             pass
         elif self.type == opt.TEVAL.OPERATION:
@@ -19,7 +19,7 @@ class OptIf(opt.OptimizedInstruction):
     def addToCode(self, generador):
         super().addToCode(generador)
         if self.type == opt.TEVAL.SINGLE:
-            generador.addToCode(f'\tif {self.condition}: goto .{self.goto.label}')
+            generador.addToCode(f'\tif {self.condition}: goto {self.goto.label}')
         else:
-            generador.addToCode(f'\tif {self.condition[0]} {self.condition[1]} {self.condition[2]}: goto .{self.goto.label}')
+            generador.addToCode(f'\tif {self.condition[0]} {self.condition[1]} {self.condition[2]}: goto {self.goto.label}')
         
