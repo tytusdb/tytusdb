@@ -24,6 +24,7 @@ from analizer_pl.sql_statement.drop import drop_table
 from analizer_pl.sql_statement.drop import drop_index
 from analizer_pl.sql_statement.select import select
 from analizer_pl.sql_statement.select import union
+from analizer_pl.sql_statement.select import select_first
 from analizer_pl.sql_statement import use_
 from analizer_pl.sql_statement import show_
 from analizer_pl.sql_statement import truncate_
@@ -190,3 +191,11 @@ def TernaryExpression(temp, exp1, exp2, exp3, operator, isBlock, row, column):
 
 def Aggrupation(exp, isBlock, row, column):
     return datatype.Aggrupation(exp, isBlock, row, column)
+
+
+def SelectFirstValue(temp, select):
+    return select_first.SelectFirstValue(temp, select)
+
+
+def SelectOnlyParamsFirst(temp, select):
+    return select_first.SelectOnlyParamsFirst(temp, select)
