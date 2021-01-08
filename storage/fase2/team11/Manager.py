@@ -7,71 +7,70 @@ from storage.hash import HashMode as hash
 from storage.json import jsonMode as json
 from Binary import verify_string
 from checksum import checksum_database, checksum_table
+import criptografia as crypt
+from estruct.blockChain import BlockChain
+from metadata import Database, Table, FK
 
-mode_list = list()
+metadata_db_list = list()
+flag_block = False
+block_list = list()
 
-
-class Mode:
-    def __init__(self, name_database, mode, enconding):
-        self.__name_database = name_database
-        self.__mode = mode
-        self.__enconding = enconding
-
-    def set_name_database(self, name_database):
-        self.__name_database = name_database
-
-    def get_name_database(self):
-        return self.__name_database
-
-    def set_mode(self, mode):
-        self.__mode = mode
-
-    def get_mode(self):
-        return self.__mode
-
-    def set_encondig(self, encondig):
-        self.__enconding = encondig
-
-    def get_encondig(self):
-        return self.__enconding
+mode_dict = {'avl': 1, 'b': 2, 'bplus': 3, 'dict': 4, 'hash': 5, 'isam': 6, 'json': 7}
 
 
-def save_mode(database, mode, encondig):
-    new_mode = Mode(database, mode, encondig)
-    mode_list.append(new_mode)
+def save_database_db(database, mode, encondig):
+    new_mode = Database(database, mode, encondig)
+    metadata_db_list.append(new_mode)
 
 
-def exist(database: str):
-    for mode in mode_list:
-        if mode.get_name_database() == database:
-            return True
-    return False
+def get_metadata_db(database: str):
+    index = 0
+    for db in metadata_db_list:
+        if db.get_name_database() == database:
+            return db, index
+        index += 1
+    return None, None
 
 
+def get_metadata_dbmode(database: str, mode: str):
+    for db in metadata_db_list:
+        if db.get_name_database() == database and db.get_mode() == mode:
+            return db
+    return None
+
+
+# -------------------------------------------- --> Get Struct <-- ----------------------------------------------------
+# Metodo que retorna la estructura correspondiente al modo
+def get_struct(mode: str):
+    if mode.lower().strip() == "avl":
+        return avl
+    elif mode.lower().strip() == "b":
+        return b
+    elif mode.lower().strip() == "bplus":
+        return bPlus
+    elif mode.lower().strip() == "dict":
+        return diccionario
+    elif mode.lower().strip() == "hash":
+        return hash
+    elif mode.lower().strip() == "isam":
+        return isam
+    elif mode.lower().strip() == "json":
+        return json
+
+
+# -------------------------------------------- --> <-> <-- -----------------------------------------------------------
+# Revisar para Metadata
 def createDatabase(database: str, mode: str, encoding: str):
-    if verify_string(database):
-        if exist(database): return 2
+    if verify_string(database):  # Metodo que verifica el nombre si cumple con las condiciones
+        metadata, index = get_metadata_db(database)
+        if metadata: return 2  # Verifica que no haya repetidos en el listado de metadata database
         if str(encoding.lower().strip()) == "ascii" or str(encoding.lower().strip()) == "iso-8859-1" \
-                or str(encoding.lower().strip()) == "utf8":
-            status = -1
-            if mode.lower().strip() == "avl":
-                status = avl.createDatabase(database)
-            elif mode.lower().strip() == "b":
-                status = b.createDatabase(database)
-            elif mode.lower().strip() == "bPlus".lower():
-                status = bPlus.createDatabase(database)
-            elif mode.lower().strip() == "dict":
-                status = diccionario.createDatabase(database)
-            elif mode.lower().strip() == "isam":
-                status = isam.createDatabase(database)
-            elif mode.lower().strip() == "json":
-                status = json.createDatabase(database)
-            elif mode.lower().strip() == "hash":
-                status = hash.createDatabase(database)
-            else:
-                return 3
-            if status == 0:
-                save_mode(database, mode, encoding)
+                or str(encoding.lower().strip()) == "utf8":  # Revisa que cumpla con la codificacion
+            if mode_dict.get(mode) is None: return 3  # Revisa que el modo este en el diccionario  si no esta retorno 3
+            mode_struct = get_struct(mode)  # Retorna el objeto avl,b,bplus, etc dependiendo el modo
+            status = mode_struct.createDatabase(database)  # Crea base de datos de la estructura correspondiente(avl,b)
+            if status == 0:  # Si el estatus es el correcto guarda en la lista metadata_db_list
+                save_database_db(database, mode.lower().strip(), encoding)  # Guarda en la lista metada_db_list
             return status
         else:
             return 4
@@ -79,13 +78,6 @@ def createDatabase(database: str, mode: str, encoding: str):
         return 1
 
 
-def exist_Alter(database: str):
-    indice = 0
-    for mode in mode_list:
-        if mode.get_name_database() == database:
-            return mode, indice
-        indice += 1
-    return None, None
 
 
 def alterDatabaseMode(database: str, mode: str):
@@ -221,67 +213,45 @@ def alterTableMode(database: str, table: str, mode: str):
         return 2
 
 
+# Revisar para Metadata
 def alterDatabase(old_db, new_db):
-    modeDB, indexDB = exist_Alter(old_db)
-    modeDB_new, indexDB_newDB = exist_Alter(new_db)
-    if modeDB and modeDB_new is None:
-        mode = modeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "b":
-            return b.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "dict":
-            return diccionario.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "hash":
-            return hash.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "isam":
-            return isam.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "json":
-            return json.alterDatabase(old_db, new_db)
+    metadata_db, index_md_db = get_metadata_db(old_db)
+    metadata_db_new, index_new_md_db = get_metadata_db(new_db)
+    if metadata_db and metadata_db_new is None:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.alterDatabase(old_db, new_db)
+        if status == 0:
+            metadata_db.set_name_database(new_db)
+        return status
+    return 1
 
 
+
+# Revisar Para Metadata
 def dropDatabase(name_db):
-    ModeDB, indexDB = exist_Alter(name_db)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.dropDatabase(name_db)
-        elif mode.lower().strip() == "b":
-            return b.dropDatabase(name_db)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.dropDatabase(name_db)
-        elif mode.lower().strip() == "dict":
-            return diccionario.dropDatabase(name_db)
-        elif mode.lower().strip() == "hash":
-            return hash.dropDatabase(name_db)
-        elif mode.lower().strip() == "isam":
-            return isam.dropDatabase(name_db)
-        elif mode.lower().strip() == "json":
-            return json.dropDatabase(name_db)
-
-
-def createTable(database, name_table, number_columns):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "b":
-            return b.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "dict":
-            return diccionario.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "hash":
-            return hash.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "isam":
-            return isam.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "json":
-            return json.createTable(database, name_table, number_columns)
+    metadata_db, index_metadata = get_metadata_db(name_db)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.dropDatabase(name_db)
+        if status == 0:
+            metadata_db_list.pop(index_metadata)
+        return status
     else:
-        return "f"
+        return 1
+
+
+
+# Revisar para Metadata
+def createTable(database, name_table, number_columns):
+    metadata_db, index_metadata = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.createTable(database, name_table, number_columns)
+        if status == 0:
+            metadata_db.create_table(name_table, number_columns, metadata_db.get_mode())
+        return status
+    else:
+        return 1
 
 
 def showTables(database):
