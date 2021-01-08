@@ -416,7 +416,6 @@ import ply.lex as lex
 import re
 
 
-
 # DEFINIENDO LA PRECEDENCIA DE LOS OPERADORES
 # ---------Modificado Edi---------
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< INICIO DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1375,7 +1374,6 @@ def p_error(t):
 
 
 import ply.yacc as yacc
-
 
 
 def analizadordesc(input):
