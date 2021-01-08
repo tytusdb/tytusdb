@@ -22,7 +22,7 @@ from models.instructions.Expression.string_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
-from models.Other.funcion import Funcion, Parametro
+from models.Other.funcion import Funcion, Parametro, ProcedimientoAlmacenado
 from models.Other.declaracion import DeclaracionID, AsignacionID
 from models.procedural.clases import BodyDeclaration, ReturnFuncProce
 from models.procedural.if_statement import If,anidarIFs
@@ -229,7 +229,7 @@ def p_permits(p):
     '''
     if p[1].lower() == 'MODE'.lower():
         if len(p) == 4:
-            p[0] = {'MODE': p[3], '_tac': f'MODE = {p[3]._tac}'}
+            p[0] = {'MODE': p[3], '_tac': f'MODE = {p[3]}'}
         else:
             p[0] = {'MODE': p[2], '_tac': f'MODE {p[2]}' }
     else:
@@ -739,10 +739,11 @@ def p_show_statement(p):
     '''
     if len(p) == 4:
         p[0] = ShowDatabase(None, generateC3D(p))
-        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]._tac} {p[5]}'
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]}'
     else:
         p[0] = ShowDatabase(p[4], generateC3D(p))
-        p[0]._tac = f'{p[1]} {p[2]} {p[3]}'
+        p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]._tac} {p[5]}'
+        
 
 
 def p_alter_statement(p):
@@ -993,6 +994,12 @@ def p_sql_procedures(p):
     '''SQL_PROCEDURES : CREATE PROCEDURE ID LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
                       | CREATE PROCEDURE ID LEFT_PARENTHESIS RIGHT_PARENTHESIS LANGUAGE PLPGSQL AS bodyBlock
     '''
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
+    if len(p) == 11:
+        p[0] = ProcedimientoAlmacenado(p[3], p[5], p[10], True, False, noLine, noColumn)
+    else:
+        p[0] = ProcedimientoAlmacenado(p[3], [], p[9], True, False, noLine, noColumn)
 
 def p_returns_type_func(p):
     '''typeReturns : typecol
@@ -1405,7 +1412,7 @@ def p_set_list(p):
 def p_column_values(p):
     '''COLUMNVALUES : OBJECTREFERENCE EQUALS SQLEXPRESSION2'''
     p[0] = ColumnVal(p[1], p[3])
-
+    p[0]._tac = f"{p[1]._tac} {p[2]} {p[3]._tac} "
 
 def p_sql_expression2(p):
     '''SQLEXPRESSION2 : SQLEXPRESSION2 PLUS SQLEXPRESSION2 
@@ -1627,6 +1634,7 @@ def p_query_statement(p):
     #  ELEMENTO 0       ELEMENTO 1     ELEMENTO 2      ELEMENTO 3
     '''QUERYSTATEMENT : SELECTSTATEMENT SEMICOLON'''
     p[0] = p[1]
+    p[0]._tac = f'{p[1]._tac};'
 
 
 def p_select_statement(p):
@@ -1639,20 +1647,20 @@ def p_select_statement(p):
         [3].pop(0)
         p[3] = p[3][0]
         p[0] = Select(p[1], p[2], p[3], generateC3D(p))
-        p[0]._tac = f'{p[1]._tac} {p[2]._tac} {p[3]._tac};'
+        p[0]._tac = f'{p[1]._tac} {p[2]._tac} {p[3]._tac}'
     elif (len(p) == 3):
         if ('ORDER' in p[2]):
             p[2] = p[2][1]
             p[0] = Select(p[1], p[2], None, generateC3D(p))
-            p[0]._tac = f'{p[1]._tac} {p[2]._tac};'
+            p[0]._tac = f'{p[1]._tac} {p[2]._tac}'
         elif ('LIMIT' in p[2]):
             [2].pop(0)
             p[2] = p[2][0]
             p[0] = Select(p[1], None, p[2], generateC3D(p))
-            p[0]._tac = f'{p[1]._tac} {p[2]._tac};'
+            p[0]._tac = f'{p[1]._tac} {p[2]._tac}'
     elif (len(p) == 2):
         p[0] = Select(p[1], None, None, generateC3D(p))
-        p[0]._tac = f'{p[1]._tac};'
+        p[0]._tac = f'{p[1]._tac}'
 
 
 def p_select_without_order(p):
@@ -1728,9 +1736,9 @@ def p_selectq(p):
                 if index > 0: string += f', {var._tac}'
                 else: string += f'{var._tac}'
         if isinstance(p[5], list):
-            p[0]._tac = f'SELECT {p[2]} {string} {p[3]._tac} {p[4][0]._tac} {p[4][1]._tac}'
+            p[0]._tac = f'SELECT {p[2]} {string} {p[4]._tac} {p[5][0]._tac} {p[5][1]._tac}'
         else:
-            p[0]._tac = f'SELECT {p[2]} {string} {p[3]._tac} {p[4]._tac}'
+            p[0]._tac = f'SELECT {p[2]} {string} {p[4]._tac} {p[5]._tac}'
 
     elif len(p) == 3:
         p[0] = SelectQ(None, p[2], None, None, p.lineno(1),
@@ -1769,6 +1777,7 @@ def p_select_item(p):
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     if (len(p) == 3):
         p[1].alias = p[2].alias
+        p[1]._tac = f'{p[1]._tac} {p[2]._tac}'
         p[0] = p[1]
     elif (len(p) == 4):
         p[0] = p[2]
@@ -1909,8 +1918,15 @@ def p_limit_types(p):
 
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
+    string = ""
     p[0] = Where(p[2])
-    p[0]._tac = f'WHERE {p[2]._tac}'
+    if isinstance(p[2], list):
+        for index, var in enumerate(p[2]):
+            if hasattr(var, '_tac'):
+                string += f'{var._tac}'
+        p[0]._tac = f'WHERE {string}'
+    else:
+        p[0]._tac = f'WHERE {p[2]._tac}'
 
 def p_group_by_clause(p):
     '''GROUPBYCLAUSE : GROUP BY SQLEXPRESSIONLIST'''
@@ -1958,6 +1974,7 @@ def p_sql_expression(p):
         p[0] = LogicalOperators(
             p[1], p[2], p[3], p.lineno(2), find_column(p.slice[2]))
     elif len(p) == 3:
+        p[2]._tac = f'{p[1]} {p[2]._tac}'
         p[0] = [True, p[2]]
     else:
         p[0] = p[1]
@@ -1974,7 +1991,7 @@ def p_exists_clause(p):
     '''EXISTSCLAUSE : EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     p[0] = ExistsClause(None,  False,  p[3], p.lineno(1),
                         find_column(p.slice[1]))
-
+    p[0]._tac = f'{p[1]}{p[2]}{p[3]._tac}{p[4]}'
 
 def p_sql_relational_expression(p):
     '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION
@@ -2444,6 +2461,7 @@ def p_sql_alias(p):
                 | SQLNAME'''
     if (len(p) == 3):
         p[0] = p[2]
+        p[0]._tac = f"{p[1]} {p[2]._tac}"
     elif (len(p) == 2):
         p[0] = p[1]
 
@@ -2516,11 +2534,14 @@ def p_sql_object_reference(p):
                        | SQLNAME'''
     if (len(p) == 2):
         p[0] = ObjectReference(p[1], None, None)
+        p[0]._tac = f'{p[1]._tac}'
     elif (len(p) == 4):
         if p[3] == "*":
             p[0] = ObjectReference(p[1], p[3], None)
+            p[0]._tac = f'{p[1]._tac}{p[2]}{p[3]}'
         else:
             p[0] = ObjectReference(p[3], None, p[1])
+            p[0]._tac = f'{p[1]._tac}{p[2]}{p[3]._tac}'
 
 
 def p_list_values_insert(p):

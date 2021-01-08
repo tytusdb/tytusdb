@@ -2,6 +2,7 @@ from sys import path
 from os.path import dirname as dir
 import webbrowser
 import os
+from os import startfile
 
 path.append(dir(path[0]))
 from tkinter import ttk
@@ -13,7 +14,7 @@ from ui.Pantalla_Error import *
 import tkinter.messagebox
 
 # Parser SQL de la fase 1
-from analizer import interpreter
+from analizer_pl import interpreter
 
 
 class Pantalla:
@@ -23,6 +24,8 @@ class Pantalla:
         self.semanticErrors = list()
         self.postgreSQL = list()
         self.ts = list()
+        self.indexes = list()
+        self.functions = list()
         self.inicializarScreen()
 
     def inicializarScreen(self):
@@ -47,6 +50,10 @@ class Pantalla:
         navMenu.add_command(label="Tabla de Simbolos", command=self.open_ST)
         navMenu.add_command(label="AST", command=self.open_AST)
         navMenu.add_command(label="AST pdf", command=self.open_PDF)
+        navMenu.add_command(label="Codigo 3 Direcciones", command=self.open_3d)
+        navMenu.add_command(
+            label="Codigo 3 Direcciones Optimizado", command=self.open_3dOpt
+        )
         navMenu.add_command(
             label="Reporte de errores",
             command=self.open_Reporte,
@@ -83,7 +90,7 @@ class Pantalla:
                     self.create_table(consult, "Consulta  " + str(i))
         self.tabControl.pack()
 
-    def create_table(self, table, name):
+    def create_table(self, input, name):
         frame = Frame(self.tabControl, height=300, width=450, bg="#d3d3d3")
         # Creacion del scrollbar
         table_scroll = Scrollbar(frame, orient="vertical")
@@ -96,7 +103,7 @@ class Pantalla:
         )
         table_scroll.config(command=table.yview)
         table_scrollX.config(command=table.xview)
-        self.fill_table(table[0], table[1], table)
+        self.fill_table(input[0], input[1], table)
         table_scroll.pack(side=RIGHT, fill=Y)
         table_scrollX.pack(side=BOTTOM, fill=X)
         table.pack(side=LEFT, fill=BOTH)
@@ -175,6 +182,8 @@ class Pantalla:
         self.lexicalErrors.clear()
         self.postgreSQL.clear()
         self.ts.clear()
+        self.indexes.clear()
+        self.functions.clear()
 
     def fill_table(
         self, columns, rows, table
@@ -217,6 +226,14 @@ class Pantalla:
 
     def open_PDF(self):
         url = "file:///" + os.path.realpath("test-output/round-table.gv.pdf")
+        webbrowser.open(url)
+
+    def open_3d(self):
+        url = "file:///" + os.path.realpath("test-output/c3d.py")
+        webbrowser.open(url)
+
+    def open_3dOpt(self):
+        url = "file:///" + os.path.realpath("test-output/c3dopt.py")
         webbrowser.open(url)
 
 
