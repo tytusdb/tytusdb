@@ -270,6 +270,9 @@ class DropFunction(ASTNode):
     def generate(self, table, tree):
         super().generate(table, tree)
         result_name = self.name.generate(table, tree)
-        return Quadruple(None, f'DROP FUNCTION {result_name};', None, generate_tmp(), OpTAC.CALL)
+        if self.if_exists:
+            return Quadruple(None, 'exec_sql', f'\'DROP FUNCTION  IF EXISTS {result_name};\'', generate_tmp(), OpTAC.CALL)
+        else:
+            return Quadruple(None, 'exec_sql', f'\'DROP FUNCTION {result_name};\'', generate_tmp(), OpTAC.CALL)
 
 
