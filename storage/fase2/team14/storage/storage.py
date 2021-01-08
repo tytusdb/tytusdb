@@ -7,6 +7,7 @@ from .HashMode import HashMode as HashM
 from .AVLMode import avlMode as AVLM
 from .jsonMode import jsonMode as jsonM
 from .DictMode import DictMode as DictM
+from .encryption import _decrypt, _encrypt
 import os
 import hashlib
 import zlib
@@ -1087,3 +1088,13 @@ def alterDatabaseCompress(database: str, level: int) -> int:
             return 1
     except:
         return 1
+    
+    
+# devuelve un text cifrado
+def encrypt(backup: str, password: str) -> str:
+    return _encrypt(backup, password)
+
+
+# devuelve un texto descifrado
+def decrypt(cipherBackup: str, password: str) -> str:
+    return _decrypt(cipherBackup, password)
