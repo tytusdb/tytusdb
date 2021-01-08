@@ -29,7 +29,6 @@ def createDatabase(name, mode, owner):
 
 
 def alterDatabaseRename(databaseOld, databaseNew):
-
     for data in Databases:
         if data["name"] == databaseOld:
             data["name"] = databaseNew

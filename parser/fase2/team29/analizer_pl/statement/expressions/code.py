@@ -1,4 +1,5 @@
 from analizer_pl.abstract.expression import Expression
+from analizer_pl.reports.Nodo import Nodo
 
 
 class C3D(Expression):
@@ -13,3 +14,7 @@ class C3D(Expression):
 
     def execute(self, environment):
         return self
+
+    def dot(self):
+        new = Nodo(str(self.temp))
+        return new

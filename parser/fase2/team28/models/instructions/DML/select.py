@@ -4,6 +4,10 @@ from views.data_window import DataWindow
 from models.instructions.shared import *
 from models.instructions.Expression.expression import *
 from models.instructions.DML.special_functions import *
+from controllers.procedures import Procedures
+from models.Other.ambito import Ambito
+from models.instructions.Expression.expression import ColumnsTypes
+from models.Other.funcion import Funcion
 from models.procedural.if_statement import anidarIFs, If
 import pandas as pd 
 class Union(Instruction):
@@ -26,17 +30,41 @@ class Select(Instruction):
         self.order_option = order_option
         self.limit_option = limit_option
         self.alias = f'{self.instrs.alias}'
-        self._tac = tac
+        self._tac = ''
         self.line = 0
         self.column = 0
 
     def __repr__(self):
         return str(vars(self))
 
-    def compile(self, instrucction):
-        temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
-        self.instrs.compile(instrucction) #TODO QUITAR AL TERMINAR
+    def compile(self, environment):
+        database_id = SymbolTable().useDatabase
+        #ejecutando si hay llamada a alguna funcion
+        temps_array = self.instrs.compile(environment) 
+        new_val = None
+        if temps_array is not None:
+            new_val = putVarValues(self._tac, temps_array, environment)
+        else:
+            new_val = self._tac
+            
+        temp = ''
+
+        if new_val == self._tac: #Es un temporal --- quitar comillas
+
+            temp = ThreeAddressCode().newTemp()
+
+            if database_id is not None:
+                ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {new_val}\"")
+            else:
+                ThreeAddressCode().addCode(f"{temp} = \"{new_val}\"")
+        else:
+            temp = new_val
+
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+
+        return temp1
 
     def process(self, instrucction):
         instr = None
@@ -76,9 +104,12 @@ class TypeQuerySelect(Instruction):
         self.line = line
         self.column = column
         self.alias = f'{arr_select[0].alias}'
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
     
+    def compile(self, environment):
+        pass
     def process(self, instrucction):
         select1 = None
         select2 = None
@@ -140,13 +171,18 @@ class SelectQ(Instruction):
             self.alias = f'{from_clause.alias}'
         self.line = line
         self.column = column
+        self._tac = self.alias
 
     def __repr__(self):
         return str(vars(self))
     
-    def compile(self,instrucction):
+    def compile(self, instrucction):
+        temps_array = [] 
         for val in self.select_list:
-            print(val.compile(instrucction))
+            if isinstance(val, Funcion):
+               temps_array.append( val.compile(instrucction) ) 
+
+        return temps_array
 
     def process(self, instrucction):
         list_select = None
@@ -390,6 +426,7 @@ class OrderClause(Instruction):
         self.type_order = type_order
         self.line = line
         self.column = column
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -425,6 +462,7 @@ class LimitClause(Instruction):
         self.offset = offset
         self.line = line
         self.column = column
+        self._tac = ''
         
     def __repr__(self):
         return str(vars(self))
@@ -476,38 +514,58 @@ class AgreggateFunctions(Instruction):
         self.alias = f'{self.type_agg}({cont_agg.alias})'
         self.line = line
         self.column = column
+        self._tac = ""
+        self.is_group = False
     def __repr__(self):
         return str(vars(self))
     
     def process(self, instrucction):
         data = None
         try:
-            result = self.cont_agg.process(instrucction)
-            if isinstance(result, list):
-                if self.type_agg.lower() == "avg":
-                    data = {str(self.alias): 'mean'}
-                elif self.type_agg.lower() == 'sum':
-                    data = {str(self.alias): 'sum'}
-                elif self.type_agg.lower() == 'count':
-                    data = {str(self.alias): 'size'}
-                elif self.type_agg.lower() == 'max':
-                    data = {str(self.alias): 'max'}
-                elif self.type_agg.lower() == 'min':
-                    data = {str(self.alias): 'min'}
-                    #dict  # column  # encambezado
-                return [result[0], result[1], data]
+            if not self.is_group:
+                result = self.cont_agg.process(instrucction)
+                if isinstance(result, list):
+                    if self.type_agg.lower() == "avg":
+                        data = {str(self.alias): 'mean'}
+                    elif self.type_agg.lower() == 'sum':
+                        data = {str(self.alias): 'sum'}
+                    elif self.type_agg.lower() == 'count':
+                        data = {str(self.alias): 'size'}
+                    elif self.type_agg.lower() == 'max':
+                        data = {str(self.alias): 'max'}
+                    elif self.type_agg.lower() == 'min':
+                        data = {str(self.alias): 'min'}
+                        #dict  # column  # encambezado
+                    return [result[0], result[1], data]
+                else:
+                    if self.type_agg.lower() == "avg":
+                        data = {str(self.alias.lower()): 'mean'}
+                    elif self.type_agg.lower() == 'sum':
+                        data = {str(self.alias.lower()): 'sum'}
+                    elif self.type_agg.lower() == 'count':
+                        data = {str(result.value): 'size'}
+                    elif self.type_agg.lower() == 'max':
+                        data = {str(self.alias.lower()): 'max'}
+                    elif self.type_agg.lower() == 'min':
+                        data = {str(self.alias.lower()): 'min'}
+                    return [data, result.value, self.type_agg]
             else:
-                if self.type_agg.lower() == "avg":
-                    data = {str(self.alias.lower()): 'mean'}
-                elif self.type_agg.lower() == 'sum':
-                    data = {str(self.alias.lower()): 'sum'}
-                elif self.type_agg.lower() == 'count':
-                    data = {str(result.value): 'size'}
-                elif self.type_agg.lower() == 'max':
-                    data = {str(self.alias.lower()): 'max'}
-                elif self.type_agg.lower() == 'min':
-                    data = {str(self.alias.lower()): 'min'}
-                return [data, result.value, self.type_agg]
+                result = self.cont_agg.process(instrucction)
+                if isinstance(result, list):
+                    if self.type_agg.lower() == "avg":
+                        data = sum(result[0]) / len(result[0])
+                    elif self.type_agg.lower() == 'sum':
+                        data = sum(result[0])
+                    elif self.type_agg.lower() == 'count':
+                        data = len(result[0])
+                    elif self.type_agg.lower() == 'max':
+                        data = max(result[0])
+                    elif self.type_agg.lower() == 'min':
+                        data = min(result[0])
+                            #valores  # column  # encambezado
+                    return [[data], result[1]]
+                else:
+                    return result.value
         except:
             desc = "FATAL ERROR, murio en AgreggateFunctions, F"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)

@@ -2,6 +2,7 @@ from sys import path
 from os.path import dirname as dir
 import webbrowser
 import os
+from os import startfile
 
 path.append(dir(path[0]))
 from tkinter import ttk
@@ -13,7 +14,10 @@ from ui.Pantalla_Error import *
 import tkinter.messagebox
 
 # Parser SQL de la fase 1
-from analizer import interpreter
+from analizer import interpreter as fase1
+
+# Parser SQL de la fase 1
+from analizer_pl import interpreter as fase2
 
 
 class Pantalla:
@@ -23,6 +27,8 @@ class Pantalla:
         self.semanticErrors = list()
         self.postgreSQL = list()
         self.ts = list()
+        self.indexes = list()
+        self.functions = list()
         self.inicializarScreen()
 
     def inicializarScreen(self):
@@ -47,6 +53,10 @@ class Pantalla:
         navMenu.add_command(label="Tabla de Simbolos", command=self.open_ST)
         navMenu.add_command(label="AST", command=self.open_AST)
         navMenu.add_command(label="AST pdf", command=self.open_PDF)
+        navMenu.add_command(label="Codigo 3 Direcciones", command=self.open_3d)
+        navMenu.add_command(
+            label="Codigo 3 Direcciones Optimizado", command=self.open_3dOpt
+        )
         navMenu.add_command(
             label="Reporte de errores",
             command=self.open_Reporte,
@@ -72,7 +82,43 @@ class Pantalla:
         self.window.mainloop()
 
     def traslate(self):
-        print("traducir")
+        self.refresh()
+        input = ""
+        input = self.txt_entrada.get(
+            "1.0", END
+        )  # variable de almacenamiento de la entrada
+        result = fase2.traducir(input)
+        self.lexicalErrors = result["lexical"]
+        self.syntacticErrors = result["syntax"]
+        self.semanticErrors = result["semantic"]
+        self.postgreSQL = result["postgres"]
+        self.ts = result["symbols"]
+        self.indexes = result["indexes"]
+        self.functions = result["functions"]
+        if (
+            len(self.lexicalErrors)
+            + len(self.syntacticErrors)
+            + len(self.semanticErrors)
+            + len(self.postgreSQL)
+            > 0
+        ):
+            tkinter.messagebox.showerror(
+                title="Error", message="La consulta contiene errores"
+            )
+            if len(self.postgreSQL) > 0:
+                i = 0
+                self.text_Consola.insert(INSERT, "-----------ERRORS----------" + "\n")
+                while i < len(self.postgreSQL):
+                    self.text_Consola.insert(INSERT, self.postgreSQL[i] + "\n")
+                    i += 1
+        messages = result["messages"]
+        if len(messages) > 0:
+            i = 0
+            self.text_Consola.insert(INSERT, "-----------MESSAGES----------" + "\n")
+            while i < len(messages):
+                self.text_Consola.insert(INSERT, str(messages[i]) + "\n")
+                i += 1
+        self.tabControl.pack()
 
     def show_result(self, consults):
         if consults != None:
@@ -80,29 +126,28 @@ class Pantalla:
             for consult in consults:
                 i += 1
                 if consult != None:
-                    frame = Frame(self.tabControl, height=300, width=450, bg="#d3d3d3")
-                    # Creacion del scrollbar
-                    table_scroll = Scrollbar(frame, orient="vertical")
-                    table_scrollX = Scrollbar(frame, orient="horizontal")
-                    table = ttk.Treeview(
-                        frame,
-                        yscrollcommand=table_scroll.set,
-                        xscrollcommand=table_scrollX.set,
-                        height=12,
-                    )
-                    table_scroll.config(command=table.yview)
-                    table_scrollX.config(command=table.xview)
-                    self.fill_table(consult[0], consult[1], table)
-                    table_scroll.pack(side=RIGHT, fill=Y)
-                    table_scrollX.pack(side=BOTTOM, fill=X)
-                    table.pack(side=LEFT, fill=BOTH)
-                    frame.pack(fill=BOTH)
-                    self.tabControl.add(frame, text="Consulta " + str(i))
-                else:
-                    self.text_Consola.insert(
-                        INSERT, "Error: Consulta sin resultado" + "\n"
-                    )
+                    self.create_table(consult, "Consulta  " + str(i))
         self.tabControl.pack()
+
+    def create_table(self, input, name):
+        frame = Frame(self.tabControl, height=300, width=450, bg="#d3d3d3")
+        # Creacion del scrollbar
+        table_scroll = Scrollbar(frame, orient="vertical")
+        table_scrollX = Scrollbar(frame, orient="horizontal")
+        table = ttk.Treeview(
+            frame,
+            yscrollcommand=table_scroll.set,
+            xscrollcommand=table_scrollX.set,
+            height=12,
+        )
+        table_scroll.config(command=table.yview)
+        table_scrollX.config(command=table.xview)
+        self.fill_table(input[0], input[1], table)
+        table_scroll.pack(side=RIGHT, fill=Y)
+        table_scrollX.pack(side=BOTTOM, fill=X)
+        table.pack(side=LEFT, fill=BOTH)
+        frame.pack(fill=BOTH)
+        self.tabControl.add(frame, text=name)
 
     def parse(self):
         self.refresh()
@@ -110,7 +155,7 @@ class Pantalla:
         input = self.txt_entrada.get(
             "1.0", END
         )  # variable de almacenamiento de la entrada
-        result = interpreter.parser(input)
+        result = fase1.parser(input)
         if len(result["lexical"]) + len(result["syntax"]) == 0:
             tkinter.messagebox.showerror(
                 title="Mensaje", message="La consulta no contiene errores"
@@ -128,12 +173,14 @@ class Pantalla:
         entrada = self.txt_entrada.get(
             "1.0", END
         )  # variable de almacenamiento de la entrada
-        result = interpreter.execution(entrada)
+        result = fase1.execution(entrada)
         self.lexicalErrors = result["lexical"]
         self.syntacticErrors = result["syntax"]
         self.semanticErrors = result["semantic"]
         self.postgreSQL = result["postgres"]
         self.ts = result["symbols"]
+        self.indexes = result["indexes"]
+        self.functions = result["functions"]
         if (
             len(self.lexicalErrors)
             + len(self.syntacticErrors)
@@ -159,7 +206,6 @@ class Pantalla:
             while i < len(messages):
                 self.text_Consola.insert(INSERT, str(messages[i]) + "\n")
                 i += 1
-
         self.tabControl.pack()
 
     def refresh(self):
@@ -174,6 +220,8 @@ class Pantalla:
         self.lexicalErrors.clear()
         self.postgreSQL.clear()
         self.ts.clear()
+        self.indexes.clear()
+        self.functions.clear()
 
     def fill_table(
         self, columns, rows, table
@@ -204,7 +252,7 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        windowTableS = Pantalla_TS(self.window, self.ts)
+        windowTableS = Pantalla_TS(self.window, self.ts, self.indexes, self.functions)
 
     def open_AST(self):  # Abre la pantalla del AST
         windowTableS = Pantalla_AST(self.window)
@@ -216,6 +264,14 @@ class Pantalla:
 
     def open_PDF(self):
         url = "file:///" + os.path.realpath("test-output/round-table.gv.pdf")
+        webbrowser.open(url)
+
+    def open_3d(self):
+        url = "file:///" + os.path.realpath("test-output/c3d.py")
+        webbrowser.open(url)
+
+    def open_3dOpt(self):
+        url = "file:///" + os.path.realpath("test-output/c3dopt.py")
         webbrowser.open(url)
 
 

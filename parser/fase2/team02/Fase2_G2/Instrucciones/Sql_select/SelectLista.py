@@ -86,7 +86,7 @@ class SelectLista(Instruccion):
 
         try: 
               cadena = "\"select "
-
+              wherecond = " "
               for x in self.lista:
                 print("entro") 
                 print(x)
@@ -128,7 +128,15 @@ class SelectLista(Instruccion):
                              print(e)
                     print("cadu.deena es",cadena) 
 
-              cadena += " from "+mitabla
+
+                     
+
+              cadena += " from "+mitabla 
+
+              if x.where !=None:
+                    wherecond=x.where.extraer(tabla,arbol)
+              cadena += wherecond
+
               cadena += ";\""
               print("cadenao es",cadena) 
 

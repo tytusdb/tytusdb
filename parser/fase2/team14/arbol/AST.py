@@ -103,8 +103,38 @@ reservadas = {
     'with': 'with',
     'use': 'use',
     'int': 'r_int',
-    'tables' : 'tables',
-    'collection': 'collection'
+    'tables': 'tables',
+    'collection': 'collection',
+    'index': 'index',
+    'using': 'using',
+    'hash': 'hash',
+    'on': 'on',
+    'nulls': 'nulls',
+    'last': 'last',
+    'first': 'first',
+    'rowtype': 'rowtype',
+    'record': 'record',
+    'constant': 'constant',
+    'elsif': 'elsif',
+    'procedure': 'procedure',
+    'language': 'language',
+    'begin': 'begin',
+    'call': 'call',
+    'execute': 'execute',
+    'do': 'do',
+    'raise': 'raise',
+    'notice': 'notice',
+    'plpgsql': 'plpgsql',
+    'inout': 'inout',
+    'info': 'info',
+    'debug': 'debug',
+    'warning': 'warning',
+    'exception': 'exception',
+    'format': 'format',
+    'declare': 'declare',
+    'returns': 'returns',
+    'return': 'return',
+    'function': 'function'
 
 }
 
@@ -131,7 +161,10 @@ tokens = [
              'cadenaString',
              'parc',
              'id',
-             'idPunto'
+             'idPunto',
+             'dospuntos',
+             'dolarn',
+
          ] + list(reservadas.values())
 
 # Tokens
@@ -152,7 +185,7 @@ t_para = r'\('
 t_parc = r'\)'
 t_ptcoma = r';'
 t_coma = r','
-
+t_dospuntos = r':'
 
 
 def t_decimales(t):
@@ -161,8 +194,8 @@ def t_decimales(t):
         t.value = float(t.value)
     except ValueError:
         print("Error no se puede convertir %d", t.value)
-        #reporteerrores.append(
-            #Lerrores("Error Semantico", "No se puede convertir '%s'" % t.value[0], t.lexer.lineno, t.lexer.lexpos))
+        reporteerrores.append(
+            Lerrores("Error Semantico", "No se puede convertir '%s'" % t.value[0], t.lexer.lineno, t.lexer.lexpos))
         t.value = 0
     return t
 
@@ -173,15 +206,23 @@ def t_int(t):
         t.value = int(t.value)
     except ValueError:
         print("Valor numerico incorrecto %d", t.value)
-        #reporteerrores.append(
-            #Lerrores("Error semantico", "Valor Numerico Invalido '%s'" % t.value[0], t.lexer.lineno, t.lexer.lexpos))
+        reporteerrores.append(
+            Lerrores("Error semantico", "Valor Numerico Invalido '%s'" % t.value[0], t.lexer.lineno, t.lexer.lexpos))
         t.value = 0
     return t
+
 
 def t_PUNTOPUNTO(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*\.([a-zA-Z_][a-zA-Z_0-9]*|\*)'
     t.type = reservadas.get(t.value.lower(), 'idPunto')
     return t
+
+
+def t_DOLARN(t):
+    r'[$]\d+ | [$][$]'
+    t.type = reservadas.get(t.value.lower(), 'dolarn')
+    return t
+
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -294,10 +335,18 @@ def p_instruccion(t):
                     | DROP ptcoma
                     | INSERT ptcoma
                     | CREATETYPE ptcoma
-                    | CASE 
+                    | CASE ptcoma
                     | CREATEDB ptcoma
                     | SHOWDB ptcoma
-                    | SHOW ptcoma'''
+                    | SHOW ptcoma
+                    | CREATEINDEX ptcoma
+                    | ASIGNACION ptcoma
+                    | CONDICIONIF ptcoma
+                    | PROCEDIMIENTOS
+                    | FUNCIONES
+                    | CALLPROCEDURE ptcoma 
+                    | DROPFUNC ptcoma
+                    | DROPPROCEDURE ptcoma'''
     t[0] = t[1]
 
 def p_instruccion1(t):
@@ -309,14 +358,540 @@ def p_instruccion1(t):
     arbol.node(iden,str(t[2]))
     arbol.edge(id,iden)
 
+def p_instruccion2(t):
+    'instruccion : CREATEINDEX WHERE ptcoma'
+    arbol.edge(t[1],t[2])
+    t[0] = t[1]
+
+def p_RETURN(t):
+    'RETURN : return EXP'
+    id = inc()
+    arbol.node(id,"return")
+    arbol.edge(id,t[2])
+    t[0] = id
+
+def p_FUNCIONES(t):
+    '''FUNCIONES : create function id para LPARAM parc RETURNP LENGUAJE LCONTENIDOP
+                | create function id para LPARAM parc RETURNP LCONTENIDOP LENGUAJE'''
+    id = inc()
+    t[0] = id
+    arbol.node(id,"funcion")
+    iden = inc()
+    arbol.node(iden,"id:" + str(t[3]))
+    arbol.edge(id,iden)
+    arbol.edge(id,t[5])
+    arbol.edge(id,t[7])
+    arbol.edge(id,t[8])
+    arbol.edge(id,t[9])
+
+def p_FUNCIONES0(t):
+    '''FUNCIONES : create function id para parc RETURNP LENGUAJE LCONTENIDOP
+                | create function id para  parc RETURNP LCONTENIDOP LENGUAJE'''
+    id = inc()
+    t[0] = id
+    arbol.node(id,"funcion")
+    iden = inc()
+    arbol.node(iden,"id:" + str(t[3]))
+    arbol.edge(id,iden)
+    arbol.edge(id,t[6])
+    arbol.edge(id,t[7])
+    arbol.edge(id,t[8])
+
+def p_DROPFUNC(t):
+    'DROPFUNC : drop function id'
+    id = inc()
+    arbol.node(id,"drop function")
+    iden = inc()
+    arbol.node(iden,str(t[3]))
+    arbol.edge(id,iden)
+    t[0] = id
+
+def p_DROPFUNC2(t):
+    'DROPFUNC : drop function if exist id'
+    id = inc()
+    arbol.node(id,"drop function if exist")
+    iden = inc()
+    arbol.node(iden,str(t[5]))
+    arbol.edge(id,iden)
+    t[0] = id
+
+def p_DROPPROC(t):
+    'DROPPROCEDURE : drop procedure id'
+    id = inc()
+    arbol.node(id,"drop procedure")
+    iden = inc()
+    arbol.node(iden,str(t[3]))
+    arbol.edge(id,iden)
+    t[0] = id
+
+def p_DROPPROC1(t):
+    'DROPPROCEDURE : drop procedure if exist id'
+    id = inc()
+    arbol.node(id,"drop function if exists ")
+    iden = inc()
+    arbol.node(iden,str(t[5]))
+    arbol.edge(id,iden)
+    t[0] = id
+
+def p_RETURNP(t):
+    'RETURNP : returns  TIPO'
+    id = inc()
+    t[0] = id
+    arbol.node(id,"returns")
+    arbol.edge(id,t[2])
+
+def p_CALLPROCEDURE(t):
+    '''CALLPROCEDURE : execute id para LEXP parc
+                    | execute id para parc'''
+    id = inc()
+    t[0] = id
+    arbol.node(id,"execute")
+    iden = inc()
+    arbol.node(iden,str(t[2]))
+    arbol.edge(id,iden)
+    if len(t) > 5:
+        for e in t[4]:
+            arbol.edge(id,e)
+
+def p_PROCEDIMIENTOS0(t):
+    '''PROCEDIMIENTOS : create procedure id para LPARAM parc LENGUAJE  LCONTENIDOP
+                    | create procedure id para LPARAM parc LCONTENIDOP LENGUAJE'''
+    root = inc()
+    t[0] = root
+    arbol.node(root,"create procedure")
+    iden = inc()
+    arbol.node(iden,str(t[3]))
+    arbol.edge(root,iden)
+    arbol.edge(root,t[5]) #<- este es LPARAM
+    arbol.edge(root,t[7])
+    arbol.edge(root,t[8])
+
+def p_PROCEDIMIENTOS(t):
+    '''PROCEDIMIENTOS : create procedure id para parc LENGUAJE  LCONTENIDOP
+                    | create procedure id para parc LCONTENIDOP LENGUAJE'''
+    root = inc()
+    t[0] = root
+    arbol.node(root,"create procedure")
+    iden = inc()
+    arbol.node(iden,str(t[3]))
+    arbol.edge(root,iden)
+    arbol.edge(root,t[6])
+    arbol.edge(root,t[7])
+
+def p_LCONTENIDOP(t):
+    'LCONTENIDOP : LCONTENIDOP CONTENIDOP'
+    t[0] = t[1]
+    arbol.edge(t[1],t[2])
+    
+def p_LCONTENIDOP1(t):
+    'LCONTENIDOP : CONTENIDOP'
+    c = inc()
+    t[0] = c
+    arbol.node(c,"CONTENIDO")
+    arbol.edge(c,t[1])
+
+def p_CONTENIDOP(t):
+    '''CONTENIDOP : as dolarn LISTACONTENIDO dolarn
+                | do dolarn LISTACONTENIDO dolarn'''
+    root = inc()
+    t[0] = root
+    arbol.node(root,str(t[1]))
+    arbol.edge(root,t[3])
+
+def p_LPARA(t):
+    'LPARAM : LPARAM coma inout id TIPO'
+    t[0] = t[1]
+    root = inc()
+    arbol.node(root,"inout " + str(t[4]))
+    arbol.edge(root,t[5])
+    arbol.edge(t[1],root)
+
+def p_LPARA2(t):
+    'LPARAM : LPARAM coma  id TIPO'
+    t[0] = t[1]
+    root = inc()
+    arbol.node(root,str(t[3]))
+    arbol.edge(root,t[4])
+    arbol.edge(t[1],root)
+
+def p_LPARA1(t):
+    'LPARAM :  inout id TIPO'
+    param = inc()
+    arbol.node(param,"PARAMETRO")
+    t[0] = param
+    root = inc()
+    arbol.node(root,"inout " + str(t[2]))
+    arbol.edge(root,t[3])
+    arbol.edge(param,root)
+
+def p_LPARA4(t):
+    'LPARAM :  id TIPO'
+    param = inc()
+    arbol.node(param,"PARAMETRO")
+    t[0] = param
+    root = inc()
+    arbol.node(root,str(t[1]))
+    arbol.edge(root,t[2])
+    arbol.edge(param,root)
+
+def p_LENGUAJE(t):
+    '''LENGUAJE : language plpgsql
+                | language plpgsql ptcoma'''
+    lang = inc()
+    arbol.node(lang,"language plpgsql")
+    t[0] = lang
+
+def p_BEGINEND(t):
+    'BEGINEND :  begin LISTACONTENIDO end'
+    beg = inc()
+    arbol.node(beg,"begin")
+    arbol.edge(beg,t[2])
+    t[0] = beg
+
+def p_CREATEINDEX(t):
+    '''CREATEINDEX      : create index id on id para LEXP parc '''
+    idx = inc()
+    t[0] = idx
+    arbol.node(idx,"create index")
+    iden = inc()
+    arbol.node(iden,str(t[3]))
+    arbol.edge(idx,iden)
+    tab = inc()
+    arbol.node(tab,str(t[5]))
+    arbol.edge(idx,tab)
+    for exp in t[7]:
+        arbol.edge(idx,exp)
+
+def p_CREATEINDEX3(t):
+    '''CREATEINDEX      : create unique index id on id para LEXP parc '''
+    idx = inc()
+    t[0] = idx
+    arbol.node(idx,"create unique index")
+    iden = inc()
+    arbol.node(iden,str(t[4]))
+    arbol.edge(idx,iden)
+    tab = inc()
+    arbol.node(tab,str(t[6]))
+    arbol.edge(idx,tab)
+    for exp in t[8]:
+        arbol.edge(idx,exp)
+
+def p_CREATEINDEX1(t):
+    '''CREATEINDEX      : create index id on id using hash para LEXP parc '''
+    idx = inc()
+    t[0] = idx
+    arbol.node(idx,"create index")
+    iden = inc()
+    arbol.node(iden,str(t[3]))
+    arbol.edge(idx,iden)
+    tab = inc()
+    arbol.node(tab,str(t[5]))
+    arbol.edge(idx,tab)
+    hashing = inc()
+    arbol.node(hashing,"using hash")
+    arbol.edge(idx,hashing)
+    for exp in t[7]:
+        arbol.edge(idx,exp)
+
+def p_CREATEINDEX2(t):
+    '''CREATEINDEX      : create index id on id  para id ORDEN parc '''
+    idx = inc()
+    t[0] = idx
+    arbol.node(idx,"create index")
+    iden = inc()
+    arbol.node(iden,str(t[3]))
+    arbol.edge(idx,iden)
+    tab = inc()
+    arbol.node(tab,str(t[5]))
+    arbol.edge(idx,tab)
+    hashing = inc()
+    arbol.node(hashing,str(t[7]))
+    arbol.edge(idx,hashing)
+    arbol.edge(hashing,t[8])
+
+def p_CREATEINDEX4(t):
+    '''CREATEINDEX      : create  index id on id para id  id ORDEN parc '''
+    idx = inc()
+    t[0] = idx
+    arbol.node(idx,"create index")
+    iden = inc()
+    arbol.node(iden,str(t[3]))
+    arbol.edge(idx,iden)
+    tab = inc()
+    arbol.node(tab,str(t[5]))
+    arbol.edge(idx,tab)
+    hashing = inc()
+    arbol.node(hashing,str(t[7]))
+    arbol.edge(idx,hashing)
+    arbol.edge(hashing,t[9])
+
+def p_CREATEINDEX5(t):
+    '''CREATEINDEX      : create  index id on id para id  id  parc '''
+    idx = inc()
+    t[0] = idx
+    arbol.node(idx,"create index")
+    iden = inc()
+    arbol.node(iden,str(t[3]))
+    arbol.edge(idx,iden)
+    tab = inc()
+    arbol.node(tab,str(t[5]))
+    arbol.edge(idx,tab)
+    hashing = inc()
+    arbol.node(hashing,str(t[7]))
+    arbol.edge(idx,hashing)
+
+def p_ORDEN(t):
+    '''ORDEN      : asc
+                 | desc
+                 | nulls first
+                 | nulls last 
+                 | asc nulls first
+                 | desc nulls last
+                 | desc nulls first
+                 | asc nulls last '''
+    orde = inc()
+    t[0] = orde
+    arbol.node(orde,"orden")
+    cont = inc()
+    strr = str(t[1])
+    if len(t) > 2:
+        strr += ' ' + str(t[2])
+    if len(t) > 3:
+        strr += ' ' + str(t[3])
+    
+    arbol.node(cont,strr)
+    arbol.edge(orde,cont)
+
+def p_LDEC1(t):
+    'LDEC :  LDEC DECLARACIONES'
+    arbol.edge(t[1],t[2])
+    t[0] = t[1]
+
+def p_LDEC2(t):
+    'LDEC : DECLARACIONES'
+    o = inc()
+    t[0] = o
+    arbol.node(o,"DECLARACION")
+    arbol.edge(o,t[1])
+
+def p_Declaraciones(t):
+    ' DECLARACIONES : id TIPO not null ASIG ptcoma'
+    t[0] = t[5]
+    id = inc()
+    arbol.node(id,str(t[1]))
+    arbol.edge(t[5],id)
+    arbol.edge(t[5],t[2])
+    nonull = inc()
+    arbol.node(nonull,"not null")
+    arbol.edge(t[5],nonull)
+
+def p_Declaraciones1(t):
+    ' DECLARACIONES : id TIPO ASIG ptcoma'
+    t[0] = t[3]
+    id = inc()
+    arbol.node(id,str(t[1]))
+    arbol.edge(t[3],id)
+    arbol.edge(t[3],t[2])
+
+def p_Declaraciones2(t):
+    ' DECLARACIONES : id constant TIPO not null ASIG ptcoma'
+    t[0] = t[6]
+    id = inc()
+    arbol.node(id,str(t[1]) + " constant")
+    arbol.edge(t[6],id)
+    arbol.edge(t[6],t[3])
+    nul = inc()
+    arbol.node(nul,"not null")
+    arbol.edge(t[6],nul)
+
+def p_Declaraciones3(t):
+    'DECLARACIONES : id constant TIPO ASIG ptcoma'
+    t[0] = t[4]
+    id = inc()
+    arbol.node(id,str(t[1]) + " constant")
+    arbol.edge(t[4],id)
+    arbol.edge(t[4],t[3])
+
+def p_ASIG(t):
+    '''ASIG : default EXP
+                 | igual EXP'''
+    ig = inc()
+    t[0] = ig
+    arbol.node(ig,str(t[1]))
+    arbol.edge(ig,t[2])
+
+def p_ASIG1(t):
+    '''ASIG : dospuntos igual EXP '''
+    ig = inc()
+    t[0] = ig
+    arbol.node(ig,":=")
+    arbol.edge(ig,t[3])
+
+def p_ASIG2(t):
+    '''ASIG : '''
+    ig = inc()
+    t[0] = ig
+    arbol.node(ig,"ASIG")
+
+def p_ASIGNACION(t):
+    '''ASIGNACION : id dospuntos igual EXP'''
+    ig = inc()
+    t[0] = ig
+    arbol.node(ig,":=")
+    iden = inc()
+    arbol.node(iden,str(t[1]))
+    arbol.edge(ig,iden)
+    arbol.edge(ig,t[4])
+
+def p_ASIGNACION1(t):
+    '''ASIGNACION : id igual EXP'''
+    ig = inc()
+    t[0] = ig
+    arbol.node(ig,"=")
+    iden = inc()
+    arbol.node(iden,str(t[1]))
+    arbol.edge(ig,iden)
+    arbol.edge(ig,t[3])
+
+def p_CONDICIONIF1(t):
+    '''CONDICIONIF : if EXP then LISTACONTENIDO LELIF ELSEF end if
+                    | if EXP then LISTACONTENIDO ELSEF  end if
+                    | if EXP then LISTACONTENIDO LELIF end if
+                    | if EXP then LISTACONTENIDO end if '''
+    ifs = inc()
+    t[0] = ifs
+    arbol.node(ifs,"if")
+    arbol.edge(ifs,t[2])
+    th = inc()
+    arbol.node(th,"then")
+    arbol.edge(ifs,th)
+    arbol.edge(th,t[4])
+    if len(t) > 7:
+        arbol.edge(ifs,t[5])
+    if len(t) > 8:
+        arbol.edge(ifs,t[6])
+
+def p_CONDICIONIF24(t):
+    'LELIF : LELIF elsif EXP then LISTACONTENIDO'
+    th = inc()
+    arbol.node(th,"then")
+    arbol.edge(th,t[3])
+    arbol.edge(th,t[5])
+    arbol.edge(t[1],th)
+    t[0] = t[1]
+
+def p_ELIF(t):
+    'LELIF : elsif EXP then LISTACONTENIDO'
+    th = inc()
+    arbol.node(th,"then")
+    arbol.edge(th,t[2])
+    arbol.edge(th,t[4])
+    elisi = inc()
+    arbol.node(elisi,"else if")
+    arbol.edge(elisi,th)
+    t[0] = elisi
+
+def p_ELSEF(t):
+    'ELSEF : else LISTACONTENIDO'
+    els = inc()
+    arbol.node(els,"else")
+    arbol.edge(els,t[2])
+    t[0] = els
+
 def p_CASE(t):
-    ''' CASE : case  LISTAWHEN ELSE end
-               | case LISTAWHEN end'''
+    ''' CASE : case EXP  LISTAWHEN ELSEF  end case
+            | case LISTAWHEN ELSEF end case
+            | case EXP LISTAWHEN end'''
     id = inc()
     t[0] = id
     arbol.node(id,"CASE")
     arbol.edge(id,t[2])
-    if len(t) > 4: arbol.edge(id,t[3])
+    arbol.edge(id,t[3])
+    if len(t) > 6: arbol.edge(id,t[4])
+
+def p_CASE3(t):
+    ' CASE :  case LISTAWHEN end case'
+    id = inc()
+    t[0] = id
+    arbol.node(id,"CASE")
+    arbol.edge(id,t[2])
+
+def p_LISTACONTENIDO(t):
+    'LISTACONTENIDO : LISTACONTENIDO CONTENIDO'
+    t[0] = t[1]
+    arbol.edge(t[1],t[2])
+
+def p_LISTACONTENIDO1(t):
+    'LISTACONTENIDO : CONTENIDO'
+    cont = inc()
+    arbol.node(cont,"CONTENIDO")
+    arbol.edge(cont,t[1])
+    t[0] = cont
+
+def p_CONTENIDO(t):
+    '''CONTENIDO : ASIGNACION ptcoma
+                | CONDICIONIF ptcoma
+                | RAISE ptcoma
+                | BEGINEND ptcoma
+                | CALLPROCEDURE ptcoma 
+                | RETURN ptcoma 
+                | INSERT ptcoma
+                | SELECT ptcoma 
+                | UPDATE ptcoma
+                | DELETE ptcoma
+                | CASE ptcoma '''
+    t[0] = t[1]
+
+def p_CONTENIDO6(t):
+    'CONTENIDO : declare LDEC  '
+    t[0] = t[2]
+
+def p_RAISE(t):
+    '''RAISE :  raise LEVEL FORMAT
+            | raise LEVEL EXP
+            | raise LEVEL
+            | raise'''
+    rais = inc()
+    t[0] = rais
+    arbol.node(rais,"raise")
+    if len(t) > 2:
+        arbol.edge(rais,t[2])
+    if len(t) > 3:
+        arbol.edge(rais,t[3])
+
+def p_RAISE4(t):
+    'RAISE : raise LEVEL cadena coma id'
+    rais = inc()
+    t[0] = rais
+    arbol.node(rais,"raise")
+    arbol.edge(rais,t[2])
+    cad = inc()
+    arbol.node(cad,str(t[3]))
+    iden = inc()
+    arbol.node(iden,str(t[5]))
+    arbol.edge(rais,cad)
+    arbol.edge(rais,iden)
+
+def p_LEVEL(t):
+    '''LEVEL : info
+        | debug
+        | notice
+        | warning
+        | exception'''
+    lev = inc()
+    arbol.node(lev,"level")
+    t[0] = lev
+    levinf = inc()
+    arbol.node(levinf,str(t[1]))
+    arbol.edge(lev,levinf)
+
+def p_FORMAT(t):
+    'FORMAT : format para EXP  coma LEXP parc'
+    f = inc()
+    arbol.node(f,"format")
+    arbol.edge(f,t[3])
+    for x in t[5]:
+        arbol.edge(f,x)
 
 def p_LISTAWHEN(t):
     ''' LISTAWHEN : LISTAWHEN WHEN'''
@@ -331,19 +906,15 @@ def p_LISTAWHEN1(t):
     arbol.edge(id,t[1])
 
 def p_WHEN(t): 
-    ''' WHEN : when LEXP then LEXP'''
+    ''' WHEN : when EXP then LISTACONTENIDO'''
     id = inc()
     t[0] = id
     arbol.node(id,"when")
-    lxpA = t[2]
-    for x in range(len(lxpA)):
-        arbol.edge(id,str(lxpA[x]))
+    arbol.edge(id,t[2])
     th = inc()
     arbol.node(th,"then")
     arbol.edge(id,th)
-    lxpA = t[4]
-    for x in range(len(lxpA)):
-        arbol.edge(th,str(lxpA[x]))
+    arbol.edge(th,t[4])
 
 def p_ELSE(t):
     '''ELSE : else LEXP'''
@@ -403,7 +974,8 @@ def p_DROPALL(t):
 
 def p_DROP(t):
     '''DROP : drop table id
-             | drop databases id '''
+            | drop index id
+            | drop databases id '''
     id = inc()
     t[0] = id
     arbol.node(id,"drop")
@@ -462,6 +1034,58 @@ def p_r_o(t):
     iden = inc()
     arbol.node(iden,str(t[3]))
     arbol.edge(id,iden)
+
+def p_ALTERIDX(t):
+    'ALTER : alter index id alter EXP'
+    ai = inc()
+    t[0] = ai
+    arbol.node(ai,"alter index")
+    li = inc()
+    arbol.node(li,str(t[3]))
+    arbol.edge(ai,li)
+    id = inc()
+    arbol.node(id,"alter")
+    arbol.node(ai,id)
+    arbol.node(id,t[5])
+
+def p_ALTERIDX1(t):
+    'ALTER : alter index if exist id alter EXP'
+    ai = inc()
+    t[0] = ai
+    arbol.node(ai,"alter index if exist")
+    li = inc()
+    arbol.node(li,str(t[5]))
+    arbol.edge(ai,li)
+    id = inc()
+    arbol.node(id,"alter")
+    arbol.node(ai,id)
+    arbol.node(id,t[7])
+
+def p_ALTERIDX2(t):
+    'ALTER : alter index id alter column EXP'
+    ai = inc()
+    t[0] = ai
+    arbol.node(ai,"alter index")
+    li = inc()
+    arbol.node(li,str(t[3]))
+    arbol.edge(ai,li)
+    id = inc()
+    arbol.node(id,"alter")
+    arbol.node(ai,id)
+    arbol.node(id,t[6])
+
+def p_ALTERIDX3(t):
+    'ALTER : alter index if exist id alter column EXP'
+    ai = inc()
+    t[0] = ai
+    arbol.node(ai,"alter index if exist")
+    li = inc()
+    arbol.node(li,str(t[5]))
+    arbol.edge(ai,li)
+    id = inc()
+    arbol.node(id,"alter")
+    arbol.node(ai,id)
+    arbol.node(id,t[8])
 
 def p_OP(t):
     'LOP : LOP coma OP'
@@ -1161,15 +1785,15 @@ def p_UPDATE(t):
 
 
 def p_LCAMPOS1(t):
-    '''LCAMPOS :  LCAMPOS id igual EXP'''
+    '''LCAMPOS :  LCAMPOS coma id igual EXP'''
     t[0] = t[1]
     ii = inc()
     arbol.node(ii,"=")
     arbol.edge(t[1],ii)
     idd = inc()
-    arbol.node(idd,str(t[2]))
+    arbol.node(idd,str(t[3]))
     arbol.edge(ii,idd)
-    arbol.edge(ii,t[4])
+    arbol.edge(ii,t[5])
 
 def p_LCAMPOS2(t):
     '''LCAMPOS : id igual EXP'''
@@ -1185,14 +1809,14 @@ def p_LCAMPOS2(t):
     arbol.edge(ii,t[3])
 
 def p_DELETE(t):
-    '''DELETE : delete   r_from EXP WHERE'''
+    '''DELETE : delete   r_from id WHERE'''
     id = inc()
     t[0] = id
     arbol.node(id,"delete")
     uno = inc()
     arbol.node(uno,"from ")
     arbol.edge(id,uno)
-    arbol.edge(uno,t[3])
+    arbol.edge(uno,str(t[3]))
     if t[4] != None:
         arbol.edge(id,t[4])
 
@@ -1258,6 +1882,18 @@ def p_TIPOG(t):
     t[0] = id
     arbol.node(id,str("interval " + t[2]))
 
+def p_TIPOe11(t):
+    'TIPO : id  modulo rowtype'
+    id = inc()
+    t[0] = id
+    arbol.node(id,str(t[1]) + " rowtype")
+
+def p_TIPOe12(t):
+    'TIPO : idPunto  modulo type'
+    id = inc()
+    t[0] = id
+    arbol.node(id,str(t[1]) + " type")
+
 def p_TIPOL1(t):
     ''' TIPO : timestamp para int parc without time zone
             | timestamp para int parc with time zone
@@ -1288,6 +1924,7 @@ def p_TIPOL2(t):
 def p_TIPO(t):
     '''TIPO : smallint
             | integer
+            | r_int
             | bigint
             | real
             | double precision
@@ -1298,6 +1935,8 @@ def p_TIPO(t):
             | time 
             | interval
             | boolean
+            | record
+            | varchar
             | decimal
             | numeric
             | id
@@ -1461,7 +2100,6 @@ def p_EXPV32(t):
 
 def p_EXPJ(t):
     '''EXP : SELECT
-            | CASE
             | para EXP parc'''
     l = len(t)
     if l == 4:
@@ -1551,4 +2189,4 @@ def generarArbol(input):
     r = parser.parse(input)
     arbol.render('ast', view=True)  # doctest: +SKIP
     'ast.pdf'
-    return r
+    return rx

@@ -46,7 +46,7 @@ class ListaOptimizacion:
 class RealizarReportes:
 
     def generar_reporte_lexicos(self,lista):
-     #   print("estoy generando mi reporte")
+     #   #print("estoy generando mi reporte")
 
 
         nombre = "ErroresLexicos.html"
@@ -55,29 +55,47 @@ class RealizarReportes:
         texto += "<head>"
         texto += "<title>Lexico</title>"
         texto += "<style>"
-        texto += "table {"
-        texto += "position: relative;"
-        texto += "border: 1px solid #1c0d02;"
-        texto += "box-shadow: 0px 0px 20px black;"
-        texto += "width: 100%;"
-        texto += "}"
-        texto += "td, th {"
-        texto += "border: 2px solid #dddddd;"
-        texto += "text-align: center;"
-        texto += "padding: 10px;"
-        texto += "}"
-        texto += "th{"
-        texto += "background-color:cornflowerblue;"
-        texto += "}"
-        texto += "td{"
-        texto += "background-color:bluegreen;"
-        texto += "}"
+        texto +='''body { 
+            background-color: #d0efb141;
+            font-family: calibri, Helvetica, Arial;
+        }
+        h1 {
+            text-align: center;
+            font-size: 100px;
+        }
+        table {
+            width: 100%;   
+            border-collapse: collapse; 
+            font-size: 25px;
+            font-weight: bold;
+        }
+        table td, table th {
+            border: 0px dashed #77A6B6;
+            padding: 10px;
+        }
+        table tr:nth-child(even){ background-color: #9DC3C2; }
+        table tr:nth-child(odd){ background-color: #B3D89C; }
+        table tr:hover { 
+            background-color: #77A6B6; 
+            color: #feffff;
+        }
+        table th {
+            color: white;
+            background-color: #4d7298;
+            text-align: left;
+            padding-top: 12px;
+            padding-bottom: 12px;            
+        }
+        .content {
+            width: 90%;
+            margin: 0 auto;
+        }'''
 
         texto += "</style>"
         texto += "</head>"
         texto += "<body>"
         texto += "<h2>Reporte analísis lexico</h2>"
-        texto += "<table>"
+        texto += '<div class="content"><table>'
         texto += "<tr>"
 
         texto += "<th>#</th>"
@@ -98,7 +116,7 @@ class RealizarReportes:
             texto += "</tr>"
             i += 1
 
-        texto += "</table>"
+        texto += "</table></div>"
 
         f = open(nombre, 'w')
         f.write(texto)
@@ -106,7 +124,7 @@ class RealizarReportes:
 
 
     def generar_reporte_sintactico(self,lista):
-     #   print("estoy generando mi reporte")
+     #   #print("estoy generando mi reporte")
 
 
         nombre = "ErroresSintacticos.html"
@@ -115,29 +133,47 @@ class RealizarReportes:
         texto += "<head>"
         texto += "<title>Sintactico</title>"
         texto += "<style>"
-        texto += "table {"
-        texto += "position: relative;"
-        texto += "border: 1px solid #1c0d02;"
-        texto += "box-shadow: 0px 0px 20px black;"
-        texto += "width: 100%;"
-        texto += "}"
-        texto += "td, th {"
-        texto += "border: 2px solid #dddddd;"
-        texto += "text-align: center;"
-        texto += "padding: 10px;"
-        texto += "}"
-        texto += "th{"
-        texto += "background-color:cornflowerblue;"
-        texto += "}"
-        texto += "td{"
-        texto += "background-color:bluegreen;"
-        texto += "}"
+        texto += '''body { 
+                    background-color: #d0efb141;
+                    font-family: calibri, Helvetica, Arial;
+                }
+                h1 {
+                    text-align: center;
+                    font-size: 100px;
+                }
+                table {
+                    width: 100%;   
+                    border-collapse: collapse; 
+                    font-size: 25px;
+                    font-weight: bold;
+                }
+                table td, table th {
+                    border: 0px dashed #77A6B6;
+                    padding: 10px;
+                }
+                table tr:nth-child(even){ background-color: #9DC3C2; }
+                table tr:nth-child(odd){ background-color: #B3D89C; }
+                table tr:hover { 
+                    background-color: #77A6B6; 
+                    color: #feffff;
+                }
+                table th {
+                    color: white;
+                    background-color: #4d7298;
+                    text-align: left;
+                    padding-top: 12px;
+                    padding-bottom: 12px;            
+                }
+                .content {
+                    width: 90%;
+                    margin: 0 auto;
+                }'''
 
         texto += "</style>"
         texto += "</head>"
         texto += "<body>"
         texto += "<h2>Reporte analisis sintactico</h2>"
-        texto += "<table>"
+        texto += '<div class="content"><table>'
         texto += "<tr>"
 
         texto += "<th>#</th>"
@@ -159,14 +195,14 @@ class RealizarReportes:
             texto += "</tr>"
             i=i+1
 
-        texto += "</table>"
+        texto += "</table></div>"
 
         f = open(nombre, 'w')
         f.write(texto)
         f.close()
 
     def generar_reporte_tablaSimbolos(self,lista):
-     #   print("estoy generando mi reporte")
+     #   #print("estoy generando mi reporte")
 
 
       nombre = "Simbolos.html"
@@ -175,23 +211,41 @@ class RealizarReportes:
       texto += "<head>"
       texto += "<title>Simbolos</title>"
       texto += "<style>"
-      texto += "table {"
-      texto += "position: relative;"
-      texto += "border: 1px solid #1c0d02;"
-      texto += "box-shadow: 0px 0px 20px black;"
-      texto += "width: 100%;"
-      texto += "}"
-      texto += "td, th {"
-      texto += "border: 2px solid #dddddd;"
-      texto += "text-align: center;"
-      texto += "padding: 10px;"
-      texto += "}"
-      texto += "th{"
-      texto += "background-color:cornflowerblue;"
-      texto += "}"
-      texto += "td{"
-      texto += "background-color:bluegreen;"
-      texto += "}"
+      texto += '''body { 
+                  background-color: #d0efb141;
+                  font-family: calibri, Helvetica, Arial;
+              }
+              h1 {
+                  text-align: center;
+                  font-size: 100px;
+              }
+              table {
+                  width: 100%;   
+                  border-collapse: collapse; 
+                  font-size: 25px;
+                  font-weight: bold;
+              }
+              table td, table th {
+                  border: 0px dashed #77A6B6;
+                  padding: 10px;
+              }
+              table tr:nth-child(even){ background-color: #9DC3C2; }
+              table tr:nth-child(odd){ background-color: #B3D89C; }
+              table tr:hover { 
+                  background-color: #77A6B6; 
+                  color: #feffff;
+              }
+              table th {
+                  color: white;
+                  background-color: #4d7298;
+                  text-align: left;
+                  padding-top: 12px;
+                  padding-bottom: 12px;            
+              }
+              .content {
+                  width: 90%;
+                  margin: 0 auto;
+              }'''
 
       texto += "</style>"
       texto += "</head>"
@@ -199,7 +253,7 @@ class RealizarReportes:
       texto += "<h2>Reporte entornos/tabla de simbolos</h2>"
 
       texto += "<h5>Entorno global</h5>"
-      texto += "<table>"
+      texto += '<div class="content"><table>'
       texto += "<tr>"
 
       texto += "<th>#</th>"
@@ -237,7 +291,7 @@ class RealizarReportes:
 
        if str(lista.get(data).Entorno) != str(None):
           entornoBD = lista.get(data).Entorno
-          print(entornoBD.simbolos)
+          #print(entornoBD.simbolos)
           lista2=entornoBD.simbolos
           texto += "<h5>Entorno "+lista.get(data).id+"</h5>"
           texto += "<table>"
@@ -288,17 +342,15 @@ class RealizarReportes:
 
           texto += "</table>"
        else:
-          print("--")
+          pass
 
-
-
-
+      texto += "</div>"
       f = open(nombre, 'w')
       f.write(texto)
       f.close()
 
     def generar_reporte_semanticos(self, lista):
-        #   print("estoy generando mi reporte")
+        #   #print("estoy generando mi reporte")
 
         nombre = "ErroresSemanticos.html"
         texto = ""
@@ -306,29 +358,47 @@ class RealizarReportes:
         texto += "<head>"
         texto += "<title>Semantico</title>"
         texto += "<style>"
-        texto += "table {"
-        texto += "position: relative;"
-        texto += "border: 1px solid #1c0d02;"
-        texto += "box-shadow: 0px 0px 20px black;"
-        texto += "width: 100%;"
-        texto += "}"
-        texto += "td, th {"
-        texto += "border: 2px solid #dddddd;"
-        texto += "text-align: center;"
-        texto += "padding: 10px;"
-        texto += "}"
-        texto += "th{"
-        texto += "background-color:cornflowerblue;"
-        texto += "}"
-        texto += "td{"
-        texto += "background-color:bluegreen;"
-        texto += "}"
+        texto += '''body { 
+                    background-color: #d0efb141;
+                    font-family: calibri, Helvetica, Arial;
+                }
+                h1 {
+                    text-align: center;
+                    font-size: 100px;
+                }
+                table {
+                    width: 100%;   
+                    border-collapse: collapse; 
+                    font-size: 25px;
+                    font-weight: bold;
+                }
+                table td, table th {
+                    border: 0px dashed #77A6B6;
+                    padding: 10px;
+                }
+                table tr:nth-child(even){ background-color: #9DC3C2; }
+                table tr:nth-child(odd){ background-color: #B3D89C; }
+                table tr:hover { 
+                    background-color: #77A6B6; 
+                    color: #feffff;
+                }
+                table th {
+                    color: white;
+                    background-color: #4d7298;
+                    text-align: left;
+                    padding-top: 12px;
+                    padding-bottom: 12px;            
+                }
+                .content {
+                    width: 90%;
+                    margin: 0 auto;
+                }'''
 
         texto += "</style>"
         texto += "</head>"
         texto += "<body>"
         texto += "<h2>Reporte analísis semantico</h2>"
-        texto += "<table>"
+        texto += '<div class="content"><table>'
         texto += "<tr>"
 
         texto += "<th>#</th>"
@@ -344,7 +414,7 @@ class RealizarReportes:
             texto += "</tr>"
             i = i + 1
 
-        texto += "</table>"
+        texto += "</table></div>"
 
         f = open(nombre, 'w')
         f.write(texto)
@@ -358,29 +428,47 @@ class RealizarReportes:
 <head>
 <title>Optimizacion</title>
 <style>
-table {
-position: relative;
-    border: 1px solid #1c0d02;
-    box-shadow: 0px 0px 20px black;
-    width: 100%;
-}
-td, th {
-    border: 2px solid #dddddd;
-    text-align: center;
-    padding: 10px;
-}
-th{
-    background-color:cornflowerblue;
-}
-td{
-    background-color:bluegreen;
-}
+        body { 
+            background-color: #d0efb141;
+            font-family: calibri, Helvetica, Arial;
+        }
+        h1 {
+            text-align: center;
+            font-size: 100px;
+        }
+        table {
+            width: 100%;   
+            border-collapse: collapse; 
+            font-size: 25px;
+            font-weight: bold;
+        }
+        table td, table th {
+            border: 0px dashed #77A6B6;
+            padding: 10px;
+        }
+        table tr:nth-child(even){ background-color: #9DC3C2; }
+        table tr:nth-child(odd){ background-color: #B3D89C; }
+        table tr:hover { 
+            background-color: #77A6B6; 
+            color: #feffff;
+        }
+        table th {
+            color: white;
+            background-color: #4d7298;
+            text-align: left;
+            padding-top: 12px;
+            padding-bottom: 12px;            
+        }
+        .content {
+            width: 90%;
+            margin: 0 auto;
+        }
 
 </style>
 </head>
 <body>
     <h2>Reporte Optimizacion C3D</h2>
-    <table>
+    <div class="content"><table>
     <tr>
         <th>#</th>
         <th>C3D Original</th>
@@ -399,7 +487,7 @@ td{
             texto += "<td>" + str(token.numero_regla) + "</td>"
             texto += "</tr>"
 
-        texto += "</table></body></html>"
+        texto += "</table></div></body></html>"
 
         f = open(nombre, 'w')
         f.write(texto)

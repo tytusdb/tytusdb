@@ -121,6 +121,11 @@ reservadas = {
     "END": "R_END",
     "INDEX": "R_INDEX",
     "HASH": "R_HASH",
+    "BTREE": "R_BTREE",
+    "GIST": "R_GIST",
+    "SPGIST": "R_SPGIST",
+    "GIN": "R_GIN",
+    "BRIN": "R_BRIN",
     "BEGIN": "R_BEGIN",
     "DECLARE": "R_DECLARE",
     "ALIAS": "R_ALIAS",
@@ -150,7 +155,7 @@ reservadas = {
     "PLPGSQL": "R_PLPGSQL",
     "SQLSTATE": "R_SQLSTATE",
     "OTHERS": "R_OTHERS",
-    "PROCEDURE": "R_PROCEDURE"
+    "PROCEDURE": "R_PROCEDURE",
 }
 
 reservadas.update(r_types)
@@ -275,13 +280,15 @@ def t_INTEGER(t):
 def t_CHARACTER(t):
     r"(\"\\?.\"|\'\\?.\')"
     t.value = t.value[1:-1]
+    t.value = "'" + t.value + "'"
     return t
 
 
 # Funcion para evaluar si el token reconocido es un STRING
 def t_STRING(t):
     r"(\'.*?\'|\".*?\")"
-    #t.value = t.value[1:-1]  # remuevo las comillas
+    t.value = t.value[1:-1]  # remuevo las comillas
+    t.value = "'" + t.value + "'"
     return t
 
 
@@ -298,7 +305,19 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
+lexer_errors = list()
+
 # Funcion de error para el lexer
 def t_error(t):
     print("Illegal character '%s'" % t.value[0])
+    lexer_errors.insert(
+        len(lexer_errors), ["Illegal character '%s'" % t.value[0], t.lineno]
+    )
     t.lexer.skip(1)
+
+
+def returnLexicalErrors():
+    global lexer_errors
+    temp = lexer_errors
+    lexer_errors = list()
+    return temp

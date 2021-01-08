@@ -178,15 +178,13 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 - creación y eliminación de índices únicos
 
 ```
-def alterTableAddUnique(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
 ```
 Agrega un índice único, creando una estructura adicional con el modo indicado para la base de datos.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
 Parámetro indexName: es el nombre único del índice manejado como metadato de la tabla para ubicarlo fácilmente.
 Parámetro columns: es el conjunto de índices de columnas que forman parte de la llave foránea, mínimo debe ser una columna.  
-Parámetro tableRef: es el nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s).  
-Parámetro columnsRef: es el conjunto de índices de columnas que forman parte de la llave primaria, mínimo debe ser una columna.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table o tableRef no existente, 4 cantidad no exacta entre columns y columnsRef, 5 no se cumple la integridad de unicidad (es decir, algún valor de las llaves está duplicado).  
 La restricción de unicidad en los insert se debe verificar.  
 
@@ -202,15 +200,13 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 - creación y eliminación de índices
 
 ```
-def alterTableAddIndex(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
 ```
 Agrega un índice, creando una estructura adicional con el modo indicado para la base de datos.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro table: es el nombre de la tabla donde está(n) la(s) llave(s) foránea(s).  
 Parámetro indexName: es el nombre único del índice manejado como metadato de la tabla para ubicarlo fácilmente.
 Parámetro columns: es el conjunto de índices de columnas que forman parte de la llave foránea, mínimo debe ser una columna.  
-Parámetro tableRef: es el nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s).  
-Parámetro columnsRef: es el conjunto de índices de columnas que forman parte de la llave primaria, mínimo debe ser una columna.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table o tableRef no existente, 4 cantidad no exacta entre columns y columnsRef.  
 
 ```
@@ -253,7 +249,7 @@ def checksumDatabase(database: str, mode: str) -> str:
 Genera un diggest a partir del contenido de la base de datos incluyendo sus tablas.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 nombre de modo no existente.  
+Valor de retorno: cadena que devuelva o None si hay algún error.  
 
 ```
 def checksumTable(database: str, table:str, mode: str) -> str:
@@ -262,7 +258,7 @@ Genera un diggest a partir del contenido de la tabla de una base de datos.  (UPD
 Parámetro database: es el nombre de la base de datos a utilizar. 
 Parámetro table: es el nombre de la tabla que se desea calcular el checksum.  
 Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 nombre de modo no existente.  
+Valor de retorno: cadena que devuelva o None si hay algún error.  
 
 
 ### 6. Compresión de datos
@@ -275,7 +271,7 @@ def alterDatabaseCompress(database: str, level: int) -> int:
 Agregue compresión utilizando la biblioteca zlib de python y las funciones compress y decompress. Se debe agregar a columna tipo varchar o text de cada tabla de la base de datos. De igual manera, al extraer la información se debe descomprimir.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos que se desea modificar, debe cumplir con las reglas de identificadores de SQL.  
 Parámetro level: es el nivel de compressión definido por la función compress de la bilbioteca zlib de Python.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 4 level incorrecto.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 level incorrecto.  
 
 ```
 def alterDatabaseDecompress(database: str) -> int:
@@ -312,16 +308,34 @@ def encrypt(backup: str, password: str) -> str:
 ```
 Crifra el texto backup con la llave password y devuelve el criptograma. Se puede utilizar cualquier método y biblioteca.  (UPDATE)  
 Parámetro backup: es el nombre de la base de datos a utilizar.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación.  
+Parámetro password: es la llave para cifrar.  
+Valor de retorno: contenido del archivo cifrado, None si hay un error.  
 
 ```
-def encrypt(cipherBackup: str, password: str) -> str:
+def decrypt(cipherBackup: str, password: str) -> str:
 ```
 Descrifra el texto cipherBackup con la llave password y devuelve el texto plano. Se puede utilizar cualquier método y biblioteca.  (UPDATE)  
 Parámetro cipherBackup: es el nombre de la base de datos a utilizar.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación.  
+Valor de retorno: contenido del archivo cifrado, None si hay un error.  
 
 - BlockChain: el storageManager debe proveer un mecanismo para trabajar en modo seguro una tabla. Es decir, al activar el modo seguro de una tabla, cuando se realicen operaciones de inserción se debe ir creando bloques con sus respectivos valores Hash (esto almacenado en un archivo JSON), cuando algún bloque sea modificado o eliminado la cadena quedará incosistente y debe mostrarse de manera gráfica.
+
+```
+def safeModeOn(database: str, table: str): -> int
+```
+Activa el modo seguro para una tabla de una base de datos.  
+Parámetro database: nombre de la base de datos. 
+Parámetro table: nombre de la tabla.  
+Valor de retorno: 0 operación exitora, 1 error en la operación, 2 database inexistente, 3 table inexistente, 4 modo seguro existente.  
+
+```
+def safeModeOff(database: str, table: str): -> int
+```
+Desactiva el modo seguro en la tabla especificada de la base de datos.  
+Parámetro database: nombre de la base de datos.  
+Parámetro table: nombre de la tabla.  
+Valor de retorno: 0 operación exitora, 1 error en la operación, 2 database inexistente, 3 table inexistente, 4 modo seguro no existente.  
+
 
 ### 8. Grafos
 
@@ -369,12 +383,6 @@ La segunda fase del proyecto, en cuanto al parser de SQL, consiste en agregar lo
 
 ### Reportes para estructuras de datos
 Los reportes de las estructuras utilizadas se deben mostrar mediante una aplicación de interfaz gráfica utilizando cualquier herramienta gráfica (que cumpla compatibilidades de licencia). 
-
-De la fase 1, la aplicación debe mostrar de manera gráfica y navegable las siguientes estructuras:
-- bases de datos
-- conjunto de tablas 
-- tabla
-- tupla
 
 Para la fase 2, se debe mostrar los dos grafos de dependencias y el blockchain.
 

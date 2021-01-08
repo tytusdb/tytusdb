@@ -80,9 +80,9 @@ class Pantalla_Error:
         table.delete(*table.get_children())
         table["columns"] = ("DESCRIPCION", "LINEA")
         # Formato de las columnas
-        table.column("#0", width=15, minwidth=5)
-        table.column("DESCRIPCION", anchor=W, width=200)
-        table.column("LINEA", anchor=W, width=200)
+        table.column("#0", width=50, minwidth=5)
+        table.column("DESCRIPCION", anchor=W, width=450)
+        table.column("LINEA", anchor=W, width=100)
         # Crear Header
         table.heading("#0", text="#", anchor=CENTER)
         table.heading("DESCRIPCION", text="Descripcion", anchor=CENTER)

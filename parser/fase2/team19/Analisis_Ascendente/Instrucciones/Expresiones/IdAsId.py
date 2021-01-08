@@ -16,16 +16,16 @@ class IdAsId(Instruccion):
         self.columna = columna
 
 
-    def Resolver(IdAsId,Consola):
+    def Resolver(IdAsId, ts, Consola, exceptions):
 
         if (isinstance(IdAsId.id1, Time)):
             valor = Time.resolverTime(IdAsId.id1);
             return valor;
         elif (isinstance(IdAsId.id1, Math_)):
-            valor = Math_.Resolver(IdAsId.id1,Consola)
+            valor = Math_.Resolver(IdAsId.id1, ts, Consola, exceptions)
             return str(valor)
         elif (isinstance(IdAsId.id1, Trigonometrica)):
-            valor = Trigonometrica.Resolver(IdAsId.id1,Consola)
+            valor = Trigonometrica.Resolver(IdAsId.id1, ts, Consola, exceptions)
             return valor
         elif (isinstance(IdAsId.id1, Primitivo)):
             valor = IdAsId.id1.valor;
@@ -38,6 +38,6 @@ class IdAsId(Instruccion):
             valor2 = IdAsId.id1.id2
             return [valor1,valor2]
         elif isinstance(IdAsId.id1,Expresion):
-            return Expresion.Resolver(IdAsId.id1,Consola)
+            return Expresion.Resolver(IdAsId.id1, ts, Consola, exceptions)
 
         return 'what -- ' + type(IdAsId.id1).__name__ + '\n'

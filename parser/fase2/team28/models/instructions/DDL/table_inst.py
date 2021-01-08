@@ -64,8 +64,18 @@ class CreateTB(Instruction):
         self.addPKToDB(nombreTabla)
 
     def compile(self, instrucction):
+        #CREANDO C3D
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+
+
 
     def numberOfColumns(self, arrayColumns):
         count = 0
@@ -618,7 +628,7 @@ class DropTB(Instruction):
         self._table_name = table_name
         self._noLine = noLine
         self._noColumn = noColumn
-        self._tac = tac
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -629,8 +639,16 @@ class DropTB(Instruction):
                                 self._noLine, self._noColumn)
 
     def compile(self, instrucction):
+        #CREANDO C3D
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
 
 
 class AlterTable(Instruction):
@@ -641,11 +659,19 @@ class AlterTable(Instruction):
     def __init__(self, tablaAModificar, listaCambios, tac):
         self._tablaAModificar = tablaAModificar
         self._listaCambios = listaCambios
-        self._tac = tac
+        self._tac = ''
 
     def compile(self, instrucction):
+        #CREANDO C3D
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
 
     def process(self, instruction):
         typeChecker = TypeChecker()
@@ -685,7 +711,7 @@ class AlterTableAdd(AlterTable):
 
     def __init__(self, changeContent):
         self._changeContent = changeContent
-
+        self._tac = ''
     def __repr__(self):
         return str(vars(self))
 
@@ -831,9 +857,22 @@ class AlterTableAlter(AlterTable):
 
     def __init__(self, changeContent):
         self._changeContent = changeContent
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
+
+    def compile(self, environment):
+        #CREANDO C3D
+        temp = ThreeAddressCode().newTemp()
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
 
     # instrucction trae el valor de la tabla
     def process(self, instrucction):
@@ -903,9 +942,22 @@ class AlterTableDrop(AlterTable):
 
     def __init__(self, changeContent):
         self._changeContent = changeContent
-
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
+
+    def compile(self, environment):
+        #CREANDO C3D
+        temp = ThreeAddressCode().newTemp()
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
 
     # instrucction trae el valor de la tabla
     def process(self, instrucction):
@@ -944,9 +996,22 @@ class AlterTableRename(AlterTable):
     def __init__(self, oldName, newName):
         self._oldName = oldName
         self._newName = newName
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
+
+    def compile(self, environment):
+        #CREANDO C3D
+        temp = ThreeAddressCode().newTemp()
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
 
     # instrucction tiene el valor de la tabla
     def process(self, instrucction):

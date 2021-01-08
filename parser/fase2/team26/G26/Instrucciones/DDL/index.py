@@ -11,10 +11,11 @@ from Error import *
 
 class saveIndex(Instruccion):
 
-    def __init__(self, name, columns, conditions):
+    def __init__(self, name, columns, table, order):
         self.name = name
         self.columns = columns
-        self.conditions = conditions
+        self.table = table
+        self.order = order
 
 class UniqueIndex(Instruccion):
 
@@ -43,21 +44,26 @@ class UniqueIndex(Instruccion):
         if isinstance(pred, Error) :
             return pred
 
-        if not 'index' in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]:
-            data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['index'] = []
+        try:
+            ad = pred.arcordesc
+        except:
+            ad = 'desc'
 
-        for ind in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['index'] :
+        if not 'index' in data.tablaSimbolos[data.databaseSeleccionada]:
+            data.tablaSimbolos[data.databaseSeleccionada]['index'] = []
+
+        for ind in data.tablaSimbolos[data.databaseSeleccionada]['index'] :
             if ind.name.upper() == self.indexid.upper() : 
                 error = Error('Semántico', 'Error(???): Ya existe el index ' + self.indexid.upper(), 0, 0)
                 return error
             
         #adding new index
         try:
-            tosave = saveIndex(self.indexid.upper(), self.columnids.listaids, self.columnids.condiciones)
-            data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['index'].append(tosave)
+            tosave = saveIndex(self.indexid.upper(), self.columnids.listaids, tbname, ad)
+            data.tablaSimbolos[data.databaseSeleccionada]['index'].append(tosave)
         except:
-            tosave = saveIndex(self.indexid.upper(), self.columnids.id, None)
-            data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['index'].append(tosave)
+            tosave = saveIndex(self.indexid.upper(), self.columnids.id, tbname, ad)
+            data.tablaSimbolos[data.databaseSeleccionada]['index'].append(tosave)
         
         #falta la espino función
 
@@ -88,21 +94,26 @@ class Index(Instruccion):
         if isinstance(pred, Error) :
             return pred
 
-        if not 'index' in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]:
-            data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['index'] = []
+        try:
+            ad = pred.arcordesc
+        except:
+            ad = 'desc'            
 
-        for ind in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['index'] :
+        if not 'index' in data.tablaSimbolos[data.databaseSeleccionada]:
+            data.tablaSimbolos[data.databaseSeleccionada]['index'] = []
+
+        for ind in data.tablaSimbolos[data.databaseSeleccionada]['index'] :
             if ind.name.upper() == self.indexid.upper() : 
                 error = Error('Semántico', 'Error(???): Ya existe el index ' + self.indexid.upper(), 0, 0)
                 return error
             
         #adding new index
         try:
-            tosave = saveIndex(self.indexid.upper(), self.predicIndex.listaids, self.predicIndex.condiciones)
-            data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['index'].append(tosave)
+            tosave = saveIndex(self.indexid.upper(), self.predicIndex.listaids, tbname, ad)
+            data.tablaSimbolos[data.databaseSeleccionada]['index'].append(tosave)
         except:
-            tosave = saveIndex(self.indexid.upper(), self.predicIndex.id, None)
-            data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['index'].append(tosave)
+            tosave = saveIndex(self.indexid.upper(), self.predicIndex.id, tbname, ad)
+            data.tablaSimbolos[data.databaseSeleccionada]['index'].append(tosave)
         
         #falta la espino función
         
@@ -124,6 +135,7 @@ class PredIndexU(Instruccion):
             for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
                 if colu.name == colid.column.upper() :
                     found = True
+                    colid.column = colid.column.upper()
                     break
             
             if not found :
@@ -136,8 +148,8 @@ class PredIndexU(Instruccion):
                 return ret
         
 
-        print(data)
-        return self
+        #print(data)
+        return ''
 
 class PredIndex(Instruccion):
 
@@ -157,6 +169,7 @@ class PredIndex(Instruccion):
                 for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
                     if colu.name == colid.column.upper() :
                         found = True
+                        colid.column = colid.column.upper()
                         break
                 
                 if not found :
@@ -190,6 +203,7 @@ class PredIndexLH(Instruccion):
         for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
             if colu.name == self.id.upper() :
                 found = True
+                self.id = self.id.upper()
                 break
         
         if not found :
@@ -199,8 +213,6 @@ class PredIndexLH(Instruccion):
         return self
 
 class IndexArgs(Instruccion):
-    #option = True -> HASH
-    #option = False -> lower
     def __init__(self, id, arcordesc, firstolast):
         self.id = id
         self.arcordesc = arcordesc
@@ -215,6 +227,7 @@ class IndexArgs(Instruccion):
         for colu in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns']:
             if colu.name == self.id.upper() :
                 found = True
+                self.id = self.id.upper()
                 break
         
         if not found :

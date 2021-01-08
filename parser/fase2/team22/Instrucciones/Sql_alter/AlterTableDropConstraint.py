@@ -2,6 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import Excepcion
 from storageManager.jsonMode import *
 
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
+
 class AlterTableDropConstraint(Instruccion):
     def __init__(self, tabla, col, strGram, linea, columna):
         Instruccion.__init__(self,None,linea,columna,strGram)
@@ -38,6 +40,31 @@ class AlterTableDropConstraint(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        bd = arbol.getBaseDatos()
+        if bd != None and bd != "":
+            code.append(t0 + ' = "' + bd + '"')
+        else:
+            code.append(t0 + ' = ' + str(None))
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        t1 = c3d.getTemporal()
+        code.append(t1 + ' = "' + str(self.tabla) + '"')
+        code.append('heap[h] = ' + t1)
+        code.append('h = h + 1')
+        t2 = c3d.getTemporal()
+        code.append(t2 + ' = "' + str(self.col) + '"')
+        code.append('heap[h] = ' + t2)
+        code.append('p = h')
+        code.append('call_alterTable_dropConstraint()')
+        
+        return code
 
         '''
         resultado = 0
