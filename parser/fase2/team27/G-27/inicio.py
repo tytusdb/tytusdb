@@ -39,7 +39,7 @@ def analizar_texto():
     texto = analizarSin(response)
     txt_salida.insert('end', '\n>>>\n')
     txt_salida.insert('end', '\n=====SALIDA C3D======\n')
-    txt_salida.insert('end',texto+ '\n\n\n')
+    txt_salida.insert('end',texto + '\n\n\n')
     generarArchivoPy(texto)
     txt_salida.insert('end',tab_simbolos())
     txt_salida.insert('end','\n=====REPORTE DE INDEX======')

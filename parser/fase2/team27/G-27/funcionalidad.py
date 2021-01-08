@@ -421,17 +421,19 @@ def get_lower(name_func):
 ______________________________________________________________
 
 """
-def deleteProcFunc(tipo, id):
+def deleteProcFunc(tipo, id, ListaFunciones):
       for v in arregloFunciones:
             if v['tipo'] == tipo and v['id'] == id:
+                  for element in ListaFunciones:
+                        if element['id'] == id:
+                              element['cod'] = '\'\'\'\n' + element['cod'] + '\n\'\'\''
                   v['estado'] = 'ELIMINADO'
-                  return 'SELECT "SE HA ELIMINADO ' + fp[tipo] + ' CON ÉXITO.";'
+                  return 'SELECT "SE HA ELIMINADO ' + fp[tipo] + ' CON EXITO.";'
       return 'SELECT "ERROR NO SE HA ENCONTRADO' + fp[tipo] + ' QUE DESEA ELIMINAR";'
 
 
 
-"""
-______________________________________________________________
+"""______________________________________________________________
 
 """
 def AddTs(id, tipo, operacion):
