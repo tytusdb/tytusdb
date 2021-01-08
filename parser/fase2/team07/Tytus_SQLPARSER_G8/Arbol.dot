@@ -1,0 +1,6 @@
+digraph G {node[shape=box, style=filled, color=blanchedalmond]; edge[color=chocolate3];rankdir=UD 
+"3_init -> "->"2_CREATE DATABASE -> "
+"2_CREATE DATABASE -> "->"1_ID -> fase2"
+"3_init -> "->"4_USE -> fase2"
+
+}
