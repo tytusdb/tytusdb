@@ -47,7 +47,10 @@ def procedurenuevo():
 	t7 = 'Select * from usuarios;'
 	display[p] = t7
 	p = p + 1
+<<<<<<< HEAD
 	execute()
+=======
+>>>>>>> 0d162d1b88baa9fa72885ead1b68793e5b5abe57
 	goto .L6
 	label .L5
 	t8 = 'Select * from usuarios;'

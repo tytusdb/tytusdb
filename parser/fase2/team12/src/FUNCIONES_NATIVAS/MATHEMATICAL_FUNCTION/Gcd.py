@@ -51,21 +51,12 @@ class Function_Gsd(Expresion):
         res = hijo.compile(enviroment)
         res2 = hijo2.compile(enviroment)
 
-        if hijo.tipo.data_type == Data_Type.numeric and hijo2.tipo.data_type == Data_Type.numeric :
-
-            self.tipo = Type_Expresion(Data_Type.numeric)
-            self.dir = instanceTemporal.getTemporal()
-            self.cod = res
-            self.cod += res2
-            self.cod += self.dir + ' = math.gcd(' + hijo.dir + ',' + hijo2.dir + ')\n'
-            return self.cod
-
-        else :
-
-            self.tipo = Type_Expresion(Data_Type.error)
-            self.dir = ''
-            self.cod = ''
-            return self.cod
+        self.tipo = Type_Expresion(Data_Type.numeric)
+        self.dir = instanceTemporal.getTemporal()
+        self.cod = res
+        self.cod += res2
+        self.cod += self.dir + ' = math.gcd(' + hijo.dir + ',' + hijo2.dir + ')\n'
+        return self.cod
     
     def getText(self):
         exp = self.hijos[0]

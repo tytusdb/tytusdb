@@ -7,9 +7,14 @@ sys.path.append(dir_nodo)
 ent_nodo = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\ENTORNO\\')
 sys.path.append(ent_nodo)
 
+c3d_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\C3D\\')
+sys.path.append(c3d_dir)
+
 from Expresion import Expresion
 from Tipo import Data_Type
 from Tipo_Expresion import Type_Expresion
+from Label import *
+from Temporal import *
 
 class Function_Substring(Expresion):
 
@@ -55,7 +60,20 @@ class Function_Substring(Expresion):
             return self.valorExpresion
     
     def compile(self, enviroment):
-        print("compile")
+        exp = self.hijos[0]
+        exp2 = self.hijos[1]
+        exp3 = self.hijos[2]
+        
+        valueExp = exp.execute(enviroment)
+        valueExp2 = exp2.execute(enviroment)
+        valueExp3 = exp3.execute(enviroment)
+
+        rango = instanceTemporal.getTemporal()
+        self.cod = valueExp + valueExp2 + valueExp3
+        self.cod += rango + ' = slice(' + exp2.dir + '-1, ' + exp3.dir + ')\n'
+        self.dir = instanceTemporal.getTemporal()
+        self.cod += self.dir + ' = ' + exp.dir + '[' + rango + ']\n'
+        return self.cod
     
     def getText(self):
 

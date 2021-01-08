@@ -134,6 +134,7 @@ class Function_Width_Bucket(Expresion):
             return self.valorExpresion
 
     def compile(self, enviroment):
+        
         exp = self.hijos[0]
         minValue = self.hijos[1]
         maxValue = self.hijos[2]
@@ -144,65 +145,56 @@ class Function_Width_Bucket(Expresion):
         valorMaxValue = maxValue.compile(enviroment)
         valorNum_Buckets = num_buckets.compile(enviroment)
 
-        if exp.tipo.data_type == Data_Type.numeric and minValue.tipo.data_type == Data_Type.numeric and maxValue.tipo.data_type == Data_Type.numeric and num_buckets.tipo.data_type == Data_Type.numeric :
+        self.tipo = Type_Expresion(Data_Type.numeric)
+        self.cod = valorExp + valorMinValue + valorMaxValue + valorNum_Buckets            
+        rango = str(instanceTemporal.getTemporal())
+        self.dir = instanceTemporal.getTemporal()                        
+        self.cod += rango + '= ' + exp.dir + ' - ' + minValue.dir + '\n'
+        self.cod += self.dir + ' = -1\n'
+        self.cod += 'if ' + rango + ' == 0 :\n'
+        self.cod += '\t'+self.dir + ' = 0\n'
+        self.cod += 'else:\n'
+        self.cod += '\tif ' + num_buckets.dir + ' == 0 :\n'
+        self.cod += '\t\t'+self.dir + ' = 0\n'
+        enteroValorNum_Buckets = str(instanceTemporal.getTemporal())
+        self.cod += '\telse:\n'
+        self.cod += '\t\t' + enteroValorNum_Buckets + ' = int(' + num_buckets.dir + ')\n'
+        interval = str(instanceTemporal.getTemporal())
+        self.cod += '\t\t' + interval + ' = (' + rango + ' * 1.0) / (' + enteroValorNum_Buckets + ' * 1.0)\n'
+        variableAuxiliar = str(instanceTemporal.getTemporal())
+        valorMax = str(instanceTemporal.getTemporal())
+        valorMin = str(instanceTemporal.getTemporal())
+        auxiliar = str(instanceTemporal.getTemporal())
+        self.cod += '\t\t' + variableAuxiliar + ' = ' + minValue.dir +'\n'
+        self.cod += '\t\t' + valorMax + ' = 0\n'
+        self.cod += '\t\t' + valorMin + ' = 0\n'
+        self.cod += '\t\t' + auxiliar + ' = 1\n\n'
+        self.cod += '\t\tif ' + rango + ' > 0 :\n\n'
+        self.cod += '\t\t\tif ' + exp.dir + ' < ' + minValue.dir + ' :\n'
+        self.cod += '\t\t\t\t' + self.dir + ' = 0\n\n'
+        self.cod += '\t\t\twhile ' + variableAuxiliar + ' <= ' +maxValue.dir + ' : \n\n'
+        self.cod += '\t\t\t\t' + valorMin + ' = ' + variableAuxiliar + '\n'
+        self.cod += '\t\t\t\t' + valorMax + ' = ' + variableAuxiliar + ' + ' + interval + '\n'
+        self.cod += '\t\t\t\tif ' + exp.dir + ' >= ' + valorMin + ' and ' + exp.dir + ' < ' + valorMax + ' :\n'
+        self.cod += '\t\t\t\t\tbreak\n\n'
+        self.cod += '\t\t\t\t' + variableAuxiliar + ' = ' + variableAuxiliar + ' + ' + interval + '\n'
+        self.cod += '\t\t\t\t' + auxiliar + ' = ' + auxiliar + ' + 1\n'
+        self.cod += '\t\t\t' + self.dir + ' = ' + auxiliar + '\n'
+        self.cod += '\t\telse:\n'
+        self.cod += '\t\t\tif ' + exp.dir + ' > ' + minValue.dir + ' :\n'
+        self.cod += '\t\t\t\t' + self.dir + ' = 0\n\n'
+        self.cod += '\t\t\twhile ' + variableAuxiliar + ' >= ' +maxValue.dir + ' : \n\n'
+        self.cod += '\t\t\t\t' + valorMin + ' = ' + variableAuxiliar + '\n'
+        self.cod += '\t\t\t\t' + valorMax + ' = ' + variableAuxiliar + ' + ' + interval + '\n'
+        self.cod += '\t\t\t\tif ' + exp.dir + ' <= ' + valorMin + ' and ' + exp.dir + ' > ' + valorMax + ' :\n'
+        self.cod += '\t\t\t\t\tbreak\n\n'
+        self.cod += '\t\t\t\t' + variableAuxiliar + ' = ' + variableAuxiliar + ' + ' + interval + '\n'
+        self.cod += '\t\t\t\t' + auxiliar + ' = ' + auxiliar + ' + 1\n'
+        self.cod += '\t\t\t' + self.dir + ' = ' + auxiliar
 
-            self.tipo = Type_Expresion(Data_Type.numeric)
-            self.cod = valorExp + valorMinValue + valorMaxValue + valorNum_Buckets            
-            rango = str(instanceTemporal.getTemporal())
-            self.dir = instanceTemporal.getTemporal()                        
-            self.cod += rango + '= ' + exp.dir + ' - ' + minValue.dir + '\n'
-            self.cod += self.dir + ' = -1\n'
-            self.cod += 'if ' + rango + ' == 0 :\n'
-            self.cod += '\t'+self.dir + ' = 0\n'
-            self.cod += 'else:\n'
-            self.cod += '\tif ' + num_buckets.dir + ' == 0 :\n'
-            self.cod += '\t\t'+self.dir + ' = 0\n'
-            enteroValorNum_Buckets = str(instanceTemporal.getTemporal())
-            self.cod += '\telse:\n'
-            self.cod += '\t\t' + enteroValorNum_Buckets + ' = int(' + num_buckets.dir + ')\n'
-            interval = str(instanceTemporal.getTemporal())
-            self.cod += '\t\t' + interval + ' = (' + rango + ' * 1.0) / (' + enteroValorNum_Buckets + ' * 1.0)\n'
-            variableAuxiliar = str(instanceTemporal.getTemporal())
-            valorMax = str(instanceTemporal.getTemporal())
-            valorMin = str(instanceTemporal.getTemporal())
-            auxiliar = str(instanceTemporal.getTemporal())
-            self.cod += '\t\t' + variableAuxiliar + ' = ' + minValue.dir +'\n'
-            self.cod += '\t\t' + valorMax + ' = 0\n'
-            self.cod += '\t\t' + valorMin + ' = 0\n'
-            self.cod += '\t\t' + auxiliar + ' = 1\n\n'
-            self.cod += '\t\tif ' + rango + ' > 0 :\n\n'
-            self.cod += '\t\t\tif ' + exp.dir + ' < ' + minValue.dir + ' :\n'
-            self.cod += '\t\t\t\t' + self.dir + ' = 0\n\n'
-            self.cod += '\t\t\twhile ' + variableAuxiliar + ' <= ' +maxValue.dir + ' : \n\n'
-            self.cod += '\t\t\t\t' + valorMin + ' = ' + variableAuxiliar + '\n'
-            self.cod += '\t\t\t\t' + valorMax + ' = ' + variableAuxiliar + ' + ' + interval + '\n'
-            self.cod += '\t\t\t\tif ' + exp.dir + ' >= ' + valorMin + ' and ' + exp.dir + ' < ' + valorMax + ' :\n'
-            self.cod += '\t\t\t\t\tbreak\n\n'
-            self.cod += '\t\t\t\t' + variableAuxiliar + ' = ' + variableAuxiliar + ' + ' + interval + '\n'
-            self.cod += '\t\t\t\t' + auxiliar + ' = ' + auxiliar + ' + 1\n'
-            self.cod += '\t\t\t' + self.dir + ' = ' + auxiliar + '\n'
-            self.cod += '\t\telse:\n'
-            self.cod += '\t\t\tif ' + exp.dir + ' > ' + minValue.dir + ' :\n'
-            self.cod += '\t\t\t\t' + self.dir + ' = 0\n\n'
-            self.cod += '\t\t\twhile ' + variableAuxiliar + ' >= ' +maxValue.dir + ' : \n\n'
-            self.cod += '\t\t\t\t' + valorMin + ' = ' + variableAuxiliar + '\n'
-            self.cod += '\t\t\t\t' + valorMax + ' = ' + variableAuxiliar + ' + ' + interval + '\n'
-            self.cod += '\t\t\t\tif ' + exp.dir + ' <= ' + valorMin + ' and ' + exp.dir + ' > ' + valorMax + ' :\n'
-            self.cod += '\t\t\t\t\tbreak\n\n'
-            self.cod += '\t\t\t\t' + variableAuxiliar + ' = ' + variableAuxiliar + ' + ' + interval + '\n'
-            self.cod += '\t\t\t\t' + auxiliar + ' = ' + auxiliar + ' + 1\n'
-            self.cod += '\t\t\t' + self.dir + ' = ' + auxiliar
-
-            return self.cod
+        return self.cod
             
-            #width_bucket(10,2,8,4);
-            
-        else :
-
-            self.tipo = Type_Expresion(Data_Type.error)
-            self.dir = ''
-            self.cod = ''
-            return self.cod
+        #width_bucket(10,2,8,4);
     
     def getText(self):
 

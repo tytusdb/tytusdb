@@ -53,20 +53,11 @@ class Function_Atan2d(Expresion):
         valueExp = exp.compile(enviroment)
         valueExp2 = exp2.compile(enviroment)
 
-        if exp.tipo.data_type == Data_Type.numeric and exp2.tipo.data_type == Data_Type.numeric :
-
-            self.tipo = Type_Expresion(Data_Type.numeric)
-            self.dir = instanceTemporal.getTemporal()
-            self.cod = valueExp + valueExp2
-            self.cod += self.dir + ' = math.atan2(' + exp.dir + ',' + exp2.dir + ') * ( 180 / math.pi )\n'
-            return self.cod
-        
-        else :
-
-            self.tipo = Type_Expresion(Data_Type.error)
-            self.cod = ''
-            self.dir = ''
-            return self.cod
+        self.tipo = Type_Expresion(Data_Type.numeric)
+        self.dir = instanceTemporal.getTemporal()
+        self.cod = valueExp + valueExp2
+        self.cod += self.dir + ' = math.atan2(' + exp.dir + ',' + exp2.dir + ') * ( 180 / math.pi )\n'
+        return self.cod
     
     def getText(self):
         exp = self.hijos[0]
