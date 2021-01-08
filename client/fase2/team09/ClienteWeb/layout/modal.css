@@ -35,3 +35,34 @@
     text-decoration: none;
     cursor: pointer;
   }
+
+
+    /* The Close Button */
+    .close1 {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      
+      .close1:hover,
+      .close1:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+          /* The Close Button */
+    .close2 {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      
+      .close2:hover,
+      .close2:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+      }

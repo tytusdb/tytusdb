@@ -49,9 +49,9 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" onclick="createDatabase()">Create Database</a>
-                            <a class="dropdown-item" onclick="deleteDatabase()">Delete Database</a>   
-                            <a class="dropdown-item" onclick = "base('show')">Show</a>       
-                            <a class="dropdown-item" onclick="drop()">Drop</a>         
+                            <a class="dropdown-item" onclick="alterDatabase()">Alter Database</a>   
+                            <a class="dropdown-item" onclick = "base('show')">Show Databases</a>       
+                            <a class="dropdown-item" onclick="dropDatabase()">Drop Database</a>         
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -155,6 +155,40 @@
                     </div>
                     <button type="button" class="btn btn-primary" onClick = "base('create')">Submit</button>
                   </form>
+            </div>
+        </div>
+
+        <!-- The Modal -->
+        <div id = "myModal1" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class = "close1">&times;</span>
+                <form>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Nombre antiguo de la base</label>
+                        <input type="email" class="form-control" id="nameBaseAntiguo">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Nombre nuevo de la base</label>
+                        <input type="email" class="form-control" id="nameBaseNuevo">
+                    </div>
+                        <button type="button" class="btn btn-primary" onClick = "base('alter')">Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- The Modal -->
+        <div id = "myModal2" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span class = "close2">&times;</span>
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Nombre de la base</label>
+                            <input type="email" class="form-control" id="nameBaseDrop">
+                        </div>
+                        <button type="button" class="btn btn-primary" onClick = "base('drop')">Submit</button>
+                    </form>
             </div>
         </div>
     </body>  
