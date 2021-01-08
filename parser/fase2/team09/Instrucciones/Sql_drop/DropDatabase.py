@@ -7,7 +7,6 @@ class DropDatabase(Instruccion):
         self.opcion = opcion
         self.existe = existe
 
-        
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         bandera = False
@@ -33,10 +32,9 @@ class DropDatabase(Instruccion):
             error = Exception("XX000", "Semantico", "Error Base de Datos no existe", self.linea, self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
-            
-        
-'''
-instruccion = Use("hola mundo",None, 1,2)
 
-instruccion.ejecutar(None,None)
-'''
+    def traducir(self, tabla, controlador, arbol):
+        codigo = 'DropDatabase.DropDatabase("' + self.id + '", None, ' + str(self.existe) + ', ' + str(self.opcion) + ', "'
+        codigo += self.strGram + '", ' + str(self.linea) + ', ' + str(self.columna) + ').ejecutar(tabla, arbol)\n'
+        #print(codigo)
+        return None

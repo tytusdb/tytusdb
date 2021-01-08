@@ -305,28 +305,24 @@ def p_instruccion_create_database5(t):
 def p_instruccion_create_database6(t):
     '''instruccion : CREATE DATABASE if_not_exists ID OWNER cowner MODE IGUAL ENTERO PUNTO_COMA
     '''
-    #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER <cowner> MODE IGUAL ENTERO PUNTO_COMA"
     t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, t[6], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_create_database7(t):
     '''instruccion : CREATE DATABASE if_not_exists ID OWNER IGUAL cowner MODE ENTERO PUNTO_COMA
     '''
-    #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER IGUAL <cowner> MODE ENTERO PUNTO_COMA"
     t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, t[7], t[9], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_create_database8(t):
     '''instruccion : CREATE DATABASE if_not_exists ID OWNER cowner MODE ENTERO PUNTO_COMA
     '''
-    #                     ID  tipo  opcion ID2  ENTERO
     strGram = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID OWNER <cowner> MODE ENTERO PUNTO_COMA"
     t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, t[6], t[8], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_create_database9(t):
     '''instruccion : CREATE DATABASE if_not_exists ID MODE ENTERO PUNTO_COMA
     '''
-    #                     ID    tipo  opcion ID2  ENTERO
     strGram  = "<instruccion> ::= CREATE DATABASE <if_not_exists> ID MODE ENTERO PUNTO_COMA"
     t[0] = CreateDatabase.CreateDatabase(t[4], None, t[3].valor, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos)
 
@@ -449,32 +445,22 @@ def p_instruccion_truncate(t):
 # DROP DATABASE
 def p_instruccion_drop_database1(t):
     '''instruccion : DROP DATABASE ID PUNTO_COMA
-
     '''
     strGram = "<instruccion> ::= DROP DATABASE ID PUNTO_COMA"
-    t[0] =DropDatabase.DropDatabase(t[3],None,False,0, strGram,t.lexer.lineno, t.lexer.lexpos)
+    t[0] = DropDatabase.DropDatabase(t[3], None, False, 0, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_drop_database2(t):
     '''instruccion : DROP DATABASE IF EXISTS ID PUNTO_COMA
-
     '''
     strGram = "<instruccion> ::= DROP DATABASE IF EXISTS ID PUNTO_COMA"
-    t[0] =DropDatabase.DropDatabase(t[5],None,True,1, strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = DropDatabase.DropDatabase(t[5], None, True, 1, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 # DROP TABLE
 def p_instruccion_drop(t):
     '''instruccion : DROP TABLE ID PUNTO_COMA
-
     '''
     strGram = "<instruccion> ::= DROP TABLE ID PUNTO_COMA"
-    t[0] =DropTable.DropTable(t[3],None, strGram, t.lexer.lineno, t.lexer.lexpos)
-
-def p_instruccion_drop2(t):
-    '''instruccion : DROP ID
-
-    '''
-    strGram = "<instruccion> ::= DROP ID"
-    t[0] =DropTable.DropTable(t[2],None, strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = DropTable.DropTable(t[3], None, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instruccion_where(t):
     '''
