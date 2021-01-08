@@ -595,11 +595,12 @@ class ObjectReference(Instruction):
         val = self.reference_column.compile(environment)
         if isinstance(val, PrimitiveData):
             return val
-        
+
+        temp_val = val
         val = environment.getVar(val)
 
         if val is None: 
-            print("VARIABLE NO DECLARADA")
+            ErrorController().add(33, 'Execution', f"VARIABLE {temp_val} NO DECLARADA", 0, 0)
             return None
             
         position = val.position
