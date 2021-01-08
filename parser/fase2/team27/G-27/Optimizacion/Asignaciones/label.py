@@ -4,3 +4,9 @@ class Label(object):
 
     def execute(self):
         return {'label': self.label}
+    
+    def toString(self,tab):
+        return '\t'*tab + 'label .' + self.label 
+    
+    def getLabel(self):
+        return self.label

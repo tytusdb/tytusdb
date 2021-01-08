@@ -24,6 +24,7 @@ class Use(Instruccion):
                     arbol.setListaBd(nueva)
                     arbol.llenarTablas(nueva)
                 arbol.consola.append(f"Se selecciono la BD: {self.valor} correctamente.")
+                print(f"BASE DE DATOS: {self.valor} SELECCIONADA.")
                 return
         error = Excepcion("100","Semantico",f"No existe la BD: {self.valor}",self.linea,self.columna)
         arbol.excepciones.append(error)
@@ -66,12 +67,13 @@ class Use(Instruccion):
         codigo += f"\tstack[{temp_index_param_columna}] = {temp_param_columna}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter_useDataBase()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo
 '''
 instruccion = Use("hola mundo",None, 1,2)
 

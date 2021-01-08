@@ -15,7 +15,7 @@ class ExistsRelationalOperation(instruction.Instruction):
         self.groupbyCl = select.groupbyCl
         self.limitCl = select.limitCl
         self.temp = "t" + temp
-
+	self.s = select
     def execute(self, environment):
         parVal = ""
         out = self.temp + " = "
@@ -85,6 +85,10 @@ class ExistsRelationalOperation(instruction.Instruction):
         """
         return code.C3D(parVal + out, self.temp, self.row, self.column)
 
+    def dot(self):
+        new = Nodo("EXISTS")
+        new.addNode(self.s.dot())
+        return new
 
 class inRelationalOperation(instruction.Instruction):
     def __init__(self, temp, colData, optNot , select):
@@ -99,6 +103,7 @@ class inRelationalOperation(instruction.Instruction):
         self.optNot = optNot
         self.colData = colData
         self.temp = "t" + temp
+	self.s = select
 
     def execute(self, environment):
         colData = self.colData.execute(environment)
@@ -171,3 +176,14 @@ class inRelationalOperation(instruction.Instruction):
             grammar.optimizer_.addIgnoreString(out, self.row, False)
         """
         return code.C3D(colData.value + parVal + out, self.temp, self.row, self.column)
+
+    def dot(self):
+
+        if self.optNot == "":
+            new = Nodo("IN")
+        else:
+            new = Nodo("NOT_IN")
+
+        new.addNode(self.colData.dot())
+        new.addNode(self.s.dot())
+        return new

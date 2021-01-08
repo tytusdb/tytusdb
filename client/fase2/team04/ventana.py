@@ -17,8 +17,6 @@ consola = None
 raiz = None
 tools = None
 loginOn = False
-jsonTree = None
-jsonDB = None
 myQuery = ""
 _words=None
 #Variables para simular credenciales
@@ -46,30 +44,6 @@ def myGET():
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\nHa ocurrido un error.")
         consola.config(state=DISABLED)
-    myConnection.close()
-
-#Metodo GET para leer json con bases de datos existentes
-def getDatabases():
-
-    global jsonTree
-    global jsonDB
-
-    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
-
-    headers = {
-        "Content-type": "application/json"
-    }
-
-    myConnection.request("GET", "/getDatabases", "", headers)
-    response = myConnection.getresponse()
-    print("GET: Status: {} and reason: {}".format(response.status, response.reason))
-    if response.status == 200:       
-        data = response.read()
-        resData = json.loads(data.decode("utf-8"))
-        #Variable global jsonTree tiene el contenido (string) del json en tabla.txt
-        jsonTree = resData["jsonText"]
-        #Variable global jsonDB tiene el contenido (string) del json databases
-        jsonDB = resData["databases"]   
     myConnection.close()
 
 #Metodo POST para crear usuarios
@@ -117,9 +91,6 @@ def enviarQuery():
     global myQuery
     global notebook
     global textos
-    global jsonTree
-    global jsonDB
-
     idx = 0
     if notebook.select():
         idx = notebook.index('current')
@@ -127,7 +98,7 @@ def enviarQuery():
     myQuery = textos[idx].text.get(1.0, END)
     myQuery = myQuery[:-1]
 
-    jsonData = { "text": myQuery }
+    jsonData = { "text": myQuery}
     myJson = json.dumps(jsonData)
 
     myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
@@ -141,10 +112,7 @@ def enviarQuery():
     print("POST: Status: {} and reason: {}".format(response.status, response.reason))
     if response.status == 200:       
         data = response.read()
-        resData = json.loads(data.decode("utf-8"))
-        result = resData["consola"]
-        jsonTree = resData["jsonText"]
-        jsonDB = resData["databases"]
+        result = data.decode("utf-8")
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\n{}".format(result))
         consola.config(state=DISABLED)
@@ -153,6 +121,7 @@ def enviarQuery():
         consola.insert(INSERT,"\nHa ocurrido un error.")
         consola.config(state=DISABLED)
     myConnection.close()
+
 
 def changeToLogout():
     global tools

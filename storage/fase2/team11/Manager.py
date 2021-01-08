@@ -7,71 +7,70 @@ from storage.hash import HashMode as hash
 from storage.json import jsonMode as json
 from Binary import verify_string
 from checksum import checksum_database, checksum_table
+import criptografia as crypt
+from estruct.blockChain import BlockChain
+from metadata import Database, Table, FK
 
-mode_list = list()
+metadata_db_list = list()
+flag_block = False
+block_list = list()
 
-
-class Mode:
-    def __init__(self, name_database, mode, enconding):
-        self.__name_database = name_database
-        self.__mode = mode
-        self.__enconding = enconding
-
-    def set_name_database(self, name_database):
-        self.__name_database = name_database
-
-    def get_name_database(self):
-        return self.__name_database
-
-    def set_mode(self, mode):
-        self.__mode = mode
-
-    def get_mode(self):
-        return self.__mode
-
-    def set_encondig(self, encondig):
-        self.__enconding = encondig
-
-    def get_encondig(self):
-        return self.__enconding
+mode_dict = {'avl': 1, 'b': 2, 'bplus': 3, 'dict': 4, 'hash': 5, 'isam': 6, 'json': 7}
 
 
-def save_mode(database, mode, encondig):
-    new_mode = Mode(database, mode, encondig)
-    mode_list.append(new_mode)
+def save_database_db(database, mode, encondig):
+    new_mode = Database(database, mode, encondig)
+    metadata_db_list.append(new_mode)
 
 
-def exist(database: str):
-    for mode in mode_list:
-        if mode.get_name_database() == database:
-            return True
-    return False
+def get_metadata_db(database: str):
+    index = 0
+    for db in metadata_db_list:
+        if db.get_name_database() == database:
+            return db, index
+        index += 1
+    return None, None
 
 
+def get_metadata_dbmode(database: str, mode: str):
+    for db in metadata_db_list:
+        if db.get_name_database() == database and db.get_mode() == mode:
+            return db
+    return None
+
+
+# -------------------------------------------- --> Get Struct <-- ----------------------------------------------------
+# Metodo que retorna la estructura correspondiente al modo
+def get_struct(mode: str):
+    if mode.lower().strip() == "avl":
+        return avl
+    elif mode.lower().strip() == "b":
+        return b
+    elif mode.lower().strip() == "bplus":
+        return bPlus
+    elif mode.lower().strip() == "dict":
+        return diccionario
+    elif mode.lower().strip() == "hash":
+        return hash
+    elif mode.lower().strip() == "isam":
+        return isam
+    elif mode.lower().strip() == "json":
+        return json
+
+
+# -------------------------------------------- --> <-> <-- -----------------------------------------------------------
+# Revisar para Metadata
 def createDatabase(database: str, mode: str, encoding: str):
-    if verify_string(database):
-        if exist(database): return 2
+    if verify_string(database):  # Metodo que verifica el nombre si cumple con las condiciones
+        metadata, index = get_metadata_db(database)
+        if metadata: return 2  # Verifica que no haya repetidos en el listado de metadata database
         if str(encoding.lower().strip()) == "ascii" or str(encoding.lower().strip()) == "iso-8859-1" \
-                or str(encoding.lower().strip()) == "utf8":
-            status = -1
-            if mode.lower().strip() == "avl":
-                status = avl.createDatabase(database)
-            elif mode.lower().strip() == "b":
-                status = b.createDatabase(database)
-            elif mode.lower().strip() == "bPlus".lower():
-                status = bPlus.createDatabase(database)
-            elif mode.lower().strip() == "dict":
-                status = diccionario.createDatabase(database)
-            elif mode.lower().strip() == "isam":
-                status = isam.createDatabase(database)
-            elif mode.lower().strip() == "json":
-                status = json.createDatabase(database)
-            elif mode.lower().strip() == "hash":
-                status = hash.createDatabase(database)
-            else:
-                return 3
-            if status == 0:
-                save_mode(database, mode, encoding)
+                or str(encoding.lower().strip()) == "utf8":  # Revisa que cumpla con la codificacion
+            if mode_dict.get(mode) is None: return 3  # Revisa que el modo este en el diccionario  si no esta retorno 3
+            mode_struct = get_struct(mode)  # Retorna el objeto avl,b,bplus, etc dependiendo el modo
+            status = mode_struct.createDatabase(database)  # Crea base de datos de la estructura correspondiente(avl,b)
+            if status == 0:  # Si el estatus es el correcto guarda en la lista metadata_db_list
+                save_database_db(database, mode.lower().strip(), encoding)  # Guarda en la lista metada_db_list
             return status
         else:
             return 4
@@ -79,13 +78,6 @@ def createDatabase(database: str, mode: str, encoding: str):
         return 1
 
 
-def exist_Alter(database: str):
-    indice = 0
-    for mode in mode_list:
-        if mode.get_name_database() == database:
-            return mode, indice
-        indice += 1
-    return None, None
 
 
 def alterDatabaseMode(database: str, mode: str):
@@ -194,132 +186,72 @@ def get_Data(database: str, table: str, mode: str):
         return json.extractTable(database, table)
 
 
-def alterTableMode(database: str, table: str, databaseRef: str, mode: str):
-    if exist_Alter(database) and exist_Alter(databaseRef) and exist_Alter(databaseRef)[0].get_mode() == mode:
-        ModeDB, indice = exist_Alter(database)
-        if ModeDB:
-            oldMode = ModeDB.get_mode()
-            if oldMode.lower().strip() == "avl":
-                tables = avl.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)  # UNA LISTA VACIA NO EJECUTA EL FOR
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                avl.dropTable(database, table)
-            elif oldMode.lower().strip() == "b":
-                tables = b.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                b.dropTable(database, table)
-            elif oldMode.lower().strip() == "bPlus".lower():
-                tables = bPlus.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                bPlus.dropTable(database, table)
-            elif oldMode.lower().strip() == "dict":
-                tables = diccionario.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                diccionario.dropTable(database, table)
-            elif oldMode.lower().strip() == "isam":
-                tables = isam.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                isam.dropTable(database, table)
-            elif oldMode.lower().strip() == "hash":
-                tables = hash.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                hash.dropTable(database, table)
-            elif oldMode.lower().strip() == "json":
-                tables = json.showTables(database)
-                for tabla in tables:
-                    if tabla == table:
-                        listaDatos = get_Data(database, tabla, oldMode)
-                        numberColumns = len(listaDatos[0])
-                        insertAlter(databaseRef, tabla, numberColumns, mode, listaDatos)
-                json.dropTable(database, table)
+def alterTableMode(database: str, table: str, mode: str):
+    metadata_db, index_metadata = get_metadata_db(database) 
+    metadata_db = Database() 
+    if metadata_db:
+        oldMode = metadata_db.get_mode()
+        encoding = metadata_db.get_encondig()
+        if mode not in ["avl","b","bPlus","dict","isam","hash","json"]: return 4
+        struct = get_struct(metadata_db.get_mode())
+        tables = struct.showTables(database)
+        for tabla in tables:
+            if tabla == table:
+                listaDatos = get_Data(database, tabla, oldMode)  # UNA LISTA VACIA NO EJECUTA EL FOR
+                numberColumns = len(listaDatos[0])
+                #insertAlter(database+"_"+mode, tabla, numberColumns, mode, listaDatos)
+                if metadata_db.get_table(table).get_pk_list() != []:
+                    alterAddPK(database, table,metadata_db.get_table(table).get_pk_list())
+                createDatabase(database+"_"+mode, mode, encoding)
+                createTable(database+"_"+mode, table, numberColumns)
+                for i in listaDatos:
+                    insert(database, table,i)
+                struct.dropTable(database, table)
+                return 0
+        return 3
     else:
-        return None
+        return 2
 
 
+# Revisar para Metadata
 def alterDatabase(old_db, new_db):
-    modeDB, indexDB = exist_Alter(old_db)
-    modeDB_new, indexDB_newDB = exist_Alter(new_db)
-    if modeDB and modeDB_new is None:
-        mode = modeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "b":
-            return b.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "dict":
-            return diccionario.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "hash":
-            return hash.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "isam":
-            return isam.alterDatabase(old_db, new_db)
-        elif mode.lower().strip() == "json":
-            return json.alterDatabase(old_db, new_db)
+    metadata_db, index_md_db = get_metadata_db(old_db)
+    metadata_db_new, index_new_md_db = get_metadata_db(new_db)
+    if metadata_db and metadata_db_new is None:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.alterDatabase(old_db, new_db)
+        if status == 0:
+            metadata_db.set_name_database(new_db)
+        return status
+    return 1
 
 
+
+# Revisar Para Metadata
 def dropDatabase(name_db):
-    ModeDB, indexDB = exist_Alter(name_db)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.dropDatabase(name_db)
-        elif mode.lower().strip() == "b":
-            return b.dropDatabase(name_db)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.dropDatabase(name_db)
-        elif mode.lower().strip() == "dict":
-            return diccionario.dropDatabase(name_db)
-        elif mode.lower().strip() == "hash":
-            return hash.dropDatabase(name_db)
-        elif mode.lower().strip() == "isam":
-            return isam.dropDatabase(name_db)
-        elif mode.lower().strip() == "json":
-            return json.dropDatabase(name_db)
-
-
-def createTable(database, name_table, number_columns):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "b":
-            return b.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "dict":
-            return diccionario.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "hash":
-            return hash.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "isam":
-            return isam.createTable(database, name_table, number_columns)
-        elif mode.lower().strip() == "json":
-            return json.createTable(database, name_table, number_columns)
+    metadata_db, index_metadata = get_metadata_db(name_db)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.dropDatabase(name_db)
+        if status == 0:
+            metadata_db_list.pop(index_metadata)
+        return status
     else:
-        return "f"
+        return 1
+
+
+
+# Revisar para Metadata
+def createTable(database, name_table, number_columns):
+    metadata_db, index_metadata = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.createTable(database, name_table, number_columns)
+        if status == 0:
+            metadata_db.create_table(name_table, number_columns, metadata_db.get_mode())
+        return status
+    else:
+        return 1
 
 
 def showTables(database):
@@ -375,103 +307,125 @@ def alterDropPK(database, name_table):
 
 
 def alterTable(database, old_table, new_table):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.alterTable(database, old_table, new_table)
-        elif mode.lower().strip() == "b":
-            return b.alterTable(database, old_table, new_table)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.alterTable(database, old_table, new_table)
-        elif mode.lower().strip() == "dict":
-            return diccionario.alterTable(database, old_table, new_table)
-        elif mode.lower().strip() == "hash":
-            return hash.alterTable(database, old_table, new_table)
-        elif mode.lower().strip() == "isam":
-            return isam.alterTable(database, old_table, new_table)
-        elif mode.lower().strip() == "json":
-            return json.alterTable(database, old_table, new_table)
-
+    metadata_db, index_metadata = get_metadata_db(database)  
+    if metadata_db:
+        retorno = metadata_db.alter_table(old_table, new_table) 
+        if retorno==0:
+            struct = get_struct(metadata_db.get_mode())
+            status = struct.alterTable(database, old_table, new_table)
+            return status
+    else:
+        return 2
 
 def alterAddColumn(database, name_table, default):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.alterAddColumn(database, name_table, default)
-        elif mode.lower().strip() == "b":
-            return b.alterAddColumn(database, name_table, default)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.alterAddColumn(database, name_table, default)
-        elif mode.lower().strip() == "dict":
-            return diccionario.alterAddColumn(database, name_table, default)
-        elif mode.lower().strip() == "hash":
-            return hash.alterAddColumn(database, name_table, default)
-        elif mode.lower().strip() == "isam":
-            return isam.alterAddColumn(database, name_table, default)
-        elif mode.lower().strip() == "json":
-            return json.alterAddColumn(database, name_table, default)
+    metadata_db, index_metadata = get_metadata_db(database)  # verificar metadata
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.alterAddColumn(database, name_table, default)
+        return status
+    else:
+        return 2
 
-
-def alterDropColumn(database, name_table, number_column):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.alterDropColumn(database, name_table, number_column)
-        elif mode.lower().strip() == "b":
-            return b.alterDropColumn(database, name_table, number_column)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.alterDropColumn(database, name_table, number_column)
-        elif mode.lower().strip() == "dict":
-            return diccionario.alterDropColumn(database, name_table, number_column)
-        elif mode.lower().strip() == "hash":
-            return hash.alterDropColumn(database, name_table, number_column)
-        elif mode.lower().strip() == "isam":
-            return isam.alterDropColumn(database, name_table, number_column)
-        elif mode.lower().strip() == "json":
-            return json.alterDropColumn(database, name_table, number_column)
-
+def alterDropColumn(database, name_table, number_column): # verificar metadata
+    metadata_db, index_metadata = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        status = struct.alterDropColumn(database, name_table, number_column)
+        return status
+    else:
+        return 2
 
 def dropTable(database, name_table):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.dropTable(database, name_table)
-        elif mode.lower().strip() == "b":
-            return b.dropTable(database, name_table)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.dropTable(database, name_table)
-        elif mode.lower().strip() == "dict":
-            return diccionario.dropTable(database, name_table)
-        elif mode.lower().strip() == "hash":
-            return hash.dropTable(database, name_table)
-        elif mode.lower().strip() == "isam":
-            return isam.dropTable(database, name_table)
-        elif mode.lower().strip() == "json":
-            return json.dropTable(database, name_table)
+    metadata_db, index_metadata = get_metadata_db(database)
+    if metadata_db:
+        retorno = metadata_db.drop_table(name_table)
+        if retorno!=1:
+            struct = get_struct(metadata_db.get_mode())
+            status = struct.dropTable(database, name_table)
+            return status
+    else:
+        return 2
+
+def insert(database, name_table, register: list):
+    metadata_db, index_metadata = get_metadata_db(database)
+    if metadata_db:
+        if name_table in metadata_db.get_tab():
+            struct = get_struct(metadata_db.get_mode())
+            if metadata_db.get_encondig().lower().strip() == "ascii":
+                if encodi_ascii_decod(register,"ascii") != 1:
+                    status = struct.insert(database, name_table, register)
+                    return status
+                else:
+                    return 1
+            elif metadata_db.get_encondig().lower().strip() == "utf-8":
+                if encodi_utf_decod(register,"utf-8") !=1:
+                    status = struct.insert(database, name_table, register)
+                    return status
+                else:
+                    return 1
+            elif metadata_db.get_encondig().lower().strip() == "iso-8859-1":
+                if encodi_iso_decod(register,"iso-8859-1") !=1:
+                    status = struct.insert(database, name_table, register)
+                    return status
+                else:
+                    return 1
+            else:
+                None
+        else:
+            return 3
+    else:
+        return 2
+
+#-------------------ENCODING--------------------------------
+def alterDatabaseEncoding(database: str, encoding: str):
+    metadata_db, index_metadata = get_metadata_db(database)
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        tables = struct.showTables(database)
+        state = 0
+        if encoding not in ["ascii","utf-8","iso-8859-1"]: return 3
+        for e in tables:
+            tuplas = struct.extractTable(database,e)
+            for n in tuplas:
+                if encoding == "ascii" and encodi_ascii_decod(n,encoding) !=1:
+                    pass
+                elif encoding == "utf-8" and encodi_utf_decod(n,encoding) !=1:
+                    pass
+                elif encoding == "iso-8859-1" and encodi_iso_decod(n,encoding) !=1:
+                    pass
+                else:
+                    return 1
+        if state == 0:
+             metadata_db.set_encondig(encoding)
+             return 0
+    else:
+        return 2
 
 
-def insert(database, name_table, register):
-    ModeDB, indexDB = exist_Alter(database)
-    if ModeDB:
-        mode = ModeDB.get_mode()
-        if mode.lower().strip() == "avl":
-            return avl.insert(database, name_table, register)
-        elif mode.lower().strip() == "b":
-            return b.insert(database, name_table, register)
-        elif mode.lower().strip() == "bPlus".lower():
-            return bPlus.insert(database, name_table, register)
-        elif mode.lower().strip() == "dict":
-            return diccionario.insert(database, name_table, register)
-        elif mode.lower().strip() == "hash":
-            return hash.insert(database, name_table, register)
-        elif mode.lower().strip() == "isam":
-            return isam.insert(database, name_table, register)
-        elif mode.lower().strip() == "json":
-            return json.insert(database, name_table, register)
+
+def encodi_ascii_decod(lista: list ,encoding: str):
+    try:
+        for i in lista:
+            str(i).encode(f'{encoding}').decode(f'{encoding}')
+        return 0
+    except:
+        return 1
+
+def encodi_utf_decod(lista: list ,encoding: str):
+    try:
+        for i in lista:
+            str(i).encode('utf-8').decode('utf-8')
+        return 0
+    except:
+        return 1
+
+def encodi_iso_decod(lista: list ,encoding: str):
+    try:
+        for i in lista:
+            str(i).encode('iso-8859-1').decode('iso-8859-1')
+        return lista
+    except:
+        return 1
 
 
 def extractRow(database, name_table, columns):

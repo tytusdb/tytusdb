@@ -2,7 +2,7 @@ from tkinter.constants import TRUE
 from optimizer_folder.Element import Element
 from optimizer_folder.Quadruple import Quadruple
 import copy
-
+from analizer_pl  import grammar
 
 class Optimizer:
 
@@ -159,12 +159,13 @@ class Optimizer:
             # t = t -> eliminacion
             if actual.type == Quadruple.T_ASIG:
                 if actual.resultado.id == actual.Elem1.id:
-                    self.registro.append("Linea: " + str(actual.line))
+                    self.registro.append("---------------------------------------------")
                     self.registro.append("Regla 8 - 11")
                     self.registro.append(
                         actual.resultado.id + "=" + actual.Elem1.id + " -> Eliminacion"
                     )
                     del self.fuente[i]
+                    i -=1
             i += 1
 
     def arithmetic_optimization(self):
@@ -182,7 +183,7 @@ class Optimizer:
                             nuevo.operador = -1
                             nuevo.type = Quadruple.T_ASIG
                             nuevo.typeOpt = self.TOP_ARIT
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 15")
                             self.registro.append(
                                 actual.resultado.id
@@ -201,7 +202,7 @@ class Optimizer:
                             nuevo.operador = -1
                             nuevo.type = Quadruple.T_ASIG
                             nuevo.typeOpt = self.TOP_ARIT
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 18")
                             self.registro.append(
                                 actual.resultado.id
@@ -221,7 +222,7 @@ class Optimizer:
                             nuevo.operador = -1
                             nuevo.type = Quadruple.T_ASIG
                             nuevo.typeOpt = self.TOP_ARIT
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 14")
                             self.registro.append(
                                 actual.resultado.id
@@ -241,7 +242,7 @@ class Optimizer:
                             nuevo.operador = -1
                             nuevo.type = Quadruple.T_ASIG
                             nuevo.typeOpt = self.TOP_ARIT
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 14")
                             self.registro.append(
                                 actual.resultado.id
@@ -261,7 +262,7 @@ class Optimizer:
                             nuevo.operador = -1
                             nuevo.type = Quadruple.T_ASIG
                             nuevo.typeOpt = self.TOP_ARIT
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 17")
                             self.registro.append(
                                 actual.resultado.id
@@ -287,7 +288,7 @@ class Optimizer:
                                     )
                                     nuevo.operador = 11
                                     nuevo.typeOpt = self.TOP_ARIT
-                                    self.registro.append("Linea: " + str(actual.line))
+                                    self.registro.append("---------------------------------------------")
                                     self.registro.append("Regla 16")
                                     self.registro.append(
                                         actual.resultado.id
@@ -312,7 +313,7 @@ class Optimizer:
                                     )
                                     nuevo.operador = 11
                                     nuevo.typeOpt = self.TOP_ARIT
-                                    self.registro.append("Linea: " + str(actual.line))
+                                    self.registro.append("---------------------------------------------")
                                     self.registro.append("Regla 16")
                                     self.registro.append(
                                         actual.resultado.id
@@ -333,7 +334,7 @@ class Optimizer:
                             nuevo.operador = -1
                             nuevo.type = Quadruple.T_ASIG
                             nuevo.typeOpt = self.TOP_ARIT
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 13")
                             self.registro.append(
                                 actual.resultado.id
@@ -354,7 +355,7 @@ class Optimizer:
                             nuevo.operador = -1
                             nuevo.type = Quadruple.T_ASIG
                             nuevo.typeOpt = self.TOP_ARIT
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 13")
                             self.registro.append(
                                 actual.resultado.id
@@ -374,7 +375,7 @@ class Optimizer:
                             nuevo.operador = -1
                             nuevo.type = Quadruple.T_ASIG
                             nuevo.typeOpt = self.TOP_ARIT
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 12")
                             self.registro.append(
                                 actual.resultado.id
@@ -394,7 +395,7 @@ class Optimizer:
                             nuevo.operador = -1
                             nuevo.type = Quadruple.T_ASIG
                             nuevo.typeOpt = self.TOP_ARIT
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 12")
                             self.registro.append(
                                 actual.resultado.id
@@ -411,7 +412,7 @@ class Optimizer:
                 self.sumidero.append(nuevo)
             except StopIteration:
                 break
-        self.fuente = self.sumidero
+        self.fuente = self.sumidero.copy()
 
     def copy_propagation_optimization(self):
         actual = Quadruple()
@@ -432,7 +433,7 @@ class Optimizer:
                             actual.resultado.id == pivote.Elem1.id
                             and actual.Elem1.id == pivote.resultado.id
                         ):
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 1")
                             self.registro.append(
                                 pivote.resultado.id
@@ -470,7 +471,7 @@ class Optimizer:
                     # label .label -> label .label
                     if actual.type == Quadruple.T_LABEL:
                         if pivote.resultado.id == actual.resultado.id:
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append("Regla 2")
                             p = i
                             while p < j:
@@ -487,7 +488,7 @@ class Optimizer:
                         # goto .label
                         # goto .label -> goto.label
                         if pivote.resultado.id == actual.resultado.id:
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append(str(pivote))
                             self.registro.append(str(actual))
                             self.registro.append("-> " + str(actual))
@@ -496,7 +497,7 @@ class Optimizer:
                         # goto .label1
                         # goto .label -> goto.label1
                         else:
-                            self.registro.append("Linea: " + str(actual.line))
+                            self.registro.append("---------------------------------------------")
                             self.registro.append(str(pivote))
                             self.registro.append(str(actual))
                             self.registro.append("-> " + str(pivote))
@@ -516,12 +517,13 @@ class Optimizer:
                 if i + 1 < len(self.fuente):
                     actual = self.fuente[i + 1]
                     if actual.type == Quadruple.T_GOTO:
-                        self.registro.append("Linea: " + str(actual.line))
+                        self.registro.append("---------------------------------------------")
                         self.registro.append("Regla 7")
                         self.registro.append(str(pivote))
                         self.registro.append(str(actual))
                         self.registro.append("-> " + str(actual))
                         del self.fuente[i]
+                        i -= 1
             i += 1
 
     def optimization_if_jump(self):
@@ -535,7 +537,7 @@ class Optimizer:
             # instrucciones
             # label .label2
             if pivote.type == Quadruple.T_IF:
-                self.registro.append("Linea: " + str(pivote.line))
+                self.registro.append("---------------------------------------------")
                 self.registro.append("Regla 3")
                 self.registro.append(str(pivote))
                 self.registro.append(str(self.fuente[i + 1]))
@@ -545,20 +547,26 @@ class Optimizer:
                 self.registro.append("->" + str(pivote))
                 del self.fuente[i + 1]
                 del self.fuente[i + 1]
-
-            i += 1
-
-            i += 1
+            i +=2
 
     def optimize(self):
-        self.arithmetic_optimization()
-        self.optimization_of_common_expressions()
-        self.copy_propagation_optimization()
-        self.optimization_elimination_of_redundant()
-        self.optimization_if_jump()
-        self.optimization_by_jump_label()
-        self.optimization_by_jump_goto()
-        return self.generatedOutput()
+        try:
+            self.arithmetic_optimization()
+            self.optimization_of_common_expressions()
+            self.copy_propagation_optimization()
+            self.optimization_elimination_of_redundant()
+            self.optimization_if_jump()
+            self.optimization_by_jump_label()
+            self.optimization_by_jump_goto()
+            temp = self.generatedOutput()
+            self.fuente.clear()
+            self.sumidero.clear()
+            self.registro.clear()
+            return temp
+        except:
+            grammar.PL_errors.append("Error en la optimizacion")
+            return "Error en la optimizacion"
+        
 
     def generatedOutput(self):
         iterator = iter(self.fuente)

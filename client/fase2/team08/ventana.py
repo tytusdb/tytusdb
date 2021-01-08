@@ -10,6 +10,7 @@ from PIL import ImageTk, Image
 import http.client
 import json
 from PIL.ImagePalette import load
+from tkinter import messagebox
 
 formularios=[]
 textos=[]
@@ -19,8 +20,7 @@ consola = None
 raiz = None
 tools = None
 loginOn = False
-
-
+listas=""
 #Variables para simular credenciales
 ActiveUsername = ""
 ActivePassword = ""
@@ -45,6 +45,42 @@ def myGET():
     else:
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
+    myConnection.close()
+
+def DataQuery():
+    global notebook
+    global listas
+    global textos
+    ## notebook seleccionado print(notebook.select())
+    if notebook.select():
+    ##numero de index de pesta;a
+        pestana_no = notebook.index('current')
+        
+    listas=textos[pestana_no].text.get("1.0", END)
+    jsonData = { "texto": listas }
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+    myJson = json.dumps(jsonData)
+    headers = {
+                "Content-type": "application/json"
+            }
+
+    myConnection.request("POST", "/dataquery", myJson, headers)
+    response = myConnection.getresponse()
+    print("POST: Status: {} and reason: {}".format(response.status, "TODO OK"))
+    if response.status == 200:       
+        data = response.read()
+        result = data.decode("utf-8")
+        dividir= result.replace("{\"consola\": \"","")
+        dividir1=dividir.replace("\"}","")
+        dividir2=str(str(dividir1).replace("\\n","\n")).replace(".",".\n")
+        print(dividir2)
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\n\n"+dividir2)
+        consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nERROR EN RESPUESTA.")
         consola.config(state=DISABLED)
     myConnection.close()
 
@@ -277,7 +313,7 @@ def CrearVentana():
     #Se llama a la clase Arbol
     Arbol(FrameIzquiero)
     #Boton para realizar consulta
-    Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray').pack(side="top",fill="both")
+    buton1=Button(raiz, text="Enviar Consulta",bg='#1BA1FD',fg='white',activebackground='slate gray', command=DataQuery).pack(side="top",fill="both")
     #Consola de Salida
     global consola
     consola = Text(raiz,bg='gray7',fg='white',selectbackground="gray21")
@@ -292,7 +328,9 @@ def CrearVentana():
     style = ttk.Style()
     style.theme_use("classic")
     style.configure("TNotebook.Tab", background="gray21", font="helvetica 14",foreground='white')
-    style.map("TNotebook.Tab", background = [("selected", "slate gray")])
+    style.map("TNotebook.Tab", background = [("selected", "#0854A9"), ("active", "#0876F1")],
+    foreground=[("selected", "#ffffff"),("active", "#000000")]
+    )
     notebook=ttk.Notebook(raiz)
     notebook.pack(side="right", fill="both", expand=True)
     añadir('Nuevo')
@@ -327,6 +365,7 @@ def cerrarPestaña():
 
 def cerrarVentana():
     global raiz
+    messagebox.showinfo(message="Gracias por utilizar este programa! :v", title="TytusDB")
     raiz.destroy()
 
 def main():

@@ -32,6 +32,7 @@ def grammarReport2():
     crearArchivo(cad)
     
 def crearArchivo(cad):
-    file = open("../ui/test-output/ReporteGramatica.bnf", "w")
+    file = open("./test-output/ReporteGramatica.bnf", "w")
     file.write(cad)
     file.close()
+#"../test-output/ReporteGramatica.bnf

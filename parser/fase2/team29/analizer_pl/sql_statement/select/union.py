@@ -14,23 +14,27 @@ class Select(instruction.Instruction):
         self.all = all
 
     def execute(self, environment):
-        out = "fase1.execution(dbtemp + "
-        select1 = self.select1.execute(environment).value.strip()
-        select1 = select1[27 : len(select1) - 3]
-        select2 = self.select2.execute(environment).value.strip()
-        select2 = select2[27 : len(select2) - 3]
-        select1
-        out += '" (' + select1.strip() + ") "
-        out += self.type + " "
-        out += self.all + " "
-        out += "(" + select2.strip() + ");"
-        out += '")\n'
-        if isinstance(environment, Environment):
-            grammar.optimizer_.addIgnoreString(out, self.row, True)
-            out = "\t" + out
-        else:
-            grammar.optimizer_.addIgnoreString(out, self.row, False)
-        return code.C3D(out, "select", self.row, self.column)
+        try:
+            out = "fase1.execution(dbtemp + "
+            select1 = self.select1.execute(environment).value.strip()
+            select1 = select1[27 : len(select1) - 3]
+            select2 = self.select2.execute(environment).value.strip()
+            select2 = select2[27 : len(select2) - 3]
+            select1
+            out += '" (' + select1.strip() + ") "
+            out += self.type + " "
+            out += self.all + " "
+            out += "(" + select2.strip() + ");"
+            out += '")\n'
 
+            
+            if isinstance(environment, Environment):
+                grammar.optimizer_.addIgnoreString(out, self.row, True)
+                out = "\t" + out
+            else:
+                grammar.optimizer_.addIgnoreString(out, self.row, False)
+            return code.C3D(out, "select", self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Union")
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_SELECT")

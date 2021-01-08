@@ -1,9 +1,8 @@
 import Gramatica as Gram
 import interprete as Inter
 from Instruccion import *
-
-heap = []
-
+from Instruccion import heap as hp
+heap = hp
 
 def ejecutarSQL():
     cadena = heap[-1]

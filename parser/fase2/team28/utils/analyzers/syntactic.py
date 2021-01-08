@@ -264,7 +264,7 @@ def p_column(p):
     if len(p) == 4:
         p[0] = CreateCol(p[1], p[2], p[3])
         for index, var in enumerate(p[3]):
-                if index > 0: string += f', {var["_tac"]}'
+                if index > 0: string += f' {var["_tac"]} '
                 else: string += f'{var["_tac"]}'
         p[0]._tac = f'{p[1]} {p[2]._tac} {string}'
 

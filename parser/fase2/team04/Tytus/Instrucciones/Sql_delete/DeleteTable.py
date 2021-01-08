@@ -31,6 +31,7 @@ class DeleteTable(Instruccion):
                             res = delete(arbol.getBaseDatos(),self.valor,[d])#SI IMPRIME 0, BORRO CON EXITO
                             if(res == 0):
                                 arbol.consola.append(f"Se elimino el siguiente registro { d } correctamente.")
+                                print("Se ejecutó correctamente el DELETE FROM\n")
                             else:
                                 error = Excepcion("42P10","Semantico",f"No se elimino :'( ",self.linea,self.columna)
                                 arbol.excepciones.append(error)
@@ -66,3 +67,45 @@ class DeleteTable(Instruccion):
         
         nuevo = set(res)
         return nuevo
+
+    def getCodigo(self, tabla, arbol):
+
+        instruccionWhere = f""
+        instruccionWhere += f"\tWHERE"
+        print("----La cantidad de parámetros del WHERE es: " + self.insWhere.getCodigo(tabla, arbol) + "\n")
+        #valor, tipo, insWhere,
+        #for item in self.insWhere:
+        print("WHERE_: "+ self.insWhere.getCodigo(tabla, arbol) + "\n")
+        instruccionWhere += f" {self.insWhere.getCodigo(tabla, arbol)}"
+
+        instruccionDelete = f"DELETE FROM {self.valor} "
+        instruccionDelete += f"{instruccionWhere}"
+        instruccionDelete += f";\t"
+
+        num_params = 1
+        
+        temp_param1 = arbol.getTemporal()
+        temp_tam_func = arbol.getTemporal()
+        temp_index_param1 = arbol.getTemporal()
+        temp_return = arbol.getTemporal()
+        temp_result = arbol.getTemporal()
+
+        codigo = f"\t#DELETE FROM 3D\n"
+        codigo += f"\t{temp_param1} = f\"{instruccionDelete}\"\n"
+        codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
+        codigo += f"\t{temp_index_param1} = {temp_tam_func} + 1\n"
+        codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
+        codigo += f"\tpointer = pointer + {num_params}\n"
+        codigo += f"\tinter()\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        codigo += f"\tpointer = pointer - {num_params}\n"
+        #codigo += f"\tprint({temp_result})\n"
+        
+        #arbol.consola.append(codigo)
+        return codigo
+
+
+
+
+
