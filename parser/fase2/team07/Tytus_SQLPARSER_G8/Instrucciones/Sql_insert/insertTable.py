@@ -415,7 +415,7 @@ class insertTable(Instruccion):
 
             temporal2 = arbol.generaTemporal()
             codigo += "\t" + temporal2 + " = " + temporal + " + ');'\n" 
-            codigo += "\tmensaje = mensaje + FuncionesPara3D.ejecutarsentecia(" + temporal2 + ")\n\n"
+            codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal2 + ")\n\n"
 
         #Es un insert con campos especificos
         else:
@@ -474,7 +474,7 @@ class insertTable(Instruccion):
 
             temporal2 = arbol.generaTemporal()
             codigo += "\t" + temporal2 + " = " + temporal + " + ');'\n" 
-            codigo += "\tmensaje = mensaje + FuncionesPara3D.ejecutarsentecia(" + temporal2 + ")\n\n"
+            codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal2 + ")\n\n"
 
 
         return codigo

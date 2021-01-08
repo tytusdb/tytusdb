@@ -27,7 +27,7 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones, LlamadoFuncion
 
-from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case, Procedimiento, DeclaracionRetorno, AsignacionVariable, DropFuncion, DropProcedimiento
+from Instrucciones.plpgsql import condicional_if, Funcion, DeclaracionVariable, DeclaracionAlias, condicional_case, Procedimiento, DeclaracionRetorno, AsignacionVariable, DropFuncion, DropProcedimiento, Execute
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -2070,11 +2070,18 @@ def p_tipo_datos2(t):
 
 ########################################### GRAMATICA FASE 2 ########################################
 
+def p_exect_func_pro(t):
+    '''
+    instruccion     :   EXECUTE ID PARDER l_expresiones PARIZQ PUNTO_COMA
+    '''
+    t[0] = Execute.Execute(t[2], t[4],"", t.lexer.lineno, t.lexer.lexpos, "")
+
+
 def p_procedimiento(t):
     '''
     instruccion     :   CREATE PROCEDURE ID PARIZQ parametros_funcion PARDER LANGUAGE PLPGSQL AS DOLLAR DOLLAR declaraciones_funcion BEGIN contenido_funcion END PUNTO_COMA DOLLAR DOLLAR
     '''
-    t[0] = Procedimiento.Procedimiento(t[3], t[5], t[12], t[14], "", t.lexer.lineno, t.lexer.lexpos, "")
+    t[0] = Procedimiento.Procedimiento(t[3], t[5], t[12], t[14], "",  "")
 
 
 #DECLARACION DE UNA FUNCION

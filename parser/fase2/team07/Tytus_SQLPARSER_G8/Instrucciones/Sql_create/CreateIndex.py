@@ -15,5 +15,5 @@ class CreateIndex(Instruccion):
     def traducir(self,tabla,arbol,cadenaTraducida):
         temporal = arbol.generaTemporal()
         codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
-        codigo += "\tmensaje = mensaje + FuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
         return codigo
