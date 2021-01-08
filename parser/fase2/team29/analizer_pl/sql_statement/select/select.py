@@ -15,7 +15,7 @@ class SelectParam(instruction.Instruction):
         pval = self.exp.execute(environment)
         c3d = pval.temp
         if self.alias != "":
-            c3d += " AS " + self.alias
+            c3d += self.alias
         return code.C3D(pval.value, c3d, self.row, self.column)
 
 
