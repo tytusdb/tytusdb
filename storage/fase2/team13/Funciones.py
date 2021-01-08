@@ -568,6 +568,18 @@ def extractTable(database, table):
         j = checkMode(mode)
         value_return = j.extractTable(database, table)
         
+        # Decompress
+        for tuple in value_return:
+            newTuple = []
+            for register in tuple:
+                if iscompressed(register):
+                    decompressed = zlib.decompress(register)
+                    newTuple.append(decompressed)
+                else:
+                    newTuple.append(register)
+
+            newTable.append(newTuple)
+        
         return value_return
     except:
         return None
@@ -587,6 +599,18 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         value_return = j.extractRangeTable(database, table, int(columnNumber), lower, upper)
+        
+        # Decompress
+        for tuple in value_return:
+            newTuple = []
+            for register in tuple:
+                if iscompressed(register):
+                    decompressed = zlib.decompress(register)
+                    newTuple.append(decompressed)
+                else:
+                    newTuple.append(register)
+
+            newTable.append(newTuple)
         
         return value_return
     except:
