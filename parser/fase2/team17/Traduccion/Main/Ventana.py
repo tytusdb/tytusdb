@@ -547,7 +547,11 @@ def Tabla_Simbolos_Indice():
         texto += '<td> ' + Error.alias + '</td>'
         texto += '<td> ' + Error.nombre + '</td>'
         texto += '<td> ' + Error.tipo + '</td>'
-        texto += '<td> ' + Error.columnas + '</td>'
+        col = ''
+        for i in Error.columnas:
+            col = col + str(i) + ' '
+        texto += '<td> ' + col + '</td>'
+
         texto += '<td> ' + Error.consideracion+ '</td>'
         texto += '<td> ' + str(Error.fila) + '</td>'
         texto += '<td> ' + str(Error.columna) + '</td></tr>'
