@@ -20,8 +20,7 @@ consola = None
 raiz = None
 tools = None
 loginOn = False
-
-
+listas=""
 #Variables para simular credenciales
 ActiveUsername = ""
 ActivePassword = ""
@@ -42,6 +41,43 @@ def myGET():
         data = response.read()   
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\n" + data.decode("utf-8"))
+        consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
+    myConnection.close()
+
+def DataQuery():
+    global notebook
+    global listas
+    global textos
+    ## notebook seleccionado print(notebook.select())
+    if notebook.select():
+    ##numero de index de pesta;a
+        pestana_no = notebook.index('current')
+        
+    listas=textos[pestana_no].text.get("1.0", END)
+    jsonData = { "texto": listas }
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+    myJson = json.dumps(jsonData)
+    headers = {
+                "Content-type": "application/json"
+            }
+
+    myConnection.request("POST", "/dataquery", myJson, headers)
+    response = myConnection.getresponse()
+    print("POST: Status: {} and reason: {}".format(response.status, "TODO OK"))
+    if response.status == 200:       
+        data = response.read()
+        result = data.decode("utf-8")
+        
+        dividir= result.replace("{\"consola\": \"","")
+        dividir1=dividir.replace("\"}","")
+        dividir2=str(str(dividir1).replace("\\n","\n")).replace(".",".\n")
+        print(dividir2)
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,dividir2)
         consola.config(state=DISABLED)
     else:
         consola.config(state=NORMAL)
@@ -278,7 +314,7 @@ def CrearVentana():
     #Se llama a la clase Arbol
     Arbol(FrameIzquiero)
     #Boton para realizar consulta
-    Button(raiz, text="Enviar Consulta",bg='#1BA1FD',fg='white',activebackground='slate gray').pack(side="top",fill="both")
+    buton1=Button(raiz, text="Enviar Consulta",bg='#1BA1FD',fg='white',activebackground='slate gray', command=DataQuery).pack(side="top",fill="both")
     #Consola de Salida
     global consola
     consola = Text(raiz,bg='gray7',fg='white',selectbackground="gray21")
