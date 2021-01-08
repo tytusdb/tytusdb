@@ -1,6 +1,8 @@
 #Acceso a los diferentes modos de almacenamiento
 import hashlib
 import datetime
+from cryptography import fernet
+from cryptography.fernet import Fernet
 from storage.avl import avl_mode as _AVL
 from storage.b import b_mode as _B
 from storage.bplus import bplus_mode as _BPLUS
@@ -579,3 +581,47 @@ def checksumTable(database:str, table:str, mode:str) -> str:
     elif mode == "SHA256":        
         h=hashlib.sha256(stringTable.encode('utf-8'))   
         return h.hexdigest()
+#funciones para encriptar y descriptar 
+def generar_clave():
+    clave = Fernet.generate_key()
+    with open("clave.key","wb") as archivo_clave:
+            archivo_clave.write(clave)
+def cargar_clave():
+    return open("clave.key","rb").read()
+
+def encrypt(backup: str, password: str) -> str:
+    clave = password
+    if  existDatabase(backup) and clave:
+        stringDatabase =""
+        for bases in showTables(backup):       
+            stringDatabase += bases
+            for tables in extractTable(backup,bases):            
+                for regitros in tables:              
+                    stringDatabase += str(regitros)        
+        mensaje=stringDatabase.encode()        
+        try:
+            f = Fernet(clave)
+            encriptando = f.encrypt(mensaje)
+            with open(backup+".txt","wb") as archivo_generado:
+                archivo_generado.write(encriptando)
+            print(encriptando)
+            return 0            
+        except:
+            return 1
+    else:
+        return 1
+
+def decrypt(cipherBackup:str, password:str) -> str:
+    clave = password
+    if cipherBackup and clave:
+        try:
+            f=Fernet(clave)
+            codigo = open(cipherBackup+".txt","rb").read()
+            desencriptar = f.decrypt(codigo)           
+            with open(cipherBackup+"_cipher.txt","wb") as archivo_generado:
+                archivo_generado.write(desencriptar)            
+            return 0
+        except:
+            return 1
+    else:
+        return 1 
