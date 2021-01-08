@@ -154,7 +154,7 @@ class TraducirProcedimientos:
         ts = TBProcedimientos(nombre, tipo, retorno, parametros, declaraciones)
         self.TSprocedimientos.append(ts)
 
-   def agregarParametros( self, nodo, parametros, cd3):
+    def agregarParametros( self, nodo, parametros, cd3):
         params = ''
         for nd in nodo.hijos:
             if nd.etiqueta == 'ID':    
@@ -455,3 +455,413 @@ class TraducirProcedimientos:
                 return t
         else:
             return self.agregarOperacionAritmetica(nodo)
+
+    def agregarOperacionAritmetica(self, nodo):
+        if nodo.etiqueta.lower() == 'oparit':
+            izquierdo = self.agregarOperacionAritmetica(nodo.hijos[0])
+            derecho = self.agregarOperacionAritmetica(nodo.hijos[1])
+            temporal = self.crearTemp()
+            if nodo.valor.lower() == '+':
+                self.asignarEn3d(temporal, str(izquierdo.valor) + "+" + str(derecho.valor))
+                t = Retorno(temporal, None)
+                return t
+            elif nodo.valor.lower() == '-':
+                self.asignarEn3d(temporal, str(izquierdo.valor) + "-" + str(derecho.valor))
+                t = Retorno(temporal, None)
+                return t
+            elif nodo.valor.lower() == '*':
+                self.asignarEn3d(temporal, str(izquierdo.valor) + "*" + str(derecho.valor))
+                t = Retorno(temporal, None)
+                return t
+            elif nodo.valor.lower() == '/':
+                self.asignarEn3d(temporal, str(izquierdo.valor) + "/" + str(derecho.valor))
+                t = Retorno(temporal, None)
+                return t
+            elif nodo.valor.lower() == '%':
+                self.asignarEn3d(temporal, str(izquierdo.valor) + "%" + str(derecho.valor))
+                t = Retorno(temporal, None)
+                return t 
+            elif nodo.valor.lower() == '^':
+                self.asignarEn3d(temporal, str(izquierdo.valor) + "**" + str(derecho.valor))
+                t = Retorno(temporal, None)
+                return t
+        elif nodo.etiqueta.lower() == 'entero':
+            t = Retorno(nodo.valor, 'int')
+            return t
+        elif nodo.etiqueta.lower() == 'decimal':
+            t = Retorno(nodo.valor, 'float')
+            return t
+        elif nodo.etiqueta.lower() == 'cadena':
+            t = Retorno('\''+nodo.valor+'\'', 'string')
+            return t
+        elif nodo.etiqueta.lower() == 'logico':
+            t = Retorno(nodo.valor, 'boolean')
+            return t
+        elif nodo.etiqueta.lower() == 'negativo':
+            izquierdo = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temporal = self.crearTemp()
+            self.asignarEn3d(temporal, "-" + str(izquierdo.valor))
+            ret = Retorno(temporal, 'int')
+            return ret
+        elif nodo.etiqueta.lower() == 'id':
+            t = Retorno(nodo.valor, 'id')
+            return t
+        elif nodo.etiqueta.lower() == 'matematica':
+            return self.agregarFuncionMatematica(nodo)
+        elif nodo.etiqueta.lower() == 'trigonometrica':
+            return self.agregarFuncionTrigonometrica(nodo)
+        elif nodo.etiqueta.lower() == 'binaria':
+            return self.agregarFuncionBinaria(nodo)
+        elif nodo.etiqueta.lower() == 'select':
+            temporal1 = self.crearTemp()
+            temporal2 = self.crearTemp()
+            nodo.valor = nodo.valor.replace('\'', '\\\'')
+            nodo.valor = nodo.valor.replace('\"', '\\\"')
+            self.asignarEn3d(temporal1, '\''+nodo.valor+'\'')
+            self.asignarEn3d('pila', '['+temporal1+']')
+            cd3 = '\tfuncionIntermedia()'
+            self.codigo3d.append(cd3)
+            self.asignarEn3d(temporal2, 'pila[0]')
+            t = Retorno(temporal2, 'select')
+            return t
+        
+
+    def agregarFuncionMatematica(self, nodo):
+        if nodo.valor.lower() == 'abs': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.fabs(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'cbrt':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'np.cbrt(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'ceil':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.ceil(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'ceiling':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.ceil(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'div':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            exp1 = self.agregarOperacionAritmetica(nodo.hijos[1])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, str(exp.valor) +'/'+ str(exp1.valor))
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'degrees':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.degrees(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'exp':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.exp('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'factorial':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.factorial('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'floor':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.floor('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'gcd':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            exp1 = self.agregarOperacionAritmetica(nodo.hijos[1])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.gcd('+str(exp.valor)+','+str(exp1.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'ln':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.log('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'log':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.log10('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'mod':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            exp1 = self.agregarOperacionAritmetica(nodo.hijos[1])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, str(exp.valor)+'%'+str(exp1.valor))
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'pi':
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.pi')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'power':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            exp1 = self.agregarOperacionAritmetica(nodo.hijos[1])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.pow('+str(exp.valor)+','+str(exp1.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'radians':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.radians('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'round':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'round('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'sign':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'np.sign('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'sqrt':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.sqrt('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'trunc':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.trunc('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'random':
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'rd.random()')
+            ret = Retorno(temp, None)
+            return ret
+
+    def agregarFuncionTrigonometrica(self, nodo):
+        if nodo.valor.lower() == 'acos': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.acos(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'acosd':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.acos(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'asin': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.asin(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'asind': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.asin(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'atan': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.atan(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'atand': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.atan(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'cos': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.cos(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'cosd': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.cos(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'sin': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.sin(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'sind':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.sin(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'tan': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.tan(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'tand':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.tan(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'sinh': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.sinh(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'cosh':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.cosh(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'tanh': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.tanh(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'asinh':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.asinh(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'acosh': 
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.acosh(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'atanh':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'math.atanh(' + str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+
+    def agregarFuncionBinaria(self, nodo):
+        if nodo.valor.lower() == 'length':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, 'len('+str(exp.valor)+')')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'substring':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            exp1 = self.agregarOperacionAritmetica(nodo.hijos[1])
+            exp2 = self.agregarOperacionAritmetica(nodo.hijos[2])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, str(exp.valor)+'['+str(exp1.valor)+':'+str(exp2.valor)+']')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'substr':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            exp1 = self.agregarOperacionAritmetica(nodo.hijos[1])
+            exp2 = self.agregarOperacionAritmetica(nodo.hijos[2])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, str(exp.valor)+'['+str(exp1.valor)+':'+str(exp2.valor)+']')
+            ret = Retorno(temp, None)
+            return ret
+        elif nodo.valor.lower() == 'trim':
+            exp = self.agregarOperacionAritmetica(nodo.hijos[0])
+            temp = self.crearTemp()
+            self.asignarEn3d(temp, str(exp.valor)+'.strip()')
+            ret = Retorno(temp, None)
+            return ret
+
+
+
+    def imprimirTS(self):
+        print('\n ------------- TABLA DE SIMBOLOS PROCEDIMIENTOS Y FUNCIONES -------------\n')
+        for tb in self.TSprocedimientos:
+            print(tb.toString())
+
+    def generateProYFunc(self):
+        now = datetime.now()
+        fecha = 'Fecha: '+str(now.day)+'/'+str(now.month)+'/'+str(now.year)
+        hora = 'Hora: '+str(now.hour)+':'+str(now.minute)
+        header = '<html><head><br><title>REPORTE DE PROCEDIMIENTOS Y FUNCIONES</title></head><body>\n<H1 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">REPORTE DE PROCEDIMIENTOS Y FUNCIONES</font></b></H1>\n<H4 ALIGN=CENTER><b><font face="Roboto" color="#1f253d">'+fecha+' | '+hora+'</font></b></H4>\n'
+        tbhead = '<table align="center" cellpadding="20" cellspacing="0"  style="border:2px solid #1f253d">\n'
+        tbhead += '<tr>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">NOMBRE</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">TIPO</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="100" style="text-align:center"><font face="Roboto" color="white" size="4">RETORNA</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">PARAMETROS</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">DECLARACIONES</font></td>\n'
+        tbhead += '<td bgcolor="#2d48b5" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">ESTADO</font></td>\n'
+        tbhead += '</tr>\n'
+        cont = ''
+        template = open("ReporteProYFunc.html", "w")
+
+        # Iteración sobre las tablas de la DB
+        
+        for comp in self.TSprocedimientos:
+            cont += '<tr>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.nombre.upper()+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.tipo.upper()+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.retorna.upper()+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.toStringParams()+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.toStringDeclaraciones()+'</font></td>\n'
+            cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+comp.estado.upper()+'</font></td>\n'
+            cont += '</tr>\n'
+        template.write(header)
+        template.write(tbhead)
+        template.write(cont)
+        template.write("</table> \n</body> \n</html>")
+        template.close()
+
+    ## ---------------------- REPORTE EN EJECUCION --------------------------------------
+
+    def crearReporte(self) :
+        file = open("ReporteEjecucionPL.md", "w")
+        file.write('## GRUPO #11 \n'
+                + '# *REPORTE GRAMATICAL DE LA EJECUCION PL*\n\n')
+        file.write(self.recorrerAST(self.raiz))
+        file.close()
+
+    def recorrerAST(self, nodo):
+        bnf = ""
+        contador = 1
+        for hijo in nodo.hijos: 
+            bnf += '### Instruccion #'+str(contador)+' \n'
+            bnf += '```bnf\n'
+            bnf += hijo.gramatica + '\n'
+            bnf += self.recorrerHijo(hijo)
+            bnf += '```\n\n'
+            contador += 1
+        return bnf
+
+    def recorrerHijo(self, nodo):
+        bnf = ""
+        for hijo in nodo.hijos: 
+            if hijo.gramatica != '':
+                bnf += hijo.gramatica + '\n'
+            bnf += self.recorrerHijo(hijo)
+        return bnf
