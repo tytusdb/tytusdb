@@ -425,13 +425,16 @@ def Unique(database, table,  tupla):
         else:
             for estructura in structs: 
                     value = estructura.insert(database,indiceTbl,uniqueIndices)
-                    if value != 2 or value != 3 or value!= 4 :
+                    if value !=2 :
                         return False
                     else:    
                         return True
             
     except: 
         return True
+
+
+
 
 
 def alterTableaddUnique(database , table,  indexName, colums): 
@@ -465,7 +468,6 @@ def alterTableaddUnique(database , table,  indexName, colums):
                     
             else: 
                 return 2
-
 
 # 4. ADMINISTRACION DE LA CODIFICACION
 def alterDatabaseEncoding(database,encoding):
