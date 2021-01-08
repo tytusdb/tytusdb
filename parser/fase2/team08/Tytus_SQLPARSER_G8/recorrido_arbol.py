@@ -13,7 +13,7 @@ class recorrido_arbol():
             self.id_n = self.id_n+1
 
         if nodo != None:
-            val = str(nodo.id) + " [label=\"" + nodo.valor + "\"];\n"
+            val = str(nodo.id) + " [label=\"" + str(nodo.valor) + "\" fillcolor=\"#d62728\" shape=\"circle\"];\n"
             self.cadena += val
             for x in nodo.hijos:
                 self.cadenaAux += str(nodo.id) + "->" + str(self.id_n) + ";\n"
@@ -32,9 +32,11 @@ class recorrido_arbol():
             print("No se pudo dibujar el árbol")
         
         #aquí se deberá sustituir por la ruta en la que se encuentre instalado el Graphviz
-        cmd = '"D:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe"' + " -Tpng Digraph.dot -o Digraph.png"
+        #cmd = '"D:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe"' + " -Tpng Digraph.dot -o Digraph.png"
 
         try:
-            os.system(cmd)
+            #os.system(cmd)
+            #print('terminó!')
+            pass
         except:
             print("Excepción al ejecutar el archivo .dot")

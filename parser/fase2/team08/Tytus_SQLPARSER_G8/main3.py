@@ -12,37 +12,35 @@ import os
 import reportes.RealizarReportes
 import reportes.reportesimbolos as rs
 import reportes.RealizarGramatica
+import reportes.tablasimbolos as rts
 
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
+from Instrucciones.PL.Func import Func
+from Instrucciones.PL.Proc import Proc
 
 from storageManager.jsonMode import *
 
 import sintactico
-from optimizacion import sintacticoC3D
 
 global arbol
 arbol = None
 '''
 instruccion = CreateDatabase("bd1",None,"TRUE",None,None,None,None, 1,2)
 instruccion.ejecutar(None,None)
-
 # ---------------------------- PRUEBA DE UNA SUMA  ----------------------------
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Expresiones import Primitivo, Logica
-
 p1 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
 p2 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
 a = Arbol([])
 op = Logica.Logica(p1,p2,'AND',1,2)
 print('Resultado logica: ' + str(suma.ejecutar(None,a)))
-
 # ---------------------------- PRUEBA DE UNA SUMA CON ERROR DE TIPO ----------------------------
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Expresiones import Primitivo, Aritmetica
-
 p1 = Primitivo.Primitivo(1,Tipo(Tipo_Dato.BOOLEAN),1,1)
 p2 = Primitivo.Primitivo(2,Tipo(Tipo_Dato.INTEGER),1,1)
 a = Arbol([])
@@ -60,7 +58,7 @@ class interfaz():
         self.window.tk.call('wm', 'iconphoto', self.window._w, img)
         #img = PhotoImage(file='img/icons/Postgresql.ico')
         #self.window.tk.call('wm', 'iconphoto', self.window._w, img)
-        self.window.configure(background="#6a8d92")
+        self.window.configure(background="#252850")
         self.window.title("Query Tool - Grupo 8")
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
         w, h = 1370,670
@@ -86,12 +84,16 @@ class interfaz():
         ##############################################BOTONES####################################
         
         img2 = PhotoImage(file='img/icons/AnalyzeMP.png')
-        btnanalizar = Button(self.window,image=img2 , bg="#6a8d92",height=35, width=40, command=self.btnanalizar_click)
+        btnanalizar = Button(self.window,image=img2 , bg="#cdcdcd",height=35, width=40, command=self.btnanalizar_click)
         btnanalizar.place(x=20,y=4)
 
         img3 = PhotoImage(file='img/icons/play32.png')
-        btnejecutar = Button(self.window,image = img3 , bg="#6a8d92",height=35, width=40,command=self.btnejecutar_click)
+        btnejecutar = Button(self.window,image = img3 , bg="#cdcdcd",height=35, width=40,command=self.btnejecutar_click)
         btnejecutar.place(x=115,y=5)
+        
+        img4 = PhotoImage(file='img/icons/opt.png')
+        btnejecutar = Button(self.window,image = img4 , bg="#cdcdcd",height=35, width=40,command=self.btnoptimizar_click)
+        btnejecutar.place(x=210,y=5)
 
         ##############################################PESTAÑAS####################################
         self.tab = ttk.Notebook(self.window)
@@ -99,31 +101,21 @@ class interfaz():
         self.tab_frame =[]
         self.txtentrada =[]
         self.txtsalida =[]
+        self.txtoptimizacion = []
         self.crear_tab("","Nuevo.sql")
         
-        lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=15,bg='#80b192')
-        lblentrada.place(x=20,y=80)
-        lblsalida= Label(self.window,text="Consola de Salida:",height=1, width=15,bg='#80b192')
-        lblsalida.place(x=20,y=350)
+        lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=15,bg='#CDCDCD')
+        lblentrada.place(x=50,y=80)
+        lblsalida= Label(self.window,text="Consola de Salida:",height=1, width=15,bg='#CDCDCD')
+        lblsalida.place(x=700,y=80)
+        lbloptimización= Label(self.window,text="Consola de Optimización:",height=1, width=20,bg='#CDCDCD')
+        lbloptimización.place(x=50,y=350)
 
         #redimensionar los elementos
         #self.window.bind('<Configure>',self.resizeEvent)
 
         #Objeto que almacena el Archivo
         self.file=""
-        lista = [0,1,2,3,4,5,6,7,8,9]
-        salida = 0
-        y = 0
-        for x in range(0, len(lista)):
-            print(lista[y])
-            
-            if x == 7:
-                lista.pop(y)
-                y -= 1
-
-            print(lista[y])
-            y += 1
-           
 
         self.window.mainloop()
 
@@ -194,6 +186,12 @@ class interfaz():
         reportes.RealizarGramatica.RealizarGramatica.generar_reporte_gamatical(arbol.lRepDin)
         arbol = None
 
+
+    def btnoptimizar_click(self):
+        input=self.txtsalida[self.tab.index("current")].get(1.0,END)
+        mensaje = input
+        self.txtoptimizacion[self.tab.index("current")].insert(INSERT,mensaje)
+
     ##############################################EVENTOS DE LOS BOTONES DEL FRAME####################################
     def btnanalizar_click(self):
         global arbol
@@ -208,12 +206,8 @@ class interfaz():
         #print(self.txtentrada[self.tab.index("current")].get(1.0,END))
         input=self.txtentrada[self.tab.index("current")].get(1.0,END)
         tablaGlobal = Tabla(None)
-        # solo para probar el C3D
-        inst = sintacticoC3D.ejecutar_analisis(input)
-        
-        '''inst = sintactico.ejecutar_analisis(input)
+        inst = sintactico.ejecutar_analisis(input)
         arbol = Arbol(inst)
-
 
         if len(sintactico.lista_lexicos)>0:
             messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
@@ -225,11 +219,7 @@ class interfaz():
         
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
-            try:
-                resultado = i.ejecutar(tablaGlobal,arbol)
-            except:
-                print("la instruccion tiene error")
-                continue
+            resultado = i.ejecutar(tablaGlobal,arbol)
         # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
@@ -238,28 +228,53 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
-       '''
+        
+        
+    def funcionintermedia(self):
+        c3d = 'def funcionintermedia():\n'
+        c3d += '\tglobal P\n'
+        c3d += '\tglobal Pila\n'
+        c3d += '\tt0 = P+0\n'
+        c3d += '\tt1 = t0+1\n'
+        c3d += '\tt2 = Pila[t1]\n'
+        c3d += '\tprint(t2)\n'
+
+        c3d += '\tsql = Pila[t1]\n'
+        c3d += '\tinstrucciones = ejecutar_analisis(sql)\n'
+        c3d += '\tfor instruccion in instrucciones:\n'
+        c3d += '\t\tt3 = instruccion.ejecutar(tablaGlobal,arbol)\n'
+        c3d += '\tt4 = P+0\n'
+        c3d += '\tt5 = t0+2\n'
+        c3d += '\tPila[t5] = t3\n'
+        c3d += '\tfor msj in arbol.consola:\n'
+        c3d += '\t\tprint(f\"{msj}\")\n'
+        c3d += '\tarbol.consola = []\n'
+
+        return c3d
+
 
     def btnejecutar_click(self):
         print("se va ejecutar el archivo")
         
     ##############################################CREA PESTAÑAS EN EL TAB####################################
     def crear_tab(self,entrada,nombre):
-        self.tab_frame.append(Frame(self.tab,width=200, height=700,background="#80b192"))
+        self.tab_frame.append(Frame(self.tab,width=200, height=700,background="#CDCDCD"))
         self.tab_frame[-1].pack(fill='both', expand=1)
         self.tab_frame[-1].config(bd=5)
         self.tab.add(self.tab_frame[-1],text=nombre)
-        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15))
+        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=78,height=15))
         self.txtentrada[-1].place(x=0,y=25)
         self.txtentrada[-1].insert(INSERT,entrada+"")
         #self.txtentrada[-1].bind("<MouseWheel>", self.OnMouseWheel)
 
-        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15,background="#070707",foreground="#FEFDFD"))
-        self.txtsalida[-1].place(x=0,y=298)
+        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=80,height=15,background="#252440",foreground="#FEFDFD"))
+        self.txtsalida[-1].place(x=655,y=25)
         #nombre del archivo
         #print(self.tab.tab(self.tab.select(),"text"))
-        self.tab.select(int(len(self.tab_frame)-1))
         #self.txtsalida[-1].insert(INSERT,entrada+"")
+        self.txtoptimizacion.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15,background="#070707",foreground="#FEFDFD"))
+        self.txtoptimizacion[-1].place(x=0,y=300)
+        self.tab.select(int(len(self.tab_frame)-1))
 
     
     #def OnMouseWheel(self,event):
