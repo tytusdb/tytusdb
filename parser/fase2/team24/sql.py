@@ -17,16 +17,26 @@ contador = -1
 jsonObject = None
 
 def execute(script: str):
-    
+
     global ts
-    raiz = g.parse(script)
-    
-    for a in raiz:
-        a.ejecutar()
-    
-    
+    if 'SELECT * FROM temp' in script:
+        try:
+            cargar()
+            s = Listaselects.pop()
+            s.ejecutar()
+            serialaizer()
+        except:
+            '''Error'''
+    else:
+        raiz = g.parse(script)
+
+        try:
+            for a in raiz:
+                a.ejecutar()
+        except:
+            print('Error' + script)
     return
-    
+
 
 
 def execute1(script: str):
@@ -63,7 +73,7 @@ def insertarS(s):
 def cargar():
     with open('data.pickle', 'rb') as f:
         return pickle.load(f)
-    
+
 
 def carga():
     with open('table.pickle', 'rb') as f:
