@@ -994,9 +994,10 @@ def truncate(database: str, table: str) -> int:
             return 2
     except:
         return 1
+#------------Nuevas Funciones-------------#
+
 
 #----------------Compress-------------------#
-
 def alterDatabaseCompress(database, level):
     checkData()
     data = Serializable.Read('./Data/', "Data")
@@ -1008,28 +1009,62 @@ def alterDatabaseCompress(database, level):
         return 4
     if db:
         try:
-            alterDatabaseEncoding(database, "utf8")
             for table in showTables(database):
                 tab = dataTable.get(database + "_" + table)
-                if not tab:
-                    return 1
-                tuplas = extractTable(database, table)
-                if tuplas != None:
-                    truncate(database, table)
-                    import zlib
-                    for y in tuplas:
-                        compressed_data = []
-                        for item in y:
-                            compressed_item = item
-                            if type(item) == bytes or type(item) == bytearray:
-                                compressed_item = zlib.compress(item, level)
-                            elif type(item) == str:
-                                compressed_item = zlib.compress(item.encode(), level)
-                            compressed_data.append(compressed_item)
-                        insert(database, table, compressed_data)
-
-        except E:
+                if tab and tab[4] == -2:
+                    tuplas = extractTable(database, table)
+                    if tuplas != None:
+                        import zlib
+                        mod = None
+                        if tab[1] == 'avl':
+                            mod = avl
+                        elif tab[1] == 'b':
+                            mod = b
+                        elif tab[1] == 'bplus':
+                            mod = bplus
+                        elif tab[1] == 'hash':
+                            mod = hash
+                        elif tab[1] == 'json':
+                            mod = json
+                        elif tab[1] == 'dict':
+                            mod = dict
+                        elif tab[1] == 'isam':
+                            mod = isam
+                        import csv
+                        file = open("./data/change.csv", "w", newline='', encoding='utf-8')
+                        spamreader = csv.writer(file)
+                        tipado = []
+                        compressed_lista = []
+                        for y in tuplas:
+                            compressed_data = []
+                            for item in y:
+                                compressed_item = item
+                                if type(item) == bytes or type(item) == bytearray:
+                                    compressed_item = zlib.compress(item, level).hex()
+                                elif type(item) == str:
+                                    compressed_item = zlib.compress(item.encode(), level).hex()
+                                compressed_data.append(compressed_item)
+                            compressed_lista.append(compressed_data)
+                            
+                        for y in compressed_lista:
+                            tipado_tupla = []
+                            for t in y:
+                                tipado_tupla.append(type(t))
+                            tipado.append(tipado_tupla)
+                            spamreader.writerow(y)
+                        file.close()
+                        truncate(database, table)
+                        mod.loadCSV("./data/change.csv", database, table, tipado)
+                        os.remove("./data/change.csv")
+                    
+        except:
             return 1
+        for table in showTables(database):
+            tab = dataTable.get(database + "_" + table)
+            if tab:
+                tab[4] = level
+                dataTable[database+"_"+table] = tab
+        Serializable.update('./Data', 'DataTables', dataTable)
         return 0
     else:
        return 2
@@ -1041,26 +1076,61 @@ def alterDatabaseDecompress(database):
     dataTable = Serializable.Read('./Data/', "DataTables")
     if db:
         try:
-            alterDatabaseEncoding(database, "utf8")
             for table in showTables(database):
                 tab = dataTable.get(database + "_" + table)
-                if not tab:
-                    return 1
-                tuplas = extractTable(database, table)
-                if tuplas != None:
-                    truncate(database, table)
-                    import zlib
-                    for y in tuplas:
-                        compressed_data = []
-                        for item in y:
-                            compressed_item = item
-                            if type(item) == bytes or type(item) == bytearray:
-                                compressed_item = zlib.decompress(item)
-                                compressed_item = compressed_item.decode()
-                            compressed_data.append(compressed_item)
-                        insert(database, table, compressed_data)
-        except E:
+                if tab and tab[4] != -2:
+                    tuplas = extractTable(database, table)
+                    if tuplas != None:
+                        truncate(database, table)
+                        import zlib
+                        mod = None
+                        if tab[1] == 'avl':
+                            mod = avl
+                        elif tab[1] == 'b':
+                            mod = b
+                        elif tab[1] == 'bplus':
+                            mod = bplus
+                        elif tab[1] == 'hash':
+                            mod = hash
+                        elif tab[1] == 'json':
+                            mod = json
+                        elif tab[1] == 'dict':
+                            mod = dict
+                        elif tab[1] == 'isam':
+                            mod = isam
+                        import csv
+                        file = open("./data/change.csv", "w", newline='', encoding='utf-8')
+                        spamreader = csv.writer(file)
+                        tipado = []
+                        compressed_lista = []
+                        for y in tuplas:
+                            compressed_data = []
+                            for item in y:
+                                compressed_item = item
+                                if type(item) == str:
+                                    compressed_item     = zlib.decompress(bytes.fromhex(item))
+                                    compressed_item = compressed_item.decode()
+                                compressed_data.append(compressed_item)
+                            compressed_lista.append(compressed_data)
+
+                        for y in compressed_lista:
+                            tipado_tupla = []
+                            for t in y:
+                                tipado_tupla.append(type(t))
+                            tipado.append(tipado_tupla)
+                            spamreader.writerow(y)
+                        file.close()
+                        truncate(database, table)
+                        mod.loadCSV("./data/change.csv", database, table, tipado)
+                        os.remove("./data/change.csv")              
+        except:
             return 1
+        for table in showTables(database):
+            tab = dataTable.get(database + "_" + table)
+            if tab:
+                tab[4] = -2
+                dataTable[database+"_"+table] = tab
+            Serializable.update('./Data', 'DataTables', dataTable)
         return 0
     else:
         return 2
@@ -1075,27 +1145,61 @@ def alterTableCompress(database, table, level):
     elif (level < 0 or level > 9) and level != -1:
         return 4
     if db:
+        tab = dataTable.get(database + "_" + table)
         try:
-            alterDatabaseEncoding(database, "utf8")
-            tab = dataTable.get(database + "_" + table)
-            if not tab:
+            if tab:
+                if tab[4] == -2:
+                    return 3
+                tuplas = extractTable(database, table)
+                if tuplas != None:
+                    import zlib
+                    tipado = []
+                    if tab[1] == 'avl':
+                        mod = avl
+                    elif tab[1] == 'b':
+                        mod = b
+                    elif tab[1] == 'bplus':
+                        mod = bplus
+                    elif tab[1] == 'hash':
+                        mod = hash
+                    elif tab[1] == 'json':
+                        mod = json
+                    elif tab[1] == 'dict':
+                        mod = dict
+                    elif tab[1] == 'isam':
+                        mod = isam
+                    import csv
+                    file = open("./data/change.csv", "w", newline='', encoding='utf-8')
+                    spamreader = csv.writer(file)
+                    compress_list = []
+                    for y in tuplas:
+                        compressed_data = []
+                        for item in y:
+                            compressed_item = item
+                            if type(item) == bytes or type(item) == bytearray:
+                                compressed_item = zlib.compress(item, level).hex()
+                            elif type(item) == str:
+                                compressed_item = zlib.compress(item.encode(), level).hex()
+                            compressed_data.append(compressed_item)
+                        compress_list.append(compressed_data)
+                    tipado = []
+                    for y in compress_list:
+                        tipado_tupla = []
+                        for t in y:
+                            tipado_tupla.append(type(t))
+                        tipado.append(tipado_tupla)
+                        spamreader.writerow(y)
+                    file.close()
+                    truncate(database, table)
+                    mod.loadCSV("./data/change.csv", database, table, tipado)
+                    os.remove("./data/change.csv")
+            else:
                 return 1
-            tuplas = extractTable(database, table)
-            if tuplas != None:
-                truncate(database, table)
-                import zlib
-                for y in tuplas:
-                    compressed_data = []
-                    for item in y:
-                        compressed_item = item
-                        if type(item) == bytes or type(item) == bytearray:
-                            compressed_item = zlib.compress(item, level)
-                        elif type(item) == str:
-                            compressed_item = zlib.compress(item.encode(), level)
-                        compressed_data.append(compressed_item)
-                    insert(database, table, compressed_data)
-        except E:
+        except:
             return 1
+        tab[4] = level
+        dataTable[database+"_"+table] = tab 
+        Serializable.update('./Data', 'DataTables', dataTable)
         return 0
     else:
         return 2
@@ -1106,26 +1210,61 @@ def alterTableDecompress(database, table):
     db = data.get(database)
     dataTable = Serializable.Read('./Data/', "DataTables")
     if db:
+        tab = dataTable.get(database + "_" + table)
         try:
-            alterDatabaseEncoding(database, "utf8")
-            tab = dataTable.get(database + "_" + table)
-            if not tab:
+            if tab:
+                if tab[4] == -2:
+                    return 3
+                tuplas = extractTable(database, table)
+                if tuplas != None:
+                    truncate(database, table)
+                    import zlib
+                    tipado = []
+                    if tab[1] == 'avl':
+                        mod = avl
+                    elif tab[1] == 'b':
+                        mod = b
+                    elif tab[1] == 'bplus':
+                        mod = bplus
+                    elif tab[1] == 'hash':
+                        mod = hash
+                    elif tab[1] == 'json':
+                        mod = json
+                    elif tab[1] == 'dict':
+                        mod = dict
+                    elif tab[1] == 'isam':
+                        mod = isam
+                    import csv
+                    file = open("./data/change.csv", "w", newline='', encoding='utf-8')
+                    spamreader = csv.writer(file)
+                    decompress_list = []
+                    for y in tuplas:
+                        compressed_data = []
+                        for item in y:
+                            compressed_item = item
+                            if type(item) == str:
+                                compressed_item = zlib.decompress(bytes.fromhex(item))
+                                compressed_item = compressed_item.decode()
+                            compressed_data.append(compressed_item)
+                        decompress_list.append(compressed_data)
+                    tipado = []
+                    for y in decompress_list:
+                        tipado_tupla = []
+                        for t in y:
+                            tipado_tupla.append(type(t))
+                        tipado.append(tipado_tupla)
+                        spamreader.writerow(y)
+                    file.close()
+                    truncate(database, table)
+                    mod.loadCSV("./data/change.csv", database, table, tipado)
+                    os.remove("./data/change.csv")
+            else:
                 return 1
-            tuplas = extractTable(database, table)
-            if tuplas != None:
-                truncate(database, table)
-                import zlib
-                for y in tuplas:
-                    compressed_data = []
-                    for item in y:
-                        compressed_item = item
-                        if type(item) == bytes or type(item) == bytearray:
-                            compressed_item = zlib.decompress(item)
-                            compressed_item = compressed_item.decode()
-                        compressed_data.append(compressed_item)
-                    insert(database, table, compressed_data)
-        except E:
+        except:
             return 1
+        tab[4] = -2
+        dataTable[database+"_"+table] = tab
+        Serializable.update('./Data', 'DataTables', dataTable)
         return 0
     else:
         return 2
