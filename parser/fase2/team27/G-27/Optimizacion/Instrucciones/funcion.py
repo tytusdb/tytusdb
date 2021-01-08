@@ -9,7 +9,7 @@ class Funcion(Instruccion):
 
     def toString(self,tab):
         if self.func != None:
-            funcion =  '\n@whith_goto \ndef ''' + self.ins + '('
+            funcion =  '\n@with_goto \ndef ''' + self.ins + '('
 
             for i in range(len(self.params)):
                 funcion += str(self.params[i])
@@ -30,7 +30,7 @@ class Funcion(Instruccion):
                 if ( i< len(self.params)-1):
                     funcion += ', '
             
-            funcion += '): '
+            funcion += ')'
             return funcion
             
 

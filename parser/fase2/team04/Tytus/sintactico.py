@@ -17,12 +17,12 @@ from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePar
 from Instrucciones.plsql.clase_if import clase_if
 from Instrucciones.plsql.block import Block
 from Instrucciones.plsql.proc import Proc
-from Instrucciones.plsql.func import Func
 from Instrucciones.plsql.call import Call
 from Instrucciones.plsql.execute import Execute
 from Instrucciones.plsql.statement import Statement
 from Instrucciones.plsql.assignment import Assignment
 from Instrucciones.plsql.retornar import clase_return
+from Instrucciones.plsql.Drop import Drop_PF
 from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck
 from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set
 from Instrucciones.Sql_declare import Declare
@@ -272,25 +272,29 @@ def p_funciones(t):
     '''
      instruccion : CREATE FUNCTION ID PARIZQ PARDER retorna DOLLAR body DOLLAR lenguaje PUNTO_COMA
     '''
-    t[0] = Proc(t[3],[],t[8],t[6],"",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ PARDER <retorna> DOLLAR <body> DOLLAR <lenguaje> PUNTO_COMA"
+    t[0] = Proc(t[3],[],t[8],t[6],strGram,t.lexer.lineno, t.lexer.lexpos)
 def p_funciones2(t):
     '''
      instruccion : CREATE FUNCTION ID PARIZQ parametros PARDER retorna DOLLAR body DOLLAR lenguaje PUNTO_COMA
     '''
-    t[0] = Proc(t[3],t[5],t[9],t[7],"",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::= CREATE FUNCTION ID PARIZQ <parametros> PARDER <retorna> DOLLAR <body> DOLLAR <lenguaje> PUNTO_COMA"
+    t[0] = Proc(t[3],t[5],t[9],t[7],strGram,t.lexer.lineno, t.lexer.lexpos)
 
 #Procedimientos con y sin parametros
 def p_procedimientos(t):  
     '''
      instruccion : CREATE PROCEDURE ID PARIZQ PARDER lenguaje AS DOLLAR body DOLLAR  
     '''
-    t[0] = Proc(t[3],[],t[9],None,"",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::= CREATE PROCEDURE ID PARIZQ  PARDER <lenguaje> AS DOLLAR <body> DOLLAR "
+    t[0] = Proc(t[3],[],t[9],None,strGram,t.lexer.lineno, t.lexer.lexpos)
 
 def p_procedimientos2(t):
     '''
      instruccion : CREATE PROCEDURE ID PARIZQ parametros PARDER lenguaje AS DOLLAR body DOLLAR  
     '''
-    t[0] = Proc(t[3],t[5],t[10],None,"",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::= CREATE PROCEDURE ID PARIZQ  <parametros> PARDER <lenguaje> AS DOLLAR <body> DOLLAR "
+    t[0] = Proc(t[3],t[5],t[10],None,strGram,t.lexer.lineno, t.lexer.lexpos)
 
 
 #Con Declare y sin Declare  
@@ -357,40 +361,51 @@ def p_declaracion6(t):
 
 def p_declaracion7(t):
     ' cont_declare :  ID tipo PUNTO_COMA '
-    t[0] = Statement([t[1],t[2]],None,"",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<cont_declare> ::=  ID <tipo> PUNTO_COMA "
+    t[0] = Statement([t[1],t[2]],None,strGram,t.lexer.lineno, t.lexer.lexpos)
 
     
 def p_asignacion(t):
     ''' instruccion : ID 2PUNTOS IGUAL expre PUNTO_COMA '''
-    t[0] = Assignment(t[1],t[4],"",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::=  ID 2PUNTOS IGUAL <expre> PUNTO_COMA "
+    t[0] = Assignment(t[1],t[4],strGram,t.lexer.lineno, t.lexer.lexpos)
 
+def p_asignacion2(t):
+    ''' instruccion : ID IGUAL expre PUNTO_COMA '''
+    strGram = "<instruccion> ::=  ID 2PUNTOS IGUAL <expre> PUNTO_COMA "
+    t[0] = Assignment(t[1],t[3],strGram,t.lexer.lineno, t.lexer.lexpos)
 
 #IF, IFELSE
 def p_inst_if(t):
     ''' instruccion : IF expre THEN instrucciones END IF PUNTO_COMA'''
-    t[0] = clase_if( t[2], Block(t[4]), None, "",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::=  IF <expre> THEN <instrucciones> END IF PUNTO_COMA "
+    t[0] = clase_if( t[2], Block(t[4]), None,strGram,t.lexer.lineno, t.lexer.lexpos)
     
 
 def p_inst_ifelse(t):
     ''' instruccion : IF expre THEN instrucciones ELSE instrucciones END IF PUNTO_COMA'''
-    t[0] = clase_if( t[2], Block(t[4]), Block(t[6]), "",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::=  IF <expre> THEN <instrucciones> ELSE <instrucciones> END IF PUNTO_COMA "
+    t[0] = clase_if( t[2], Block(t[4]), Block(t[6]), strGram,t.lexer.lineno, t.lexer.lexpos)
     
 
 #EXECUTE
 def p_execute(t):
     ''' instruccion : EXECUTE ID PARIZQ  PARDER PUNTO_COMA '''
-    t[0] = Execute(t[2],None,"",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::=  EXECUTE ID PARIZQ PARDER PUNTO_COMA "
+    t[0] = Execute(t[2],[],strGram,t.lexer.lineno, t.lexer.lexpos)
 
 def p_execute2(t):
     ''' instruccion : EXECUTE ID PARIZQ l_expresiones PARDER PUNTO_COMA '''
-    t[0] = Execute(t[2],t[4],"",t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::=  EXECUTE ID PARIZQ <l_expresiones> PARDER PUNTO_COMA "
+    t[0] = Execute(t[2],t[4],strGram,t.lexer.lineno, t.lexer.lexpos)
     
 #RETURN
 def p_instruccion_return(t):
     '''
     instruccion : RETURN expre PUNTO_COMA
     '''     
-    t[0]= clase_return(t[2] ,"", t.lexer.lineno, t.lexer.lexpos)
+    strGram = "<instruccion> ::=  RETURN <expre> PUNTO_COMA "
+    t[0]= clase_return(t[2] ,strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_instrucion_expre(t):
     '''
@@ -398,6 +413,29 @@ def p_instrucion_expre(t):
     '''  
     t[0]=t[1]
 
+#DELETE FUNC O PROC
+
+def p_drop_func(t):
+    '''
+    instruccion : DROP FUNCTION ID PARIZQ PARDER PUNTO_COMA
+    '''  
+    strGram = "<instruccion> ::= DROP FUNCION ID PARIZQ PARDER PUNTO_COMA"
+    t[0] = Drop_PF(t[3],None,strGram,t.lexer.lineno, t.lexer.lexpos)
+
+def p_drop_func2(t):
+    '''
+    instruccion : DROP FUNCTION ID PARIZQ tipo PARDER PUNTO_COMA
+    '''  
+    strGram = "<instruccion> ::= DROP FUNCION ID PARIZQ <tipo> PARDER PUNTO_COMA"
+    t[0] = Drop_PF(t[3],t[5],strGram,t.lexer.lineno, t.lexer.lexpos)
+
+
+def p_drop_proc(t):
+    '''
+    instruccion : DROP PROCEDURE ID PARIZQ PARDER PUNTO_COMA
+    '''  
+    strGram = "<instruccion> ::= DROP PROCEDURE ID PARIZQ PARDER PUNTO_COMA"
+    t[0] = Drop_PF(t[3],None,strGram,t.lexer.lineno, t.lexer.lexpos)
     
 ###########################################################################################################
 def p_set(t):
@@ -807,32 +845,45 @@ def p_inner_join(t):
     '''
 
 #########################################################################################
+
+def p_instruccion_create_index0(t):
+     '''
+     instruccion : CREATE INDEX ON ID PARIZQ op_index PARDER PUNTO_COMA
+     '''
+     strGram ="<instruccion> ::= CREATE INDEX  ON ID PARIZQ  <op_index> PARDER PUNTO_COMA"
+     t[0]  = CreateIndex(1,t[1],None,t[4],t[6],t.lexer.lineno,t.lexer.lexpos,strGram) 
+
 def p_instruccion_create_index1(t):
     '''  
-    instruccion : CREATE INDEX  ID ON ID PARIZQ op_index PARDER  PUNTO_COMA
-    '''  
-    t[0]  = CreateIndex(1,t[1],t[2],t[3],t[7],t.lexer.lineno, t.lexer.lexpos)   
+    instruccion : CREATE INDEX  ID ON ID PARIZQ op_index PARDER  PUNTO_COMA      
+    '''    
+    strGram ="<instruccion> ::= CREATE INDEX ID ON ID PARIZQ  <op_index> PARDER PUNTO_COMA"
+    t[0]  = CreateIndex(t[2],t[3],t[5],t[7],t.lexer.lineno,t.lexer.lexpos,strGram) 
+
 def p_instruccion_create_index2(t):
     '''
     instruccion : CREATE opcion INDEX ID ON ID  PARIZQ op_index PARDER  PUNTO_COMA
     '''
-    t[0]  = CreateIndex(2,t[1],t[3],t[4],t[8],t.lexer.lineno, t.lexer.lexpos)
+    strGram ="<instruccion> ::= CREATE <opcion> INDEX ID ON ID PARIZQ  <op_index> PARDER PUNTO_COMA"
+    t[0]  = CreateIndex(t[3],t[4],t[6],t[8],t.lexer.lineno, t.lexer.lexpos,strGram)
 def p_instruccion_create_index3(t):
     '''
     instruccion : CREATE INDEX ID ON ID USING HASH PARIZQ op_index PARDER  PUNTO_COMA 
     '''
-    t[0]  = CreateIndex(3,t[1],t[2],t[3],t[9],t.lexer.lineno, t.lexer.lexpos)
+    strGram ="<instruccion> ::= CREATE INDEX ID ON ID USIN HASH PARIZQ  <op_index> PARDER PUNTO_COMA"
+    t[0]  = CreateIndex(t[2],t[3],t[5],t[9],t.lexer.lineno, t.lexer.lexpos,strGram)
 def p_instruccion_create_index4(t):
     '''
     instruccion : CREATE opcion INDEX ID ON ID USING HASH PARIZQ op_index PARDER  PUNTO_COMA 
     '''
-    t[0]  = CreateIndex(4,t[1],t[3],t[4],t[10],t.lexer.lineno, t.lexer.lexpos)
+    strGram ="<instruccion> ::= CREATE <option> INDEX ID ON ID USIN HASH PARIZQ  <op_index> PARDER PUNTO_COMA"
+    t[0]  = CreateIndex(t[3],t[4],t[6],t[10],t.lexer.lineno, t.lexer.lexpos,strGram)
 def p_instruccion_create_index5(t):
     '''
     instruccion : CREATE INDEX ID ON ID PARIZQ op_index PARDER  instructionWhere PUNTO_COMA       
     '''
-    t[0]  = CreateIndex(5,t[1],t[2],t[3],t[7],t.lexer.lineno, t.lexer.lexpos)
-
+    strGram ="<instruccion> ::= CREATE INDEX ID ON ID  PARIZQ  <op_index> PARDER <instructionWhere> PUNTO_COMA"
+    t[0]  = CreateIndex(t[2],t[3],t[5],t[7],t.lexer.lineno, t.lexer.lexpos,strGram)
 
 def p_instruccion_alter_index1(t):
     '''
@@ -840,75 +891,38 @@ def p_instruccion_alter_index1(t):
                 | ALTER INDEX           ID RENAME TO ID PUNTO_COMA
     '''
     if t[3] == 'IF':
-          # num, nombre, tipo, col, opcion, rest, linea  
-        t[0]= AlterIndex(1,t[1],t[2],t[5],t[6],[t[6],t[7],t[8]],t.lexer.lineno,t.lexer.lexpos) 
+        strGram = "<instruccion> ::= ALTER INDEX IF EXISTS ID RENAME TO ID PUNTO_COMA"
+        t[0]= AlterIndex(1,t[2],t[5],t[8],t.lexer.lineno,t.lexer.lexpos,strGram) 
     else:
-        t[0]= AlterIndex(1,t[1],t[2],t[3],t[4],[t[4],t[5],t[6]],t.lexer.lineno,t.lexer.lexpos)      
+        strGram = "<instruccion> ::= ALTER INDEX  ID RENAME TO ID PUNTO_COMA"
+        t[0]= AlterIndex(1,t[2],t[3],t[6],t.lexer.lineno,t.lexer.lexpos,strGram)      
 
 def p_instruccion_alter_index2(t):
     '''
-    instruccion : ALTER INDEX IF EXISTS ID SET TABLESPACE ID PUNTO_COMA
-                | ALTER INDEX           ID SET TABLESPACE ID PUNTO_COMA
+    instruccion : ALTER INDEX IF EXISTS ID ALTER ID PUNTO_COMA
+                | ALTER INDEX           ID ALTER ID PUNTO_COMA
     '''
     if t[3] == 'IF': 
-                       # num, nombre, tipo, col, opcion, rest, linea 
-        t[0]= AlterIndex(1,t[1],t[2],t[5],t[6],[t[6],t[7]],t.lexer.lineno,t.lexer.lexpos) 
+        strGram ="<instruccion> ::= ALTER INDEX  IF EXISTS ID ALTER ID"
+        t[0]= AlterIndex(2,t[2],t[5],t[7],t.lexer.lineno,t.lexer.lexpos,strGram) 
     else:
-        t[0]= AlterIndex(1,t[1],t[2],t[3],t[4],[t[4],t[5]],t.lexer.lineno,t.lexer.lexpos) 
+        strGram ="<instruccion> ::= ALTER INDEX ID ALTER ID"
+        t[0]= AlterIndex(2,t[2],t[3],t[5],t.lexer.lineno,t.lexer.lexpos,strGram)  
 
-def p_instruccion_alter_index3(t):
-    '''
-    instruccion : ALTER INDEX ID DEPENDS ON EXTENSION ID PUNTO_COMA
-    '''
-                 # num, nombre, tipo, col, opcion, rest, linea
-    t[0]= AlterIndex(1,t[1],t[2],t[3],t[4],[t[6],t[7]],t.lexer.lineno,t.lexer.lexpos) 
-   
-def p_instruccion_alter_index4(t):
-    '''
-    instruccion : ALTER INDEX  IF EXISTS ID SET PARIZQ op_index PARDER PUNTO_COMA
-                | ALTER INDEX  ID SET PARIZQ op_index PARDER PUNTO_COMA 
-    '''
-    if t[3] == 'IF': 
-                    # num, nombre, tipo, col, opcion, rest, linea 
-        t[0]= AlterIndex(1,t[1],t[2],t[5],t[6],t[8],t.lexer.lineno,t.lexer.lexpos) 
-    else:
-        t[0]= AlterIndex(1,t[1],t[2],t[3],t[4],t[6],t.lexer.lineno,t.lexer.lexpos) 
-
-
-def p_instruccion_alter_index5(t):
-    '''
-    instruccion : ALTER INDEX  IF EXISTS ID RESET PARIZQ op_index PARDER PUNTO_COMA
-                | ALTER INDEX  ID RESET PARIZQ op_index PARDER PUNTO_COMA 
-    ''' 
-    if t[3] == 'IF': 
-                    # num, nombre, tipo, col, opcion, rest, linea 
-        t[0]= AlterIndex(1,t[1],t[2],t[5],t[6],t[8],t.lexer.lineno,t.lexer.lexpos) 
-    else:
-        t[0]= AlterIndex(1,t[1],t[2],t[3],t[4],t[6],t.lexer.lineno,t.lexer.lexpos) 
-
-def p_instruccion_alter_index6(t):
-    '''
-    instruccion : ALTER INDEX ALL IN TABLESPACE ID OWNER BY ID PUNTO_COMA
-                | ALTER INDEX ALL IN TABLESPACE ID PUNTO_COMA
-    '''
-    if t[3] == 'IF': 
-                    # num, nombre, tipo, col, opcion, rest, linea 
-        t[0]= AlterIndex(1,t[1],t[2],t[6],t[5],[t[7],t[8]],t.lexer.lineno,t.lexer.lexpos) 
-    else:
-        t[0]= AlterIndex(1,t[1],t[2],t[6],t[5],t[6],t.lexer.lineno,t.lexer.lexpos) 
 
 def p_instruccion_drop_index1(t):
     '''
     instruccion : DROP INDEX IF EXISTS ID cr_index PUNTO_COMA
     '''           
-                  # num, nombre, tipo, col, opcion, rest, linea 
-    t[0]= DropIndex(1,t[1],t[2],t[5],t[6],None,t.lexer.lineno,t.lexer.lexpos) 
+    strGram ="<instruccion>::= DROP INDEX IF EXISTS ID <cr_index> PUNTO_COMA"             
+    t[0]= DropIndex(1,t[1],t[2],t[5],None,None,t.lexer.lineno,t.lexer.lexpos,strGram) 
 
 def p_instruccion_drop_index2(t):    
     '''
     instruccion : DROP INDEX ID cr_index PUNTO_COMA
-    '''     
-    t[0]= DropIndex(1,t[1],t[2],t[3],t[4],None,t.lexer.lineno,t.lexer.lexpos)
+    '''
+    strGram ="<instruccion>::= DROP INDEX ID <cr_index> PUNTO_COMA"     
+    t[0]= DropIndex(1,t[1],t[2],t[3],None,None,t.lexer.lineno,t.lexer.lexpos,strGram)
     
      
 def p_instruccion_drop_index2(t):    
@@ -917,9 +931,11 @@ def p_instruccion_drop_index2(t):
                 | DROP INDEX            ID PUNTO_COMA
     ''' 
     if t[3] == 'IF':
-       t[0]= DropIndex(1,t[1],t[2],t[5],None,None,t.lexer.lineno,t.lexer.lexpos)
+       strGram ="<instruccion>::= DROP INDEX IF EXISTS  ID PUNTO_COMA" 
+       t[0]= DropIndex(1,t[1],t[2],t[5],None,None,t.lexer.lineno,t.lexer.lexpos,strGram)
     else:
-       t[0]= DropIndex(1,t[1],t[2],t[3],None,None,t.lexer.lineno,t.lexer.lexpos) 
+       strGram ="<instruccion>::= DROP INDEX ID PUNTO_COMA" 
+       t[0]= DropIndex(1,t[1],t[2],t[3],None,None,t.lexer.lineno,t.lexer.lexpos,strGram) 
 
 
 def p_cr_index(t):
@@ -931,41 +947,48 @@ def p_cr_index(t):
 
 def p_op_index1(t): 
     '''
-    op_index : INFO NULLS FIRST       
+    op_index : ID NULLS ordinal       
     ''' 
     t[0] = [[t[1],t[2],t[3]]] 
 
 def p_op_index2(t): 
     '''
-    op_index : ID ASC NULLS LAST             
+    op_index : ID orden NULLS ordinal         
     '''
     t[0] = [[t[1],t[2],t[3],t[4]]]   
 
-def p_op_index3(t): 
-    '''
-    op_index : ID DESC NULLS LAST             
-    '''
-    t[0] = [[t[1],t[2],t[3],t[4]]]  
-
 def p_op_index4(t): 
     '''
-    op_index :  LOWER PARIZQ ID PARDER                
-    ''' 
-    t[0] = [[t[1],t[2],t[3],t[4]]] 
+    op_index : LOWER PARIZQ ID PARDER   
+               
+    '''        
+    t[0] = [[t[1],t[3]]] 
+
 
 
 def p_op_index5(t): 
+    '''
+    op_index : PARIZQ LOWER PARIZQ ID PARDER PARDER         
+    ''' 
+    t[0] = [[t[1],t[4]]] 
+
+def p_op_index6(t): 
     '''
     op_index : ID IGUAL expresion        
     '''  
     t[0] = [[t[1],t[2],t[3]]] 
 
-
-def p_op_index6(t): 
+def p_op_index7(t): 
     '''
     op_index : namecs        
     '''  
-    t[0] = [t[1]] 
+    t[0] = [t[1]]   
+
+def p_op_index8(t):
+    '''
+    op_index : LOWER PARIZQ ID PARDER COMA ID 
+    '''    
+    t[0] = [[t[1],t[3],t[6]]]
 
 def p_namecs1(t):
     '''
@@ -980,9 +1003,21 @@ def p_namecs2(t):
     '''            
     t[0] = [t[1]]    
 
+def p_orden(t):
+    '''
+    orden : DESC
+          | ASC
+    '''
+    t[0] = t[1]
 
+def p_ordinal(t):
+    '''
+    ordinal : FIRST
+            | LAST
+    '''
+    t[0] = t[1]
 
-
+    
 
 ##############################################################################################
 def p_operadores_logicos(t):
@@ -1973,7 +2008,6 @@ def ejecutar_analisis(texto):
     lexer.input("")
     lexer.lineno = 0
     #se obtiene la acción de analisis sintactico
-    print("inicio")
     return parser.parse(texto)
 
 

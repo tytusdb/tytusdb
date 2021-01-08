@@ -84,16 +84,19 @@ class Tipo():
             return "void"
 
     def traducir(self, tabla, arbol):
-        cadena = self.toString()
-        if(self.dimension != None):
-            cadena += "("
-            #Error de  conflicto entre cadena o array 
-            if(isinstance(self.dimension, list)):
-                for x in range(0,len(self.dimension)):
-                    if(x>0):
-                        cadena += ","
-                    cadena += str(self.dimension[x])
-            else:
-                cadena += str(self.dimension)
-            cadena += ")"
+        if(self.tipo == Tipo_Dato.TIPOENUM):
+            cadena = self.nombre
+        else:
+            cadena = self.toString()
+            if(self.dimension != None):
+                cadena += "("
+                #Error de  conflicto entre cadena o array 
+                if(isinstance(self.dimension, list)):
+                    for x in range(0,len(self.dimension)):
+                        if(x>0):
+                            cadena += ","
+                        cadena += str(self.dimension[x])
+                else:
+                    cadena += str(self.dimension)
+                cadena += ")"
         return cadena

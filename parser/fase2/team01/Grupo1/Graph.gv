@@ -2,32 +2,273 @@ graph {
 	node [shape=circle]
 	edge [color=blue4]
 	splines=false
-	1 [label=ARGUMENT]
-	"1_format" [label=format]
-	1 -- "1_format"
-	2 [label=INSTRUCCIONES]
+	1 [label=MODE]
+	"1_1" [label=1]
+	1 -- "1_1"
+	2 [label=OWNER]
 	2 -- 1
-	3 [label=ARGUMENT]
-	"3_format" [label=format]
-	3 -- "3_format"
-	4 [label=INSTRUCCIONES]
+	3 [label=CREATEDB]
+	"3_DBFase2" [label=DBFase2]
+	3 -- "3_DBFase2"
+	3 -- 2
+	4 [label=CREATE]
+	"4_DATABASE" [label=DATABASE]
+	4 -- "4_DATABASE"
 	4 -- 3
-	5 [label=ARGUMENT]
-	"5_ SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 " [label=" SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 "]
-	5 -- "5_ SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 "
-	6 [label=pl_execute]
-	"6_EXECUTE" [label=EXECUTE]
-	6 -- "6_EXECUTE"
+	5 [label=INSTRUCCION]
+	5 -- 4
+	6 [label=INSTRUCCIONES]
 	6 -- 5
-	7 [label=INSTRUCCIONES]
-	7 -- 6
-	8 [label=ARGUMENT]
-	"8_ SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 " [label=" SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 "]
-	8 -- "8_ SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted <= $2 "
-	9 [label=pl_execute]
-	"9_EXECUTE" [label=EXECUTE]
-	9 -- "9_EXECUTE"
+	7 [label=USE]
+	"7_;" [label=";"]
+	7 -- "7_;"
+	"7_DBFase2" [label=DBFase2]
+	7 -- "7_DBFase2"
+	8 [label=INSTRUCCION]
+	8 -- 7
+	9 [label=INSTRUCCIONES]
+	9 -- 6
 	9 -- 8
-	10 [label=INSTRUCCIONES]
-	10 -- 9
+	10 [label=TIPO]
+	"10_INTEGER" [label=INTEGER]
+	10 -- "10_INTEGER"
+	11 [label=TABLECONSCHECK]
+	12 [label=TABLECONSUNIQ]
+	12 -- 11
+	13 [label=TABLENULL]
+	13 -- 12
+	14 [label=TABLEDEFAULT]
+	14 -- 13
+	15 [label=TBKEY]
+	15 -- 14
+	16 [label=DESCRIPTION]
+	"16_id" [label=id]
+	16 -- "16_id"
+	16 -- 10
+	16 -- 15
+	17 [label=DESCRIPTIONS]
+	17 -- 16
+	18 [label=TIPO]
+	"18_VARCHAR" [label=VARCHAR]
+	18 -- "18_VARCHAR"
+	"18_30" [label=30]
+	18 -- "18_30"
+	19 [label=TABLECONSCHECK]
+	20 [label=TABLECONSUNIQ]
+	20 -- 19
+	21 [label=TABLENULL]
+	21 -- 20
+	22 [label=TABLEDEFAULT]
+	22 -- 21
+	23 [label=TBKEY]
+	23 -- 22
+	24 [label=DESCRIPTION]
+	"24_nombre" [label=nombre]
+	24 -- "24_nombre"
+	24 -- 18
+	24 -- 23
+	25 [label=DESCRIPTIONS]
+	25 -- 17
+	25 -- 24
+	26 [label=LISTAIDS]
+	"26_id" [label=id]
+	26 -- "26_id"
+	27 [label=DESCRIPTION]
+	"27_PRIMARY" [label=PRIMARY]
+	27 -- "27_PRIMARY"
+	27 -- 26
+	28 [label=DESCRIPTIONS]
+	28 -- 25
+	28 -- 27
+	29 [label=TBHERENCIA]
+	30 [label=CREATETB]
+	"30_tab" [label=tab]
+	30 -- "30_tab"
+	30 -- 28
+	30 -- 29
+	31 [label=CREATE]
+	"31_TABLE" [label=TABLE]
+	31 -- "31_TABLE"
+	31 -- 30
+	32 [label=INSTRUCCION]
+	32 -- 31
+	33 [label=INSTRUCCIONES]
+	33 -- 9
+	33 -- 32
+	34 [label=TIPO]
+	"34_INTEGER" [label=INTEGER]
+	34 -- "34_INTEGER"
+	35 [label=TABLECONSCHECK]
+	36 [label=TABLECONSUNIQ]
+	36 -- 35
+	37 [label=TABLENULL]
+	37 -- 36
+	38 [label=TABLEDEFAULT]
+	38 -- 37
+	39 [label=TBKEY]
+	39 -- 38
+	40 [label=DESCRIPTION]
+	"40_id" [label=id]
+	40 -- "40_id"
+	40 -- 34
+	40 -- 39
+	41 [label=DESCRIPTIONS]
+	41 -- 40
+	42 [label=TIPO]
+	"42_VARCHAR" [label=VARCHAR]
+	42 -- "42_VARCHAR"
+	"42_30" [label=30]
+	42 -- "42_30"
+	43 [label=TABLECONSCHECK]
+	44 [label=TABLECONSUNIQ]
+	44 -- 43
+	45 [label=TABLENULL]
+	45 -- 44
+	46 [label=TABLEDEFAULT]
+	46 -- 45
+	47 [label=TBKEY]
+	47 -- 46
+	48 [label=DESCRIPTION]
+	"48_nombre" [label=nombre]
+	48 -- "48_nombre"
+	48 -- 42
+	48 -- 47
+	49 [label=DESCRIPTIONS]
+	49 -- 41
+	49 -- 48
+	50 [label=LISTAIDS]
+	"50_id" [label=id]
+	50 -- "50_id"
+	51 [label=DESCRIPTION]
+	"51_PRIMARY" [label=PRIMARY]
+	51 -- "51_PRIMARY"
+	51 -- 50
+	52 [label=DESCRIPTIONS]
+	52 -- 49
+	52 -- 51
+	53 [label=TBHERENCIA]
+	54 [label=CREATETB]
+	"54_tab33" [label=tab33]
+	54 -- "54_tab33"
+	54 -- 52
+	54 -- 53
+	55 [label=CREATE]
+	"55_TABLE" [label=TABLE]
+	55 -- "55_TABLE"
+	55 -- 54
+	56 [label=INSTRUCCION]
+	56 -- 55
+	57 [label=INSTRUCCIONES]
+	57 -- 33
+	57 -- 56
+	58 [label=VALUE]
+	"58_param1" [label=param1]
+	58 -- "58_param1"
+	59 [label=VALUES]
+	59 -- 58
+	60 [label=VALUE]
+	"60_param2" [label=param2]
+	60 -- "60_param2"
+	61 [label=VALUES]
+	61 -- 59
+	61 -- 60
+	62 [label=VALUE]
+	"62_param3" [label=param3]
+	62 -- "62_param3"
+	63 [label=VALUES]
+	63 -- 61
+	63 -- 62
+	64 [label=INSERT]
+	"64_tab" [label=tab]
+	64 -- "64_tab"
+	64 -- 63
+	65 [label=INSTRUCCION]
+	65 -- 64
+	66 [label=INSTRUCCIONES]
+	66 -- 57
+	66 -- 65
+	67 [label=parametro]
+	"67_param1" [label=param1]
+	67 -- "67_param1"
+	68 [label=PARAMETROS]
+	68 -- 67
+	69 [label=parametro]
+	"69_param2" [label=param2]
+	69 -- "69_param2"
+	70 [label=PARAMETROS]
+	70 -- 68
+	70 -- 69
+	71 [label=parametro]
+	"71_param3" [label=param3]
+	71 -- "71_param3"
+	72 [label=PARAMETROS]
+	72 -- 70
+	72 -- 71
+	73 [label=VALUE]
+	"73_1" [label=1]
+	73 -- "73_1"
+	74 [label=VALUES]
+	74 -- 73
+	75 [label=VALUE]
+	"75_BODEGA CENTRAL" [label="BODEGA CENTRAL"]
+	75 -- "75_BODEGA CENTRAL"
+	76 [label=VALUES]
+	76 -- 74
+	76 -- 75
+	77 [label=VALUE]
+	"77_1" [label=1]
+	77 -- "77_1"
+	78 [label=VALUES]
+	78 -- 76
+	78 -- 77
+	79 [label=INSERT]
+	"79_tab" [label=tab]
+	79 -- "79_tab"
+	79 -- 78
+	80 [label=INSTRUCCION]
+	80 -- 79
+	81 [label=INSTRUCCIONES]
+	81 -- 80
+	82 [label=VALUE]
+	"82_param1" [label=param1]
+	82 -- "82_param1"
+	83 [label=VALUES]
+	83 -- 82
+	84 [label=VALUE]
+	"84_param2" [label=param2]
+	84 -- "84_param2"
+	85 [label=VALUES]
+	85 -- 83
+	85 -- 84
+	86 [label=VALUE]
+	"86_param3" [label=param3]
+	86 -- "86_param3"
+	87 [label=VALUES]
+	87 -- 85
+	87 -- 86
+	88 [label=INSERT]
+	"88_tab" [label=tab]
+	88 -- "88_tab"
+	88 -- 87
+	89 [label=INSTRUCCION]
+	89 -- 88
+	90 [label=INSTRUCCIONES]
+	90 -- 81
+	90 -- 89
+	91 [label=pl_cuerpop]
+	"91_begin" [label=begin]
+	91 -- "91_begin"
+	91 -- 90
+	92 [label=pl_procedure]
+	"92_create" [label=create]
+	92 -- "92_create"
+	"92_procedure" [label=procedure]
+	92 -- "92_procedure"
+	"92_sp_validainsert" [label=sp_validainsert]
+	92 -- "92_sp_validainsert"
+	92 -- 72
+	92 -- 91
+	93 [label=INSTRUCCIONES]
+	93 -- 66
+	93 -- 92
 }

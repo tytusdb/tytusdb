@@ -4,7 +4,9 @@ from os import path
 from tkinter import filedialog
 import time
 import subprocess
+from Instrucciones.Sql_insert import insertTable
 
+from Instrucciones.PL import Func
 
 from tkinter import Menu
 from tkinter import ttk
@@ -245,17 +247,27 @@ class interfaz():
         arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
         
-
-        
+        j=0
+        h=0
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
             print("analizara")
             print(i)
+            
             try: 
                          print("al")
                          if isinstance(i, Execute.Execute):
-                            print("es execute")
-                            resultado = i.generar(tablaGlobal,arbol)
+                            
+                            print("es execute con j= "+str(j))
+
+                            i.generar(j,tablaGlobal,arbol)
+                            j=j+1
+                         if isinstance(i, insertTable.insertTable):
+
+                             j=i.validar(j,tablaGlobal,arbol)
+
+                             print("es insertTable con j= "+str(j))
+
                          print("NOes execute")
                         
                         
@@ -278,8 +290,8 @@ class interfaz():
     def btnanalizar_click(self):
         self.start()  
         self.primerapasada()
-      #  if(1==1):
-          #return
+        # if(1==1):
+        #   return
         global arbol
         arbol = None
         dropAll()
@@ -303,16 +315,19 @@ class interfaz():
         arbol.lRepDin.append("<init> ::= <instrucciones>")
         arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
-    
+        
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
             print("analizara")
             print(i)
             try: 
-                         print("al")
+
+                     
 
                          resultado = i.analizar(tablaGlobal,arbol)
                          print("alj")
+
+
 
             except:
                    print("ara")
@@ -326,7 +341,7 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
-        
+        j=0
         # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
@@ -334,7 +349,28 @@ class interfaz():
             for i in arbol.instrucciones:
                 
                 try: 
-                    i.traducir(tablaGlobal,arbol)
+
+                     if isinstance(i, Execute.Execute):
+                            
+                           
+                            i.traducir(j,tablaGlobal,arbol)
+                            j=j+1
+                     elif isinstance(i, insertTable.insertTable):
+
+                      
+                          i.traducir(j,tablaGlobal,arbol)
+                          ES=i.validar7(tablaGlobal,arbol)
+                          if ES : j=j+1
+                     elif isinstance(i, Func.Func):
+
+                         
+                          i.traducir(0,tablaGlobal,arbol)
+
+
+                     else :i.traducir(tablaGlobal,arbol)
+                  
+
+
                 except:
                    pass 
                

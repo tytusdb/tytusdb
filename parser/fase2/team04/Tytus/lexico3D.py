@@ -17,7 +17,7 @@ lista_errores_lexico=[]
 global columna
 columna=0
 
-reservadas = ('global', 'from', 'import', 'def', 'if', '__name__', 'label', 'goto')
+reservadas = ('GLOBAL', 'FROM', 'IMPORT', 'DEF','LABEL', 'IF', 'GOTO', 'NONE')
 
 tokens = reservadas + (
     # OPERADORES COMPARADORES
@@ -43,7 +43,6 @@ tokens = reservadas + (
     'COMA',
     'ID',
     'TEMPORAL',
-    'LABEL',
     'CADENA',
     'CARACTER',
     'ARROBA',
@@ -51,7 +50,8 @@ tokens = reservadas + (
     'POR',
     'MENOS',
     'DIVIDIDO',
-    'IGUAL_IGUAL'
+    'IGUAL_IGUAL',
+    'NAME'
     
 )
 
@@ -64,7 +64,7 @@ t_CORDER = r'\]'
 t_COMA = r'\,'
 t_PUNTO = r'\.'
 t_DPUNTOS = r'\:'
-t_IGUAL_IGUAL = r'=='
+t_IGUAL_IGUAL = r'\=\='
 
 # OPERADORES ARITMETICOS
 t_MAS = r'\+'
@@ -86,32 +86,33 @@ def t_WITH_GOTO(t):
     t.type = 'WITH_GOTO'
     return t
 
+
+
+def t_NAME(t):
+    r'__name__'
+    t.type = 'NAME'
+    return t
+
+
 #DEFINICION DE TEMPORALES
 def t_TEMPORAL(t):
     r't\d+'
     t.type = 'TEMPORAL'
-    print('esto es un temporal: ', t.value)
+    #print('esto es un temporal: ', t.value)
     return t
 
-#DEFINICION DE ETIQUETAS PARA SALTOS
-def t_LABEL(t):
-    r'.l\d+'
-    t.type = 'LABEL'
-    print('Esto es un label para salto 3D: ', t.value)
-    return t
 
 # EXPRESIONES REGULARES CON ESTADOS
 
-
 def t_CADENA(t):
     r'\".*?\"'
-    t.value = t.value[1:-1]  # remuevo las comillas dobles
+    #t.value = t.value[1:-1]  # remuevo las comillas dobles
     return t
 
 
 def t_CARACTER(t):
     r'\'.*?\''
-    t.value = t.value[1:-1]  # remuevo las comillas simples
+    #t.value = t.value[1:-1]  # remuevo las comillas simples
     #print('esto es un caracter: ', t.value)
     return t
 
@@ -128,7 +129,7 @@ def t_FDECIMAL(t):
 
 def t_ID(t):
     r'[a-zA-Z][a-zA-Z_0-9_]*'
-
+    
     #print(t.value.upper())
 
     if (t.value.upper()) in reservadas:
@@ -167,7 +168,7 @@ def t_NEWLINE(t):
     
 # Comentario simple // ...
 def t_COMENTARIO_SIMPLE(t):
-    r'--.*\n'
+    r'#.*\n'
     t.lexer.lineno += 1
 
 

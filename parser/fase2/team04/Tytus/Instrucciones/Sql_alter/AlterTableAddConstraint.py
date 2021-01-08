@@ -45,6 +45,7 @@ class AlterTableAddConstraint(Instruccion):
                             c.constraint.append(Tipo_Constraint(self.id, Tipo_Dato_Constraint.UNIQUE, None))
                             #print("SOLO UNA-------------",c.nombre, c.tipo.toString(),len(c.constraint)) 
                     arbol.consola.append("Consulta devuelta correctamente.")  
+                    print("Consulta ALTER TABLE ADD CONSTRAINT devuelta correctamente")
                 else:
                     lista = set(self.lista_col) - set(listaNombres)
                     #print(listaNombres,self.lista_col)
@@ -90,10 +91,10 @@ class AlterTableAddConstraint(Instruccion):
         codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
-
+        #arbol.consola.append(codigo)
+        return codigo

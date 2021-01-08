@@ -215,8 +215,7 @@ def p_createbody(t):
 
 def p_createopts_index(t):
     """createOpts : unique_index R_INDEX ID R_ON ID using_hash_index S_PARIZQ idList indexasc_desc indexNullS S_PARDER whereCl"""
-    t[0] = instruction.IndexCls(t[1],t[3], t[5],t[8], t[9], t[10], t[12], t.lineno(1), t.lexpos(1))
-    #print("todo bien, nada mal")
+    t[0] = instruction.IndexCls(t[1],t[3], t[5],t[8], t[9], t[10], t[12], t.lineno(1), t.lexpos(1))    
     repGrammar.append(t.slice)
 
 def p_unique_index(t):
@@ -1259,22 +1258,18 @@ def p_idOrLiteral(t):
 
 def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE idOrString alterDb
-    | R_ALTER R_TABLE idOrString alterTableList
-    | R_ALTER R_INDEX ifExists idOrString R_ALTER col_op idList
+                 | R_ALTER R_TABLE idOrString alterTableList
+                 | R_ALTER R_INDEX ifExists ID R_ALTER ID ID
+                 | R_ALTER R_INDEX ifExists ID R_ALTER ID INTEGER
     """
     if t[2] == "DATABASE":
         t[0] = instruction.AlterDataBase(t[4][0], t[3], t[4][1])
-    else:
+    elif t[2] == "TABLE":
         t[0] = instruction.AlterTable(t[3], t[4])
+    else:
+        t[0] = instruction.AlterIndex(t[4], t[7], t[6], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
-def p_col_op(t):
-    """col_op : R_COLUMN
-    |
-    """
-    t[0] = t[1]
-
-    repGrammar.append(t.slice)
 
 def p_alterDb(t):
     """alterDb : R_RENAME R_TO idOrString
@@ -1401,7 +1396,6 @@ def p_dropStmt(t):
         t[0] = instruction.Drop(t[2], t[4], exists)
 
     repGrammar.append(t.slice)
-
 
 def p_ifExists(t):
     """ifExists : R_IF R_EXISTS

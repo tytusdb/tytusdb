@@ -22,6 +22,7 @@ class index(Instruccion):
         self.lcol = lcol
         self.where = where
         self.tipoIndex = tipoIndex
+        print('********************************************',self.lcol)
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
@@ -131,6 +132,8 @@ class index(Instruccion):
     def generar3D(self, tabla, arbol):
         super().generar3D(tabla,arbol)
         code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
         t0 = c3d.getTemporal()
         # code.append(c3d.asignacionString(t0, "CREATE INDEX " + self.ID))
         params = ''
@@ -141,12 +144,12 @@ class index(Instruccion):
             if 'Identificador' in str(var):
                 params += var.id
 
-        code.append(c3d.asignacionString(t0, "CREATE INDEX" + str(self.idIndex.id) + " ON " + str(self.idTabla.id) + " ( " + params + " ) ;"))
-        code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
+        code.append(c3d.asignacionString(t0, "CREATE INDEX " + str(self.idIndex.id) + " ON " + str(self.idTabla.id) + " ( " + params + " ) ;"))
+        #code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
         #CREATE INDEX test2_mm_idx ON tabla(id);
 
         # code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
         code.append(c3d.asignacionTemporalStack(t0))
-        code.append(c3d.aumentarP())
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
 
         return code

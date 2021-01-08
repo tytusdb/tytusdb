@@ -33,10 +33,11 @@ class Select(Instruccion):
 
     def execute(self, data):
         fromData = self.fromopcional
-        cadenaE = "select idproducto,producto,estado from tbProducto where estado=1;"
+        cadenaE = self.arg1.upper()
+        #"select idproducto,producto,estado from tbProducto where estado=1;"
         #cadenaE = "select count(*) from tbProducto;"
-         
-        valRetSel = selectC3D(data.databaseSeleccionada, fromData.parametros[0].parametros.operador.upper(), cadenaE.upper())
+                        
+        valRetSel = selectC3D(data.databaseSeleccionada, fromData.parametros[0].parametros.operador.upper(), cadenaE.upper(), '   ')
         if fromData == None:
             diccionarioColumnasAceptadas = {}
             nuevaColumna = []
@@ -422,7 +423,7 @@ class Select(Instruccion):
             returnCol = {}
             returnCol2 = []
             returnCol2.append(str(len(filascount)))
-            returnCol2.append('.')
+            returnCol2.append('_')
             returnCol['columnas']= returnCol2
             returnCount['count'] = returnCol
             
@@ -955,8 +956,9 @@ class ListaDeSeleccionadosConOperador(Instruccion):
         self.arg3 = arg3
 
     def execute(self,data, valoresTabla):
-        print(self)
-        print(valoresTabla)
+        #print(self)
+        
+        #print(valoresTabla)
         if self.operador.upper() == 'CASE' :
             left = ''
             for arg in self.arg1 :
@@ -2646,7 +2648,7 @@ class FuncionMatematicaSimple(Instruccion):
             if columnaImprimir.type == 'integer' or columnaImprimir.type == 'float':
                 val = 0
                 for key in diccionarioAgrupacion:
-                    print (key)
+                    #print (key)
                     val = 0
                     for pos in diccionarioAgrupacion[key]:
                         val = val + columnasAceptadas[tablaAceptada][pos][contador]

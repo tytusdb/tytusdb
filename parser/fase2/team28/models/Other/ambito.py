@@ -20,6 +20,9 @@ class Ambito:
         self.padre = padre
         self.lbl_return = None
 
+    def __repr__(self):
+        return str(vars(self))
+
     def getReturn(self):
         return self.lbl_return
 

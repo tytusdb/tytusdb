@@ -7,6 +7,8 @@ import tablaDGA as TAS
 import sql as sql 
 import mathtrig as mt
 from reportTable import *
+from reportError import *
+from reportBNF import *
     
     
 pila = []
@@ -25,8 +27,8 @@ def ejecutar():
     sql.execute("CREATE UNIQUE INDEX idx_producto ON tbProducto( idproducto);")
     sql.execute("CREATE TABLE tbCalificacion(idcalifica integer NOT NULL PRIMARY KEY,item varchar(100) NOT NULL,punteo integer NOT NULL);")
     sql.execute("CREATE UNIQUE INDEX idx_califica ON tbCalificacion( idcalifica);")
-    sql.execute("INSERT INTO tbProducto VALUES('1.0','Laptop Lenovo','2021-01-08 00:00:00,'1.0');")
-    sql.execute("INSERT INTO tbProducto VALUES('2.0','Bateria para Laptop Lenovo T420','2021-01-08 00:00:00,'1.0');")
+    sql.execute("INSERT INTO tbProducto VALUES('1.0','Laptop Lenovo','2021-01-08 00:00:00','1.0');")
+    sql.execute("INSERT INTO tbProducto VALUES('2.0','Bateria para Laptop Lenovo T420','2021-01-08 00:00:00','1.0');")
     sql.execute("INSERT INTO tbProducto VALUES('3.0','Teclado Inalambrico','2021-01-08 00:00:00','1.0');")
     sql.execute("INSERT INTO tbProducto VALUES('4.0','Mouse Inalambrico','2021-01-08 00:00:00','1.0');")
     sql.execute("INSERT INTO tbProducto VALUES('5.0','WIFI USB','2021-01-08 00:00:00','1.0');")
@@ -38,7 +40,7 @@ def ejecutar():
     ts.agregar(NuevoSimbolo)
     cont+=1
 
-    sql.execute('SELECT * FROM temp;')
+    sql.execute('SELECT * FROM temp')
     t1 = 2
     pila[0] = t1
     myFuncion()
@@ -52,7 +54,8 @@ def ejecutar():
     sql.execute("UPDATE tbProducto SET estado = "+str(t2)+" WHERE  estado ="+str(t4)+";")
 
     graphTable(ts)
-    
+    report_errors()
+    report_BNF()
 def myFuncion():
     texto = pila[0]
     t0 = texto

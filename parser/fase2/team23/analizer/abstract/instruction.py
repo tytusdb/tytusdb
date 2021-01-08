@@ -1678,7 +1678,7 @@ class Except_(Instruction):
 #yasis
 class IndexCls(Instruction):
 
-    def __init__(self, unik, id1, nombre_tabal, lista, desc, null_, wherecl, row, column):
+    def __init__(self, unik, id1, nombre_tabla, lista, desc, null_, wherecl, row, column):
         Instruction.__init__(self, row, column)
         self.id1 = id1
         self.unik = unik
@@ -1686,14 +1686,31 @@ class IndexCls(Instruction):
         self.desc = desc
         self.null_ = null_
         self.wherecl = wherecl
-        self.nombre_tabal = nombre_tabal
+        self.nombre_tabla = nombre_tabla
 
     def execute(self, environment):
        newEnv = environment
        global envVariables
        envVariables.append(newEnv)
 
+       # VALIDAR SI EXISTE LA TABLA
+       existe_table = Struct.extractTable(dbtemp, self.nombre_tabla)
+
+       if existe_table == 0 or existe_table == 1:
+            semanticErrors.append("La tabla " + self.nombre_tabla + " no existe")
+            print("Error: 3F000: La tabla " + self.nombre_tabla + " no existe")
+            return
+
        validar = str(self.desc)
+
+        # VALIDAR SI EXISTEN LAS COLUMNAS
+       for columna_item in self.lista:
+           existe_column = Struct.extractColmn(dbtemp, self.nombre_tabla, columna_item)
+
+           if existe_column == None:
+               semanticErrors.append("La columna " + columna_item + " no existe")
+               print("Error: 3F000: La columna " + columna_item + " no existe")
+               return
 
        if validar.lower() == "desc":
            descendente = self.desc
@@ -1709,7 +1726,8 @@ class IndexCls(Instruction):
                self.row,
                self.column,
                self.lista ,
-               descendente
+               descendente,
+               tabla_index=self.nombre_tabla
            )
        else:
            sym = Symbol(
@@ -1718,7 +1736,8 @@ class IndexCls(Instruction):
                self.row,
                self.column,
                self.lista ,
-               descendente
+               descendente,
+               tabla_index=self.nombre_tabla
            )
 
        newEnv.addSymbol(str(self.id1), sym)
@@ -1731,7 +1750,7 @@ class IndexCls(Instruction):
 
         new.addNode(Nodo.Nodo(str(self.id1)))
         new.addNode(Nodo.Nodo("ON"))
-        new.addNode(Nodo.Nodo(str(self.nombre_tabal)))
+        new.addNode(Nodo.Nodo(str(self.nombre_tabla)))
         new.addNode(Nodo.Nodo("("))
         new.addNode(Nodo.Nodo(str(self.lista)))
 
@@ -1859,14 +1878,25 @@ class FunctionPL(Instruction):
         # ENCABEZADO DE LA FUNCIÓN
         environment.codigo += "def " + self.nombre + "():\n"
         environment.count_tabs.append("\t")
+        
+        # C3D Parametros
+        if self.params != None:
+            environment.codigo += "".join(environment.count_tabs) + "# SEGMENTO PARAMS\n"
+            for p in self.params:
+                if str(p[1][0]).upper() == 'INTEGER':
+                    environment.codigo += "".join(environment.count_tabs) + str(p[0]) + " = 0\n"
+                elif str(p[1][0]).upper() == 'TEXT':
+                    environment.codigo += "".join(environment.count_tabs) + str(p[0]) + " = \"\"\n"
+                elif str(p[1][0]).upper() == 'DECIMAL':
+                    environment.codigo += "".join(environment.count_tabs) + str(p[0]) + " = 0.00\n"
+                else:
+                    environment.codigo += "".join(environment.count_tabs) + str(p[0]) + " = \"\"\n"
 
         # C3D DEL STATEMENT DECLARATION
         if self.bloqueStmt[0] != None:
             environment.codigo += "".join(environment.count_tabs) + "# SEGMENTO DECLARE\n"
-            temporal = environment.getTemp()
-            environment.codigo += "".join(environment.count_tabs) + temporal + " = p\n"
             for decla in self.bloqueStmt[0]:
-                decla.c3d(environment, temporal)
+                decla.c3d(environment)
 
         environment.codigo += "".join(environment.count_tabs) + "# SEGMENTO BEGIN\n"
         # C3D DEL STATEMENT BEGIN
@@ -1952,19 +1982,15 @@ class DeclarationPL(Instruction):
 
         return new
 
-    def c3d(self, environment, temporal):
-       # if self.default != None:
-        #    environment.codigo += "".join(environment.count_tabs) + "stack[" + temporal + "] = " + str(self.default.c3d(environment).value) + "\n"
-        #else:
-         #   environment.codigo += "".join(environment.count_tabs) + "stack[" + temporal + "] = None\n"
-        #environment.codigo += "".join(environment.count_tabs) + temporal + " = " + temporal + " + 1\n"
-
+    def c3d(self, environment):
         if str(self.typeDeclaration[0]).upper() == 'INTEGER':
             environment.codigo += "".join(environment.count_tabs) + self.id_declaracion + " = 0\n"
         elif str(self.typeDeclaration[0]).upper() == 'TEXT':
             environment.codigo += "".join(environment.count_tabs) + self.id_declaracion + " = \"\"\n"
         elif str(self.typeDeclaration[0]).upper() == 'DECIMAL':
             environment.codigo += "".join(environment.count_tabs) + self.id_declaracion + " = 0.00\n"
+        else:
+            environment.codigo += "".join(environment.count_tabs) + self.id_declaracion + " = \"\"\n"
 
 
 class AsignacionPL(Instruction):
@@ -1979,10 +2005,15 @@ class AsignacionPL(Instruction):
 
         if var != None:
             new_val = self.expresion.execute(environment)
+            #print(str(type(new_val)))
             if isinstance(new_val ,list):
                 new_val = new_val[0].iat[0,0]
-                #print(type(new_val))
                 new_val = Primitive(TYPE.NUMBER,new_val,"",0,0)
+            elif new_val == None:
+                #print("entro")
+                new_val = 0
+                new_val = Primitive(TYPE.NUMBER, new_val, "", 0, 0)
+
             sym = Symbol(
                 new_val,
                 var.type,
@@ -2036,9 +2067,12 @@ class returnStmt(Instruction):
         temporal = environment.getTemp()
 
         #print(self.expresion.value)
-        environment.codigo += "".join(environment.count_tabs) + temporal + " = "+ str(self.expresion.value) +"\n"
+        retorno = self.expresion
+        try:
+            environment.codigo += "".join(environment.count_tabs) + temporal + " = "+ str(retorno.value) +"\n"
+        except: 
+            environment.codigo += "".join(environment.count_tabs) + temporal + " = "+ str("0") +"\n"
         self.expresion.c3d(environment)
-
 
 
 class ProcedureStmt(Instruction):
@@ -2199,7 +2233,67 @@ class IfCls(Instruction):
         environment.codigo += "label ." + escape + "\n"
 
         environment.conta_exec += 1
+    
 
+class AlterIndex(Instruction):
+    def __init__(self, nombre, new_col, old_col, row, column):
+        Instruction.__init__(self, row, column)
+        self.nombre = nombre
+        self.new_col = new_col
+        self.old_col = old_col
+
+    def execute(self, environment):
+        # EXTRAER INDEX DE LA TABLA DE SIMBOLOS
+        index_item = environment.getVar(self.nombre)
+        new_list = []
+
+        if index_item != None:
+            if self.old_col in index_item.col_creada:                
+                existe_col = None
+
+                # VALIDAR SI ES NUMERO O STRING                
+                if isinstance(self.new_col, int):
+                    existe_col = Struct.extractColmnPos(dbtemp, index_item.tabla_index, self.new_col)
+                    self.new_col = existe_col["name"]
+                else:                
+                    existe_col = Struct.extractColmn(dbtemp, index_item.tabla_index, self.new_col)
+
+                if existe_col != None:
+                    for col_item in index_item.col_creada:
+                        if col_item != self.old_col:
+                            new_list.append(col_item)
+                        else:
+                            new_list.append(self.new_col)
+
+                    # UPDATE VARIABLE
+                    index_item.col_creada = new_list
+                    environment.updateVar(self.nombre, index_item)
+                else:
+                    semanticErrors.append("La columna nueva " + self.new_col + " no existe")
+                    print("Error: 3F000: La columna nueva" + self.new_col + " no existe")                    
+
+            else:
+                semanticErrors.append("La columna antigua " + self.old_col + " no existe")
+                print("Error: 3F000: La columna antigua" + self.old_col + " no existe")                
+        else:
+            semanticErrors.append("El indice " + self.nombre + " no existe")
+            print("Error: 3F000: El indice " + self.nombre + " no existe")            
+
+    def dot(self):       
+        new = Nodo.Nodo("ALTER INDEX")
+        index_name = Nodo.Nodo(self.nombre)
+        new.addNode(index_name)
+        old_col = Nodo.Nodo(str(self.old_col))
+        new_col = Nodo.Nodo(str(self.new_col))
+        alter_word = Nodo.Nodo("ALTER")
+        new.addNode(alter_word)
+        new.addNode(old_col)
+        new.addNode(new_col)
+        return new
+
+    def c3d(self, environment):
+        pass
+        
 
 def returnErrors():
     list_ = list()

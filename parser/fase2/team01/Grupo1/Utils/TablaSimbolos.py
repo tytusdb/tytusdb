@@ -54,3 +54,34 @@ class ConstraintData(TablaSimbolos):
 
         def __repr__(self):
             return str(self.__dict__)
+
+
+class  FuncionesTS(TablaSimbolos):
+		def __init__(self, nombre,parametros,tipo):
+			self.nombre = nombre
+			self.parametros = parametros
+			self.tipo = tipo
+
+		def execute(self):
+			return self
+
+		def __repr__(self):
+			return str(self.__dict__)
+
+
+class  IndicesTS(TablaSimbolos):
+    def __init__(self, namecom,nombreindice,tablaname,unique,colname,tipoAscDes,specs,tipoindice):
+        self.namecom = namecom
+        self.nombreindice = nombreindice
+        self.tablaname = tablaname
+        self.unique = unique
+        self.colname = colname
+        self.tipoAscDes = tipoAscDes
+        self.specs = specs
+        self.tipoindice = tipoindice
+
+    def execute(self):
+        return self
+
+    def __repr__(self):
+        return str(self.__dict__)            

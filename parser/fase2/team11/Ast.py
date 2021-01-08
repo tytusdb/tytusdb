@@ -2,14 +2,23 @@ from enum import Enum
 from prettytable import PrettyTable
 from datetime import date
 from datetime import datetime
+from graphviz import render
 import math
 import random
+import cryptography
+import base64
+from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from storageManager import jsonMode as jsonMode
 import re
 
 errors2 = ''
 output2 =''
+c3d2 = ''
+c3d = ''
 
 class Nodo:
     '''Clase que define la estructura de los nodos del AST.'''
@@ -146,7 +155,7 @@ class Column:
         isUnique        - valor (bool) para indicar si los valores en la columna deben ser únicos
         line            - línea de la instrucción
     '''
-    def __init__(self,name,index,columnType:ColType = None,isPrimaryKey = False,defaultValue = None,isNull = False, constraintValue = '',isUnique = False,line = 0):
+    def __init__(self,name,index = 0,columnType:ColType = None,isPrimaryKey = False,defaultValue = None,isNull = False, constraintValue = '',isUnique = False,line = 0):
         self.name = name
         self.index = index
         self.columnType = columnType
@@ -160,7 +169,22 @@ class Column:
         return 'Columna \"'+self.name+'\"\nTipo: '+str(self.columnType.col_type.name)+'\nPrimary Key: '+str(self.isPrimaryKey)+ '\nNull: '+str(self.isNull) + '\nUnique: '+str(self.isUnique)
 
 #---------------------------------------------------------------------------------------------------------------
+class Index:
 
+    def __init__(self,name = '', isUnique = False, table = '', condition = '', type_ = '', columns = [], attribs = [], line = 0):
+        self.name = name
+        self.isUnique = isUnique
+        self.table = table
+        self.condition = condition
+        self.type_ = type_
+        self.columns = columns
+        self.attribs = attribs
+        self.line = line
+
+    def toString(self):
+        return self.name + ' | Unique: ' + str(self.isUnique) + ' | Table: '+ self.table + ' | Columnas: ' + str(self.columns) + ' | Atributos' + str(self.attribs) + ' | Tipo: ' + self.type_
+
+#---------------------------------------------------------------------------------------------------------------
 class AST:
     '''
     Clase que contendrá todo lo referente al AST
@@ -172,61 +196,65 @@ class AST:
         output    - lista de datos que se enviarán a la consola de salida
         errors    - lista que almacena objetos tipo (Error) para reporte
     '''
-    def __init__(self,raiz,usingDB = '',ts = {},userTypes = {},output = [],errors = []):
+    def __init__(self,raiz = None,usingDB = '',ts = {},userTypes = {}, index = {},output = [],errors = [], c3d = []):
         self.raiz = raiz 
         self.usingDB = usingDB
         self.ts = ts
         self.userTypes = userTypes
+        self.index = index
         self.output = output
         self.errors = errors
-
-
+        self.c3d = c3d
 
         jsonMode.dropAll() 
 
-    def executeAST(self):
-        for nodo in self.raiz.hijos:
-            if nodo.etiqueta == 'CREATE DATABASE':
-                self.createDB(nodo)
-            elif nodo.etiqueta == 'USE':
-                self.useDB(nodo)
-            elif nodo.etiqueta == 'REPLACE DATABASE':
-                pass
-            elif nodo.etiqueta == 'ALTER DATABASE':
-                self.alterDB(nodo)
-            elif nodo.etiqueta == 'DROP DATABASE':
-                self.dropDB(nodo)
-            elif nodo.etiqueta == 'CREATE TABLE':
-                self.crearTabla(nodo)
-            elif nodo.etiqueta == 'DROP TABLE':
-                self.eliminarTabla(nodo)
-            elif nodo.etiqueta == 'SHOW DATABASES':
-                self.showDB(nodo)
-            elif nodo.etiqueta == 'INSERT INTO':
-                self.insertarDatos(nodo)
-            elif nodo.etiqueta == 'UPDATE':
-                #self.update(nodo)
-                pass
-            elif nodo.etiqueta == 'CREATE ENUM':
-                self.crearEnum(nodo)
-            elif nodo.etiqueta == 'ALTER TABLE':
-                pass
-            elif nodo.etiqueta == 'DELETE':
-                #self.delete()
-                pass
-            elif nodo.etiqueta == 'TRUNCATE':
-                self.truncate(nodo)
-            elif nodo.etiqueta == 'SELECT':
-                self.Select(nodo)
-            else:
-                print('[!] Valor de etiqueta ('+nodo.etiqueta+') no corresponde, en L: '+str(nodo.linea))
-
+    def executeAST(self, nodo):
+        if nodo.etiqueta == 'CREATE DATABASE':
+            self.createDB(nodo)
+        elif nodo.etiqueta == 'USE':
+            self.useDB(nodo)
+        elif nodo.etiqueta == 'REPLACE DATABASE':
+            pass
+        elif nodo.etiqueta == 'ALTER DATABASE':
+            self.alterDB(nodo)
+        elif nodo.etiqueta == 'DROP DATABASE':
+            self.dropDB(nodo)
+        elif nodo.etiqueta == 'CREATE TABLE':
+            self.crearTabla(nodo)
+        elif nodo.etiqueta == 'DROP TABLE':
+            self.eliminarTabla(nodo)
+        elif nodo.etiqueta == 'SHOW DATABASES':
+            self.showDB(nodo)
+        elif nodo.etiqueta == 'INSERT INTO':
+            self.insertarDatos(nodo)
+        elif nodo.etiqueta == 'UPDATE':
+            #self.update(nodo)
+            pass
+        elif nodo.etiqueta == 'CREATE ENUM':
+            self.crearEnum(nodo)
+        elif nodo.etiqueta == 'ALTER TABLE':
+            pass
+        elif nodo.etiqueta == 'DELETE':
+            #self.delete()
+            pass
+        elif nodo.etiqueta == 'TRUNCATE':
+            self.truncate(nodo)
+        elif nodo.etiqueta == 'SELECT':
+            self.Select(nodo)
+        elif nodo.etiqueta == 'CREATE INDEX':
+            self.procesarIndices(nodo)
+        elif nodo.etiqueta == 'ALTER INDEX':
+            self.modificarIndices(nodo)
+        elif nodo.etiqueta == 'DROP INDEX':
+            self.eliminarIndice(nodo)
+        else:
+            print('[!] Valor de etiqueta ('+nodo.etiqueta+') no corresponde, en L: '+str(nodo.linea))
 
 ################---CREATE DATABASE---##########################
     def createDB(self, nodo):
         name_db = ''
         owner = ''
-        mode = -1
+        mode = 1    # verificar valor por defecto
 
         hijo1 = ''
         hijo2 = ''
@@ -247,13 +275,42 @@ class AST:
             name_db = hijo1
             owner = hijo2
             mode = hijo3
-        
+
+        # print ('====================================')
+        # global c3d
+
+        # # C3D
+        # if nodo.valor != '':
+        #     self.c3d.append('CREATE DATABASE ' + name_db);      # t_n = 'CREATE DATABASE ' + name_db
+        #     c3d += 'CREATE DATABASE ' + name_db
+        #     if owner != '' and owner != ';':
+        #         self.c3d.append(' OWNER \'' + owner + '\'')
+        #         c3d +=  ' OWNER \'' + owner + '\''
+        #     if mode != '' and mode != ';':
+        #         self.c3d.append(' MODE ' + mode)
+        #         c3d += ' MODE ' + mode 
+        # else:
+        #     self.c3d.append('CREATE DATABASE IF NOT EXISTS ' + name_db)
+        #     c3d = 'CREATE DATABASE IF NOT EXISTS ' + name_db
+        #     if owner != '' and owner != ';':
+        #         self.c3d.append(' OWNER \'' + owner + '\'')
+        #         c3d += ' OWNER \'' + owner + '\''
+        #     if mode != '' and mode != ';':
+        #         self.c3d.append(' MODE ' + mode) 
+        #         c3d += ' MODE ' + mode
+
+        # self.c3d.append(';')
+        # c3d += ';'
+
+        # print(c3d)
+        # FIN C3D
         
         query_result = jsonMode.createDatabase(name_db)
         if query_result == 0:
             jsonMode.createDatabase(name_db)
             self.ts[name_db] = Database(owner, mode)
             self.output.append('Creación de base de datos \"'+name_db+'\" exitosa.')
+
         elif query_result == 1:
             self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
         elif query_result == 2:
@@ -261,27 +318,30 @@ class AST:
             
 #################---USE DATABASE---################################
     def useDB(self,nodo):
+        global c3d
         if nodo.valor in self.ts:
             self.usingDB = nodo.valor
             self.output.append('Usted esta ubicado en la base de datos \"'+ self.usingDB +'\".')
             # print(self.usingDB)
+            # self.c3d.append('USE ' + self.usingDB + ';')
         else:
             # agregar el error semantico con su debido codigo -> DB no existe
             self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
 
 ##################---DROP DATABASE---################################
     def dropDB(self, nodo):
-        
+        global c3d
         if nodo.valor in self.ts:
             result = jsonMode.dropDatabase(nodo.valor)
             del self.ts[nodo.valor]
             if result == 0:
-                self.output.append('Base de datos \"'+ nodo.valor+'\" botada exitosamente.')
+                self.output.append('Base de datos \"'+ nodo.valor+'\" eliminada exitosamente.')
+                # c3d += 'DROP DATABASE ' + self.usingDB + ';'
+                # print(c3d)
             elif result == 1:
                 self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
             elif result == 2:   # Base de datos inexistente
                 self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
-
 
 ##################---ALTER DATABASE---################################
     def alterDB(self,nodo):
@@ -289,7 +349,7 @@ class AST:
         databaseNew = ''
         owner = ''
         rename = 0
-
+        global c3d
         for hijos in nodo.hijos:
             databaseNew = hijos.valor
             if hijos.etiqueta == 'RENAME TO':
@@ -308,6 +368,9 @@ class AST:
                     self.ts[databaseNew] = self.ts[databaseOld]
                     del self.ts[databaseOld]
                 self.output.append('La base de datos \"'+ databaseOld+'\" ha sido renombrada a \"' + databaseNew + '\".')
+                # c3d += 'ALTER DATABASE ' + databaseOld
+                # c3d += ' RENAME TO ' + databaseNew
+                # print(c3d)
             elif query_result == 1:
                 self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
             elif query_result == 2:   # Base de datos inexistente
@@ -320,6 +383,9 @@ class AST:
             if query_result == 0:
                 self.ts[databaseOld].owner = owner
                 self.output.append('La base de datos \"'+ databaseOld+'\" ha cambiado de propietario a \"' + owner + '\".')
+                # c3d += 'ALTER DATABASE ' + databaseOld
+                # c3d += ' OWNER TO ' + owner
+                # print(c3d)
             elif query_result == 1:
                 self.errors.append(Error('XX000', EType.SEMANTICO, 'internal_error',nodo.linea))
             elif query_result == 2:   # Base de datos inexistente
@@ -335,7 +401,7 @@ class AST:
         veces_mod = 0
         pos_mod1 = 0
         pos_mod2 = 0
-
+        global c3d
         if nodo.valor == '':
             self.output.append(query_result)
         else:
@@ -349,7 +415,9 @@ class AST:
                 
             #     print("====================================")
             self.output.append(filtrada)
-       
+        # c3d += 'SHOW DATABASES'
+        # print(c3d)
+
 ##################---UPDATE---################################
     def update(self,nodo):
         #print("=============================")
@@ -368,7 +436,6 @@ class AST:
         elif r == 3:   # Tabla existente
             self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
 
-        
 
 ##################---DELETE---################################
     def delete(self,nodo):
@@ -465,7 +532,7 @@ class AST:
             return
         database = self.ts[self.usingDB]
         table = {}
-        #--- Llamada a función nativa...
+
         result = jsonMode.createTable(self.usingDB,str(tb_name),col_count)
         if result == 0:     # Operación exitosa
             self.output.append('Creación de tabla \"'+tb_name+'\" exitosa.')
@@ -502,12 +569,14 @@ class AST:
             self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
         elif result == 3:   # Tabla existente
             self.errors.append(Error('42P07', EType.SEMANTICO, 'duplicate_table',nodo.linea))
-
+    
+# G E T  C O L U M N  T Y P E
     def getColType(self,nodo_tipo) -> ColType:
         # Verificación del límite
         l = 0
         if len(nodo_tipo.hijos) == 1:
-            l = nodo_tipo.hijos[0].valor        
+            l = nodo_tipo.hijos[0].valor
+        
         # Verificación del tipo
         tipo = str(nodo_tipo.valor).upper()
         if tipo == 'SMALLINT':
@@ -553,6 +622,7 @@ class AST:
         else:
             return ColType(Types.ENUM,l)
 
+# D R O P  T A B L E
     def eliminarTabla(self,nodo):
         tb_name = nodo.valor
         result = jsonMode.dropTable(self.usingDB,tb_name)
@@ -567,6 +637,7 @@ class AST:
         elif result == 3: # Tabla no existe
             self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
 
+# C R E A T E  E N U M S
     def crearEnum(self,nodo):
         nombre = nodo.valor
         valores = []
@@ -575,7 +646,9 @@ class AST:
         # Almacenar el tipo 
         self.userTypes[nombre] = valores
 
+#--------------------------------------------------------------------------------------------------
 
+# P R I N T  O U T P U T S
     def printOutputs(self):
         global output2
         print('\n--- SALIDAS ('+str(len(self.output))+') -----------------------------------------')
@@ -583,6 +656,7 @@ class AST:
             print(str(s))
             output2 = str(s)
 
+# P R I N T  E R R O R S
     def printErrors(self):
         global errors2
         print('\n--- ERRORES ('+str(len(self.errors))+') -----------------------------------------')
@@ -590,7 +664,15 @@ class AST:
             print(e.toString())
             errors2 = e.toString()
 
+# P R I N T  C 3 D
+    def printC3D(self):
+        global c3d2
+        print('\n-----C3D--------------------')
+        for c in self.c3d:
+            print(str(c))
+            c3d2 = str(c)
 
+# TS  R E P O R T
     def generateTSReport(self):
         now = datetime.now()
         fecha = 'Fecha: '+str(now.day)+'/'+str(now.month)+'/'+str(now.year)
@@ -624,6 +706,30 @@ class AST:
                         cont += check if col.isUnique else notck
                         cont += '<td bgcolor="#FFFFFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(col.line)+'</font></td>\n'
                         cont += '</tr>\n'
+        cont += '</table>\n<br>\n'
+        # Tabla para mostrar los Indices
+        cont += '<h3 ALIGN=CENTER>INDICES</h3>\n'
+        cont += '<table align="center" cellpadding="20" cellspacing="0"  style="border:2px solid #1f253d">\n'
+        cont += '<td bgcolor="#09ad76" width="100" style="text-align:center"><font face="Roboto" color="white" size="4">NOMBRE</font></td>\n'
+        cont += '<td bgcolor="#09ad76" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">UNIQUE</font></td>\n'
+        cont += '<td bgcolor="#09ad76" width="100" style="text-align:center"><font face="Roboto" color="white" size="4">TABLA</font></td>\n'
+        cont += '<td bgcolor="#09ad76" width="150" style="text-align:center"><font face="Roboto" color="white" size="4">COLUMNAS</font></td>\n'
+        cont += '<td bgcolor="#09ad76" width="100" style="text-align:center"><font face="Roboto" color="white" size="4">ATRIBUTOS</font></td>\n'
+        cont += '<td bgcolor="#09ad76" width="100" style="text-align:center"><font face="Roboto" color="white" size="4">CONDICION</font></td>\n'
+        cont += '<td bgcolor="#09ad76" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">TIPO</font></td>\n'
+        cont += '<td bgcolor="#09ad76" width="50" style="text-align:center"><font face="Roboto" color="white" size="4">LINEA</font></td>\n'
+        for e_name,e_vals in self.index.items():
+            cont += '<tr>\n'
+            cont += '<td bgcolor="#FFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+e_name+'</font></td>\n'
+            cont += check if e_vals.isUnique else notck
+            cont += '<td bgcolor="#FFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+e_vals.table+'</font></td>\n'
+            cont += '<td bgcolor="#FFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+self.getStrings(e_vals.columns)+'</font></td>\n'
+            cont += '<td bgcolor="#FFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+self.getStrings(e_vals.attribs)+'</font></td>\n'
+            cont += '<td bgcolor="#FFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+e_vals.condition+'</font></td>\n'
+            cont += '<td bgcolor="#FFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(e_vals.type_)+'</font></td>\n'
+            cont += '<td bgcolor="#FFF" style="text-align:center"><font face="Roboto" color="gray" size="3">'+str(e_vals.line)+'</font></td>\n'
+            cont += '</tr>\n'
+        cont += '</table>\n<br>\n'
         # Tabla para mostrar los Enums
         cont += '<h3 ALIGN=CENTER>ENUM TYPE</h3>\n'
         cont += '<table align="center" cellpadding="20" cellspacing="0"  style="border:2px solid #1f253d">\n'
@@ -642,9 +748,16 @@ class AST:
         file.write(tbhead)
         file.write(cont)
         file.close()
-        
+
+    def getStrings(self, lista) -> str:
+        strn = ''
+        for s in lista:
+            strn += s + ', '
+        strn = strn[:-2]
+        return strn
+
 #-----------------------------------------------------------------------------------------------------
-    # I N S E R T  -  I N T O
+# I N S E R T  -  I N T O
 
     def insertarDatos(self,nodo):
         tb_name = nodo.valor
@@ -663,7 +776,32 @@ class AST:
         # Obtener lista de tipos entrante
         valores = []
         for p in nodo.hijos:
-            valores.append(p.hijos[0].valor)
+            if p.hijos[0].etiqueta == 'NOW()':
+                now = datetime.now()
+                print(str(now))
+                valores.append(str(now))
+            elif p.hijos[0].etiqueta == 'MD5':
+                nmd = p.hijos[0].hijos[0]
+                md5 = nmd.valor
+                msg = md5.encode()
+                #-------------------------------
+                salt = b'salt_'
+                kdf = PBKDF2HMAC(
+                    algorithm=hashes.MD5(),
+                    length=32,
+                    salt=salt,
+                    iterations=100000,
+                    backend=default_backend()
+                )
+                key = base64.urlsafe_b64encode(kdf.derive(msg))  # Can only use kdf once
+                #-------------------------------
+                f = Fernet(key)
+                enc = f.encrypt(msg)
+                enc = enc.decode("utf-8")
+                #print(enc)
+                valores.append(enc)
+            else:    
+                valores.append(p.hijos[0].valor)
         result = jsonMode.insert(self.usingDB,tb_name,valores)
         if result == 0: # Operación Exitosa
             self.output.append('Registros en \"'+tb_name+'\" ingresados correctamente.')
@@ -684,6 +822,125 @@ class AST:
             tipos.append(tabla[c].columnType)
         return tipos
 
+#------------------------------------------------------------------------------------------------------
+# I N D I C E S
+ 
+    def procesarIndices(self,nodo):
+        # Obtener el nombre de la columna
+        name = nodo.hijos[0].valor
+        indx = Index(name)
+        columns = []
+        attribs = []
+        if 'UNIQUE' in nodo.hijos[0].etiqueta:
+            indx.isUnique = True
+        indx.table = nodo.hijos[1].valor
+        if len(nodo.hijos) == 3:
+            if nodo.hijos[2].valor != '':
+                columns.append(nodo.hijos[2].valor)
+            else:
+                n = nodo.hijos[2].hijos
+                for h in n:
+                    if h.etiqueta == 'ID' or h.etiqueta == 'Columna':
+                        columns.append(h.valor)
+                    else:
+                        attribs.append(h.etiqueta+' '+h.valor)
+        elif len(nodo.hijos) == 4:
+            if nodo.hijos[2].etiqueta == 'USING HASH':
+                attribs.append('USING HASH')
+                columns.append(nodo.hijos[3].valor)
+            elif nodo.hijos[3].etiqueta == 'WHERE':
+                columns.append(nodo.hijos[2].valor)
+                indx.condition = self.getWhereCondition(nodo.hijos[3])
+            elif nodo.hijos[3].etiqueta == 'OPCLASS':
+                columns.append(nodo.hijos[2].valor)
+                indx.type_ = nodo.hijos[3].valor  
+        indx.columns = columns
+        indx.attribs = attribs    
+        indx.line = nodo.linea
+        self.index[name] = indx
+        self.output.append('Indice \"'+name+'\" creado exitosamente.')
+
+    def getWhereCondition(self,nodo) -> str:
+        return self.getAsString(nodo.hijos[0])
+
+    def getAsString(self, nodo) -> str:
+        st = ''
+        op = self.scapeCharacters(nodo.valor)
+        if len(nodo.hijos) == 0:
+            st += nodo.valor + ' '
+        elif len(nodo.hijos) == 1:
+            st += self.getAsString(nodo.hijos[0]) + ' '
+        else:
+            st += self.getAsString(nodo.hijos[0]) + ' '
+            st += op + ' '
+            st += self.getAsString(nodo.hijos[1]) + ' '
+        return st
+    
+    def scapeCharacters(self,op) -> str:
+        if '\>' == op:
+            return '&#60;'
+        elif '\<' == op:
+            return '&#62;'
+        elif '\=' == op:
+            return '='
+        else:
+            return op
+
+# A L T E R  I N D E X   
+    def modificarIndices(self,nodo):
+        database = None
+        if self.usingDB in self.ts:
+            database = self.ts[self.usingDB]
+        else:
+            self.errors.append(Error('-----', EType.SEMANTICO, 'database_non_exist',nodo.linea))
+            return
+        index_name = nodo.hijos[0].valor
+        # Verificar si el indice existe
+        if index_name in self.index:
+            # Obtener el indice
+            indice = self.index[index_name]
+            # Obtener la tabla
+            tb_name = indice.table
+            # Verificar que la tabla exista
+            if tb_name in database.tables:
+                table = database.tables[tb_name]
+                if nodo.hijos[2].etiqueta == 'ENTERO':
+                    i = int(nodo.hijos[2].valor)
+                    for e_name,e_val in table.items():
+                        if e_val.index == i:
+                            # Cambiar nombre
+                            for x in range(len(indice.columns)):
+                                if nodo.hijos[1].valor == indice.columns[x]:
+                                    indice.columns[x] = e_name
+                                    self.output.append('Se ha modificado el indice \"'+index_name+'\" exitosamente.')
+                                    return
+                            self.errors.append(Error('-----',EType.SEMANTICO,'Error al modificar Indice \"'+index_name+'\" no se encontro la tabla \"'+e_name+'\".'))
+                            return
+                else:
+                    n = str(nodo.hijos[2].valor)
+                    for e_name,e_val in table.items():
+                        if e_name == n:
+                            for x in range(len(indice.columns)):
+                                if nodo.hijos[1].valor == indice.columns[x]:
+                                    indice.columns[x] = e_name
+                                    self.output.append('Se ha modificado el indice \"'+index_name+'\" exitosamente.')
+                                    return
+                            self.errors.append(Error('-----',EType.SEMANTICO,'Error al modificar Indice \"'+index_name+'\" no se encontro la columna \"'+e_name+'\".'))
+                            return
+            else:
+                self.errors.append(Error('42P01', EType.SEMANTICO, 'undefined_table',nodo.linea))
+
+# D R O P  I N D E X
+    def eliminarIndice(self,nodo):
+        name = nodo.valor
+        if name in self.index:
+            del self.index[name]
+            self.output('Eliminación del indice \"'+name+'\" exitosa.')
+        else:
+            self.errors.append(Error('-----',EType.SEMANTICO,'index_non_exist',nodo.linea))
+ 
+#------------------------------------------------------------------------------------------------------
+# REPORTE DE ERRORES
     def erroresHTML(self):
         now = datetime.now()
         fecha = 'Fecha: '+str(now.day)+'/'+str(now.month)+'/'+str(now.year)
@@ -1196,5 +1453,58 @@ class AST:
             elif nodo.valor == '^':
                 return exp1 ** exp2
 
+#---------------------------------------------------------------------------------------------------------
+# G R A F I C A R  -  A S T
+    def graficarAST(self,raiz):
+        c = [1]
+        file = open("ast.dot", "w")
+        file.write(
+                'digraph G {\n'
+                + 'rankdir=TB; '
+                + 'node[fillcolor=\"darkturquoise:darkslategray2\", shape=record ,fontname = \"Berlin Sans FB\" ,style = filled]  \n'
+                + 'edge[arrowhead=none]; \n'
+            )
+        file.write(self.recorrerNodos(raiz,c))
+        file.write('}\n')
+        file.close()
+        render('dot','svg','ast.dot')
 
+    def recorrerNodos(self,nodo,c):
+        c[0] += 1
+        codigo = ""
+        padre = 'nodo'+str(c[0])
+        codigo = padre + '[label = \"' + nodo.etiqueta + '\\n' + str(nodo.valor) + '\"];\n'
+        for hijo in nodo.hijos: 
+            codigo += padre + '->' + 'nodo' + str(c[0]+1) + '\n'
+            codigo += self.recorrerNodos(hijo, c)
+        return codigo
 
+#---------------------------------------------------------------------------------------------------------
+#  R E P O R T E  -  G R A M A T I C A L
+
+    def crearReporte(self,raiz) :
+        file = open("ReporteEjecucion.md", "w")
+        file.write('## GRUPO #11 \n'
+                + '# *REPORTE GRAMATICAL DE LA EJECUCION*\n\n')
+        file.write(self.recorrerAST(raiz))
+        file.close()
+
+    def recorrerAST(self,nodo):
+        bnf = ""
+        contador = 1
+        for hijo in nodo.hijos: 
+            bnf += '### Instruccion #'+str(contador)+' \n'
+            bnf += '```bnf\n'
+            bnf += hijo.gramatica + '\n'
+            bnf += self.recorrerHijo(hijo)
+            bnf += '```\n\n'
+            contador += 1
+        return bnf
+
+    def recorrerHijo(self,nodo):
+        bnf = ""
+        for hijo in nodo.hijos: 
+            if hijo.gramatica != '':
+                bnf += hijo.gramatica + '\n'
+            bnf += self.recorrerHijo(hijo)
+        return bnf

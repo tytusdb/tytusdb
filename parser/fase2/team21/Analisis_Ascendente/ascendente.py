@@ -1,6 +1,7 @@
 import re
 
 # from reportes.Reportes import RealizarReportes,Error
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Function.AlterIndex import AlterIndex
 from tytus.parser.fase2.team21.Analisis_Ascendente.reportes.Reportes import RealizarReportes, Error
 from tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
 from tkinter import messagebox as MessageBox
@@ -506,7 +507,8 @@ def p_alter_function(t):
     #ALTER INDEX ind1 ALTER COLUMN apellido numero
                                                     #vieja nueva
     'instruccion        : ALTER INDEX ID ALTER COLUMN ID ID PTCOMA'
-
+    global columna
+    t[0] = AlterIndex(t[3],t[6],t[7],lexer.lineno,columna)
 
 
 def p_drop_function1(t):
@@ -3557,6 +3559,8 @@ def procesar_instrucciones(instrucciones, ts):
             print("")
         elif isinstance(instr,DropFunctionProcedure):
             DropFunctionProcedure.ejecutar(instr,ts,consola,exceptions)
+        elif isinstance(instr,AlterIndex):
+            AlterIndex.ejecutar(instr,ts,consola,exceptions)
 
 
 
@@ -3639,6 +3643,8 @@ def procesar_instrucciones2(instrucciones, ts):
             print("")
         elif isinstance(instr,DropFunctionProcedure):
             DropFunctionProcedure.ejecutar(instr,ts,consola,exceptions)
+        elif isinstance(instr,AlterIndex):
+            AlterIndex.ejecutar(instr,ts,consola,exceptions)
 
 
 
@@ -3778,6 +3784,8 @@ def traduccion(instrucciones, ts,consolaaux,metodos_funciones, exceptions, conca
         elif isinstance(instr,DropFunctionProcedure):
 
             DropFunctionProcedure.traducir(instr, ts, consolaaux, exceptions,TV)
+        elif isinstance(instr,AlterIndex):
+            AlterIndex.traducir(instr, ts, consolaaux, exceptions,TV)
 
         #---------prueba
         #no borrar

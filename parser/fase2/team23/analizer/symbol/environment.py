@@ -59,6 +59,16 @@ class Environment:
         env.variables[id] = symbol
         return symbol
 
+    def dropSymbol(self, id):
+        """
+        Elimina un simbolo en la tabla de simbolos
+        """
+        env = self
+        if id in env.variables:
+            del env.variables[id]
+            return True
+        return None    
+
     def addTable(self, table):
         """
         Inserta una nueva tabla

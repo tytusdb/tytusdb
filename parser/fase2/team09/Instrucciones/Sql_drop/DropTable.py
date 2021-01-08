@@ -39,8 +39,9 @@ class DropTable(Instruccion):
         #arbol.consola.append(error.toString())        
        # createTable(bd, "Mitabla")
        # showTables(bd)
-'''
-instruccion = DropTable("hola mundo",None, 1,2)
 
-instruccion.ejecutar(None,None)
-'''
+    def traducir(self, tabla, controlador, arbol):
+        codigo = 'DropTable.DropTable("' + self.id + '", None, "'
+        codigo += self.strGram + '", ' + str(self.linea) + ', ' + str(self.columna) + ').ejecutar(tabla, arbol)\n'
+        #print(codigo)
+        return None

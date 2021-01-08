@@ -107,22 +107,22 @@ class AlterTableAddConstraintFK(Instruccion):
         cadena += " add constraint "
         if(self.id_constraint):
             cadena += self.id_constraint
-        cadena += " foreign key("
+        cadena += " foreign key ( "
         if(self.lista_id1):
             for x in range(0,len(self.lista_id1)):
                 if(x > 0):
                     cadena += ", "
-                cadena += self.lista_id1[x].traducir(tabla,arbol)
+                cadena += self.lista_id1[x]
         cadena += " ) "
         cadena += "references "
         if(self.tabla2):
             cadena += self.tabla2
-        cadena += " ("
+        cadena += " ( "
         if(self.lista_id2):
             for y in range(0,len(self.lista_id2)):
                 if(y > 0):
                     cadena += ", "
-                cadena += self.lista_id2[y].traducir(tabla,arbol)
+                cadena += self.lista_id2[y]
         cadena += " )"            
         cadena += ";\""
 

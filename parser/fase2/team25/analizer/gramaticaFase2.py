@@ -414,6 +414,8 @@ def p_declaration(t):
     """
     if len(t)==6:
         #print('\t'+str(t[1])+' = '+str(t[4]))
+        if isinstance( t[4] , Select): # PARA VALIDACION DEL SELECT
+            t[4] = F1(t[4],C3D_INSTRUCCIONES_FASE1_CADENA(t,True), t.slice[1].lineno , t.slice[1].lexpos )
         t[0] = Declaration(t[1],t[2],t[4],t.slice[1].lineno,t.slice[1].lexpos)
     else:
         t[0] = Declaration(t[1],t[2],None,t.slice[1].lineno,t.slice[1].lexpos)

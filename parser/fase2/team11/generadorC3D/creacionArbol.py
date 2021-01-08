@@ -1,4 +1,4 @@
-from .clases import Nodo
+from generadorC3D.clases import Nodo
 
 ################################# funciones para crear AST de PL/pgsql ############################
 
