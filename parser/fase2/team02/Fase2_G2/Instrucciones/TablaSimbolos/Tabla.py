@@ -1,4 +1,5 @@
 
+from numpy.core.numeric import indices
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo as N
 
@@ -9,6 +10,7 @@ class Tabla():
         self.anterior = anterior
         self.variables = []
         self.funciones = []
+        self.indices = []
         self.temporal = 0
         self.etiqueta = 0
         self.heap = 0
@@ -74,6 +76,27 @@ class Tabla():
 
         return None
 
+    def setIndex(self, index):
+        tabla = self
+        for f in tabla.indices:
+            if f.id == indices.id:
+                print("El indice " + f.id + " ya ha sido declarada.")
+                return "El indice " + f.id + " ya ha sido declarada."
+        print("se agrego el indice")
+        self.indices.append(index)
+        try: 
+        #    a=simbolo.simbolo(funcion.id,"funcion/proc",funcion.linea,funcion.columna)
+
+             a = N(index.id,index.nameid,"",index.linea,index.columna)
+             self.setVariable(a)
+
+             print("se agrego indice --1 ")
+
+        except Exception as e:
+                print(e) 
+
+        return None
+
 
    
 
@@ -95,6 +118,8 @@ class Tabla():
         # print("salio ")
    
         return None
+
+    
 
     def reemplazarentabla(self,val):
         tabla = self

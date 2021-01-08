@@ -23,26 +23,34 @@ class Example(Frame):
         
         self.columnconfigure(1, weight=1)
         self.columnconfigure(3, pad=7)
-        self.rowconfigure(3, weight=1)
-        self.rowconfigure(5, pad=7)
+        self.rowconfigure(1, weight=1)
+
 
         self.lbl = Label(self, text="TytusDB")
         self.lbl.grid(sticky=W, pady=4, padx=5)
 
 
         self.nb = CustomNotebook(self)
-        self.fm = Frame(self.nb)
-        self.fm.pack(fill=BOTH, expand=True)        
-        self.fm.columnconfigure(1, weight=1)
-        self.fm.columnconfigure(3, pad=7)
-        self.fm.rowconfigure(3, weight=1)
-        self.fm.rowconfigure(5, pad=7)
-        self.nb.add(self.fm, text='Query '+str(self.contadorQuerysTabs))
-        self.nb.grid(row=1, column=1, columnspan=2, rowspan=4,
+        self.nb.fm = Frame(self.nb)
+        self.nb.fm.pack(fill=BOTH, expand=True)
+        self.nb.fm.columnconfigure(1, weight=1)
+        self.nb.fm.columnconfigure(3, pad=7)
+        self.nb.fm.rowconfigure(3, weight=1)
+        self.nb.fm.rowconfigure(5, pad=7)
+        self.nb.add(self.nb.fm, text='Query '+str(self.contadorQuerysTabs))
+        self.nb.grid(row=1, column=1, columnspan=2, rowspan=1,
                        padx=5, sticky=E + W + S + N)
-        self.area = Text(self.fm)
-        self.area.grid(row=1, column=1, columnspan=2, rowspan=4,
+        self.nb.fm.area = Text(self.nb.fm,height=30)
+        self.nb.fm.area.grid(row=1, column=1, columnspan=2, rowspan=2,
                        padx=5, sticky=E + W + S + N)
+
+        self.lbl2 = Label(self, text="Consola")
+        self.lbl2.grid(row=2, column=1)
+        #Textbox de la consola, aqui se debe mostrar la data que devuelve el proyecto de compi
+        self.areaConsole = Text(self,height=10,state='disabled')
+        self.areaConsole.grid(row=3, column=1,padx=5, sticky=E + W )
+
+
 
         # *************************** BARRA DE MENÚ ***************************
         menubar = Menu(self.master)
@@ -109,16 +117,27 @@ class Example(Frame):
         self.nb.fm.rowconfigure(3, weight=1)
         self.nb.fm.rowconfigure(5, pad=7)
         self.nb.add(self.nb.fm, text='Query '+str(self.contadorQuerysTabs))
-        self.nb.grid(row=1, column=0, columnspan=2, rowspan=4,
+        self.nb.grid(row=1, column=1, columnspan=2, rowspan=1,
                      padx=5, sticky=E + W + S + N)
-        self.nb.fm.area = Text(self.nb.fm)
-        self.nb.fm.area.grid(row=1, column=0, columnspan=2, rowspan=4,
+        self.nb.fm.area = Text(self.nb.fm,height=30)
+        self.nb.fm.area.grid(row=1, column=1, columnspan=2, rowspan=2,
                        padx=5, sticky=E + W + S + N)
+
         #self.lbl.configure(text="Cambia")
 
     def run(self):
         active_object = self.nb.nametowidget(self.nb.select())
-        messagebox.showinfo("Info",active_object.area.get("1.0",'end-1c'))
+        try:
+            cadena = active_object.area.get("sel.first", "sel.last")
+            messagebox.showinfo("Info", active_object.area.get("sel.first", "sel.last"))
+            nueva = str(cadena).upper()
+            print(nueva)
+
+        except:
+            cadena2 =  messagebox.showinfo("Info",active_object.area.get("1.0",'end-1c'))
+            nuevaV = str(cadena2).upper()
+            print(nuevaV)
+
         #print(self.nb.index(self.nb.select()))
         #print(self.nb.tab(self.nb.select(), "text"))
 

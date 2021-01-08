@@ -1,6 +1,7 @@
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.select import Select
+import  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.Select3 as Select3
 
 
 class AsignacionF2(Instruccion):
@@ -13,7 +14,7 @@ class AsignacionF2(Instruccion):
         self.linea = linea
         self.columna = columna
 
-    def traducir(asig, ts, consola, exception, tv, regla, antes, optimizado):
+    def traducir(asig, ts, consola, exception, tv, regla, antes, optimizado,lista):
         #consola.append('\tasignacion\n')
         print("asignacion!!")
         print(asig)
@@ -21,7 +22,7 @@ class AsignacionF2(Instruccion):
         data = asig.E
         print(data, "datos->>><")
         try:
-            if data.caso == 3  or data.caso==5:
+            if data.caso == 3:
                 print("simon")
                 print(data)
                 '''
@@ -35,11 +36,27 @@ class AsignacionF2(Instruccion):
                 consola.append(f"\n\t{obtener2} =T({obtener})")
                 consola.append(f"\n\tT1 = T3({obtener2})")
                 consola.append(f"\n\t{asig.id} = T1[1] \n")
+            elif data.caso == 5:
+                if isinstance(data,Select):
+                    #f\"{info}\""
+                    info = Select3.obtenerTraduccion2(data,ts,consola,lista,tv)
+                    obtener = tv.Temp()
+                    consola.append(f"\n\t{obtener} =f\"{info}\"")
+                    obtener2 = tv.Temp()
+                    consola.append(f"\n\t{obtener2} =T({obtener})")
+                    consola.append(f"\n\tT1 = T3({obtener2})")
+                    consola.append(f"\n\t{asig.id} = T1[1] \n")
+
+
+
+
 
             else:
 
+                print("si sale")
+                print(asig.E.listaE)
                 e = Expresion.traducir(asig.E, ts, consola, exception, tv, regla, antes, optimizado, asig.id)
-
+                print(e)
                 consola.append(f'\t{asig.id} = {e}\n')
         except:
 

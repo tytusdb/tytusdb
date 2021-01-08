@@ -1,7 +1,7 @@
 import  math
 
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
-from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId
+from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion,IdId, Parametro
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Time import Time
 from tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import *
 
@@ -13,6 +13,8 @@ import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.select
 import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.selectInst as SelectInst
 import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.Select2 as Selectp3
 import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Select.Select3 as Selectp4
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Function.Function as Function
+import tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Procedure.Procedure as Procedure
 
 class Expresion(Exp):
     def __init__(self, iz, dr, operador,fila,columna):
@@ -148,6 +150,59 @@ class Expresion(Exp):
             wherwcad= Where.Where.ObtenerCadenaEntrada(expr)
             return  str(wherwcad)
 
+
+    def ObtenerCadenaEntradaWhere(expr,lista_funcionesProcedimientos):
+
+        if isinstance(expr,Expresion):
+
+            exp1 = Expresion.ObtenerCadenaEntradaWhere(expr.iz,lista_funcionesProcedimientos)
+            exp2 = Expresion.ObtenerCadenaEntradaWhere(expr.dr,lista_funcionesProcedimientos)
+
+            expresion = exp1 + " " + str(expr.operador) + " " + exp2
+            print('expre2'+str(exp2))
+            return expresion
+        elif isinstance(expr,Id):
+            expresion = expr.id
+            if lista_funcionesProcedimientos == None:
+                return str(expresion)
+            else:
+                for func in lista_funcionesProcedimientos:
+                    for param in func.parametros:
+                        if isinstance(param,Parametro):
+                            if param.id == expresion:
+                                return ' {'+str(expresion)+'} '
+            return str(expresion)
+        elif isinstance(expr, Primitivo):
+            expresion = Primitivo.ObtenerCadenaEntrada(expr)
+            return str(expresion)
+        elif isinstance(expr, Trigonometrica.Trigonometrica):
+            expresion = Trigonometrica.Trigonometrica.obtenerCadenaEntrada(expr,False)
+            return str(expresion)
+        elif isinstance(expr, Math.Math_):
+            expresion = Math.Math_.obtenerCadenaEntrada(expr,False)
+            return str(expresion)
+        elif isinstance(expr,Time):
+            return  Time.ObtenerCadenaEntrada(expr)
+        elif isinstance(expr,Binario):
+            return str(Binario.ObtenerCadenaEntrada(expr,False))
+        elif isinstance(expr, Unario):
+            exp1 = Expresion.ObtenerCadenaEntradaWhere(expr.op,lista_funcionesProcedimientos)
+            return str(expr.operador)+exp1
+        elif isinstance(expr, Llamada):
+            llamada = Llamada.obtenerCadena(expr,False)
+            return llamada
+        elif isinstance(expr, IdId):
+            idid= IdId.ObtenerCadenaEntrada(expr)
+            return str(idid)
+        elif isinstance(expr,Where.Where):
+            wherwcad= Where.Where.ObtenerCadenaEntrada(expr, lista_funcionesProcedimientos)
+
+            print('CADENA WHERE'+wherwcad)
+            return  str(wherwcad)
+
+
+
+
     def traducir(expre, ts, consola, exception, tv, regla, antes, optimizado, ID):
         #consola.append('\ten expresion\n')
         if isinstance(expre, Primitivo):
@@ -161,7 +216,18 @@ class Expresion(Exp):
             else:
                 return str(expre.valor)
         elif isinstance(expre, Id):
-            return str(expre.id) #por el momento
+                return str(expre.id) #por el momento
+        elif isinstance(expre, Llamada):
+                print("aqui estoy")
+                print(expre.listaE)
+                print(expre.caso)
+                concatena = ""
+                if  len(expre.listaE) == 0:
+                    concatena += Llamada.obtenerCadena(expre,2)
+                else:
+                    concatena += Llamada.obtenerCadena(expre,1)
+
+                return str(f"{concatena}")
         elif isinstance(expre, Expresion):
             expre1 = Expresion.traducir(expre.iz, ts, consola, exception, tv, regla, antes, optimizado, ID)
             expre2 = Expresion.traducir(expre.dr, ts, consola, exception, tv, regla, antes, optimizado, ID)
@@ -372,6 +438,7 @@ class Expresion(Exp):
         elif isinstance(expre, Trigonometrica.Trigonometrica):
             return Trigonometrica.Trigonometrica.traducir(expre, ts, consola, exception, tv, regla, antes, optimizado, ID)
         elif isinstance(expre, Select.Select):
+            print('ES UN SELECT ')
             val=''
 
             if (expre.caso == 1):
@@ -399,8 +466,9 @@ class Expresion(Exp):
                         return 0
 
             elif (expre.caso == 4):
+                print(expre)
                 a = Selectp3.Selectp3.ejecutar(expre, ts, consola, exception, False)
-
+                print("veamos")
                 print(a)
                 for val in a[1]:
                     print('valor' + str(val))

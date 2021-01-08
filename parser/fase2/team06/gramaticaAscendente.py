@@ -239,7 +239,8 @@ reservadas = {
     'plpgsql' : 'PLPGSQL',
     'rowtype' : 'ROWTYPE',
     'alias' : 'ALIAS',
-    'return' : 'RETURN'
+    'return' : 'RETURN',
+    'count' : 'COUNT'
 # revisar funciones de tiempo y fechas
 }
 
@@ -474,15 +475,10 @@ def p_query(t):
 #la englobacion de las operaciones
 #-----------------------------------------------------CREATE INDEX--------------------------------------------------------------------
 def p_createIndex(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
-    h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0] = CreateIndex(INDEX,t[3],t[5],t[7]) \n"
-    t[0] = CreateIndex("INDEX",t[3],t[5],t[7])
-
-def p_createIndex_5(t):
     'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0] = CreateIndex(t[3],t[5],t[7]) \n"
+    print("LOWER:",t[7])
     t[0] = CreateIndexLow("INDEX",t[3],t[5],t[7])  
 
 def p_createIndex_1_1(t):
@@ -492,7 +488,7 @@ def p_createIndex_1_1(t):
     t[0] = CreateIndexParams("INDEX",t[3],t[5],t[7],t[8])
 
 def p_createIndex_1_2(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0] = CreateIndexWhere(INDEX,t[3],t[5],t[7],t[10])\n"
     t[0] = CreateIndexWhere("INDEX",t[3],t[5],t[7],t[10]) 
@@ -504,7 +500,7 @@ def p_createIndex_1_1_2(t):
     t[0] = CreateIndexParamsWhere("INDEX",t[3],t[5],t[7],t[8],t[11]) 
 
 def p_createIndex_2(t):
-    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0] = t[0] = CreateIndex(INDEX USING HASHt[3],t[5],t[9]) \n"
     t[0] = CreateIndex("INDEX USING HASH",t[3],t[5],t[9]) 
@@ -516,7 +512,7 @@ def p_createIndex_2_1(t):
     t[0] = CreateIndexParams("INDEX USING HASH",t[3],t[5],t[9],t[10])
 
 def p_createIndex_2_2(t):
-    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     h.reporteGramatical1 +="createIndex    ::=        CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0] = CreateIndexWhere(INDEX USING HASH,t[3],t[5],t[9],t[12])\n"
     t[0] = CreateIndexWhere("INDEX USING HASH",t[3],t[5],t[9],t[12]) 
@@ -528,7 +524,7 @@ def p_createIndex_2_1_2(t):
     t[0] = CreateIndexParamsWhere("INDEX USING HASH",t[3],t[5],t[9],t[10],t[13]) 
 
 def p_createIndex_3(t):
-    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     h.reporteGramatical1 +="createIndex    ::=        CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0] = t[0] = CreateIndex(UNIQUE,t[4],t[6],t[8]\n"
     t[0] = CreateIndex("UNIQUE",t[4],t[6],t[8]) 
@@ -540,7 +536,7 @@ def p_createIndex_3_1(t):
     t[0] = CreateIndexParams("UNIQUE",t[4],t[6],t[8],t[9])
 
 def p_createIndex_3_2(t):
-    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     h.reporteGramatical1 +="createIndex    ::=        CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0] = CreateIndexWhere(UNIQUE,t[4],t[6],t[8],t[11])\n"
     t[0] = CreateIndexWhere("UNIQUE",t[4],t[6],t[8],t[11]) 
@@ -660,10 +656,22 @@ def p_sortOptions_2_2(t):
     t[0] = SortOptions(t[1],t[3])
 
 def p_lower(t):
-    'lower    : ID PARENTESISIZQUIERDA ID PARENTESISDERECHA'
-    h.reporteGramatical1 +="sort    ::=        ASC NULLS LAST\n"
-    h.reporteGramatical2 +="t[0] = t[3]\n"
+    'lower    : lower COMA low'
+    t[1].append(t[3])
+    t[0]=t[1]
+
+def p_lower_1(t):
+    'lower    : low'
+    t[0] = [t[1]]
+
+
+def p_low(t):
+    'low    : ID PARENTESISIZQUIERDA ID PARENTESISDERECHA'
     t[0] = SortOptions(t[1],t[3])
+
+def p_low_1(t):
+    'low    : ID'
+    t[0] = t[1]
 #-----------------------------------------------------CREATE DB--------------------------------------------------------------------
 
 def p_crearBaseDatos_1(t):
@@ -1168,6 +1176,7 @@ def p_funcion_basica(t):
                         | ID PARENTESISIZQUIERDA operacion COMA INTERVAL operacion PARENTESISDERECHA
                         | CURRENT_TIME 
                         | CURRENT_DATE
+                        | COUNT PARENTESISIZQUIERDA POR PARENTESISDERECHA
     '''
     if t[1].upper()=="ABS":
         h.reporteGramatical1 +="funcionBasica    ::=      ABS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
@@ -1414,6 +1423,10 @@ def p_funcion_basica(t):
         h.reporteGramatical1 +="funcionBasica    ::=      CURRENT_TIME\n"
         h.reporteGramatical2 +="t[0]=ExpresionCurrentTime(1)\n"
         t[0]=ExpresionCurrentTime(1)
+    if t[1].upper()=="COUNT":
+        h.reporteGramatical1 +="funcionBasica    ::=      COUNT PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        h.reporteGramatical2 +="t[0]=ExpresionABS(t[3])\n"
+        t[0]=ExpresionCOUNT(t[3])
     else:
         print("no entra a ninguna en funcionBasica")
 

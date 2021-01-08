@@ -1,0 +1,554 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>ManualTecnico</title><link href='https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; --title-bar-height:20px; }
+.mac-os-11 { --title-bar-height:28px; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+.typora-export .task-list-item input { pointer-events: none; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li blockquote { margin: 1rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  .typora-export #write { break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  .is-mac table { break-inside: avoid; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+.MathJax_ref { fill: currentcolor; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; overflow-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none 0s ease 0s; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; margin-top: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+mark .md-meta { color: rgb(0, 0, 0); opacity: 0.3 !important; }
+@media print {
+  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
+}
+.md-diagram-panel .messageText { stroke: none !important; }
+.md-diagram-panel .start-state { fill: var(--node-fill); }
+.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
+.md-require-zoom-fix foreignobject { font-size: var(--mermaid-font-zoom); }
+
+
+:root {
+    --side-bar-bg-color: #fafafa;
+    --control-text-color: #777;
+}
+
+@include-when-export url(https://fonts.loli.net/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+
+/* open-sans-regular - latin-ext_latin */
+  /* open-sans-italic - latin-ext_latin */
+    /* open-sans-700 - latin-ext_latin */
+    /* open-sans-700italic - latin-ext_latin */
+  html {
+    font-size: 16px;
+}
+
+body {
+    font-family: "Open Sans","Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: rgb(51, 51, 51);
+    line-height: 1.6;
+}
+
+#write {
+    max-width: 860px;
+  	margin: 0 auto;
+  	padding: 30px;
+    padding-bottom: 100px;
+}
+
+@media only screen and (min-width: 1400px) {
+	#write {
+		max-width: 1024px;
+	}
+}
+
+@media only screen and (min-width: 1800px) {
+	#write {
+		max-width: 1200px;
+	}
+}
+
+#write > ul:first-child,
+#write > ol:first-child{
+    margin-top: 30px;
+}
+
+a {
+    color: #4183C4;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+}
+h1:hover a.anchor,
+h2:hover a.anchor,
+h3:hover a.anchor,
+h4:hover a.anchor,
+h5:hover a.anchor,
+h6:hover a.anchor {
+    text-decoration: none;
+}
+h1 tt,
+h1 code {
+    font-size: inherit;
+}
+h2 tt,
+h2 code {
+    font-size: inherit;
+}
+h3 tt,
+h3 code {
+    font-size: inherit;
+}
+h4 tt,
+h4 code {
+    font-size: inherit;
+}
+h5 tt,
+h5 code {
+    font-size: inherit;
+}
+h6 tt,
+h6 code {
+    font-size: inherit;
+}
+h1 {
+    font-size: 2.25em;
+    line-height: 1.2;
+    border-bottom: 1px solid #eee;
+}
+h2 {
+    font-size: 1.75em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee;
+}
+
+/*@media print {
+    .typora-export h1,
+    .typora-export h2 {
+        border-bottom: none;
+        padding-bottom: initial;
+    }
+
+    .typora-export h1::after,
+    .typora-export h2::after {
+        content: "";
+        display: block;
+        height: 100px;
+        margin-top: -96px;
+        border-top: 1px solid #eee;
+    }
+}*/
+
+h3 {
+    font-size: 1.5em;
+    line-height: 1.43;
+}
+h4 {
+    font-size: 1.25em;
+}
+h5 {
+    font-size: 1em;
+}
+h6 {
+   font-size: 1em;
+    color: #777;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table{
+    margin: 0.8em 0;
+}
+li>ol,
+li>ul {
+    margin: 0 0;
+}
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
+
+li p.first {
+    display: inline-block;
+}
+ul,
+ol {
+    padding-left: 30px;
+}
+ul:first-child,
+ol:first-child {
+    margin-top: 0;
+}
+ul:last-child,
+ol:last-child {
+    margin-bottom: 0;
+}
+blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0 15px;
+    color: #777777;
+}
+blockquote blockquote {
+    padding-right: 0;
+}
+table {
+    padding: 0;
+    word-break: initial;
+}
+table tr {
+    border-top: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 0;
+}
+table tr:nth-child(2n),
+thead {
+    background-color: #f8f8f8;
+}
+table th {
+    font-weight: bold;
+    border: 1px solid #dfe2e5;
+    border-bottom: 0;
+    margin: 0;
+    padding: 6px 13px;
+}
+table td {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 6px 13px;
+}
+table th:first-child,
+table td:first-child {
+    margin-top: 0;
+}
+table th:last-child,
+table td:last-child {
+    margin-bottom: 0;
+}
+
+.CodeMirror-lines {
+    padding-left: 4px;
+}
+
+.code-tooltip {
+    box-shadow: 0 1px 1px 0 rgba(0,28,36,.3);
+    border-top: 1px solid #eef2f2;
+}
+
+.md-fences,
+code,
+tt {
+    border: 1px solid #e7eaed;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    padding: 0;
+    padding: 2px 4px 0px 4px;
+    font-size: 0.9em;
+}
+
+code {
+    background-color: #f3f4f4;
+    padding: 0 2px 0 2px;
+}
+
+.md-fences {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+}
+
+
+.md-task-list-item > input {
+  margin-left: -1.3em;
+}
+
+@media print {
+    html {
+        font-size: 13px;
+    }
+    table,
+    pre {
+        page-break-inside: avoid;
+    }
+    pre {
+        word-wrap: break-word;
+    }
+}
+
+.md-fences {
+	background-color: #f8f8f8;
+}
+#write pre.md-meta-block {
+	padding: 1rem;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    color: #777777;
+    margin-top: 0 !important;
+}
+
+.mathjax-block>.code-tooltip {
+	bottom: .375rem;
+}
+
+.md-mathjax-midline {
+    background: #fafafa;
+}
+
+#write>h3.md-focus:before{
+	left: -1.5625rem;
+	top: .375rem;
+}
+#write>h4.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h5.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h6.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+.md-image>.md-meta {
+    /*border: 1px solid #ddd;*/
+    border-radius: 3px;
+    padding: 2px 0px 0px 4px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+.md-tag {
+    color: #a7a7a7;
+    opacity: 1;
+}
+
+.md-toc { 
+    margin-top:20px;
+    padding-bottom:20px;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+#typora-quick-open {
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+#typora-quick-open-item {
+    background-color: #FAFAFA;
+    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+/** focus mode */
+.on-focus-mode blockquote {
+    border-left-color: rgba(85, 85, 85, 0.12);
+}
+
+header, .context-menu, .megamenu-content, footer{
+    font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.file-node-content:hover .file-node-icon,
+.file-node-content:hover .file-node-open-state{
+    visibility: visible;
+}
+
+.mac-seamless-mode #typora-sidebar {
+    background-color: #fafafa;
+    background-color: var(--side-bar-bg-color);
+}
+
+.md-lang {
+    color: #b4654d;
+}
+
+.html-for-mac .context-menu {
+    --item-hover-bg-color: #E6F0FE;
+}
+
+#md-notification .btn {
+    border: 0;
+}
+
+.dropdown-menu .divider {
+    border-color: #e5e5e5;
+}
+
+.ty-preferences .window-content {
+    background-color: #fafafa;
+}
+
+.ty-preferences .nav-group-item.active {
+    color: white;
+    background: #999;
+}
+
+ :root {--mermaid-font-zoom:1.25em ;} 
+</style>
+</head>
+<body class='typora-export os-windows'>
+<div id='write'  class=''><p><span>Universidad de San Carlos de Guatemala</span></p><p><span>Ingeniería en Ciencias y Sistemas</span></p><p><span>Organización de Lenguajes y Compiladores 2</span></p><p><span>Ing. Luis Espino</span></p><p><span>Aux. Juan Carlos Maeda </span></p><p>&nbsp;</p><h1><a name="manual-tecnico-sql-parser" class="md-header-anchor"></a><span>Manual Tecnico SQL Parser</span></h1><p>&nbsp;</p><p><span>Grupo 29</span></p><p><span>Quetzaltenango, diciembre 2020</span></p><h2><a name="introducción" class="md-header-anchor"></a><span>Introducción</span></h2><p><span>El siguiente manual muestra una descripción clara y precisa de los procesos y herramientas que se utilizaron al momento de desarrollar el componente SQL parser de Tytus, un proyecto Open Source para desarrollar un administrador de bases de datos , así como también las funciones que tiene dicha aplicación, realizando un análisis, el cual recopila todos los requerimientos necesarios para su correcta funcionalidad.</span></p><p><span>Además se incluye una descripción y explicación del analisis lexico, sintactico y semantico el cual fue utilizado para la correcta manipulación de la información (inserción, actualización, eliminación,visualización), de esta forma se presenta un documento más completo para que facilite al programador su comprensión y futuro mantenimiento.</span></p><p><span>El objetivo del desarrollo de SQL parser, es interpretar sentencias SQL para manipular de manera correcta y eficaz la información.</span></p><h2><a name="objetivos" class="md-header-anchor"></a><span>Objetivos</span></h2><p><span>El objetivo del presente manual es entregar herramientas apropiadas para el futuro mantenimiento y mejoramiento de SQL parser</span></p><h3><a name="objetivos-de-sql-parser" class="md-header-anchor"></a><span>Objetivos de SQL Parser</span></h3><ul><li><span>Interpretar sentencias SQL</span></li></ul><h3><a name="objetivos-específicos-de-sql-parser" class="md-header-anchor"></a><span>Objetivos específicos de SQL Parser</span></h3><ul><li><span>Invocar las funciones proporcionadas por el administrador de almacenamiento, para realizar operaciones sobre la base de datos.</span></li><li><span>Manipular el resultado de las funciones para restringir y mostrar los resultados indicados por la/las consulta/s.</span></li><li><span>Retornar información detallada de la consulta al servidor.</span></li><li><span>Almacenar funciones y procedimientos para poder reutilizarlas</span></li></ul><h3><a name="dirigido-a" class="md-header-anchor"></a><span>Dirigido a</span></h3><p><span>Personas que darán un futuro mantenimiento  a la aplicación, o personas que desean comprender el funcionamiento básico del mismo al momento de la ejecución.</span></p><h2><a name="herramientas-utilizadas-para-el-desarrollo" class="md-header-anchor"></a><span>Herramientas utilizadas para el desarrollo</span></h2><h3><a name="python" class="md-header-anchor"></a><span>Python </span></h3><p><span>Python es un lenguaje de programación interpretado cuya filosofía hace hincapié en la legibilidad de su código.​ Se trata de un lenguaje de programación multiparadigma, ya que soporta orientación a objetos, programación imperativa y, en menor medida, programación funcional.</span></p><h3><a name="visual-studio-code" class="md-header-anchor"></a><span>Visual Studio Code</span></h3><p><span>Visual Studio Code es un editor de código fuente desarrollado por Microsoft para Windows, Linux y macOS. Incluye soporte para la depuración, control integrado de Git, resaltado de sintaxis, finalización inteligente de código, fragmentos y refactorización de código.</span></p><h3><a name="ply" class="md-header-anchor"></a><span>Ply</span></h3><p><span>PLY es una herramienta de análisis escrita exclusivamente en Python. Es, en esencia, una reimplementación de Lex y Yacc originalmente en lenguaje C. Fue escrito por David M. Beazley. PLY utiliza la misma técnica de análisis LALR que Lex y Yacc.  </span></p><h3><a name="github" class="md-header-anchor"></a><span>GitHub</span></h3><p><span>GitHub es una plataforma de desarrollo colaborativo de software para alojar proyectos utilizando el sistema de control de versiones Git. GitHub aloja un repositorio de código y brinda herramientas muy útiles para el trabajo en equipo, dentro de un proyecto. Además de eso, se puede contribuir a mejorar el software de los demás contribuidores. Para poder alcanzar esta meta, GitHub provee de funcionalidades para hacer un fork y solicitar pulls. Realizar un fork es simplemente clonar un repositorio ajeno (genera una copia en tu cuenta), para eliminar algún bug o modificar cosas de él. Una vez realizadas las modificaciones se puede enviar un pull al dueño del proyecto. Éste podrá analizar los cambios que se ha realizado fácilmente, y si considera interesante la contribución, adjuntarlo con el repositorio original. </span></p><h2><a name="descripción" class="md-header-anchor"></a><span>Descripción</span></h2><p><span>SQL Parser al ser un componente de Tytus, proporciona la servidor una función la cual se encarga de interpretar sentencias del subconjunto del lenguaje SQL especificado en la documentación especificada en el siguiente </span><a href='https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax'><span>enlace</span></a><span> </span></p><p><span>SQL parser está compuesto por 3 subcomponentes:</span></p><ul><li><span>Query Tool: es una herramienta gráfica en la cual se ingresan las consultas y se muestran los resultados, además de proporcionar mensajes de error si las consultas lo poseen.</span>
+<strong><span>Nota: La consulta abarca todo el contenido ingresado en el área de texto. (Ver figura 4)</span></strong></li><li><span>Type Checker: Este subcomponente es un apoyo a SQL parser para la comprobación de tipos.</span></li><li><span>SQL Parser: este subcomponente es el intérprete de las sentencias y consultas SQL y el que se conectara con el componente de administración de datos.</span></li><li><span>PL/pgSQL Engine: este subcomponente es un intérprete del Procedural Language/PostgreSQL Structure Query Language, el cual permite ejecutar comandos SQL mediante un lenguaje de sentencias imperativas.</span></li></ul><p><img src="./img/Relacion.png" referrerpolicy="no-referrer" alt="Figura 1. Descripción de la relación entre componentes"></p><p><span>Figura 1. Descripción de la relación entre componentes</span></p><h2><a name="gramática" class="md-header-anchor"></a><span>Gramática </span></h2><p><span>Para el desarrollo de SQL parser se crearon 2 gramáticas una </span><a href='https://github.com/tytusdb/tytus/blob/main/parser/team29/docs/Gram%C3%A1ticas/gramaticaDESC.bnf' target='_blank'><span>descendente</span></a><span>  y una  </span><a href='https://github.com/tytusdb/tytus/blob/main/parser/team29/docs/Gram%C3%A1ticas/gramaticaASC.bnf' target='_blank'><span>ascendente</span></a><span>. Se realizó un análisis de cada una verificando sus ventajas y desventajas de cada una, donde se llegó a la conclusión que la ascendente es la opción más viable debido a lo siguiente:</span></p><ul><li><p><span>Según la documentación de </span><a href='https://www.dabeaz.com/ply/' target='_blank'><span>PLY</span></a><span> esta librería realiza un parseo LR, por lo que solo es compatible con gramáticas ascendentes.</span></p></li><li><p><span>La gramática ascendente tiene menos producciones que la descendente, esto tiene como consecuencia:</span></p><ul><li><span>Un tiempo de implementación más corto.</span></li><li><span>Un tiempo de parseo menor.</span></li><li><span>Menos nodos del AST, lo cual se traduce en menos espacio de memoria ocupado por el programa y un menor tiempo de ejecución.</span><span>	</span></li><li><span>Menor probabilidad de errores en la implementación.</span></li></ul></li><li><p><span>La gramática ascendente presenta un menor nivel de complejidad, al no tener que acceder a la pila.</span></p></li><li><p><span>La mayoría de los integrantes del grupo, poseen más experiencia implementando gramáticas ascendentes que descendentes. </span></p></li></ul><p>&nbsp;</p><h2><a name="diagramas-de-modelamiento" class="md-header-anchor"></a><span>Diagramas de Modelamiento</span></h2><h3><a name="sql-parser" class="md-header-anchor"></a><span>SQL Parser</span></h3><h4><a name="diagrama-de-paquetes" class="md-header-anchor"></a><span>Diagrama de paquetes</span></h4><p><span>SQL Parser posee los paquetes de UI, este posee un conjunto de ventanas las cuales sirven para recibir las consultas y mostrar la información procesada, y el paquete Analizador el cual recibe las consultas enviadas por el paquete UI, las procesa y ejecuta funciones  proporcionadas por la  interrelación con el administrador de almacenamiento, este  proporcionará los datos que se deberán manipular y ya manipulados serán mostrados por el paquete UI.</span></p><p><img src="./img/DiagramaPaquetes.png" referrerpolicy="no-referrer" alt="Figura 2. Diagramas de paquetes"></p><p><span>Figura 2. Diagramas de paquetes</span></p><h4><a name="diagrama-de-clases" class="md-header-anchor"></a><span>Diagrama de clases</span></h4><p><span>El diagrama de clases está compuesto de las entidades y atributos que se crearon para el procesamiento de consultas y la manipulación de la información.</span></p><p><img src="./img/DiagramaClases.png" referrerpolicy="no-referrer" alt="Figura 3. Diagramas de clases"></p><p><span>Figura 3. Diagramas de clases</span></p><h5><a name="analizador" class="md-header-anchor"></a><span>Analizador</span></h5><ul><li><span>Gramática</span></li><li><span>Tokens</span></li></ul><h5><a name="funciones" class="md-header-anchor"></a><span>Funciones</span></h5><ul><li><span>Funciones Agregadas</span></li><li><span>Funciones Matemáticas</span></li><li><span>Funciones Trigonométricas</span></li><li><span>Funciones De Cadena</span></li></ul><h5><a name="reporte" class="md-header-anchor"></a><span>Reporte</span></h5><ul><li><span>AST</span></li><li><span>Nodo</span></li><li><span>Gramática BNF</span></li></ul><h5><a name="clases-abstractas" class="md-header-anchor"></a><span>Clases Abstractas</span></h5><ul><li><span>Expresión</span></li><li><span>Instrucción</span></li></ul><h5><a name="verificador-de-tipo" class="md-header-anchor"></a><span>Verificador de tipo</span></h5><ul><li><p><span>Checker</span></p></li><li><p><span>Tipos</span></p><ul><li><p><span>Validaciones</span></p><ul><li><span>Carácter</span></li><li><span>Número</span></li><li><span>Fecha</span></li></ul></li></ul></li></ul><h5><a name="ui" class="md-header-anchor"></a><span>UI</span></h5><ul><li><span>Pantalla AST</span></li><li><span>Pantalla de Reporte de Errores</span></li><li><span>Pantalla de Tabla de Símbolos</span></li><li><span>Pantalla Principal</span></li></ul><h3><a name="plpgsql" class="md-header-anchor"></a><span>PL/PgSQL</span></h3><h4><a name="diagrama-de-paquetes-n211" class="md-header-anchor"></a><span>Diagrama de paquetes</span></h4><p><span>PL/PgSQL posee los paquetes de UI, este posee un conjunto de ventanas las cuales sirven para recibir las consultas y mostrar la información procesada, y el paquete Analizador el cual recibe las consultas enviadas por el paquete UI, las procesa y ejecuta funciones proporcionadas por la interrelación con el administrador de almacenamiento, este proporcionará los datos que se deberán manipular y ya manipulados serán mostrados por el paquete UI, además de un paquete Optimizer_Folder el cual posee un conjunto de clases las cuales sirven para la optimización del código.</span></p><p><img src="C:.\img\DiagramaPaquetes1.png" referrerpolicy="no-referrer" alt="Figura 4. Diagrama de paquetes PL/PgSQL"></p><p><span>Figura 4. Diagrama de paquetes PL/PgSQL</span></p><h4><a name="diagrama-de-clases-n227" class="md-header-anchor"></a><span>Diagrama de clases</span></h4><p><span>El diagrama de clases está compuesto de las entidades y atributos que se crearon para el procesamiento de consultas y la manipulación de la información, así como también la generación y optimización del código 3 direcciones.</span></p><p><img src="C:.\img\DiagramaClases1.png" referrerpolicy="no-referrer" alt="Figura 5. Diagrama de clases PL/PgSQL"></p><p><span>Figura 5. Diagrama de clases PL/PgSQL</span></p><h5><a name="analizador-n220" class="md-header-anchor"></a><span>Analizador</span></h5><ul><li><span>Gramática</span></li><li><span>Tokens</span></li></ul><h5><a name="reporte-n240" class="md-header-anchor"></a><span>Reporte</span></h5><ul><li><span>AST</span></li><li><span>Nodo</span></li><li><span>Gramática BNF</span></li></ul><h5><a name="clases-abstractas-n248" class="md-header-anchor"></a><span>Clases Abstractas</span></h5><ul><li><span>Expresión</span></li><li><span>Instrucción</span></li><li><span>Ambiente</span></li><li><span>Ambiente Global</span></li><li><span>Symbol</span></li></ul><h5><a name="código-3-direcciones" class="md-header-anchor"></a><span>Código 3 Direcciones</span></h5><ul><li><span>Asignación</span></li><li><span>BackFill</span></li><li><span>Bloque</span></li><li><span>Declaración</span></li><li><span>Ejecutar</span></li><li><span>Llamada a función</span></li><li><span>Funcion</span></li><li><span>Operación</span></li><li><span>Retorno</span></li></ul><h5><a name="sentencias-de-control-código-3-direcciones" class="md-header-anchor"></a><span>Sentencias de Control-Código 3 direcciones</span></h5><ul><li><span>Sentencia If</span></li><li><span>Sentencia Else</span></li><li><span>Sentencia Else if</span></li><li><span>Sentencia Case</span></li></ul><h5><a name="módulos" class="md-header-anchor"></a><span>Módulos</span></h5><ul><li><span>Módulo Code</span></li><li><span>Módulo Expression</span></li></ul><h5><a name="sql-statement" class="md-header-anchor"></a><span>SQL Statement</span></h5><ul><li><p><span>Alter</span></p><ul><li><span>Database</span></li><li><span>Table</span></li></ul></li><li><p><span>Create</span></p><ul><li><span>Database</span></li><li><span>Table</span></li><li><span>Index</span></li><li><span>Type</span></li></ul></li><li><p><span>Drop</span></p><ul><li><span>Database</span></li><li><span>Index</span></li><li><span>Table</span></li></ul></li><li><p><span>Select</span></p></li><li><p><span>Delete</span></p></li><li><p><span>Insert</span></p></li><li><p><span>Show</span></p></li><li><p><span>Truncate</span></p></li><li><p><span>Update</span></p></li><li><p><span>Use</span></p></li><li><p><span>Statement</span></p></li><li><p><span>Code</span></p></li></ul><h5><a name="optmizerfolder" class="md-header-anchor"></a><span>Optmizer_Folder</span></h5><ul><li><span>Element</span></li><li><span>Quadruple</span></li><li><span>Optimizer</span></li></ul><h5><a name="ui-n365" class="md-header-anchor"></a><span>UI</span></h5><ul><li><span>Pantalla AST</span></li><li><span>Pantalla Reporte de Errores</span></li><li><span>Pantalla Tabla de Símbolos</span></li><li><span>Pantalla Principal</span></li></ul><h2><a name="optimizador" class="md-header-anchor"></a><span>Optimizador</span></h2><p><span>Para la optimización del código 3 direcciones se utilizan las reglas de optimización por mirilla, en donde se toman las instrucciones dentro de la mirilla y se sustituyen en una secuencia equivalente que sea de menor longitud y lo más rápido posible que el bloque original. El proceso de mirilla permite que por cada optimización realizada con este método se puedan obtener mejores beneficios.</span></p><p><span>Los tipos de transformación para realizar la optimización por mirilla serán los siguientes: </span></p><ul><li><span>Eliminación de instrucciones redundantes de carga y almacenamiento.</span></li><li><span>Eliminación de código inalcanzable.</span></li><li><span>Optimizaciones de Flujo de control.</span></li><li><span>Simplificación algebraica y reducción por fuerza</span></li></ul><p><span>La optimización se realiza gracias a la ayuda de Cuádruplas, el algoritmo realiza varias pasadas y en cada una aplica un tipo de transformación.</span></p><h2><a name="diseño--de-reportes-y-pantallas" class="md-header-anchor"></a><span>Diseño  de reportes y pantallas</span></h2><h3><a name="pantalla-principal" class="md-header-anchor"></a><span>Pantalla Principal</span></h3><p><span>La pantalla principal cuenta con 3 secciones las cuales son:</span></p><ul><li><span>Barra de menús</span></li><li><span>Área de Consultas</span></li><li><span>Área de Visualización de Resultados y Errores</span></li></ul><p><strong><span>Barra de menús</span></strong></p><p><span>Esta sección contiene 6 menús:</span></p><ul><li><span>Tabla de Símbolos: Se redirigirá a la pantalla de Tabla de símbolos</span></li><li><span>AST: Se mostrará el AST generado</span></li><li><span>AST.pdf : Se mostrara la imagen AST generada pdf</span></li><li><span>Código 3 direcciones: Se abre el documento .py del código 3 direcciones</span></li><li><span>Código 3 direcciones optimizado: Se abre el documento .py del código 3 direcciones optimizado </span></li><li><span>Reporte de errores: Se mostrará la pantalla con los errores léxicos, sintácticos y semánticos</span></li></ul><p><strong><span>Área de Consultas y Visualización de Resultados y Errores</span></strong></p><p><span>Contiene un panel de entrada en la cual se ingresa la consulta, y con el botón consultar se enviará la consulta al Analizador para que este posteriormente envíe los resultados y estos se visualizarán en el área de visualización de resultados y errores.</span></p><p><img src="./img/PantallaPrincipal.png" referrerpolicy="no-referrer" alt="Figura 6. Pantalla principal"></p><p><span>Figura 6. Pantalla principal</span></p><p><strong><span>Pantalla de Reporte de Errores</span></strong></p><p><span>Los errores léxicos, semánticos y sintácticos se mostrarán en 3 tablas diferentes con una breve descripción y la línea en donde fueron encontrados</span></p><p><img src="./img/PantallaReporteErrores.png" referrerpolicy="no-referrer" alt="Figura 7. Pantalla de Reporte de Errores"></p><p><span>Figura 7. Pantalla de Reporte de Errores</span></p><p><strong><span>Pantalla de Tabla de Símbolos</span></strong></p><p><span>En esta pantalla se muestran los datos de identificador, tipo, dimensión, ámbito de declaración y la referencia de las variables, funciones y procedimientos.</span></p><p><img src="./img/PantallaTS.png" referrerpolicy="no-referrer" alt="Figura 8. Pantalla de Tabla de Símbolos"></p><p><span>Figura 8. Pantalla de Tabla de Símbolos</span></p><p><strong><span>Pantalla AST</span></strong></p><p><span>En esta pantalla se muestra una imagen del árbol de sintaxis abstracta, realizado mediante la herramienta de Graphviz</span></p><p><img src="./img/PantallaAST.png" referrerpolicy="no-referrer" alt="Figura 9. Pantalla AST"></p><p><span>Figura 9. Pantalla AST</span></p></div>
+</body>
+</html>
