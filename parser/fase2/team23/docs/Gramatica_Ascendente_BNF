@@ -1,0 +1,207 @@
+## Gramatica Ascendente, formato BNF
+
+\<**init**\>  := \<**instruccione**s\>
+
+\<**instrucciones**\>    := \<**instrucciones**\>  \<**instruccion**\>
+
+\<instrucciones\>    := \<instruccion\> 
+
+\<instruccion\> := \<crear\>  PUNTOCOMA
+	        | SHOW DATABASE \<like_regex\> PUNTOCOMA
+                | \<alter_db\> PUNTOCOMA
+                | \<drop_db\> PUNTOCOMA
+                | DELET FROM [ONLY] ID delet_op PUNTOCOMA
+                | \<seleccionar\> PUNTOCOMA
+                | \<ejecutar\> PUNTOCOMA
+
+\<ejecutar\> := EXECUTE \<expression\> PUNTOCOMA
+                | EXECUTE \<expression\> PAR_ABRE PAR_CIERRA PUNTOCOMA
+
+\<crear\> := CREATE TABLE  ID t_PAR_ABRE \<contenido_tabla\> t_PAR_CIERRA 
+        | CREATE [\<or_replace\>] DATABASE [\<if_not_exists\>] ID [\<owner_mode\>]
+        | CREATE FUNCTION \<expression\> PAR_ABRE \<list_expression\> PAR_CIERRA RETURNS \<expression\> AS DOLAR DOLAR \<fin_funcion\>
+        | CREATE PROCEDURE \<expression\> PAR_ABRE PAR_CIERRA ANGUAGE PLPGSQL AS DOLAR DOLAR \<fin_procedure\>
+
+\<fin_funcion\> := BEGIN \<instrucciones\> END PUNTOCOMA LANGUAGE PLPGSQL PUNTOCOMA
+                | DECLARE BEGIN \<instrucciones\> END PUNTOCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOCOMA
+
+\<fin_procedure\> := BEGIN \<instrucciones\> END PUNTOCOMA
+
+\<owner_mode\> := OWNER = ID
+         | MODE = ENTERO
+        
+\<alter_db\> := ALTER DATABASE ID \<rename_owner\>
+ |ALTER TABLE ID \<alter_op\>
+
+\<alter_op\> :=  ADD \<op_add\>
+	 | DROP \<op_drop\>
+	 | ALTER COLUMN ID SET NOT NULL 
+	 | RENAME COLUMN ID TO ID
+
+\<op_add\> := CHECK t_PAR_ABRE ID t_DIFERENTE t_CADENA t_PAR_CIERRA
+|CONSTRAINT ID UNIQUE t_PAR_ABRE t_PAR_CIERRA
+|\<key_table\> REFERENCES ID t_PAR_ABRE list_id t_PAR_CIERRA
+
+\<or_replace\> := OR REPLACE
+    
+   
+ \<if_not_exists\> := IF NOT EXISTS 
+	         
+
+\<like_regex\> := LIKE cadena
+                | epsilon
+
+\<rename_owner\> := RENAME TO ID
+	           | OWNER TO t_LLAVE_ABRE ID t_BARRA CURRENT_USER t_BARRA SESSION USER t_LLAVE_CIERRA
+
+\<drop_db\> := DROP DATABASE [\<if_exists\>] ID 
+
+\<if_exists\>: IF EXISTS
+            
+
+\<contenido_tabla\> := \<contenido_tabla\> t_COMA \<manejo_tabla\>
+	             | \<manejo_tabla\>
+
+\<manejo_tabla\> := \<declaracion_columna\>
+	          | \<condition_column\>
+
+\<declaracion_columna\> := ID \<type_column\> \<condition_column_row\>
+		        | ID \<type_column\>
+
+\<condition_column_row\> := \<condition_row\> \<condition_column\>
+	                       | \<condition_column\>
+
+\<condition_column\> := CONSTRAINT ID CHECK \<condition_columns\>
+                            | CHECK \<condition_columns\>
+	               | CONSTRAINT ID UNIQUE
+                            | CONSTRAINT ID UNIQUE t_PAR_ABRE \<list_id\> t_PAR_CIERRA
+		  | UNIQUE t_PAR_ABRE \<list_id\> t_PAR_CIERRA
+
+\<condition_columns\>:= \<condition_columns\> , \<condition_columna\>
+	                 | \<condition_columna\>
+
+condition_columna: 
+
+\<key_table\> := PRIMARY KEY [\<list_key\>]
+	    | FOREIGN KEY t_PAR_ABRE \<list_id\> t_PAR_CIERRA REFERENCES ID t_PAR_ABRE 
+\<list_id\> t_PAR_CIERRA
+
+\<list_key\> := t_PAR_ABRE list_id t_PAR_CIERRA
+	
+
+\<list_id\>:= \<list_id\> , ID \<alias\>
+         | ID \<alias\>
+
+\<type_column\> := SMALLINT
+	         | INTEGER
+	         | BIGINT
+	         | DECIMAL
+	         | NUMERIC
+	         | REAL
+	         | DOUBLE PRECISION
+	         | MONEY
+	         | INTEGER
+
+queries
+------
+\<seleccionar\> := SELECT [\<distinto\>]  \<select_list\> FROM table_expression \<fin_select\>
+
+\<fin_select\> := \<group_by\>  
+	| \<donde\>
+	| \<order_by\>
+	| \<group_having\>
+	| \<limite\>
+	|\<epsilon\>
+
+\<distinto\> := DISTINCT
+
+\<select_list\> := ASTERISCO
+	| \<list_id\>
+
+\<table_expression\> := \<list_id\>
+	
+
+\<donde\> := WHERE \<expression\>
+
+\<group_by\> := GROUP BY \<list_id\>
+	
+
+\<order_by\> := ORDER BY \<list_id asc_desc\> [\<nulls_f_l\>]
+	
+
+\<group_having\>:= HAVING \<list_id\>
+	
+
+\<asc_desc\> := ASC
+	| DESC
+
+\<nulls_f_l\>:= NULLS LAST
+	| NULLS FIRST
+	
+
+\<limite\> := LIMIT ENTERO
+	| LIMIT ALL
+	| OFFSET ENTERO
+
+\<list_expression\>  := \<list_expression\> t_COMA \<expression\>
+                    | \<expression\>
+
+\<expression\> := \<expression\> MAYOR \<expression\>
+            | \<expression\> MENOR \<expression\>
+            | \<expression\> MAYOR_IGUAL \<expression\>
+            | \<expression\> MENOR_IGUAL \<expression\>
+            | \<expression\> AND \<expression\>
+            | \<expression\> OR \<expression\>
+            | NOT \<expression\>
+            | \<expression\> IGUAL \<expression\>
+            | \<expression\> NO_IGUAL \<expression\>
+            | \<expression\> DIFERENTE \<expression\>
+            | PAR_ABRE \<expression\> PAR_CIERRA
+            | \<expression\> BETWEEN \<expression\> AND \<expression\>
+            | \<expression\> NOT BETWEEN \<expression\> AND \<expression\> 
+            | \<expression\> BETWEEN SYMMETRIC \<expression\> AND \<expression\>
+            | \<expression\> NOT BETWEEN SYMMETRIC \<expression\> AND \<expression\>
+            | \<expression\> IS DISTINCT FROM \<expression\>
+            | \<expression\> IS NOT DISTINCT FROM \<expression\>
+            | \<expression\> PUNTO \<expression\>
+            | \<expression\> IS NULL
+            | \<expression\> IS NOT NULL
+            | \<expression\> ISNULL
+            | \<expression\> NOTNULL
+            | \<expression\> IS TRUE
+            | \<expression\> IS NOT TRUE
+            | \<expression\> IS FALSE
+            | \<expression\> IS NOT FALSE
+            | \<expression\> IS UNKNOWN
+            | \<expression\> IS NOT UNKNOWN
+            | SUBSTRING PAR_ABRE \<expression\> COMA \<expression\> COMA \<expression\>PAR_CIERRA
+            | \<funciones_math\>
+            | ID
+            | CADENA
+            | DECIMAL
+            | ENTERO
+            | ASTERISCO
+            | \<seleccionar\>
+
+\<funciones_math\> := SUM PAR_ABRE \<expression\> PAR_CIERRA
+            | COUNT PAR_ABRE \<expression\> PAR_CIERRA
+            | AVG PAR_ABRE \<expression\> PAR_CIERRA
+            | MAX PAR_ABRE \<expression\> PAR_CIERRA
+            | MIN PAR_ABRE \<expression\> PAR_CIERRA
+            | ABS PAR_ABRE \<expression\> PAR_CIERRA
+            | CBRT PAR_ABRE \<expression\> PAR_CIERRA
+            | CEIL PAR_ABRE \<expression\> PAR_CIERRA
+            | CEILING PAR_ABRE \<expression\> PAR_CIERRA 
+            | DEGREES PAR_ABRE \<expression\> PAR_CIERRA
+            | DIV PAR_ABRE \<expression\> PAR_CIERRA
+            | EXP PAR_ABRE \<expression\> PAR_CIERRA
+            | FACTORIAL PAR_ABRE \<expression\> PAR_CIERRA 
+            | FLOOR PAR_ABRE \<expression\> PAR_CIERRA
+            | GCD PAR_ABRE \<expression\> PAR_CIERRA
+            | LN PAR_ABRE \<expression\> PAR_CIERRA
+            | LOG PAR_ABRE \<expression\> PAR_CIERRA
+            | MOD PAR_ABRE \<expression\> PAR_CIERRA
+            | PI PAR_ABRE \<expression\> PAR_CIERRA
+            | POWER PAR_ABRE \<expression\> PAR_CIERRA
+            | RADIANS PAR_ABRE \<expression\> PAR_CIERRA
+            | ROUND PAR_ABRE \<expression\> PAR_CIERRA 

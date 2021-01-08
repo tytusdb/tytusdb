@@ -37,6 +37,7 @@ class Arbol(Frame):
         # Se puede repetir este proceso cuantas veces se desee para aumentar
         # los niveles del treeview, por ahora solo seran 3 niveles
         # Adentro del insertar va el item padre
+        
         subitem = self.treeview.insert(item, END, text="Amazon",image=self.folder_image)
         # Se llena el ultimo nivel del arbol, como es el ultimo nivel 
         # solo se llaman los inserts sin crear una variable item nueva.

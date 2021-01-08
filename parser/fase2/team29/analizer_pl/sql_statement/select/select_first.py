@@ -89,19 +89,23 @@ class SelectFirstValue(instruction.Instruction):
         out += self.limitCl + " "
 
         # order by
-        out += self.orderByCl + " "
+        if self.orderByCl:
+            orderbyCl = ""
+            for o in self.orderByCl:
+                orderbyCl += ", "
+                if type(o[0]) == int:
+                    orderbyCl += str(o[0]) + o[1] + o[2]
+                else:
+                    orderbyCl += o[0].id + o[1] + o[2]
+            out += "ORDER BY " + orderbyCl[2:]
 
         out += ";"
         out += '")\n'
-        if isinstance(environment, Environment):
-            out = "\t" + out
 
         # TODO: optimizacion
-        """
         if isinstance(environment, Environment):
             grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
         else:
             grammar.optimizer_.addIgnoreString(out, self.row, False)
-        """
         return code.C3D(parVal + out, self.temp, self.row, self.column)

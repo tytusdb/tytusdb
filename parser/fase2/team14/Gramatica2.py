@@ -5,7 +5,7 @@ from Instrucciones.Declaracion import Declaracion
 from Instrucciones.Execute import Execute
 from Instrucciones.Funcion import *
 from Instrucciones.Ifclass import Ifclass
-from Instrucciones.Procedure import Procedure
+from Instrucciones.Procedure import Procedure, DropProcedure
 from Instrucciones.Raise import Raise
 from Instrucciones.Return import Return
 
@@ -471,6 +471,12 @@ def p_instruccion22(t):
     listaBNF.append("INSTRUCCION ::= DROPFUNC ptcoma")
     t[0]=t[1]
 
+def p_instruccion23(t):
+    'instruccion      : DROPPROCEDURE ptcoma'
+    listaBNF.append("INSTRUCCION ::= DROPPROCEDURE ptcoma")
+    t[0]=t[1]
+
+
 # INICIAMOS A RECONOCER LA FASE 2 -----------------------------------------------------------------
 
 def p_RETURN(t):
@@ -505,6 +511,21 @@ def p_DROPFUNC(t):
     'DROPFUNC : drop function id'
     listaBNF.append('DROPFUNC ::= drop function '+t[3])
     t[0] = DropFunction(t[3])
+
+def p_DROPFUNC1(t):
+    'DROPFUNC : drop function if exist id'
+    listaBNF.append('DROPFUNC ::= drop function if exists '+t[5])
+    t[0] = DropFunction(t[5])
+
+def p_DROPPROC(t):
+    'DROPPROCEDURE : drop procedure id'
+    listaBNF.append('DROPPROCEDURE ::= drop procedure '+t[3])
+    t[0] = DropProcedure(t[3])
+
+def p_DROPPROC1(t):
+    'DROPPROCEDURE : drop procedure if exist id'
+    listaBNF.append('DROPPROCEDURE ::= drop procedure if exist id ' + t[5])
+    t[0] = DropProcedure(t[3])
 
 
 
@@ -623,7 +644,9 @@ def p_BEGINEND(t):
     '''BEGINEND :  begin LISTACONTENIDO end
     '''
     listaBNF.append("BEGINEND ::= begin LISTACONTENIDO end")
-    t[0]=Bloque(t[2])
+    b=Bloque(t[2])
+    b.stringsql+='begin LISTACONTENIDO end;'
+    t[0]=b
 
 
 
@@ -882,6 +905,7 @@ def p_CONTENIDO5(t):
 def p_CONTENIDO6(t):
     'CONTENIDO : declare LDEC  '
     listaBNF.append("CONTENIDO ::= declare LDEC")
+    t[2].stringsql='LISTACONTENIDO'
     t[0] = t[2]
 
 def p_CONTENIDO7(t):
@@ -1910,9 +1934,11 @@ def p_EXPJ(t):
     if t[1] == '(':
         listaBNF.append("EXP ::= ( EXP )")
         t[0] = t[2]
+        t[0].stringsql = '()'
     else:
         listaBNF.append("EXP ::= SELECT")
         t[0] = t[1]
+
 
 
 #def p_EXPJ1(t):

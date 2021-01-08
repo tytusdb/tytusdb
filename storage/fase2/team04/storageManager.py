@@ -941,14 +941,11 @@ def alterAddPK(database, table, columns):
 def encrypt(backup: str, password: str):
 	try:
 		if type(backup) == bytes:
-			print(type(backup))
-			print(backup)
 			#Generar una llave con el password ingresado
 			password_provided = password
 			passwordB = password_provided.encode() #convertido a byte
 
 			salt = b"\x1c(\xe8\xe0J^\xd9\x81~f\n\xc9\xe3'\xdb\xf3" # este salt = os.urandom(16)
-			print(salt)
 
 			kdf = PBKDF2HMAC(
 				algorithm=hashes.SHA256(),
@@ -960,47 +957,18 @@ def encrypt(backup: str, password: str):
 
 			#Llave generada
 			key = base64.urlsafe_b64encode(kdf.derive(passwordB))#solo se puede usar kdf una vez
-			print(key)
 
 			#Cifrar el mensaje
 			f = Fernet(key)
 			encrip = f.encrypt(backup)
-			print("msg cifrado:",encrip)
+
 			return encrip
 
-		#Conversion backup a str
-		elif type(backup) == str:
-
-			#nueva Llave
-			new_backup = bytes(backup, encoding="utf-8")
-			print(type(new_backup))
-			#Generar una llave con el password ingresado
-			password_provided = password
-			passwordB = password_provided.encode() #convertido a byte
-			salt = b"\x1c(\xe8\xe0J^\xd9\x81~f\n\xc9\xe3'\xdb\xf3" # este salt = os.urandom(16)
-			print(salt)
-
-			kdf = PBKDF2HMAC(
-				algorithm=hashes.SHA256(),
-				length=32,
-				salt=salt,
-				iterations=100000,
-				backend=default_backend()
-			)
-			#Llave generada
-			key = base64.urlsafe_b64encode(kdf.derive(passwordB))#solo se puede usar kdf una vez
-			print(key)
-
-			#Cifrar el mensaje
-			f = Fernet(key)
-			encrip = f.encrypt(new_backup)
-			print("msg cifrado:",encrip)
-			return encrip
 		else:
-			print("error tipo backup")
-			return 1 #error
+
+			return None #error
 	except:
-		return 1 #error
+		return None #error
 
 # Descripcion:
 # 	Descrifra el texto cipherBackup con la llave password y devuelve el texto plano. Se puede utilizar cualquier método y biblioteca. (UPDATE)
@@ -1010,14 +978,13 @@ def encrypt(backup: str, password: str):
 #	0 operación exitosa
 #	1 error en la operación.
 def decrypt(cipherBackup: str, password: str):
-	print("\n")
+
 	try:
 		#Generar una llave con el password ingresado
 		password_provided = password
 		passwordB = password_provided.encode() #convertido a byte
 
 		salt = b"\x1c(\xe8\xe0J^\xd9\x81~f\n\xc9\xe3'\xdb\xf3" # este salt = os.urandom(16)
-		print(salt)
 
 		kdf = PBKDF2HMAC(
 			algorithm=hashes.SHA256(),
@@ -1029,15 +996,14 @@ def decrypt(cipherBackup: str, password: str):
 
 		#Llave generada
 		key = base64.urlsafe_b64encode(kdf.derive(passwordB))#solo se puede usar kdf una vez
-		print(key)
 
 		#Desencriptar el mensaje
 		f2 = Fernet(key)
 		desen = f2.decrypt(cipherBackup)
-		print(desen)
 		#desen_str = desen.decode()
 		#print("Mensaje Desencriptado:\n",desen_str)
 		return desen
 
 	except:
-		return 1 #error
+		return None #error
+

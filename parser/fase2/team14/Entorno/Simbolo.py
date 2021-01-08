@@ -98,3 +98,19 @@ class Simbolo:
                     cadena += "</TD><TD></TD></TR>\n"
 
         return cadena
+
+    def proc(self):
+        cadena: str = ""
+        if self.nombre != None:
+            if self.nombre[:2] == "_P":
+                parametros = self.valor[0]
+                if parametros!=None:
+                    tamano = len(parametros)
+                    cadena += "<TR><TD rowspan='" + str(tamano) + "'>" + self.nombre[2:] + "</TD><TD rowspan='" + str(tamano) + "'>PROCEDURE</TD><TD rowspan='" + str(tamano) + "'></TD><TD rowspan='" + str(tamano) + "'>"
+                    cadena += "</TD><TD>" + str(parametros[0].nombre) + ":" + str(parametros[0].tipo.tipo) + "</TD></TR>\n"
+                    for x in range(1,len(parametros),1):
+                        cadena += "<TR><TD>" + str(parametros[x].nombre) + ":" + str(parametros[x].tipo.tipo) + "</TD></TR>\n"
+                else:
+                    cadena += "<TR><TD>" + self.nombre[2:] + "</TD><TD>PROCEDURE</TD><TD></TD><TD>"
+                    cadena += "</TD><TD></TD></TR>\n"
+        return cadena

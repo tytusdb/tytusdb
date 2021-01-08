@@ -60,7 +60,35 @@ class Index(Instruccion):
         pass
         
     def traducir(self, tabla, arbol):
-        pass
+        tabla.setIndex(self)
+        cadena = ""
+        funcname = ""
+
+
+        self.valtable(self.my_dic)
+
+        h=0
+        val2param=""
+        val1param=""
+        try:
+                print("actuaparam in self.parametros") 
+
+                for param in self.parametros: 
+                        print("actualizaa999mera ",param) 
+
+                        if(h==0):val1param=param
+                        if(h==1):val2param=param
+                    #    self.agregar(self,"",param,cadena)
+
+                        h=h+1 
+                print("actualizaalaprimera ",val1param,val2param) 
+                print("start") 
+
+                self.actualizaalaprimera(val1param,val2param, tabla,arbol)
+
+        except Exception as e:
+            print(e) 
+        
         
 
 '''
