@@ -1,3 +1,9 @@
+
+import sys, os.path
+import json
+where_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\Where')
+sys.path.append(where_path)
+from Where import Where
 def traduccionSelect(nodoRaiz):
 
     stringRetornar = "Select "
@@ -66,6 +72,47 @@ def traduccionSelect(nodoRaiz):
         expresionTraducir = nodoRaiz.hijos[0]
         tablasTraducir = nodoRaiz.hijos[1]
         tercerNodo = nodoRaiz.hijos[2]
+        expresionTraducir = nodoRaiz.hijos[0]
+        tablasTraducir = nodoRaiz.hijos[1]
+
+        if expresionTraducir.nombreNodo == "*":
+
+            stringRetornar += "* "
+
+        else :
+
+            cantidadHijos = len(expresionTraducir.hijos)
+            contador = 1
+
+            for hijo in expresionTraducir.hijos:
+
+                if contador == 1 :
+                    stringRetornar += ""
+                else:
+                    stringRetornar += ", "
+                
+                stringRetornar += hijo.getText()
+                contador = contador + 1
+
+        
+        stringRetornar += "from "
+        cantidadHijos = len(tablasTraducir.hijos)
+        contador = 1
+
+        for hijo in tablasTraducir.hijos:
+
+            if contador == 1 :
+                stringRetornar += ""
+            else:
+                stringRetornar += ", "
+
+            if hijo.nombreNodo == 'Identificador':
+                stringRetornar += hijo.valor
+            
+            contador =  contador + 1
+        nuevoWhere = Where()
+        print(nuevoWhere.compile(tercerNodo))
+        stringRetornar+=nuevoWhere.compile(tercerNodo)
     
     stringRetornar += ";"
     return stringRetornar
