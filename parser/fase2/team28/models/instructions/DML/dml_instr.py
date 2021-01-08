@@ -188,12 +188,17 @@ class Update(Instruction):
         return str(vars(self))
 
     def compile(self, instrucction):
+       #CREANDO C3D
         temp = ThreeAddressCode().newTemp()
         database_id = SymbolTable().useDatabase
         if database_id is not None:
             ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
         else:
             ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
 
     def process(self, instruction):
         # Obteniendo tabla de la cual voy a hacer el update
@@ -352,13 +357,38 @@ class Delete(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def compile(self, instrucction):
-        temp = ThreeAddressCode().newTemp()
+    def compile(self, environment):
         database_id = SymbolTable().useDatabase
-        if database_id is not None:
-            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        #ejecutando si hay llamada a alguna funcion
+        temps_array = []
+        if self.params is not None:
+            for value in self.params:
+                if isinstance(value, Funcion):
+                    temps_array.append(value.compile(environment))
+        new_val = None
+        if temps_array is not None:
+            new_val = putVarValues(self._tac, temps_array, environment)
         else:
-            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+            new_val = self._tac
+            
+        temp = ''
+
+        if new_val == self._tac: #Es un temporal --- quitar comillas
+
+            temp = ThreeAddressCode().newTemp()
+
+            if database_id is not None:
+                ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {new_val}\"")
+            else:
+                ThreeAddressCode().addCode(f"{temp} = \"{new_val}\"")
+        else:
+            temp = new_val
+
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+
+        return temp1
 
     def process(self, instrucction):
         # Obteniendo tabla de la cual voy a borrar
