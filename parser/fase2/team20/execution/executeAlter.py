@@ -24,7 +24,7 @@ def executeAlterDatabaseRename(self,database):
     elif(mode==8):
         return jsonMode.alterDatabase(database.oldname,database.newname)
     else:
-        print_error("SEMANTIC ERROR",'Mode between 1-5')
+        print_error("SEMANTIC ERROR",'Mode between 1-5',2)
         return 1
 
 def executeAlterTableDropPK(self,table):
@@ -56,7 +56,7 @@ def executeAlterTableDropPK(self,table):
             TCalterDropPk(database,table.table)
         return res
     else:
-        print_error("SEMANTIC ERROR",'Mode between 1-5')
+        print_error("SEMANTIC ERROR",'Mode between 1-5',2)
         return 1
 
 
@@ -89,7 +89,7 @@ def executeAlterType(self,table):
         else:
             return 5
     else:
-        print_error("SEMANTIC ERROR",'Mode between 1-5')
+        print_error("SEMANTIC ERROR",'Mode between 1-5',2)
         return 1
 
 
@@ -136,33 +136,33 @@ def executeAlterTableAddColumn(self, AlterTableAddColumn_):
                                 new_column.type_ = type_name
                                 table_.columns.append(new_column)
                                 save_TypeChecker_Manager(TypeChecker_Manager_)
-                                print_success("QUERY", str(column_name) + " column added to " + str(table_.name) + " table")
+                                print_success("QUERY", str(column_name) + " column added to " + str(table_.name) + " table",2)
                             elif result_AlterTableAddColumn == 1:
-                                print_error("UNKNOWN ERROR", "Operation error")
+                                print_error("UNKNOWN ERROR", "Operation error",2)
                             elif result_AlterTableAddColumn == 2:
-                                print_error("SEMANTIC ERROR", "Database does not exist")
+                                print_error("SEMANTIC ERROR", "Database does not exist",2)
                             elif result_AlterTableAddColumn == 3:
-                                print_error("SEMANTIC ERROR", "Table does not exist")
+                                print_error("SEMANTIC ERROR", "Table does not exist",2)
                             else:
-                                print_error("UNKNOWN ERROR", "Operation error")
+                                print_error("UNKNOWN ERROR", "Operation error",2)
                         except Exception as e:
-                            print_error("UNKNOWN ERROR", "instruction not executed")
+                            print_error("UNKNOWN ERROR", "instruction not executed",2)
                             #print(e)
 
                     else:
-                        print_error("SEMANTIC ERROR", "Column named " + column_.name + " already exists in the " + table_.name + " table")
+                        print_error("SEMANTIC ERROR", "Column named " + column_.name + " already exists in the " + table_.name + " table",2)
 
                 else:
-                    print_error("SEMANTIC ERROR", "Table does not exist")
+                    print_error("SEMANTIC ERROR", "Table does not exist",2)
 
             else:
-                print_error("SEMANTIC ERROR", "Database to use does not exist")
+                print_error("SEMANTIC ERROR", "Database to use does not exist",2)
 
         else:
-            print_warning("RUNTIME ERROR", "Undefined database to use")
+            print_warning("RUNTIME ERROR", "Undefined database to use",2)
         
     else:
-        print_error("UNKNOWN ERROR", "instruction not executed")
+        print_error("UNKNOWN ERROR", "instruction not executed",2)
 
 
 #def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
@@ -170,7 +170,7 @@ def executeAlterTableAddColumn(self, AlterTableAddColumn_):
 #1 -> Operation error
 #2 -> Database does not exist
 #3 -> Table does not exist
-#4 -> The key cannot be deleted or the table runs out of 
+#4 -> The key cannot be deleted or the table will be without columns
 #5 -> Column out of bounds
 
 def executeAlterTableDropColumn(self, AlterTableDropColumn_):
@@ -217,60 +217,54 @@ def executeAlterTableDropColumn(self, AlterTableDropColumn_):
                                 if result_AlterTableDropColumn == 0:
                                     table_.columns.pop(column_number)
                                     save_TypeChecker_Manager(TypeChecker_Manager_)
-                                    print_success("QUERY", str(column_name) + " column removed from " + str(table_.name) + " table")
+                                    print_success("QUERY", str(column_name) + " column removed from " + str(table_.name) + " table",2)
                                 elif result_AlterTableDropColumn == 1:
-                                    print_error("UNKNOWN ERROR", "Operation error")
+                                    print_error("UNKNOWN ERROR", "Operation error",2)
                                 elif result_AlterTableDropColumn == 2:
-                                    print_error("SEMANTIC ERROR", "Database does not exist")
+                                    print_error("SEMANTIC ERROR", "Database does not exist",2)
                                 elif result_AlterTableDropColumn == 3:
-                                    print_error("SEMANTIC ERROR", "Table does not exist")
+                                    print_error("SEMANTIC ERROR", "Table does not exist",2)
                                 elif result_AlterTableDropColumn == 4:
-                                    print_error("SEMANTIC ERROR", "The key cannot be deleted or the table runs out of ")
+                                    print_error("SEMANTIC ERROR", "The key cannot be deleted or the table will be without columns",2)
                                 elif result_AlterTableDropColumn == 5:
-                                    print_error("SEMANTIC ERROR", "Column out of bounds")
+                                    print_error("SEMANTIC ERROR", "Column out of bounds",2)
                                 else:
-                                    print_error("UNKNOWN ERROR", "Operation error")
+                                    print_error("UNKNOWN ERROR", "Operation error",2)
                             except Exception as e:
-                                print_error("UNKNOWN ERROR", "instruction not executed")
+                                print_error("UNKNOWN ERROR", "instruction not executed",2)
                                 #print(e)
 
                         else:
-                            print_error("SEMANTIC ERROR", "A column that is primary key cannot be dropped")
+                            print_error("SEMANTIC ERROR", "A column that is primary key cannot be dropped",2)
 
                     else:
-                        print_error("SEMANTIC ERROR", str(column_name) + " column does not exist in " + table_.name + " table")
+                        print_error("SEMANTIC ERROR", str(column_name) + " column does not exist in " + table_.name + " table",2)
 
                 else:
-                    print_error("SEMANTIC ERROR", "Table does not exist")
+                    print_error("SEMANTIC ERROR", "Table does not exist",2)
 
             else:
-                print_error("SEMANTIC ERROR", "Database to use does not exist")
+                print_error("SEMANTIC ERROR", "Database to use does not exist",2)
 
         else:
-            print_warning("RUNTIME ERROR", "Undefined database to use")
+            print_warning("RUNTIME ERROR", "Undefined database to use",2)
         
     else:
-        print_error("UNKNOWN ERROR", "instruction not executed")
+        print_error("UNKNOWN ERROR", "instruction not executed",2)
 
 def executeAlterIndex(self,AlterIndex):
-    #database=TCgetDatabase()
-
+    database=TCgetDatabase()
     #print(TCcreateFunction('funcion3','fun3codigo3d',False))
-    print(TCgetFunctions())
-    print(TCdeleteFunction('funcion2'))
-    print(TCgetFunctions())
-    print(TCdeleteFunction('funcion1'))
-    print(TCgetFunctions())
-    '''res=TCSearchDatabase(database)
+    res=TCSearchDatabase(database)
     if res==1:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
     elif res==2:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
     elif res==3:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
     elif res==4:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
-    elif res==8:
-        return TCAlterIndex(database,AlterIndex.oldname,AlterIndex.newname)
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
+    elif res==5:
+        return TCAlterIndex(database,AlterIndex.index,AlterIndex.oldname,AlterIndex.newname)
     else:
-        print_error("SEMANTIC ERROR","Mode between 1-5")'''
+        print_error("SEMANTIC ERROR","Mode between 1-5")
