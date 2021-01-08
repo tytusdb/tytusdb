@@ -18,6 +18,8 @@ class SelectParam(instruction.Instruction):
             c3d += self.alias
         return code.C3D(pval.value, c3d, self.row, self.column)
 
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_SELECT")
 
 class SelectOnlyParams(instruction.Instruction):
     def __init__(self, params, row, column) -> None:
@@ -47,6 +49,8 @@ class SelectOnlyParams(instruction.Instruction):
             grammar.optimizer_.addIgnoreString(out, self.row, False)
         return code.C3D(parVal + out, "select", self.row, self.column)
 
+    def dot(self):
+        return Nodo("SQL_INSTRUCTION:_SELECT")
 
 class Select(instruction.Instruction):
     def __init__(
