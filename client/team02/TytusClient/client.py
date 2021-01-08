@@ -46,7 +46,8 @@ class Example(Frame):
 
         self.lbl2 = Label(self, text="Consola")
         self.lbl2.grid(row=2, column=1)
-        self.areaConsole = Text(self,height=10,width=20)
+        #Textbox de la consola, aqui se debe mostrar la data que devuelve el proyecto de compi
+        self.areaConsole = Text(self,height=10,state='disabled')
         self.areaConsole.grid(row=3, column=1,padx=5, sticky=E + W )
 
 
@@ -126,7 +127,17 @@ class Example(Frame):
 
     def run(self):
         active_object = self.nb.nametowidget(self.nb.select())
-        messagebox.showinfo("Info",active_object.area.get("1.0",'end-1c'))
+        try:
+            cadena = active_object.area.get("sel.first", "sel.last")
+            messagebox.showinfo("Info", active_object.area.get("sel.first", "sel.last"))
+            nueva = str(cadena).upper()
+            print(nueva)
+
+        except:
+            cadena2 =  messagebox.showinfo("Info",active_object.area.get("1.0",'end-1c'))
+            nuevaV = str(cadena2).upper()
+            print(nuevaV)
+
         #print(self.nb.index(self.nb.select()))
         #print(self.nb.tab(self.nb.select(), "text"))
 
