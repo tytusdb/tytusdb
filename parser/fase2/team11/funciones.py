@@ -69,3 +69,75 @@ class Funciones2:
         notebook.select(optConsole)
         messagebox.showinfo(message = "El Codigo de tres direcciones ha sido optimizado", title="TytusDB")
         
+
+    def crearArchivo(self, input):
+        archivo = 'from goto import with_goto\n'
+        archivo += 'import numpy as np\n'
+        archivo += 'import math\n'
+        archivo += 'import random as rd\n'
+        archivo += 'import gramatica_asc as g\n'
+        archivo += 'from Ast import *\n\n'
+        archivo += 'ast = AST()\n'
+        archivo += 'raiz = Nodo(\'INSTRUCCIONES\',\'\', [])\n'
+        archivo += 'pila = [] \n\n'
+
+        f = open("codigoEn3D.py", "w")
+
+        archivo += '################################ FUNCION INTERMEDIA ############################### \n\n'
+        archivo += 'def funcionIntermedia(): \n'
+        archivo += '\tglobal pila\n'
+        archivo += '\tinsts = pila.pop()\n'
+        archivo += '\tnodo = g.parse(insts)\n'
+        archivo += '\traiz.hijos.append(nodo)\n'
+        archivo += '\tast.executeAST(nodo)\n'
+        archivo += '\tast.printOutputs()\n'
+        archivo += '\tast.printErrors()\n'
+        archivo += '\tast.generateTSReport()\n'
+        archivo += '\tast.erroresHTML()\n'
+
+        archivo += '\n############################# CODIGO EN 3DIRECCIONES ############################## \n\n'
+        archivo += 'def main(): \n'
+        archivo += '\tglobal pila \n'
+        for a in input:
+            archivo +=  a + '\n'
+
+        archivo += '\nif __name__ == "__main__": \n'
+        archivo += '\t main()'
+
+        f.write(archivo)
+        f.close()
+
+    def crearArchivo2(self, input):
+        archivo = 'from goto import with_goto\n'
+        archivo += 'import gramatica_asc as g\n'
+        archivo += 'from Ast import *\n\n'
+        archivo += 'ast = AST()\n'
+        archivo += 'raiz = Nodo(\'INSTRUCCIONES\',\'\', [])\n'
+        archivo += 'pila = [] \n\n'
+
+        f = open("codigoEn3D_OPTIMIZADO.py", "w")
+
+        archivo += '################################ FUNCION INTERMEDIA ############################### \n\n'
+        archivo += 'def funcionIntermedia(): \n'
+        archivo += '\tglobal pila\n'
+        archivo += '\tinsts = pila.pop()\n'
+        archivo += '\tnodo = g.parse(insts)\n'
+        archivo += '\traiz.hijos.append(nodo)\n'
+        archivo += '\tast.executeAST(nodo)\n'
+        archivo += '\tast.printOutputs()\n'
+        archivo += '\tast.printErrors()\n'
+        archivo += '\tast.generateTSReport()\n'
+        archivo += '\tast.erroresHTML()\n'
+
+        archivo += '\n############################# CODIGO EN 3DIRECCIONES ############################## \n\n'
+        archivo += 'def main(): \n'
+        archivo += '\tglobal pila \n'
+        for a in input:
+            archivo +=  a + '\n'
+
+        archivo += '\nif __name__ == "__main__": \n'
+        archivo += '\t main()'
+
+        f.write(archivo)
+        f.close()
+ 

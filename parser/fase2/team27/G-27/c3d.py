@@ -163,37 +163,35 @@ def t_F_HORA(t):
 def t_FECHA_HORA(t):
     r'\'\d+-\d+-\d+\s\d+:\d+:\d+\''
     t.value = t.value[1:-1]
-    t.value = '"'+t.value+'"'
+    t.value = '"'+'\\'+'\''+t.value+'\\'+'\''+'"'
     return t
 
 # EXPRESION REGULAR PARA FORMATO FECHA
 def t_FECHA(t):
     r'\'\d\d\d\d-\d\d-\d\d\''
     t.value = t.value[1:-1]
-    t.value = '"'+t.value+'"'
+    t.value = '"'+'\\'+'\''+t.value+'\\'+'\''+'"'
     return t
 
 # EXPRESION REGULAR PARA FORMATO HORA
 def t_HORA(t):
     r'\'\d+:\d+:\d+\''
     t.value = t.value[1:-1]
-    from datetime import datetime
-    try:
-        t.value = datetime.strptime(t.value,'%H:%M:%S')
-    except ValueError:
-        t.value = datetime(1900,1,1)
+    t.value = '"'+'\\'+'\''+t.value+'\\'+'\''+'"'
     return t
 
 # EXPRESION REGULAR PARA CADENA SIMLE
 def t_CADENASIMPLE(t):
     r'\'(\s*|.*?)\''
-    t.value = str(t.value).replace('\'','\"')
+    t.value = t.value[1:-1]
+    t.value = '"'+'\\'+'\''+t.value+'\\'+'\''+'"'
     return t
     
 # EXPRESION REGULAR PARA FORMATO CADENAS
 def t_CADENA(t):
     r'\"(\s*|.*?)\"'
-    t.value = str(t.value)
+    t.value = t.value[1:-1]
+    t.value = '"'+'\\'+'\''+t.value+'\\'+'\''+'"'
     return t
 
 # EXPRESION REGULAR PARA SALTOS LINEA
@@ -299,6 +297,8 @@ def p_instrucciones_evaluar(t):
         t[0] = GenerarC3D()
         t[0].code += t[1].code
     elif t[1].statement == 'EXECUTE':
+        t[0] = t[1]
+    elif t[1].statement == 'DROP FUNC':
         t[0] = t[1]
     else:
         t[0] = GenerarC3D()
@@ -769,10 +769,10 @@ def p_ins_select_parentesis(t):
                     |    SELECT arg_distict colum_list from'''
     if isinstance(t[1], GenerarC3D):
         t[0] = GenerarC3D()
-        t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code + ' ' + t[4].code
+        t[0].code += t[1].code + ' ' + str(t[2]) + ' ' + t[3].code + ' ' + t[4].code+';'
     else: 
         t[0] = GenerarC3D()
-        t[0].code += str(t[1]) + ' ' + t[2].code  + ' ' + t[3].code + ' ' + t[4].code
+        t[0].code += str(t[1]) + ' ' + t[2].code  + ' ' + t[3].code + ' ' + t[4].code+';'
     
 def p_from(t):
     '''from :  FROM table_list arg_where arg_having arg_group_by arg_order_by arg_limit arg_offset 
@@ -1506,9 +1506,9 @@ def p_ins_delete(t):
 def p_drop_pf(t):
     ''' drop_pf : DROP drop_case opt_exist ID PUNTO_COMA'''
     result = deleteProcFunc(t[2], t[4], ListaFunciones)
-
     t[0] = GenerarC3D()
-    t[0].code = str(result)
+    t[0].code = str(result) + '\n'
+    t[0].statement = 'DROP FUNC'
 
 def p_drop_case(t):
     ''' drop_case : FUNCTION

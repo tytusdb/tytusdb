@@ -5878,7 +5878,10 @@ def p_VALORFAtanh(t):
 # --------------------------- AGREGAR----------------
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionDegreesVF(t):
-    'VALORF  :   DEGREES PABRE LNUMF PCIERRA'
+    'VALORF  :   DEGREES PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.degree, t[3].getInstruccion()), NodoAST("DEGREE"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionDivVF(t):
@@ -5890,7 +5893,10 @@ def p_IdFuncionExpVF(t):
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionFactorialVF(t):
-    'VALORF  :   FACTORIAL PABRE LNUMF PCIERRA'
+    'VALORF  :   FACTORIAL PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.factorial, t[3].getInstruccion()), NodoAST("FACTORIAL"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 #TODO: AGREGAR DIEGO 
 def p_IdFuncionFloorVF(t):

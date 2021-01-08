@@ -21,6 +21,7 @@ a = open('c3d.py','w')
 
 
 def analiz(input):
+    writeToFile()
     raiz = g.parse(input)
     results = []
     res = ''
@@ -75,25 +76,25 @@ def traducir(input):
     return results
 
 def writeToFile():
-    content = '''
-from datetime import date
-from variables import tabla as ts
-from variables import NombreDB 
-from variables import cont 
-import tablaDGA as TAS
-import sql as sql 
-import mathtrig as mt
-from reportTable import *
+    content =   '''
+    from datetime import date
+    from variables import tabla as ts
+    from variables import NombreDB 
+    from variables import cont 
+    import tablaDGA as TAS
+    import sql as sql 
+    import mathtrig as mt
+    from reportTable import *
 
 
-pila = []
-for i in range(100):
-    pila.append(i)
+    pila = []
+    for i in range(100):
+        pila.append(i)
 
-def ejecutar():
-    global cont
-    global ts
-    NombreDB = ts.nameDB
+    def ejecutar():
+        global cont
+        global ts
+        NombreDB = ts.nameDB
 	\n'''
     global a
     a.write(content)
