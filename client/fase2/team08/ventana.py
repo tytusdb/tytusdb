@@ -19,6 +19,7 @@ consola = None
 raiz = None
 tools = None
 loginOn = False
+listas=""
 
 
 #Variables para simular credenciales
@@ -36,6 +37,7 @@ def myGET():
     myConnection.request("GET", "/getUsers", "", headers)
     response = myConnection.getresponse()
     global consola
+    global textos
     print("GET: Status: {} and reason: {}".format(response.status, response.reason))
     if response.status == 200:       
         data = response.read()   
@@ -86,6 +88,45 @@ def crearUsuario():
             myConnection.close()
         else:
             MessageBox.showerror("Error", "Es necesario llenar ambos campos!")
+#PRUEBA PARA IMPRIMIR EN CONSOLA DE SERVER
+def getText():
+    global notebook
+    global listas
+    global textos
+    ## notebook seleccionado print(notebook.select())
+    if notebook.select():
+    ##numero de index de pesta;a
+        pestana_no = notebook.index('current')
+        
+    listas=textos[pestana_no].text.get("1.0", END)
+    jsonData = {"texto": listas}
+    print (jsonData)
+    myJson = json.dumps(jsonData)
+
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+    headers = {
+            "Content-type": "application/json"
+    }
+
+    myConnection.request("POST", "/prueba", myJson, headers)
+    response = myConnection.getresponse()
+
+#FIIIN
+
+
+
+def DataQuery():
+    global notebook
+    global listas
+    global textos
+    ## notebook seleccionado print(notebook.select())
+    if notebook.select():
+    ##numero de index de pesta;a
+        pestana_no = notebook.index('current')
+        
+    listas=textos[pestana_no].text.get("1.0", END)
+    print(listas)
 
 def changeToLogout():
     global tools
@@ -277,7 +318,7 @@ def CrearVentana():
     #Se llama a la clase Arbol
     Arbol(FrameIzquiero)
     #Boton para realizar consulta
-    Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray').pack(side="top",fill="both")
+    Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray', command=getText).pack(side="top",fill="both")
     #Consola de Salida
     global consola
     consola = Text(raiz,bg='gray7',fg='white',selectbackground="gray21")
