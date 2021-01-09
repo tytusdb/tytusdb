@@ -32,6 +32,8 @@ Una vez se cuente con los requerimientos minimos, para la ejecucion del servidor
 y la instalacion de algunas de las dependecias con los siguientes comandos
 
 ```PowerShell
+    pip install flask
+    pip install flask-corse
     pip install ply
     pip install graphviz
 ```
@@ -87,7 +89,36 @@ def agregar_usuario():
 ```python 
 @app.route('/query')
 def Ejecutar():
-     return jsonify({"mensaje":"Ejecutando Querys"})
+     global datos
+    texto = request.json['query']
+    #Esta es la parte de implementacion de Compiladores 2 y EDD
+    instrucciones = g.parse(texto)
+    erroresSemanticos = []
+    salida = ""
+
+    for instr in instrucciones['ast'] :
+
+            if instr != None:
+                result = instr.execute(datos)
+                if isinstance(result, error):
+                    salida = salida + str(result.desc) + "\n" #imprimir en consola
+                    erroresSemanticos.append(result)
+                elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
+                    salida = salida + str(instr.ImprimirTabla(result)) + "\n" #imprimir en consola
+                else:
+                    salida = salida + str(result)  + "\n" #imprimir en consola
+
+    errores = g.getMistakes()
+    salidaE = ""
+    for error1 in errores:
+        salidaE += error1.toString() + "\n"
+    salida = salida + salidaE  + "\n"
+    errores.clear()
+    erroresSemanticos.clear()
+
+    del instrucciones
+    print(salida)
+    return jsonify({"mensaje":salida})
 ```
 
 **Debug del server**
