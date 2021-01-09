@@ -1892,34 +1892,6 @@ def alterDatabaseCompress(database: str, level: int) -> int:
     bd = _database(database)
 
     if bd:
-        pass
-
-    # if level not valid:
-    #     return 4
-
-    # return database_compress(database, level)
-
-    else:
-        return 2
-
-
-def alterDatabaseCompress(database: str, level: int) -> int:
-    """Compresses a database
-
-        Pararameters:\n
-            database (str): name of the database
-            level (int): compression level
-
-        Returns:\n
-            0: operation successful
-            1: an error ocurred
-            2: non-existent database
-            4: non-valid level
-    """
-
-    bd = _database(database)
-
-    if bd:
 
         if level > 0 and level < 10:
             try:
@@ -1948,6 +1920,53 @@ def alterDatabaseCompress(database: str, level: int) -> int:
     else:
         return 2
 
+
+def alterDatabaseDecompress(database: str) -> int:
+    """Decompresses a database
+
+        Pararameters:\n
+            database (str): name of the database
+
+        Returns:\n
+            0: operation successful
+            1: an error ocurred
+            2: non-existent database
+            4: non-existent compression
+    """
+
+    bd = _database(database)
+
+    if bd:
+        com = bd["compress"]
+        if com:
+            try:
+                table = bd["tablas"]
+                for t in table:
+                    val = extractTable(database, t['nombre'])
+                    truncate(database, t['nombre'])
+                    print("Lista antes")
+                    print(val)
+                    if len(val):
+                        for x in val:
+                            for y in x:
+                                if type(y) == str:
+                                    try:
+                                        i = x.index(y)
+                                        x[i] = zlib.decompress(bytes.fromhex(y)).decode()
+                                    except:
+                                        return 1
+                            insert(database, t['nombre'], x)
+                bd["compress"] = False
+
+                return 0
+            except:
+                return 1
+        else:
+            return 3
+    else:
+        return 2
+
+
 def alterTableCompress(database: str, table: str, level: int) -> int:
     """Compresses a table
 
@@ -1967,20 +1986,39 @@ def alterTableCompress(database: str, table: str, level: int) -> int:
     bd = _database(database)
 
     if bd:
+        if level > 0 and level < 10:
 
-        tb = _table(table)
+            tb = _table(database, table)
 
-        if tb:
-            pass
+            if tb:
+                com = tb["compress"]
+                tb["level"] = level
 
-        # if level not valid:
-        #     return 4
-
-        # return table_compress(database, table, level)
-
+                if not com:
+                    try:
+                        val = extractTable(database, tb['nombre'])
+                        truncate(database, tb['nombre'])
+                        if len(val):
+                            for x in val:
+                                for y in x:
+                                    if type(y) == str:
+                                        try:
+                                            i = x.index(y)
+                                            x[i] =zlib.compress(y.encode(), level).hex()
+                                        except:
+                                            return 1
+                                insert(database, tb['nombre'], x)
+                        tb["compress"] = True
+                        tb["level"] = level
+                        return 0
+                    except:
+                        return 1
+                else:
+                    return 1
+            else:
+                return 3        
         else:
-            return 3
-
+            return 4
     else:
         return 2
 
@@ -1996,27 +2034,40 @@ def alterTableDecompress(database: str, table: str) -> int:
             0: operation successful
             1: an error ocurred
             2: non-existent database
-            3: non-existent table
-            4: non-existent compression
+            3: non-existent compression
     """
 
     bd = _database(database)
 
     if bd:
-
         tb = _table(database, table)
-
+        
         if tb:
-            pass
-
-        # if level not valid:
-        #     return 4
-
-        # return table_decompress(database, table)
-
+            com = tb["compress"]
+            
+            if com:
+                try:
+                    val = extractTable(database, tb['nombre'])
+                    truncate(database, tb['nombre'])
+                    
+                    if len(val):
+                        for x in val:
+                            for y in x:
+                                if type(y) == str:
+                                    try:
+                                        i = x.index(y)
+                                        x[i] =zlib.decompress(bytes.fromhex(y)).decode()
+                                    except:
+                                        return 1
+                            insert(database, tb['nombre'], x)
+                    tb["compress"] = False
+                    return 0
+                except:
+                    return 1
+            else:
+                return 3
         else:
-            return 3
-
+            return 1
     else:
         return 2
 
