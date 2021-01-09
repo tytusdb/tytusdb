@@ -13,9 +13,11 @@ class CurrentTime(Instruccion):
         time = todays_date.strftime("%H:%M:%S")
         return time
 
-    def analizar(self, ts, arbol):
-        pass
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+
     def traducir(self, tabla, arbol):
+        super().traducir(tabla, arbol)
         return "CURRENT_TIME"
 
 '''

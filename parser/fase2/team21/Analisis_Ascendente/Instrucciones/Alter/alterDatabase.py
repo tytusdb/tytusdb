@@ -48,6 +48,12 @@ class AlterDatabase(Instruccion):
 
         contador = tv.Temp()
         consola.append(f"\n\t{contador} = \"{info}\"")
+        contador2 = tv.Temp()
+        consola.append(f"\n\t{contador2} = T({contador})")
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")
+        #contador = tv.Temp()
+        #consola.append(f"\n\t{contador} = \"{info}\"")
 
-        consola.append(f"\n\tarbol = obtener_arbol({contador})")
-        consola.append(f"\n\tstack.append(arbol)\n")
+        #consola.append(f"\n\tarbol = obtener_arbol({contador})")
+        #consola.append(f"\n\tstack.append(arbol)\n")

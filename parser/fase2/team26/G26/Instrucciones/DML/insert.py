@@ -78,7 +78,7 @@ class Insert(Instruccion):
                         if tamanioInferior:
                             comprobarNull = True
                         else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                            return Error('Semantico', 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.', 0, 0)
                 elif tipo == 'integer' or tipo == 'numeric':
                     if isinstance(valoresTabla[posColumna], int):
                         if valoresTabla[posColumna] >= -2147483648 and valoresTabla[posColumna] <= 2147483647:
@@ -358,15 +358,15 @@ class Insert(Instruccion):
         if valRetorno == 0:
             return 'Se ha insertado correctamente.'
         elif valRetorno == 1:
-            return 'Error(???): unknown_error'
+            return Error('Semantico', 'Error(???): unknown_error.', 0, 0)
         elif valRetorno == 2:
-            return 'Error(???): No existe la base de datos ' + data.databaseSeleccionada
+            return Error('Semantico', 'Error(???): No existe la base de datos ' + data.databaseSeleccionada, 0, 0)
         elif valRetorno == 3:
-            return 'Error(???): No existe la tabla ' + self.tableid.upper()
+            return Error('Semantico', 'Error(???): No existe la tabla ' + self.tableid.upper(), 0, 0)
         elif valRetorno == 4:
-            return 'Error(???): Llave primaria duplicada.'
+            return Error('Semantico', 'Error(???): Llave primaria duplicada.', 0, 0)
         elif valRetorno == 5:
-            return 'Error(54023): too_many_arguments'
+            return Error('Semantico', 'Error(54023): too_many_arguments.', 0, 0)
 
         return self
 

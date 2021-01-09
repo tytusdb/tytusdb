@@ -23,20 +23,17 @@ class Index(Instruccion):
         if dbActual != None:
             tablaIndex: Simbolo = ent.buscarSimbolo(self.tabla + "_" + dbActual)
             if tablaIndex != None:
-                # IDX_database_tabla
-                idIdex: str = "IDX_" + dbActual + "_" + self.tabla
                 for nombreCol in self.columnas:
                     i = 0
                     fin = len(tablaIndex.valor)
                     while i < fin:
                         if nombreCol.valor == tablaIndex.valor[i].nombre:
-                            nuevoSym: Simbolo = Simbolo(TipoSimbolo.INDEX)
+                            # IDX_database_tabla
+                            idIdex: str = "IDX_" + dbActual + "_" + self.tabla + "_" + self.iden + "_" + nombreCol.valor
+                            nuevoSym: Simbolo = Simbolo(TipoSimbolo.INDEX,idIdex,{})
                             nuevoSym.tabla = self.tabla
                             nuevoSym.indexId = self.iden
                             nuevoSym.baseDatos = dbActual
-                            idIdex += "_" + self.iden + "_" + nombreCol.valor
-                            nuevoSym.nombre = idIdex
-                            nuevoSym.valor = {}
                             nuevoSym.valor.update({'id': self.iden, 'columna': nombreCol.valor})
                             if self.unique:
                                 nuevoSym.valor.update({'unique': True})
@@ -45,9 +42,15 @@ class Index(Instruccion):
                             if self.orden != None:
                                 nuevoSym.valor.update({'orden': self.orden})
                             tablaIndex.valor[i].atributos.update({'index': idIdex})
-                            ent.nuevoSimbolo(nuevoSym)
-                            variables.consola.insert(INSERT,
+                            res = ent.nuevoSimbolo(nuevoSym)
+                            if res == "ok":
+                                variables.consola.insert(INSERT,
                                                      "Se agregó nuevo index '" + self.iden + "' a la columna '" + nombreCol.valor + "'\n")
+                            else:
+                                variables.consola.insert(INSERT,
+                                                     "El nuevo index '" + self.iden + "' no se puede agregar porque ya existe.\n")
+                                reporteerrores.append(Lerrores("Semántico",
+                                    "El nuevo index '" + self.iden + "' no se puede agregar porque ya existe.\n","",""))
                             break
 
                         i = i + 1
@@ -89,40 +92,44 @@ class AlterIndex(Instruccion):
         if dbActual != None:
             sym: Simbolo = ent.buscarIndex(self.iden)
             if sym != None:
-                tabla : Simbolo = ent.buscarSimbolo(sym.tabla + "_" + dbActual)
+                tabla: Simbolo = ent.buscarSimbolo(sym.tabla + "_" + dbActual)
                 if tabla != None:
                     columna = self.colIdx
-                    if isinstance(self.colIdx,int):
+                    if isinstance(self.colIdx, int):
                         if self.colIdx <= len(tabla.valor):
                             columna = tabla.valor[self.colIdx - 1].nombre
                         else:
                             variables.consola.insert(INSERT,
-                                "El número '" + str(self.colIdx) + "' de columna en la tabla '" + sym.tabla + "' no existe.\n")
-                            reporteerrores.append(Lerrores("Semántico","El número '" + str(self.colIdx) + "' de columna en la tabla '" + sym.tabla + "' no existe.","",""))
+                                                     "El número '" + str(
+                                                         self.colIdx) + "' de columna en la tabla '" + sym.tabla + "' no existe.\n")
+                            reporteerrores.append(Lerrores("Semántico", "El número '" + str(
+                                self.colIdx) + "' de columna en la tabla '" + sym.tabla + "' no existe.", "", ""))
                             return
-                    
+
                     for col in tabla.valor:
                         if col.nombre == columna:
                             sym.valor.update({'columna': columna})
                             variables.consola.insert(INSERT,
-                                             "El index '" + self.iden + "' ahora pertenece a la columna '" + columna + "'\n")
+                                                     "El index '" + self.iden + "' ahora pertenece a la columna '" + columna + "'\n")
                             return
-                    
-                    variables.consola.insert(INSERT, 
-                        "La columna '" + columna + "' a la que desea cambiar el índice '" + self.iden + "' no existe.\n")
-                    reporteerrores.append(Lerrores("Semántico","La columna '" + columna + "' a la que desea cambiar el índice '" + self.iden + "' no existe.","",""))
+
+                    variables.consola.insert(INSERT,
+                                             "La columna '" + columna + "' a la que desea cambiar el índice '" + self.iden + "' no existe.\n")
+                    reporteerrores.append(Lerrores("Semántico",
+                                                   "La columna '" + columna + "' a la que desea cambiar el índice '" + self.iden + "' no existe.",
+                                                   "", ""))
             else:
                 variables.consola.insert(INSERT, "El index '" + self.iden + "' no existe \n")
                 reporteerrores.append(Lerrores("Semántico", "El index '" + self.iden + "' no existe", "", ""))
 
     def traducir(self, ent: Entorno):
-        self.codigo3d = 'ci.codigosql("alter index '
+        self.codigo3d = 'ci.ejecutarsql("alter index '
         if self.ifExist:
             self.codigo3d += 'if exists '
         self.codigo3d += self.iden + ' alter '
         if self.palabraColumn:
             self.codigo3d += 'column '
-        self.codigo3d += self.colIdx + ';")\n'
+        self.codigo3d += str(self.colIdx) + ';")\n'
 
         return self
 
@@ -139,7 +146,8 @@ class DropIndex(Instruccion):
                 variables.consola.insert(INSERT, "El índice '" + self.iden + "' se ha eliminado. \n")
             else:
                 variables.consola.insert(INSERT, "El índice '" + self.iden + "' que desea eliminar no existe.\n")
-                reporteerrores.append(Lerrores("Semántico","El índice '" + self.iden + "' que desea eliminar no existe.","",""))
+                reporteerrores.append(
+                    Lerrores("Semántico", "El índice '" + self.iden + "' que desea eliminar no existe.", "", ""))
 
     def traducir(self, ent: Entorno):
         self.codigo3d = 'ci.ejecutarsql("drop index ' + self.iden + ';")\n'

@@ -21,6 +21,7 @@ class Update(instruction.Instruction):
 
     def execute(self, environment):
         try:
+            Struct.load()
             # Verificamos que no pueden venir mas de 1 tabla en el clausula FROM
             if len(self.fromcl.tables) > 1:
                 instruction.semanticErrors.append(

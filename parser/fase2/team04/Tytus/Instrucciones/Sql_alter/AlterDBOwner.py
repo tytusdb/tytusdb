@@ -11,6 +11,7 @@ class AlterDBOwner(Instruccion):
     def ejecutar(self, tabla, arbol):
         #super().ejecutar(tabla,arbol)
         arbol.consola.append("Consulta devuelta correctamente.")
+        print ("Consulta AlterDBOwner devuelta correctamente")
 
     def getCodigo(self, tabla, arbol):
                
@@ -61,9 +62,10 @@ class AlterDBOwner(Instruccion):
         
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter_alterDataBaseOwner()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo

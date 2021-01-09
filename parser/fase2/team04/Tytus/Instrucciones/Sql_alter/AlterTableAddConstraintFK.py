@@ -58,6 +58,7 @@ class AlterTableAddConstraintFK(Instruccion):
                                         restriccion.referencia = self.tabla2
                                         listaTabla1[c].constraint.append(restriccion)
                                 arbol.consola.append("Consulta devuelta correctamente.") 
+                                print("Consulta ALTER TABLE ADD CONSTRAINT FK devuelta correctamente")
                             else:
                                 error = Excepcion('42P01',"Semántico","No hay restricción unique que coincida con las columnas dadas en la tabla referida «"+self.tabla2+"»",self.linea,self.columna)
                                 arbol.excepciones.append(error)
@@ -109,8 +110,7 @@ class AlterTableAddConstraintFK(Instruccion):
         for item in self.lista_id2:
             campos2 += f"{item}{', ' if self.lista_id2.index(item) < len(self.lista_id2) - 1 else ''}"
 
-        table = f"ALTER TABLE {tabla} ADD CONSTRAINT {self.id_constraint} FOREIGN KEY ({campos1})"
-        table += f"\n\tREFERENCES {tabla2} ({campos2});"
+        table = f"ALTER TABLE {tabla} ADD CONSTRAINT {self.id_constraint} FOREIGN KEY ({campos1}) REFERENCES {tabla2} ({campos2});"
  
 
         
@@ -129,11 +129,12 @@ class AlterTableAddConstraintFK(Instruccion):
         codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo
 
 

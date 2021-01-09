@@ -6,10 +6,11 @@ from six import string_types
 from errores import *
 from random import *
 from expresiones import *
+from CadenaExpresion import CadenaExpresion as sq
 
 from prettytable import PrettyTable
 
-
+heap = []
 LisErr = TablaError([])
 ts_global = TS.TablaDeSimbolos()
 Lista = []
@@ -25,7 +26,6 @@ listaGeneralSubQuery = []
 Modificaciones={}
 
 
-
 Lista.append(Ejecucion)
 
 
@@ -34,6 +34,59 @@ class Instruccion():
 
     def Ejecutar(self):
         pass
+
+
+
+#Get Cadena
+def GetCadenaExpresion(expresion):
+    dd =""
+    if (expresion != None):
+        ob = sq(None)
+
+        for ele in ob.cadena_expresion(expresion):
+            if(ele=='<'):
+                dd = ob.cadena_expresion(expresion).replace('<', '&lt;')
+                break
+            elif(ele == '>'):
+                dd = ob.cadena_expresion(expresion).replace('>', '&gt;')
+                break
+            else:
+                dd = ob.cadena_expresion(expresion)
+    else:
+        dd+=""
+    return  dd
+
+
+
+
+
+def GetMaxDataLista(listaGeneral):
+    dataa=0
+    listaling=[]
+    # Calculamos la talla maxima de los datos
+    for data in listaGeneral:
+        maxi = 0
+        for jo in listaGeneral.get(data):
+            maxi += 1
+        listaling.append(maxi)
+    dataa = max(listaling)
+    return  dataa
+
+def GetMaxColumna(listaGeneral,col):
+    dataa=0
+    listaling=[]
+    # Calculamos la talla maxima de los datos
+    for data in listaGeneral:
+        maxi = 0
+        if(data == col):
+            for jo in listaGeneral.get(data):
+                maxi += 1
+            dataa+=maxi
+
+    return  dataa
+
+
+
 
 
 # Este retorna el orden dependiendo de que columna le mandemos
@@ -67,6 +120,7 @@ def mostrarConsulta(resultado):
         tabla.add_column(key, val)
 
     imprir(str(tabla))
+    listaGeneral.clear()
 
 
 #Ingresan campos y tablas
@@ -1325,7 +1379,11 @@ def AlinearDatos(listaGeneral):
         for jo in listaGeneral.get(data):
             maxi+=1
         listaling.append(maxi)
-    dataa = max(listaling)
+
+    dataa = 0
+    if len(listaling) > 0:
+        dataa = max(listaling)
+
 
 #Rellenamos si no tiene la norma General
     for date in listaGeneral:
@@ -1627,7 +1685,7 @@ def tabla_simbolos():
     cadena7 = ""
     for id_indice in ts.Indices:
         indice = ts.obtenerIndice(id_indice)
-        cadena6 += '<TR><TD>'+str(indice.id_indice)+'</TD>'+'<TD>'+ str(indice.id_tabla) + '</TD>'+'<TD>'+str(indice.unique) + '</TD>'+'<TD>'+ str(indice.hash) + '</TD>'+'<TD>'+'</TD>'+'<TD> </TD>'+'</TR>'
+        cadena6 += '<TR><TD>'+str(indice.id_indice)+'</TD>'+'<TD>'+ str(indice.id_tabla) + '</TD>'+'<TD>'+str(indice.unique) + '</TD>'+'<TD>'+ str(indice.hash) + '</TD>'+'<TD>'+str(GetCadenaExpresion(indice.expresion_logica))+'</TD>'+'<TD> </TD>'+'</TR>' #GetCadenaExpresion(indice.expresion_logica)
         for columna in indice.columnas:
             cadena7 += '<TR><TD>'+str(columna.id_columna)+'</TD>'+'<TD>'+ str(columna.orden) + '</TD>' +'<TD>'+ str(columna.nulls) + '</TD>' +'<TD>'+str(columna.statistics) + '</TD>' +'<TD>'+str(indice.id_tabla) + '</TD>'+'<TD>'+ str(indice.id_indice) + '</TD>'+ '</TR>'
 
@@ -1765,7 +1823,7 @@ def tabla_simbolos():
                                 <TD bgcolor="#BEF781">ID TABLA</TD>
                                 <TD bgcolor="#BEF781">UNIQUE</TD>
                                 <TD bgcolor="#BEF781">HASH</TD>
-                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781">CONDICION</TD>
                                 <TD bgcolor="#BEF781"></TD>
                             </TR>'''
                             + cadena6 +
@@ -1888,6 +1946,9 @@ class Select(Instruccion) :
 
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
         casee =False
+        banderita = False
+        nombrecol =""
+
 
         if r is not None:
 
@@ -2165,6 +2226,26 @@ class Select(Instruccion) :
                                     Modificaciones.update(lis)
                                     print(Modificaciones)
                                     casee = True
+
+
+# ============================ count
+                                elif (isinstance(ii,ProcesoCount)):
+                                    banderita = True
+                                    nombrecol += ii.Columna
+
+                                    # Recorremos todo de nuevo para ver si vienen las columnas propias de la tabla que estamos actualmente
+                                    for columnas in x.cuerpo:
+                                        pp: CampoTabla = columnas
+                                        Lista2 = []
+                                        i = ts_global.Datos
+                                        for gg in i:
+                                            t: DatoInsert = ts_global.obtenerDato(gg)
+                                            if (pp.id == t.columna):
+                                                # print(str(t.valor))
+                                                Lista2.append(str(t.valor))
+                                        listaGeneral[pp.id] = Lista2
+
+
 # ============================ Termina Instruccion de Cases en los campos
                                 else:
                                     imprir("SELECT : Viene otro tipo de Ejecucion ")
@@ -2468,11 +2549,17 @@ class Select(Instruccion) :
             print("Nada")
 
 
+#===========================================================================  Count
+        if(banderita == True ):
+            numerito = 0
+            if(nombrecol=='*'):
+                numerito = GetMaxDataLista(listaGeneral)
+            else:
+                numerito = GetMaxColumna(listaGeneral, nombrecol)
 
-
-
-
-
+            print(str(numerito))
+            lista={"Count":str(numerito)}
+            mostrarConsulta(lista)
 
 
 #============================================================================ PROCESO UNION
@@ -2754,6 +2841,10 @@ class Select(Instruccion) :
         mostrarConsulta(liste)
 
 
+
+
+
+
 #---------------------------------------------------------------------------------------------------
 class Select2(Instruccion) :
     def __init__(self,  unionn,Cuerpo, Lista_Campos=[], Nombres_Tablas=[] ) :
@@ -2764,10 +2855,12 @@ class Select2(Instruccion) :
 
     def Ejecutar(self):
 
-        global ts_global, baseActual
+        global ts_global, baseActual, heap
         global LisErr
         listaConsultados = []
         contadorCol = 0
+        banderita = False
+        nombrecol =""
 
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
         casee = False
@@ -3022,6 +3115,23 @@ class Select2(Instruccion) :
                                     Modificaciones.update(lis)
                                     print(Modificaciones)
                                     casee = True
+
+# ============================ count
+                                elif (isinstance(ii, ProcesoCount)):
+                                    banderita = True
+                                    nombrecol += ii.Columna
+# Recorremos todo de nuevo para ver si vienen las columnas propias de la tabla que estamos actualmente
+                                    for columnas in x.cuerpo:
+                                        pp: CampoTabla = columnas
+                                        Lista2 = []
+                                        i = ts_global.Datos
+                                        for gg in i:
+                                            t: DatoInsert = ts_global.obtenerDato(gg)
+                                            if (pp.id == t.columna):
+                                                # print(str(t.valor))
+                                                Lista2.append(str(t.valor))
+                                        listaGeneral[pp.id] = Lista2
+
 # ============================ Finaliza Agregacion de  la produccion de Cases en los campos
                                 else:
                                     imprir("SELECT : Tipo Distinto de Ejecucion")
@@ -3800,7 +3910,19 @@ class Select2(Instruccion) :
 
 
 
-#aqui le agrega a general las listas que se generan
+# ===========================================================================  Count
+        if (banderita == True):
+            numerito = 0
+            if (nombrecol == '*'):
+                numerito = GetMaxDataLista(listaGeneral)
+            else:
+                numerito = GetMaxColumna(listaGeneral, nombrecol)
+            print(str(numerito))
+            lista={"Count":str(numerito)}
+            mostrarConsulta(lista)
+
+
+        #aqui le agrega a general las listas que se generan
 #=================================================================================== PROCESO UNION
         for uni in self.unionn:
             if (isinstance(uni, CamposUnions)):
@@ -4071,6 +4193,18 @@ class Select2(Instruccion) :
                         LisErr.agregar(er)
 
         listaling = AlinearDatos(listaGeneral)
+        resultSelect = None
+
+        for element in listaling:
+            for ele in listaling[element]:
+                resultSelect = ele
+                break
+            break
+
+        if resultSelect is not None:
+            heap.append(resultSelect)
+        else:
+            heap.append(0)
         #print("<<<<<<<<<<<<<<<<<<<<<<<<   ES LA SALIDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  ")
         #print(listaling)
 
@@ -6583,9 +6717,9 @@ class SelectExpresion(Instruccion):
                     numero += 1
 
 
+        listaAux = AlinearDatos(listaGeneral)
 
-
-        mostrarConsulta(listaGeneral)
+        mostrarConsulta(listaAux)
         listaGeneral.clear()
 
 
@@ -6605,7 +6739,7 @@ class SubSelect(Instruccion) :
         listaGeneral.update(Lista)
 
         imprir("Ejecute una Subconsulta <<<<<<<<<<<<<")
-        return Lista
+        return listaGeneral
 
 
 #subSelect con cuerpo
@@ -6629,6 +6763,8 @@ class SubSelect2(Instruccion) :
         #Rellenamos campos si no son suficientes
         listaling = AlinearDatos(listaGeneral)
         mostrarConsulta(listaling)
+
+        return listaling
 
 
 #subSelect sin cuerpo con distict
@@ -6923,7 +7059,7 @@ class Insert_Datos(Instruccion):
                                 elif str(temporal[index].tipo).upper() == 'BOOLEAN'and (str(cc.val).upper() == 'TRUE' or str(cc.val).upper() == 'FALSE'):
                                     imprir("INSERT BD: Parametros correctos, insertar")
                                     banderaInsert = True
-                                elif int(resultado) > 0 and (str(temporal[index].tipo).upper() == 'SMALLINT' or str(temporal[index].tipo).upper() == 'INTEGER' or str(temporal[index].tipo).upper() == 'INT' or str(temporal[index].tipo).upper() == 'BIGINT' or str(temporal[index].tipo).upper() == 'DECIMAL' or str(temporal[index].tipo).upper() == 'REAL' or str(temporal[index].tipo).upper() == 'FLOAT' or str(temporal[index].tipo).upper() == 'MONEY'):
+                                elif int(str(resultado)) >= -9999999999 and (str(temporal[index].tipo).upper() == 'SMALLINT' or str(temporal[index].tipo).upper() == 'INTEGER' or str(temporal[index].tipo).upper() == 'INT' or str(temporal[index].tipo).upper() == 'BIGINT' or str(temporal[index].tipo).upper() == 'DECIMAL' or str(temporal[index].tipo).upper() == 'REAL' or str(temporal[index].tipo).upper() == 'FLOAT' or str(temporal[index].tipo).upper() == 'MONEY'):
                                     #print(" >>> Parametros correctos, insertar")
                                     banderaInsert = True
                                 else:
@@ -8588,5 +8724,17 @@ class Procedimientos_(Instruccion):
                         print("NO ejecuta")
             else:
                 print("Esta vacia ")
+
+
+
+
+
+#-----------     PROCESO COUNT
+class ProcesoCount(Instruccion):
+    def __init__(self,Columna):
+        self.Columna = Columna  # create or replace
+
+    def Ejecutar(self):
+        pass
 
 

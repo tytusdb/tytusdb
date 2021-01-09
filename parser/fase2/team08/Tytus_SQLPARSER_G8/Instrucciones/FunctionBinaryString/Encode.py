@@ -3,6 +3,7 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 import base64
 class Encode(Instruccion):
     def __init__(self, valor, tipo, codificacion, strGram, linea, columna):
@@ -34,13 +35,28 @@ class Encode(Instruccion):
         return error  
     
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        pass
-          
-'''
-instruccion = Encode("hola mundo",None, 1,2)
+        super().traducir(tabla, arbol)
+        valor=""
+        codificacion=""
+        if isinstance(self.valor, Primitivo):
+            valor = self.valor.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.valor, Aritmetica):
+            valor = self.valor.concatenar(tabla,arbol)
+        elif isinstance(self.valor, str) or isinstance(self.valor, int):
+            valor = self.valor
+        else:
+            valor=self.valor.traducir(tabla,arbol)
+        
+        if isinstance(self.codificacion, Primitivo):
+            codificacion = self.codificacion.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.codificacion, Aritmetica):
+            codificacion = self.codificacion.concatenar(tabla,arbol)
+        elif isinstance(self.codificacion, str) or isinstance(self.codificacion, int):
+            codificacion = self.codificacion
+        else:
+            codificacion= self.codificacion.traducir(tabla,arbol)
 
-instruccion.ejecutar(None,None)
-'''
+        return f"ENCODE({valor},{codificacion})"

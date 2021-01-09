@@ -511,7 +511,6 @@ def extractTable(database: str, table: str) -> list:
         if tb:
 
             mode = tb["modo"]
-
             val = -1
 
             if mode == "avl":
@@ -999,10 +998,15 @@ def insert(database: str, table: str, register: list) -> int:
 
         if tb:
 
-            # if _Comprobar(database, table, register):
+            encoding = bd["encoding"]	
+            mode = tb["modo"]	  
 
-            mode = tb["modo"]
-
+            for y in register:	
+                if type(y) == str:	
+                    try:	
+                        y.encode(encoding, "strict")	
+                    except: 	
+                        return 1
             val = -1
 
             if mode == "avl":
@@ -1033,9 +1037,6 @@ def insert(database: str, table: str, register: list) -> int:
 
             return val
 
-        # else:
-        #     return -1
-
         else:
             return 3
 
@@ -1063,10 +1064,21 @@ def loadCSV(file: str, database: str, table: str) -> list:
 
         tb = _table(database, table)
 
+        encoding = bd["encoding"]
+
         if tb:
 
             mode = tb["modo"]
-
+            try:
+                with open(file, 'r', encoding='utf-8-sig') as leer:
+                    reader = csv.reader(leer, delimiter=',')
+                    for x in reader:
+                        for y in x:
+                            if type(y) == str:
+                                y.encode(encoding, "strict")
+                    leer.close()
+            except:
+                return []
             val = -1
 
             if mode == "avl":
@@ -1188,6 +1200,13 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
         if tb:
 
             mode = tb["modo"]
+            encoding = bd["encoding"]	
+            for y in register:	
+                if type(y) == str:	
+                    try:	
+                        y.encode(encoding, "strict")	
+                    except: 	
+                        return 1
 
             val = -1
 
@@ -1733,17 +1752,25 @@ def alterDatabaseEncoding(database: str, encoding: str) -> int:
     bd = _database(database)
 
     if bd:
-
-        if bd["encoding"] == encoding or encoding not in ["utf8", "ascii", "iso-8859-1"]:
-            return 4
-
-        bd["encoding"] = encoding
-
-        # verificar que se cumpla el nuevo encoding
-
+        if encoding not in ["utf8", "ascii", "iso-8859-1"]:
+            return 3
+        else:
+            bd["encoding"] = encoding
+            try:
+                table = bd["tablas"]
+                for t in table:
+                    val = extractTable(database, t['nombre'])
+                    if len(val):
+                        for x in val:
+                            for y in x:
+                                if type(y) == str:
+                                       y.encode(encoding, "strict")
+                                       
+                return 0
+            except:
+                return 1
     else:
         return 2
-
 
 # ===============================//=====================================
 #                      ADMINISTRACION DE CHECKSUM

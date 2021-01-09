@@ -4,11 +4,12 @@ from Instrucciones.Excepcion import Excepcion
 from decimal import Decimal
 from datetime import date, datetime
 import time
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 #from dateutil.parser import parse
 
 class Convert(Instruccion):
-    def __init__(self, valor, tipo, tipo_salida, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, tipo_salida, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
         self.tipo = tipo
         self.tipo_salida = tipo_salida
@@ -21,22 +22,22 @@ class Convert(Instruccion):
         try:
             if self.tipo_salida.tipo == Tipo_Dato.INTEGER:
                 int(resultado)
-                self.tipo = Tipo(Tipo_Dato.INTEGER)
+                self.tipo = Tipo("",Tipo_Dato.INTEGER)
                 return resultado
             elif self.tipo_salida.tipo == Tipo_Dato.SMALLINT:
                 int(resultado)
-                self.tipo = Tipo(Tipo_Dato.SMALLINT)
+                self.tipo = Tipo("",Tipo_Dato.SMALLINT)
                 return resultado 
             elif self.tipo_salida.tipo == Tipo_Dato.DECIMAL:
                 float(resultado)
-                self.tipo = Tipo(Tipo_Dato.DECIMAL)
+                self.tipo = Tipo("",Tipo_Dato.DECIMAL)
                 return resultado             
             elif self.tipo_salida.tipo == Tipo_Dato.BOOLEAN:
                 if bool(resultado):
                     verdadero = ("true","t","1","yes")
                     false = ("false","f","0","not")
                     if resultado in (verdadero + false):
-                        self.tipo = Tipo(Tipo_Dato.BOOLEAN)
+                        self.tipo = Tipo("",Tipo_Dato.BOOLEAN)
                         return str(resultado).lower() in verdadero   
                     else:
                         error = Excepcion('22P02',"Semántico",f"La sintaxis de entrada no es válida para tipo {self.valor.tipo.toString()}: << {resultado} >> a Boolean",self.linea,self.columna)
@@ -51,7 +52,7 @@ class Convert(Instruccion):
                     try:
                         valid_date = time.strptime(resultado, fmt)
                         if isinstance(valid_date, time.struct_time):
-                            self.tipo = Tipo(Tipo_Dato.DATE)
+                            self.tipo = Tipo("",Tipo_Dato.DATE)
                             return time.strftime('%Y-%m-%d',valid_date)
                          
                     except ValueError as e:
@@ -85,7 +86,7 @@ class Convert(Instruccion):
                     return val
             elif self.tipo == Tipo_Dato.DECIMAL:
                 val = Decimal(resultado)
-                self.tipo = Tipo(Tipo_Dato.NUMERIC)
+                self.tipo = Tipo("",Tipo_Dato.NUMERIC)
                 return val
             elif self.tipo == Tipo_Dato.NUMERIC:
                 val = Decimal(resultado)
@@ -114,4 +115,14 @@ class Convert(Instruccion):
             arbol.consola.append(error.toString())
             return error
         '''    
+    
+    def traducir(self, tabla, arbol, cadenaTraducida):
+        resultado = self.ejecutar(tabla, arbol)
+        if isinstance(resultado,Excepcion):
+            return resultado        
+        codigo = ""
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = " + str(resultado) + "\n"
+        nuevo = Simbolo3d(self.tipo, temporal, codigo, None, None)
+        return nuevo
         

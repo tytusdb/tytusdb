@@ -1,8 +1,8 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo
+from  tytus.parser.fase2.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from  tytus.parser.fase2.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import  tytus.parser.fase2.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 from datetime import date,datetime
 todoBien = True
 #INSERT INTO
@@ -170,20 +170,30 @@ class InsertInto(Instruccion):
                     if "%" in datasub:
                         temporalaux = tv.Temp()
                         guardar_parametros_funciones.append(temporalaux)
-                        consola.append("\t"+str(str(datasub).replace("!", str(temporalaux))).replace("%","") + "\n")
+                        try:
+                            data1  = str(datasub).replace("\\\"","")
+                            consola.append(
+                                "\t" + str(str(data1).replace("!", str(temporalaux))).replace("%", "") + "\n")
+
+                            print("ññññññ ",data)
+                        except:
+                            print("ññññññ ",datasub)
+                            consola.append("\t"+str(str(datasub).replace("!", str(temporalaux))).replace("%","") + "\n")
                     elif "?" in datasub:
                         concatena_parametros = ""
-                        j =1
+                        j = 1
                         for parametro in guardar_parametros_funciones:
 
-                            if j == len(guardartemporales):
+                            if 0 == len(guardartemporales):
+                                concatena_parametros += parametro
+                            elif j == len(guardartemporales):
                                 concatena_parametros += parametro
                             else:
                                 concatena_parametros += parametro + ","
-
                             j = j + 1
                         temporal = tv.Temp()
                         guardartemporales.append(temporal)
+
                         consola.append("\t"+str(datasub).replace("?",str(temporal))+"("+concatena_parametros+")"+"\n")
                     elif "$" in datasub:
                         temporal = tv.Temp()
@@ -213,7 +223,8 @@ class InsertInto(Instruccion):
 
         contador2 = tv.Temp()
         consola.append(f"\n\t{contador2} = T({obtenerTemporal})")
-        consola.append(f"\n\tstack.append({contador2})\n")
+        consola.append(f"\n\tT1 = T3({contador2})")
+        consola.append(f"\n\tstack.append(T1)\n")
 
 
 
@@ -229,9 +240,15 @@ def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consol
         datafinal = Expresion.Resolver(lista_valores[index],ts,Consola,exception)
         datainsertar.append(datafinal)
     else:
-        datafinal = lista_valores[index].valor
-        datainsertar.append(datafinal)
-    print(datafinal)
+        print("quepaso",lista_valores[index])
+        if isinstance(lista_valores[index],Primitivo):
+            print("si es primtivo")
+            datafinal = lista_valores[index].valor
+            datainsertar.append(datafinal)
+        else:
+            return
+
+    print(datafinal, "que estoy haciendo mal",tabla.id)
 
 
     if isinstance(datafinal,int) and 'INTEGER' in str(lista_tabla.get(campo).tipo).upper():

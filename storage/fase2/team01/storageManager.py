@@ -1,4 +1,8 @@
 #Acceso a los diferentes modos de almacenamiento
+import hashlib
+import datetime
+from cryptography import fernet
+from cryptography.fernet import Fernet
 from storage.avl import avl_mode as _AVL
 from storage.b import b_mode as _B
 from storage.bplus import bplus_mode as _BPLUS
@@ -106,7 +110,7 @@ def elegirModo(m):
 #*************************************
 
 #Creación de bases de datos
-def createDatabase(database: str, mode: str, encoding: str) -> int:
+def createDatabase(database: str, mode: str, encoding: str) -> int:    
     try:
         d = database.lower()
         m = mode.lower()
@@ -521,7 +525,7 @@ def alterDatabaseMode(database: str, mode: str) -> int:
                             resultado = elegirModo(m).createTable(itemBD.nombre, itemTBL.nombre, itemTBL.columnas)
                             if resultado == 0:
                                 if itemTBL.PK != []:
-                                    resultado = elegirModo(m).alterAddPK(itemBD.nombre, itemTBL.nombre, itemBD.PK)
+                                    resultado = elegirModo(m).alterAddPK(itemBD.nombre, itemTBL.nombre, itemTBL.PK)
                                 lista_registros = elegirModo(itemTBL.modo).extractTable(itemBD.nombre, itemTBL.nombre)
                                 for registro in lista_registros:
                                     resultado = elegirModo(m).insert(itemBD.nombre, itemTBL.nombre, registro)
@@ -549,3 +553,75 @@ def alterDatabaseMode(database: str, mode: str) -> int:
             return 2 #Base de Datos no existente
     except:
         return 1 #Error en la operación
+#funciones de checksum
+x = datetime.datetime.now()
+def checksumDatabase(database:str, mode:str) -> str:
+    stringDatabase =""
+    for bases in showTables(database):       
+        stringDatabase += bases
+        for tables in extractTable(database,bases):            
+            for regitros in tables:              
+                stringDatabase += str(regitros)
+    stringDatabase += str(x)    
+    if mode == "MD5":        
+        h=hashlib.md5(stringDatabase.encode('utf-8'))   
+        return h.hexdigest()
+    elif mode == "SHA256":        
+        h=hashlib.sha256(stringDatabase.encode('utf-8'))   
+        return h.hexdigest()
+def checksumTable(database:str, table:str, mode:str) -> str:
+    stringTable=""
+    for tables in extractTable(database,table):            
+            for regitros in tables:              
+                stringTable += str(regitros)
+    stringTable += str(x)
+    if mode == "MD5":        
+        h=hashlib.md5(stringTable.encode('utf-8'))   
+        return h.hexdigest()
+    elif mode == "SHA256":        
+        h=hashlib.sha256(stringTable.encode('utf-8'))   
+        return h.hexdigest()
+#funciones para encriptar y descriptar 
+def generar_clave():
+    clave = Fernet.generate_key()
+    with open("clave.key","wb") as archivo_clave:
+            archivo_clave.write(clave)
+def cargar_clave():
+    return open("clave.key","rb").read()
+
+def encrypt(backup: str, password: str) -> str:
+    clave = password
+    if  existDatabase(backup) and clave:
+        stringDatabase =""
+        for bases in showTables(backup):       
+            stringDatabase += bases
+            for tables in extractTable(backup,bases):            
+                for regitros in tables:              
+                    stringDatabase += str(regitros)        
+        mensaje=stringDatabase.encode()        
+        try:
+            f = Fernet(clave)
+            encriptando = f.encrypt(mensaje)
+            with open(backup+".txt","wb") as archivo_generado:
+                archivo_generado.write(encriptando)
+            print(encriptando)
+            return 0            
+        except:
+            return 1
+    else:
+        return 1
+
+def decrypt(cipherBackup:str, password:str) -> str:
+    clave = password
+    if cipherBackup and clave:
+        try:
+            f=Fernet(clave)
+            codigo = open(cipherBackup+".txt","rb").read()
+            desencriptar = f.decrypt(codigo)           
+            with open(cipherBackup+"_cipher.txt","wb") as archivo_generado:
+                archivo_generado.write(desencriptar)            
+            return 0
+        except:
+            return 1
+    else:
+        return 1 

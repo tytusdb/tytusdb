@@ -857,33 +857,37 @@ class ValorIndex(Instruccion):
         self.Lower = Lower
 
 class Index(Instruccion):
-    def __init__(self,name,table,Lindex,Unique,Using):
+    def __init__(self,name,table,Lindex,Unique,Using,instruccion3d):
         self.name = name
         self.table = table
         self.Lindex = Lindex
         self.Unique = Unique
         self.Using = Using
+        self.instruccion3d = instruccion3d
 
 class IndexOrden(Instruccion):
-    def __init__(self,name,table,valor,Orden):
+    def __init__(self,name,table,valor,Orden,instruccion3d):
         self.name = name
         self.table = table
         self.valor = valor
         self.Orden = Orden
+        self.instruccion3d = instruccion3d
 
 class IndexW(Instruccion):
-    def __init__(self,name,table,Lindex,Lwhere):
+    def __init__(self,name,table,Lindex,Lwhere,instruccion3d):
         self.name = name
         self.table = table
         self.Lindex = Lindex
         self.Lwhere = Lwhere
+        self.instruccion3d = instruccion3d
 
 class IndexMM(Instruccion):
-    def __init__(self,name,table,major,minor):
+    def __init__(self,name,table,major,minor,instruccion3d):
         self.name = name
         self.table = table
         self.major = major
         self.minor = minor
+        self.instruccion3d = instruccion3d
 
 class SelectFun(Instruccion):
     def __init__(self,nombrefun,parametros,instruccion3d):
@@ -892,16 +896,21 @@ class SelectFun(Instruccion):
         self.instruccion3d = instruccion3d
 
 class DropIndex(Instruccion):
-    def __init__(self,idI):
+    def __init__(self,idI,instruccion3d):
         self.idI = idI
+        self.instruccion3d = instruccion3d
 
 class AlterRenameIn(Instruccion):
-    def __init__(self,nombreIn,nuevoNom):
+    def __init__(self,nombreIn,nuevoNom,instruccion3d):
         self.nombreIn = nombreIn
         self.nuevoNom = nuevoNom
+        self.instruccion3d = instruccion3d
 
 
 class AlterIndex(Instruccion):
-    def __init__(self,nombre,columna):
+    def __init__(self,nombre,columna,columnaCambio,tipoC,instruccion3d):
         self.nombre = nombre
         self.columna = columna
+        self.columnaCambio = columnaCambio
+        self.tipoC = tipoC
+        self.instruccion3d = instruccion3d

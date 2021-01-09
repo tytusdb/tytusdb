@@ -57,7 +57,6 @@ class AlterDatabase(Instruccion):
     top_stack = top_stack + 1
     %s = "%s"
     stack[top_stack] = %s
-    funcion_intermedia()
 ''' % (temporal, codigo_quemado, temporal)
 
         return c3d

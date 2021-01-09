@@ -2,14 +2,14 @@ import os.path
 from os import path
 import webbrowser
 
-def crear_tabla(tabla):
+def crear_tabla(tabla, tablasimbolos):
     filename = "TablaSimbolos.html"
     file = open(filename,"w",encoding='utf-8')
-    file.write(reporte_tabla(tabla))
+    file.write(reporte_tabla(tabla, tablasimbolos))
     file.close()
     webbrowser.open_new_tab(filename)
 
-def reporte_tabla(tabla):
+def reporte_tabla(tabla, tablasimbolos):
     cadena = ''
     cadena += "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/><title>Reporte</title><style> \n"
     cadena += "table{ \n"
@@ -72,20 +72,71 @@ def reporte_tabla(tabla):
                 contador += 1
                 #print("-------------------->",db.nombreTabla,t.nombreDeTabla, c.nombre, c.tipo.toString(),c.tipo.dimension,c.constraint)
 
-    '''
-    while tabla != None:
-        for s in tabla.variables:
-            cadena += "<tr>\n"
-            cadena += "<td><center>" + str(contador) + "</center></td>\n"
-            cadena += "<td><center>" + s.id + "</center></td>\n"
-            cadena += "<td><center>" + s.tipo + "</center></td>\n"
-            cadena += "<td><center>" + s.valor + "</center></td>\n"
-            cadena += "<td><center>" + str(s.linea) + "</center></td>\n"
-            cadena += "<td><center>" + str(s.columna) + "</center></td>\n"
-            cadena += "</tr>\n"
-            contador += 1
-        tabla = tabla.anterior
-    '''
+    
+    for s in tablasimbolos.indices:
+        cadena += "<tr>\n"
+        cadena += "<td><center>" + str(contador) + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + s.tabla + "</center></td>\n"
+        cadena += "<td><center>" + s.nombre + "</center></td>\n"
+        cadena += "<td><center>" + s.tipo + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + s.columnas + "</center></td>\n"
+        cadena += "</tr>\n"
+        contador += 1
+    
+    for f in tablasimbolos.funciones:
+        params = ""
+        if f.parametros is not None:
+            contadorParametros = 0
+            for par in f.parametros[:-1]:
+                if par == "$":
+                    params += "S" + str(contadorParametros) + ","
+                else:
+                    params += par + ","
+                contadorParametros = contadorParametros + 1
+            
+            if f.parametros[-1] == "$":
+                params += "S" + str(contadorParametros)
+            else:
+                params += f.parametros[-1]
+        cadena += "<tr>\n"
+        cadena += "<td><center>" + str(contador) + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + f.id + "</center></td>\n"
+        cadena += "<td><center>" + "Funcion" + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + params + "</center></td>\n"
+        cadena += "</tr>\n"
+        contador += 1
+    
+    for p in tablasimbolos.procedimientos:
+        params = ""
+        if p.parametros is not None:
+            contadorParametros = 0
+            for par in p.parametros[:-1]:
+                if par == "$":
+                    params += "S" + str(contadorParametros) + ","
+                else:
+                    params += par + ","
+                contadorParametros = contadorParametros + 1
+            
+            if p.parametros[-1] == "$":
+                params += "S" + str(contadorParametros)
+            else:
+                params += p.parametros[-1]
+        cadena += "<tr>\n"
+        cadena += "<td><center>" + str(contador) + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + p.id + "</center></td>\n"
+        cadena += "<td><center>" + "Procedimiento" + "</center></td>\n"
+        cadena += "<td><center> - </center></td>\n"
+        cadena += "<td><center>" + params + "</center></td>\n"
+        cadena += "</tr>\n"
+        contador += 1
+    
     cadena += "</table>\n"
     cadena += "</body>\n"
     cadena += "</html>"

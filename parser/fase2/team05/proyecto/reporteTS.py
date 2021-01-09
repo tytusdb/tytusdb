@@ -31,8 +31,6 @@ def generarTablaSimbolos(tabladeSimbolos) :
     for key, v in tabladeSimbolos.symbols.items():
         if v.type == "INDEX":
             v.value = str(v.value).replace(' ',',')
-        elif v.type == "create table":
-            v.value = str(v.value).replace(' ,','<br>')
         if v.id != "" and v.type != "":
             html += '''  <tr>
                         <td>''' + str(v.type) + '''</td>

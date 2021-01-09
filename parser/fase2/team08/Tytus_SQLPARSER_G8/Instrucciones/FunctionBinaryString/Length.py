@@ -4,10 +4,11 @@ from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
 from Instrucciones.Identificador import *
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 
 class Length(Instruccion):
     def __init__(self, valor, tipo, strGram,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+        Instruccion.__init__(self,Tipo(Tipo_Dato.INTEGER),linea,columna, strGram)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
@@ -30,10 +31,18 @@ class Length(Instruccion):
         return error
         
     def analizar(self, tabla, arbol):
-        pass
+        super().analizar(tabla, arbol)
+        return self.tipo
 
     def traducir(self, tabla, arbol):
-        pass
+        super().traducir(tabla, arbol)
+        if isinstance(self.valor, Primitivo):
+            return f"LENGTH({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"LENGTH({self.valor.concatenar(tabla,arbol)})"
+        elif isinstance(self.valor, str) or isinstance(self.valor, int):
+            return f"LENGTH({self.valor})"
+        return f"LENGTH({self.valor.traducir(tabla,arbol)})"
     
 '''
 instruccion = Length("hola mundo",None, 1,2)

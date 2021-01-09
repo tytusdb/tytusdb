@@ -93,13 +93,15 @@ class CreateTable(instruction.Instruction):
                 typ1 = Nodo.Nodo(cl[2][0])
                 typ.addNode(typ1)
                 par = cl[2][1]
-                if par[0] != None:
-                    params = Nodo.Nodo("PARAMS")
-                    typ.addNode(params)
-                    for parl in par:
-                        parl1 = Nodo.Nodo(str(parl))
-                        params.addNode(parl1)
-
+                try:
+                    if par[0] != None:
+                        params = Nodo.Nodo("PARAMS")
+                        typ.addNode(params)
+                        for parl in par:
+                            parl1 = Nodo.Nodo(str(parl))
+                            params.addNode(parl1)
+                except:
+                    pass
                 colOpts = cl[3]
                 if colOpts != None:
                     coNode = Nodo.Nodo("OPTIONS")

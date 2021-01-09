@@ -2,6 +2,11 @@ import storageManager
 from tkinter import *
 from os import path
 from tkinter import filedialog
+import time
+import subprocess
+from Instrucciones.Sql_insert import insertTable
+
+from Instrucciones.PL import Func
 
 from tkinter import Menu
 from tkinter import ttk
@@ -17,6 +22,8 @@ from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
+from Instrucciones.PL import Execute
+from Instrucciones.TablaSimbolos.Tabla import Tabla as N
 
 from storageManager.jsonMode import *
 
@@ -60,7 +67,7 @@ class interfaz():
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
         w, h = 1370,670
         self.window.geometry("%dx%d+0+0" % (w, h))
-        
+        self.tablageneral=None
         ##############################################MENU####################################
         menu = Menu(self.window)
         new_item = Menu(menu,tearoff=0)
@@ -167,8 +174,39 @@ class interfaz():
     def tblsimbolos_click(self):
         # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
         global arbol
-        rs.crear_tabla(arbol)  
-        arbol = None         
+        # rs.crear_tabla(arbol)  
+        arbol = None 
+
+        # N.tableof()
+        # tabla = self
+        rs.crear_tabla2(self.tablageneral) 
+        mensaje="------------Tabla de simbolos------------------'\n'"
+        try: 
+            print(self.tablageneral)  
+            b=self.tablageneral
+            print("1")  
+
+            if b!=None:
+                for variable in b.variables:
+                        print("2")  
+                        print(variable)  
+
+                        try: 
+            
+                    
+                                mensaje += "id: "+str(variable.id) +", tipo: "+str(variable.tipo) +", valor: "+str(variable.valor)+  '\n'
+
+                        except Exception as e:
+                                print(e)  
+        except Exception as e:
+                         print(e)  
+              
+            # tabla = tabla.anterior
+        print(mensaje)
+
+        # self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+
+        return None        
 
     def ast_click(self):
         print("ast")   
@@ -179,9 +217,13 @@ class interfaz():
         arbol = None
 
     ##############################################EVENTOS DE LOS BOTONES DEL FRAME####################################
-    
-    
-    def btnanalizar_click(self):
+        
+
+
+
+
+
+    def primerapasada(self):
         global arbol
         arbol = None
         dropAll()
@@ -205,7 +247,230 @@ class interfaz():
         arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
         arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
         
-        '''
+        j=0
+        h=0
+        for i in arbol.instrucciones:
+            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
+            print("analizara")
+            print(i)
+            
+            try: 
+                         print("al")
+                         if isinstance(i, Execute.Execute):
+                            
+                            print("es execute con j= "+str(j))
+
+                            i.generar(j,tablaGlobal,arbol)
+                            j=j+1
+                         if isinstance(i, insertTable.insertTable):
+
+                             j=i.validar(j,tablaGlobal,arbol)
+
+                             print("es insertTable con j= "+str(j))
+
+                         print("NOes execute")
+                        
+                        
+
+            except:
+                   print("ara")
+
+                   pass  
+    
+
+    def start(self):  
+
+       
+      
+        f = open ('reporteast.txt', "w")      
+       
+        f.close()
+
+    
+    def btnanalizar_click(self):
+        self.start()  
+        self.primerapasada()
+        # if(1==1):
+        #   return
+        global arbol
+        arbol = None
+        dropAll()
+
+        os.system ("cls")
+        #Elimina el Contenido de txtsalida
+        self.txtsalida[self.tab.index("current")].delete(1.0,END)
+        #Inserta "Archivo Analizado" en txtsalida
+        #self.txtsalida[self.tab.index("current")].insert(INSERT,"Archivo Analizado")
+        #Selecciona el contenido de txt entrada
+        #print(self.txtentrada[self.tab.index("current")].get(1.0,END))
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
+        tablaGlobal = Tabla(None)
+        inst = sintactico.ejecutar_analisis(input)
+        arbol = Arbol(inst)
+
+        if len(sintactico.lista_lexicos)>0:
+            messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico.lista_lexicos)
+        # Ciclo que recorrerá todas las instrucciones almacenadas por la gramática.
+        arbol.lRepDin.append("<init> ::= <instrucciones>")
+        arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
+        arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
+        
+        for i in arbol.instrucciones:
+            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
+            print("analizara")
+            print(i)
+            try: 
+
+                     
+
+                         resultado = i.analizar(tablaGlobal,arbol)
+                         print("alj")
+
+
+
+            except:
+                   print("ara")
+
+                   pass  
+
+        self.tablageneral=tablaGlobal
+  
+        # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
+        mensaje = ''
+        for m in arbol.consola:
+            mensaje += m + '\n'
+        self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+        j=0
+        # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
+        if len(arbol.excepciones) != 0:
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
+        else:
+            for i in arbol.instrucciones:
+                
+                try: 
+
+                     if isinstance(i, Execute.Execute):
+                            
+                           
+                            i.traducir(j,tablaGlobal,arbol)
+                            j=j+1
+                     elif isinstance(i, insertTable.insertTable):
+
+                      
+                          i.traducir(j,tablaGlobal,arbol)
+                          ES=i.validar7(tablaGlobal,arbol)
+                          if ES : j=j+1
+                     elif isinstance(i, Func.Func):
+
+                         
+                          i.traducir(0,tablaGlobal,arbol)
+
+
+                     else :i.traducir(tablaGlobal,arbol)
+                  
+
+
+                except:
+                   pass 
+               
+           # c3d = 'from goto import with_goto\n'
+            c3d = 'import sys\n'
+          #  c3d = 'from goto import with_goto\n'
+
+
+
+
+            c3d += 'global P\n'
+            c3d += 'global Pila\n'
+            c3d += 'P = 0\n'
+            c3d += 'Pila = [None] * 1000\n'
+            c3d += self.funcionintermedia()
+          #  c3d += '@with_goto \n'
+            c3d += arbol.cadenaf
+
+            c3d += 'def main():\n'
+            c3d += '\tglobal P\n'
+            c3d += '\tglobal Pila\n'
+            c3d += arbol.cadena
+            print("arbol.cadena es "+arbol.cadena)
+
+            c3d += 'if __name__ == \"__main__\":\n'
+            c3d += '\tstart()\n'
+            c3d += '\tmain()\n'
+
+
+            archivo = open("codigo3d.py", "w")
+            archivo.write(c3d)
+            archivo.close() 
+            self.txtsalida[self.tab.index("current")].insert(INSERT,c3d)
+        
+        
+
+    def funcionintermedia(self):
+
+
+        
+        c3d = '\n'
+
+        c3d += 'def start():\n'
+        c3d += '\tf = open ("dataanalizado/traducido0.txt", "w")\n'
+        c3d += '\tf.write("")\n'
+
+        c3d += '\tf.close()\n'
+
+
+
+        c3d += 'def agregar(texto):\n'
+    
+
+        c3d += '\ttry:\n'
+        lineaf="\n"
+        c3d += '\t\tf = open ("dataanalizado/traducido0.txt", "a")\n'
+        c3d += '\t\tf.write(str(texto))\n'
+        c3d += '\t\tf.close()\n'
+        c3d += '\texcept Exception as e:\n'
+        c3d += '\t\tprint(e)\n'
+        c3d += '\n'
+        
+        
+
+
+        c3d += 'def funcionintermedia():\n'
+        c3d += '\tglobal P\n'
+        c3d += '\tglobal Pila\n'
+        c3d += '\tt0 = P+0\n'
+        c3d += '\tt1 = t0+1\n'
+        c3d += '\tt2 = Pila[t1]\n'
+        c3d += '\tprint(t2)\n'
+        c3d += '\tagregar(t2)\n'
+
+        return c3d
+
+    def btnanalizar1erafase_click(self):
+        global arbol
+        arbol = None
+        dropAll()
+        os.system ("cls")
+        #Elimina el Contenido de txtsalida
+        self.txtsalida[self.tab.index("current")].delete(1.0,END)
+        #Inserta "Archivo Analizado" en txtsalida
+        #self.txtsalida[self.tab.index("current")].insert(INSERT,"Archivo Analizado")
+        #Selecciona el contenido de txt entrada
+        #print(self.txtentrada[self.tab.index("current")].get(1.0,END))
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
+        tablaGlobal = Tabla(None)
+        inst = sintactico.ejecutar_analisis(input)
+        arbol = Arbol(inst)
+
+        if len(sintactico.lista_lexicos)>0:
+            messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico.lista_lexicos)
+        # Ciclo que recorrerá todas las instrucciones almacenadas por la gramática.
+        arbol.lRepDin.append("<init> ::= <instrucciones>")
+        arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
+        arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
+        
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
             resultado = i.ejecutar(tablaGlobal,arbol)
@@ -217,82 +482,35 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
-        '''
-        
-        for i in arbol.instrucciones:
-            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
-            print("analizara")
-            print(i)
-            try: 
-                         print("al")
-
-                         resultado = i.analizar(tablaGlobal,arbol)
-                         print("alj")
-
-            except:
-                   print("ara")
-
-                   pass  
-        # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
-        mensaje = ''
-        for m in arbol.consola:
-            mensaje += m + '\n'
-        self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
-        
-        # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
-        if len(arbol.excepciones) != 0:
-            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
-        else:
-            for i in arbol.instrucciones:
-                
-                try: 
-                    i.traducir(tablaGlobal,arbol)
-                except:
-                   pass 
-               
-           # c3d = 'from goto import with_goto\n'
-            c3d = 'import sys\n'
-            c3d += 'global P\n'
-            c3d += 'global Pila\n'
-            c3d += 'P = 0\n'
-            c3d += 'Pila = [None] * 1000\n'
-            c3d += self.funcionintermedia()
-          #  c3d += '@with_goto  # Decorador necesario.\n'
-            c3d += arbol.cadenaf
-
-            c3d += 'def main():\n'
-            c3d += '\tglobal P\n'
-            c3d += '\tglobal Pila\n'
-            c3d += arbol.cadena
-            print("arbol.cadena es "+arbol.cadena)
-
-            c3d += 'if __name__ == \"__main__\":\n'
-            c3d += '\tmain()\n'
-
-
-            archivo = open("prueba.py", "w")
-            archivo.write(c3d)
-            archivo.close() 
-            self.txtsalida[self.tab.index("current")].insert(INSERT,c3d)
         
         
-    def funcionintermedia(self):
-        c3d = 'def funcionintermedia():\n'
-        c3d += '\tglobal P\n'
-        c3d += '\tglobal Pila\n'
-        c3d += '\tt0 = P+0\n'
-        c3d += '\tt1 = t0+1\n'
-        c3d += '\tt2 = Pila[t1]\n'
-        c3d += '\tprint(t2)\n'
-        return c3d
+            
 
-
+        
     def btnejecutar_click(self):
-        print("se va ejecutar el archivo")
+      
+        
+        try:
+            os.system ("python codigo3d.py")
+            time.sleep(3)
+            subprocess.run(["python", "dataanalizado/Main.py"])
+            # subprocess.run(["python dataanalizado/Main.py"])
+            """    
+            os.system ("python dataanalizado/Main.py") """
+            # self.btnanalizar1erafase_click()
+            """         archivo = open('dataanalizado/traducido0.txt', "w")
+            var=str(archivo.read())            
+            archivo.close()
+            self.crear_tab(var,self.file.split("/").pop()) """
+        except FileNotFoundError:
+            pass
+        except UnicodeDecodeError:
+            pass
+
         
     ##############################################CREA PESTAÑAS EN EL TAB####################################
     def crear_tab(self,entrada,nombre):
-        self.tab_frame.append(Frame(self.tab,width=200, height=700,background="#80b192"))
+        self.tab_frame.append(Frame(self.tab,width=200, height=700,background="#869FE5"))
         self.tab_frame[-1].pack(fill='both', expand=1)
         self.tab_frame[-1].config(bd=5)
         self.tab.add(self.tab_frame[-1],text=nombre)

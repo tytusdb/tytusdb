@@ -1,6 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
+from Instrucciones.Expresiones.Primitivo import Primitivo
 from decimal import Decimal
 from datetime import date, datetime
 import time
@@ -69,54 +71,28 @@ class Convert(Instruccion):
             return error
 
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        pass
-    
-        '''
-        try:
-            if self.tipo.tipo == Tipo_Dato.SMALLINT:
-                val = int(resultado)
-                if(val > -32768 or val < 32767):
-                    return val
-            elif self.tipo == Tipo_Dato.INTEGER:
-                val = int(resultado)
-                if(val > -2147483648 or val < 2147483647):
-                    return val
-            elif self.tipo == Tipo_Dato.BIGINT:
-                val = int(resultado)
-                if(val > -2147483648 or val < 2147483647):
-                    return val
-            elif self.tipo == Tipo_Dato.DECIMAL:
-                val = Decimal(resultado)
-                self.tipo = Tipo(Tipo_Dato.NUMERIC)
-                return val
-            elif self.tipo == Tipo_Dato.NUMERIC:
-                val = Decimal(resultado)
-                return val
-            elif self.tipo == Tipo_Dato.REAL:
-                val = Decimal(resultado)
-                return round(val,7)
-            elif self.tipo == Tipo_Dato.DOUBLE_PRECISION:
-                val = Decimal(resultado)
-                return round(val,15)
-            elif self.tipo == Tipo_Dato.MONEY:
-                val = Decimal(resultado)
-                return val
-            elif self.tipo == Tipo_Dato.DATE:
-                #dt = parse(resultado)
-                #return dt.date()
-            elif self.tipo == Tipo_Dato.TIMESTAMP:
-                #val = datetime.strptime(resultado, '%d/%m/%y %H:%M:%S')
-                #return val
-            elif self.tipo == Tipo_Dato.BOOLEAN:
-                val = bool(resultado)
-                return val
-        except ValueError as c:
-            error = Excepcion('22P02',"Semántico","La sintaxis de entrada no es válida para tipo "+self.tipo.toString()+": <<"+resultado+">>",self.linea,self.columna)
-            arbol.excepciones.append(error)
-            arbol.consola.append(error.toString())
-            return error
-        '''    
+        super().traducir(tabla, arbol)
+        valor=""
+        tipo_salida=""
+        if isinstance(self.valor, Primitivo):
+            valor = self.valor.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.valor, Aritmetica):
+            valor = self.valor.concatenar(tabla,arbol)
+        elif isinstance(self.valor, str) or isinstance(self.valor, int):
+            valor = self.valor
+        else:
+            valor=self.valor.traducir(tabla,arbol)
         
+        if isinstance(self.tipo_salida, Primitivo):
+            tipo_salida = self.tipo_salida.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.tipo_salida, Aritmetica):
+            tipo_salida = self.tipo_salida.concatenar(tabla,arbol)
+        elif isinstance(self.tipo_salida, str) or isinstance(self.tipo_salida, int):
+            tipo_salida = self.tipo_salida
+        else:
+            tipo_salida= self.tipo_salida.traducir(tabla,arbol)
+
+        return f"CONVERT({valor} AS {tipo_salida})"

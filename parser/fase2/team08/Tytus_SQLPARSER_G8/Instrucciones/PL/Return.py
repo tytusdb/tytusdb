@@ -18,7 +18,8 @@ class Return(Instruccion):
             resultado = self.expresion.analizar(tabla, arbol)
             if isinstance(resultado, Excepcion):
                 return resultado
-            return resultado
+            self.tipo = resultado
+            return self
         
     def traducir(self, tabla, arbol):
         super().traducir(tabla,arbol)
@@ -29,6 +30,6 @@ class Return(Instruccion):
             temporal = tabla.getTemporal()
             arbol.addc3d(f"{temporal} = P + {r.posicion}")
             arbol.addc3d(f"Pila[{temporal}] = {exp.temporalAnterior}")
-            arbol.addc3d(f"return")
+            arbol.addc3d(f"goto .{arbol.etiqueta_fin}")
         return Nodo3D()
             

@@ -3,9 +3,11 @@ import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
+from Instrucciones.Expresiones.Primitivo import Primitivo
 
 class Ceiling(Instruccion):
-    def __init__(self, valor, linea, columna):
+    def __init__(self, valor, strGram , linea, columna):
         Instruccion.__init__(self,None,linea,columna,strGram)
         self.valor = valor
 
@@ -32,12 +34,12 @@ class Ceiling(Instruccion):
             return math.ceil(resultado)
             
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        
-        retorno = self.valor.traducir(tabla,arbol)
-        #print(retorno.temporalAnterior)
-        #print(type(self.valor))
-        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
-        return f"CEILING({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        super().traducir(tabla, arbol)
+        if isinstance(self.valor, Primitivo):
+            return f"CEILING({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"CEILING({self.valor.concatenar(tabla,arbol)})"
+        return f"CEILING({self.valor.traducir(tabla,arbol)})"

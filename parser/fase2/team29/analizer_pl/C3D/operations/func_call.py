@@ -1,5 +1,4 @@
 from analizer_pl.abstract.expression import Expression
-from analizer_pl.abstract.expression import TYPE
 from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
@@ -18,9 +17,11 @@ class FunctionCall(Expression):
         c3d = ""
         tab = ""
         parVal = ""
+        tab1 = False
         if isinstance(environment, Environment):
             tab += "\t"
             func = environment.globalEnv.getFunction(self.id)
+            tab1 = True
         else:
             func = environment.getFunction(self.id)
         # Si es para PL/SQL
@@ -36,15 +37,15 @@ class FunctionCall(Expression):
                             c3d += pval.value
                             c3d += tab + "stack.append(" + pval.temp + ")\n"
                             grammar.optimizer_.addIgnoreString(
-                                str("stack.append(None)"), self.row
+                                str("stack.append(" + pval.temp + ")"), self.row, tab1
                             )
                         c3d += tab + self.id + "()\n"
                         grammar.optimizer_.addIgnoreString(
-                            str(self.id + "()"), self.row
+                            str(self.id + "()"), self.row, tab1
                         )
                         c3d += tab + "t" + self.temp + " = stack.pop()\n"
                         grammar.optimizer_.addIgnoreString(
-                            str("t" + self.temp + " = stack.pop()"), self.row
+                            str("t" + self.temp + " = stack.pop()"), self.row, tab1
                         )
                         self.temp = "t" + self.temp
                         return code.C3D(c3d, self.temp, self.row, self.column)
@@ -53,13 +54,25 @@ class FunctionCall(Expression):
                         pass
                 else:
                     c3d += tab + self.id + "()\n"
+                    grammar.optimizer_.addIgnoreString(
+                        str(self.id + "()"), self.row, tab1
+                    )
                     c3d += tab + "t" + self.temp + " = stack.pop()\n"
+                    grammar.optimizer_.addIgnoreString(
+                        str("t" + self.temp + " = stack.pop()"), self.row, tab1
+                    )
                     self.temp = "t" + self.temp
                     return code.C3D(c3d, self.temp, self.row, self.column)
             # Si es una funcion sql
             else:
                 if not self.id in sql_functions:
-                    print("Error: Funcion no definida")
+                    print("Error: Funcion " + self.id + " no definida")
+                    grammar.PL_errors.append(
+                        "Error P0000: No se encontro la funcion " + self.id
+                    )
+                    grammar.semantic_errors.append(
+                        ["No se encontro la funcion " + self.id, self.row]
+                    )
                     return code.C3D("", self.temp, self.row, self.column)
                 parVal = ""
                 self.temp = "t" + self.temp
@@ -78,6 +91,7 @@ class FunctionCall(Expression):
                     c3d += pval.temp
                 c3d += ")\n"
                 c3d = parVal + c3d
+                grammar.optimizer_.addIgnoreString(str(c3d), self.row, False)
                 return code.C3D(c3d, self.temp, self.row, self.column)
         # Si es para el parser
         else:
@@ -93,17 +107,33 @@ class FunctionCall(Expression):
                             c3d += pval.value
                             c3d += tab + "stack.append(" + pval.temp + ")\n"
                             grammar.optimizer_.addIgnoreString(
-                                str("stack.append(" + pval.temp + ")"), self.row
+                                str("stack.append(" + pval.temp + ")"), self.row, tab1
                             )
                         environment.isBlock = False
                         c3d += tab + self.id + "()\n"
                         grammar.optimizer_.addIgnoreString(
-                            str(self.id + "()"), self.row
+                            str(self.id + "()"), self.row, tab1
                         )
                         c3d += tab + "t" + self.temp + " = stack.pop()\n"
                         grammar.optimizer_.addIgnoreString(
-                            str("t" + self.temp + " = stack.pop()"), self.row
+                            str("t" + self.temp + " = stack.pop()"), self.row, tab1
                         )
+                        fix = (
+                            tab
+                            + "if isinstance("
+                            + "t"
+                            + self.temp
+                            + ", str): "
+                            + "t"
+                            + self.temp
+                            + ' = "\'"+'
+                            + "t"
+                            + self.temp
+                            + '+"\'"'
+                            + "\n"
+                        )
+                        grammar.optimizer_.addIgnoreString(str(fix), self.row, False)
+                        c3d += fix
                         self.temp = '"+str(t' + self.temp + ')+"'
                         return code.C3D(c3d, self.temp, self.row, self.column)
                     else:
@@ -111,17 +141,58 @@ class FunctionCall(Expression):
                         pass
                 else:
                     c3d += tab + self.id + "()\n"
+                    grammar.optimizer_.addIgnoreString(
+                        str(self.id + "()"), self.row, tab1
+                    )
                     c3d += tab + "t" + self.temp + " = stack.pop()\n"
+                    grammar.optimizer_.addIgnoreString(
+                        str("t" + self.temp + " = stack.pop()"), self.row, tab1
+                    )
                     self.temp = '"+str(t' + self.temp + ')+"'
                     return code.C3D(c3d, self.temp, self.row, self.column)
-            # Si es una funcion matematica
+            # Si es una funcion sql
             else:
                 if not self.id in sql_functions:
-                    print("Error: Funcion no definida")
+                    print("Error: Funcion " + self.id + " no definida")
+                    grammar.PL_errors.append(
+                        "Error P0000: No se encontro la funcion " + self.id
+                    )
+                    grammar.semantic_errors.append(
+                        ["No se encontro la funcion " + self.id, self.row]
+                    )
                     return code.C3D("", "", self.row, self.column)
 
+                if self.id == "extract":
+                    c3d += self.id.upper() + "("
+                    pval = self.params[0].execute(environment)
+                    c3d += pval.temp[1:-1].upper() + " FROM "
+                    parVal += pval.value
+                    pval = self.params[1].execute(environment)
+                    c3d += pval.temp[1:-1].upper() + " "
+                    parVal += pval.value
+                    pval = self.params[2].execute(environment)
+                    c3d += pval.temp + ")"
+                    parVal += pval.value
+                    return code.C3D(parVal, c3d, self.row, self.column)
+
+                if self.id == "date_part":
+                    c3d += self.id + "("
+                    pval = self.params[0].execute(environment)
+                    c3d += pval.temp + ", "
+                    parVal += pval.value
+                    pval = self.params[1].execute(environment)
+                    c3d += pval.temp[1:-1].upper() + " "
+                    parVal += pval.value
+                    pval = self.params[2].execute(environment)
+                    if pval.temp != "(":
+                        c3d += pval.temp + ")"
+                    else:
+                        c3d += "())"
+                    parVal += pval.value
+                    return code.C3D(parVal, c3d, self.row, self.column)
+
                 c3d += self.id + "("
-                
+
                 if self.params:
                     j = 0
                     for i in range(len(self.params) - 1):
@@ -134,8 +205,6 @@ class FunctionCall(Expression):
                     c3d += pval.temp
                 c3d += ")"
                 return code.C3D(parVal, c3d, self.row, self.column)
-                    
-        
 
     def dot(self):
         new = Nodo("FUNCTION_CALL")
@@ -211,4 +280,7 @@ sql_functions = [
     "now",
     "extract",
     "date_part",
+    "count",
+    "sum",
+    "prom",
 ]

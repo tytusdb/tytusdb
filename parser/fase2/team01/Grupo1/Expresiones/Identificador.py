@@ -43,7 +43,7 @@ class Identificador(Instruccion):
                         banderaIndefinida = False
                         break;
             if banderaIndefinida:
-                Error('Semántico', 'Error(42P01): undefined_table', 0, 0)
+                return Error('Semántico', 'Error(42P01): undefined_table', 0, 0)
 
         contador = 0
         nuevoPrimitivo = None
@@ -82,7 +82,10 @@ class Identificador(Instruccion):
                     columnaSelect = []
                     for filaActual in datosTablas:
                         columnaSelect.append([filaActual[contador]])
-                    texto = tablas + '.' + columnaActual.name
+                    if valoresTabla[tablas]['alias'] != '':
+                        texto = valoresTabla[tablas]['alias'] + '.' + columnaActual.name
+                    else:
+                        texto = tablas + '.' + columnaActual.name
                     columnasSelect[texto] = {'columnas': columnaSelect, 'tipo': columnaActual.type}
                     contador = contador + 1
             return columnasSelect

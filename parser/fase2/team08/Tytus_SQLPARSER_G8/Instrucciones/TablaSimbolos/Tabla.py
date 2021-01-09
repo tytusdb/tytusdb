@@ -93,6 +93,16 @@ class Tabla():
             tabla = tabla.anterior
         return None
 
+    def dropSimboloFuncion(self,id):
+        tabla = self
+        while tabla != None:
+            for variable in tabla.variables:
+                if variable.id == id and variable.rol == "Metodo":
+                    tabla.variables.remove(variable)
+                    return True
+            tabla = tabla.anterior
+        return None
+
 
 '''
 from Simbolo import Simbolo

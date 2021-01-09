@@ -1,6 +1,7 @@
+from Instrucciones.Expresiones.Relacional import Relacional
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
-from Instrucciones.Sql_select.SelectLista import Alias
+from Instrucciones.Sql_select.Alias import Alias
 from storageManager.jsonMode import *
 from Instrucciones.Sql_create.Tipo_Constraint import Tipo_Dato_Constraint
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato
@@ -248,10 +249,12 @@ class UpdateTable(Instruccion):
             '''
 
     def analizar(self, tabla, arbol):
-        print("analizar")
+        #print("analizar")
+        pass
 
     def traducir(self, tabla, arbol):
-        cadena = "\"update " + self.identificador.traducir(tabla,arbol) + " "
+        
+        cadena = "f\"update " + self.identificador.concatenar(tabla,arbol) + " "
         cadena += "set"
 
         if(self.listaDeColumnas):
@@ -259,13 +262,16 @@ class UpdateTable(Instruccion):
                 if(x > 0):
                     cadena += ","
                     #volver tipo primitivo
-                valor = self.listaDeColumnas[x].traducir(tabla,arbol)
+                if(isinstance(self.listaDeColumnas[x], Relacional)):
+                    valor = self.listaDeColumnas[x].concatenar(tabla,arbol)
+                else:
+                    valor = self.listaDeColumnas[x].traducir(tabla,arbol)
                 cadena  += " " + valor
 
         if(self.insWhere):
             cadena  += " " + self.insWhere.traducir(tabla,arbol)
         
-        cadena += ")"
+        #cadena += ")"
         cadena += ";\""
         arbol.addComen("Asignar cadena")
         temporal1 = tabla.getTemporal()

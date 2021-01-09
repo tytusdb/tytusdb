@@ -10,20 +10,18 @@ class Proc(Instruccion):
         self.linea = linea
         self.columna = columna
 
-       
-
     def ejecutar(self, tabla, arbol):
         pass
         
     def getCodigo(self, tabla, arbol):
         arbol.setScope(self.name)
         
-        func = f"def {self.name}():\n"
+        func = f"@with_goto\n"
+        func += f"def {self.name}():\n"
         func += f"\tglobal pointer\n"
         func += f"\tglobal stack\n"
         
-        for inst in self.block.inst:
-            func += inst.getCodigo(tabla, arbol)
+        func += self.block.getCodigo(tabla, arbol)
         func += f"\n"
 
         return func

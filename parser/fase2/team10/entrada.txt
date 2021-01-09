@@ -1,0 +1,35 @@
+
+CREATE OR REPLACE FUNCTION ValidaRegistros (tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE 
+		resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+	if cantidad = resultado then
+			id4 = valores *8 -5;
+		
+		end if;
+
+	if cantidad= resultado then
+		id5=valores * 8-5;
+	else 
+
+	varlores = 'algo';
+		end if;
+
+	if cantidad= 8 then
+	ido = varlores;
+	elsif 	var='prueba' then
+		ids5 = 7*3;
+	else
+	var2 = 'ganar';
+	end if;
+
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+						
+

@@ -53,12 +53,14 @@ class Delete(Instruccion):
                             llavePrim = []
                             for column in tabla.valor:
                                 prim: Simbolo = ent.buscarSimbolo(column.atributos.get('primary'))
-                                llavePrim = prim.valor
-                                break
+                                if prim!=None:
+                                    llavePrim = prim.valor
+                                    break
 
                     except:
                         reporteerrores.append(Lerrores("Error Semantico",'Error el resultado del where no es booleano',0, 0))
                         variables.consola.insert(INSERT, 'Error el resultado del where no es booleano \n')
+
                 llavesprim = llavePrim
                 self.resultdelete(resultfiltro,self.tabla,ent.getDataBase(),llavesprim)
             else:
@@ -211,15 +213,15 @@ class Delete(Instruccion):
 
         return None
 
-    def traducir(self, Entorno):
+    def traducir(self, entorno):
         if(self.tabla!=None or self.tabla!=""):
-            self.codigo3d = 'ci.ejecutarsql('+'"'+'delete from '+self.tabla
+            self.codigo3d = 'ci.ejecutarsql(\"delete from '+self.tabla
 
             if self.where != None:
                 self.codigo3d += ' Where '
-                self.codigo3d += self.where.stringsql
+                self.codigo3d += self.where.traducir(entorno).stringsql
 
-            self.codigo3d += ' ;'+'"'+')\n'
+            self.codigo3d += ' ;\")\n'
             return self
 
 class Campo():

@@ -29,8 +29,10 @@ class AST:
             self.joinTreeNodes(node)
 
     def drawGraph(self):
-        dot.render("test-output/round-table.gv", view=False)  
+        global dot
+        dot.render("test-output/round-table.gv", view=False)
         "test-output/round-table.gv.jpg"
         dot.format = "png"
-        dot.render("test-output/round-table.gv", view=False)  
+        dot.render("test-output/round-table.gv", view=False)
         "test-output/round-table.gv.jpg"
+        dot = Digraph(comment="AST")
