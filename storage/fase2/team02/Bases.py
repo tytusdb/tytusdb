@@ -1015,6 +1015,17 @@ def checksumTable(database, table, mode):
     except:
         return None
 
+        
+# ------------------ 8. Grafos ------------------
+
+#def graphDSD(database: str) -> str:
+#Relacion de tablas con respecto a las FK en una BD             #no son utiles todavia, al no usar fk no funcionan
+def graphDSD(database: str) :
+    l=[]
+    l.append(showTables(database))
+    print(l[0][2])
+    return GDSD(database,l)
+
 def CodMD5(Entrada):
     MD5Codigo = hashlib.md5()
     MD5Codigo.update(Entrada.encode('utf8'))
@@ -1027,3 +1038,55 @@ def CodSHA256(Entrada):
     Proceso = SHACodigo.hexdigest()
     return Proceso
 
+def GDSD(baseDatos, lista: list) :
+    try:
+        f = open("GrafoBD.dot","w")
+        f.write("digraph g {\n")
+        f.write("node [shape=record]\n")
+        f.write("subgraph cluster_0 {\n")
+        #f.write("\""+str(lista[0][0])+"\";\n")
+        for i in range(len(lista[0][0])):
+            if i >= len(lista[0][0]):
+                break
+            f.write("\""+str(lista[0][i])+"\";\n") 
+            
+        f.write("label=\""+baseDatos+"\";")
+        f.write("color=blue;\n")
+        f.write("}")
+        for i in range(len(lista[0][0])):
+            f.write(lista[0][0]+"->"+lista[0][i]+"\n")
+        f.write("}")
+        f.close()
+        os.system("dot -Tjpg GrafoBD.dot -o GrafoBD.png")
+        return 0
+    except Exception as e:
+        print(e)
+        return None
+
+#def graphDF(database: str, table: str) -> str:
+#Relacion de registros de 1 tabla con repecto a la PK e indices unicos        #no trabaja con indices todavia
+def graphDF(database: str, table: str) :
+    l=[] 
+    l.append(extractTable(database,table))
+    return GDF(table,l)
+
+def GDF(tabla, lista: list) :
+    try:
+        f = open("GrafoT.dot","w")
+        f.write("digraph g {\n")
+        f.write("node [shape=record]\n")
+        f.write("subgraph cluster_0 {")
+        f.write("\""+str(lista[0][0][0])+"\";\n")
+        for i in range(len(lista[0][0][0])):
+            f.write("\""+str(lista[0][i+1][0])+"\";\n") 
+        f.write("label=\""+tabla+"\";")
+        f.write("color=blue;\n")
+        f.write("}")
+        for i in range(len(lista[0][0][0])):
+            f.write(lista[0][0][0]+"->"+lista[0][i+1][0]+"\n")
+        f.write("}")
+        f.close()
+        os.system("dot -Tjpg GrafoT.dot -o GrafoT.png")
+        return 0
+    except:
+        return None  
