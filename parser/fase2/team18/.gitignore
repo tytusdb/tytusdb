@@ -1,0 +1,16 @@
+**/__pycache__/**
+**/storageManager/**
+**/data/**
+test.py
+parser.out
+parsetab.py
+debug.log
+Reporte_Errores.html
+Reporte_Errores_Sem.html
+Reporte_Optimizacion.html
+reporte_AST.pdf
+entrada.sql
+gramatica_ASC.md
+SalidaCD3.py
+memoria.json
+

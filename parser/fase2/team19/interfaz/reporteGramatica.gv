@@ -1,0 +1,457 @@
+digraph structs {
+	node [shape=plaintext]
+stack [label =  <<TABLE><TR>
+<TD>PRODUCCIONES</TD>
+<TD>SEMANTICO</TD>
+</TR><TR>
+<TD>s ::= intrucciones</TD>
+<TD>. </TD>
+</TR><TR>
+<TD>s ::= intrucciones</TD>
+<TD>instrucciones=instruecciones;instrucciones.append(instruccion)</TD>
+</TR><TR>
+<TD>instruccion ::= select2 PCOMA</TD>
+<TD>instruccion = select2</TD>
+</TR><TR>
+<TD>select2 ::= SELECT select_list FROM subquery inner orderby opc_Order limit</TD>
+<TD>select2 = Select(3, False, None, select_list, subquery, inner, orderby, opc_Order, limit, None)</TD>
+</TR><TR>
+<TD>limit ::= </TD>
+<TD>limit =  </TD>
+</TR><TR>
+<TD>orderby ::= </TD>
+<TD>orderby =  </TD>
+</TR><TR>
+<TD>inner ::= compSelect</TD>
+<TD>inner = compSelect </TD>
+</TR><TR>
+<TD>compSelect ::= list</TD>
+<TD>compSelect = list</TD>
+</TR><TR>
+<TD>list ::= columna</TD>
+<TD>list = [columna]</TD>
+</TR><TR>
+<TD>columna ::=  prim</TD>
+<TD>columna   = prim</TD>
+</TR><TR>
+<TD>prim ::=  var</TD>
+<TD>prim = var </TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>var ::= ID</TD>
+<TD>var = Id(ID)</TD>
+</TR><TR>
+<TD>subquery ::= </TD>
+<TD>subquery = </TD>
+</TR><TR>
+<TD>select_list ::= MULT</TD>
+<TD>select_list =MULT</TD>
+</TR><TR>
+<TD>s ::= intrucciones</TD>
+<TD>instrucciones=instruecciones;instrucciones.append(instruccion)</TD>
+</TR><TR>
+<TD>instruccion ::= DROP FUNCTION IF EXISTS ID PTCOMA</TD>
+<TD>instruccion = DropFunction(ID)</TD>
+</TR><TR>
+<TD>s ::= intrucciones</TD>
+<TD>instrucciones=instruecciones;instrucciones.append(instruccion)</TD>
+</TR><TR>
+<TD>instruccion :: = INSERT INTO ID VALUES value PTCOMA</TD>
+<TD>instruccion = InsertInto(2,ID, None, value)</TD>
+</TR><TR>
+<TD>value :: = PARIZQ listaExpresiones PARDR</TD>
+<TD>value = listaExpresiones </TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= ID PARIZQ listaExpresiones PARDR</TD>
+<TD>E = Funcion(ID,listaExpresiones)</TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = E</TD>
+<TD>listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= CADENA</TD>
+<TD>valores = Primitivo(CADENA) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = E</TD>
+<TD>listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>s ::= intrucciones</TD>
+<TD>instrucciones=instruecciones;instrucciones.append(instruccion)</TD>
+</TR><TR>
+<TD>instruccion :: = INSERT INTO ID VALUES value PTCOMA</TD>
+<TD>instruccion = InsertInto(2,ID, None, value)</TD>
+</TR><TR>
+<TD>value :: = PARIZQ listaExpresiones PARDR</TD>
+<TD>value = listaExpresiones </TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= ID PARIZQ listaExpresiones PARDR</TD>
+<TD>E = Funcion(ID,listaExpresiones)</TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = E</TD>
+<TD>listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= CADENA</TD>
+<TD>valores = Primitivo(CADENA) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = E</TD>
+<TD>listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>s ::= intrucciones</TD>
+<TD>instrucciones=instruecciones;instrucciones.append(instruccion)</TD>
+</TR><TR>
+<TD>instruccion :: = INSERT INTO ID VALUES value PTCOMA</TD>
+<TD>instruccion = InsertInto(2,ID, None, value)</TD>
+</TR><TR>
+<TD>value :: = PARIZQ listaExpresiones PARDR</TD>
+<TD>value = listaExpresiones </TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= ID PARIZQ listaExpresiones PARDR</TD>
+<TD>E = Funcion(ID,listaExpresiones)</TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = E</TD>
+<TD>listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = listaExpresiones COMA E</TD>
+<TD>listaExpresiones = listaExpresiones; listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= CADENA</TD>
+<TD>valores = Primitivo(CADENA) </TD>
+</TR><TR>
+<TD>listaExpresiones :: = E</TD>
+<TD>listaExpresiones.append(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>s ::= intrucciones</TD>
+<TD>instrucciones=instruecciones;instrucciones.append(instruccion)</TD>
+</TR><TR>
+<TD>instruccion ::= CREATE FUNCTION ID PARIZQ l_param PARDR RETURNS plreturns AS DOLAR DOLAR blodecla blobegin DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA</TD>
+<TD>instruccion = CreateFunction(ID,l_param,plreturns,blodecla,blobegin</TD>
+</TR><TR>
+<TD>blobegin ::= BEGIN l_plsen END PTCOMA</TD>
+<TD>blobegin = l_plsen</TD>
+</TR><TR>
+<TD>l_plsen ::= l_plsen plsen</TD>
+<TD>l_plsen.append(plsen); l_plsen = plsen</TD>
+</TR><TR>
+<TD>plsen ::= plinstruccion</TD>
+<TD>plsen = plinstruccion</TD>
+</TR><TR>
+<TD>plretu ::= RETURN E PTCOMA</TD>
+<TD>plretu = Return(E)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>operando ::= E MAS E</TD>
+<TD>operando = Expresion(E, E, MAS) </TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>var ::= ID</TD>
+<TD>var = Id(ID)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>operando ::= E MAS E</TD>
+<TD>operando = Expresion(E, E, MAS) </TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>var ::= ID</TD>
+<TD>var = Id(ID)</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>var ::= ID</TD>
+<TD>var = Id(ID)</TD>
+</TR><TR>
+<TD>l_plsen ::= plsen</TD>
+<TD>l_plsen = [plsen]</TD>
+</TR><TR>
+<TD>plsen ::= plinstruccion</TD>
+<TD>plsen = plinstruccion</TD>
+</TR><TR>
+<TD>plasignacion ::= ID pasigvalor PTCOMA</TD>
+<TD>plasignacion = Plasignacion(ID,pasigvalor)</TD>
+</TR><TR>
+<TD>pasigvalor ::= DOSPT IGUAL E</TD>
+<TD>pasigvalor = E</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>blodecla ::= DECLARE l_pldeclare</TD>
+<TD>blodecla ::= l_pldeclare</TD>
+</TR><TR>
+<TD>l_pldeclare ::= pldecla</TD>
+<TD>l_pldeclare.append(pldecla); l_pldeclare = pldecla</TD>
+</TR><TR>
+<TD>pldecla ::= ID tipo plasig PTCOMA</TD>
+<TD>pldecla = Declaracion(ID,False,tipo,None,False,plasig)</TD>
+</TR><TR>
+<TD>plasig ::= DOSPT IGUAL E</TD>
+<TD>plasig = E</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>boolean ::= TRUE</TD>
+<TD>boolean = Primitivo(TRUE)</TD>
+</TR><TR>
+<TD>tipo :: =BOOLEAN</TD>
+<TD>tipo = Tipo(BOOLEAN.upper(), None)</TD>
+</TR><TR>
+<TD>l_pldeclare ::= pldecla</TD>
+<TD>l_pldeclare = pldecla</TD>
+</TR><TR>
+<TD>pldecla ::= ID tipo plasig PTCOMA</TD>
+<TD>pldecla = Declaracion(ID,False,tipo,None,False,plasig)</TD>
+</TR><TR>
+<TD>plasig ::= IGUAL E</TD>
+<TD>plasig = E</TD>
+</TR><TR>
+<TD>E ::= valores </TD>
+<TD>E = valores </TD>
+</TR><TR>
+<TD>valores ::= ENTERO</TD>
+<TD>valores = Primitivo(ENTERO) </TD>
+</TR><TR>
+<TD>tipo :: =INTEGER</TD>
+<TD>tipo = Tipo(INTEGER.upper(), None)</TD>
+</TR><TR>
+<TD>plreturns ::= typeparam</TD>
+<TD>plreturns = typeparam</TD>
+</TR><TR>
+<TD>typeparam ::= tipo</TD>
+<TD>typeparam = tipo</TD>
+</TR><TR>
+<TD>tipo :: =INTEGER</TD>
+<TD>tipo = Tipo(INTEGER.upper(), None)</TD>
+</TR><TR>
+<TD>l_param ::= l_param COMA param</TD>
+<TD>l_param.apped(param); l_param = l_param</TD>
+</TR><TR>
+<TD>param ::= ID typeparam</TD>
+<TD>param = Parametro(1,ID,typeparam)</TD>
+</TR><TR>
+<TD>typeparam ::= tipo</TD>
+<TD>typeparam = tipo</TD>
+</TR><TR>
+<TD>tipo :: =INTEGER</TD>
+<TD>tipo = Tipo(INTEGER.upper(), None)</TD>
+</TR><TR>
+<TD>l_param ::= param</TD>
+<TD>l_param = param</TD>
+</TR><TR>
+<TD>param ::= ID typeparam</TD>
+<TD>param = Parametro(1,ID,typeparam)</TD>
+</TR><TR>
+<TD>typeparam ::= tipo</TD>
+<TD>typeparam = tipo</TD>
+</TR><TR>
+<TD>tipo :: =INTEGER</TD>
+<TD>tipo = Tipo(INTEGER.upper(), None)</TD>
+</TR><TR>
+<TD>s ::= intrucciones</TD>
+<TD>instrucciones=instruecciones;instrucciones.append(instruccion)</TD>
+</TR><TR>
+<TD>instruccion :: = CREATE TABLE ID PARIZQ campos PARDR PTCOMA</TD>
+<TD>instruccion :: = CreateTable(ID,campos,None) </TD>
+</TR><TR>
+<TD>campos :: = campos COMA campo</TD>
+<TD>campos = campos; campos.append(campo)</TD>
+</TR><TR>
+<TD>campo :: = ID tipo</TD>
+<TD>campo = Campo(1,ID,Tipo,None,None,None,None)</TD>
+</TR><TR>
+<TD>tipo :: =integer</TD>
+<TD>tipo = Tipo(integer.upper(), None)</TD>
+</TR><TR>
+<TD>campos :: = campos COMA campo</TD>
+<TD>campos = campos; campos.append(campo)</TD>
+</TR><TR>
+<TD>campo :: = ID tipo acompaniamiento</TD>
+<TD>campo = Campo(1,ID,tipo,acompaniamiento,None,None,None) </TD>
+</TR><TR>
+<TD>acompaniamiento :: = acom</TD>
+<TD>acompaniamiento.append([acom]) </TD>
+</TR><TR>
+<TD>acom :: = NOT NULL</TD>
+<TD>acom = Acompaniamiento(NOTNULL, None) </TD>
+</TR><TR>
+<TD>tipo :: =integer</TD>
+<TD>tipo = Tipo(integer.upper(), None)</TD>
+</TR><TR>
+<TD>campos :: = campos COMA campo</TD>
+<TD>campos = campos; campos.append(campo)</TD>
+</TR><TR>
+<TD>campo :: = ID tipo acompaniamiento</TD>
+<TD>campo = Campo(1,ID,tipo,acompaniamiento,None,None,None) </TD>
+</TR><TR>
+<TD>acompaniamiento :: = acom</TD>
+<TD>acompaniamiento.append([acom]) </TD>
+</TR><TR>
+<TD>acom :: = NOT NULL</TD>
+<TD>acom = Acompaniamiento(NOTNULL, None) </TD>
+</TR><TR>
+<TD>tipo :: = varchar(150)</TD>
+<TD>tipo =  Tipo(varchar- ENTERO,PRIMITIVO(150)</TD>
+</TR><TR>
+<TD>campos :: = campo</TD>
+<TD> campos = campo</TD>
+</TR><TR>
+<TD>campo :: = ID tipo acompaniamiento</TD>
+<TD>campo = Campo(1,ID,tipo,acompaniamiento,None,None,None) </TD>
+</TR><TR>
+<TD>acompaniamiento :: = acompaniamiento acom</TD>
+<TD> acompaniamiento = acompaniamiento; acompaniamiento.append(acom) </TD>
+</TR><TR>
+<TD>acom :: = PRIMARY KEY</TD>
+<TD>acom = Acompaniamiento(PRIMARYKEY, None)</TD>
+</TR><TR>
+<TD>acompaniamiento :: = acom</TD>
+<TD>acompaniamiento.append([acom]) </TD>
+</TR><TR>
+<TD>acom :: = NOT NULL</TD>
+<TD>acom = Acompaniamiento(NOTNULL, None) </TD>
+</TR><TR>
+<TD>tipo :: =integer</TD>
+<TD>tipo = Tipo(integer.upper(), None)</TD>
+</TR><TR>
+<TD>s ::= intrucciones</TD>
+<TD>instrucciones=instruecciones;instrucciones.append(instruccion)</TD>
+</TR><TR>
+<TD>instruccion ::= USE ID PTCOMA</TD>
+<TD>instruccion = Use(ID) </TD>
+</TR><TR>
+<TD>instrucciones ::= instrucciones instruccion</TD>
+<TD>intrucciones=[instruccion] </TD>
+</TR><TR>
+<TD>instruccion ::=  opcionCR ID PTCOMA</TD>
+<TD>instruccion = CreateReplace(opcionR, False, ID, None)</TD>
+</TR><TR>
+<TD>opcionCR ::=  CREATE DATABASE</TD>
+<TD>opcionCR = 1</TD>
+</TR></TABLE>>, ];
+}

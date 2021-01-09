@@ -9,3 +9,6 @@ src/Storage/
 data/
 __pycache__
 src/storageManager
+storageManager
+src/Reports
+.vscode/

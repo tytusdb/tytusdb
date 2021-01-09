@@ -1,0 +1,375 @@
+digraph G {
+rankdir=TB; node[fillcolor="darkturquoise:darkslategray2", shape=record ,fontname = "Berlin Sans FB" ,style = filled]  
+edge[arrowhead=none]; 
+nodo2[label = "INSTRUCCIONES\n"];
+nodo2->nodo3
+nodo3[label = "CREATE DATABASE\nDBFase2"];
+nodo3->nodo4
+nodo4[label = "\n;"];
+nodo2->nodo5
+nodo5[label = "USE\nDBFase2"];
+nodo2->nodo6
+nodo6[label = "CREATE TABLE\ntbProducto"];
+nodo6->nodo7
+nodo7[label = "COLUMNAS\n"];
+nodo7->nodo8
+nodo8[label = "COLUMN\nidproducto"];
+nodo8->nodo9
+nodo9[label = "Tipo\ninteger"];
+nodo8->nodo10
+nodo10[label = "ATRIBUTOS\n"];
+nodo10->nodo11
+nodo11[label = "NOT NULL\n"];
+nodo10->nodo12
+nodo12[label = "PRIMARY KEY\n"];
+nodo7->nodo13
+nodo13[label = "COLUMN\nproducto"];
+nodo13->nodo14
+nodo14[label = "Tipo\nvarchar"];
+nodo14->nodo15
+nodo15[label = "Limite\n150"];
+nodo13->nodo16
+nodo16[label = "ATRIBUTOS\n"];
+nodo16->nodo17
+nodo17[label = "NOT NULL\n"];
+nodo7->nodo18
+nodo18[label = "COLUMN\nfechacreacion"];
+nodo18->nodo19
+nodo19[label = "Tipo\ndate"];
+nodo18->nodo20
+nodo20[label = "ATRIBUTOS\n"];
+nodo20->nodo21
+nodo21[label = "NOT NULL\n"];
+nodo7->nodo22
+nodo22[label = "COLUMN\nestado"];
+nodo22->nodo23
+nodo23[label = "Tipo\ninteger"];
+nodo22->nodo24
+nodo24[label = "ATRIBUTOS\n"];
+nodo2->nodo25
+nodo25[label = "CREATE INDEX\n"];
+nodo25->nodo26
+nodo26[label = "INDEX UNIQUE NAME\nidx_producto"];
+nodo25->nodo27
+nodo27[label = "TABLA\ntbProducto"];
+nodo25->nodo28
+nodo28[label = "COLUMNAS\n"];
+nodo28->nodo29
+nodo29[label = "Columna\nidproducto"];
+nodo2->nodo30
+nodo30[label = "CREATE TABLE\ntbCalificacion"];
+nodo30->nodo31
+nodo31[label = "COLUMNAS\n"];
+nodo31->nodo32
+nodo32[label = "COLUMN\nidcalifica"];
+nodo32->nodo33
+nodo33[label = "Tipo\ninteger"];
+nodo32->nodo34
+nodo34[label = "ATRIBUTOS\n"];
+nodo34->nodo35
+nodo35[label = "NOT NULL\n"];
+nodo34->nodo36
+nodo36[label = "PRIMARY KEY\n"];
+nodo31->nodo37
+nodo37[label = "COLUMN\nitem"];
+nodo37->nodo38
+nodo38[label = "Tipo\nvarchar"];
+nodo38->nodo39
+nodo39[label = "Limite\n100"];
+nodo37->nodo40
+nodo40[label = "ATRIBUTOS\n"];
+nodo40->nodo41
+nodo41[label = "NOT NULL\n"];
+nodo31->nodo42
+nodo42[label = "COLUMN\npunteo"];
+nodo42->nodo43
+nodo43[label = "Tipo\ninteger"];
+nodo42->nodo44
+nodo44[label = "ATRIBUTOS\n"];
+nodo44->nodo45
+nodo45[label = "NOT NULL\n"];
+nodo2->nodo46
+nodo46[label = "CREATE INDEX\n"];
+nodo46->nodo47
+nodo47[label = "INDEX UNIQUE NAME\nidx_califica"];
+nodo46->nodo48
+nodo48[label = "TABLA\ntbCalificacion"];
+nodo46->nodo49
+nodo49[label = "COLUMNAS\n"];
+nodo49->nodo50
+nodo50[label = "Columna\nidcalifica"];
+nodo2->nodo51
+nodo51[label = "INSERT INTO\ntbProducto"];
+nodo51->nodo52
+nodo52[label = "Parametro\n"];
+nodo52->nodo53
+nodo53[label = "ENTERO\n1"];
+nodo51->nodo54
+nodo54[label = "Parametro\n"];
+nodo54->nodo55
+nodo55[label = "CADENA\nLaptop Lenovo"];
+nodo51->nodo56
+nodo56[label = "Parametro\n"];
+nodo56->nodo57
+nodo57[label = "NOW()\n"];
+nodo51->nodo58
+nodo58[label = "Parametro\n"];
+nodo58->nodo59
+nodo59[label = "ENTERO\n1"];
+nodo2->nodo60
+nodo60[label = "INSERT INTO\ntbProducto"];
+nodo60->nodo61
+nodo61[label = "Parametro\n"];
+nodo61->nodo62
+nodo62[label = "ENTERO\n2"];
+nodo60->nodo63
+nodo63[label = "Parametro\n"];
+nodo63->nodo64
+nodo64[label = "CADENA\nBateria para Laptop Lenovo T420"];
+nodo60->nodo65
+nodo65[label = "Parametro\n"];
+nodo65->nodo66
+nodo66[label = "NOW()\n"];
+nodo60->nodo67
+nodo67[label = "Parametro\n"];
+nodo67->nodo68
+nodo68[label = "ENTERO\n1"];
+nodo2->nodo69
+nodo69[label = "INSERT INTO\ntbProducto"];
+nodo69->nodo70
+nodo70[label = "Parametro\n"];
+nodo70->nodo71
+nodo71[label = "ENTERO\n3"];
+nodo69->nodo72
+nodo72[label = "Parametro\n"];
+nodo72->nodo73
+nodo73[label = "CADENA\nTeclado Inalambrico"];
+nodo69->nodo74
+nodo74[label = "Parametro\n"];
+nodo74->nodo75
+nodo75[label = "NOW()\n"];
+nodo69->nodo76
+nodo76[label = "Parametro\n"];
+nodo76->nodo77
+nodo77[label = "ENTERO\n1"];
+nodo2->nodo78
+nodo78[label = "INSERT INTO\ntbProducto"];
+nodo78->nodo79
+nodo79[label = "Parametro\n"];
+nodo79->nodo80
+nodo80[label = "ENTERO\n4"];
+nodo78->nodo81
+nodo81[label = "Parametro\n"];
+nodo81->nodo82
+nodo82[label = "CADENA\nMouse Inalambrico"];
+nodo78->nodo83
+nodo83[label = "Parametro\n"];
+nodo83->nodo84
+nodo84[label = "NOW()\n"];
+nodo78->nodo85
+nodo85[label = "Parametro\n"];
+nodo85->nodo86
+nodo86[label = "ENTERO\n1"];
+nodo2->nodo87
+nodo87[label = "INSERT INTO\ntbProducto"];
+nodo87->nodo88
+nodo88[label = "Parametro\n"];
+nodo88->nodo89
+nodo89[label = "ENTERO\n5"];
+nodo87->nodo90
+nodo90[label = "Parametro\n"];
+nodo90->nodo91
+nodo91[label = "CADENA\nWIFI USB"];
+nodo87->nodo92
+nodo92[label = "Parametro\n"];
+nodo92->nodo93
+nodo93[label = "NOW()\n"];
+nodo87->nodo94
+nodo94[label = "Parametro\n"];
+nodo94->nodo95
+nodo95[label = "ENTERO\n1"];
+nodo2->nodo96
+nodo96[label = "INSERT INTO\ntbProducto"];
+nodo96->nodo97
+nodo97[label = "Parametro\n"];
+nodo97->nodo98
+nodo98[label = "ENTERO\n6"];
+nodo96->nodo99
+nodo99[label = "Parametro\n"];
+nodo99->nodo100
+nodo100[label = "CADENA\nLaptop HP"];
+nodo96->nodo101
+nodo101[label = "Parametro\n"];
+nodo101->nodo102
+nodo102[label = "NOW()\n"];
+nodo96->nodo103
+nodo103[label = "Parametro\n"];
+nodo103->nodo104
+nodo104[label = "ENTERO\n1"];
+nodo2->nodo105
+nodo105[label = "INSERT INTO\ntbProducto"];
+nodo105->nodo106
+nodo106[label = "Parametro\n"];
+nodo106->nodo107
+nodo107[label = "ENTERO\n7"];
+nodo105->nodo108
+nodo108[label = "Parametro\n"];
+nodo108->nodo109
+nodo109[label = "CADENA\nTeclado Flexible USB"];
+nodo105->nodo110
+nodo110[label = "Parametro\n"];
+nodo110->nodo111
+nodo111[label = "NOW()\n"];
+nodo105->nodo112
+nodo112[label = "Parametro\n"];
+nodo112->nodo113
+nodo113[label = "ENTERO\n1"];
+nodo2->nodo114
+nodo114[label = "INSERT INTO\ntbProducto"];
+nodo114->nodo115
+nodo115[label = "Parametro\n"];
+nodo115->nodo116
+nodo116[label = "ENTERO\n8"];
+nodo114->nodo117
+nodo117[label = "Parametro\n"];
+nodo117->nodo118
+nodo118[label = "CADENA\nLaptop Samsung"];
+nodo114->nodo119
+nodo119[label = "Parametro\n"];
+nodo119->nodo120
+nodo120[label = "CADENA\n2021-01-02"];
+nodo114->nodo121
+nodo121[label = "Parametro\n"];
+nodo121->nodo122
+nodo122[label = "ENTERO\n1"];
+nodo2->nodo123
+nodo123[label = "SELECT\n"];
+nodo123->nodo124
+nodo124[label = "ROWS\n"];
+nodo124->nodo125
+nodo125[label = "Agregacion\nCOUNT"];
+nodo125->nodo126
+nodo126[label = "Asterisco\n*"];
+nodo123->nodo127
+nodo127[label = "FROM\n"];
+nodo127->nodo128
+nodo128[label = "Tabla\ntbProducto"];
+nodo2->nodo129
+nodo129[label = "INSERT INTO\ntbCalificacion"];
+nodo129->nodo130
+nodo130[label = "Parametro\n"];
+nodo130->nodo131
+nodo131[label = "ENTERO\n1"];
+nodo129->nodo132
+nodo132[label = "Parametro\n"];
+nodo132->nodo133
+nodo133[label = "CADENA\nCreate Table and Insert"];
+nodo129->nodo134
+nodo134[label = "Parametro\n"];
+nodo134->nodo135
+nodo135[label = "ENTERO\n0"];
+nodo2->nodo136
+nodo136[label = "UPDATE\ntbProducto"];
+nodo136->nodo137
+nodo137[label = "Asignacion\n"];
+nodo137->nodo138
+nodo138[label = "ID\nestado"];
+nodo137->nodo139
+nodo139[label = "ENTERO\n2"];
+nodo2->nodo140
+nodo140[label = "SELECT\n"];
+nodo140->nodo141
+nodo141[label = "ROWS\n"];
+nodo141->nodo142
+nodo142[label = "Agregacion\nCOUNT"];
+nodo142->nodo143
+nodo143[label = "Asterisco\n*"];
+nodo140->nodo144
+nodo144[label = "FROM\n"];
+nodo144->nodo145
+nodo145[label = "Tabla\ntbProducto"];
+nodo140->nodo146
+nodo146[label = "WHERE\n"];
+nodo146->nodo147
+nodo147[label = "OPREL\n\="];
+nodo147->nodo148
+nodo148[label = "ID\nestado"];
+nodo147->nodo149
+nodo149[label = "ENTERO\n2"];
+nodo2->nodo150
+nodo150[label = "INSERT INTO\ntbCalificacion"];
+nodo150->nodo151
+nodo151[label = "Parametro\n"];
+nodo151->nodo152
+nodo152[label = "ENTERO\n2"];
+nodo150->nodo153
+nodo153[label = "Parametro\n"];
+nodo153->nodo154
+nodo154[label = "CADENA\nUpdate"];
+nodo150->nodo155
+nodo155[label = "Parametro\n"];
+nodo155->nodo156
+nodo156[label = "ENTERO\n0"];
+nodo2->nodo157
+nodo157[label = "SELECT\n"];
+nodo157->nodo158
+nodo158[label = "ROWS\n"];
+nodo158->nodo159
+nodo159[label = "EXTRACT\n"];
+nodo159->nodo160
+nodo160[label = "HOUR\n"];
+nodo159->nodo161
+nodo161[label = "FROM TIMESTAMP\n2001-02-16 20:38:40"];
+nodo2->nodo162
+nodo162[label = "SELECT\n"];
+nodo162->nodo163
+nodo163[label = "ROWS\n"];
+nodo163->nodo164
+nodo164[label = "Trigonometrica\nSIN"];
+nodo164->nodo165
+nodo165[label = "ENTERO\n1"];
+nodo2->nodo166
+nodo166[label = "INSERT INTO\ntbCalificacion"];
+nodo166->nodo167
+nodo167[label = "Parametro\n"];
+nodo167->nodo168
+nodo168[label = "ENTERO\n3"];
+nodo166->nodo169
+nodo169[label = "Parametro\n"];
+nodo169->nodo170
+nodo170[label = "CADENA\n Valida Funciones"];
+nodo166->nodo171
+nodo171[label = "Parametro\n"];
+nodo171->nodo172
+nodo172[label = "ENTERO\n20"];
+nodo2->nodo173
+nodo173[label = "CREATE TABLE\ntbbodega"];
+nodo173->nodo174
+nodo174[label = "COLUMNAS\n"];
+nodo174->nodo175
+nodo175[label = "COLUMN\nidbodega"];
+nodo175->nodo176
+nodo176[label = "Tipo\ninteger"];
+nodo175->nodo177
+nodo177[label = "ATRIBUTOS\n"];
+nodo177->nodo178
+nodo178[label = "NOT NULL\n"];
+nodo177->nodo179
+nodo179[label = "PRIMARY KEY\n"];
+nodo174->nodo180
+nodo180[label = "COLUMN\nbodega"];
+nodo180->nodo181
+nodo181[label = "Tipo\nvarchar"];
+nodo181->nodo182
+nodo182[label = "Limite\n100"];
+nodo180->nodo183
+nodo183[label = "ATRIBUTOS\n"];
+nodo183->nodo184
+nodo184[label = "NOT NULL\n"];
+nodo174->nodo185
+nodo185[label = "COLUMN\nestado"];
+nodo185->nodo186
+nodo186[label = "Tipo\ninteger"];
+nodo185->nodo187
+nodo187[label = "ATRIBUTOS\n"];
+}

@@ -1,0 +1,33 @@
+<div class="mat-elevation-z8">
+
+  <table id="users2">
+
+    <tr>
+      <th>
+        {{anuncio}}
+      </th>
+    </tr>
+  </table>
+
+  <table id="users">
+
+    <tr>
+      <th *ngFor = "let column of headers">
+        {{column}}
+      </th>
+    </tr>
+
+    <tr *ngFor = "let row of rows">
+      <td *ngFor = "let column of row">
+        {{column}}
+      </td>
+    </tr>
+
+
+  </table>
+</div>
+
+
+<!-- Copyright 2020 Google LLC. All Rights Reserved.
+    Use of this source code is governed by an MIT-style license that
+    can be found in the LICENSE file at http://angular.io/license -->

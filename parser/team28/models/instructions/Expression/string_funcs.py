@@ -1,5 +1,5 @@
 import hashlib
-from models.instructions.Expression.expression import Expression, PrimitiveData, DATA_TYPE
+from models.instructions.Expression.expression import Expression, PrimitiveData, DATA_TYPE, Identifiers
 from controllers.error_controller import ErrorController
 #TODO: REVISAR QUE NO MUERA CON DECODE, UNCODE, GETBYTE, SETBYTE, CONVERT
 class Length(Expression):
@@ -18,9 +18,19 @@ class Length(Expression):
 
     def process(self, environment):
         try:
-            val = self.value.process(environment).value
-            l = len(val)
-            return PrimitiveData(DATA_TYPE.NUMBER, l, self.line, self.column)
+            val = None
+            result = 0
+            lista1 = []
+            if isinstance(self.value, Identifiers):
+                val = self.value.process(environment)
+                result = [len(columns) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                val = self.value.process(environment).value
+                l = len(val)
+                return PrimitiveData(DATA_TYPE.NUMBER, l, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Length"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -47,11 +57,21 @@ class Substring(Expression):
 
     def process(self, environment):
         try:
+            val = None
+            result = 0
+            lista1 = []
             i = self.down.process(environment).value
             j = self.up.process(environment).value
-            cadena = self.value.process(environment).value
-            substr = cadena[i:j]
-            return PrimitiveData(DATA_TYPE.STRING, substr, self.line, self.column)
+            if isinstance(self.value, Identifiers):
+                val = self.value.process(environment)
+                result = [columns[i:j] for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                substr = cadena[i:j]
+                return PrimitiveData(DATA_TYPE.STRING, substr, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Substring"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -78,13 +98,23 @@ class Substr(Expression):
 
     def process(self, environment):
         try:
+            val = None
+            result = 0
+            lista1 = []
             i = self.down.process(environment).value
             j = self.up.process(environment).value
-            cadena = self.value.process(environment).value
-            substr = cadena[i:j]
-            return PrimitiveData(DATA_TYPE.STRING, substr, self.line, self.column)
+            if isinstance(self.value, Identifiers):
+                val = self.value.process(environment)
+                result = [columns[i:j] for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                substr = cadena[i:j]
+                return PrimitiveData(DATA_TYPE.STRING, substr, self.line, self.column)
         except TypeError:
-            desc = "Tipo de dato invalido para Substr"
+            desc = "Tipo de dato invalido para Substring"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
             return
         except:
@@ -107,9 +137,17 @@ class Trim(Expression):
 
     def process(self, environment):
         try:
-            cadena = self.value.process(environment).value
-            trim_str = cadena.strip()
-            return PrimitiveData(DATA_TYPE.STRING, trim_str, self.line, self.column)
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [columns.strip() for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                trim_str = cadena.strip()
+                return PrimitiveData(DATA_TYPE.STRING, trim_str, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Trim"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -134,9 +172,17 @@ class MD5(Expression):
 
     def process(self, environment):
         try:
-            cadena = self.value.process(environment).value
-            result = hashlib.md5(cadena.encode()) 
-            return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [hashlib.md5(columns.encode()).hexdigest() for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                result = hashlib.md5(cadena.encode()) 
+                return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para md5"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -161,9 +207,17 @@ class SHA256(Expression):
 
     def process(self, environment):
         try:
-            cadena = self.value.process(environment).value
-            result = hashlib.sha256(cadena.encode()) 
-            return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [hashlib.sha256(columns.encode()).hexdigest() for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                result = hashlib.sha256(cadena.encode()) 
+                return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para sha256"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -178,8 +232,9 @@ class GetByte(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, line, column) :
+    def __init__(self, value, pos, line, column) :
         self.value = value
+        self.pos = pos
         self.alias = f'GETBYTE({self.value.alias})'
         self.line = line
         self.column = column
@@ -188,7 +243,18 @@ class GetByte(Expression):
 
     def process(self, environment):
         try:
-            pass
+            index = self.pos.process(environment).value
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [ord(columns[index]) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                result = ord(cadena[index])
+                return PrimitiveData(DATA_TYPE.STRING, result, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para GetByte"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -203,8 +269,10 @@ class SetByte(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, line, column) :
+    def __init__(self, value, pos, no_char, line, column) :
         self.value = value
+        self.pos = pos
+        self.no_char = no_char
         self.alias = f'SETBYTE({self.value.alias})'
         self.line = line
         self.column = column
@@ -213,7 +281,19 @@ class SetByte(Expression):
 
     def process(self, environment):
         try:
-            pass
+            index = self.pos.process(environment).value
+            char = self.no_char.process(environment).value
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [(columns[:index] + chr(char) + columns[index + 1:]) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                result = cadena[:index] + chr(char) + cadena[index + 1:]
+                return PrimitiveData(DATA_TYPE.STRING, result, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para SetByte"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -230,7 +310,7 @@ class Convert(Expression):
     '''
     def __init__(self, value, data_type, line, column) :
         self.value = value
-        self.value = data_type
+        self.data_type = data_type
         self.alias = f'CONVERT({self.value.alias})'
         self.line = line
         self.column = column
@@ -239,7 +319,28 @@ class Convert(Expression):
 
     def process(self, environment):
         try:
-            pass
+            if self.data_type.lower() == "integer":
+                if isinstance(self.value, Identifiers):
+                    lista1 = []
+                    val = self.value.process(environment)
+                    result = [ int(columns) for columns in val[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    cadena = self.value.process(environment).value
+                    return PrimitiveData(DATA_TYPE.NUMBER, int(cadena) , self.line, self.column)
+            else:
+                if isinstance(self.value, Identifiers):
+                    lista1 = []
+                    val = self.value.process(environment)
+                    result = [ str(columns) for columns in val[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    cadena = self.value.process(environment).value
+                    return PrimitiveData(DATA_TYPE.STRING, cadena, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Convert"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -265,7 +366,16 @@ class Encode(Expression):
 
     def process(self, environment):
         try:
-            pass
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [ str(columns) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                return PrimitiveData(DATA_TYPE.STRING, cadena, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Encode"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)
@@ -291,7 +401,16 @@ class Decode(Expression):
 
     def process(self, environment):
         try:
-            pass
+            if isinstance(self.value, Identifiers):
+                lista1 = []
+                val = self.value.process(environment)
+                result = [ str(columns) for columns in val[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                cadena = self.value.process(environment).value
+                return PrimitiveData(DATA_TYPE.STRING, cadena, self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para Decode"
             ErrorController().add(37, 'Execution', desc, self.line, self.column)

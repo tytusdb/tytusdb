@@ -11,26 +11,29 @@ from math import *
 from models.instructions.Expression.type_enum import *
 import re
 
+
 class Expression:
     @abstractmethod
     def process(self):
         pass
 
+
 class ArithmeticBinaryOperation(Expression):
     '''
         Una operacion binaria recibe, sus dos operandos y el operador
     '''
-    def __init__(self, value1, value2, operador, op, line, column) :
+
+    def __init__(self, value1, value2, operador, op, line, column):
         self.value1 = value1
         self.value2 = value2
         self.operador = operador
-        self.line = line 
+        self.line = line
         self.column = column
         self.alias = str(self.value1.alias) + str(op) + str(self.value2.alias)
 
     def __repr__(self):
         return str(vars(self))
-    
+
     def process(self, expression):
         value1 = self.value1.process(expression)
         value2 = self.value2.process(expression)
@@ -62,19 +65,19 @@ class ArithmeticBinaryOperation(Expression):
                 value = round(value1.value | value2.value)
             elif operador == SymbolsAritmeticos.BITWISE_XOR:
                 value = round(value1.value ^ value2.value)
-        
             return PrimitiveData(DATA_TYPE.NUMBER, value, self.line, self.column)
         except:
             desc = "FATAL ERROR, ArithmeticBinaryOperation, no acepta ids"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    
+
 class Relop(Expression):
     '''
     Relop contiene los operadores logicos
     == != >= ...
     Devuelve un valor booleano
     '''
+
     def __init__(self, value1, operator, value2, op, line, column):
         self.value1 = value1
         self.operator = operator
@@ -93,7 +96,7 @@ class Relop(Expression):
         operator = self.operator
         try:
             value = 0
-            if isinstance(value1,PrimitiveData) and isinstance(value2, PrimitiveData):
+            if isinstance(value1, PrimitiveData) and isinstance(value2, PrimitiveData):
                 if operator == SymbolsRelop.LESS_THAN:
                     value = value1.value < value2.value
                 elif operator == SymbolsRelop.GREATE_THAN:
@@ -149,25 +152,27 @@ class Relop(Expression):
             desc = "FATAL ERROR, ni idea porque murio, F --- Relop"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+
 class Identifiers(Expression):
     def __init__(self, value, line, column):
         self.value = value
         self.line = line
         self.column = column
         self.alias = f'{self.value}'
-        
+
     def __repr__(self):
         return str(vars(self))
-    
+
     def process(self, expression):
         try:
             symbol = search_symbol(self.value)
             if symbol == None:
                 if search_duplicate_symbol(self.value, None):
-                    return PrimitiveData(DATA_TYPE.STRING,self.value, self.line, self.column)
+                    return PrimitiveData(DATA_TYPE.STRING, self.value, self.line, self.column)
                 else:
-                    SymbolTable().add(Id(self.value), self.value,'ID', None, None, self.line, self.column)
-                    return PrimitiveData(DATA_TYPE.STRING,self.value, self.line, self.column)
+                    SymbolTable().add(Id(self.value), self.value, 'ID',
+                                      None, None, self.line, self.column)
+                    return PrimitiveData(DATA_TYPE.STRING, self.value, self.line, self.column)
             else:
                 if isinstance(symbol.name, TablaSelect):
                     return PrimitiveData(DATA_TYPE.STRING, self.value, self.line, self.column)
@@ -177,12 +182,13 @@ class Identifiers(Expression):
             desc = "FATAL ERROR --- Identifiers"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
-    
+
 class ExpressionsTime(Expression):
     '''
         ExpressionsTime
     '''
-    def __init__(self, name_date, type_date, name_opt,name_date2,line, column):
+
+    def __init__(self, name_date, type_date, name_opt, name_date2, line, column):
         self.name_date = name_date
         self.type_date = type_date
         self.name_opt = name_opt
@@ -190,12 +196,11 @@ class ExpressionsTime(Expression):
         self.column = column
         self.alias = f'{name_date2}'
 
-
     def __repr__(self):
         return str(vars(self))
 
     def process(self, expression):
-        name_date =  self.name_date
+        name_date = self.name_date
         type_date = ""
         name_opt = ""
         current_time = ""
@@ -205,46 +210,80 @@ class ExpressionsTime(Expression):
             if isinstance(self.name_opt, PrimitiveData):
                 name_opt = self.name_opt.process(expression)
 
-
             if name_date == SymbolsTime.CURRENT_TIME:
                 current_time = datetime.now().strftime('%H:%M:%S')
             elif name_date == SymbolsTime.CURRENT_DATE:
                 current_time = datetime.now().strftime('%Y-%B-%A')
             elif name_date == SymbolsTime.NOW:
-                current_time = datetime.now().strftime('%Y-%B-%A  %H:%M:%S')
+                current_time = datetime.now().strftime('%Y/%m/%d  %H:%M:%S')
             elif name_date == SymbolsTime.EXTRACT:
                 if type_date.value.lower() == "YEAR".lower():
                     match = re.search('\d{4}', name_opt.value)
                     current_time = datetime.strptime(match.group(), '%Y').year
                 elif type_date.value.lower() == "MONTH".lower():
                     match = re.search('\d{4}-\d{2}-\d{2}', name_opt.value)
-                    current_time = datetime.strptime(match.group(), '%Y-%m-%d').month
+                    current_time = datetime.strptime(
+                        match.group(), '%Y-%m-%d').month
                 elif type_date.value.lower() == "DAY".lower():
                     match = re.search('\d{4}-\d{2}-\d{2}', name_opt.value)
-                    current_time = datetime.strptime(match.group(), '%Y-%m-%d').day
+                    current_time = datetime.strptime(
+                        match.group(), '%Y-%m-%d').day
                 elif type_date.value.lower() == "HOUR".lower():
                     match = re.search('\d{2}:\d{2}:\d{2}', name_opt.value)
-                    current_time = datetime.strptime(match.group(), '%H:%M:%S').hour
+                    current_time = datetime.strptime(
+                        match.group(), '%H:%M:%S').hour
                 elif type_date.value.lower() == "MINUTE".lower():
                     match = re.search('\d{2}:\d{2}:\d{2}', name_opt.value)
-                    current_time = datetime.strptime(match.group(), '%H:%M:%S').minute
+                    current_time = datetime.strptime(
+                        match.group(), '%H:%M:%S').minute
                 elif type_date.value.lower() == "SECOND".lower():
                     match = re.search('\d{2}:\d{2}:\d{2}', name_opt.value)
-                    current_time = datetime.strptime(match.group(), '%H:%M:%S').second
+                    current_time = datetime.strptime(
+                        match.group(), '%H:%M:%S').second
             elif name_date == SymbolsTime.DATE_PART:
-            # TODO Pendiente 
-                pass
+                # TODO Pendiente
+                if type_date.value.lower() == 'years':
+                    new_value = type_date.value + ",  " + name_opt.value
+                    new_value = new_value.split()
+                    current_time = new_value.index('years')
+                    current_time = new_value[current_time - 1]
+                elif type_date.value.lower() == 'months':
+                    new_value = type_date.value + ",  " + name_opt.value
+                    new_value = new_value.split()
+                    current_time = new_value.index('months')
+                    current_time = new_value[current_time - 1]
+                elif type_date.value.lower() == 'days':
+                    new_value = type_date.value + ",  " + name_opt.value
+                    new_value = new_value.split()
+                    current_time = new_value.index('days')
+                    current_time = new_value[current_time - 1]
+                elif type_date.value.lower() == 'hours':
+                    new_value = type_date.value + ",  " + name_opt.value
+                    new_value = new_value.split()
+                    current_time = new_value.index('hours')
+                    current_time = new_value[current_time - 1]
+                elif type_date.value.lower() == 'minutes':
+                    new_value = type_date.value + ",  " + name_opt.value
+                    new_value = new_value.split()
+                    current_time = new_value.index('minutes')
+                    current_time = new_value[current_time - 1]
+                elif type_date.value.lower() == 'seconds':
+                    new_value = type_date.value + ",  " + name_opt.value
+                    new_value = new_value.split()
+                    current_time = new_value.index('seconds')
+                    current_time = new_value[current_time - 1]
             elif name_date == SymbolsTime.TIMESTAMP:
                 if name_opt.value == 'now':
-                    current_time = datetime.now().strftime('%Y-%B-%A  %H:%M:%S')
+                    current_time = datetime.now().strftime('%Y/%m/%d  %H:%M:%S')
                 else:
                     time_data = self.method_for_timestamp(name_opt.value)
-                    current_time = str(datetime(time_data[0], time_data[1], time_data[2], time_data[3], time_data[4], time_data[5]))
+                    current_time = str(datetime(
+                        time_data[0], time_data[1], time_data[2], time_data[3], time_data[4], time_data[5]))
             return PrimitiveData(DATA_TYPE.STRING, current_time, self.line, self.column)
         except:
             desc = "FATAL ERROR, ExpressionsTime, error con las fechas"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
-        
+
     def method_for_timestamp(self, fecha):
         data_time = ""
         list_data_time = []
@@ -267,21 +306,21 @@ class ExpressionsTime(Expression):
         return list_data_time
 
 
-
 class UnaryOrSquareExpressions(Expression):
     '''
     UnaryOrSquareExpressions
     '''
-    def __init__(self, sign, value,line, column, sign1):
+
+    def __init__(self, sign, value, line, column, sign1):
         self.sign = sign
         self.value = value
         self.line = line
         self.column = column
         self.alias = str(sign1) + str(self.value.alias)
-    
+
     def __repr__(self):
         return str(vars(self))
-    
+
     def process(self, expression):
         expression1 = self.value.process(expression)
         type_unary_or_other = self.sign
@@ -308,7 +347,8 @@ class LogicalOperators(Expression):
     '''
         LogicalOperators
     '''
-    def __init__(self, value1, operator, value2,line, column):
+
+    def __init__(self, value1, operator, value2, line, column):
         self.value1 = value1
         self.operator = operator
         self.value2 = value2
@@ -318,7 +358,7 @@ class LogicalOperators(Expression):
 
     def __repr__(self):
         return str(vars(self))
-        
+
     def process(self, expression):
         value1 = self.value1.process(expression)
         value2 = self.value2.process(expression)
@@ -365,6 +405,10 @@ class PrimitiveData(Expression):
         self.alias = str(self.value)
         self.line = line
         self.column = column
+
+        if self.data_type == DATA_TYPE.STRING:
+            self.alias = "\'" + self.alias + "\'"
+
     def __repr__(self):
         return str(vars(self))
 

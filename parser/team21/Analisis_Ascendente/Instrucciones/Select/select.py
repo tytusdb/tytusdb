@@ -1,5 +1,5 @@
 #from Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 
 class Select(Instruccion):
     '''#1 time

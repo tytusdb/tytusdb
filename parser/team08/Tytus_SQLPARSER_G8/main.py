@@ -1,6 +1,5 @@
 import storageManager
 from tkinter import *
-
 from os import path
 from tkinter import filedialog
 
@@ -12,6 +11,7 @@ import os
 #from sintactico import ejecutar_analisis
 import reportes.RealizarReportes
 import reportes.reportesimbolos as rs
+import reportes.RealizarGramatica
 
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
@@ -62,7 +62,7 @@ class interfaz():
         self.window.configure(background="#6a8d92")
         self.window.title("Query Tool - Grupo 8")
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
-        w, h = 970,670
+        w, h = 1370,670
         self.window.geometry("%dx%d+0+0" % (w, h))
         
         ##############################################MENU####################################
@@ -78,6 +78,7 @@ class interfaz():
         mnreportes.add_command(label='Tabla de Errores', command=self.tblerrores_click)
         mnreportes.add_command(label='Tabla de Simbolos', command=self.tblsimbolos_click)
         mnreportes.add_command(label='AST', command=self.ast_click)
+        mnreportes.add_command(label='Reporte Gramatical', command=self.repDin_click)
         menu.add_cascade(label='Reportes', menu=mnreportes)
         self.window.config(menu=menu)
 
@@ -132,7 +133,7 @@ class interfaz():
     ##############################################EVENTOS DE LOS BOTONES DEL MENU####################################
     def abrir_click(self):
         try:
-            self.file = filedialog.askopenfilename(initialdir= path.dirname(__file__))
+            self.file = filedialog.askopenfilename(initialdir= os.path.dirname(__file__))
             archivo=open(self.file,"r")
             entrada=archivo.read()
             archivo.close()
@@ -168,14 +169,21 @@ class interfaz():
     def tblsimbolos_click(self):
         # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
         global arbol
-        rs.crear_tabla(arbol)           
+        rs.crear_tabla(arbol)  
+        arbol = None         
 
     def ast_click(self):
         print("ast")   
+    
+    def repDin_click(self):
+        global arbol
+        reportes.RealizarGramatica.RealizarGramatica.generar_reporte_gamatical(arbol.lRepDin)
+        arbol = None
 
     ##############################################EVENTOS DE LOS BOTONES DEL FRAME####################################
     def btnanalizar_click(self):
         global arbol
+        arbol = None
         dropAll()
         os.system ("cls")
         #Elimina el Contenido de txtsalida
@@ -193,6 +201,10 @@ class interfaz():
             messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico.lista_lexicos)
         # Ciclo que recorrerá todas las instrucciones almacenadas por la gramática.
+        arbol.lRepDin.append("<init> ::= <instrucciones>")
+        arbol.lRepDin.append("<instrucciones>   ::=  <instrucciones> <instruccion>")
+        arbol.lRepDin.append("<instrucciones> ::= <instruccion>")
+        
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
             resultado = i.ejecutar(tablaGlobal,arbol)
@@ -204,6 +216,10 @@ class interfaz():
         for m in arbol.consola:
             mensaje += m + '\n'
         self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+        
+        
+
+        
 
 
     def btnejecutar_click(self):
@@ -215,12 +231,12 @@ class interfaz():
         self.tab_frame[-1].pack(fill='both', expand=1)
         self.tab_frame[-1].config(bd=5)
         self.tab.add(self.tab_frame[-1],text=nombre)
-        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=112,height=15))
+        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15))
         self.txtentrada[-1].place(x=0,y=25)
         self.txtentrada[-1].insert(INSERT,entrada+"")
         #self.txtentrada[-1].bind("<MouseWheel>", self.OnMouseWheel)
 
-        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=112,height=15,background="#070707",foreground="#FEFDFD"))
+        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15,background="#070707",foreground="#FEFDFD"))
         self.txtsalida[-1].place(x=0,y=298)
         #nombre del archivo
         #print(self.tab.tab(self.tab.select(),"text"))

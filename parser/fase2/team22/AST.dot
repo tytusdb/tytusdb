@@ -1,0 +1,6 @@
+digraph G{
+edge [color=black]; rankdir = TB;
+Nodo0[label="INICIO"]
+Nodo1[label="Instrucciones"]
+Nodo0 -> Nodo1;
+}

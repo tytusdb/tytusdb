@@ -1,0 +1,34 @@
+digraph G {
+node [shape=plaintext]
+ a [label=<<table border="0" cellborder="1" cellspacing="0">
+<tr><td><b>"indice"</b></td><td>"operacion"</td><td>"operador1"</td><td>"operador2"</td></tr>
+<tr><td><b>"0"</b></td><td>"="</td><td>"TABLA"</td><td>""""</td></tr>
+<tr><td><b>"1"</b></td><td>"="</td><td>"CANTIDAD"</td><td>"0"</td></tr>
+<tr><td><b>"2"</b></td><td>"="</td><td>"RESULTADO"</td><td>"0"</td></tr>
+<tr><td><b>"3"</b></td><td>"="</td><td>"RETORNA"</td><td>"0"</td></tr>
+<tr><td><b>"4"</b></td><td>"="</td><td>"CANTIDAD"</td><td>"RESULTADO"</td></tr>
+<tr><td><b>"5"</b></td><td>"if"</td><td>"4"</td><td>"7"</td></tr>
+<tr><td><b>"6"</b></td><td>"label"</td><td>"L1"</td><td>"10"</td></tr>
+<tr><td><b>"7"</b></td><td>"*"</td><td>"VALORES"</td><td>"8"</td></tr>
+<tr><td><b>"8"</b></td><td>"-"</td><td>"7"</td><td>"5"</td></tr>
+<tr><td><b>"9"</b></td><td>"="</td><td>"ID4"</td><td>"t2"</td></tr>
+<tr><td><b>"10"</b></td><td>"="</td><td>"CANTIDAD"</td><td>"RESULTADO"</td></tr>
+<tr><td><b>"11"</b></td><td>"if"</td><td>"10"</td><td>"13"</td></tr>
+<tr><td><b>"12"</b></td><td>"label"</td><td>"L3"</td><td>"16"</td></tr>
+<tr><td><b>"13"</b></td><td>"*"</td><td>"VALORES"</td><td>"8"</td></tr>
+<tr><td><b>"14"</b></td><td>"-"</td><td>"13"</td><td>"5"</td></tr>
+<tr><td><b>"15"</b></td><td>"="</td><td>"ID5"</td><td>"t5"</td></tr>
+<tr><td><b>"16"</b></td><td>"="</td><td>"VARLORES"</td><td>"'ALGO'"</td></tr>
+<tr><td><b>"17"</b></td><td>"="</td><td>"CANTIDAD"</td><td>"8"</td></tr>
+<tr><td><b>"18"</b></td><td>"if"</td><td>"17"</td><td>"20"</td></tr>
+<tr><td><b>"19"</b></td><td>"label"</td><td>"L5"</td><td>"21"</td></tr>
+<tr><td><b>"20"</b></td><td>"="</td><td>"IDO"</td><td>"VARLORES"</td></tr>
+<tr><td><b>"21"</b></td><td>"="</td><td>"VAR"</td><td>"'PRUEBA'"</td></tr>
+<tr><td><b>"22"</b></td><td>"if"</td><td>"21"</td><td>"24"</td></tr>
+<tr><td><b>"23"</b></td><td>"label"</td><td>"L7"</td><td>"26"</td></tr>
+<tr><td><b>"24"</b></td><td>"*"</td><td>"7"</td><td>"3"</td></tr>
+<tr><td><b>"25"</b></td><td>"="</td><td>"IDS5"</td><td>"t8"</td></tr>
+<tr><td><b>"26"</b></td><td>"="</td><td>"VAR2"</td><td>"'GANAR'"</td></tr>
+<tr><td><b>"27"</b></td><td>"RETURN"</td><td>"return"</td><td>"RETORNA"</td></tr>
+</table>>];
+}

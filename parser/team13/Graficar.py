@@ -324,7 +324,7 @@ t_ptComa = r';'
 t_barra = r'\|'
 t_barraDoble = r'\|\|'
 t_amp = r'&'
-t_numeral = r'\#'
+t_numeral = r'\?'
 t_virgulilla = r'~'
 t_mayormayor = r'>>'
 t_menormenor = r'<<'
@@ -519,7 +519,7 @@ def p_USEDB(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     #lista.append("<USEDB> :: = <"+str(t[1].Etiqueta)+"> <"+str(t[2].Etiqueta)+"> <"+str(t[3].Etiqueta)+"> <tk_ptComa>" ) 
         
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -537,7 +537,7 @@ def p_crearBase1(t):
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo2)
     t[0].AddHijos(t[3])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
         
         
 def p_crearBase2(t):
@@ -559,7 +559,7 @@ def p_crearBase2(t):
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo5)
     t[0].AddHijos(t[6])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_crearBase3(t):
     '''CrearBase : create database E mode igual entero ptComa'''
@@ -582,7 +582,7 @@ def p_crearBase3(t):
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo5)
     t[0].AddHijos(nodo6)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
             
         
 def p_crearBase4(t):
@@ -613,7 +613,7 @@ def p_crearBase4(t):
     t[0].AddHijos(nodo7)
     t[0].AddHijos(nodo8)
     t[0].AddHijos(nodo9)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_crearBase5(t):
     '''CrearBase :  create or replace database E ptComa'''
@@ -633,7 +633,7 @@ def p_crearBase5(t):
     t[0].AddHijos(nodo3)
     t[0].AddHijos(nodo4)
     t[0].AddHijos(t[5])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_crearBase6(t):
     '''CrearBase : create or replace database E owner igual E ptComa'''
@@ -660,7 +660,7 @@ def p_crearBase6(t):
     t[0].AddHijos(nodo6)
     t[0].AddHijos(nodo7)
     t[0].AddHijos(t[8])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
      
 
 def p_crearBase7(t):
@@ -690,7 +690,7 @@ def p_crearBase7(t):
     t[0].AddHijos(nodo6)
     t[0].AddHijos(nodo7)
     t[0].AddHijos(nodo8)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_crearBase8(t):
     '''CrearBase : create or replace database E owner igual E mode igual entero ptComa'''
@@ -727,7 +727,7 @@ def p_crearBase8(t):
     t[0].AddHijos(nodo9)
     t[0].AddHijos(nodo10)
     t[0].AddHijos(nodo11)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
       
 def p_crearBase9(t):
@@ -752,7 +752,7 @@ def p_crearBase9(t):
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo5)
     t[0].AddHijos(t[6])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_crearBase10(t):
     '''CrearBase : create database if not exists E owner igual E ptComa'''
@@ -783,7 +783,7 @@ def p_crearBase10(t):
     t[0].AddHijos(nodo7)
     t[0].AddHijos(nodo8)
     t[0].AddHijos(t[9])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
              
 def p_crearBase11(t):
     '''CrearBase : create database if not exists E mode igual entero ptComa'''
@@ -816,7 +816,7 @@ def p_crearBase11(t):
     t[0].AddHijos(nodo7)
     t[0].AddHijos(nodo8)
     t[0].AddHijos(nodo9)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
                    
  
 def p_crearBase12(t):
@@ -857,7 +857,7 @@ def p_crearBase12(t):
     t[0].AddHijos(nodo10)
     t[0].AddHijos(nodo11)
     t[0].AddHijos(nodo12)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 def p_showBase1(t):
@@ -873,7 +873,7 @@ def p_showBase1(t):
     nodo.AddHijos(nodo1)
     nodo.AddHijos(nodo2)
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_showBase2(t):
     '''ShowBase : show databases like cadenaLike ptComa'''
@@ -893,7 +893,7 @@ def p_showBase2(t):
     nodo.AddHijos(nodo3)
     nodo.AddHijos(nodo4)
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
       
 
 
@@ -923,7 +923,7 @@ def p_AlterBase(t):
     nodo.AddHijos(nodo5)
     nodo.AddHijos(nodo6)
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_AlterBase1(t):
     '''AlterBase : alter database E owner tTo id ptComa
@@ -948,7 +948,7 @@ def p_AlterBase1(t):
     nodo.AddHijos(nodo5)
     nodo.AddHijos(nodo6)
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
        
 def p_AlterBase2(t):
     '''AlterBase : alter database E owner tTo currentuser ptComa
@@ -973,7 +973,7 @@ def p_AlterBase2(t):
     nodo.AddHijos(nodo5)
     nodo.AddHijos(nodo6)
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_AlterBase3(t):
     '''AlterBase : alter database E owner tTo sessionuser ptComa
@@ -999,7 +999,7 @@ def p_AlterBase3(t):
     nodo.AddHijos(nodo5)
     nodo.AddHijos(nodo6)
     t[0] = nodo    
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 def p_DropBase(t):
@@ -1015,7 +1015,7 @@ def p_DropBase(t):
     nodo.AddHijos(nodo2)
     nodo.AddHijos(t[3])
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_DropBase1(t):
     '''DropBase : drop database if exists id ptComa'''
@@ -1038,7 +1038,7 @@ def p_DropBase1(t):
     nodo.AddHijos(nodo4)
     nodo.AddHijos(nodo5)
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 
@@ -1067,7 +1067,7 @@ def p_EnumType2(t):
     nodo.AddHijos(nodo5)
     nodo.AddHijos(t[7])
     t[0] = nodo      
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -1091,7 +1091,7 @@ def p_produccion0(t):
     nodo.AddHijos(t[4])    
     nodo.AddHijos(t[5]) 
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 # PRODUCCIÓN PARA HACER UN DELETE
 def p_produccion0_1(t):
@@ -1110,7 +1110,7 @@ def p_produccion0_1(t):
     nodo.AddHijos(nodo3)
     nodo.AddHijos(t[4])
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 # CONDICIÓN QUE PUEDE O NO VENIR DENTRO DE UN DELETE
 # /////////////////////////////////MODIFIQUE LA  GRAMATICA////////////////////////////
@@ -1130,7 +1130,7 @@ def p_produccion0_2(t):
     nodo.AddHijos(nodo2)
     nodo.AddHijos(nodo3)
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
  
 
@@ -1145,7 +1145,7 @@ def p_produccion1_0(t):
     nodo.AddHijos(nodo1)
     nodo.AddHijos(t[2])
     t[0] = nodo
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 # PRODUCCIÓN PARA UNA LISTA DE IDENTIFICADORES
@@ -1157,7 +1157,7 @@ def p_produccion1_1(t):
     nod =  Node("id", t[3],cont,t.lineno(3) ,t.lexpos(3))  
     cont = cont+1
     t[0].AddHijos(nod)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
      
 
 def p_produccion1_2(t):
@@ -1168,7 +1168,7 @@ def p_produccion1_2(t):
     nod =  Node("id", t[1],cont,t.lineno(1) ,t.lexpos(1))  
     cont = cont+1
     t[0].AddHijos(nod)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
      
 
 # PRODUCCIÓN PARA UNA LISTA DE ASIGNACIONES: id1 = 2, id2 = 3, id3, = 'Hola', etc...
@@ -1182,7 +1182,7 @@ def p_produccion1(t):
     nodo2 = Node("igual",t[4],cont,t.lineno(4) ,t.lexpos(4))
     cont  = cont+1
     t[0].AddHijos(t[5])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 def p_produccion2(t):
     ''' L_ASIGN : id igual E '''
@@ -1194,7 +1194,7 @@ def p_produccion2(t):
     nodo2 = Node("igual",t[2],cont,t.lineno(2) ,t.lexpos(2))
     cont  = cont+1
     t[0].AddHijos(t[3])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< ARIEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -1215,7 +1215,7 @@ def p_EXPR_CREATE_TABLE1(t):
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
     t[0].AddHijos(t[5])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 def p_EXPR_CREATE_TABLE2(t):
@@ -1239,7 +1239,7 @@ def p_EXPR_CREATE_TABLE2(t):
     t[0].AddHijos(t[5])
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo5)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
         
 
 
@@ -1253,7 +1253,7 @@ def p_EXPR_COLUMNS(t):
     global cont
     t[0] = t[1]
     t[0].AddHijos(t[3])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
      
 def p_EXPR_COLUMNS1(t):
     '''COLUMNS : ASSIGNS
@@ -1262,7 +1262,7 @@ def p_EXPR_COLUMNS1(t):
     t[0]  = Node("COLUMNS","",cont,0,0)
     cont  = cont+1
     t[0].AddHijos(t[1])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 
@@ -1276,7 +1276,7 @@ def p_EXPR_ASSIGNS(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(t[2])     
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 def p_EXPR_ASSIGNS2(t):
     '''ASSIGNS : id TIPO OPCIONALES '''
@@ -1288,7 +1288,7 @@ def p_EXPR_ASSIGNS2(t):
     t[0].AddHijos(nodo1)
     t[0].AddHijos(t[2])
     t[0].AddHijos(t[3])     
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_ASSIGN3(t):
@@ -1300,7 +1300,7 @@ def p_EXPR_ASSIGN3(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(t[2])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
      
 
 def p_EXPR_ASSIGNS4(t):
@@ -1318,7 +1318,7 @@ def p_EXPR_ASSIGNS4(t):
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
     t[0].AddHijos(t[4])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
      
 
 def p_EXPR_ASSIGNS5(t):
@@ -1330,7 +1330,7 @@ def p_EXPR_ASSIGNS5(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(t[3])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_ASSIGNS6(t):
@@ -1345,7 +1345,7 @@ def p_EXPR_ASSIGNS6(t):
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo2)
     t[0].AddHijos(t[4])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
      
 
 def p_EXPR_ASSIGNS7(t):
@@ -1367,7 +1367,7 @@ def p_EXPR_ASSIGNS7(t):
     t[0].AddHijos(nodo3)
     t[0].AddHijos(nodo4)
     t[0].AddHijos(t[9])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_ASSIGNS8(t):
@@ -1395,7 +1395,7 @@ def p_EXPR_ASSIGNS8(t):
     t[0].AddHijos(nodo8)
     t[0].AddHijos(nodo9)
     t[0].AddHijos(t[11])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 
@@ -1405,7 +1405,7 @@ def p_EXPR_OPCIONALES(t):
     global cont
     t[0] = t[1]
     t[0].AddHijos(t[2])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
         
 
 def p_EXPR_OPCIONALES1(t):
@@ -1414,7 +1414,7 @@ def p_EXPR_OPCIONALES1(t):
     t[0]  = Node("OPCIONALES","",cont,0,0)
     cont  = cont+1
     t[0].AddHijos(t[1])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 def p_EXPR_OPCION(t):
     '''OPCION : tDefault E'''
@@ -1425,7 +1425,7 @@ def p_EXPR_OPCION(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(t[2])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
       
 
 def p_EXPR_OPCION1(t):
@@ -1439,7 +1439,7 @@ def p_EXPR_OPCION1(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_OPCION2(t):
@@ -1453,7 +1453,7 @@ def p_EXPR_OPCION2(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_OPCION3(t):
@@ -1464,7 +1464,7 @@ def p_EXPR_OPCION3(t):
     nodo1 = Node("null", t[1],cont,t.lineno(1) ,t.lexpos(1))
     cont  = cont+1
     t[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_OPCION4(t):
@@ -1475,7 +1475,7 @@ def p_EXPR_OPCION4(t):
     nodo1 = Node("tUnique", t[1],cont,t.lineno(1) ,t.lexpos(1))
     cont  = cont+1
     t[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_OPCION5(t):
@@ -1487,7 +1487,7 @@ def p_EXPR_OPCION5(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(t[2])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_OPCION6(t):
@@ -1504,7 +1504,7 @@ def p_EXPR_OPCION6(t):
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_OPCION7(t):
@@ -1522,7 +1522,7 @@ def p_EXPR_OPCION7(t):
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
     t[0].AddHijos(t[4])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_COLS(t):
@@ -1530,7 +1530,7 @@ def p_EXPR_COLS(t):
     global cont
     t[0] = t[1]
     t[0].AddHijos(t[3])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
         
  
 def p_EXPR_COLS1(t):
@@ -1539,7 +1539,7 @@ def p_EXPR_COLS1(t):
     t[0]  = Node("COLS","",cont,0,0)
     cont  = cont+1
     t[0].AddHijos(t[1])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 def p_EXPR_TIPO(t):
     '''TIPO : NUMERIC_TYPES
@@ -1566,7 +1566,7 @@ def p_EXPR_NUMERIC_TYPES(t):
     nodo1 = Node("t"+str(t[1]), t[1],cont,t.lineno(1) ,t.lexpos(1))
     cont  = cont+1
     t[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 
@@ -1582,7 +1582,7 @@ def p_EXPR_CHAR_TYPES1(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(entero)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_EXPR_CHAR_TYPES2(t):
     '''CHAR_TYPES : tCharacter tVarying parAbre entero parCierra
@@ -1599,7 +1599,7 @@ def p_EXPR_CHAR_TYPES2(t):
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo2)
     t[0].AddHijos(entero)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_EXPR_CHAR_TYPES3(t):
     '''CHAR_TYPES : tCharacter parAbre entero parCierra
@@ -1613,7 +1613,7 @@ def p_EXPR_CHAR_TYPES3(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(entero)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_EXPR_CHAR_TYPES4(t):
     '''CHAR_TYPES : tChar parAbre entero parCierra
@@ -1627,7 +1627,7 @@ def p_EXPR_CHAR_TYPES4(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(entero)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_EXPR_CHAR_TYPES5(t):
     '''CHAR_TYPES : tText'''
@@ -1637,7 +1637,7 @@ def p_EXPR_CHAR_TYPES5(t):
     nodo1 = Node("tText", t[1],cont,t.lineno(1) ,t.lexpos(1))
     cont  = cont+1
     t[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
       
 
 
@@ -1653,7 +1653,7 @@ def p_EXPR_DATE_TYPES(t):
     nodo1 = Node("t"+str(t[1]), t[1],cont,t.lineno(1) ,t.lexpos(1))
     cont  = cont+1
     t[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 def p_EXPR_DATE_TYPES1(t):
     '''DATE_TYPES : tInterval FIELDS
@@ -1665,7 +1665,7 @@ def p_EXPR_DATE_TYPES1(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(t[2])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_BOOL_TYPES(t):
@@ -1676,7 +1676,7 @@ def p_EXPR_BOOL_TYPES(t):
     nodo1 = Node("tBoolean", t[1],cont,t.lineno(1) ,t.lexpos(1))
     cont  = cont+1
     t[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
      
 def p_EXPR_FIELDS(t):
     '''FIELDS : tYear
@@ -1691,7 +1691,7 @@ def p_EXPR_FIELDS(t):
     nodo1 = Node("t"+str(t[1]), t[1],cont,t.lineno(1) ,t.lexpos(1))
     cont  = cont+1
     t[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
       
 
 def p_EXPR_SHOW_TABLE(t):
@@ -1705,7 +1705,7 @@ def p_EXPR_SHOW_TABLE(t):
     cont  = cont+1
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
      
 
 def p_EXPR_DROP_TABLE(t):
@@ -1723,7 +1723,7 @@ def p_EXPR_DROP_TABLE(t):
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_EXPR_ALTER_TABLE1(t):
     '''ALTER_TABLE : alter table id rename tColumn id tTo id ptComa
@@ -1755,7 +1755,7 @@ def p_EXPR_ALTER_TABLE1(t):
     t[0].AddHijos(nodo6)
     t[0].AddHijos(nodo7)
     t[0].AddHijos(nodo8)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
      
 
 def p_EXPR_ALTER_TABLE2(t):
@@ -1774,7 +1774,7 @@ def p_EXPR_ALTER_TABLE2(t):
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
     t[0].AddHijos(t[4])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_EXPR_ALTER_TABLE3(t):
@@ -1792,7 +1792,7 @@ def p_EXPR_ALTER_TABLE3(t):
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
     t[0].AddHijos(t[4])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_EXPR_ALTER_TABLE4(t):
     '''ALTER_TABLE : alter table id add tCheck E ptComa
@@ -1816,7 +1816,7 @@ def p_EXPR_ALTER_TABLE4(t):
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo5)
     t[0].AddHijos(t[6])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 def p_EXPR_ALTER_TABLE5(t):
@@ -1847,7 +1847,7 @@ def p_EXPR_ALTER_TABLE5(t):
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo5)
     t[0].AddHijos(nodo8)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
                 
 
 def p_EXPR_ALTER_TABLE6(t):
@@ -1884,7 +1884,7 @@ def p_EXPR_ALTER_TABLE6(t):
     t[0].AddHijos(nodo8)
     t[0].AddHijos(nodo9)
     t[0].AddHijos(t[13])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 def p_EXPR_ALTER_TABLE7(t):
@@ -1911,7 +1911,7 @@ def p_EXPR_ALTER_TABLE7(t):
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo5)
     t[0].AddHijos(nodo6)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 # ***********************nuevo Gramatica*********************
 
@@ -1930,7 +1930,7 @@ def p_EXPR_ALTER_TABLE8(t):
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
     t[0].AddHijos(t[4])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
      
 
 
@@ -1958,7 +1958,7 @@ def p_EXPR_ALTER_TABLE9(t):
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo7)
     t[0].AddHijos(nodo8)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 def p_EXPR_ALTER_TABLE10(t):
@@ -1989,7 +1989,7 @@ def p_EXPR_ALTER_TABLE10(t):
     t[0].AddHijos(nodo6)
     t[0].AddHijos(nodo7)
     t[0].AddHijos(t[8])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 def p_EXPR_ALTER_TABLE11(t):
@@ -2028,7 +2028,7 @@ def p_EXPR_ALTER_TABLE11(t):
     t[0].AddHijos(nodo12)
     t[0].AddHijos(nodo13)
     t[0].AddHijos(t[15])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
                 
 
 
@@ -2036,7 +2036,7 @@ def p_LDropColumn(t):
     ''' LDColumn : LDColumn coma LDCol'''
     t[0]  = t[1] 
     t[0].AddHijos(t[3])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_LDropColumn1(t):
@@ -2045,7 +2045,7 @@ def p_LDropColumn1(t):
     t[0]  = Node("LDColumn","",cont,0,0)
     cont  = cont+1
     t[0].AddHijos(t[1])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_LDCol(t):
@@ -2062,14 +2062,14 @@ def p_LDCol(t):
     t[0].AddHijos(nodo1)
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_LAddColumn(t):
     ''' LColumn : LColumn coma LCol'''
     t[0]  = t[1] 
     t[0].AddHijos(t[3])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 def p_LAddColumn1(t):
     ''' LColumn : LCol '''
@@ -2077,7 +2077,7 @@ def p_LAddColumn1(t):
     t[0]  = Node("LColumn","",cont,0,0)
     cont  = cont+1
     t[0].AddHijos(t[1])
-    lista.append(str(recorrerGramatica(t[0],0))) 
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
     
 
 def p_LCol(t):
@@ -2095,7 +2095,7 @@ def p_LCol(t):
     t[0].AddHijos(nodo2)
     t[0].AddHijos(nodo3)
     t[0].AddHijos(t[4])  
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 
@@ -2129,7 +2129,7 @@ def p_EXPR_ALTER(t):
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo5)
     t[0].AddHijos(nodo6)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
     
 def p_EXPR_ALTER1(t):
@@ -2152,7 +2152,7 @@ def p_EXPR_ALTER1(t):
     t[0].AddHijos(nodo3)
     t[0].AddHijos(nodo4)
     t[0].AddHijos(t[7])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 
@@ -2179,7 +2179,7 @@ def p_EXPR_ALTER2(t):
     t[0].AddHijos(nodo3)
     t[0].AddHijos(nodo4)
     t[0].AddHijos(t[5])
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_EXPR_ALTER3(t):
     '''EXPR_ALTER : alter tColumn id tSet not null ptComa
@@ -2205,7 +2205,7 @@ def p_EXPR_ALTER3(t):
     t[0].AddHijos(nodo4)
     t[0].AddHijos(nodo5)
     t[0].AddHijos(nodo6)
-    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(t[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< FRANCISCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -2229,7 +2229,7 @@ def p_INSERT(p):
     p[0].AddHijos(nodo3)
     p[0].AddHijos(nodo4)
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(p[0],0))+"<tk_puntoComa>"+"\n") 
     
 def p_INSERT1(p):
     ''' INSERT :  insert into id  parAbre LISTA_EXP parCierra values parAbre LISTA_EXP parCierra ptComa   '''
@@ -2250,7 +2250,7 @@ def p_INSERT1(p):
     p[0].AddHijos(p[5])
     p[0].AddHijos(nodo4)
     p[0].AddHijos(p[9])
-    lista.append(str(recorrerGramatica(p[0],0))+"<tk_puntoComa>") 
+    lista.append(str(recorrerGramatica(p[0],0))+"<tk_puntoComa>"+"\n") 
     
 
 def p_LISTA_EXP1(p):
@@ -2259,7 +2259,7 @@ def p_LISTA_EXP1(p):
     global cont
     p[0] = p[1]
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
     
  
 def p_LISTA_EXP2(p):
@@ -2269,7 +2269,7 @@ def p_LISTA_EXP2(p):
     p[0]  = Node("E_FUNC","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
      
     
     
@@ -2302,9 +2302,9 @@ def p_E(p):
          p[0].AddHijos(p[1])
          p[0].AddHijos(nodo1)
          p[0].AddHijos(p[3])
-         lista.append(str(recorrerGramatica(p[0],0))) 
+         lista.append(str(recorrerGramatica(p[0],0))+"\n") 
               
-    elif p[2].lower() == "and":
+    elif p[2].lower() == "and": 
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
            nodo1 = Node("and",p[2],cont,p.lineno(2) ,p.lexpos(2))
@@ -2312,7 +2312,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0))) 
+           lista.append(str(recorrerGramatica(p[0],0))+"\n") 
        
     elif p[2] == "<>":
            p[0]  = Node("E","",cont,0,0)
@@ -2322,7 +2322,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0))) 
+           lista.append(str(recorrerGramatica(p[0],0))+"\n") 
     
     elif p[2] == "!=":
            p[0]  = Node("E","",cont,0,0)
@@ -2332,7 +2332,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0))) 
+           lista.append(str(recorrerGramatica(p[0],0))+"\n") 
     
     elif p[2] == "=":
            p[0]  = Node("E","",cont,0,0)
@@ -2342,7 +2342,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0))) 
+           lista.append(str(recorrerGramatica(p[0],0))+"\n") 
     
     elif p[2] == ">": 
            p[0]  = Node("E","",cont,0,0)
@@ -2352,7 +2352,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == "<":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2361,7 +2361,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == ">=":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2370,7 +2370,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == "<=":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2379,7 +2379,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3]) 
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == "+":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2388,7 +2388,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == "-":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2397,7 +2397,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == "*":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2406,7 +2406,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == "/":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2415,7 +2415,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == "%":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2424,7 +2424,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == "**":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2433,7 +2433,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
     elif p[2] == ".":
            p[0]  = Node("E","",cont,0,0)
            cont  = cont+1
@@ -2442,7 +2442,7 @@ def p_E(p):
            p[0].AddHijos(p[1])
            p[0].AddHijos(nodo1)
            p[0].AddHijos(p[3])
-           lista.append(str(recorrerGramatica(p[0],0)))
+           lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_OpNot(p):
     ''' E : not E '''
@@ -2453,7 +2453,7 @@ def p_OpNot(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
    
 def p_OpNegativo(p):
     ''' E : menos E %prec umenos '''
@@ -2464,12 +2464,12 @@ def p_OpNegativo(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 def p_OpParentesis(p):
     ''' E : parAbre E parCierra  '''
     p[0] = p[2]
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_entero(p):
     ''' E : entero    
@@ -2480,7 +2480,7 @@ def p_entero(p):
     nodo1 = Node("entero",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))   
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")   
  
 
 def p_decimal(p):
@@ -2492,7 +2492,7 @@ def p_decimal(p):
     nodo1 = Node("decimal",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_cadena(p):
     ''' E : cadena    
@@ -2503,7 +2503,7 @@ def p_cadena(p):
     nodo1 = Node("cadena",str(p[1]),cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
     
 def p_id(p):
     ''' E : id    
@@ -2514,7 +2514,7 @@ def p_id(p):
     nodo1 = Node("id",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
    
 def p_fecha(p):
     ''' E : fecha    
@@ -2525,7 +2525,7 @@ def p_fecha(p):
     nodo1 = Node("fecha",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 def p_hora(p):
     ''' E : hora    
@@ -2536,7 +2536,7 @@ def p_hora(p):
     nodo1 = Node("hora",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_fecha_hora(p):
     ''' E : fecha_hora    
@@ -2547,7 +2547,7 @@ def p_fecha_hora(p):
     nodo1 = Node("fecha_hora",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_booleano(p):
     '''E  : yes
@@ -2563,7 +2563,7 @@ def p_booleano(p):
     nodo1 = Node(str(p[1]),p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_Intervaloc(p):   
     ''' E : intervaloc    
@@ -2574,7 +2574,7 @@ def p_Intervaloc(p):
     nodo1 = Node("intervaloc",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -2587,7 +2587,7 @@ def p_QUERY1(p):
     p[0]  = Node("QUERY","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0)))      
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")      
 def p_QUERY2(p):
     '''QUERY : EXPR_SELECT EXPR_FROM 
     '''
@@ -2596,7 +2596,7 @@ def p_QUERY2(p):
     cont  = cont+1
     p[0].AddHijos(p[1])
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 def p_QUERY3(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT 
@@ -2611,7 +2611,7 @@ def p_QUERY3(p):
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[6])
     p[0].AddHijos(p[7])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
     #LEN 4     #select, ffrom, where, groupby, having, orderby, limit
 def p_QUERY_p4_1(p):
@@ -2622,7 +2622,7 @@ def p_QUERY_p4_1(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_QUERY_p4_2(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_LIMIT''' 
     global cont
@@ -2631,7 +2631,7 @@ def p_QUERY_p4_2(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_QUERY_p4_3(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE''' 
     global cont
@@ -2640,7 +2640,7 @@ def p_QUERY_p4_3(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p4_4(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING''' 
@@ -2650,7 +2650,7 @@ def p_QUERY_p4_4(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p4_5(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY''' 
@@ -2660,7 +2660,7 @@ def p_QUERY_p4_5(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     #LEN 5     #select, ffrom, where, groupby, having, orderby, limit
 def p_QUERY_p5_1(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_ORDERBY EXPR_LIMIT''' 
@@ -2671,7 +2671,7 @@ def p_QUERY_p5_1(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_QUERY_p5_2(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY ''' 
     global cont
@@ -2681,7 +2681,7 @@ def p_QUERY_p5_2(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_QUERY_p5_3(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_LIMIT''' 
     global cont
@@ -2691,7 +2691,7 @@ def p_QUERY_p5_3(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p5_4(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY''' 
@@ -2702,7 +2702,7 @@ def p_QUERY_p5_4(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_QUERY_p5_5(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_LIMIT''' 
     global cont
@@ -2712,7 +2712,7 @@ def p_QUERY_p5_5(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p5_6(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY ''' 
@@ -2723,7 +2723,7 @@ def p_QUERY_p5_6(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p5_7(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING''' 
@@ -2734,7 +2734,7 @@ def p_QUERY_p5_7(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p5_8(p):
     '''QUERY :  EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_LIMIT''' 
@@ -2745,7 +2745,7 @@ def p_QUERY_p5_8(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p5_9(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY''' 
@@ -2756,7 +2756,7 @@ def p_QUERY_p5_9(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p5_10(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING''' 
@@ -2767,7 +2767,7 @@ def p_QUERY_p5_10(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
  #LEN 6     #select, ffrom, where, groupby, having, orderby, limit
 def p_QUERY_p6_1(p):
@@ -2780,7 +2780,7 @@ def p_QUERY_p6_1(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_QUERY_p6_2(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_ORDERBY '''
     global cont
@@ -2791,7 +2791,7 @@ def p_QUERY_p6_2(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p6_3(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_LIMIT '''
@@ -2803,7 +2803,7 @@ def p_QUERY_p6_3(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p6_4(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING '''
@@ -2815,7 +2815,7 @@ def p_QUERY_p6_4(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p6_5(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY EXPR_LIMIT '''
@@ -2827,7 +2827,7 @@ def p_QUERY_p6_5(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_QUERY_p6_6(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT '''
     global cont
@@ -2838,7 +2838,7 @@ def p_QUERY_p6_6(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p6_7(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY '''
@@ -2850,7 +2850,7 @@ def p_QUERY_p6_7(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p6_8(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT'''
@@ -2862,7 +2862,7 @@ def p_QUERY_p6_8(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p6_9(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_LIMIT'''
@@ -2874,7 +2874,7 @@ def p_QUERY_p6_9(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p6_10(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY'''
@@ -2886,7 +2886,7 @@ def p_QUERY_p6_10(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
  #LEN 7     #select, ffrom, where, groupby, having, orderby, limit
 def p_QUERY_p7_1(p):
@@ -2900,7 +2900,7 @@ def p_QUERY_p7_1(p):
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p7_2(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT'''
@@ -2913,7 +2913,7 @@ def p_QUERY_p7_2(p):
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p7_3(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY'''
@@ -2926,7 +2926,7 @@ def p_QUERY_p7_3(p):
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p7_4(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT'''
@@ -2939,7 +2939,7 @@ def p_QUERY_p7_4(p):
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_QUERY_p7_5(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT'''
@@ -2952,7 +2952,7 @@ def p_QUERY_p7_5(p):
     p[0].AddHijos(p[4])
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_SELECT(p):
     '''EXPR_SELECT : select multi
@@ -2966,7 +2966,7 @@ def p_EXPR_SELECT(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_SELECT1(p):
     '''EXPR_SELECT : select distinct EXPR_COLUMNAS''' 
@@ -2980,7 +2980,7 @@ def p_EXPR_SELECT1(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 
 
@@ -2994,14 +2994,14 @@ def p_EXPR_SELECT_C(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))     
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")     
     
 # todos los parametros de select - columnas
 def p_EXPR_COLUMNAS(p):
     '''EXPR_COLUMNAS : EXPR_COLUMNAS coma EXPR_COLUMNAS1'''
     p[0]=p[1]
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))     
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")     
 
 def p_LISTA_EXPR_COLUMNAS(p):
     '''EXPR_COLUMNAS : EXPR_COLUMNAS1'''
@@ -3009,7 +3009,7 @@ def p_LISTA_EXPR_COLUMNAS(p):
     p[0]  = Node("EXPR_COLUMNAS","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 #LEN 1 y 3
 def p_EXPR_COLUMNAS1(p):
@@ -3026,7 +3026,7 @@ def p_EXPR_COLUMNAS1(p):
     p[0]  = Node("EXPR_COLUMNAS1","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 def p_EXPR_COLUMNAS2(p):
@@ -3046,7 +3046,7 @@ def p_EXPR_COLUMNAS2(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodoas)
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 def p_EXPR_COLUMNAS3(p):
     '''EXPR_COLUMNAS1 : EXPR_AGREGACION  E
@@ -3062,7 +3062,7 @@ def p_EXPR_COLUMNAS3(p):
     cont  = cont+1
     p[0].AddHijos(p[1])
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 def p_EXPR_COLUMNAS4(p):
@@ -3077,7 +3077,7 @@ def p_EXPR_COLUMNAS4(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 #LEN 
 def p_EXPR_COLUMNAS1_p1(p):
@@ -3092,7 +3092,7 @@ def p_EXPR_COLUMNAS1_p1(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[7])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
      
 def p_EXPR_COLUMNAS1_p2(p):
@@ -3105,7 +3105,7 @@ def p_EXPR_COLUMNAS1_p2(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 def p_EXPR_COLUMNAS1_p3(p):
     '''EXPR_COLUMNAS1 : substring parAbre E coma E coma E parCierra as E '''
@@ -3122,7 +3122,7 @@ def p_EXPR_COLUMNAS1_p3(p):
     p[0].AddHijos(p[7])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[9])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
      
 
 def p_EXPR_COLUMNAS1_p4(p):
@@ -3139,7 +3139,7 @@ def p_EXPR_COLUMNAS1_p4(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 def p_EXPR_COLUMNAS1_p5(p):
     '''EXPR_COLUMNAS1 :  substr  parAbre E coma E coma E parCierra as E '''
@@ -3156,7 +3156,7 @@ def p_EXPR_COLUMNAS1_p5(p):
     p[0].AddHijos(p[7])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[10])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 def p_EXPR_COLUMNAS1_p6(p):
     '''EXPR_COLUMNAS1 : substr  parAbre E coma E coma E parCierra
@@ -3172,7 +3172,7 @@ def p_EXPR_COLUMNAS1_p6(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[7])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_COLUMNAS1_p7(p):
     '''EXPR_COLUMNAS1 :   parAbre QUERY parCierra
@@ -3181,7 +3181,7 @@ def p_EXPR_COLUMNAS1_p7(p):
     p[0]  = Node("EXPR_COLUMNAS1","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
  
 def p_EXPR_COLUMNAS1_p8(p):
     '''EXPR_COLUMNAS1 :   parAbre QUERY parCierra E
@@ -3191,7 +3191,7 @@ def p_EXPR_COLUMNAS1_p8(p):
     cont  = cont+1
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 def p_EXPR_COLUMNAS1_p9(p):
     '''EXPR_COLUMNAS1 :   parAbre QUERY parCierra as E
@@ -3204,7 +3204,7 @@ def p_EXPR_COLUMNAS1_p9(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 def p_EXPR_EXTRA1(p):
@@ -3220,11 +3220,14 @@ def p_EXPR_EXTRA1(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 
+
+
+
 def p_EXPR_EXTRA2(p):
-    '''EXPR_EXTRA : tExtract parAbre FIELDS from DATE_TYPES E parCierra'''
+    '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp E parCierra'''
     global cont
     p[0]  = Node("EXPR_EXTRA","",cont,0,0)
     cont  = cont+1
@@ -3232,12 +3235,14 @@ def p_EXPR_EXTRA2(p):
     cont  = cont+1
     nodo2 = Node("from",p[4],cont,p.lineno(4) ,p.lexpos(4))
     cont  = cont+1
+    nodo3 = Node("tTimestamp",p[5],cont,p.lineno(5) ,p.lexpos(5))
+    cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])
     p[0].AddHijos(nodo2)
-    p[0].AddHijos(p[5])
+    p[0].AddHijos(nodo3)
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 
 
@@ -3256,7 +3261,7 @@ def p_EXPR_AGREGACION(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
    
 
 
@@ -3275,7 +3280,7 @@ def p_EXPR_AGREGACION1(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
    
     
 
@@ -3304,7 +3309,7 @@ def p_EXPR_MATHS(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 
@@ -3327,7 +3332,7 @@ def p_EXPR_MATHS1(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
    
 def p_EXPR_MATHS2(p):
     '''EXPR_MATHS :   pi parAbre parCierra
@@ -3338,7 +3343,7 @@ def p_EXPR_MATHS2(p):
     nodo1 = Node(str(p[1]),p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_EXPR_MATHS3(p):
     '''EXPR_MATHS :   width_bucket parAbre LISTA_EXP parCierra'''
     global cont
@@ -3348,7 +3353,7 @@ def p_EXPR_MATHS3(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 
 
@@ -3384,7 +3389,7 @@ def p_EXPR_TRIG(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))  
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")  
  
 def p_EXPR_TRIG1(p):
     '''EXPR_TRIG :  atan2 parAbre  E coma E parCierra
@@ -3397,7 +3402,7 @@ def p_EXPR_TRIG1(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_BINARIAS(p):
     '''EXPR_BINARIAS : length E
@@ -3416,7 +3421,7 @@ def p_EXPR_BINARIAS(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_BINARIAS1(p):
     '''EXPR_BINARIAS :  E amp E
@@ -3433,7 +3438,7 @@ def p_EXPR_BINARIAS1(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_EXPR_BINARIASmay(p):
     '''EXPR_BINARIAS :  E menormenor E
                       | E mayormayor E
@@ -3446,7 +3451,7 @@ def p_EXPR_BINARIASmay(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 
@@ -3464,7 +3469,7 @@ def p_EXPR_BINARIAS2(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[8])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_BINARIAS3(p):
     '''EXPR_BINARIAS :  get_byte parAbre E dosPts dosPts bytea coma E parCierra
@@ -3480,7 +3485,7 @@ def p_EXPR_BINARIAS3(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[8])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_EXPR_BINARIAS4(p):
     '''EXPR_BINARIAS :  set_byte parAbre E dosPts dosPts bytea coma E coma E parCierra
     '''
@@ -3496,7 +3501,7 @@ def p_EXPR_BINARIAS4(p):
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[8])
     p[0].AddHijos(p[10])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
  
 def p_EXPR_BINARIAS5(p):
     '''EXPR_BINARIAS :  convert  parAbre E as TIPO parCierra
@@ -3512,7 +3517,7 @@ def p_EXPR_BINARIAS5(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_BINARIAS6(p):
     '''EXPR_BINARIAS : decode   parAbre E coma E parCierra
@@ -3525,7 +3530,7 @@ def p_EXPR_BINARIAS6(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 
 
@@ -3541,7 +3546,7 @@ def p_EXPR_FECHA(p):
     nodo1 = Node(str(p[1]),p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_FECHA1(p):
     '''EXPR_FECHA : date_part parAbre E coma DATE_TYPES E parCierra'''
@@ -3554,7 +3559,7 @@ def p_EXPR_FECHA1(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 
 def p_EXPR_FECHA2(p):
@@ -3564,7 +3569,7 @@ def p_EXPR_FECHA2(p):
     cont  = cont+1
     p[0].AddHijos(p[1])
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_FECHA3(p):
     '''EXPR_FECHA : now parAbre parCierra'''
@@ -3574,7 +3579,7 @@ def p_EXPR_FECHA3(p):
     nodo1 = Node("now",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 
 
@@ -3590,7 +3595,7 @@ def p_EXPR_CASE(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 
@@ -3610,7 +3615,7 @@ def p_EXPR_CASE1(p):
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[4])
     p[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_CASE_LIST(p):
     '''CASE_LIST : CASE_LIST when E then E''' 
@@ -3626,7 +3631,7 @@ def p_CASE_LIST(p):
     p[0].AddHijos(p[3])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))      
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")      
 
 def p_CASE_LIST1(p):
     '''CASE_LIST : when E then E ''' 
@@ -3641,32 +3646,32 @@ def p_CASE_LIST1(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
           
 def p_E_LIST(p):
     '''E_LIST : E_LIST coma E_LIST1'''
     p[0] = p[1]
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_E_LIST2(p):
     '''E_LIST :  E_LIST1'''
     global cont
     p[0]  = Node("E_LIST","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_E_LIST1(p):
     '''E_LIST1 : now parAbre parCierra'''
     global cont
     p[0] = Node("now",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_E_LIST3(p):
     '''E_LIST1 : E'''
     p[0]=p[1]
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_FROM(p):
     '''EXPR_FROM : from L_IDsAlias '''
@@ -3677,7 +3682,7 @@ def p_EXPR_FROM(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])     
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
  
 def p_EXPR_FROM2(p):
     '''EXPR_FROM : from parAbre QUERY parCierra'''
@@ -3688,7 +3693,7 @@ def p_EXPR_FROM2(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])     
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_FROM3(p):
     '''EXPR_FROM :  from parAbre QUERY parCierra id'''
@@ -3702,7 +3707,7 @@ def p_EXPR_FROM3(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])     
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_FROM4(p):
     '''EXPR_FROM : from parAbre QUERY parCierra as id'''
@@ -3719,13 +3724,13 @@ def p_EXPR_FROM4(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(nodoas)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_L_IDsAlias(p):
     '''L_IDsAlias : L_IDsAlias coma L_IDsAlias1 '''
     p[0]  = p[1]
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_L_IDsAlias1(p):
     '''L_IDsAlias : L_IDsAlias1 '''
@@ -3733,7 +3738,7 @@ def p_L_IDsAlias1(p):
     p[0]  = Node("L_IDsAlias","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_L_IDsAlias_p1(p):
     '''L_IDsAlias1 :  id id 
@@ -3747,7 +3752,7 @@ def p_L_IDsAlias_p1(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_L_IDsAlias_p2(p):
     '''L_IDsAlias1 :  id as id 
@@ -3764,7 +3769,7 @@ def p_L_IDsAlias_p2(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
      
 def p_L_IDsAlias_p3(p):
     '''L_IDsAlias1 :  id
@@ -3775,7 +3780,7 @@ def p_L_IDsAlias_p3(p):
     nodo1 = Node("id",p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 
@@ -3788,14 +3793,14 @@ def p_EXPR_WHERE(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 
 def p_LIST_CONDS(p):
     '''LIST_CONDS : LIST_CONDS COND1'''
     p[0]=p[1]
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_LIST_CONDS1(p):
     '''LIST_CONDS : COND1 '''
@@ -3803,14 +3808,14 @@ def p_LIST_CONDS1(p):
     p[0]  = Node("LIST_CONDS","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_LIST_CONDS2(p):
     '''LIST_CONDS : LIST_CONDS ORAND COND1'''
     p[0]=p[1]
     p[0].AddHijos(p[2])
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_LIST_CONDS3(p):
     '''LIST_CONDS : ORAND COND1 '''
@@ -3819,7 +3824,7 @@ def p_LIST_CONDS3(p):
     cont  = cont+1
     p[0].AddHijos(p[1])
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 def p_LIST_ORAND(p):
     '''ORAND :  or
@@ -3830,7 +3835,7 @@ def p_LIST_ORAND(p):
     nodo1 = Node(str(p[1]),p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 
 def p_COND1(p):
@@ -3839,7 +3844,7 @@ def p_COND1(p):
     p[0]  = Node("COND1","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
      
 def p_COND2(p):
     '''COND1 :    E_FUNC tIs distinct from E_FUNC'''
@@ -3857,7 +3862,7 @@ def p_COND2(p):
     p[0].AddHijos(nodo2)
     p[0].AddHijos(nodo3)
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND3(p):
     '''COND1 :   E_FUNC tIs not distinct from E_FUNC'''
@@ -3878,7 +3883,7 @@ def p_COND3(p):
     p[0].AddHijos(nodo3)
     p[0].AddHijos(nodo4)
     p[0].AddHijos(p[6])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND4(p):
     '''COND1 :   substring parAbre E_FUNC coma E_FUNC coma E_FUNC parCierra igual E_FUNC'''
@@ -3895,7 +3900,7 @@ def p_COND4(p):
     p[0].AddHijos(p[7])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[10])
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 
 def p_COND5(p):
@@ -3907,7 +3912,7 @@ def p_COND5(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND6(p):
     '''COND1 :  not  exists parAbre QUERY parCierra'''
@@ -3921,7 +3926,7 @@ def p_COND6(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
     
@@ -3935,7 +3940,7 @@ def p_COND7(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND8(p):
     '''COND1 :    E_FUNC not in parAbre QUERY parCierra'''
@@ -3950,7 +3955,7 @@ def p_COND8(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 def p_COND9(p):
     '''COND1 :    E_FUNC OPERATOR any parAbre QUERY parCierra'''
@@ -3963,7 +3968,7 @@ def p_COND9(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
     
 
 def p_COND10(p):
@@ -3977,7 +3982,7 @@ def p_COND10(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND11(p):
     '''COND1 :    E_FUNC OPERATOR all parAbre QUERY parCierra'''
@@ -3990,7 +3995,7 @@ def p_COND11(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[5])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
       
 def p_COND12(p):
     '''COND1 :    E_FUNC tBetween E_FUNC  '''
@@ -4002,7 +4007,7 @@ def p_COND12(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
  
 def p_COND13(p):
     '''COND1 :    E_FUNC not tBetween E_FUNC  '''
@@ -4017,7 +4022,7 @@ def p_COND13(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 def p_COND14(p):
     '''COND1 :    E_FUNC tIs tTrue '''
@@ -4031,7 +4036,7 @@ def p_COND14(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 def p_COND15(p):
@@ -4049,7 +4054,7 @@ def p_COND15(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND16(p):
     '''COND1 :    E_FUNC tIs tFalse  '''
@@ -4063,7 +4068,7 @@ def p_COND16(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 def p_COND17(p):
     '''COND1 :    E_FUNC tIs not tFalse  '''
     global cont
@@ -4079,7 +4084,7 @@ def p_COND17(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 def p_COND18(p):
     '''COND1 :    E_FUNC tIs unknown  '''
@@ -4093,7 +4098,7 @@ def p_COND18(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND19(p):
     '''COND1 :    E_FUNC tIs not unknown  '''
@@ -4110,7 +4115,7 @@ def p_COND19(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND20(p):
     '''COND1 :    E_FUNC tIs null  '''
@@ -4124,7 +4129,7 @@ def p_COND20(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND21(p):
     '''COND1 :    E_FUNC tIs not null  '''
@@ -4141,7 +4146,7 @@ def p_COND21(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(nodo3)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND22(p):
     '''COND1 :    E_FUNC isNull  '''
@@ -4152,7 +4157,7 @@ def p_COND22(p):
     cont  = cont+1
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND23(p):
     '''COND1 :    E_FUNC notNull  '''
@@ -4163,7 +4168,7 @@ def p_COND23(p):
     cont  = cont+1
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_COND24(p):
     '''COND1 :    substr parAbre E_FUNC coma E_FUNC coma E_FUNC parCierra igual E_FUNC  '''
@@ -4179,7 +4184,51 @@ def p_COND24(p):
     p[0].AddHijos(p[5])
     p[0].AddHijos(p[7])
     p[0].AddHijos(p[10]) 
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
+
+
+def p_COND25(p):
+    '''COND1 :    E_FUNC tILike cadenaLike  '''
+    global cont
+    p[0]  = Node("COND1","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("tIlike",p[2],cont,p.lineno(2) ,p.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("cadenaLike",p[3],cont,p.lineno(3) ,p.lexpos(3))
+    cont  = cont+1
+    p[0].AddHijos(p[1])
+    p[0].AddHijos(nodo1)
+    p[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
+
+def p_COND26(p):
+    '''COND1 :    E_FUNC like cadenaLike  '''
+    global cont
+    p[0]  = Node("COND1","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("like",p[2],cont,p.lineno(2) ,p.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("cadenaLike",p[3],cont,p.lineno(3) ,p.lexpos(3))
+    cont  = cont+1
+    p[0].AddHijos(p[1])
+    p[0].AddHijos(nodo1)
+    p[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
+
+def p_COND27(p):
+    '''COND1 :    E_FUNC tSimilar tTo E_FUNC '''
+    global cont
+    p[0]  = Node("COND1","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("tSimilar",p[2],cont,p.lineno(2) ,p.lexpos(2))
+    cont  = cont+1
+    nodo2 = Node("tTo",p[3],cont,p.lineno(3) ,p.lexpos(3))
+    cont  = cont+1
+    p[0].AddHijos(p[1])
+    p[0].AddHijos(nodo1)
+    p[0].AddHijos(nodo2)
+    p[0].AddHijos(p[4])
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 def p_OPERATOR(p):
@@ -4194,7 +4243,7 @@ def p_OPERATOR(p):
     nodo1 = Node(str(p[1]),"\\"+str(p[1]),cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_OPERATOR1(p):
     '''OPERATOR :  igual
@@ -4207,7 +4256,7 @@ def p_OPERATOR1(p):
     nodo1 = Node(str(p[1]),p[1],cont,p.lineno(1) ,p.lexpos(1))
     cont  = cont+1
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 
@@ -4225,7 +4274,7 @@ def p_EXPR_GROUPBY( p ):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 def p_EXPR_HAVING(p):
@@ -4237,7 +4286,7 @@ def p_EXPR_HAVING(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_E_FUNC( p ):
     '''E_FUNC : EXPR_AGREGACION
@@ -4247,7 +4296,7 @@ def p_EXPR_E_FUNC( p ):
               | EXPR_FECHA
               | E '''
     p[0] = p[1]
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_ORDERBY( p ):
     '''EXPR_ORDERBY : order by LIST_ORDERBY'''
@@ -4261,7 +4310,7 @@ def p_EXPR_ORDERBY( p ):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
      
 
 
@@ -4271,7 +4320,7 @@ def p_LIST_ORDERBY(p):
     '''LIST_ORDERBY : LIST_ORDERBY coma LIST_ORDERBY_1'''
     p[0]  = p[1]
     p[0].AddHijos(p[3])
-    lista.append(str(recorrerGramatica(p[0],0))) 
+    lista.append(str(recorrerGramatica(p[0],0))+"\n") 
 
 def p_LIST_ORDERBY1(p):
     '''LIST_ORDERBY : LIST_ORDERBY_1'''
@@ -4279,7 +4328,7 @@ def p_LIST_ORDERBY1(p):
     p[0]  = Node("LIST_ORDERBY","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_LIST_ORDERBY_p1(p):
     '''LIST_ORDERBY_1 : E asc nulls first
@@ -4300,7 +4349,7 @@ def p_LIST_ORDERBY_p1(p):
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
     p[0].AddHijos(nodo3) 
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_LIST_ORDERBY_p2(p):
     '''LIST_ORDERBY_1 : E asc '''
@@ -4311,7 +4360,7 @@ def p_LIST_ORDERBY_p2(p):
     cont  = cont+1
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_LIST_ORDERBY_p3(p):
     '''LIST_ORDERBY_1 : E desc '''
@@ -4322,7 +4371,7 @@ def p_LIST_ORDERBY_p3(p):
     cont  = cont+1
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_LIST_ORDERBY_p4(p):
     '''LIST_ORDERBY_1 : E '''
@@ -4330,7 +4379,7 @@ def p_LIST_ORDERBY_p4(p):
     p[0]  = Node("LIST_ORDERBY_1","",cont,0,0)
     cont  = cont+1
     p[0].AddHijos(p[1])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_LIST_ORDERBY_p5(p):
     '''LIST_ORDERBY_1 : E nulls first
@@ -4345,7 +4394,7 @@ def p_LIST_ORDERBY_p5(p):
     p[0].AddHijos(p[1])
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))   
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")   
    
 
 
@@ -4362,7 +4411,7 @@ def p_EXPR_LIMIT1(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(p[2])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 def p_EXPR_LIMIT2(p):
     '''EXPR_LIMIT : limit all'''
@@ -4375,7 +4424,7 @@ def p_EXPR_LIMIT2(p):
     cont  = cont+1
     p[0].AddHijos(nodo1)
     p[0].AddHijos(nodo2)
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 def p_EXPR_LIMIT3(p):
@@ -4393,7 +4442,7 @@ def p_EXPR_LIMIT3(p):
     p[0].AddHijos(nodo2)
     p[0].AddHijos(nodo3)
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
 def p_EXPR_LIMIT4(p):
@@ -4409,7 +4458,7 @@ def p_EXPR_LIMIT4(p):
     p[0].AddHijos(p[2])
     p[0].AddHijos(nodo2)
     p[0].AddHijos(p[4])
-    lista.append(str(recorrerGramatica(p[0],0)))
+    lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -4508,7 +4557,7 @@ def ReporteGramatical():
         pdf.output('gramaticaBNF.pdf')
         pdf.close()
         '''
-        file = open("gramaticaBNF.txt", "w")
+        file = open("gramaticaDinamico.txt", "w")
         file.write(gramaticaBNF())
         file.close() 
 
