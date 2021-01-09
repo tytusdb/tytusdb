@@ -39,10 +39,10 @@ Para este modulo se penso en un diccionario, los cuales proporciona Python, porq
 ## Contenido Tecnico Del Sistema
 
 ### Diagrama Conceptual
-![D](./img/DiagramaConceptual.png)
+![D](./DiagramaConceptual.png)
 
 ### Diagrama de Clases
-![D](./img/DiagramaDeClases.png)
+![D](./DiagramaDeClases.png)
 
 ## Requerimientos Del Sistema
 El software Tytus es una aplicacion de bases de datos que usa tecnologias diferentes para sus diferentes modulos asi:
