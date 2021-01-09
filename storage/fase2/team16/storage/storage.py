@@ -9,6 +9,7 @@ from .Modules.table_module import TableModule
 from .Modules.tuple_module import TupleModule
 
 from .Modules.Complements import security as SEC
+from .Modules.Complements import graph as GRP
 
 DB = DatabaseModule()
 TBL = TableModule()
@@ -188,6 +189,11 @@ def encrypt(backup: str, password: str) -> str:
 
 def decrypt(cipherBackup: str, password: str) -> str:
     return SEC.decrypt(cipherBackup, password)
+
+
+# region graph
+def graphDSD(database: str) -> str:
+    return GRP.graphDSD(database)
 
 
 # endregion
