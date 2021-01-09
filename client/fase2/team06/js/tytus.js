@@ -306,3 +306,49 @@ function crearTabla() {
 function cerrar() {
   window.close();
 }
+
+function analize() {
+  var text = document.getElementById("entrada").value;
+  eel.analize(text);
+}
+
+
+eel.expose(printText);
+function printText(text) {
+  var elem = document.getElementById("salida");
+  elem.innerHTML += text + "\n";
+}
+
+eel.expose(addTable);
+function addTable(table) {
+  //removeElement("tabl");
+  const container = document.querySelector("#tablee");
+  removeAllChildNodes(container);
+  addElement("tablee", "div", "tabl", table);
+  //console.log("CLEAR");
+  //document.getElementById("tablee").insertAdjacentHTML("afterend", table);
+}
+
+eel.expose(addElement);
+function addElement(parentId, elementTag, elementId, html) {
+  // Adds an element to the document
+  var p = document.getElementById(parentId);
+  var newElement = document.createElement(elementTag);
+  newElement.setAttribute("id", elementId);
+  newElement.innerHTML = html;
+  p.appendChild(newElement);
+}
+
+eel.expose(removeElement);
+function removeElement(elementId) {
+  // Removes an element from the document
+  var element = document.getElementById(elementId);
+  element.parentNode.removeChild(element);
+}
+
+eel.expose(removeAllChildNodes);
+function removeAllChildNodes(parent) {
+  while (parent.firstChild) {
+    parent.removeChild(parent.firstChild);
+  }
+}
