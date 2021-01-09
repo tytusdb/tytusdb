@@ -10,5 +10,5 @@ GRUPO 18
 |[dyllanRodrigo](https://github.com/dyllanRodrigo)|201907774|7CDYLLAN JOSÉ RODRIGO GARCÍA MEJÍA|
 
 ## Documentación
-- [Manual técnico](<storage/fase2/team18/storage/doc/doc_tech.md>)
-- [Manual de usuario](<storage/fase2/team18/storage/doc/doc_user.md>)
+- [Manual técnico](<storage/doc/doc_tech.md>)
+- [Manual de usuario](<storage/doc/doc_user.md>)
