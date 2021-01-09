@@ -25,4 +25,4 @@ class ErrorController(object):
         self._errorsList.append(Error(self._idError, errorType, numberError,
                                       description, line, column))
         DataWindow().consoleTable(['Code', 'Description'],
-                                  [[self._idError, description]])
+                                  [[numberError, description]])

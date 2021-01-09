@@ -1,0 +1,70 @@
+// AST
+digraph {
+	34 [label=INSTRUCTION_LIST]
+	35 [label=SELECT]
+	36 [label=PARAMS]
+	37 [label=CALL]
+	38 [label=saludar]
+	39 [label=PARAMS]
+	40 [label=Melani]
+	41 [label=INST]
+	42 [label=SELECT]
+	43 [label=PARAMS]
+	44 [label=CALL]
+	45 [label=saludar]
+	46 [label=PARAMS]
+	47 [label=Luis]
+	48 [label=INST]
+	49 [label=FUNCTION]
+	50 [label=saludar]
+	51 [label=PARAMETRO]
+	52 [label=nombre]
+	53 [label=TEXT]
+	54 [label=RETURNS]
+	55 [label=TEXT]
+	56 [label=DECLARATION]
+	57 [label=saludo]
+	58 [label=TEXT]
+	59 [label=DEFAULT]
+	60 [label="Hola "]
+	61 [label=RETURN]
+	62 [label="+"]
+	63 [label=saludo]
+	64 [label=nombre]
+	65 [label=LANGUAGE]
+	66 [label=plpgsql]
+	67 [label=INST]
+	34 -> 35
+	35 -> 36
+	36 -> 37
+	37 -> 38
+	37 -> 39
+	39 -> 40
+	34 -> 41
+	41 -> 42
+	42 -> 43
+	43 -> 44
+	44 -> 45
+	44 -> 46
+	46 -> 47
+	41 -> 48
+	48 -> 49
+	49 -> 50
+	49 -> 51
+	51 -> 52
+	51 -> 53
+	49 -> 54
+	54 -> 55
+	49 -> 56
+	56 -> 57
+	56 -> 58
+	56 -> 59
+	59 -> 60
+	49 -> 61
+	61 -> 62
+	62 -> 63
+	62 -> 64
+	49 -> 65
+	65 -> 66
+	48 -> 67
+}

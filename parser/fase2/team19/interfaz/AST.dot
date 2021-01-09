@@ -1,0 +1,98 @@
+digraph G{
+edge [color=blue]; rankdir = TB;
+Nodo0[label="S"]
+Nodo1[label="Instrucciones"]
+Nodo0 -> Nodo1;
+Nodo2[label="Instruccion: CREATE"]
+Nodo1 -> Nodo2;
+Nodo3[label="DBFase2"]
+Nodo2 -> Nodo3;
+Nodo6[label="Instruccion: USE DATABASE"]
+Nodo1 -> Nodo6;
+Nodo12[label="DBFase2"]
+Nodo6 -> Nodo12;
+Nodo13[label="Instruccion: CREATE TABLE"]
+Nodo1 -> Nodo13;
+Nodo14[label="Id: tbProducto"]
+Nodo13 -> Nodo14;
+Nodo15[label="Campo"]
+Nodo13 -> Nodo15;
+Nodo16[label="Id: idproducto"]
+Nodo15 -> Nodo16;
+Nodo17[label="Tipo: INTEGER"]
+Nodo15 -> Nodo17;
+Nodo18[label="NOTNULL"]
+Nodo15 -> Nodo18;
+Nodo19[label="PRIMARYKEY"]
+Nodo15 -> Nodo19;
+Nodo20[label="Campo"]
+Nodo13 -> Nodo20;
+Nodo21[label="Id: producto"]
+Nodo20 -> Nodo21;
+Nodo22[label="Tipo: VARCHAR-150(150)"]
+Nodo20 -> Nodo22;
+Nodo23[label="NOTNULL"]
+Nodo20 -> Nodo23;
+Nodo24[label="Campo"]
+Nodo13 -> Nodo24;
+Nodo25[label="Id: cumple"]
+Nodo24 -> Nodo25;
+Nodo26[label="Tipo: INTEGER"]
+Nodo24 -> Nodo26;
+Nodo27[label="NOTNULL"]
+Nodo24 -> Nodo27;
+Nodo28[label="Campo"]
+Nodo13 -> Nodo28;
+Nodo29[label="Id: estado"]
+Nodo28 -> Nodo29;
+Nodo30[label="Tipo: INTEGER"]
+Nodo28 -> Nodo30;
+Nodo31[label="Instruccion: INSERT INTO"]
+Nodo1 -> Nodo31;
+Nodo32[label="Table: tbProducto"]
+Nodo31 -> Nodo32;
+Nodo33[label="Value"]
+Nodo31 -> Nodo33;
+Nodo66[label="1"]
+Nodo33 -> Nodo66;
+Nodo132[label="Laptop Lenovo"]
+Nodo33 -> Nodo132;
+Nodo264[label="1"]
+Nodo33 -> Nodo264;
+Nodo265[label="Instruccion: INSERT INTO"]
+Nodo1 -> Nodo265;
+Nodo266[label="Table: tbProducto"]
+Nodo265 -> Nodo266;
+Nodo267[label="Value"]
+Nodo265 -> Nodo267;
+Nodo534[label="2"]
+Nodo267 -> Nodo534;
+Nodo1068[label="Laptop Lenovo"]
+Nodo267 -> Nodo1068;
+Nodo2136[label="2"]
+Nodo267 -> Nodo2136;
+Nodo2137[label="Instruccion: INSERT INTO"]
+Nodo1 -> Nodo2137;
+Nodo2138[label="Table: tbProducto"]
+Nodo2137 -> Nodo2138;
+Nodo2139[label="Value"]
+Nodo2137 -> Nodo2139;
+Nodo4278[label="3"]
+Nodo2139 -> Nodo4278;
+Nodo8556[label="Laptop Lenovo"]
+Nodo2139 -> Nodo8556;
+Nodo17112[label="3"]
+Nodo2139 -> Nodo17112;
+Nodo34224[label="Instruccion: Select"]
+Nodo1 -> Nodo34224;
+Nodo68448[label="*"]
+Nodo34224 -> Nodo68448;
+Nodo136896[label="FROM"]
+Nodo34224 -> Nodo136896;
+Nodo273792[label="Columnas"]
+Nodo34224 -> Nodo273792;
+Nodo547584[label="Columna"]
+Nodo273792 -> Nodo547584;
+Nodo1095168[label="tbProducto"]
+Nodo547584 -> Nodo1095168;
+}

@@ -1,18 +1,14 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo 
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from datetime import datetime 
 
 class Now(Instruccion):
-    def __init__(self, linea, columna):
-        Instruccion.__init__(self,None,linea,columna)
+    def __init__(self, strGram,linea, columna):
+        Instruccion.__init__(self,Tipo(Tipo_Dato.TIMESTAMP),linea,columna,strGram)
 
-    def ejecutar(self, ts, arbol):
-        super().ejecutar(ts,arbol)
+    def ejecutar(self, tabla, arbol):
+        super().ejecutar(tabla,arbol)
         todays_date = datetime.now()
-        return todays_date
-
-'''
-instruccion = Declare("hola mundo",None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
+        current_time = todays_date.strftime("%Y-%m-%d %H:%M:%S")
+        return current_time

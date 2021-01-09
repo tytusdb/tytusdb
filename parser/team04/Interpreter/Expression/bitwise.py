@@ -1,4 +1,4 @@
-from Interpreter.Expressions.expression import Expression
+from Interpreter.Expression.expression import Expression
 
 
 class BitWise(Expression):
@@ -8,6 +8,16 @@ class BitWise(Expression):
 
     def isNumeric(self, value):
         return isinstance(value, int) or isinstance(value, float)
+
+    def getGraph(self, graph, idParent):
+        _id = str(id(self))
+        _label = self.__class__.__name__
+        graph.node(_id, label=_label)
+        graph.edge(idParent, _id)
+
+        self.left.getGraph(graph, _id)
+        if self.right:
+            self.right.getGraph(graph, _id)
 
 
 class BitwiseAnd(BitWise):

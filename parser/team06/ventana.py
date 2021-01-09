@@ -1,12 +1,13 @@
-#from PyQt5.QtWidgets import QApplication, QMainWindow
 import os
 import sys
 import platform
 from nodeAst import nodeAst
 import ascendente as analizador
-#import accionesIDE as accionesVarias
-#import mostrarLineas
-
+import traductor as generador
+import reportes as h
+#jossie
+from storageManager import jsonMode as j
+import pandas as pd
 
 #To display pdfs
 import webbrowser
@@ -19,14 +20,16 @@ from tkinter import messagebox
 from CustomText import CustomText
 #For managing the Line Numbers in the text area
 from TextLine import TextLineNumbers
+import optimizacionCodigo3D as optimizador
+
 
 class Interfaz(tk.Frame):
     def __init__(self, *args, **kwargs):
         self.root = root
         tk.Frame.__init__(self, *args, **kwargs)
-
+       
+        
         self.filename = None
-
         self.terminal = tk.Text(root, width=75, height=1, background="black",foreground="#00AA00")
         self.terminal.pack(side="right", fill="both", expand=True)
 
@@ -66,12 +69,16 @@ class Interfaz(tk.Frame):
         file_dropdown.add_command(label="Salir", command=self.end)
 
         run_dropdown.add_command(label="Ejecutar Ascendente", command=self.ejecutar_ascendente)
-        run_dropdown.add_command(label="Ejecutar Descendente")
+        run_dropdown.add_command(label="Traducir 3D", command=self.traducir_3D)
+        run_dropdown.add_command(label="Ejecutar 3D", command=self.ejecutar_3D)
+        run_dropdown.add_command(label="Optimizar 3D", command=self.optimizar_3D)
+        #run_dropdown.add_command(label="Ejecutar Descendente")
 
         report_dropdown.add_command(label="Reporte de Errores", command=self.generarReporteErrores )
         report_dropdown.add_command(label="Reporte AST", command=self.astReport)
         report_dropdown.add_command(label="Reporte de Gramatical", command=self.generarReporteGramatical)
         report_dropdown.add_command(label="Tabla de Simbolos", command=self.generarReporteSimbolos )
+        report_dropdown.add_command(label="Reporte de Optimizacion", command=self.optimizadoReport)
         
         help_dropdown.add_command(label="Acerca de", command=self.about)
         help_dropdown.add_command(label="Manual de Usuario", command=self.m_user)
@@ -88,7 +95,6 @@ class Interfaz(tk.Frame):
         try:
             state_script_dir = os.getcwd()
             report_dir = state_script_dir + "\\Reportes\\reporteGramatical.html"
-            print(report_dir)
             analizador.genenerarReporteGramaticalAscendente(report_dir)
             print("Si se genero el reporte :D!")
             edge_path = 'C://Program Files (x86)//Microsoft//Edge//Application/msedge.exe %s'
@@ -99,12 +105,10 @@ class Interfaz(tk.Frame):
             box_msg = "El archivo del reporte no existe"
             messagebox.showinfo(box_tilte, box_msg)
 
-
     def generarReporteErrores(self):
         try:
             state_script_dir = os.getcwd()
             report_dir = state_script_dir + "\\Reportes\\reporteDeErrores.html"
-            print(report_dir)
             analizador.genenerarReporteErroresAscendente(report_dir)
             print("Si se genero el reporte de errores :D!")
             edge_path = 'C://Program Files (x86)//Microsoft//Edge//Application/msedge.exe %s'
@@ -115,13 +119,10 @@ class Interfaz(tk.Frame):
             box_msg = "El archivo del reporte no existe"
             messagebox.showinfo(box_tilte, box_msg)
 
-
-
     def generarReporteSimbolos(self):
         try:
             state_script_dir = os.getcwd()
             report_dir = state_script_dir + "\\Reportes\\TablaDeSimbolos.html"
-            print(report_dir)
             analizador.generarReporteSimbolos(report_dir)
             print("Si se genero el reporte :D!")
             edge_path = 'C://Program Files (x86)//Microsoft//Edge//Application/msedge.exe %s'
@@ -134,15 +135,15 @@ class Interfaz(tk.Frame):
 
     def astReport(self):
         analizador.generarASTReport()
-
-#-------------------------------------------------------Color Tags for the Paint Method---------------------------------------------------------------------
-        """self.text.tag_configure("reserved", foreground="red")
-        self.text.tag_configure("var", foreground="#008000")
-        self.text.tag_configure("int", foreground="#0000FF")
-        self.text.tag_configure("boolean", foreground="#0000FF")
-        self.text.tag_configure("string", foreground="#FFFF00")
-        self.text.tag_configure("comment", foreground="#808080")
-        self.text.tag_configure("operator", foreground="#FFA500")"""
+    
+    def optimizadoReport(self):
+        state_script_dir = os.getcwd()
+        report_dir = state_script_dir + "\\Reportes\\OptimizacionDeCodigo.html"
+        optimizador.generar_reporte()
+        print("Si se genero el reporte de errores :D!")
+        edge_path = 'C://Program Files (x86)//Microsoft//Edge//Application/msedge.exe %s'
+        webbrowser.get(edge_path).open(report_dir)
+        
 #-------------------------------------------------------Line Number Method---------------------------------------------------------------------
     def _on_change(self, event):
         self.linenumbers.redraw()
@@ -199,12 +200,53 @@ class Interfaz(tk.Frame):
     def ejecutar_ascendente(self):
         x= self.text.get(1.0, tk.END)
         self.terminal.delete(1.0, tk.END)
-        #try:
-        salida=analizador.ejecucionAscendente(x)
-        #salida+="\n---------------------FIN EJECUCION ASCENDENTE--------------------------\n"
-        #except:
-            #salida="Grupo6>Se genero un error de analisis"
-        self.terminal.insert(tk.END,salida)        
+        print(x)
+        try:
+            x=x.replace("and","AND")
+            x=x.replace("or","OR")
+            salida=self.terminal.get(1.0,tk.END)
+            salida+=analizador.ejecucionAscendente(x)
+            self.terminal.insert(tk.END,salida) 
+        except:
+            salida=self.terminal.get(1.0,tk.END)
+            salida+="TYTTUS>Se genero un error de análisis"
+            self.terminal.insert(tk.END,salida)       
+
+    def traducir_3D(self):
+        x= self.text.get(1.0, tk.END)
+        self.terminal.delete(1.0, tk.END)
+        print(x)
+        try:
+            x=x.replace("and","AND")
+            x=x.replace("or","OR")
+            salida=self.terminal.get(1.0,tk.END)
+            salida+=generador.ejecucionATraduccion(x)
+            self.terminal.insert(tk.END,salida)
+        except:
+            salida=self.terminal.get(1.0,tk.END)
+            salida+="TYTTUS>Se genero un error al traducir"
+            self.terminal.insert(tk.END,salida)
+         
+
+    def ejecutar_3D(self):
+        x= self.text.get(1.0, tk.END)
+        self.terminal.delete(1.0, tk.END)
+        print(x)
+
+        salida=self.terminal.get(1.0,tk.END)
+        exec(x)
+        salida+=h.textosalida
+        self.terminal.insert(tk.END,salida) 
+
+
+    def optimizar_3D(self):
+        x= self.text.get(1.0, tk.END)
+        self.terminal.delete(1.0, tk.END)
+        print(x)
+        salida=self.terminal.get(1.0,tk.END)
+        optimizador.optimizacion_de_codigo(x) 
+        salida+=h.textosalida
+        self.terminal.insert(tk.END,salida) 
 #-------------------------------------------------------Help Menu Methods---------------------------------------------------------------------
     def about(self):
         box_tilte ="Autor"
@@ -217,7 +259,7 @@ class Interfaz(tk.Frame):
 
     def m_user(self):
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        direction = script_dir + "\\Manuales\\Manual de Usuario.pdf" 
+        direction = script_dir + "\\Manuales\\Manual_Usuario.pdf" 
         try:
             webbrowser.open_new(r'file://'+direction)
         except Exception as e:
@@ -227,167 +269,15 @@ class Interfaz(tk.Frame):
         
     def m_tecnic(self):
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        direction = script_dir + "\\Manuales\\Manual Tecnico.pdf"
+        direction = script_dir + "\\Manuales\\Manual_Tecnico.pdf"
         try:
             webbrowser.open_new(r'file://'+direction)
         except Exception as e:
             box_tilte ="Path Error"
             box_msg = "El archivo que trata de acceder no existe"
             messagebox.showerror(box_tilte,box_msg)
-#-------------------------------------------------------Reports---------------------------------------------------------------------       
-    """def error(self,entrada,tipo):
-        if(len(entrada)==0):
-            box_tilte = "Tabla de Errores"
-            box_msg = "No existe ningun error"
-            messagebox.showinfo(box_tilte, box_msg)
-        else:
-            errorList(entrada,tipo)
-
-    def errorReport(self):
-        error_script_dir = os.path.dirname(os.path.abspath(__file__))
-        print("DIR:"+error_script_dir)
-        report_dir = error_script_dir + "\\Reportes\\errorList.html"
-        print("DIRECCION:"+report_dir)
-        if(os.path.exists(report_dir)):
-            webbrowser.open_new(r'file://' + report_dir)
-        else:
-            print(report_dir)
-            box_tilte = "Report Error"
-            box_msg = "El archivo del reporte no existe"
-            messagebox.showinfo(box_tilte, box_msg)       
-
-    def css_state(self,entrada,tipo):
-        if(len(entrada)==0):
-            box_tilte = "Reporte de estados"
-            box_msg = "No existe ningun estado"
-            messagebox.showinfo(box_tilte, box_msg)
-        else:
-            stateList(entrada,tipo)
-
-    def state_report(self):
-        state_script_dir = os.path.dirname(os.path.abspath(__file__))
-        report_dir = state_script_dir + "\\Reportes\\css_states.html"
-        if(os.path.exists(report_dir)):
-            webbrowser.open_new(r'file://' + report_dir)
-        else:
-            box_tilte = "Report Error"
-            box_msg = "El archivo del reporte no existe"
-            messagebox.showinfo(box_tilte, box_msg)
-
-    def rmt_lines(self,entrada,tipo):
-        if(len(entrada)==0):
-            box_tilte = "Reporte de RMT"
-            box_msg = "No existe ninguna linea"
-            messagebox.showinfo(box_tilte, box_msg)
-
-        else:
-            rmtList(entrada,tipo)
-
-    def rmt_report(self):
-        rmt_script_dir = os.path.dirname(os.path.abspath(__file__))
-        report_dir = rmt_script_dir + "\\Reportes\\rmt.html"
-        if(os.path.exists(report_dir)):
-            webbrowser.open_new(r'file://' + report_dir)
-        else:
-            box_tilte = "Report Error"
-            box_msg = "El archivo del reporte no existe"
-            messagebox.showinfo(box_tilte, box_msg)
-
-    def js_report(self):
-        js_script_dir = os.path.dirname(os.path.abspath(__file__))
-        String = js_script_dir + "\\Grafos\\String.gv.pdf"
-        Unicomentario = js_script_dir + "\\Grafos\\UniComentario.gv.pdf"
-        ID = js_script_dir + "\\Grafos\\ID.gv.pdf"
-        try:
-            webbrowser.open_new(r'file://' + String)
-            webbrowser.open_new(r'file://' + Unicomentario)
-            webbrowser.open_new(r'file://' + ID)
-        except Exception as e:
-            box_tilte = "Report Error"
-            messagebox.showinfo(box_tilte, e)"""           
-#-------------------------------------------------------Paint Words---------------------------------------------------------------------       
-    """def pintar(self,token):
-        for last in token:
-            if(last[0]!=None):
-                if(last[2]=="reservada"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('reserved', posicionInicial, posicionFinal)
-
-                elif(last[3].lower()=="var"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('var', posicionInicial, posicionFinal)
-
-                elif(last[2].lower()=="string"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('string', posicionInicial, posicionFinal)
-
-                elif(last[2].lower()=="TAG"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('string', posicionInicial, posicionFinal)
-
-                elif(last[2].lower()=="integer"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('int', posicionInicial, posicionFinal)
-
-                elif(last[2].lower()=="decimal"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('int', posicionInicial, posicionFinal)
-
-                elif(last[3].lower()=="true" or last[3].lower()=="false"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('boolean', posicionInicial, posicionFinal)
-
-                elif(last[2].lower()=="comentario"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('comment', posicionInicial, posicionFinal)
-
-                elif(last[2].lower()=="operador"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('operator', posicionInicial, posicionFinal)
-
-                elif(last[2].upper()=="PARA"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('operator', posicionInicial, posicionFinal)
-
-                elif(last[2].upper()=="PARC"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('operator', posicionInicial, posicionFinal)
-
-                elif(last[2].upper()=="POR"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('operator', posicionInicial, posicionFinal)
-
-                elif(last[2].upper()=="DIV"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('operator', posicionInicial, posicionFinal)
-
-                elif(last[2].upper()=="MAS"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('operator', posicionInicial, posicionFinal)
-
-                elif(last[2].upper()=="MENOS"):
-                    posicionInicial = f'{last[0]}.{last[1]-1}'
-                    posicionFinal = f'{posicionInicial}+{len(str(last[3]))}c'
-                    self.text.tag_add('operator', posicionInicial, posicionFinal)
-
-                else:
-                    pass
-            else:
-                pass"""
+    
+    
 #-------------------------------------------------------Main---------------------------------------------------------------------       
 if __name__ == "__main__":
     root = tk.Tk()

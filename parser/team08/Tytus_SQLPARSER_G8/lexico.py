@@ -2,6 +2,7 @@ from os import error
 from ply import *
 
 from reportes.error import *
+from Instrucciones.Excepcion import Excepcion
 
 
 # Construyendo el analizador léxico y sintactico
@@ -174,6 +175,7 @@ def t_ID(t):
     if (t.value.upper()) in reservadas:
         #print("esto es una palabra reservada: " + t.value)
         #print("llego aqui")
+        t.value= t.value.upper()
         t.type = t.value.upper()
         #print(t.type)
     else:
@@ -209,19 +211,20 @@ def t_BLANCO(t):
     r' |\t'
 
 
-# Caracteres ignorados
-t_ignore = "\r"
 
-
-def t_newline(t):
+def t_NEWLINE(t):
     r'\n+'
-    t.lexer.lineno += t.value.count("\n")
+    #t.lexer.lineno += t.value.count("\n")
+    t.lexer.lineno += len(t.value)
     global columna
     columna = lexer.lexpos
 
 def columas(args):
     valor = lexer.lexpos-args
     return valor
+
+# Caracteres ignorados
+t_ignore = "\r"
 
 
 def t_error(t):
@@ -231,7 +234,7 @@ def t_error(t):
     #print("fila ", t.lexer.lineno)
     #print("Columna ", columas(columna))
     col = columas(columna)
-    dato = Error("Error Lexico", t.value[0], t.lexer.lineno, col)
+    dato = Excepcion(0,"Error Lexico", f"El Simbolo << {t.value[0]} >> No Pertenece al Lenguaje", t.lexer.lineno, col)
     lista_errores_lexico.append(dato)
     t.lexer.skip(1)
 

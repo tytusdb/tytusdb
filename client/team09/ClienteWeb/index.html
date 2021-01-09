@@ -8,7 +8,8 @@
         <meta name = "viewport" content="width=device-width, initial-scale=1">
         
         <link rel = "stylesheet" type = "text/css" href = "layout/index.css"/>
-        
+        <script src = "layout/index.js"></script>
+
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         
         <link rel = "stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
@@ -32,43 +33,63 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             File
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Preferences</a>
-                            <a class="dropdown-item" href="#">Reset Layout</a>
-                            <a class="dropdown-item" href="#">Look Layout</a>
+                            <a class="dropdown-item" href="/inicio" onclick="createScript()">New Script</a>
+                            <a class="dropdown-item" href="/inicio" onclick="openScript()">Open Script</a>
+                           
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Object
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Create</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="createDatabase()">Create Database</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="deleteDatabase()">Delete Database</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="drop()">Drop</a>         
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="/inicio" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Tools
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Create</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="backup()">Create Backup</a>         
                         </div>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="/inicio" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Help
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Create</a>         
+                            <a class="dropdown-item" href="/inicio" onclick="info()">Info</a>         
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="/inicio" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Conexion
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item"  onclick="peticion()">Prueba</a>         
                         </div>
                     </li>
                 </ul>
+               
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit" onclick="logout()">Logout</button>
+                 
             </div>
         </nav>
         <div id = "lateral" class="lateral" style="width: 15%; left: 0px; top: 56px; bottom: 1%; resize: none; overflow: auto;">
+
+            
+                <a class="nav-link dropdown-toggle" style="color:black" href="#" onclick="server()" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    SERVER
+                </a>
+             
+           
         <script>
             $(document).ready(function(){
                 var height = $(window).height();
@@ -77,10 +98,24 @@
             });
         </script>
         </div>
+
+
+        <div class="barra">
+            
+            <button style="width: 70px; height: 30px; color: black" onclick="ejecutar()">ejecutar</button>
+        </div>
         <div id = "contenedor" class = "contenedorQuery">
-            <textarea id = "texto" class = "textoQuery" style = "display: none; min-width: 100%;"></textarea>
+            <textarea id = "texto" class = "textoQuery" style = "display: none; min-height: 10%;"></textarea>
             <script type = "text/javascript"> 
+
+
                 var contenedor = document.getElementById("contenedor")
+
+                $(document).ready(function(){
+                    var height = $(window).height();
+                    height = (height-100)*0.80
+                    $('#contenedor').height(height);
+                });
                 var texto = document.getElementById("texto")
                 var editor = CodeMirror(contenedor, {
                         lineNumbers: true,
@@ -94,11 +129,7 @@
                         
                 });
 
-                $(document).ready(function(){
-                    var height = $(window).height();
-                    height = (66*height)/100
-                    $('#contenedor').height(height);
-                });
+               
             </script>
         </div>
         <div id = "contenedorSalida" class = "contenedorSalida">
@@ -107,7 +138,7 @@
             <script>
                 $(document).ready(function(){
                     var height = $(window).height();
-                    height = height - (71.9*height)/100.1
+                    height = (height-100)*0.20
                     $('#contenedorSalida').height(height);
                 });
             </script>

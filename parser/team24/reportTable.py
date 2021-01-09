@@ -12,7 +12,7 @@ def graphTable(tabla : Tabla):
         c+= '\n</TD><TD>'
         c+= str(x.tipo)
         c+= '\n</TD><TD>'
-        c+= str(x.valor)
+        c+= str(x.nombre)
         c+= '\n</TD><TD>'
         c+= str(x.ambito)
         c+= '\n</TD></TR>'

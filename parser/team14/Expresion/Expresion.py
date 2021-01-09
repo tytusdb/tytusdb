@@ -15,3 +15,5 @@ class Expresion(Nodo):
     def getval(self,entorno):
             'Metodo Abstracto para obtener el valor de la Instrruccion'
 
+    def getTipo(self, entorno):
+        'metodo abstracto getTipo'

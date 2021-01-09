@@ -1,8 +1,13 @@
+# Package:      BPlusMode
+# License:      Released under MIT License
+# Notice:       Copyright (c) 2020 TytusDB Team
+
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
-from Funciones import *
+from BPlusMode import *
+from PIL import Image
 
 
 def centrar_ventana(app, ancho, alto):
@@ -32,9 +37,9 @@ def ventana_imagen(imagen):
         label.image = img
         label.grid(row=0, column=0)
         label.pack(side="bottom", fill="both", expand="yes")
-
-
-
+        
+        abrir_img = Image.open('../team13/' + imagen + '')
+        abrir_img.show()
     except:
         print('Imagen no existe')
 
@@ -65,7 +70,7 @@ def ventana_principal():
     db.place(x=500, y=200)
 
     img_subir = PhotoImage(file="./images/subir.png")
-    db = Button(text="Cargar", bg="#FFFFFF", image=img_subir, compound="top", font=("Georgia", 16), command=abrir_archivo)
+    db = Button(text="Cargar", bg="#FFFFFF", image=img_subir, compound="top", font=("Georgia", 16), command=ventana_loadCSV)
     db.place(x=600, y=400)
 
     img_func = PhotoImage(file="./images/codificacion.png")
@@ -110,15 +115,18 @@ def ventana_db(ventana):
     combo = ttk.Combobox(app2, font=fuente)
     combo.place(x=150, y=330)
 
-    Label(app2, text="Seleccionar DB",  bg="#F0FFFF", font=("Georgia", 13)).place(x=180, y=300)
-    combo["values"] = DataBase.lista_bases()
-    combo.bind("<<ComboboxSelected>>", selection_changed)
+    if CheckData():
+        DB_archivo = Load("BD")
 
-    # Obtener imagen de la lista de db
-    DataBase.graficar()
-    img = 'AVL_DB.png'
-    boton_estructura = Button(app2, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_imagen(img))
-    boton_estructura.place(x=380, y=5)
+        Label(app2, text="Seleccionar DB",  bg="#F0FFFF", font=("Georgia", 13)).place(x=180, y=300)
+        combo["values"] = DB_archivo.lista_bases()
+        combo.bind("<<ComboboxSelected>>", selection_changed)
+
+        # Obtener imagen de la lista de db
+        DB_archivo.graficar()
+        img = 'AVL_DB.png'
+        boton_estructura = Button(app2, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_imagen(img))
+        boton_estructura.place(x=380, y=5)
 
 
 def ventana_lista_tablas(ventana, db):
@@ -146,23 +154,24 @@ def ventana_lista_tablas(ventana, db):
 
     Label(app, text="Tablas de DB:\n"+db, bg="#F0FFFF", font=("Georgia", 13)).place(x=190, y=300)
 
-    db = DataBase.buscar(db)
-    lista_tablas = db.avlTable.lista_tablas()
-    print(db.name + ' ', lista_tablas)
+    if CheckData():
+        DataBase = Load("BD")
+        db = DataBase.buscar(db)
+        lista_tablas = db.avlTable.lista_tablas()
+        print(db.name + ' ', lista_tablas)
 
-    if lista_tablas is None:
-        messagebox.showinfo('', 'LA DB "'+db.name+'" NO TIENE TABLAS')
-        ventana_db(app)
+        if lista_tablas is None:
+            messagebox.showinfo('', 'LA DB "'+db.name+'" NO TIENE TABLAS')
+            ventana_db(app)
+        else:
+            combo["values"] = lista_tablas
+            combo.bind("<<ComboboxSelected>>", selection_changed)
 
-    else:
-        combo["values"] = lista_tablas
-        combo.bind("<<ComboboxSelected>>", selection_changed)
-
-        db.avlTable.graficar()
-        img = 'AVL_T.png'
-        boton_estructura = Button(app, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10),
-                                  command=lambda: ventana_imagen(img))
-        boton_estructura.place(x=380, y=5)
+            db.avlTable.graficar()
+            img = 'AVL_T.png'
+            boton_estructura = Button(app, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10),
+                                      command=lambda: ventana_imagen(img))
+            boton_estructura.place(x=380, y=5)
 
 
 def ventana_tupla(ventana, tupla, db):
@@ -181,41 +190,43 @@ def ventana_tupla(ventana, tupla, db):
     Label(app, text="Registro de la tupla:\n" + tupla, bg="#F0FFFF", font=("Georgia", 13)).place(x=180, y=250)
 
     def mensaje():
-        base = DataBase.buscar(str(db.name))
-        table = base.avlTable.buscar(tupla)
-        try:
-            lista = table.bPlus.lista_nodos()
-            if lista is not None:
-                table.bPlus.graphTree()
-                img = 'ArbolB+.png'
-                boton_estructura = Button(app, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_imagen(img))
-                boton_estructura.place(x=380, y=5)
+        if CheckData():
+            DataBase = Load("BD")
+            base = DataBase.buscar(str(db.name))
+            table = base.avlTable.buscar(tupla)
+            try:
+                lista = table.bPlus.lista_nodos()
+                if lista is not None:
+                    table.bPlus.graphTree()
+                    img = 'ArbolB+.png'
+                    boton_estructura = Button(app, text="Ver estructura", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_imagen(img))
+                    boton_estructura.place(x=380, y=5)
 
-                app2 = Toplevel()
-                color = "#F0FFFF"
-                configuracion_defecto(app2)
-                centrar_ventana(app2, 900, 700)
+                    app2 = Toplevel()
+                    color = "#F0FFFF"
+                    configuracion_defecto(app2)
+                    centrar_ventana(app2, 900, 700)
 
-                tabla = ttk.Treeview(app2, height=32)
-                tabla["columns"] = "#0"
-                tabla.column("#0", width=650, minwidth=400)
-                tabla.heading("#0", text="Registros", anchor="center")
+                    tabla = ttk.Treeview(app2, height=32)
+                    tabla["columns"] = "#0"
+                    tabla.column("#0", width=650, minwidth=400)
+                    tabla.heading("#0", text="Registros", anchor="center")
 
-                tabla.place(x=20, y=20)
+                    tabla.place(x=20, y=20)
 
-                #tabla.place(x=50, y=350)
-                mensaje = ''
-                contador = 0
-                for i in lista:
-                    contador += 1
-                    for x in i:
-                        mensaje += str(x) + "  "
-                    print(mensaje)
-                    tabla.insert('', 'end', text=mensaje)
+                    #tabla.place(x=50, y=350)
                     mensaje = ''
-        except:
-            messagebox.showinfo('', 'LA TABLA NO TIENE REGISTROS')
-            ventana_lista_tablas(app, db.name)
+                    contador = 0
+                    for i in lista:
+                        contador += 1
+                        for x in i:
+                            mensaje += str(x) + "  "
+                        print(mensaje)
+                        tabla.insert('', 'end', text=mensaje)
+                        mensaje = ''
+            except:
+                messagebox.showinfo('', 'LA TABLA NO TIENE REGISTROS')
+                ventana_lista_tablas(app, db.name)
 
     bt = Button(app, text="Ver registros", font='Georgia 10', bg='#98FB98', command=mensaje)
     bt.place(x=200, y=310)
@@ -643,7 +654,9 @@ def ventana_alter_table(ventana):
         elif valor_retorno == '2':
             messagebox.showinfo('', 'DB NO EXISTENTE')
         elif valor_retorno == '3':
-            messagebox.showinfo('', 'TABLA EXISTENTE')
+            messagebox.showinfo('', 'tableOld NO EXISTENTE')
+        elif valor_retorno == '4':
+            messagebox.showinfo('', 'tableNew EXISTENTE')
         ventana_funciones(app)
 
     bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=lambda:guardar(nombre_db.get(), nombre_actual.get(), nombre_nuevo.get()))
@@ -1111,11 +1124,8 @@ def ventana_extract_row(ventana):
         print(register)
 
         valor_retorno = extractRow(database, table, register)
-        print('----------------', extractRow(database, table, ['1']))
-
         print('extractRow: ', valor_retorno)
         if valor_retorno:  # No vacia
-            print('sjadfsadfsd: ', valor_retorno)
             messagebox.showinfo('', valor_retorno)
         else:
             messagebox.showinfo('', 'LISTA VACIA O CON PROBLEMAS')
@@ -1128,14 +1138,32 @@ def ventana_extract_row(ventana):
     boton_regresar.place(x=10, y=5)
 
 
-# CARGAR ARCHIVO
-def abrir_archivo():
-    nombre_archivo = filedialog.askopenfilename(title='Seleccione archivo')
-    if nombre_archivo != '':
-        archivo = open(nombre_archivo, 'r', encoding='utf-8')
-        contenido = archivo.read()
-        archivo.close()
-        print(contenido)
+
+def ventana_loadCSV():
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='loadCSV', bg="#F0FFFF", font=("Georgia", 20)).place(x=200, y=140)
+
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=215, y=200, width=245)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=215, y=230, width=245)
+
+    Label(app, text='Ruta:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    ruta = Entry(app, font=("Georgia", 10))
+    ruta.place(x=215, y=260, width=245)
+
+    def guardar(ruta_, database, table):
+        valor_retorno = loadCSV(ruta_, database, table)
+        print('loadCSV: ', valor_retorno)
+        messagebox.showinfo('', 'ARCHIVO PROCESADO')
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98',command=lambda:guardar(ruta.get(), nombre_db.get(), nombre_tabla.get()))
+    bt.place(x=215, y=300)
 
 
 ventana_principal()

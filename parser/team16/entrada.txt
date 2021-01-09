@@ -1,0 +1,5 @@
+DROP TABLE perro;
+DROP TABLE perro_salvaje;
+DROP TABLE perro_peludo;
+
+UPDATE products SET price = B'1111' WHERE price = 5 and size = 20 or tabla1 != 2*2;

@@ -11,18 +11,18 @@ class use_db(instruccion):
         self.id_db = id_db
 
         #Nodo AST Use DB
-        self.nodo = nodo_AST('USE DATABSE', num_nodo)
-        self.nodo.hijos.append(nodo_AST('USE DATABASE', num_nodo+1))
+        self.nodo = nodo_AST('USE ', num_nodo)
+        self.nodo.hijos.append(nodo_AST('USE ', num_nodo+1))
         self.nodo.hijos.append(nodo_AST(id_db, num_nodo+2))
 
         #Gramatica
-        self.grammar_ = '<TR><TD> INSTRUCCION ::= USE DATABASE ' + id_db + ' </TD><TD> INSTRUCCION = new use_db(' + id_db + '); </TD></TR>\n'
+        self.grammar_ = '<TR><TD> INSTRUCCION ::= USE ' + id_db + '; </TD><TD> INSTRUCCION = new use_db(' + id_db + '); </TD></TR>\n'
 
     def ejecutar(self):
         try:
             existe_db = ts.get_db(self.id_db)
             update_use_db(self.id_db)            
-            add_text('Base de datos en uso: ' + self.id_db +'\n')
+            add_text('M-00000 successful completion: You are using the following database: ' + self.id_db +'\n')
         except:
-            errores.append(nodo_error(self.line, self.column, 'No se encontro la base de datos ' + self.id_db, 'Semántico'))
-            add_text('ERROR - No se encontro la base de datos ' + self.id_db + '\n')
+            errores.append(nodo_error(self.line, self.column, 'E-42602 invalid name: A database with the following name was not found ' + self.id_db, 'Semántico'))
+            add_text('E-42602 invalid name: A database with the following name was not found ' + self.id_db + '\n')

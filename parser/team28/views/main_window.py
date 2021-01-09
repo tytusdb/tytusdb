@@ -10,13 +10,13 @@ from prettytable import PrettyTable
 import os
 import json
 
-from utils.decorators import singleton
 from utils.analyzers.syntactic import *
-from controllers.error_controller import ErrorController
-from utils.reports.generate_ast import GraficarAST
-from utils.reports.report_error import ReportError
 from controllers.ast_construction import *
+from utils.reports.generate_ast import GraficarAST
+from controllers.error_controller import ErrorController
+from utils.reports.report_error import ReportError
 from utils.reports.symbol_report import SymbolTableReport
+from utils.reports.tchecker_report import TypeCheckerReport
 from views.data_window import DataWindow
 
 report_error = None
@@ -66,16 +66,34 @@ class MainWindow(object):
         archivoMenu.add_command(label='Salir', command=self.terminar)
         #############################################MENU WINDOWS##############################################
         windows_menu = Menu(barraMenu, tearoff=0)
-        windows_menu.add_command(label='Report AST',
+        windows_menu.add_command(label='AST',
                                  command=self.report_ast_windows)
-        windows_menu.add_command(label='Report Errors',
+        windows_menu.add_separator()
+        windows_menu.add_command(label='Tabla de errores',
                                  command=self.report_errors_windows)
+        windows_menu.add_command(label='Tabla de simbolos',
+                                 command=self.report_symbols_windows)
+        windows_menu.add_separator()
+        windows_menu.add_command(label='Type Checker',
+                                 command=self.report_typeChecker_windows)
+        windows_menu.add_separator()
+        windows_menu.add_command(label='Reporte Gramatical',
+                                 command=self.report_bnf_windows)
         #############################################MENU LINUX################################################
         ubuntu_menu = Menu(barraMenu, tearoff=0)
-        ubuntu_menu.add_command(label='Report AST',
+        ubuntu_menu.add_command(label='AST',
                                 command=self.report_ast_ubuntu)
-        ubuntu_menu.add_command(label='Report Errors',
+        ubuntu_menu.add_separator()
+        ubuntu_menu.add_command(label='Tabla de errores',
                                 command=self.report_errors_ubuntu)
+        ubuntu_menu.add_command(label='Tabla de simbolos',
+                                command=self.report_symbols_ubuntu)
+        ubuntu_menu.add_separator()
+        ubuntu_menu.add_command(label='Type Checker',
+                                command=self.report_typeChecker_ubuntu)
+        ubuntu_menu.add_separator()
+        ubuntu_menu.add_command(label='Reporte Gramatical',
+                                command=self.report_bnf_ubuntu)
         #############################################MENU REPORTES#############################################
         archivoReportes = Menu(barraMenu, tearoff=0)
         archivoReportes.add_cascade(label='Windows', menu=windows_menu)
@@ -117,7 +135,7 @@ class MainWindow(object):
 
     def nuevo(self):
         self.entrada.delete(1.0, END)
-        self.salida.delete(1.0, END)
+        DataWindow().clearConsole()
         self.archivo = ''
 
     # Guarda el archivo
@@ -143,6 +161,8 @@ class MainWindow(object):
         global report_ast
 
         DataWindow().clearConsole()
+        SymbolTable().destroy()
+
         texto = self.entrada.get('1.0', END)
         result = parse(texto)
         # jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
@@ -158,46 +178,99 @@ class MainWindow(object):
 
             # ---------- TEST ---------
             for inst in result:
-                inst.process(0)
+                # esto es por los select anidados (subquerys), no encontre otra menera
+                # de retornar la tabla dibujada, lo hacia en mi clase
+                # pero si lo dejaba ahi me tronaban las subquery,
+                # prueben que no les de problema
+                if isinstance(inst, Select):
+                    result = inst.process(0)
+                    if isinstance(result, DataFrame):
+                        DataWindow().consoleText(format_df(result))
+                    elif isinstance(result, list):
+                        DataWindow().consoleText(format_table_list(result))
+                else:
+                    inst.process(0)
             # ---------- TEST ---------
 
     # Para mostrar el editor
     def report_ast_ubuntu(self):
         global report_ast
         graficadora = GraficarAST()
-        report = open('./team28/dot.txt', 'w')
+        report = open('./team28/ast.dot', 'w')
         report.write(graficadora.generate_string(report_ast))
         report.close()
-        os.system('dot -Tpdf ./team28/dot.txt -o ./team28/ast.pdf')
+        os.system('dot -Tpng ./team28/ast.dot -o ./team28/ast.png')
         # Si estan en ubuntu dejan esta linea si no la comentan y descomentan la otra para windows
-        os.system('xdg-open ./team28/ast.pdf')
-        # os.open('ast.pdf')
-        # os.startfile('ast.pdf')
+        os.system('xdg-open ./team28/ast.png')
+        # os.open('ast.png')
+        # os.startfile('ast.png')
 
     def report_errors_ubuntu(self):
         global report_error
-        report = open('./team28/dot.txt', 'w')
-        report.write(report_error.get_report(ErrorController().getList()))
+        report = open('./team28/errors.dot', 'w')
+        report.write(report_error.get_report())
         report.close()
-        os.system('dot -Tpdf ./team28/dot.txt -o ./team28/error.pdf')
-        os.system('xdg-open ./team28/error.pdf')
+        os.system('dot -Tpng ./team28/errors.dot -o ./team28/error.png')
+        os.system('xdg-open ./team28/error.png')
 
-    def report_errors_windows(self):
-        global report_error
-        report = open('dot.txt', 'w')
-        report.write(report_error.get_report(ErrorController().getList()))
+    def report_symbols_ubuntu(self):
+        report = open('symbolTable.dot', 'w')
+        report.write(SymbolTableReport().generateReport())
         report.close()
-        os.system('dot -Tpdf dot.txt -o  error.pdf')
-        os.startfile('error.pdf')
+        os.system('dot -Tpng ./team28/symbolTable.dot -o ./team28/symbolTable.png')
+        os.system('xdg-open ./team28/symbolTable.png')
+
+    def report_typeChecker_ubuntu(self):
+        report = open('typeChecker.dot', 'w')
+        report.write(TypeCheckerReport().generateReport())
+        report.close()
+        os.system('dot -Tpng ./team28/typeChecker.dot -o ./team28/typeChecker.png')
+        os.system('xdg-open ./team28/typeChecker.png')
+
+    def report_bnf_ubuntu(self):
+        global report_ast
+        report = open('bfn.txt', 'w')
+        report.write(report_ast.production)
+        report.close()
+        os.system('xdg-open ./team28/bfn.txt')
 
     def report_ast_windows(self):
         global report_ast
         graficadora = GraficarAST()
-        report = open('dot.txt', 'w')
+        report = open('ast.dot', 'w')
         report.write(graficadora.generate_string(report_ast))
         report.close()
-        os.system('dot -Tpdf dot.txt -o ast.pdf')
-        os.startfile('ast.pdf')
+        os.system('dot -Tpng ast.dot -o ast.png')
+        os.startfile('ast.png')
+
+    def report_errors_windows(self):
+        global report_error
+        report = open('errors.dot', 'w')
+        report.write(report_error.get_report())
+        report.close()
+        os.system('dot -Tpng errors.dot -o  error.png')
+        os.startfile('error.png')
+
+    def report_symbols_windows(self):
+        report = open('symbolTable.dot', 'w')
+        report.write(SymbolTableReport().generateReport())
+        report.close()
+        os.system('dot -Tpng symbolTable.dot -o symbolTable.png')
+        os.startfile('symbolTable.png')
+
+    def report_typeChecker_windows(self):
+        report = open('typeChecker.dot', 'w')
+        report.write(TypeCheckerReport().generateReport())
+        report.close()
+        os.system('dot -Tpng typeChecker.dot -o typeChecker.png')
+        os.startfile('typeChecker.png')
+
+    def report_bnf_windows(self):
+        global report_ast
+        report = open('bfn.txt', 'w')
+        report.write(report_ast.production)
+        report.close()
+        os.startfile('bfn.txt')
 
     # Para salir de la aplicacion
     def terminar(self):

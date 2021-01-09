@@ -1,5 +1,7 @@
 from Expresion.Expresion import Expresion
 from Entorno import Entorno
+from Tipo import Tipo
+from Expresion.Terminal import Terminal
 
 class Extract(Expresion):
     'This is an abstract class'
@@ -17,14 +19,20 @@ class Extract(Expresion):
         splitedfecha= fecha.split('-')
         splitedhora = hora.split(':')
         if self.field=='year':
-            return splitedfecha[0]
+            tipo=Tipo('integer',None,-1,-1)
+            return Terminal(tipo,splitedfecha[0])
         elif self.field=='month':
-            return splitedfecha[1]
+            tipo = Tipo('integer', None, -1, -1)
+            return Terminal(tipo,splitedfecha[1])
         elif self.field == 'day':
-            return splitedfecha[2]
+            tipo = Tipo('integer', None, -1, -1)
+            return Terminal(tipo,splitedfecha[2])
         elif self.field=='hour':
-            return splitedhora[0]
+            tipo = Tipo('integer', None, -1, -1)
+            return Terminal(tipo,splitedhora[0])
         elif self.field=='minute':
-            return splitedhora[1]
+            tipo = Tipo('integer', None, -1, -1)
+            return Terminal(tipo,splitedhora[1])
         elif self.field == 'second':
-            return splitedhora[2]
+            tipo = Tipo('integer', None, -1, -1)
+            return Terminal(tipo,splitedhora[2])

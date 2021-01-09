@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from bstring_functions import substring
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.bstring_functions import substring
 
 class Substring(Function):
     def __init__(self, input1, input2, input3, row, column):
@@ -36,6 +31,7 @@ class Substring(Function):
         #input valor puntual
         else:
             value = self.input1.execute(environment)
+            print(value, value2, value3)
             if value['typ'] != Type.STRING:
                 return {'Error':"El valor " + value['value'] + " no es String", 'linea':self.row,'columna':self.column }
-            return [{'value': substring(value['value'],value2['value'],value3['value']), 'typ': Type.STRING}]
+            return {'value': substring(value['value'],value2['value'],value3['value']), 'typ': Type.STRING}

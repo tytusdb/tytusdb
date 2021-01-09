@@ -1,0 +1,15 @@
+instruciones/**/*__pycache__
+parser.out
+parsetab.py
+__pycache__
+ply
+/Digraph.gv
+/Graph.gv
+/Digraph.gv
+ambiente_de_instalacion.txt
+*.html
+archivos_entrada
+data
+.idea
+storageManager
+debug.log

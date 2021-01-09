@@ -1,3 +1,7 @@
+# Package:      BPlusMode
+# License:      Released under MIT License
+# Notice:       Copyright (c) 2020 TytusDB Team
+
 import os
 
 class BPLUS_TUPLE:
@@ -13,10 +17,10 @@ class BPLUS_TUPLE:
         self.__PK = []
         self.contador = 1
         self.hide = False
-    
+
     def get_root(self):
         return self.__root
-   
+
     def set_root(self, root):
         self.__root = root
 
@@ -63,7 +67,7 @@ class BPLUS_TUPLE:
                 self.__root = self.__root.add_key(NodeTBPlus(pk,register))
                 return 0
             return 5
-    
+
     def extractRow(self, columns: list) -> list:
        if self.__root is not None:
             pk = []
@@ -74,7 +78,7 @@ class BPLUS_TUPLE:
                 return self.__root._CallPage(pk)
        else:
             return []
-        
+
     def update(self, register: dict, columns: list) -> int:
         if self.__root is not None:
             for column in register:
@@ -93,18 +97,18 @@ class BPLUS_TUPLE:
                 return 0
             return 4
         return 1
-    
+
     def truncate(self) -> int:
         self.__root = None
         return 0
-    
+
     def Search(self, key):
         if self.__root is not None:
             return self.__root.CallPage(key)
-    
-    # Print tree
+
     def showTree(self):
         self._showTree(self.__root, 0)
+
 
     def _showTree(self, tmp, level):
         print("Level", level, ": ", end="")
@@ -113,7 +117,6 @@ class BPLUS_TUPLE:
             for i in range(len(tmp.get_chlds())):
                 self._showTree(tmp.get_chlds()[i], level + 1)
 
-    # graph tree
     def graphTree(self):
         if self.__root is not None:
             graph = 'digraph G{\n'
@@ -137,17 +140,20 @@ class BPLUS_TUPLE:
             for i in range(len(tmp.get_chlds())):
                 cadena += self._graphTree(tmp.get_chlds()[i], level + 1)
         return cadena
-                
-    # Rank = same to the nodes (leaves)
+
     def _rankLeaves(self, tmp):
         cadena = ""
         cadena += tmp.rankLeavesKeys(tmp)
         return cadena
-    
-    def alterAddColumn(self, new_column):
+
+    def alterAddColumn(self, new_column, tabla):
+        if type(new_column) is list:
+            return 1
         self._alterAddColumn(self.__root, new_column)
         self.__size += 1
-        print('NUEVO TAMAÑO DE LA TABLA: ', self.__size)
+        tama = self.__size
+        tabla.set_numberColumns(tama)
+        return 0
 
     def _alterAddColumn(self, temp, new_column):
         temp.add_new_column(temp, new_column)
@@ -156,13 +162,12 @@ class BPLUS_TUPLE:
         lista = []
         lista_tuplas = self.__root.lista__tuplas(self.__root, lista)
         return lista_tuplas
-    
+
     def verify_Nodes(self):
         dataList = []
         if self.__root is not None:
             self._verify_Nodes(self.__root, dataList)
         return dataList
-
 
     def _verify_Nodes(self, tmp, dataList):
         if len(tmp.get_chlds()) != 0:
@@ -172,44 +177,65 @@ class BPLUS_TUPLE:
                 dataList.append(i)
             if tmp.get_next() is not None:
                 self._verify_Nodes(tmp.get_next(), dataList)
-                
-                
+
     def extractReg(self):
         registros = []
         if self.__root is not None:
             self.__extractReg(self.__root,registros)
         return registros
-    
-    
+
     def __extractReg(self,nodo,registros):
         if len(nodo.get_chlds()) != 0:
             self.__extractReg(nodo.get_chlds()[0], registros)
         else:
             for i in nodo.get_keys():
-                registros.append(i.value)
                 registros.append(i.register)
             if nodo.get_next() is not None:
                 self.__extractReg(nodo.get_next(),registros)
-                
-    
+
     def extractRegRange(self,columnNumber,lower,upper):
         registros = []
         if self.__root is not None:
             self.__extractRegRange(self.__root,registros,columnNumber,lower,upper)
         return registros
-    
-    
+
     def __extractRegRange(self,nodo,registros,columnNumber,lower,upper):
         if len(nodo.get_chlds()) != 0:
             self.__extractRegRange(nodo.get_chlds()[0],registros,columnNumber,lower,upper)
         else:
             for i in nodo.get_keys():
-                if i.register[columnNumber] >= lower and i.register[columnNumber] <= upper:
-                    registros.append(i.register[columnNumber])
+                if str(i.register[columnNumber]) >= str(lower) and str(i.register[columnNumber]) <= str(upper):
+                    registros.append(i.register)
             if nodo.get_next() is not None:
                 self.__extractRegRange(nodo.get_next(),registros,columnNumber,lower,upper)
-    
                 
+    # AlterAddPK Methods            
+    def alterColumnsData(self, columnas, listaObjetos):
+        dataColumn = []
+        self._alterColumnsData(self.__root, dataColumn, columnas, listaObjetos)
+        return dataColumn
+    
+
+    def _alterColumnsData(self, tmp, dataColumn, columnas, listaObjetos):
+        if tmp is not None:
+            if len(tmp.get_chlds()) != 0:
+                self._alterColumnsData(tmp.get_chlds()[0], dataColumn, columnas, listaObjetos)
+            else:
+                if len(tmp.get_keys()) != 0:
+                    for i in tmp.get_keys():
+                        listaObjetos.append(i)
+                        llaveUnida = ""
+                        for j in range(len(columnas)):
+                            if j != (len(columnas)-1):
+                                llaveUnida += f"{i.register[columnas[j]]}-"
+                            else:
+                                llaveUnida += f"{i.register[columnas[j]]}"
+                        dataColumn.append(llaveUnida)
+
+                if tmp.get_next() is not None:
+                    self._alterColumnsData(tmp.get_next(), dataColumn, columnas, listaObjetos)
+                    
+
     def alterDropColumn(self, column, tabla):
         self._alterDropColumn(self.__root, column)
         for i in range(len(self.__PK)):
@@ -222,7 +248,6 @@ class BPLUS_TUPLE:
             tabla.listPk.append(i)
         return 0
 
-    
     def _alterDropColumn(self, tmp, column):
         if len(tmp.get_chlds()) != 0:
             self._alterDropColumn(tmp.get_chlds()[0], column)
@@ -231,15 +256,14 @@ class BPLUS_TUPLE:
                 i.register.pop(column)
             if tmp.get_next() is not None:
                 self._alterDropColumn(tmp.get_next(), column)
-                
 
     def lista_nodos(self):
         lista = []
         lista_nodos = self.__root.lista__nodos(self.__root, lista)
-        return lista_nodos                
-                
-class PageTBPlus:
+        return lista_nodos
     
+class PageTBPlus:
+
     def __init__(self, grade):
         if grade < 3:
             self.__grade = 3
@@ -290,7 +314,7 @@ class PageTBPlus:
 
     def add_chld(self, chld):
         self.__childs.append(chld)
-    
+
     def add_key(self, key):
         if len(self.__keys) == 0:
             self.__keys.append(key)
@@ -433,7 +457,7 @@ class PageTBPlus:
                 break
             elif i == (len(self.__keys) - 1):
                 self.__keys.append(key)
-                
+
     def insert_childs(self, aux, i):
         if type(aux) is list:
             self.__childs.pop(i)
@@ -449,7 +473,7 @@ class PageTBPlus:
         else:
             self.__childs[i] = aux
         return self
-    
+
     def CallPage(self, key):
         if (len(self.__childs) == 0) and (self.__father is None):
             return self.SearchTuple(key)
@@ -457,7 +481,7 @@ class PageTBPlus:
             return self.SearchTuple(key)
         else:
             return self.__childs[0].CallPage(key)
-    
+
     def SearchTuple(self, key):
         if self is not None:
             for i in self.__keys:
@@ -467,7 +491,7 @@ class PageTBPlus:
                 return False
             else:
                 return self.__next.SearchTuple(key)
-    
+
     def _CallPage(self, key):
         if (len(self.__childs) == 0) and (self.__father is None):
             return self._SearchTuple(key)
@@ -475,7 +499,7 @@ class PageTBPlus:
             return self._SearchTuple(key)
         else:
              return self.__childs[0]._CallPage(key)
-    
+
     def _SearchTuple(self, key):
         if self is not None:
             for i in self.__keys:
@@ -486,7 +510,6 @@ class PageTBPlus:
             else:
                 return self.__next._SearchTuple(key)
 
-    # Show Keys of Page
     def showKeys(self):
         if not (len(self.__keys) == 0):
             print("[", end=" ")
@@ -506,7 +529,6 @@ class PageTBPlus:
                 contador += 1
         print(" contador hijos: ", contador)
 
-    # Graph and show keys
     def graphKeys(self, tmp, level):
         cadena = ""
         if not (len(self.__keys) == 0):
@@ -538,8 +560,7 @@ class PageTBPlus:
                     for i in range(len(self.__childs)):
                         cadena += f"{tmp} -> {self.__childs[i]}\n"
         return cadena
-                        
-    # Rank = same to the nodes (leaves)
+
     def rankLeavesKeys(self, tmp):
         cadena = ""
         if len(tmp.get_chlds()) != 0:
@@ -548,10 +569,8 @@ class PageTBPlus:
             cadena += f"{tmp};\n"
             if tmp.get_next() is not None:
                 cadena += self.rankLeavesKeys(tmp.get_next())
-        return cadena    
+        return cadena
 
-
-    # Metodo para agregar nueva columna a la tabla
     def add_new_column(self, temp, new_column):
         if len(temp.get_chlds()) != 0:
             self.add_new_column(temp.get_chlds()[0], new_column)
@@ -562,6 +581,7 @@ class PageTBPlus:
             if temp.get_next() is not None:
                 self.add_new_column(temp.get_next(), new_column)
 
+   
     def lista__tuplas(self, temp, lista):
         if len(temp.get_chlds()) != 0:
             self.lista__tuplas(temp.get_chlds()[0], lista)
@@ -586,13 +606,8 @@ class PageTBPlus:
 
         return lista
     
-    
 class NodeTBPlus:
-
     def __init__(self, PK, register):
         self.value = PK
         self.register = register
-        
 
-
-    

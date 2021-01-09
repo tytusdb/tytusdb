@@ -43,8 +43,44 @@ export class NavbarComponent implements OnInit {
     );
   }
 
+
   
 
 
  
+
+  public saveAs() {
+    Swal.fire({
+      title: 'Ingrese el nombre:',
+      input: 'text',
+      inputAttributes: {
+        autocapitalize: 'off'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      showLoaderOnConfirm: true,
+      cancelButtonText: 'Cancelar   ',
+      preConfirm: (login) => {
+        this.descargar(login)
+        Swal.fire(
+          'Query guardado exitosamente ' + login,
+          '',
+          'info'
+        )
+      },
+    }).then((result) => {
+
+    })
+  }
+
+
+  descargar(name: any) {
+    var filename = name + ".sql";
+    var blob = new Blob([name], { type: 'text/plain' }); // EN ESTA LINEA AGREGAS TU TEXTO 
+    var link = document.createElement("a");
+    link.download = filename;
+    link.href = window.URL.createObjectURL(blob);
+    link.click();
+  }
+
 }

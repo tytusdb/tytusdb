@@ -1,12 +1,16 @@
 #
 import hashlib
 from datetime import date
+from os.path import split
 from main import ts
 import storage as s
 from enum import Enum
-from main import default_db
+import InstruccionesDGA as dga
 import mathtrig as mt
 import main
+import prettytable as pt
+import reportError as errores
+from reportError import CError
 #
 
 #
@@ -22,6 +26,53 @@ class exp_type(Enum):
 class query():
     ' Clase abstracta query'
 
+class select_func(query):
+    def __init__(self,lista):
+        self.lista = lista
+    
+    def ejecutar(self):
+        
+        if self.lista == None: 
+            e = errores.CError(0,0,"Error funcion",'Semantico') 
+            errores.insert_error(e)
+            return e
+        else: 
+            if not isinstance(self.lista,list):
+                e = errores.CError(0,0,"Error funcion",'Semantico') 
+                errores.insert_error(e)
+                return e
+            else:
+                tables = {}
+                
+                
+                results = []
+                for col in self.lista:
+                    res = col.ejecutar(tables)
+                    if isinstance(res,errores.CError):
+                        e = errores.CError(0,0,"Error funcion",'Semantico') 
+                        errores.insert_error(e)
+                        return e
+                    results.append(res)
+
+                ptable = pt.PrettyTable()
+                enc = []
+                con = 0
+                for col in self.lista:
+                    if col.alias == None:
+                        enc.append(str(con)+' Funcion')
+                    else: 
+                        enc.append(col.alias)
+                    con += 1
+                ptable.field_names = enc
+                ptable.add_row(results)
+                #print(ptable)
+                return ptable
+            
+                
+
+
+
+
 
 class select(query):
 
@@ -35,24 +86,182 @@ class select(query):
         self.orderby = orderby
         self.limit = limit
         self.offset = offset
-        self.condition.append(having)
+        if having is not None and condition is not None:
+            self.condition.append(having)
+        
+        
 
     def ejecutar(self):
+
+        gro = self.group
         #Obtener la lista de tablas
         tables = {}
         for tabla in self.table_expression:
             tables[tabla.id]  = tabla.alias
-
+        
         results = []
         for col in self.select_list:
+            
+            
+            
             res = col.ejecutar(tables)
+            if isinstance(res,errores.CError):
+                e = errores.CError(0,0,"Error obteniendo informacion de alguna columna.",'Semantico') 
+                errores.insert_error(e)
+                return e
+            
             results.append(res)
         
+        
+        conditions = []
+        if self.condition is not None:
+            conditions = ejecutar_conditions(tables,self.condition)
+            if isinstance(conditions,errores.CError):
+                e = errores.CError(0,0,"Error realizando las condiciones.",'Semantico')
+                errores.insert_error(e)
+                return e
+        grouped = []
+        
+        if self.group :
+            
+            grouped = ejecutar_groupBy(results,self.select_list)
+            if isinstance(grouped,errores.CError):
+                e = errores.CError(0,0,"Error agrupando los elementos.",'Semantico')
+                errores.insert_error(e)
+                return e
 
-        conditions = ejecutar_conditions(tables,self.condition)
-        return conditions
+        #Mostrar resultados
+        for column in results:
+
+            if isinstance(column,dict) and isinstance(column['valores'],list) and isinstance(conditions,dict):
+                column['valores'] = filtrar(column['valores'],conditions['posiciones'])
+            elif isinstance(column,dict) and isinstance(conditions,list) and conditions:
+                column['valores'] = filtrar(column['valores'],conditions)
         
             
+        consulta = []
+        fila = []
+        for col in self.select_list:
+            fila.append([col.alias])
+    
+        contador = 0
+        nombres = []
+        for column in results:
+            actual = fila[contador]
+            if None in actual:
+                if not isinstance(results[contador]['columna'][0],dict): 
+                    r = results[contador]['columna']
+                    fila[contador] = r
+                else:
+                    r = results[contador]['columna'][0]['nombre']
+                    fila[contador] = [r]
+            contador += 1
+        
+        enc = []
+        contador = 1
+        for arreglo in fila:
+            for valor in arreglo:
+                enc.append(str(contador)+'. '+valor)
+                nombres.append(str(contador)+'. '+valor)
+                contador = contador+1        
+
+        consulta.append(enc)
+        if gro:
+            colss=[]
+            contador = 0
+            for fila in grouped:
+                colss.append([])
+            for fila in grouped:
+                for i in range(len(grouped[0])):
+                    colss[i].append(fila[i])
+            consulta.extend(colss)    
+        else:
+            #añadiendo las columnas
+            conta = 0
+            for res in results:
+                vals = res['valores']
+                if isinstance(vals,int) or isinstance(vals,float):
+                    consulta.append([vals])
+                elif isinstance(vals[0],list):
+                    for v in vals:
+                        consulta.append(v)
+                else:
+                    consulta.append(vals)
+
+        #buscamos el arreglo mas largo   
+        max = 0
+        for i in range(1,len(consulta)) :
+            actual = len(consulta[i])
+            if actual>max: max = actual
+        
+        for col in consulta:
+            for i in range(max):
+                if len(col)<=i:
+                    col.append('-')
+        
+        
+                      
+        #Distinct
+        if self.distinct:
+            cabeceras = consulta[0]
+            rest = []
+            for i in range(1,len(consulta)):
+                rest.append(tuple(consulta[i]))
+            #remove duplicates
+            rest = list(set(rest))
+            result = [cabeceras]
+            for val in rest:
+                converted = list(val)
+                result.append(converted)
+            consulta = result
+            
+
+        salida = []
+        if self.limit != 0:
+            #self.limit = self.limit + 1
+            contador = 0
+            for fila in consulta:
+                salida.append(fila)
+                if contador == self.limit:
+                    break
+                
+                contador = contador + 1
+            consulta = salida
+
+        salida = []
+        if self.offset != 0:
+            #self.offset = self.offset + 1
+            contador = 0
+            for fila in consulta:
+                
+                if contador != self.offset:
+                    salida.append(fila)
+                
+                contador = contador + 1
+            consulta = salida
+
+        #
+        #Order by
+        sortby =''
+        if self.orderby is not None:
+            for nombre in nombres:
+                if self.orderby[1]  in nombre :
+                    sortby = nombre
+        #
+
+        
+        ptable = pt.PrettyTable()
+        for i in range(1,len(consulta)):
+            ptable.add_column(consulta[0][i-1],consulta[i])
+        if sortby != '':
+            ptable.sortby = sortby
+            if self.orderby[2].lower() =='desc':
+                ptable.reversesort = True
+        return ptable
+
+        
+
+        
         
             
 
@@ -77,16 +286,66 @@ class exp_id(exp_query):
         #Verificar si sabemos la tabla
         if self.table is None:
             #No sabemos la tabla
-            tupla = ts.getTabla(self.val)
+            if self.val == '*':
+                #Verificamos que solo sea una tabla la importada
+                if len(tables)>1:
+                    e = errores.CError(0,0,"La tabla buscada no está en el from",'Semantico')
+                    errores.insert_error(e)
+                    return e
+                t = list(tables)[0]
+                registros = s.extractTable(dga.NombreDB,t)
+                #Buscamos los encabezados
+                encabezados = ts.getColumns(dga.NombreDB,t)
+                if registros ==[] and encabezados == []:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
+                #Devolvemos todas las columnas
+                cols = []
+                #llenamos vacio
+                cont = len(registros[0])
+                for i in range(0,cont):
+                    cols.append([])
+                #metemos en los registros
+                for reg in registros:
+                    for i in range(0,cont):
+                        cols[i].append(reg[i])
+                dict = {
+                "valores":cols,
+                "columna":encabezados
+                }
+                return dict
+                
+            #Verificamos si es *
+            
+            #Tenemos que tener la tabla
+            c=0
+            while True: 
+                tupla = ts.getTabla(self.val,c)
+                if tupla is None:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
+                if tupla[0] not in tables and tupla[0] not in tables.values():
+                    c+=1
+                    tupla = ts.getTabla(self.val,c)
+                else:
+                    break
+            
+            
+            
             #Este devuelve la base de datos y la
             # tabla
-            if tupla is None : return #Error semántico
+            if tupla is None : 
+                e = errores.CError(0,0,"La tabla buscada no está en el from",'Semantico')
+                errores.insert_error(e)
+                return e
             #Ahora obtenemos los registros de la columna
-            registros = s.extractTable(tupla.db,tupla.tabla)
+            registros = s.extractTable(tupla[1],tupla[0])
 
             #Obtener el indice de la columna
 
-            indice = ts.getIndice(tupla.db,tupla.tabla,self.val)
+            indice = ts.getIndice(tupla[1],tupla[0],self.val)
 
             # Obtener la columna de los registros
 
@@ -95,21 +354,43 @@ class exp_id(exp_query):
                 columna.append(reg[indice])
             dict = {
                 "valores":columna,
-                "columna":[{"nombre":self.val,"indice":indice,"tabla":tupla.table}]
+                "columna":[{"nombre":self.val,"indice":indice,"tabla":tupla[0]}]
             }
             return dict
         else:
             #Verificamos que exista 
             if self.table not in tables and self.table not in tables.values():
-                #Error semántico
-                return None
+                e = errores.CError(0,0,"La tabla buscada no está en el from",'Semantico')
+                errores.insert_error(e)
+                return e
             # Existe, ahora obtenemos el nombre de la tabla
              
             if self.table not in tables.values():
                 # si no fuera un alias 
                 #significa que el nombre es la tabla
-                registros = s.extractTable(default_db,self.table)
-                indice = ts.getIndice(default_db,self.table,self.val)
+                registros = s.extractTable(dga.NombreDB,self.table)
+                if self.val == '*':
+                    encabezados = ts.getColumns(dga.NombreDB,self.table)
+                    cols = []
+                    #llenamos vacio
+                    cont = len(registros[0])
+                    for i in range(0,cont):
+                        cols.append([])
+                    #metemos en los registros
+                    for reg in registros:
+                        for i in range(0,cont):
+                            cols[i].append(reg[i])
+                    dict = {
+                            "valores":cols,
+                            "columna":encabezados
+                    }
+                    return dict
+
+                indice = ts.getIndice(dga.NombreDB,self.table,self.val)
+                if registros ==[] and indice == -1:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 col = []
                 for reg in registros:
                     col.append(reg[indice])
@@ -118,15 +399,43 @@ class exp_id(exp_query):
                     "valores" : col,
                     "columna" : [{"nombre":self.val,"indice":indice,"tabla":self.table}] 
                 }
+                
                 return dic
 
             else:
                 #Obtenemos el nombre basado en el alias
-                table = getKeyFromValue(self.table,tables)     
+                table = getKeyFromValue(self.table,tables)
+                if isinstance(table,CError):
+                    return table    
                 #Obtenemos la tabla
-                registros = s.extractTable(default_db,table)
+                registros = s.extractTable(dga.NombreDB,table)
+
+                if self.val == '*':
+                    encabezados = ts.getColumns(dga.NombreDB,table)
+                    if registros ==[] and encabezados == []:
+                        e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                        errores.insert_error(e)
+                        return e
+                    cols = []
+                    #llenamos vacio
+                    cont = len(registros[0])
+                    for i in range(0,cont):
+                        cols.append([])
+                    #metemos en los registros
+                    for reg in registros:
+                        for i in range(0,cont):
+                            cols[i].append(reg[i])
+                    dict = {
+                        "valores":cols,
+                        "columna":encabezados
+                    }
+                    return dict
                 #Obtenemos el indice de esa tabla
-                indice = main.ts.getIndice(default_db,table,self.val)
+                indice = main.ts.getIndice(dga.NombreDB,table,self.val)
+                if indice == -1:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 #Obtenemos la columan que queremos
                 col = []
                 for reg in registros:
@@ -205,13 +514,17 @@ class exp_suma(exp_query):
                     try:
                         me = float(menor[i]) 
                         ma = float(mayor[i])
-                        result.append(me-ma)
+                        result.append(me+ma)
                     except ValueError: 
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
+                menor = exp1 if len(val1) < len(val2) else exp2
                 newdict = {
                     'valores':result,
-                    'columna': exp1['columna'].append(exp2['columna'][0])
+                    'columna': menor['columna']
                 }
+                
                 return newdict
             else:
                 #Solo una de ellas es diccionario
@@ -224,7 +537,9 @@ class exp_suma(exp_query):
 
                         result.append(float(col)+float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -237,7 +552,9 @@ class exp_suma(exp_query):
                 
                 return float(exp1) + float(exp2)
             except ValueError: 
-                return None
+                e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
     
@@ -270,7 +587,9 @@ class exp_resta(exp_query):
                         ma = float(mayor[i])
                         result.append(me-ma)
                     except ValueError: 
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la resta.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                     
                 newdict = {
                     'valores':result,
@@ -289,7 +608,9 @@ class exp_resta(exp_query):
 
                         result.append(float(col)-float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -302,7 +623,9 @@ class exp_resta(exp_query):
                 
                 return float(exp1) - float(exp2)
             except ValueError: 
-                return None
+                e = errores.CError(0,0,"Imposible convertir a numeric en la resta.",'Semantico')
+                errores.insert_error(e)
+                return e
             
 
 
@@ -333,7 +656,9 @@ class exp_multiplicacion(exp_query):
                         ma = float(mayor[i])
                         result.append(me*ma)
                     except ValueError: 
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la multiplicacion.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -350,7 +675,9 @@ class exp_multiplicacion(exp_query):
 
                         result.append(float(col)*float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                     
                 newdict = {
                     'valores':result,
@@ -364,7 +691,9 @@ class exp_multiplicacion(exp_query):
                 
                 return float(exp1) *float(exp2)
             except ValueError: 
-                return None
+                e = errores.CError(0,0,"Imposible convertir a numeric en la multiplicacion.",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class exp_division(exp_query):
@@ -394,7 +723,9 @@ class exp_division(exp_query):
                         ma = float(mayor[i])
                         result.append(me/ma)
                     except ValueError: 
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la division.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                     
                 newdict = {
                     'valores':result,
@@ -412,7 +743,9 @@ class exp_division(exp_query):
 
                         result.append(float(col)/float(val))
                     except ValueError:
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -425,7 +758,9 @@ class exp_division(exp_query):
                 
                 return float(exp1) - float(exp2)
             except ValueError: 
-                return None
+                e = errores.CError(0,0,"Imposible convertir a numeric en la division.",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class select_column():
@@ -454,15 +789,22 @@ class math_abs(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(abs(reg))
+                    num = int(reg)
+                    result.append(abs(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 
             exp['valores']  = result
             return exp
@@ -470,9 +812,12 @@ class math_abs(column_mathtrig):
         else:
             #no es diccionario
             try:
-                return abs(exp)
+                num = float(exp)
+                return num
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
         
         
 
@@ -485,24 +830,34 @@ class math_cbrt(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try: 
-                    result.append(mt.cbrt(reg))
+                    num = float(reg)
+                    result.append(mt.cbrt(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.cbrt(exp)
+                num = float(exp)
+                return mt.cbrt(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_ceil(column_mathtrig):
@@ -513,24 +868,34 @@ class math_ceil(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.ceil(reg))
+                    num = float(reg)
+                    result.append(num)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.ceil(exp)
+                num = float(exp)
+                return mt.ceil(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_degrees(column_mathtrig):
@@ -541,24 +906,34 @@ class math_degrees(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.degrees(reg))
+                    num = float(reg)
+                    result.append(mt.degrees(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.degrees(exp)
+                num = float(exp)
+                return mt.degrees(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_div(column_mathtrig):
@@ -571,6 +946,10 @@ class math_div(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
+        if isinstance(exp1,CError) or isinstance(exp2,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -584,9 +963,13 @@ class math_div(column_mathtrig):
                 #iteramos sobre el menor
                 for i in range(len(menor)):
                     try:
-                        result.append(mt.div(menor[i],mayor[i]))
+                        num1 = float(menor[i])
+                        num2 = float(mayor[i]) 
+                        result.append(mt.div(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -600,9 +983,13 @@ class math_div(column_mathtrig):
                 result = []
                 for col in valores:
                     try:
-                        result.append(mt.div(col,val))
+                        num1 = float(col)
+                        num2 = float(val)
+                        result.append(mt.div(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -612,9 +999,13 @@ class math_div(column_mathtrig):
         #si ninguna es diccionario
         else:
             try:
-                return mt.div(float(exp1) , float(exp2))
+                num1 = float(exp1)
+                num2 = float(exp2)
+                return mt.div(num1 , num2)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
         
 
 class math_exp(column_mathtrig):
@@ -625,24 +1016,34 @@ class math_exp(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.exp(reg))
+                    num = int(reg)
+                    result.append(mt.exp(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.exp(exp)
+                num = int(exp)
+                return mt.exp(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 class math_factorial(column_mathtrig):
     def __init__(self, exp, alias):
@@ -652,24 +1053,34 @@ class math_factorial(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.factorial(reg))
+                    num = int(reg)
+                    result.append(mt.factorial(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.factorial(exp)
+                num = int(exp)
+                return mt.factorial(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_floor(column_mathtrig):
@@ -680,24 +1091,34 @@ class math_floor(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.floor(reg))
+                    num = float(reg)
+                    result.append(mt.floor(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.floor(exp)
+                num = float(exp)
+                return mt.floor(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico','Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_gcd(column_mathtrig):
@@ -710,6 +1131,10 @@ class math_gcd(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
+        if isinstance(exp1,CError) or isinstance(exp2,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -723,9 +1148,13 @@ class math_gcd(column_mathtrig):
                 #iteramos sobre el menor
                 for i in range(len(menor)):
                     try:
-                        result.append(mt.gcd(menor[i],mayor[i]))
+                        num1 = int(menor[i])
+                        num2 = int(mayor[i])
+                        result.append(mt.gcd(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -739,9 +1168,13 @@ class math_gcd(column_mathtrig):
                 result = []
                 for col in valores:
                     try:
-                        result.append(mt.gcd(col,val))
+                        num1 = int(col)
+                        num2 = int(val)
+                        result.append(mt.gcd(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -751,9 +1184,13 @@ class math_gcd(column_mathtrig):
         #si ninguna es diccionario
         else:
             try:
-                return mt.gcd(float(exp1) , float(exp2))
+                num1 = int(exp1)
+                num2 = int(exp2)
+                return mt.gcd(num1,num2)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 class math_lcm(column_mathtrig):
     def __init__(self,exp1,exp2,alias):
@@ -765,6 +1202,10 @@ class math_lcm(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
+        if isinstance(exp1,CError) or isinstance(exp2,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -778,9 +1219,13 @@ class math_lcm(column_mathtrig):
                 #iteramos sobre el menor
                 for i in range(len(menor)):
                     try:
-                        result.append(mt.lcm(menor[i],mayor[i]))
+                        num1 = int(menor[i])
+                        num2 = int(mayor[i])
+                        result.append(mt.lcm(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -794,9 +1239,13 @@ class math_lcm(column_mathtrig):
                 result = []
                 for col in valores:
                     try:
-                        result.append(mt.lcm(col,val))
+                        num1 = int(col)
+                        num2 = int(val)
+                        result.append(mt.lcm(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -806,9 +1255,13 @@ class math_lcm(column_mathtrig):
         #si ninguna es diccionario
         else:
             try:
-                return mt.lcm(float(exp1) , float(exp2))
+                num1 = int(exp1)
+                num2 = int(exp2)
+                return mt.lcm(num1,num2)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 
@@ -820,24 +1273,34 @@ class math_ln(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.ln(reg))
+                    num = float(reg)
+                    result.append(mt.ln(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.ln(float(exp))
+                num = float(exp)
+                return mt.ln(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_log(column_mathtrig):
@@ -850,6 +1313,10 @@ class math_log(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
+        if isinstance(exp1,CError) or isinstance(exp2,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -863,9 +1330,13 @@ class math_log(column_mathtrig):
                 #iteramos sobre el menor
                 for i in range(len(menor)):
                     try:
-                        result.append(mt.log(menor[i],mayor[i]))
+                        num1 = int(menor[i])
+                        num2 = int(mayor[i])
+                        result.append(mt.log(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -878,7 +1349,9 @@ class math_log(column_mathtrig):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(mt.log(col,val))
+                    num1 = int(col)
+                    num2 = int(val)
+                    result.append(mt.log(num1,num2))
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -888,9 +1361,13 @@ class math_log(column_mathtrig):
         #si ninguna es diccionario
         else:
             try:
-                return mt.log(float(exp1) , float(exp2))
+                num1 = int(exp1)
+                num2 = int(exp2)
+                return mt.log(num1,num2)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_log10(column_mathtrig):
@@ -901,21 +1378,29 @@ class math_log10(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.log10(reg))
+                    num = float(reg)
+                    result.append(mt.log10(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.log10(exp)
+            num = float(exp)
+            return mt.log10(num)
 
 class math_min_scale(column_mathtrig):
     def __init__(self,exp,alias):
@@ -925,24 +1410,34 @@ class math_min_scale(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.min_scale(reg))
+                    num = int(reg)
+                    result.append(mt.min_scale(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.min_scale(float(exp))
+                num = int(exp)
+                return mt.min_scale(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 class math_scale(column_mathtrig):
     def __init__(self,exp,alias):
@@ -952,6 +1447,10 @@ class math_scale(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -960,7 +1459,9 @@ class math_scale(column_mathtrig):
                 try:
                     result.append(mt.scale(str(reg)))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
@@ -969,7 +1470,9 @@ class math_scale(column_mathtrig):
             try:
                 return mt.scale(str(exp))
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 class math_mod(column_mathtrig):
     def __init__(self, exp1,exp2, alias):
@@ -981,6 +1484,10 @@ class math_mod(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
+        if isinstance(exp1,CError) or isinstance(exp2,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -994,9 +1501,13 @@ class math_mod(column_mathtrig):
                 #iteramos sobre el menor
                 for i in range(len(menor)):
                     try:
-                        result.append(mt.mod(menor[i],mayor[i]))
+                        num1 = float(menor[i])
+                        num2 = float(mayor[i])
+                        result.append(mt.mod(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -1010,9 +1521,13 @@ class math_mod(column_mathtrig):
                 result = []
                 for col in valores:
                     try:
-                        result.append(mt.mod(col,val))
+                        num1 = float(col)
+                        num2 = float(val)
+                        result.append(mt.mod(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -1022,9 +1537,13 @@ class math_mod(column_mathtrig):
         #si ninguna es diccionario
         else:
             try:
-                return mt.mod(float(exp1) , float(exp2))
+                num1 = float(exp1)
+                num2 = float(exp2)
+                return mt.mod(num1,num2)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_pi(column_mathtrig):
@@ -1036,7 +1555,9 @@ class math_pi(column_mathtrig):
         try:
             return self.val
         except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_power(column_mathtrig):
@@ -1049,6 +1570,10 @@ class math_power(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
+        if isinstance(exp1,CError) or isinstance(exp2,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -1062,9 +1587,13 @@ class math_power(column_mathtrig):
                 #iteramos sobre el menor
                 for i in range(len(menor)):
                     try:
-                        result.append(mt.power(menor[i],mayor[i]))
+                        num1 = int(menor[i])
+                        num2 = int(mayor[i])
+                        result.append(mt.power(num1,num2))
                     except ValueError:
-                        return None
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -1078,9 +1607,13 @@ class math_power(column_mathtrig):
                 result = []
                 for col in valores:
                     try:
-                        result.append(mt.power(col,val))
+                        num1 = int(col)
+                        num2 = int(val)
+                        result.append(mt.power(num1,num2))
                     except ValueError:
-                        return None 
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -1090,9 +1623,13 @@ class math_power(column_mathtrig):
         #si ninguna es diccionario
         else:
             try:
-                return mt.power(float(exp1) , float(exp2))
+                num1 = int(exp1)
+                num2 = int(exp2)
+                return mt.power(num1,num2)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_radians(column_mathtrig):
@@ -1103,24 +1640,34 @@ class math_radians(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.radians(reg))
+                    num = float(reg)
+                    result.append(mt.radians(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.radians(exp)
+                num = float(exp)
+                return mt.radians(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_round(column_mathtrig):
@@ -1131,24 +1678,34 @@ class math_round(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(round(reg))
+                    num = float(reg)
+                    result.append(round(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return round(exp)
+                num = float(exp)
+                return round(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_sign(column_mathtrig):
@@ -1159,24 +1716,34 @@ class math_sign(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.sign(reg))
+                    num = float(reg)
+                    result.append(mt.sign(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.sign(exp)
+                num = float(exp)
+                return mt.sign(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_sqrt(column_mathtrig):
@@ -1187,24 +1754,34 @@ class math_sqrt(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.sqrt(reg))
+                    num = float(reg)
+                    result.append(mt.sqrt(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.sqrt(exp)
+                num = float(exp)
+                return mt.sqrt(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 class math_trim_scale(column_mathtrig):
     def __init__(self,exp,alias):
@@ -1214,15 +1791,22 @@ class math_trim_scale(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.trim_scale(reg))
+                    num = int(reg)
+                    result.append(mt.trim_scale(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
@@ -1230,9 +1814,12 @@ class math_trim_scale(column_mathtrig):
             #no es diccionario
 
             try:
-                return mt.trim_scale(exp)
+                num = int(exp)
+                return mt.trim_scale(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 class math_widthBucket(column_mathtrig):
     def __init__(self, exp1, exp2, exp3, exp4, alias):
@@ -1247,7 +1834,9 @@ class math_widthBucket(column_mathtrig):
         try:
             return mt.width_bucket(9,8,7,6)
         except ValueError:
-            return None
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
 
 
 class math_trunc(column_mathtrig):
@@ -1258,24 +1847,34 @@ class math_trunc(column_mathtrig):
     def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
+        if isinstance(exp,CError):
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
                 try:
-                    result.append(mt.trunc(reg))
+                    num = float(reg)
+                    result.append(mt.trunc(num))
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
+                    errores.insert_error(e)
+                    return e
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
             try:
-                return mt.trunc(exp)
+                num = float(exp)
+                return mt.trunc(num)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
 
 
 class math_random(column_mathtrig):
@@ -1295,7 +1894,10 @@ class math_setseed(column_mathtrig):
         try:
             mt.setseed(self.exp.ejecutar(tables))
         except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
+                errores.insert_error(e)
+                return e
+
 
 
 class trig_acos(column_mathtrig):
@@ -1305,6 +1907,10 @@ class trig_acos(column_mathtrig):
     
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1315,12 +1921,15 @@ class trig_acos(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.acos(temp)
                 subs.append(trim)
                 
             val['valores'] = subs
+            
             return val
             
                 
@@ -1330,7 +1939,9 @@ class trig_acos(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.acos(float(temp))
             
@@ -1347,6 +1958,10 @@ class trig_acosd(column_mathtrig):
     
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1357,7 +1972,9 @@ class trig_acosd(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.acosd(temp)
                 subs.append(trim)
@@ -1372,7 +1989,9 @@ class trig_acosd(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.acosd(float(temp))
             
@@ -1387,6 +2006,10 @@ class trig_asin(column_mathtrig):
     
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1397,7 +2020,9 @@ class trig_asin(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.asin(temp)
                 subs.append(trim)
@@ -1412,7 +2037,9 @@ class trig_asin(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.asin(float(temp))
             
@@ -1429,6 +2056,10 @@ class trig_asind(column_mathtrig):
     
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1439,7 +2070,9 @@ class trig_asind(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.asind(temp)
                 subs.append(trim)
@@ -1454,7 +2087,9 @@ class trig_asind(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.asind(float(temp))
             
@@ -1472,6 +2107,10 @@ class trig_atan(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1482,7 +2121,9 @@ class trig_atan(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.atan(temp)
                 subs.append(trim)
@@ -1497,7 +2138,9 @@ class trig_atan(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.atan(float(temp))
             
@@ -1514,6 +2157,10 @@ class trig_atand(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1524,7 +2171,9 @@ class trig_atand(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.atand(temp)
                 subs.append(trim)
@@ -1539,7 +2188,9 @@ class trig_atand(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.atand(float(temp))
             
@@ -1555,35 +2206,49 @@ class trig_atan2(column_mathtrig):
         self.alias = alias
 
     def ejecutar(self,tables):
-        val = self.exp.ejecutar(tables)
-        if isinstance(val,dict):        
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
+        if isinstance(val1,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico','Semantico')
+            errores.insert_error(e)
+            return e
+        if isinstance(val2,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico','Semantico')
+            errores.insert_error(e)
+            return e
+        if isinstance(val1,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
             
                 #recorro valores y saco el substring 
             subs = []
-            for st in val['valores']:
+            for st in val1['valores']:
                 try:
-                    temp = float(st)
+                    temp1 = float(st)
+                    temp2 = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
-                trim =  mt.atan2(temp)
+                trim =  mt.atan2(temp1,temp2)
                 subs.append(trim)
                 
-            val['valores'] = subs
-            return val
+            val1['valores'] = subs
+            return val1
             
                 
         #Es solo un valor en especifico
         else:
-            #saco el substring y lo devuelvo
             try:
-                temp = float(val)
+                temp1 = float(self.exp1)
+                temp2 = float(self.exp2)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
-            trim = mt.atan2(float(temp))
+            trim = mt.atan2(temp1,temp2)
             
             return trim
  
@@ -1595,40 +2260,54 @@ class trig_atan2(column_mathtrig):
 
 class trig_atan2d(column_mathtrig):
     def __init__(self, exp1, exp2, alias):
-        self.exp = exp1
+        self.exp1 = exp1
         self.exp2 = exp2
         self.alias = alias
     
     def ejecutar(self,tables):
-        val = self.exp.ejecutar(tables)
-        if isinstance(val,dict):        
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
+        if isinstance(val1,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
+        if isinstance(val2,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
+        if isinstance(val1,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
             
                 #recorro valores y saco el substring 
             subs = []
-            for st in val['valores']:
+            for st in val1['valores']:
                 try:
-                    temp = float(st)
+                    temp1 = float(st)
+                    temp2 = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
-                trim =  mt.atan2d(temp)
+                trim =  mt.atan2d(temp1,temp2)
                 subs.append(trim)
                 
-            val['valores'] = subs
-            return val
+            val1['valores'] = subs
+            return val1
             
                 
         #Es solo un valor en especifico
         else:
-            #saco el substring y lo devuelvo
             try:
-                temp = float(val)
+                temp1 = float(self.exp1)
+                temp2 = float(self.exp2)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
-            trim = mt.atan2d(float(temp))
+            trim = mt.atan2d(temp1,temp2)
             
             return trim
  
@@ -1643,6 +2322,10 @@ class trig_cos(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1653,7 +2336,9 @@ class trig_cos(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.cos(temp)
                 subs.append(trim)
@@ -1668,7 +2353,9 @@ class trig_cos(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.cos(float(temp))
             
@@ -1686,6 +2373,10 @@ class trig_cosd(column_mathtrig):
     
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1696,7 +2387,9 @@ class trig_cosd(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.cosd(temp)
                 subs.append(trim)
@@ -1711,7 +2404,9 @@ class trig_cosd(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.cosd(float(temp))
             
@@ -1729,6 +2424,10 @@ class trig_cot(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1739,7 +2438,9 @@ class trig_cot(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.cot(temp)
                 subs.append(trim)
@@ -1754,7 +2455,9 @@ class trig_cot(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.cot(float(temp))
             
@@ -1769,6 +2472,10 @@ class trig_cotd(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1779,7 +2486,9 @@ class trig_cotd(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e    
 
                 trim =  mt.cotd(temp)
                 subs.append(trim)
@@ -1794,7 +2503,9 @@ class trig_cotd(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.cotd(float(temp))
             
@@ -1810,6 +2521,10 @@ class trig_sin(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1820,7 +2535,9 @@ class trig_sin(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.sin(temp)
                 subs.append(trim)
@@ -1835,7 +2552,9 @@ class trig_sin(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.sin(float(temp))
             
@@ -1849,6 +2568,10 @@ class trig_sind(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1859,7 +2582,9 @@ class trig_sind(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.sind(temp)
                 subs.append(trim)
@@ -1874,7 +2599,9 @@ class trig_sind(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.sind(float(temp))
             
@@ -1888,6 +2615,10 @@ class trig_tan(column_mathtrig):
     
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1898,7 +2629,9 @@ class trig_tan(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.tan(temp)
                 subs.append(trim)
@@ -1913,7 +2646,9 @@ class trig_tan(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.tan(float(temp))
             
@@ -1929,6 +2664,10 @@ class trig_tand(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1939,7 +2678,9 @@ class trig_tand(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion tri",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.tand(temp)
                 subs.append(trim)
@@ -1954,7 +2695,9 @@ class trig_tand(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.tand(float(temp))
             
@@ -1968,6 +2711,10 @@ class trig_sinh(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1978,7 +2725,9 @@ class trig_sinh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.sinh(temp)
                 subs.append(trim)
@@ -1993,7 +2742,9 @@ class trig_sinh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.sinh(float(temp))
             
@@ -2009,6 +2760,10 @@ class trig_cosh(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2019,7 +2774,9 @@ class trig_cosh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
                     
                 trim =  mt.cosh(temp)
                 subs.append(trim)
@@ -2031,7 +2788,10 @@ class trig_cosh(column_mathtrig):
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val, int)): return None
+            if not (isinstance(val, int)): 
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
             trim = mt.cosh(float(val))
             
             return trim
@@ -2046,6 +2806,10 @@ class trig_tanh(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2056,7 +2820,9 @@ class trig_tanh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.tanh(temp)
                 subs.append(trim)
@@ -2071,7 +2837,9 @@ class trig_tanh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.tanh(float(temp))
             
@@ -2087,6 +2855,10 @@ class trig_asinh(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2097,7 +2869,9 @@ class trig_asinh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.asinh(temp)
                 subs.append(trim)
@@ -2112,7 +2886,9 @@ class trig_asinh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.asinh(float(temp))
             
@@ -2126,6 +2902,10 @@ class trig_acosh(column_mathtrig):
     
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2136,7 +2916,9 @@ class trig_acosh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.acosh(temp)
                 subs.append(trim)
@@ -2151,7 +2933,9 @@ class trig_acosh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
                 
             trim = mt.acosh(float(temp))
             
@@ -2164,6 +2948,10 @@ class trig_atanh(column_mathtrig):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2174,7 +2962,9 @@ class trig_atanh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    return None
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 trim =  mt.atanh(temp)
                 subs.append(trim)
@@ -2189,7 +2979,9 @@ class trig_atanh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                return None
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
+                errores.insert_error(e)
+                return e
 
             trim = mt.atanh(float(temp))
             
@@ -2206,6 +2998,10 @@ class fun_sum(column_function):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion sum",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2213,7 +3009,7 @@ class fun_sum(column_function):
             #recorro valores y saco el substring 
             total = 0
             for st in val['valores']:
-                total = total + st
+                total = total + int(st)
               
                
             val['valores'] = total
@@ -2222,7 +3018,9 @@ class fun_sum(column_function):
                 
         #Es solo un valor en especifico
         else:
-            return None
+            e = CError(0,0,"Error en funcion sum",'Semantico')
+            errores.insert_error(e)
+            return e
 
 class fun_avg(column_function):
     def __init__(self,exp,alias):
@@ -2231,6 +3029,10 @@ class fun_avg(column_function):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion avg",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2238,7 +3040,7 @@ class fun_avg(column_function):
                 #recorro valores y saco el substring 
             total = 0
             for st in val['valores']:
-                total = total + st
+                total = total + float(st)
               
             prom = total / len(val['valores'])
             val['valores'] = prom
@@ -2247,7 +3049,9 @@ class fun_avg(column_function):
                 
         #Es solo un valor en especifico
         else:
-            return None
+            e = CError(0,0,"Error en funcion avg",'Semantico')
+            errores.insert_error(e)
+            return e
  
 class fun_max(column_function):
     def __init__(self,exp,alias):
@@ -2256,12 +3060,19 @@ class fun_max(column_function):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion max",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
             if isinstance(val['valores'],list):
                 #recorro valores y saco el substring 
-                if len(val['valores']) == 0: return None
+                if len(val['valores']) == 0:
+                    e = CError(0,0,"Error en funcion max",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 minimo = val['valores'][0]
                 for st in val['valores']:
@@ -2280,27 +3091,39 @@ class fun_max(column_function):
                 val['posiciones'] = posiciones
                 return val
             else:
+                e = CError(0,0,"Error en funcion max",'Semantico')
+                errores.insert_error(e)
+                return e
                
-                return None
+                
                 
         #Es solo un valor en especifico
         else:
-            return None
+            e = CError(0,0,"Error en funcion max",'Semantico')
+            errores.insert_error(e)
+            return e
  
 
-class fun_least(column_function):
+class fun_min(column_function):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en funcion min",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
             if isinstance(val['valores'],list):
                 #recorro valores y saco el substring 
-                if len(val['valores']) == 0: return None
+                if len(val['valores']) == 0: 
+                    e = CError(0,0,"Error en funcion min",'Semantico')
+                    errores.insert_error(e)
+                    return e
 
                 minimo = val['valores'][0]
                 for st in val['valores']:
@@ -2319,12 +3142,16 @@ class fun_least(column_function):
                 val['posiciones'] = posiciones
                 return val
             else:
-               
-                return None
+                e = CError(0,0,"Error en funcion min",'Semantico')
+                errores.insert_error(e)
+                return e
+                
                 
         #Es solo un valor en especifico
         else:
-            return None
+            e = CError(0,0,"Error en funcion min",'Semantico')
+            errores.insert_error(e)
+            return e
  
 
 
@@ -2337,6 +3164,10 @@ class fun_count(column_function):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en parametros de count",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
 
@@ -2355,14 +3186,19 @@ class fun_count(column_function):
         else:
             if val == '*':
                     if len(tables) != 1:
-                        return None
+                        e = CError(0,0,"Error en funcion count",'Semantico')
+                        errores.insert_error(e)
+                        return e
                     else:
                         a = tables[0]['values']
                         t = ts.getTabla(a)
                         r = s.extractTable(t.db,t.table)
                         return len(r)
             else:
-                return None
+                
+                e = CError(0,0,"Error en funcion count",'Semantico')
+                errores.insert_error(e)
+                return e
  
 
 class fun_length(column_function):
@@ -2372,6 +3208,10 @@ class fun_length(column_function):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en parametros de lenght",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2404,6 +3244,10 @@ class fun_trim(column_function):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en parametros de trim",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2438,6 +3282,10 @@ class fun_md5(column_function):
 
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en parametros md5",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2475,6 +3323,10 @@ class fun_sha256(column_function):
     
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en parametros sha2556",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2526,6 +3378,10 @@ class fun_substr(column_function):
     
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
+        if isinstance(val,CError):
+            e = CError(0,0,"Error en parametros substring",'Semantico')
+            errores.insert_error(e)
+            return e
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2556,9 +3412,18 @@ class fun_greatest(column_function):
         self.alias = alias
     
     def ejecutar(self,tables):
-        if len(self.lexps) == 0 : return None
+        
         try:
+            if len(self.lexps) == 0 : 
+                e = CError(0,0,"Funcion greatest necesita una lista",'Semantico')
+                errores.insert_error(e)
+                return e
+
             val = self.lexps[0].ejecutar(tables)
+            if isinstance(val,CError):
+                e = CError(0,0,"Error en parametros diferente",'Semantico')
+                errores.insert_error(e)
+                return e
             #if val['valores'] == None or len(val['valores']) == 0: return None
             #Viene solo un id, es columna
             if len(self.lexps) == 1 and isinstance(val,dict):                    
@@ -2585,20 +3450,32 @@ class fun_greatest(column_function):
                 return maximo
         except:
             #Error
-            return None
+            e = CError(0,0,"Error en parametros de funcion greatest",'Semantico')
+            errores.insert_error(e)
+            return e
  
-class fun_min(column_function):
+class fun_least(column_function):
     def __init__ (self,lexps,alias):
         self.lexps = lexps
         self.alias = alias
     
     def ejecutar(self,tables):
-        if len(self.lexps) == 0 : return None
+        if len(self.lexps) == 0 : 
+            e = CError(0,0,"Funcion least necesita una lista",'Semantico')
+            errores.insert_error(e)
+            return e
         try:
 
             val = self.lexps[0].ejecutar(tables)
+            
+            if isinstance(val,CError):
+                e = CError(0,0,"Error en parametros de menor o igual",'Semantico')
+                errores.insert_error(e)
+                return e
             if val == None:
-                return None
+                e = CError(0,0,"Error en parametros de menor o igual",'Semantico')
+                errores.insert_error(e)
+                return e
             
             #if isinstance(lexps[0],exp_id) :
 
@@ -2608,7 +3485,7 @@ class fun_min(column_function):
                 minimo = val['valores'][0]
                 for valor in val['valores']:
                         
-                    if  minimo > valor :
+                    if  minimo < valor :
                         minimo = valor
                 #retornar min
                 val['valores'] = minimo
@@ -2631,7 +3508,9 @@ class fun_min(column_function):
                 return minimo
         except:
             #Error
-            return None
+            e = CError(0,0,"Error en funcion least",'Semantico')
+            errores.insert_error(e)
+            return e
 
   
     
@@ -2644,8 +3523,8 @@ class dato(column_function):
     
 
 class fun_now(column_function):
-    def __init__ (self,tables):
-        pass
+    def __init__ (self,alias):
+        self.alias = alias
         
     def ejecutar(self,tables):
         # dd/mm/YY
@@ -2662,29 +3541,46 @@ class exp_igual(exp_query):
     def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
+        
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
-        
+        if isinstance(val1,CError) or  isinstance(val2,CError):
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
+                try:
+                    val = float(val)
+                except ValueError:
+                    val2 = str(val2)
                 if val == val2:
                     posiciones.append(contador)
                 contador = contador +1   
             val1['posiciones'] = posiciones
             return val1
         #dic op dic
-        elif isinstance(val1,dict) and isinstance(val2,dict) :
+        elif isinstance(val1,dict) and  isinstance(val2,dict) :
+            
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e    
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val1['valores']:
+                        try:
+                            val = float(val)
+                            val2 = float(val2)
+                        except ValueError:
+                            val = str(val)
+                            val2 = str(val2)
                         if val == val2['valores'][contador]:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2698,11 +3594,19 @@ class exp_igual(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val2['valores']:
+                        try:
+                            val1['valores'][contador] = float(val1['valores'][contador])
+                            val = float(val)
+                        except ValueError:
+                            val1['valores'][contador] = str(val1['valores'][contador])
+                            val = str(val)
                         if  val1['valores'][contador] == val:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2716,7 +3620,9 @@ class exp_igual(exp_query):
                     return newdict
         #Error
         else: 
-            return None
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
 
     
 
@@ -2731,11 +3637,19 @@ class exp_mayor(exp_query):
         
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
+        if isinstance(val1,CError) or  isinstance(val2,CError):
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
+                try:
+                    val = float(val)
+                except ValueError:
+                    val2 = str(val2)
                 if val > val2:
                     posiciones.append(contador)
                 contador = contador +1   
@@ -2747,11 +3661,19 @@ class exp_mayor(exp_query):
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e    
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val1['valores']:
+                        try:
+                            val = float(val)
+                            val2 = float(val2)
+                        except ValueError:
+                            val = str(val)
+                            val2 = str(val2)
                         if val > val2['valores'][contador]:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2765,11 +3687,19 @@ class exp_mayor(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val2['valores']:
+                        try:
+                            val1['valores'][contador] = float(val1['valores'][contador])
+                            val = float(val)
+                        except ValueError:
+                            val1['valores'][contador] = str(val1['valores'][contador])
+                            val = str(val)
                         if  val1['valores'][contador] > val:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2783,7 +3713,9 @@ class exp_mayor(exp_query):
                     return newdict
         #Error
         else: 
-            return None
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
 
 
 
@@ -2800,11 +3732,19 @@ class exp_menor(exp_query):
         
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
+        if isinstance(val1,CError) or  isinstance(val2,CError):
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
+                try:
+                    val = float(val)
+                except ValueError:
+                    val2 = str(val2)
                 if val < val2:
                     posiciones.append(contador)
                 contador = contador +1   
@@ -2812,14 +3752,23 @@ class exp_menor(exp_query):
             return val1
         #dic op dic
         elif isinstance(val1,dict) and  isinstance(val2,dict) :
+            
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e    
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val1['valores']:
+                        try:
+                            val = float(val)
+                            val2 = float(val2)
+                        except ValueError:
+                            val = str(val)
+                            val2 = str(val2)
                         if val < val2['valores'][contador]:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2833,11 +3782,19 @@ class exp_menor(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val2['valores']:
+                        try:
+                            val1['valores'][contador] = float(val1['valores'][contador])
+                            val = float(val)
+                        except ValueError:
+                            val1['valores'][contador] = str(val1['valores'][contador])
+                            val = str(val)
                         if  val1['valores'][contador] < val:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2851,7 +3808,9 @@ class exp_menor(exp_query):
                     return newdict
         #Error
         else: 
-            return None
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
 
      
 
@@ -2868,11 +3827,19 @@ class exp_mayor_igual(exp_query):
         
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
+        if isinstance(val1,CError) or  isinstance(val2,CError):
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
+                try:
+                    val = float(val)
+                except ValueError:
+                    val2 = str(val2)
                 if val >= val2:
                     posiciones.append(contador)
                 contador = contador +1   
@@ -2880,14 +3847,23 @@ class exp_mayor_igual(exp_query):
             return val1
         #dic op dic
         elif isinstance(val1,dict) and  isinstance(val2,dict) :
+            
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e    
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val1['valores']:
+                        try:
+                            val = float(val)
+                            val2 = float(val2)
+                        except ValueError:
+                            val = str(val)
+                            val2 = str(val2)
                         if val >= val2['valores'][contador]:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2901,11 +3877,19 @@ class exp_mayor_igual(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val2['valores']:
+                        try:
+                            val1['valores'][contador] = float(val1['valores'][contador])
+                            val = float(val)
+                        except ValueError:
+                            val1['valores'][contador] = str(val1['valores'][contador])
+                            val = str(val)
                         if  val1['valores'][contador] >= val:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2919,7 +3903,9 @@ class exp_mayor_igual(exp_query):
                     return newdict
         #Error
         else: 
-            return None
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
 
 
 
@@ -2936,26 +3922,43 @@ class exp_menor_igual(exp_query):
         
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
+        if isinstance(val1,CError) or  isinstance(val2,CError):
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
+                try:
+                    val = float(val)
+                except ValueError:
+                    val2 = str(val2)
                 if val <= val2:
                     posiciones.append(contador)
                 contador = contador +1   
             val1['posiciones'] = posiciones
             return val1
         #dic op dic
-        elif isinstance(val1,dict) and isinstance(val2,dict) :
+        elif isinstance(val1,dict) and  isinstance(val2,dict) :
+            
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e    
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val1['valores']:
+                        try:
+                            val = float(val)
+                            val2 = float(val2)
+                        except ValueError:
+                            val = str(val)
+                            val2 = str(val2)
                         if val <= val2['valores'][contador]:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2969,11 +3972,19 @@ class exp_menor_igual(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val2['valores']:
+                        try:
+                            val1['valores'][contador] = float(val1['valores'][contador])
+                            val = float(val)
+                        except ValueError:
+                            val1['valores'][contador] = str(val1['valores'][contador])
+                            val = str(val)
                         if  val1['valores'][contador] <= val:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -2987,7 +3998,9 @@ class exp_menor_igual(exp_query):
                     return newdict
         #Error
         else: 
-            return None
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
 
 
 
@@ -3003,11 +4016,19 @@ class exp_diferente(exp_query):
         
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
+        if isinstance(val1,CError) or  isinstance(val2,CError):
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
         #id op val
-        if isinstance(val1,exp_id) and not isinstance(val2,dict) :
+        if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
+                try:
+                    val = float(val)
+                except ValueError:
+                    val2 = str(val2)
                 if val != val2:
                     posiciones.append(contador)
                 contador = contador +1   
@@ -3015,14 +4036,23 @@ class exp_diferente(exp_query):
             return val1
         #dic op dic
         elif isinstance(val1,dict) and  isinstance(val2,dict) :
+            
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e    
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val1['valores']:
+                        try:
+                            val = float(val)
+                            val2 = float(val2)
+                        except ValueError:
+                            val = str(val)
+                            val2 = str(val2)
                         if val != val2['valores'][contador]:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -3036,11 +4066,19 @@ class exp_diferente(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    return None
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 else: 
                     posiciones = []
                     contador = 0
                     for val in val2['valores']:
+                        try:
+                            val1['valores'][contador] = float(val1['valores'][contador])
+                            val = float(val)
+                        except ValueError:
+                            val1['valores'][contador] = str(val1['valores'][contador])
+                            val = str(val)
                         if  val1['valores'][contador] != val:
                             posiciones.append(contador)
                         contador = contador +1   
@@ -3054,7 +4092,9 @@ class exp_diferente(exp_query):
                     return newdict
         #Error
         else: 
-            return None
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
+            errores.insert_error(e)
+            return e
 
 
 class exp_in(exp_query):
@@ -3080,6 +4120,13 @@ class exp_between(exp_query):
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
         val3 = self.exp3.ejecutar(tables)
+        if isinstance(val1,CError) or  isinstance(val2,CError) or isinstance(val3,CError):
+            e = CError(0,0,"Error en parametros between",'Semantico')
+            errores.insert_error(e)
+            return e
+
+
+
         #id op val
         if isinstance(self.exp1,exp_id) and not isinstance(self.exp2,exp_id) and not isinstance(self.exp3,exp_id):
             if isinstance(val2,dict):
@@ -3102,7 +4149,9 @@ class exp_between(exp_query):
             return val1
         #error
         else: 
-            return None
+            e = CError(0,0,"Error en parametros between",'Semantico')
+            errores.insert_error(e)
+            return e
 
     
 
@@ -3151,7 +4200,186 @@ def getKeyFromValue(value,d):
         if alias == value:
             return table
 
-    return None
+    e = errores.CError(0,0,"Imposible obtener la tabla.",'Semantico')
+    errores.insert_error(e)
+    return e
+
+def getInstance(col):
+    if isinstance(col,fun_count):
+        return 'count'
+    elif isinstance(col,fun_sum):
+        return 'sum'
+    elif isinstance(col,fun_avg):
+        return 'avg'
+    elif isinstance(col,fun_min):
+        return 'min'
+    else:
+        return 'max'
+
+
+def ejecutar_groupBy(valores,select_list):
+    #Tenemos que encontrar cual es la funcion de agrupacion
+    #En específico que columna es.
+    contador = 0
+    instance = ''
+    for col in select_list:
+        if isinstance(col,fun_count) or isinstance(col,fun_sum) or isinstance(col,fun_avg) or isinstance(col,fun_min) or isinstance(col,fun_max):
+            instance = getInstance(col)
+            break
+        else:
+            contador = contador +1
+    
+    #Una vez tenemos el indice obtenemos el valor devuelto por esa funcion
+    agg = valores[contador]
+    #obtenemos cual es el resultado
+    res = agg['valores']
+    #obtenemos las columnas por las que tenemos que agrupar
+    newlist = []
+    newcont = 0
+    #Esto nos devuelve todo menos la columna de agregacion
+    for val in valores:
+        if newcont != contador:
+            newlist.append(val)
+        newcont = newcont +1
+
+    dictionary = {}
+    values = []
+    index = 0
+    firstpass = True
+    for val in newlist:
+        if isinstance(val,dict):
+            val_vals = val['valores']
+            index = 0
+            for key in val_vals:
+                if firstpass :
+                    values.append(key)
+                else:
+                    values[index] = values[index] + '~' + key
+                    index += 1
+            firstpass = False
+
+    #Obtenemos una lista basada en campos con las columnas iguales
+
+    #Obtenemos el dato agrupado como columna sin agrupar
+    #name_column = agg['columna'][0]['nombre']
+    name_table = agg['columna'][0]['tabla']
+    index_col = agg['columna'][0]['indice']
+
+    t = s.extractTable(dga.NombreDB,name_table)
+    data = []
+    for reg in t:
+        data.append(reg[index_col])
+
+
+
+    #Ahora generamos un diccionario con valores para cada serie de datos
+    if instance == 'sum':
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
+                dictionary[val] = data[contdata]
+            else:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
+                dictionary[val] += data[contdata] 
+            contdata+=1
+    elif instance == 'count':
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = 1
+            else:
+                dictionary[val] += 1
+    elif instance=='avg':
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
+                dictionary[val] = data[contdata]
+            else:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
+                dictionary[val] += data[contdata]
+            contdata+=1
+        #We make a new dictionary 
+        #but with number of repeated rows
+        new_dict = {}
+        for val in values:
+            if val not in new_dict:
+                new_dict[val] = 1
+            else:
+                new_dict[val] += 1
+        for val in dictionary:
+            dictionary[val] /= new_dict[val]
+    elif instance=='max':
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
+                dictionary[val] = data[contdata]
+            else:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
+                if dictionary[val] < data[contdata] :
+                    dictionary[val] = data[contdata]
+            contdata+=1
+    else:
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
+                dictionary[val] = data[contdata]
+            else:
+                if contdata >= len(data):
+                    dictionary[val] = '-'
+                    continue
+                if dictionary[val] > data[contdata] :
+                    dictionary[val] = data[contdata]
+            contdata+=1
+    
+    # Con el diccionario generado devolvemos
+    # una lista para ser tratada en la
+    # presentacion de la informacion
+
+    results = []
+    for llave in dictionary:
+        fila = llave.split('~')
+        fila.append(dictionary[llave])
+        results.append(fila)
+
+    #Buscamos la lista mas larga
+    max = 0
+    for res in results:
+        if len(res)>max:
+            max = len(res)
+    #Llenamos los vacios con menos
+    for res in results:
+        if len(res) < max :
+            for i in range(len(res),max):
+                res.append('-')
+    
+    
+    return results
+
+
+
+
+
+
+
+    
+
 
 ############
 #Condiciones
@@ -3176,17 +4404,34 @@ class condition(exp_query):
 def ejecutar_conditions(tables,lcond):
     condition = lcond
     if len(condition) == 0:
-        return None
+        e = errores.CError(0,0,"Error en la ejecucion de condiciones.",'Semantico')
+        errores.insert_error(e)
+        return e
     elif len(condition) == 1:
         return condition[0].exp.ejecutar(tables)
     else:
         #Obtengo las primeras posiciones y dependiendo 
         valor = condition[0].exp.ejecutar(tables)
-        res =  valor['posiciones'] 
-        for i in range(1, len(condition)):
-            if condition[i].tipo == 'AND':
-                
-                res = cond_AND(res, condition[i].exp.ejecutar(tables)['posiciones'])
-            else:
-                res = cond_OR(res, condition[i].exp.ejecutar(tables)['posiciones'])
+        res =  valor['posiciones']
+        if len(condition) > 1 :
+            for i in range(1, len(condition)):
+                if condition[i].tipo.upper() == 'AND':
+                    
+                    res = cond_AND(res, condition[i].exp.ejecutar(tables)['posiciones'])
+                else:
+                    res = cond_OR(res, condition[i].exp.ejecutar(tables)['posiciones'])
         return res
+
+def filtrar(lista,posiciones):
+    delete = []
+    for a in range(0,len(lista)):
+        if a not in posiciones:
+            
+            delete.append(a)
+    
+    
+    for index in sorted(delete, reverse=True):
+        
+        del lista[index]
+    
+    return lista

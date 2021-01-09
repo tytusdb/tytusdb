@@ -35,6 +35,11 @@ class CreateDB(Instruction):
 
         # TODO Verificar permisos y modo
         database = Database(self._properties['id'])
+
+        for permits in self._properties['listpermits']:
+            if 'MODE' in permits:
+                database.mode = permits['MODE']
+
         typeChecker.createDatabase(database, self._noLine,
                                    self._noColumn)
 
@@ -96,7 +101,7 @@ class ShowDatabase(Instruction):
         columnsData = []
         for db in databases:
             columnsData.append([db])
-        DataWindow().consoleTable(['Tables'], columnsData)
+        DataWindow().consoleTable(['Databases'], columnsData)
 
     def __repr__(self):
         return str(vars(self))
@@ -109,13 +114,19 @@ class AlterDatabase(Instruction):
         si recibe un 2 es porque es el duenio
     '''
 
-    def __init__(self, alterType, oldValue, newValue):
+    def __init__(self, alterType, oldValue, newValue, noLine, noColumn):
         self._alterType = alterType
         self._oldValue = oldValue
         self._newValue = newValue
+        self._noLine = noLine
+        self._noColumn = noColumn
 
     def process(self, instrucction):
-        pass
+        if self._alterType == 1:
+            TypeChecker().updateDatabase(self._oldValue, self._newValue,
+                                         self._noLine, self._noColumn)
+        elif self._alterType == 2:
+            pass
 
     def __repr__(self):
         return str(vars(self))

@@ -12,16 +12,16 @@ show databases like 'm';
 
 
 
+
 CREATE TYPE mood AS ENUM ('sad', 'ok', 'happy');
 
- ALTER DATABASE name RENAME TO new_name;
- ALTER DATABASE name OWNER TO new_name;
+
 
  DROP DATABASE IF EXISTs marcos;
 
 
 CREATE TABLE Persons (
-    ID intEGER NOT NULL costraint MARCOS UNIQUE CHECK ('1','2','3'),
+    ID intEGER NOT NULL constraint MARCOS UNIQUE CHECK ('1','2','3'),
     LastName varchar(255) NOT NULL PRIMARY KEY,
     FirstName varchar(255),
     direccion character(33),
@@ -46,7 +46,7 @@ CREATE TABLE my_first_table (
 );
 
 
-ALTER TABLE tabla ADD CHECK (name <> '');
+ALTER TABLE tabla ADD CHECK (name <= '');
 
 
 ALTER TABLE tabla ADD CONSTRAINT some_name UNIQUE (columna1);

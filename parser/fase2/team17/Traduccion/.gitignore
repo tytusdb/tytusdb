@@ -1,0 +1,14 @@
+**/__pycache__/**
+/venv/*
+/.idea/*
+.DS_Store
+*.svg
+*.gv
+
+**/parser.out
+**/parsetab.py
+**/entrada.txt
+**/test.py
+/StoreManager/*
+
+**/data/**

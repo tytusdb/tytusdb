@@ -1,0 +1,155 @@
+digraph AST {
+	edge [arrowhead=none]
+	node [color="#31CEF0" shape=box]
+	Node0 [label="\"AST\""]
+	Node1 [label="CREATE TABLE"]
+	Node0 -> Node1
+	Node2 [label="Id: tbusuario"]
+	Node1 -> Node2
+	Node3 [label=CAMPO]
+	Node1 -> Node3
+	Node4 [label="Id: idusuario"]
+	Node3 -> Node4
+	Node5 [label="Tipo: integer"]
+	Node3 -> Node5
+	Node6 [label=VALIDACION]
+	Node3 -> Node6
+	Node7 [label="NOT NULL"]
+	Node6 -> Node7
+	Node8 [label=VALIDACION]
+	Node3 -> Node8
+	Node9 [label="primary key"]
+	Node8 -> Node9
+	Node10 [label=CAMPO]
+	Node1 -> Node10
+	Node11 [label="Id: nombre"]
+	Node10 -> Node11
+	Node12 [label="Tipo: varchar"]
+	Node10 -> Node12
+	Node13 [label=EXPRESION]
+	Node12 -> Node13
+	14 [label=ExpresionValor]
+	14 -> 15
+	15 [label=50]
+	Node13 -> 14
+	Node16 [label=CAMPO]
+	Node1 -> Node16
+	Node17 [label="Id: apellido"]
+	Node16 -> Node17
+	Node18 [label="Tipo: varchar"]
+	Node16 -> Node18
+	Node19 [label=EXPRESION]
+	Node18 -> Node19
+	20 [label=ExpresionValor]
+	20 -> 21
+	21 [label=50]
+	Node19 -> 20
+	Node22 [label=CAMPO]
+	Node1 -> Node22
+	Node23 [label="Id: usuario"]
+	Node22 -> Node23
+	Node24 [label="Tipo: varchar"]
+	Node22 -> Node24
+	Node25 [label=EXPRESION]
+	Node24 -> Node25
+	26 [label=ExpresionValor]
+	26 -> 27
+	27 [label=15]
+	Node25 -> 26
+	Node28 [label=VALIDACION]
+	Node22 -> Node28
+	Node29 [label=UNIQUE]
+	Node28 -> Node29
+	Node30 [label=VALIDACION]
+	Node22 -> Node30
+	Node31 [label="NOT NULL"]
+	Node30 -> Node31
+	Node32 [label=CAMPO]
+	Node1 -> Node32
+	Node33 [label="Id: password"]
+	Node32 -> Node33
+	Node34 [label="Tipo: varchar"]
+	Node32 -> Node34
+	Node35 [label=EXPRESION]
+	Node34 -> Node35
+	36 [label=ExpresionValor]
+	36 -> 37
+	37 [label=15]
+	Node35 -> 36
+	Node38 [label=VALIDACION]
+	Node32 -> Node38
+	Node39 [label="NOT NULL"]
+	Node38 -> Node39
+	Node40 [label=CAMPO]
+	Node1 -> Node40
+	Node41 [label="Id: fechacreacion"]
+	Node40 -> Node41
+	Node42 [label="Tipo: date"]
+	Node40 -> Node42
+	Node43 [label="CREATE TABLE"]
+	Node0 -> Node43
+	Node44 [label="Id: tbroles"]
+	Node43 -> Node44
+	Node45 [label=CAMPO]
+	Node43 -> Node45
+	Node46 [label="Id: idrol"]
+	Node45 -> Node46
+	Node47 [label="Tipo: integer"]
+	Node45 -> Node47
+	Node48 [label=VALIDACION]
+	Node45 -> Node48
+	Node49 [label="NOT NULL"]
+	Node48 -> Node49
+	Node50 [label=VALIDACION]
+	Node45 -> Node50
+	Node51 [label="primary key"]
+	Node50 -> Node51
+	Node52 [label=CAMPO]
+	Node43 -> Node52
+	Node53 [label="Id: rol"]
+	Node52 -> Node53
+	Node54 [label="Tipo: varchar"]
+	Node52 -> Node54
+	Node55 [label=EXPRESION]
+	Node54 -> Node55
+	56 [label=ExpresionValor]
+	56 -> 57
+	57 [label=15]
+	Node55 -> 56
+	Node58 [label=DROP_TABLE]
+	Node0 -> Node58
+	Node59 [label="ID TABLA"]
+	Node58 -> Node59
+	Node60 [label=tbroles]
+	Node59 -> Node60
+	Node61 [label="CREATE TABLE"]
+	Node0 -> Node61
+	Node62 [label="Id: tbrol"]
+	Node61 -> Node62
+	Node63 [label=CAMPO]
+	Node61 -> Node63
+	Node64 [label="Id: idrol"]
+	Node63 -> Node64
+	Node65 [label="Tipo: integer"]
+	Node63 -> Node65
+	Node66 [label=VALIDACION]
+	Node63 -> Node66
+	Node67 [label="NOT NULL"]
+	Node66 -> Node67
+	Node68 [label=VALIDACION]
+	Node63 -> Node68
+	Node69 [label="primary key"]
+	Node68 -> Node69
+	Node70 [label=CAMPO]
+	Node61 -> Node70
+	Node71 [label="Id: rol"]
+	Node70 -> Node71
+	Node72 [label="Tipo: varchar"]
+	Node70 -> Node72
+	Node73 [label=EXPRESION]
+	Node72 -> Node73
+	74 [label=ExpresionValor]
+	74 -> 75
+	75 [label=15]
+	Node73 -> 74
+}

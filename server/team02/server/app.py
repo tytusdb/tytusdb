@@ -32,4 +32,4 @@ def addUser():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8080)
+    app.run(port=10000, host='0.0.0.0')

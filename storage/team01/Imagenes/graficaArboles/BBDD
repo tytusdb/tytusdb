@@ -1,0 +1,16 @@
+digraph arbol {
+	node [height=.1 shape=record]
+	Suni4 [label="<f0> |<f1> Suni4|<f2>"]
+	Suni2 [label="<f0> |<f1> Suni2|<f2>"]
+	Suni4:<f0> -> Suni2:<f1>
+	Suni1 [label="<f0> |<f1> Suni1|<f2>"]
+	Suni2:<f0> -> Suni1:<f1>
+	Suni3 [label="<f0> |<f1> Suni3|<f2>"]
+	Suni2:<f2> -> Suni3:<f1>
+	Suni5 [label="<f0> |<f1> Suni5|<f2>"]
+	Suni4:<f2> -> Suni5:<f1>
+	Suni6 [label="<f0> |<f1> Suni6|<f2>"]
+	Suni5:<f2> -> Suni6:<f1>
+	label="\n\nBases de Datos"
+	fontsize=20
+}

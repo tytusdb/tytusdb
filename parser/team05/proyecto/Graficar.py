@@ -1,16 +1,17 @@
 from graphviz import Digraph
 
-class graficar:
+class Graficar:
     def __init__(self):
         self.dot = Digraph(name="AST")
         self.dot.node_attr['shape']='record'
         self.indice = 0
 
     def graficar_arbol(self, raiz):
-        self.graficar_nodos(raiz)
-        self.indice = 0
-        self.relacionar_nodos(raiz)
-        self.dot.render('proyecto/reports/arbolAst', view=True)
+        if raiz is not None:
+            self.graficar_nodos(raiz)
+            self.indice = 0
+            self.relacionar_nodos(raiz)
+            self.dot.render('reports/arbolAst', view=True)
 
     def graficar_nodos(self, raiz):
         if(raiz is None):

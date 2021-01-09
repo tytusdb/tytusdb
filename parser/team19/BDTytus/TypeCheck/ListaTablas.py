@@ -32,8 +32,29 @@ class ListaTablas:
     
     def obtenerTabla(self,table:str):
         actual = self.primero
-        while(actual!=None):
+        while(actual is not None):
             if actual.nombreTabla == table:
                 break
             actual = actual.siguiente
         return actual
+
+    def eliminarTabla(self, table:str):
+        if self.obtenerTabla(table) is not None:
+            actual = self.primero
+            while(actual is not None):
+                if actual.nombreTabla == table:
+                    if self.primero == self.ultimo:
+                        self.primero = self.ultimo = None
+                    elif actual == self.primero:
+                        self.primero = self.primero.siguiente
+                        self.primero.anterior = None
+                    elif actual == self.ultimo:
+                        self.ultimo = self.ultimo.anterior
+                        self.ultimo.siguiente = None
+                    else:
+                        actual.siguiente.anterior = actual.anterior
+                        actual.anterior.siguiente = actual.siguiente
+                    return 0
+                actual = actual.siguiente
+            return 1                        
+        return 3

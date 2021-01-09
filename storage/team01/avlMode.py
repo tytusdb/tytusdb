@@ -1,6 +1,7 @@
-import avl
+from graphviz import Digraph, nohtml
 import pickle
 from typing import Any
+from team01 import avl as avl
 
 mBBDD = avl.AVL()
 
@@ -45,7 +46,7 @@ def alterDatabase(databaseOld: str, databaseNew) -> int:
 #Elimina por completo la base de datos indicada en database. (DELETE)
 def dropDatabase(database: str) -> int:
     try:
-        if not databaseOld.isidentifier() or not databaseNew.isidentifier():
+        if not database.isidentifier():
             raise Exception()
         res = mBBDD.quitar(database)
         if res == 0:
@@ -64,6 +65,17 @@ def showDatabases() -> list:
             return list(mBBDD.raiz)
     except:
         return []
+
+# borrar todas las bases de datos
+def dropAll() -> int:
+    bases = showDatabases()    
+    if len(bases) != 0:
+        for data in bases:            
+            dropDatabase(str(data))
+        return 0
+    else:
+        return 1
+
 
 #Crea una tabla en una base de datos especificada
 def createTable(database: str, table: str, numberColumns: int) -> int:
@@ -147,10 +159,78 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
     except:
         return None
 
+#Auxiliar de alterAddPK (Asociación de una llave primaria)
+def alterAdd_PK_Auxiliar(nodoBD, nodoTBL, columns) -> int:
+    try:
+        Correcto = 0
+        colaREG = []
+        data = []
+        nodoBD.datos.agregar("Temporal999", [nodoTBL.valor[0], columns, 1])
+        tablaTEMP = nodoBD.datos.obtener("Temporal999")
+        if nodoTBL.datos.raiz: colaREG.append(nodoTBL.datos.raiz)
+        while len(colaREG) > 0 and Correcto == 0:
+            nodoTEMP = colaREG.pop(0)
+            Correcto = insert(nodoBD.clave, "Temporal999", nodoTEMP.valor)
+            if nodoTEMP.Izq: colaREG.append(nodoTEMP.Izq)
+            if nodoTEMP.Der: colaREG.append(nodoTEMP.Der)
+        if Correcto == 0:
+            Nombre = nodoTBL.clave
+            Correcto = nodoBD.datos.quitar(Nombre)
+            if Correcto == 0:
+                tablaTEMP.clave = Nombre
+        else:
+            dropTable(nodoBD.clave, "Temporal999")
+        return Correcto
+    except:
+        return 1 #Operación no válida
+
 #Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas
 def alterAddPK(database: str, table: str, columns: list) -> int:
     try:
-        return -1 #Falta implementarla
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            nodoTBL = nodoBD.datos.obtener(table)
+            if nodoTBL:
+                if nodoTBL.valor[1] == [-999]:
+                    mColumnas = range(0,len(nodoTBL.valor[0]))
+                    #if set(columns).intersection(set(nodoTBL.valor[0])) == set(columns):
+                    if set(columns).intersection(set(mColumnas)) == set(columns):
+                        if nodoTBL.datos.tamano == 0:
+                            #No hay registos aún, realizar los cambios sin problemas
+                            nodoTBL.valor[1] = columns
+                            ##nodoTBL.valor[0].remove(0)
+                            nodoTBL.quitaColumna(nodoTBL.datos.raiz, 0)
+                            grabaBD()
+                            return 0 #Operacion exitosa AGREGARXXX
+                        else:
+                            #Ya hay registros, verificar si los indices no crean conflictos
+                            res = alterAdd_PK_Auxiliar(nodoBD, nodoTBL, columns)
+                            if res == 0:
+                                grabaBD()
+                                grabaREG()
+                            return res #0 Operación exitosa 1 Error en la operación
+                    else:
+                        return 5 #Columnas fuera de límites
+                elif nodoTBL.valor[1][0] < 0:
+                    #El indice actual está eliminado
+                    if nodoTBL.datos.tamano == 0:
+                        #No hay registros aún, realizar los cambios sin problemas
+                        nodoTBL.valor[1] = columns
+                        grabaBD()
+                        return 0 #Operacion exitosa
+                    else:
+                        #Ya hay registros, verificar si los indices no crean conflictos
+                        res = alterAdd_PK_Auxiliar(nodoBD, nodoTBL, columns)
+                        if res == 0:
+                                grabaBD()
+                                grabaREG()
+                        return res #0 Operación exitosa 1 Error en la operación
+                else:
+                    return 4 #Llave primaria existente
+            else:
+                return 3 #Tabla inexistente en la Base de Datos
+        else:
+            return 2 #Base de Datos inexistente
     except:
         return 1 #Operación no válida
 
@@ -289,7 +369,7 @@ def insert(database: str, table: str, register: list) -> int:
             if nodoTBL:
                 if nodoTBL.valor[1] == [-999]:
                     #Tiene indice por default
-                    if len(register) == len(nodoTBL.valor[0]) - 1:
+                    if len(register) == len(nodoTBL.valor[0]):
                         res = nodoTBL.datos.agregar(nodoTBL.valor[2], register)
                         if res == 0:
                             #Incrementa el valor de indice autonumérico
@@ -661,7 +741,6 @@ def leerREG():
 #Guarda pickles a disco
 def serializar(archivo, modo, data):
     with open(archivo, modo) as f:
-        # Pickle the 'data' dictionary using the highest protocol available.
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
 
 #Lee pickles desde disco
@@ -674,4 +753,33 @@ def deserializar(archivo) -> list:
         except EOFError:
            pass
         return data
-        
+
+#Grafica la estructura que contiene las Bases de Datos
+def graficaBD() -> int:
+    if mBBDD.raiz:
+        mBBDD.armararbol(mBBDD.raiz, "Bases de Datos", "BBDD")
+        return 0 #Operación exitosa
+    else:
+        return 1 #Error en la operación
+
+#Grafica la estructura que contiene las Tablas que pertenecen a una Base de Datos
+def graficaTBL(database: str) -> int:
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoBD.datos.armararbol(nodoBD.datos.raiz, "Base de Datos: " + nodoBD.clave, nodoBD.clave)
+        return 0 #Operación exitosa
+    else:
+        return 1 #Error en la operación
+    
+#Grafica la estructura que contiene los Registros que pertenecen a una Tabla dentro de una Base de Datos
+def graficaREG(database: str, table: str) -> int:
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(table)
+        if nodoTBL:
+            nodoTBL.datos.armararbol(nodoTBL.datos.raiz, "Tabla: " + nodoTBL.clave, nodoTBL.clave)
+            return 0 #Operación exitosa
+        else:
+            return 1 #Error en la operación
+    else:
+        return 1 #Error en la operación

@@ -29,7 +29,7 @@ class aritmetica(expresion):
         self.grammar_ += str(left.grammar_) + "\n"
         self.grammar_ += str(right.grammar_) + "\n"
     
-    def ejecutar(self):
+    def ejecutar(self, list_tb):
         left_value = self.left.ejecutar()
         right_value = self.right.ejecutar()
 

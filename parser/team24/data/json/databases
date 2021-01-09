@@ -1,1 +1,1 @@
-{"DB1": {"tbempleado": {"NCOL": 2}}}
+{"test": {"tblibrosalario": {"NCOL": 5}, "tbfuncionesmath": {"NCOL": 3, "PKEY": [0]}}}

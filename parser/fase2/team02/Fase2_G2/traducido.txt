@@ -1,0 +1,1 @@
+ delete from tbbodega   where  idbodegaidbodega= 4;print('tbProducto'); update table tbbodega set bodegabodega= 'bodega zona 9'  where  idbodegaidbodega= 4;print('tbProducto');

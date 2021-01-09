@@ -1,54 +1,45 @@
-import web,requests
-from web import form
-import json
+from flask import Flask, render_template, jsonify, url_for, request, redirect
+import requests,json
+import time
+from consola import consola
 
-myobj = {'entrada': 'somevalue'}
+app = Flask(__name__)
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
-url = 'http://localhost:5000/ejecutar'
-urls = (
-    '/', 'Home', 'Boton'
-)
+@app.route('/')
+def index():
+    form = consola()
+    return render_template('index.html',form=form)
 
-renderHome = web.template.render("Views/Templates", base="MainLayout")
-render = web.template.render("Views/Templates")
-app = web.application(urls, globals())
+@app.route('/SomeFunction/',  methods=['GET','POST'])
+def SomeFunction():
+    form = consola(request.form)
+    print('Envio de la entrada') 
+    entr = request.form['content']
+    print(entr)
+    dictToSend = {'entrada':entr}
+    res = requests.post('http://127.0.0.1:5000/ejecutar', json=dictToSend)
+    y = json.loads(res.text)       
+    print("Mensaje del servidor: "+y['resultado'])
+    mens = y['resultado']
+    form.text.data = mens
+  #  request.form['content2'] = y['resultado']
+    return render_template("index.html", form=form)
 
-boton = form.Form(
-    
-    form.Button("Ejecutar", type="button", description="ejecutar"),
+@app.route('/Commit/', methods=["POST"])
+def Commit():
+    print('Ejecucion del commit')
+    entr = {'commit':'si'}
+    res = requests.post('http://127.0.0.1:5000/commit', json=entr)
+    y = json.loads(res.text)       
+    print("Mensaje del servidor: "+y['resultado'])
+    return render_template('index.html')
 
-)
-
-consola = form.Form(
-    form.Textarea("consolatxt")
-)
-
-
-
-# Clases/Routes
-
-class Home:
-
-    def GET(self):
-        f = boton()
-        c = consola()
-        return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
-
-
-    def POST(self):
-        f = boton()
-        c = consola()
-        if not f.validates():
-            return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
-        else:          
-                
-                #extraer el textarea
-                x = requests.post(url, json = {'entrada':'Ejemplo'})
-                y = json.loads(x.text)
-                
-                print(y['resultado'])
-                return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
-
-
-if __name__ == "__main__":
-    app.run()
+@app.route('/Rollback', methods=["POST"])
+def Rollback():
+    print('Ejecucion del rollback')
+    msj = {'rollback':'si'}
+    res = requests.post('http://127.0.0.1:5000/Rollback', json=msj)
+    x = json.loads(res.text)
+    print("Mensaje del servidor: "+x['aviso'])
+    return render_template('index.html')

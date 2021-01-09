@@ -1,4 +1,4 @@
-from storageAVL11.ArbolAVLR import ArbolAVLR
+from ArbolAVLR import ArbolAVLR
 import csv
 import copy
 import os.path as path
@@ -107,7 +107,7 @@ class Table:
     # Metodo para graficar
 
     def graficar(self):
-        self.__TableTree.grafica()
+        return self.__TableTree.grafica()
 
     # Cargar CSV
     def loadCSV(self, pathX):
@@ -238,7 +238,7 @@ class Table:
             return 5
 
     def alterDropPK(self):
-
+        self.__isAutoincrement = False
         if len(self.__list_pk) != 0:
 
             self.__list_pk = list()

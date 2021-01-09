@@ -1,0 +1,357 @@
+from ply import *
+from lexico_pl import *
+import nodo as grammer
+from InstrucPL.ExecutePL import Execute 
+# Definición de la gramática
+
+#tokens = lexico_pl.tokens
+
+precedence = (
+    ('left', 'mas', 'menos'),
+    ('left', 'por', 'division'),
+    ('nonassoc','between', 'like'),
+    ('left', 'menor', 'mayor', 'igual', 'menorigual', 'mayorigual', 'diferente'),
+    ('right', 'not'),
+    ('left', 'and'),
+    ('left', 'or')
+)
+
+
+    'init : instruccionesPL'
+
+
+    'instruccionesPL    :  instruccionesPL instruccion '
+  
+    'instruccionesPL : instruccion '
+ 
+    '''
+     instruccion : create FUNCTION identificador BEGIN instruccionesPL end pyc
+    '''
+
+
+    '''
+     instruccion : create FUNCTION identificador par1 listid par2 BEGIN instruccionesPL end pyc
+    '''
+
+    '''
+     instruccion : create FUNCTION identificador par1 listid par2 as operacion_logica BEGIN instruccionesPL end pyc
+    '''
+
+
+    '''
+     instruccion : create FUNCTION identificador par1 listid par2 RETURNS listid as operacion_logica BEGIN instruccionesPL end pyc
+    '''
+
+
+
+    '''instruccion : create or replace FUNCTION identificador par1 listid par2 RETURNS listid language identificador as DOLLAR DOLLAR declare declaraciones BEGIN instruccionesPL end pyc DOLLAR DOLLAR pyc'''
+
+
+    '''instruccion : PERFORM identificador par1 listid par2 pyc'''
+
+
+    '''instruccion : EXECUTE cadena pyc'''
+
+
+    '''instruccion : EXECUTE cadena INTO identificador pyc'''
+ 
+
+
+    '''instruccion : EXECUTE cadena INTO STRICT identificador pyc'''
+
+    '''instruccion : EXECUTE cadena INTO identificador USING listid pyc'''
+ 
+
+    '''instruccion : EXECUTE cadena INTO STRICT identificador USING listid pyc'''
+ 
+
+    '''instruccion : instruccionesPL_gen'''
+ 
+
+    '''instruccion : cadena'''
+
+
+    '''listid : listid coma identificador tipo'''
+
+
+    '''listid : listid coma identificador'''
+
+
+
+    '''listid : identificador'''
+
+#instruccionesPL DE CICLOS
+
+	'''instruccionesPL_gen : instruccionesPL_pl instruccionesPL_gen'''
+
+
+
+    '''instruccionesPL_gen : instruccionesPL_pl'''
+
+
+
+	'''instruccionesPL_pl : sentencia_if
+							  | sentencia_case
+							  | sentencia_loop
+							  | instru_exit
+							  | instru_continue
+							  | sentencia_while
+							  | sentencia_for
+							  | sentencia_for_query
+							  | sentencia_foreach
+							  | instru_except
+							  | instru_get_error
+							  | instru_return
+							  | cadena'''
+
+
+
+'''declaraciones : declaraciones declaracion'''
+
+	'''declaraciones : declaracion'''
+
+    '''declaracion : identificador tipo pyc''' 
+
+    '''declaracion : identificador constant tipo pyc''' 
+
+    '''declaracion : identificador constant tipo collate identificador pyc''' 
+ 
+    '''declaracion : identificador constant tipo collate identificador not null pyc''' 
+
+    '''declaracion : identificador constant tipo collate identificador default operacion_logica pyc''' 
+
+    '''declaracion : identificador constant tipo collate identificador dosp igual operacion_logica pyc''' 
+  
+    '''declaracion : identificador constant tipo collate identificador igual operacion_logica pyc''' 
+
+
+    '''declaracion : identificador tipo collate identificador igual operacion_logica pyc''' 
+
+
+    '''declaracion : identificador tipo igual operacion_logica pyc''' 
+ 
+
+    '''declaracion : identificador tipo collate identificador dosp igual operacion_logica pyc''' 
+
+
+    '''declaracion : identificador tipo dosp igual operacion_logica pyc''' 
+ 
+
+    '''declaracion : identificador tipo default operacion_logica pyc''' 
+
+
+    '''declaracion : identificador dosp igual operacion_logica pyc''' 
+
+    '''declaracion : identificador igual operacion_logica pyc''' 
+ 
+
+
+	'''sentencia_if : if_simple
+							 | if_con_else	
+							 | if_con_elsif'''
+
+
+
+    '''if_simple : if operacion_logica then instruccionesPL_gen end if pyc'''
+
+
+
+    '''if_con_else : if operacion_logica then instruccionesPL_gen else instruccionesPL_gen end if pyc'''
+
+
+
+    '''if_con_elsif : if operacion_logica then instruccionesPL_gen cont_if'''
+
+
+    '''cont_if : elsif operacion_logica then instruccionesPL_gen cont_if'''
+
+
+
+    '''cont_if : else instruccionesPL_gen cont_if'''
+   
+
+    '''cont_if : end if pyc'''
+ 
+
+    '''sentencia_case : case operacion_logica cont_case'''
+  
+
+    '''cont_case : when lista_op then instruccionesPL_gen cont_case'''
+
+
+
+    '''cont_case : else instruccionesPL_gen cont_case'''
+
+    '''cont_case : end case pyc'''
+ 
+
+
+    '''lista_op : operacion_logica coma lista_op'''
+ 
+
+
+    '''lista_op : operacion_logica'''
+   
+
+
+    '''sentencia_loop : loop instruccionesPL_gen end loop pyc'''
+
+
+
+    '''instru_exit : exit cont_instru'''
+ 
+
+    '''cont_instru : identificador cont_instru'''
+
+
+    '''cont_instru : when operacion_logica cont_instru'''
+
+
+
+    '''cont_instru :  pyc'''
+
+
+
+    '''instru_continue : continue cont_instru'''
+
+
+    '''sentencia_while : while operacion_logica loop instruccionesPL_gen end loop cont_while'''
+ 
+
+
+    '''cont_while : identificador cont_while'''
+ 
+
+    '''cont_while : pyc'''
+
+
+    '''sentencia_for : for identificador in num punto punto num loop instruccionesPL_gen end loop cont_while'''
+
+
+    '''sentencia_for_query : for identificador in cadena loop instruccionesPL_gen end loop cont_while'''
+ 
+
+    '''sentencia_foreach : foreach identificador in array operacion_logica loop instruccionesPL_gen end loop cont_while'''
+ 
+
+    '''instru_except : exception cont_except'''
+ 
+
+    '''cont_except : when operacion_logica then instruccionesPL_gen cont_except'''
+
+
+    '''cont_except : when operacion_logica then instruccionesPL_gen'''
+
+
+    '''instru_get_error : get stacked diagnostics identificador cont_get'''
+
+
+
+    '''cont_get : igual lista_op'''
+ 
+
+
+    '''cont_get : dosp igual lista_op'''
+ 
+
+    '''instru_return : return operacion_logica pyc'''
+
+
+
+    '''instru_return : return query cadena'''
+
+
+
+    '''instru_return : return query execute cadena'''
+
+
+
+    '''instru_call : call par1 operacion_logica par2'''
+
+
+
+    '''operacion_relacional : operacion_relacional mayor operacion_relacional
+							 | operacion_relacional menor operacion_relacional
+							 | operacion_relacional mayorigual operacion_relacional
+		 					 | operacion_relacional menorigual operacion_relacional
+							 | operacion_relacional diferente operacion_relacional
+							 | operacion_relacional igual operacion_relacional'''
+
+
+    '''operacion_relacional : operacion_aritmetica'''
+
+
+    '''operacion_logica : operacion_logica and operacion_logica
+						 | operacion_logica or operacion_logica
+						 | operacion_logica not operacion_logica'''
+
+
+
+    '''operacion_logica : operacion_relacional'''
+ 
+
+    '''operacion_aritmetica : operacion_aritmetica mas operacion_aritmetica
+							 | operacion_aritmetica menos operacion_aritmetica
+							 | operacion_aritmetica por operacion_aritmetica
+							 | operacion_aritmetica div operacion_aritmetica'''
+
+
+    '''operacion_aritmetica : par1 operacion_aritmetica par2'''
+
+    '''operacion_aritmetica : valor'''
+ 
+    '''valor : num
+		      | cadena
+		      | pdecimal
+		      | identificador
+		      | cadenacaracter'''
+
+#FIN DE instruccionesPL DE CICLOS
+    
+    
+#GET RESULT STATUS
+
+
+    '''instruccion : GET DIAGNOSTICS identificador igual ROW_COUNT pyc'''
+
+
+    '''instruccion : GET CURRENT DIAGNOSTICS identificador igual ROW_COUNT pyc'''
+
+    '''instruccion : GET DIAGNOSTICS identificador igual PG_CONTEXT pyc'''
+
+
+    '''instruccion : GET CURRENT DIAGNOSTICS identificador igual PG_CONTEXT pyc'''
+ 
+#notHING AT ALL- VACIO
+
+
+    '''instruccion : null pyc'''
+
+#alias
+
+    '''instruccion : identificador alias for identificador pyc'''
+   
+    '''tipo : smallint
+			 | integer
+			 | bigint
+			 | decimal
+			 | numeric
+			 | real
+			 | double
+			 | money
+			 | character 
+			 | text
+			 | date
+			 | boolean
+			 | int
+			 | identificador'''
+
+    '''tipo : varying par1 num par2
+			 | varchar par1 num par2
+			 | character par1 num par2
+			 | char par1 num par2'''
+
+    '''instruccion : RETURN operacion_logica pyc'''
+ 
+
+
