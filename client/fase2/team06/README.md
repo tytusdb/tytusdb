@@ -10,7 +10,7 @@
 
 #### [](https://github.com/tytusdb/tytus/tree/main/client/team06#201612190-marcos-sebastian-velasquez-cabrera)201612190 Marcos Sebastian Velasquez Cabrera
 
-# [](https://github.com/tytusdb/tytus/tree/main/client/team06#tytusdb-manual-de-usuario) ![image](https://avatars0.githubusercontent.com/u/74935909?s=200&v=4?raw=true =50x) TytusDB Manual de usuario
+# [](https://github.com/tytusdb/tytus/tree/main/client/team06#tytusdb-manual-de-usuario)  TytusDB Manual de usuario
 
 ## [](https://github.com/tytusdb/tytus/tree/main/client/team06#indice) Indice
 
@@ -91,6 +91,10 @@ En esta sección se encuentran todos las ventanas de texto de los query's con lo
 ![image](https://github.com/tytusdb/tytus/blob/main/client/fase2/team06/img/interfaz.png?raw=true)
 
 Es una consola que muestra los resultados de la ejecución del query.
+
+> Documentación Oficial Parser G26 
+> https://github.com/tytusdb/tytus/blob/main/parser/team26/G26/Reportes/ManualTecnico.md
+> https://github.com/tytusdb/tytus/blob/main/parser/team26/G26/Reportes/manualUsuarios.md
 
 Diciembre 2020
 
