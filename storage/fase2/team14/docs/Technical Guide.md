@@ -232,6 +232,19 @@ Método que elimina la base de datos indicada en el parámetro `database`. El fl
 - 2: Base de datos no existente.
 
 
+### alterDatabaseMode
+```python
+def alterDatabaseMode(database: str, mode: str) -> int:
+```
+
+Método que cambia el modo de almacenamiento de una base de datos completa por cualquier otro de los disponibles. El flujo de este método inicia verificando que la base de datos exista, se obtiene el nombre de esta con el parámetro database. Posteriormente verifica que el modo al que se quiere cambiar la base exista, este se obtiene del parámetro mode. Luego verifica que el la base de datos no se encuentre ya en el modo al que se quiere cambiar. Si cumple con las validaciones anteriores, se crea una base de datos con un nombre temporal en el modo que se solicita, se extraen todos los registros de todas las tablas y se crean nuevas tablas en la base de datos con el nombre temporal, insertando los registros extraídos, al finalizar se elimina la base de datos original y se renombre la de nombre temporal al de la original.
+
+#### Valores de Retorno:
+- 0: Se ha eliminado la base de datos.
+- 1: Error al eliminar la base de datos.
+- 2: Base de datos no existente.
+
+
 ### alterDatabaseEncoding
 ```python
 def alterDatabaseEncoding(database: str, encoding: str) -> int:
@@ -309,6 +322,19 @@ Método que cambia el nombre de la tabla `tableOld` por `tableNew` en la base de
 - 2: Base de datos no existente.
 - 3: Tabla no existente.
 - 4: Nuevo nombre de tabla en uso.
+
+
+### alterTableMode
+```python
+def alterTableMode(database: str, table: str, mode: str) -> int:
+```
+
+Método que cambia el modo de almacenamiento de una tabla especifica por cualquier otro de los disponibles. El flujo de este método inicia verificando que la base de datos exista, se obtiene el nombre de esta con el parámetro database. Seguido de esto, verifica que la tabla que se envía en el parámetro table exista. Posteriormente verifica que el modo al que se quiere cambiar la base exista, este se obtiene del parámetro mode. Si cumple con las validaciones anteriores, se extraen todos los registros de la tabla, se obtiene el numero de columnas que tiene la tabla y la llave primaria si la tiene, luego se elimina la tabla original, se crea la tabla en el modo requerido con las características que se recuperaron anteriormente y se le ingresan los registros extraídos.
+
+#### Valores de Retorno:
+- 0: Se ha eliminado la base de datos.
+- 1: Error al eliminar la base de datos.
+- 2: Base de datos no existente.
 
 
 ### dropTable
@@ -456,6 +482,57 @@ Método que elimina todos los registros en la tabla `table` en la base de datos 
 - 1: Error en la operación.
 - 2: Base de datos no existente.
 - 3: Tabla no existente.
+
+
+### encrypt
+```python
+def encrypt(backup: str, password: str) -> str:
+```
+
+Método que encripta un texto con una contraseña específica. El flujo de este método inicia generando una llave con el algoritmo SH256, utilizando el parámetro password, para posteriormente crear una llave con el método Fernet de la librería cryptography, esta se le envía al método encrypt de la misma librería, el cual encripta el texto del parámetro backup.
+
+#### Valores de Retorno:
+- Archivo cifrado: exitosa.
+- None: hay error
+
+### decrypt
+```python
+def encrypt(backup: str, password: str) -> str:
+```
+
+Método que desencripta un texto con una contraseña específica. El flujo de este método inicia generando una llave con el algoritmo SH256, utilizando el parámetro password, para posteriormente crear una llave con el método Fernet de la librería cryptography, esta se le envía al método decrypt de la misma librería, el cual desencripta el texto del parámetro cipherBackup.
+
+#### Valores de Retorno:
+- Archivo cifrado: exitosa.
+- None: hay error
+
+### safeModeOn
+```python
+def safeModeOn(database: str, table: str): -> int
+```
+
+Activa la bandera de modo seguro de la tabla especificada. El flujo de este método es volver verdadero un booleano llamado safeMode y posteriormente crea un archivo json con el nombre de la base de datos y tabla especificada.
+
+#### Valores de Retorno:
+- 0: Se ha definido la llave.
+- 1: Error en la operación.
+- 2: Base de datos no existente.
+- 3: Tabla no existente.
+- 4: Modo seguro existente.
+
+### safeModeOff
+```python
+def safeModeOff(database: str, table: str): -> int
+```
+
+Desactiva la bandera de modo seguro de la tabla especificada. El flujo de este método es volver falso un booleano llamado safeMode y posteriormente elimina el archivo json con el nombre de la base de datos y tabla especificada.
+
+#### Valores de Retorno:
+- 0: Se ha definido la llave.
+- 1: Error en la operación.
+- 2: Base de datos no existente.
+- 3: Tabla no existente.
+- 4: Modo seguro no existente.
 
 
 ### loadCSV
