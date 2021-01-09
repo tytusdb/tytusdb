@@ -11,7 +11,7 @@ from storage.hash import HashMode as hash
 from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as json
 
-import os, traceback
+import os, traceback, csv, zlib
 from storage.misc import serealizar as sr, ForeignKeyStr as fk_str, UniqueIndexStr as ui_str, IndexStr as i_str, \
     checksum as ch, compresion as comp, BlockChain as BC, Grafos as graph
 
@@ -223,11 +223,11 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
     """
 
     if not _database(database):
-
+        compress = False
         val = _createDatabase(database, mode, encoding)
-
+        level = 0
         if val == 0:
-            _data.append({"nombre": database, "modo": mode, "encoding": encoding, "tablas": []})
+            _data.append({"nombre": database, "modo": mode, "encoding": encoding, "tablas": [], "compress": compress, "level": level})
             _Guardar()
 
         return val
@@ -455,10 +455,12 @@ def _createTable(database, table, numberColumns, mode):
         val = dict.createTable(database, table, numberColumns)
 
     if val == 0:
+        compress = False
+        level = 0
         _database(database)["tablas"].append({"nombre": table, "modo": mode, "columnas": numberColumns, "pk": [],
-                                              "foreign_keys": fk_str.ForeignKeyStr(mode, database, table),
-                                              "unique_index": ui_str.UniqueIndexStr(mode, database, table),
-                                              "index": i_str.IndexStr(mode, database, table)})
+                                            "foreign_keys": fk_str.ForeignKeyStr(mode, database, table),
+                                            "unique_index": ui_str.UniqueIndexStr(mode, database, table),
+                                            "index": i_str.IndexStr(mode, database, table), "compress": compress, "level":level})
         _Guardar()
 
     return val
@@ -567,6 +569,7 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
         if tb:
 
             mode = tb["modo"]
+            compress = tb["compress"]
 
             val = -1
 
@@ -591,6 +594,14 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
             elif mode == "dict":
                 val = dict.extractRangeTable(database, table, columnNumber, lower, upper)
 
+            if compress:
+                if len(val):
+                    for x in val:
+                        for y in x:
+                            if type(y) == str:
+                                i = x.index(y)
+                                x[i] = zlib.decompress(bytes.fromhex(y)).decode()
+
             return val
 
         else:
@@ -598,7 +609,6 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
 
     else:
         return 2
-
 
 def alterAddPK(database: str, table: str, columns: list) -> int:
     """Adds a PK to a table in a database
@@ -1007,6 +1017,7 @@ def insert(database: str, table: str, register: list) -> int:
                         y.encode(encoding, "strict")	
                     except: 	
                         return 1
+
             val = -1
 
             if mode == "avl":
