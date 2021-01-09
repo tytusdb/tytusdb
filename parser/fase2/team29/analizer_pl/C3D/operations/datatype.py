@@ -7,10 +7,11 @@ from analizer_pl import grammar
 
 
 class Identifier(Expression):
-    def __init__(self, id, isBlock, row, column) -> None:
+    def __init__(self, id, isBlock, tempS, row, column) -> None:
         super().__init__(row, column)
         self.id = id
         self.isBlock = isBlock
+        self.tempS = "t" + str(tempS)
 
     def execute(self, environment):
         if self.isBlock:
@@ -19,7 +20,24 @@ class Identifier(Expression):
             return C3D("", self.id, self.row, self.column)
         if not isinstance(environment, GlobalEnvironment):
             if environment.getVar(self.id):
-                return C3D("", '"+str(' + self.id + ')+"', self.row, self.column)
+                fix = (
+                    "\t"
+                    + "if isinstance("
+                    + self.id
+                    + ", str): "
+                    + self.tempS
+                    + ' = "\'"+'
+                    + self.id
+                    + '+"\'"'
+                    + "\n"
+                    + "\telse: "
+                    + self.tempS
+                    + " = "
+                    + self.id
+                    + "\n"
+                )
+                grammar.optimizer_.addIgnoreString(str(fix), self.row, False)
+                return C3D(fix, '"+str(' + self.tempS + ')+"', self.row, self.column)
             else:
                 pass
         return C3D("", self.id, self.row, self.column)

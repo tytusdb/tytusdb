@@ -17,6 +17,7 @@ class Assignment(Instruction):
             # TODO: Error
             if environment.getVar(self.id) != None:
                 self.value = exp.value + "\t" + self.id + " = " + str(exp.temp) + "\n"
+                """
                 fix = (
                     "\t"
                     + "if isinstance("
@@ -29,8 +30,9 @@ class Assignment(Instruction):
                     + "\n"
                 )
                 self.value += fix
+                """
                 grammar.optimizer_.addScalarAsig(self.id, exp.temp, self.row, True)
-                grammar.optimizer_.addIgnoreString(str(fix), self.row, False)
+                # grammar.optimizer_.addIgnoreString(str(fix), self.row, False)
 
                 return code.C3D(self.value, self.id, self.row, self.column)
             else:
