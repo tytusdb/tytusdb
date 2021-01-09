@@ -130,7 +130,7 @@ El sistema esta compuesto por medio de un servidor y un cliente, los cuales se c
 
 # **Parser**
 
-- El parser utilizado para las consultas esta creado utilizando la herramienta PLY y fue creado por los miembros del grupo 26 del curso de compiladores 2 [G026](../../../parser/team26/G26/ReportesManualTecnico.md).
+- El parser utilizado para las consultas esta creado utilizando la herramienta PLY y fue creado por los miembros del grupo 26 del curso de compiladores 2 [G026](../../../parser/team26/G26/Reportes/ManualTecnico.md).
 
 Este parser es el encargado de procesar las peticiones que se realizan por medio del editor de texto, realiza un analisis de la sintaxis y decide la accion que ejecutar. Posteriormente realiza los cambios necesarios o consultas sobre estructuras de datos previamente construidas por estudiantes del curso de estructuras de datos y devuelve los resultados por medio de un json hacia la consola web.
 
