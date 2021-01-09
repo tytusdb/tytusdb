@@ -1273,3 +1273,137 @@ def safeModeOff(database: str, table: str) -> int:
         return 0
     except:
         return 1
+
+# grafica el diagrama de estructura de una base de datos
+def graphDSD(database: str) -> str:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = None
+        else:
+            content = 'digraph GraphDatabase{\n' \
+                      ' rankdir=LR\n' \
+                      ' nodesep=.05;\n' \
+                      ' node [shape=record,width=.1,height=.1];\n' \
+                      ' subgraph cluster0{\n'\
+                      ' label="'+ database +'";\n'
+
+            tables = showTables(database)
+            for table in tables:
+                newTB = table + 'FK'
+                if newTB in tables:
+                    tables.remove(newTB)
+            for table in tables:
+                if table+'FK' not in tables:
+                    content += ' '+table +'[label= "'+ table +'"]\n'
+            for table in tables:
+                if 'FK' in databasesinfo[1][database][table] and len(databasesinfo[1][database][table]['FK']) > 0:
+                    references = extractTable(database,table+'FK')
+                    for num in references:
+                        ref = ' '+str(num[1]) + '->' + table +'\n'
+                        content += ref
+            content += ' }\n' \
+                       '}'
+            diagram = open(database+'DSD.dot','w')
+            diagram.write(content)
+            result = diagram.name
+            diagram.close()
+            os.system("dot -Tpng "+ database +"DSD.dot -o "+ database +"DSD.png")
+        return result
+    except:
+        return 1
+
+# grafica el diagrama de dependencias de una tabla
+def graphDF(database: str, table: str) -> str:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = None
+        elif table not in databasesinfo[1][database]:
+            result = None
+        else:
+            content = 'digraph GraphDatabase{\n' \
+                      ' rankdir=LR\n' \
+                      ' nodesep=.05;\n' \
+                      ' node [shape=record,width=.1,height=.1];\n' \
+                      ' subgraph cluster0{\n' \
+                      ' label="' + database.upper() + '-' + table.upper() + '";\n'
+            nodos = []
+            cols = []
+            columns = databasesinfo[1][database][table]['numberColumns']
+            PK = databasesinfo[1][database][table]['PK']
+            IndexUnique = None
+            if 'IndexUnique' in databasesinfo[1][database][table]:
+                for indexU in databasesinfo[1][database][table]['IndexUnique']:
+                    IndexUnique = databasesinfo[1][database][table]['IndexUnique'][indexU]['columns']
+
+            if PK is not None:
+                content += '  subgraph cluster1{\n' \
+                           '  label = "PK"\n'
+                label = '[label = "'
+                for i in PK:
+                    nodoName = 'nodo' + str(i) + '_PK'
+                    nodos.append(nodoName)
+                    if i == PK[-1]:
+                        label += '<' + nodoName + '>'+ str(i) + ''
+                        label += '"];'
+                        content += '  PK' + label + '\n'
+                        content += '  }\n'
+                    else:
+                        label += '<' + nodoName + '>'+ str(i) + '|'
+
+            if IndexUnique is not None:
+                content += '  subgraph cluster3{\n' \
+                           '  label = "IndexUnique"\n'
+                label = '[label = "'
+                for i in IndexUnique:
+                    nodoName = 'nodo' + str(i) + '_IndexUnique'
+                    nodos.append(nodoName)
+                    if i == IndexUnique[-1]:
+                        label += '<' + nodoName + '>' + str(i) + ''
+                        label += '"];'
+                        content += '  IndexUnique' + label + '\n'
+                        content += '  }\n'
+                    else:
+                        label += '<' + nodoName + '>' + str(i) + '|'
+
+            for i in range(columns):
+                cols.append(i)
+            reg = []
+            content += '  subgraph cluster4{\n' \
+                       '  label = "Registers"\n'
+            label = '[label = "'
+            for i in cols:
+                nodePK = 'nodo' + str(i) + '_PK'
+                nodeIndexUnique = 'nodo' + str(i) + '_IndexUnique'
+                nodoName = 'nodo' + str(i) +'_Reg'
+                if nodePK not in nodos and nodeIndexUnique not in nodos:
+                    reg.append(nodoName)
+                    if i == cols[-1]:
+                        label += '<' + nodoName + '>' + str(i) + ''
+                        label += '"];'
+                        content += '  Register' + label + '\n'
+                        content += '  }\n'
+                    else:
+                        label += '<' + nodoName + '>' + str(i) + '|'
+
+            for arrows in nodos:
+                arr1 = arrows.split('_')
+                if arr1[1] == 'PK':
+                    for tuple in reg:
+                        direction = 'PK:' + arrows + '->' + 'Register:' + tuple + '\n'
+                        content += direction
+                if arr1[1] == 'IndexUnique':
+                    for tuple in reg:
+                        direction = 'IndexUnique:' + arrows + '->' + 'Register:' + tuple + '\n'
+                        content += direction
+            content += ' }\n' \
+                       '}'
+            diagram = open(database + '-' + table + 'DF.dot', 'w')
+            diagram.write(content)
+            result = diagram.name
+            diagram.close()
+            os.system("dot -Tpng " + database + '-' + table + "DF.dot -o " + database + '-' + table + "DF.png")
+        return result
+    except:
+        return 1
