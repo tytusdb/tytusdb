@@ -19,7 +19,7 @@ export class TreeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    //this.funcion1()
+    this.funcion1()
   }
 
   funcion1() {
