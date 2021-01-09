@@ -38,14 +38,15 @@ class CreateFunction(Instruccion):
             paramcorrectos = True
             if entornoBD.validar_sim(CreateFunction.id) == -1:
                 dicci = {}
-                for parametro in CreateFunction.parametros:
-                    existe = dicci.get(parametro.id,False)
-                    if existe == False:
-                       dicci[parametro.id] = parametro.tipo.tipo
-                    else:
-                        consola.append(f"Existe parametros con el mismo nombre en la función: {CreateFunction.id}\n No se pudo crear la función.")
-                        paramcorrectos = False
-                        break
+                if CreateFunction.parametros is not None:
+                    for parametro in CreateFunction.parametros:
+                        existe = dicci.get(parametro.id,False)
+                        if existe == False:
+                            dicci[parametro.id] = parametro.tipo.tipo
+                        else:
+                            consola.append(f"Existe parametros con el mismo nombre en la función: {CreateFunction.id}\n No se pudo crear la función.")
+                            paramcorrectos = False
+                            break
                 if paramcorrectos:
                     entornoFuncion = TS.TablaDeSimbolos({})
                     if CreateFunction.declare != None:
@@ -58,7 +59,6 @@ class CreateFunction(Instruccion):
                     for clave,valor in dicci.items():   #id,tipo
                         nuevaVariable = TS.Simbolo(TS.TIPO_DATO.PARAMETRO,clave,valor,None,None)
                         entornoFuncion.agregar_sim(nuevaVariable)
-
                     #Creamos la nuevafuncion en el entorno global de la base de datos
                     nuevaFuncion = TS.Simbolo(TS.TIPO_DATO.FUNCTION,CreateFunction.id,CreateFunction.returns,None,entornoFuncion)
                     entornoBD.agregar_sim(nuevaFuncion)
@@ -122,10 +122,16 @@ def %s ( %s ):
     %s = %s
 ''' % (temporal2, declare_quemado, temporal2, temporal1, temporal2, temporal1, temporal2)
         temporal3 = GeneradorTemporales.nuevo_temporal()
-        c3d += '''    %s = "BEGIN return 'quemado'; end; $$ language plpgsql\\n"
+        sentencias_quemados = ''
+        for sentencia in self.begin:
+            sentencias_quemados += sentencia.get_quemado() + ';\n'
+        c3d += '''    %s = \'\'\'BEGIN 
+%s 
+end; 
+$$ language plpgsql;\\n\'\'\'
     %s = %s + %s
     stack[top_stack] = %s
-''' % (temporal3, temporal3, temporal1, temporal3, temporal3)
+''' % (temporal3, sentencias_quemados, temporal3, temporal1, temporal3, temporal3)
 
         GeneradorFileC3D.funciones_extra += c3d_funcion
         return c3d

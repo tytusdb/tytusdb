@@ -1,0 +1,60 @@
+digraph G {
+node [shape=plaintext]
+ a [label=<<table border="0" cellborder="1" cellspacing="0">
+<tr><td><b>"indice"</b></td><td>"Codigo"</td></tr>
+<tr><td><b>"0"</b></td><td>"TABLA = "" 
+"</td></tr>
+<tr><td><b>"1"</b></td><td>"CANTIDAD = 0 
+"</td></tr>
+<tr><td><b>"2"</b></td><td>"def VALIDAREGISTROS():
+"</td></tr>
+<tr><td><b>"3"</b></td><td>"0"</td></tr>
+<tr><td><b>"4"</b></td><td>"0"</td></tr>
+<tr><td><b>"5"</b></td><td>"t0 = CANTIDAD = RESULTADO"</td></tr>
+<tr><td><b>"6"</b></td><td>"if t0 : goto .L0 
+"</td></tr>
+<tr><td><b>"7"</b></td><td>"goto .L1
+"</td></tr>
+<tr><td><b>"8"</b></td><td>"label .L0"</td></tr>
+<tr><td><b>"9"</b></td><td>"t1 = VALORES * 8"</td></tr>
+<tr><td><b>"10"</b></td><td>"t2 = t1 - 5"</td></tr>
+<tr><td><b>"11"</b></td><td>" ID4 = t2 
+"</td></tr>
+<tr><td><b>"12"</b></td><td>"label .L1"</td></tr>
+<tr><td><b>"13"</b></td><td>"t3 = CANTIDAD = RESULTADO"</td></tr>
+<tr><td><b>"14"</b></td><td>"if t3 : goto .L2 
+"</td></tr>
+<tr><td><b>"15"</b></td><td>"goto .L3
+"</td></tr>
+<tr><td><b>"16"</b></td><td>"label .L2"</td></tr>
+<tr><td><b>"17"</b></td><td>"t4 = VALORES * 8"</td></tr>
+<tr><td><b>"18"</b></td><td>"t5 = t4 - 5"</td></tr>
+<tr><td><b>"19"</b></td><td>" ID5 = t5 
+"</td></tr>
+<tr><td><b>"20"</b></td><td>"label .L3"</td></tr>
+<tr><td><b>"21"</b></td><td>" VARLORES = 'ALGO' 
+"</td></tr>
+<tr><td><b>"22"</b></td><td>"t6 = CANTIDAD = 8"</td></tr>
+<tr><td><b>"23"</b></td><td>"if t6 : goto .L4 
+"</td></tr>
+<tr><td><b>"24"</b></td><td>"goto .L5
+"</td></tr>
+<tr><td><b>"25"</b></td><td>"label .L4"</td></tr>
+<tr><td><b>"26"</b></td><td>" IDO = VARLORES 
+"</td></tr>
+<tr><td><b>"27"</b></td><td>"label .L5"</td></tr>
+<tr><td><b>"28"</b></td><td>"t7 = VAR = 'PRUEBA'"</td></tr>
+<tr><td><b>"29"</b></td><td>"if t7 : goto .L6 
+"</td></tr>
+<tr><td><b>"30"</b></td><td>"goto .L7
+"</td></tr>
+<tr><td><b>"31"</b></td><td>"label .L6"</td></tr>
+<tr><td><b>"32"</b></td><td>"t8 = 7 * 3"</td></tr>
+<tr><td><b>"33"</b></td><td>" IDS5 = t8 
+"</td></tr>
+<tr><td><b>"34"</b></td><td>"label .L7"</td></tr>
+<tr><td><b>"35"</b></td><td>" VAR2 = 'GANAR' 
+"</td></tr>
+<tr><td><b>"36"</b></td><td>"RETORNA"</td></tr>
+</table>>];
+}

@@ -46,6 +46,8 @@ class Tipo_Constraint():
 
     def generar3D(self):
         code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
         t0 = c3d.getLastTemporal()
         t1 = c3d.getTemporal()
         if self.id != None:

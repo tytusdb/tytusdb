@@ -8,8 +8,9 @@ class Least(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
-'''
-instruccion = Least("hola mundo",None, 1,2)
 
-instruccion.ejecutar(None,None)
-'''
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+
+    def traducir(self, tabla, arbol):
+        return super().traducir(tabla, arbol)

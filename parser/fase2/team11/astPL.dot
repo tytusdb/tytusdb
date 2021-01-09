@@ -1,0 +1,691 @@
+digraph G {
+rankdir=TB; node[fillcolor="darkturquoise:darkslategray2", shape=record ,fontname = "Berlin Sans FB" ,style = filled]  
+edge[arrowhead=none]; 
+nodo1[label = "RAIZ\n"];
+nodo1->nodo2
+nodo2[label = "FUNCTION\nmyFuncion"];
+nodo2->nodo3
+nodo3[label = "PARAMETROS\n"];
+nodo3->nodo4
+nodo4[label = "ID\ntexto"];
+nodo4->nodo5
+nodo5[label = "TYPE COLUMN\ntext"];
+nodo2->nodo6
+nodo6[label = "RETURNS\n"];
+nodo6->nodo7
+nodo7[label = "TYPE COLUMN\ntext"];
+nodo2->nodo8
+nodo8[label = "CUERPO\n"];
+nodo8->nodo9
+nodo9[label = "$$\n"];
+nodo8->nodo10
+nodo10[label = "BEGIN\n"];
+nodo10->nodo11
+nodo11[label = "LISTA\n"];
+nodo11->nodo12
+nodo12[label = "RETURN\n"];
+nodo12->nodo13
+nodo13[label = "ID\ntexto"];
+nodo10->nodo14
+nodo14[label = "END\n"];
+nodo8->nodo15
+nodo15[label = "$$\n"];
+nodo1->nodo16
+nodo16[label = "FUNCTION\nValidaRegistros"];
+nodo16->nodo17
+nodo17[label = "PARAMETROS\n"];
+nodo17->nodo18
+nodo18[label = "ID\ntabla"];
+nodo18->nodo19
+nodo19[label = "TYPE COLUMN\nvarchar"];
+nodo19->nodo20
+nodo20[label = "ENTERO\n50"];
+nodo17->nodo21
+nodo21[label = "ID\ncantidad"];
+nodo21->nodo22
+nodo22[label = "TYPE COLUMN\ninteger"];
+nodo16->nodo23
+nodo23[label = "RETURNS\n"];
+nodo23->nodo24
+nodo24[label = "TYPE COLUMN\ninteger"];
+nodo16->nodo25
+nodo25[label = "CUERPO\n"];
+nodo25->nodo26
+nodo26[label = "$$\n"];
+nodo25->nodo27
+nodo27[label = "DECLARE\n"];
+nodo27->nodo28
+nodo28[label = "Declaracion\n"];
+nodo28->nodo29
+nodo29[label = "ID\nresultado"];
+nodo28->nodo30
+nodo30[label = "TYPE COLUMN\nINTEGER"];
+nodo27->nodo31
+nodo31[label = "Declaracion\n"];
+nodo31->nodo32
+nodo32[label = "ID\nretorna"];
+nodo31->nodo33
+nodo33[label = "TYPE COLUMN\nINTEGER"];
+nodo25->nodo34
+nodo34[label = "BEGIN\n"];
+nodo34->nodo35
+nodo35[label = "LISTA\n"];
+nodo35->nodo36
+nodo36[label = "IF\n"];
+nodo36->nodo37
+nodo37[label = "CONDICIONES\n"];
+nodo37->nodo38
+nodo38[label = "OPREL\n\="];
+nodo38->nodo39
+nodo39[label = "ID\ntabla"];
+nodo38->nodo40
+nodo40[label = "CADENA\ntbProducto"];
+nodo36->nodo41
+nodo41[label = "THEN\n"];
+nodo41->nodo42
+nodo42[label = "ASIGNACION\n:="];
+nodo42->nodo43
+nodo43[label = "ID\nresultado"];
+nodo42->nodo44
+nodo44[label = "SELECT\nselect  COUNT(*) FROM tbProducto;"];
+nodo41->nodo45
+nodo45[label = "IF\n"];
+nodo45->nodo46
+nodo46[label = "CONDICIONES\n"];
+nodo46->nodo47
+nodo47[label = "OPREL\n\="];
+nodo47->nodo48
+nodo48[label = "ID\ncantidad"];
+nodo47->nodo49
+nodo49[label = "ID\nresultado"];
+nodo45->nodo50
+nodo50[label = "THEN\n"];
+nodo50->nodo51
+nodo51[label = "ASIGNACION\n="];
+nodo51->nodo52
+nodo52[label = "ID\nretorna"];
+nodo51->nodo53
+nodo53[label = "ENTERO\n1"];
+nodo45->nodo54
+nodo54[label = "ELSE\n"];
+nodo54->nodo55
+nodo55[label = "ASIGNACION\n="];
+nodo55->nodo56
+nodo56[label = "ID\nretorna"];
+nodo55->nodo57
+nodo57[label = "ENTERO\n0"];
+nodo45->nodo58
+nodo58[label = "END IF\n"];
+nodo36->nodo59
+nodo59[label = "END IF\n"];
+nodo35->nodo60
+nodo60[label = "IF\n"];
+nodo60->nodo61
+nodo61[label = "CONDICIONES\n"];
+nodo61->nodo62
+nodo62[label = "OPREL\n\="];
+nodo62->nodo63
+nodo63[label = "ID\ntabla"];
+nodo62->nodo64
+nodo64[label = "CADENA\ntbProductoUp"];
+nodo60->nodo65
+nodo65[label = "THEN\n"];
+nodo65->nodo66
+nodo66[label = "ASIGNACION\n:="];
+nodo66->nodo67
+nodo67[label = "ID\nresultado"];
+nodo66->nodo68
+nodo68[label = "SELECT\nselect  COUNT(*) FROM tbProducto where estado = 2;"];
+nodo65->nodo69
+nodo69[label = "IF\n"];
+nodo69->nodo70
+nodo70[label = "CONDICIONES\n"];
+nodo70->nodo71
+nodo71[label = "OPREL\n\="];
+nodo71->nodo72
+nodo72[label = "ID\ncantidad"];
+nodo71->nodo73
+nodo73[label = "ID\nresultado"];
+nodo69->nodo74
+nodo74[label = "THEN\n"];
+nodo74->nodo75
+nodo75[label = "ASIGNACION\n="];
+nodo75->nodo76
+nodo76[label = "ID\nretorna"];
+nodo75->nodo77
+nodo77[label = "ENTERO\n1"];
+nodo69->nodo78
+nodo78[label = "ELSE\n"];
+nodo78->nodo79
+nodo79[label = "ASIGNACION\n="];
+nodo79->nodo80
+nodo80[label = "ID\nretorna"];
+nodo79->nodo81
+nodo81[label = "ENTERO\n0"];
+nodo69->nodo82
+nodo82[label = "END IF\n"];
+nodo60->nodo83
+nodo83[label = "END IF\n"];
+nodo35->nodo84
+nodo84[label = "IF\n"];
+nodo84->nodo85
+nodo85[label = "CONDICIONES\n"];
+nodo85->nodo86
+nodo86[label = "OPREL\n\="];
+nodo86->nodo87
+nodo87[label = "ID\ntabla"];
+nodo86->nodo88
+nodo88[label = "CADENA\ntbbodega"];
+nodo84->nodo89
+nodo89[label = "THEN\n"];
+nodo89->nodo90
+nodo90[label = "ASIGNACION\n:="];
+nodo90->nodo91
+nodo91[label = "ID\nresultado"];
+nodo90->nodo92
+nodo92[label = "SELECT\nselect  COUNT(*) FROM tbbodega;"];
+nodo89->nodo93
+nodo93[label = "IF\n"];
+nodo93->nodo94
+nodo94[label = "CONDICIONES\n"];
+nodo94->nodo95
+nodo95[label = "OPREL\n\="];
+nodo95->nodo96
+nodo96[label = "ID\ncantidad"];
+nodo95->nodo97
+nodo97[label = "ID\nresultado"];
+nodo93->nodo98
+nodo98[label = "THEN\n"];
+nodo98->nodo99
+nodo99[label = "ASIGNACION\n="];
+nodo99->nodo100
+nodo100[label = "ID\nretorna"];
+nodo99->nodo101
+nodo101[label = "ENTERO\n1"];
+nodo93->nodo102
+nodo102[label = "ELSE\n"];
+nodo102->nodo103
+nodo103[label = "ASIGNACION\n="];
+nodo103->nodo104
+nodo104[label = "ID\nretorna"];
+nodo103->nodo105
+nodo105[label = "ENTERO\n0"];
+nodo93->nodo106
+nodo106[label = "END IF\n"];
+nodo84->nodo107
+nodo107[label = "END IF\n"];
+nodo35->nodo108
+nodo108[label = "RETURN\n"];
+nodo108->nodo109
+nodo109[label = "ID\nretorna"];
+nodo34->nodo110
+nodo110[label = "END\n"];
+nodo25->nodo111
+nodo111[label = "$$\n"];
+nodo1->nodo112
+nodo112[label = "FUNCTION\nCALCULOS"];
+nodo112->nodo113
+nodo113[label = "RETURNS\n"];
+nodo113->nodo114
+nodo114[label = "TYPE COLUMN\ninteger"];
+nodo112->nodo115
+nodo115[label = "CUERPO\n"];
+nodo115->nodo116
+nodo116[label = "$$\n"];
+nodo115->nodo117
+nodo117[label = "DECLARE\n"];
+nodo117->nodo118
+nodo118[label = "Declaracion\n"];
+nodo118->nodo119
+nodo119[label = "ID\nhora"];
+nodo118->nodo120
+nodo120[label = "TYPE COLUMN\ninteger"];
+nodo117->nodo121
+nodo121[label = "Declaracion\n"];
+nodo121->nodo122
+nodo122[label = "ID\nSENO"];
+nodo121->nodo123
+nodo123[label = "TYPE COLUMN\nDECIMAL"];
+nodo123->nodo124
+nodo124[label = "ENTERO\n10"];
+nodo123->nodo125
+nodo125[label = "ENTERO\n2"];
+nodo117->nodo126
+nodo126[label = "Declaracion\n"];
+nodo126->nodo127
+nodo127[label = "ID\nVALOR"];
+nodo126->nodo128
+nodo128[label = "TYPE COLUMN\nINTEGER"];
+nodo117->nodo129
+nodo129[label = "Declaracion\n"];
+nodo129->nodo130
+nodo130[label = "ID\nABSOLUTO"];
+nodo129->nodo131
+nodo131[label = "TYPE COLUMN\nDECIMAL"];
+nodo131->nodo132
+nodo132[label = "ENTERO\n10"];
+nodo131->nodo133
+nodo133[label = "ENTERO\n2"];
+nodo115->nodo134
+nodo134[label = "BEGIN\n"];
+nodo134->nodo135
+nodo135[label = "LISTA\n"];
+nodo135->nodo136
+nodo136[label = "ASIGNACION\n:="];
+nodo136->nodo137
+nodo137[label = "ID\nhora"];
+nodo136->nodo138
+nodo138[label = "SELECT\nselect  EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');"];
+nodo135->nodo139
+nodo139[label = "ASIGNACION\n:="];
+nodo139->nodo140
+nodo140[label = "ID\nSENO"];
+nodo139->nodo141
+nodo141[label = "SELECT\nselect  SIN(1);"];
+nodo135->nodo142
+nodo142[label = "ASIGNACION\n:="];
+nodo142->nodo143
+nodo143[label = "ID\nVALOR"];
+nodo142->nodo144
+nodo144[label = "Matematica\nTRUNC"];
+nodo144->nodo145
+nodo145[label = "OPARIT\n*"];
+nodo145->nodo146
+nodo146[label = "ID\nSENO"];
+nodo145->nodo147
+nodo147[label = "ID\nhora"];
+nodo135->nodo148
+nodo148[label = "ASIGNACION\n:="];
+nodo148->nodo149
+nodo149[label = "ID\nVALOR"];
+nodo148->nodo150
+nodo150[label = "OPARIT\n+"];
+nodo150->nodo151
+nodo151[label = "ID\nVALOR"];
+nodo150->nodo152
+nodo152[label = "Binaria\nlength"];
+nodo152->nodo153
+nodo153[label = "Binaria\nSUBSTRING"];
+nodo153->nodo154
+nodo154[label = "CADENA\nFASE2"];
+nodo153->nodo155
+nodo155[label = "ENTERO\n1"];
+nodo153->nodo156
+nodo156[label = "ENTERO\n4"];
+nodo135->nodo157
+nodo157[label = "ASIGNACION\n:="];
+nodo157->nodo158
+nodo158[label = "ID\nABSOLUTO"];
+nodo157->nodo159
+nodo159[label = "Matematica\nABS"];
+nodo159->nodo160
+nodo160[label = "Trigonometrica\nSINH"];
+nodo160->nodo161
+nodo161[label = "NEGATIVO\n-"];
+nodo161->nodo162
+nodo162[label = "ENTERO\n1"];
+nodo135->nodo163
+nodo163[label = "ASIGNACION\n:="];
+nodo163->nodo164
+nodo164[label = "ID\nABSOLUTO"];
+nodo163->nodo165
+nodo165[label = "OPARIT\n*"];
+nodo165->nodo166
+nodo166[label = "ID\nABSOLUTO"];
+nodo165->nodo167
+nodo167[label = "Matematica\nSQRT"];
+nodo167->nodo168
+nodo168[label = "ENTERO\n225"];
+nodo135->nodo169
+nodo169[label = "ASIGNACION\n:="];
+nodo169->nodo170
+nodo170[label = "ID\nVALOR"];
+nodo169->nodo171
+nodo171[label = "OPARIT\n/"];
+nodo171->nodo172
+nodo172[label = "OPARIT\n+"];
+nodo172->nodo173
+nodo173[label = "ID\nVALOR"];
+nodo172->nodo174
+nodo174[label = "ID\nABSOLUTO"];
+nodo171->nodo175
+nodo175[label = "Trigonometrica\nacosd"];
+nodo175->nodo176
+nodo176[label = "DECIMAL\n0.5"];
+nodo135->nodo177
+nodo177[label = "IF\n"];
+nodo177->nodo178
+nodo178[label = "CONDICIONES\n"];
+nodo178->nodo179
+nodo179[label = "OPREL\n\>"];
+nodo179->nodo180
+nodo180[label = "ID\nVALOR"];
+nodo179->nodo181
+nodo181[label = "ENTERO\n1"];
+nodo177->nodo182
+nodo182[label = "THEN\n"];
+nodo182->nodo183
+nodo183[label = "ASIGNACION\n="];
+nodo183->nodo184
+nodo184[label = "ID\nVALOR"];
+nodo183->nodo185
+nodo185[label = "ENTERO\n20"];
+nodo177->nodo186
+nodo186[label = "ELSE\n"];
+nodo186->nodo187
+nodo187[label = "ASIGNACION\n="];
+nodo187->nodo188
+nodo188[label = "ID\nVALOR"];
+nodo187->nodo189
+nodo189[label = "ENTERO\n10"];
+nodo177->nodo190
+nodo190[label = "END IF\n"];
+nodo135->nodo191
+nodo191[label = "RETURN\n"];
+nodo191->nodo192
+nodo192[label = "ID\nVALOR"];
+nodo134->nodo193
+nodo193[label = "END\n"];
+nodo115->nodo194
+nodo194[label = "$$\n"];
+nodo1->nodo195
+nodo195[label = "procedure\nsp_validainsert"];
+nodo195->nodo196
+nodo196[label = "language\nplpgsql"];
+nodo195->nodo197
+nodo197[label = "CUERPO\n"];
+nodo197->nodo198
+nodo198[label = "$$\n"];
+nodo197->nodo199
+nodo199[label = "BEGIN\n"];
+nodo199->nodo200
+nodo200[label = "LISTA\n"];
+nodo200->nodo201
+nodo201[label = "INSERT INTO\ninsert into  tbbodega values(1,'BODEGA CENTRAL',1);"];
+nodo200->nodo202
+nodo202[label = "INSERT INTO\ninsert into  tbbodega (idbodega,bodega) values(2,'BODEGA ZONA 12');"];
+nodo200->nodo203
+nodo203[label = "INSERT INTO\ninsert into  tbbodega (idbodega,bodega,estado) values(3,'BODEGA ZONA 11',1);"];
+nodo200->nodo204
+nodo204[label = "INSERT INTO\ninsert into  tbbodega (idbodega,bodega,estado) values(4,'BODEGA ZONA 1',1);"];
+nodo200->nodo205
+nodo205[label = "INSERT INTO\ninsert into  tbbodega (idbodega,bodega,estado) values(5,'BODEGA ZONA 10',1);"];
+nodo199->nodo206
+nodo206[label = "END\n"];
+nodo197->nodo207
+nodo207[label = "$$\n"];
+nodo1->nodo208
+nodo208[label = "procedure\nsp_validaupdte"];
+nodo208->nodo209
+nodo209[label = "language\nplpgsql"];
+nodo208->nodo210
+nodo210[label = "CUERPO\n"];
+nodo210->nodo211
+nodo211[label = "$$\n"];
+nodo210->nodo212
+nodo212[label = "BEGIN\n"];
+nodo212->nodo213
+nodo213[label = "LISTA\n"];
+nodo213->nodo214
+nodo214[label = "UPDATE\nupdate  tbbodega set bodega = 'bodega zona 9' where idbodega = 4;"];
+nodo212->nodo215
+nodo215[label = "END\n"];
+nodo210->nodo216
+nodo216[label = "$$\n"];
+nodo1->nodo217
+nodo217[label = "PROCEDURE\nsp_insertaproducto"];
+nodo217->nodo218
+nodo218[label = "PARAMETROS\n"];
+nodo218->nodo219
+nodo219[label = "ID\nllave"];
+nodo219->nodo220
+nodo220[label = "TYPE COLUMN\ninteger"];
+nodo218->nodo221
+nodo221[label = "ID\nproducto"];
+nodo221->nodo222
+nodo222[label = "TYPE COLUMN\nvarchar"];
+nodo222->nodo223
+nodo223[label = "ENTERO\n100"];
+nodo218->nodo224
+nodo224[label = "ID\nfecha"];
+nodo224->nodo225
+nodo225[label = "TYPE COLUMN\ndate"];
+nodo217->nodo226
+nodo226[label = "language\nplpgsql"];
+nodo217->nodo227
+nodo227[label = "CUERPO\n"];
+nodo227->nodo228
+nodo228[label = "$$\n"];
+nodo227->nodo229
+nodo229[label = "BEGIN\n"];
+nodo229->nodo230
+nodo230[label = "LISTA\n"];
+nodo230->nodo231
+nodo231[label = "INSERT INTO\ninsert into  tbProducto values(llave,producto,fecha,1);"];
+nodo229->nodo232
+nodo232[label = "END\n"];
+nodo227->nodo233
+nodo233[label = "$$\n"];
+nodo1->nodo234
+nodo234[label = "DROP\nmyFuncion"];
+nodo1->nodo235
+nodo235[label = "FUNCTION\nfn_Mensaje"];
+nodo235->nodo236
+nodo236[label = "PARAMETROS\n"];
+nodo236->nodo237
+nodo237[label = "ID\ntexto"];
+nodo237->nodo238
+nodo238[label = "TYPE COLUMN\ntext"];
+nodo235->nodo239
+nodo239[label = "RETURNS\n"];
+nodo239->nodo240
+nodo240[label = "TYPE COLUMN\ntext"];
+nodo235->nodo241
+nodo241[label = "CUERPO\n"];
+nodo241->nodo242
+nodo242[label = "$$\n"];
+nodo241->nodo243
+nodo243[label = "BEGIN\n"];
+nodo243->nodo244
+nodo244[label = "LISTA\n"];
+nodo244->nodo245
+nodo245[label = "RETURN\n"];
+nodo245->nodo246
+nodo246[label = "ID\ntexto"];
+nodo243->nodo247
+nodo247[label = "END\n"];
+nodo241->nodo248
+nodo248[label = "$$\n"];
+nodo1->nodo249
+nodo249[label = "FUNCTION\nfn_retornaproducto"];
+nodo249->nodo250
+nodo250[label = "PARAMETROS\n"];
+nodo250->nodo251
+nodo251[label = "ID\nVproducto"];
+nodo251->nodo252
+nodo252[label = "TYPE COLUMN\nvarchar"];
+nodo252->nodo253
+nodo253[label = "ENTERO\n100"];
+nodo249->nodo254
+nodo254[label = "RETURNS\n"];
+nodo254->nodo255
+nodo255[label = "TYPE COLUMN\ninteger"];
+nodo249->nodo256
+nodo256[label = "CUERPO\n"];
+nodo256->nodo257
+nodo257[label = "$$\n"];
+nodo256->nodo258
+nodo258[label = "DECLARE\n"];
+nodo258->nodo259
+nodo259[label = "Declaracion\n"];
+nodo259->nodo260
+nodo260[label = "ID\nidp"];
+nodo259->nodo261
+nodo261[label = "TYPE COLUMN\ninteger"];
+nodo256->nodo262
+nodo262[label = "BEGIN\n"];
+nodo262->nodo263
+nodo263[label = "LISTA\n"];
+nodo263->nodo264
+nodo264[label = "ASIGNACION\n:="];
+nodo264->nodo265
+nodo265[label = "ID\nidp"];
+nodo264->nodo266
+nodo266[label = "SELECT\nselect  idproducto from tbProducto where producto = Vproducto;"];
+nodo263->nodo267
+nodo267[label = "RETURN\n"];
+nodo267->nodo268
+nodo268[label = "ID\nidp"];
+nodo262->nodo269
+nodo269[label = "END\n"];
+nodo256->nodo270
+nodo270[label = "$$\n"];
+nodo1->nodo271
+nodo271[label = "FUNCTION\nfn_retornabodega"];
+nodo271->nodo272
+nodo272[label = "PARAMETROS\n"];
+nodo272->nodo273
+nodo273[label = "ID\nVbodega"];
+nodo273->nodo274
+nodo274[label = "TYPE COLUMN\nvarchar"];
+nodo274->nodo275
+nodo275[label = "ENTERO\n100"];
+nodo271->nodo276
+nodo276[label = "RETURNS\n"];
+nodo276->nodo277
+nodo277[label = "TYPE COLUMN\ninteger"];
+nodo271->nodo278
+nodo278[label = "CUERPO\n"];
+nodo278->nodo279
+nodo279[label = "$$\n"];
+nodo278->nodo280
+nodo280[label = "DECLARE\n"];
+nodo280->nodo281
+nodo281[label = "Declaracion\n"];
+nodo281->nodo282
+nodo282[label = "ID\nidb"];
+nodo281->nodo283
+nodo283[label = "TYPE COLUMN\ninteger"];
+nodo278->nodo284
+nodo284[label = "BEGIN\n"];
+nodo284->nodo285
+nodo285[label = "LISTA\n"];
+nodo285->nodo286
+nodo286[label = "ASIGNACION\n:="];
+nodo286->nodo287
+nodo287[label = "ID\nidb"];
+nodo286->nodo288
+nodo288[label = "SELECT\nselect  idbodega from tbbodega where bodega = Vbodega;"];
+nodo285->nodo289
+nodo289[label = "RETURN\n"];
+nodo289->nodo290
+nodo290[label = "ID\nidb"];
+nodo284->nodo291
+nodo291[label = "END\n"];
+nodo278->nodo292
+nodo292[label = "$$\n"];
+nodo1->nodo293
+nodo293[label = "FUNCTION\nsp_insertainventario"];
+nodo293->nodo294
+nodo294[label = "PARAMETROS\n"];
+nodo294->nodo295
+nodo295[label = "ID\nide"];
+nodo295->nodo296
+nodo296[label = "TYPE COLUMN\ninteger"];
+nodo294->nodo297
+nodo297[label = "ID\nVproducto"];
+nodo297->nodo298
+nodo298[label = "TYPE COLUMN\nvarchar"];
+nodo298->nodo299
+nodo299[label = "ENTERO\n100"];
+nodo294->nodo300
+nodo300[label = "ID\nVbodega"];
+nodo300->nodo301
+nodo301[label = "TYPE COLUMN\nvarchar"];
+nodo301->nodo302
+nodo302[label = "ENTERO\n100"];
+nodo294->nodo303
+nodo303[label = "ID\ncantidad"];
+nodo303->nodo304
+nodo304[label = "TYPE COLUMN\ninteger"];
+nodo294->nodo305
+nodo305[label = "ID\ndescripcion"];
+nodo305->nodo306
+nodo306[label = "TYPE COLUMN\nvarchar"];
+nodo306->nodo307
+nodo307[label = "ENTERO\n200"];
+nodo293->nodo308
+nodo308[label = "RETURNS\n"];
+nodo308->nodo309
+nodo309[label = "TYPE COLUMN\ninteger"];
+nodo293->nodo310
+nodo310[label = "CUERPO\n"];
+nodo310->nodo311
+nodo311[label = "$$\n"];
+nodo310->nodo312
+nodo312[label = "DECLARE\n"];
+nodo312->nodo313
+nodo313[label = "Declaracion\n"];
+nodo313->nodo314
+nodo314[label = "ID\nidproducto"];
+nodo313->nodo315
+nodo315[label = "TYPE COLUMN\ninteger"];
+nodo312->nodo316
+nodo316[label = "Declaracion\n"];
+nodo316->nodo317
+nodo317[label = "ID\nidbodega"];
+nodo316->nodo318
+nodo318[label = "TYPE COLUMN\ninteger"];
+nodo312->nodo319
+nodo319[label = "Declaracion\n"];
+nodo319->nodo320
+nodo320[label = "ID\nidev"];
+nodo319->nodo321
+nodo321[label = "TYPE COLUMN\ninteger"];
+nodo310->nodo322
+nodo322[label = "BEGIN\n"];
+nodo322->nodo323
+nodo323[label = "LISTA\n"];
+nodo323->nodo324
+nodo324[label = "ASIGNACION\n:="];
+nodo324->nodo325
+nodo325[label = "ID\nidev"];
+nodo324->nodo326
+nodo326[label = "SELECT\nselect  count(*) from tbinventario where idinventario = ide;"];
+nodo323->nodo327
+nodo327[label = "IF\n"];
+nodo327->nodo328
+nodo328[label = "CONDICIONES\n"];
+nodo328->nodo329
+nodo329[label = "OPREL\n\="];
+nodo329->nodo330
+nodo330[label = "ID\nidev"];
+nodo329->nodo331
+nodo331[label = "ENTERO\n0"];
+nodo327->nodo332
+nodo332[label = "THEN\n"];
+nodo332->nodo333
+nodo333[label = "ASIGNACION\n:="];
+nodo333->nodo334
+nodo334[label = "ID\nidproducto"];
+nodo333->nodo335
+nodo335[label = "SELECT\nselect  fn_retornaproducto(Vproducto);"];
+nodo332->nodo336
+nodo336[label = "ASIGNACION\n:="];
+nodo336->nodo337
+nodo337[label = "ID\nidbodega"];
+nodo336->nodo338
+nodo338[label = "SELECT\nselect  fn_retornabodega(Vbodega);"];
+nodo332->nodo339
+nodo339[label = "INSERT INTO\ninsert into  tbinventario values(ide,idproducto,idbodega,cantidad,now,descripcion);"];
+nodo327->nodo340
+nodo340[label = "END IF\n"];
+nodo323->nodo341
+nodo341[label = "RETURN\n"];
+nodo341->nodo342
+nodo342[label = "ID\nide"];
+nodo322->nodo343
+nodo343[label = "END\n"];
+nodo310->nodo344
+nodo344[label = "$$\n"];
+}

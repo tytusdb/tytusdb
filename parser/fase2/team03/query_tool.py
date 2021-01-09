@@ -92,14 +92,29 @@ class query_tool:
         self.archivoMenu.add_command(label="Save As...", command=self.SaveAs)
         self.archivoMenu.add_separator()
         self.archivoMenu.add_command(label="Exit", command=self.vp.quit)
+        # Menu Edit
+        self.editMenu = Menu(self.barraMenu, tearoff=0)
+        self.editMenu.add_command(label="Cut", \
+                                  accelerator="Ctrl+X", \
+                                  command=lambda: \
+                                      self.entrada.event_generate('<<Cut>>'))
+        self.editMenu.add_command(label="Copy", \
+                                  accelerator="Ctrl+C", \
+                                  command=lambda: \
+                                      self.entrada.event_generate('<<Copy>>'))
+        self.editMenu.add_command(label="Paste", \
+                                  accelerator="Ctrl+V", \
+                                  command=lambda: \
+                                      self.entrada.event_generate('<<Paste>>'))
         # Menu Run
         self.runMenu = Menu(self.barraMenu, tearoff=0)
         self.runMenu.add_command(label="Run", command=self.Run, accelerator="Ctrl+R")
         self.runMenu.add_command(label="Generate", command=self.generate, accelerator="Ctrl+G")
-        self.runMenu.add_command(label="Clear Execution", command=self.clear_files, accelerator="Ctrl+X")
+        self.runMenu.add_command(label="Clear Execution", command=self.clear_files, accelerator="Ctrl+Z")
         # Menu Archivo
         self.reportsMenu = Menu(self.barraMenu, tearoff=0)
         self.reportsMenu.add_command(label="Symbol Table", command=self.getST)
+        self.reportsMenu.add_command(label="Optimizations", command=self.getOptimization)
         self.reportsMenu.add_separator()
         self.reportsMenu.add_command(label="Errors", command=self.openErrors)
         self.reportsMenu.add_separator()
@@ -118,6 +133,7 @@ class query_tool:
         self.helpMenu.add_command(label="User Manual", command=self.openUser)
         # Barra de Menú
         self.barraMenu.add_cascade(label="File", menu=self.archivoMenu)
+        self.barraMenu.add_cascade(label="Edit", menu=self.editMenu)
         self.barraMenu.add_cascade(label="Run", menu=self.runMenu)
         self.barraMenu.add_cascade(label="Reports", menu=self.reportsMenu)
         self.barraMenu.add_cascade(label="Help", menu=self.helpMenu)
@@ -127,7 +143,7 @@ class query_tool:
 
         window.bind('<Control-r>', self.run_listener)
         window.bind('<Control-g>', self.generate_listener)
-        window.bind('<Control-x>', self.clear_listener)
+        window.bind('<Control-z>', self.clear_listener)
 
         def callback(event):
             '''
@@ -207,7 +223,10 @@ class query_tool:
         self.clear_files()
 
     def clear_files(self):
-        shutil.rmtree('data')
+        if os.path.exists('data'):
+            shutil.rmtree('data')
+        if os.path.exists('opt_report.txt'):
+            os.remove('opt_report.txt')
 
     def Run(self):
         '''
@@ -238,6 +257,16 @@ class query_tool:
     def getST(self):
         ST0 = '\n\n\n+------------- SYMBOL TABLE REPORT --------------+\n'
         ST1 = grammarReview.getTablaTabulada(self)
+        ST2 = '\n'
+        self.consola.insert(INSERT, ST0)
+        self.consola.insert(INSERT, ST1)
+        self.consola.insert(INSERT, ST2)
+
+    def getOptimization(self):
+        ST0 = '\n\n\n+------------- OPTIMIZATION REPORT --------------+\n'
+        # ST1 = grammarReview.getTablaTabulada(self)
+        file = open('opt_report.txt', 'r')
+        ST1 = file.read()
         ST2 = '\n'
         self.consola.insert(INSERT, ST0)
         self.consola.insert(INSERT, ST1)

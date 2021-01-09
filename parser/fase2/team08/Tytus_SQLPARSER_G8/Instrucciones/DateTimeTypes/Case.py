@@ -15,6 +15,12 @@ class Case(Instruccion):
         ts.setVariable(exp)
         print("imprimir_declaracion")
 
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+    
+    def traducir(self, tabla, arbol):
+        return super().traducir(tabla, arbol)
+
 '''
 instruccion = Declare("hola mundo",None, 1,2)
 

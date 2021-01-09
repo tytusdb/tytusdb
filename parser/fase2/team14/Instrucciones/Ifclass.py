@@ -1,8 +1,6 @@
 
 from Instrucciones.Instruccion import Instruccion
-
-
-from Expresion.FuncionesNativas import *
+from Entorno.Entorno import Entorno
 
 class Ifclass(Instruccion):
     def __init__(self,exp,cif,elsif=None,celse=None):
@@ -12,10 +10,54 @@ class Ifclass(Instruccion):
         self.celse=celse
 
 
-    def ejecutar(self, ent:Entorno):
-            'sdfsadf'
+    def ejecutar(self, ent):
+            'ejecucion del if'
+
+            rescond=self.exp.getval(ent).valor
+            if rescond==True:
+                for instr in self.cif:
+                    newent = Entorno(ent)
+                    val=instr.ejecutar(newent)
+                    if val!=None:
+                        return val
+                return
+
+            if self.elsif!=None:
+                for elsif in self.elsif:
+                    if elsif.exp.getval(ent).valor:
+                        newent = Entorno(ent)
+                        for instr in elsif.cif:
+                            newent = Entorno(ent)
+                            val = instr.ejecutar(newent)
+                            if val != None:
+                                return val
+                        return
+            if self.celse!=None:
+                for inst in self.celse:
+                    newent = Entorno(ent)
+                    val = inst.ejecutar(newent)
+                    if val != None:
+                        return val
+
 
     def traducir(self,entorno):
+        sql='if '+self.exp.traducir(entorno).stringsql +' then '
+        for inst in self.cif:
+            sql+=inst.traducir(entorno).stringsql
+        if self.elsif != None:
+            for elsif in self.elsif:
+                sql += 'elsif ' + elsif.exp.traducir(entorno).stringsql + ' then '
+                for inst in elsif.cif:
+                    sql += inst.traducir(entorno).stringsql
+        if self.celse!=None:
+            sql+=' else '
+            for inst in self.celse:
+                sql += inst.traducir(entorno).stringsql
+
+        sql+='end if;'
+        self.stringsql=sql
+
+
         if self.elsif==None and self.celse==None:
             lv = entorno.newlabel()
             lf = entorno.newlabel()

@@ -2730,6 +2730,8 @@ def procesar_expresion_columna(expresiones, ts):
             # newErr=ErrorRep('Semantico','No se puede aplicar abs() al tipo de dato ',indice)
             # LisErr.agregar(newErr)
             return None
+    elif isinstance(expresiones, string_types):
+        return [expresiones]
     # else:
     #     print('Error:Expresion no reconocida')
 

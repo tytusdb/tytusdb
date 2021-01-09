@@ -7,7 +7,8 @@ from Instrucciones.Sql_select.Having import Having
 from Instrucciones.Sql_select.Limit import Limit
 from Instrucciones.Identificador import Identificador
 from Instrucciones.Excepcion import Excepcion
-from Instrucciones.Sql_select import SelectLista
+from Instrucciones.Sql_select.Alias import Alias
+
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 import numpy as np
 import pandas as pd
@@ -36,7 +37,8 @@ class Select(Instruccion):
             for x in range(0,len(self.lcol2)):
                 if(x==0):
                     # Cuando viene un Alias
-                    if isinstance(self.lcol2[x], SelectLista.Alias):
+                    #print(self.lcol2[x], Alias)
+                    if isinstance(self.lcol2[x], Alias):
                         #print(self.lcol2[x].id,self.lcol2[x].expresion.id)
                         val = self.lcol2[x].expresion.devolverTabla(tabla,arbol)
                         variable = Simbolo(self.lcol2[x].id,None,val,0,0)
@@ -47,7 +49,7 @@ class Select(Instruccion):
                     
                     tablaSelect = extractTable(arbol.getBaseDatos(),val)
                 else:
-                    if isinstance(self.lcol2[x], SelectLista.Alias):
+                    if isinstance(self.lcol2[x], Alias):
                         #print(self.lcol2[x].id,self.lcol2[x].expresion.id)
                         val = self.lcol2[x].expresion.devolverTabla(tabla,arbol)
                         variable = Simbolo(self.lcol2[x].id,None,val,0,0)
@@ -99,7 +101,7 @@ class Select(Instruccion):
             for x in range(0,len(self.lcol2)):
                 if(x == 0):
                     # Cuando viene un Alias
-                    if isinstance(self.lcol2[x], SelectLista.Alias):
+                    if isinstance(self.lcol2[x], Alias):
                         #print(self.lcol2[x].id,self.lcol2[x].expresion.id)
                         val = self.lcol2[x].expresion.devolverTabla(tabla,arbol)
                         variable = Simbolo(self.lcol2[x].id,None,val,0,0)
@@ -116,7 +118,7 @@ class Select(Instruccion):
                     tablaSelect = extractTable(arbol.getBaseDatos(),val)
                     '''
                 else:
-                    if isinstance(self.lcol2[x], SelectLista.Alias):
+                    if isinstance(self.lcol2[x], Alias):
                         #print(self.lcol2[x].id,self.lcol2[x].expresion.id)
                         val = self.lcol2[x].expresion.devolverTabla(tabla,arbol)
                         variable = Simbolo(self.lcol2[x].id,None,val,0,0)
@@ -143,10 +145,10 @@ class Select(Instruccion):
                     #obtener la posicion
                     posicion = arbol.devolverOrdenDeColumna(nombreTabla,nombreColumna)
                     arr.append(posicion)
-                elif isinstance(self.lcol[x], SelectLista.Alias):
-                    print(self.lcol[x].id,self.lcol[x].expresion)
+                elif isinstance(self.lcol[x], Alias):
+                    #print(self.lcol[x].id,self.lcol[x].expresion)
                     valor = tabla.getVariable(self.lcol[x].id)
-                    print(valor)
+                    #print(valor)
                     valores = arbol.devolverColumnasTabla(valor.valor)
                     #valores = self.lcol[x].expresion.devolverTabla(tabla,arbol)
 
@@ -236,7 +238,7 @@ class Select(Instruccion):
                         limite = self.lrows[x].ejecutar(tabla,arbol)
                         tablaSelect = self.devolverTablaLimite(tablaSelect,limite)
 
-                print(tablaSelect)
+                #print(tablaSelect)
 
             return tablaSelect
 
@@ -275,14 +277,14 @@ class Select(Instruccion):
             sortedArr = np.sort(arr2D, axis = 0)
             sortedArr = sortedArr[::-1]
             print('Sorted 2D Numpy Array')
-            print(sortedArr)
+            #print(sortedArr)
             tablaRes = sortedArr
         else:
             sort = np.sort(arr2D,axis=0)
             #sort = np.sort(arr2D, axis = 0)
             #sort = np.sort(arr2D)
             #sort = sort[::1]
-            print(sort)
+            #print(sort)
             tablaRes = sort
 
         #vamos a volverlo otra ves una tabla
@@ -332,10 +334,10 @@ class Select(Instruccion):
                 if isinstance(self.lcol[x],Identificador):
                     col = self.lcol[x].devolverId(tabla,arbol)
                     arr.append(col)
-                elif isinstance(self.lcol[x], SelectLista.Alias):
-                    print(self.lcol[x].id,self.lcol[x].expresion)
+                elif isinstance(self.lcol[x], Alias):
+                    #print(self.lcol[x].id,self.lcol[x].expresion)
                     valor = tabla.getVariable(self.lcol[x].id)
-                    print(valor)
+                    #print(valor)
                     valores = arbol.devolverColumnasTabla(valor.valor)
                     #valores = self.lcol[x].expresion.devolverTabla(tabla,arbol)
 
@@ -344,7 +346,7 @@ class Select(Instruccion):
                         return valores
                     
                     #arr = []
-                    if isinstance(self.lcol[x], SelectLista.Alias):
+                    if isinstance(self.lcol[x], Alias):
                         if(x == 0):
                             if(self.lcol[x].expresion == "*"):
                                 for m in range(0,len(valores)):
@@ -389,7 +391,7 @@ class Select(Instruccion):
                 #print(nodo)
                 if(nodo != []):
                    tablaRes2.append(nodo)
-                print(nodo)
+                #print(nodo)
         return tablaRes2
 
     def analizar(self, tabla, arbol):
@@ -440,5 +442,9 @@ class Select(Instruccion):
         
         if (self.where !=None):
             cadena+=self.where.traducir(tabla,arbol)
-
+        
+        if (self.lrows):
+            for x in range(0,len(self.lrows)):
+                cadena += self.lrows[x].traducir(tabla, arbol)
+                
         return cadena

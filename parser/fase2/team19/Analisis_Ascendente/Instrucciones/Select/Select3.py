@@ -1,7 +1,5 @@
 from Analisis_Ascendente.Instrucciones.instruccion import *
-from Analisis_Ascendente.storageManager.jsonMode import *
-import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
-import Analisis_Ascendente.Instrucciones.Select as Select
+from operator import itemgetter
 from Analisis_Ascendente.Instrucciones.Select.select import GroupBy,Having
 from Analisis_Ascendente.Instrucciones.Time import  Time
 from Analisis_Ascendente.Instrucciones.expresion import  *
@@ -15,27 +13,56 @@ import Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
 
 class Selectp4(Instruccion):
 
+    def getC3D(self, ts, listaopt):
+        etiqueta = GeneradorTemporales.nuevo_temporal()
+        code3d = '\n     # ---------SELECT----------- \n'
+        code3d += '    top_stack = top_stack + 1 \n'
+        code3d += '    %s = \"select ' % etiqueta
+        bdactual = ts.buscar_sim("usedatabase1234")
+        if bdactual is not None:
+            BD = ts.buscar_sim(bdactual.valor)
+            entornoBD = BD.Entorno
+            listaTablas = entornoBD.simbolos
+        if self.columnas == '*':
+            code3d += '* from '
+        else:
+            columnitas = ''
+            for col in self.columnas:
+                if isinstance(col, IdAsId):
+                    columnitas += col.id1.id + ' as ' + col.id2.id + ','
+                elif isinstance(col, IdId):
+                    columnitas += col.id1.id + '.' + col.id2.id + ','
+                else:
+                    columnitas += str(col.id) + ','
+            columnitas2 = list(columnitas)
+            size = len(columnitas2) - 1
+            del (columnitas2[size])
+            s = "".join(columnitas2)
+            code3d += s + ' from '
+        tablas = ''
+        tablasRef = {}
+        DataSelectInicial =[]
+        DataSelect = []
+        tabs = FROM(self, tablasRef, [], DataSelectInicial)
+        for tables in tabs[1]:
+            tablas += str(tables) + ','
+        tablitas = list(tablas)
+        siz = len(tablitas) - 1
+        del (tablitas[siz])
+        t = "".join(tablitas)
+        code3d += t
+        cond = self.complementS
+        if cond is not None:
+            code3d += ' where '
+            if isinstance(cond, Expresion.Expresion):
+                code3d += cond.getC3D()
+        orderb = self.orderby
+        code3d += ';\" \n'
+        code3d += '    stack[top_stack] = %s \n' % etiqueta
+        return code3d
+
+
     def ejecutar(Select,ts,Consola, Exceptions,mostrar):
-        '''insert('prueba1', 'tabla1', [1, 'Fredy', 'Ramirez'])
-        insert('prueba1', 'tabla1', [2, 'Mauro', 'Martinez'])
-        insert('prueba1', 'tabla1', [3, 'Javier', 'Lima'])
-        insert('prueba1', 'tabla1', [4, 'Yisus', 'Yisusx2'])
-        insert('prueba1', 'tabla1', [5, 'Jacks', 'Wade'])
-
-        insert('prueba1', 'tabla2', [1, 'Mario', 'Guatemala', 'Contabilidad'])
-        insert('prueba1', 'tabla2', [2, 'Eli', 'Dubai', 'Progra'])
-        insert('prueba1', 'tabla2', [3, 'Sis', 'Brasil', 'Master Chief'])
-        insert('prueba1', 'tabla2', [4, 'Fredy', 'Noruega', 'God of War'])
-        insert('prueba1', 'tabla2', [5, 'Luigi', 'Italia', 'Mario Kart'])
-
-        insert('prueba1', 'tabla3', [1, 'Sic', 'USA', '4av. km 19.3'])
-        insert('prueba1', 'tabla3', [2, 'Pepe', 'Irak', 'en amatitlan ese'])
-        insert('prueba1', 'tabla3', [3, 'Etesech', 'China', 'perdido'])
-        insert('prueba1', 'tabla3', [4, 'ufuefue', 'Japon', 'Selva'])
-        insert('prueba1', 'tabla3', [5, 'osas', 'Venezuela', 'Jungla'])'''
-
-
-
         tablasRef = {}
         cont=0
         x = PrettyTable()
@@ -46,10 +73,10 @@ class Selectp4(Instruccion):
         columnasT = len(Select.columnas)
         Error = False;
         resultado = FROM(Select, tablasRef, Exceptions,DataSelectInicial) #leemos las tablas
-        for i in tablasRef.items():
-            print(i)
+        #for i in tablasRef.items():
+         #   print(i)
         for columna in Select.columnas:
-            print('what -- ' + str(len(Select.columnas)))
+            #print('what -- ' + str(len(Select.columnas)))
             Permutar = False
 
             if (ts.validar_sim("usedatabase1234") and cont<=columnasT):
@@ -60,12 +87,7 @@ class Selectp4(Instruccion):
                 listado_tablas = entornoBD.simbolos
                 listadoCampo = {}
 
-
-
-
                 if resultado[0]: #si vienen valores de ids de tablas validos
-
-
                     for k in tablasRef.keys():
                         if not existeTabla(listado_tablas, tablasRef.get(k)):
                             Exceptions.append(f'Error semantico - 42P01 - no existe la relación, error en  - {Select.fila} - {Select.columna}')
@@ -211,14 +233,27 @@ class Selectp4(Instruccion):
             else:
                 print("no se seleciona una bd")
 
-        if (not Error):
+        if Select.orderby is not None:
+            ##-------------------------------------->>> ORDER BY
+            pass
+            for nm in Select.orderby:
+                if isinstance(nm, Id):
+                    indexG = buscar_infice(nm.id, resultado)
+                    if Select.orderbymod == 'desc':
+                        registro = sorted(DataSelect, key=itemgetter(indexG), reverse=True)
+                    else:
+                        registro = sorted(DataSelect, key=itemgetter(indexG))
+                    imprimir_Tabla(Select, registro, resultado,x)
+            #Consola.append('\n' + x.get_string() + '\n')
+            x.clear()
+        if not Error:
 
             #x.clear()
             DataSelect = EvaluarWhere(ts,Select,DataSelect,Exceptions,Consola)
 
 
-            print('lo que llego')
-            print(DataSelect)
+            #print('lo que llego')
+            #print(DataSelect)
 
 
             if isinstance(DataSelect,list):
@@ -282,7 +317,7 @@ def encabezados(tablaR,tablasRef,listado_tablas,en):
 
 def ActualizarTabla(x,DataJson,rango,en,DataSelect3, alias):
     filas = len(DataJson)
-    print('filas nueva tabla'+str(filas))
+    #print('filas nueva tabla'+str(filas))
     DataSelectAux =[]
     row = []
 
@@ -391,13 +426,14 @@ def existeCampo(nombreCampo,lista):
     return [False,contador]
 
 
-def EvaluarWhere(ts,Select,DataSelect,Exceptions,Consola):
+def EvaluarWhere(ts, Select, DataSelect, Exceptions, Consola):
     print(type(Select.complementS).__name__)
     #print(DataSelect)
     l = []
     filas=[False,[]]
     if isinstance(Select.complementS,Where.Where) or isinstance(Select.complementS,Expresion.Expresion):
         filas = Where.Where.Resolver(Select.complementS,ts,Exceptions,Consola,DataSelect)
+        Consola = filas
 
     elif isinstance(Select.complementS,GroupBy):
         filas = Where.Where.Resolver(Select.complementS.listaC, ts, Exceptions, Consola, DataSelect)
@@ -472,15 +508,39 @@ def PermutarData(DataSelect3, DataSelectAux):
                     for row in DataSelectAux[1]:
                         columna.append(row)
             DataSelect3.append([DataSelectAux[0], columna, DataSelectAux[2]])
-            return  DataSelect3
-
-
+            return DataSelect3
     else:
-        print('lo que llega')
-        print(DataSelectAux)
         DataSelect3.append([DataSelectAux[0],DataSelectAux[1],DataSelectAux[2]])
         return DataSelect3
 
+
+def buscar_infice(id, lista_campo):
+    contador = -1
+    for campo in lista_campo:  # RECORRO LOS NOMBRES DE LOS CAMPOS DE LA TS
+        contador += 1  # INDICA LA POSICION DE LA COLUMNA DONDE OBTENGO LOS VALORES
+        if (id == campo):
+            return contador
+
+    return -1
+
+def imprimir_Tabla(Select,listaCampos,listaEncabezado,x):
+    x.clear()
+    contador = -1
+    listCampos2 = []
+    for campo in listaEncabezado:  # RECORRO LOS NOMBRES DE LOS CAMPOS DE LA TS
+        listCampos2.clear()  # LIMPIO LA LISTA DONDE ALMACENARE LOS DATOS DE CADA COLUMNA
+        contador += 1  # INDICA LA POSICION DE LA COLUMNA DONDE OBTENGO LOS VALORES
+        auxiliarColumna = []
+        if contador != -1:
+
+            for col in listaCampos:  # RECORRO LOS DATOS DE LA TABLA DE SIMBOLOS
+                listCampos2.append(col[contador])
+                auxiliarColumna.append(col[contador])
+        # if verficarRepetidos(listCampos2):  # VERIFICA SI SE REPITE ELEMENTO
+        #   listaAux = Repeat(listCampos2)
+        #  x.add_column(campos.get(campo).id, listaAux)
+        # else:
+        x.add_column(campo, listCampos2)  # AGREGO UNA COLUMNA
 
 
 

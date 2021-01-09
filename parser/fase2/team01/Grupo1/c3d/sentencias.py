@@ -43,7 +43,7 @@ def createDB(database: str) :
                 result = instr.executec3d(datos)
                 #print(result+'--MF')
                 if isinstance(result, Error):
-                    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                    #print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                     
                     print(str(result.desc))
                     erroresSemanticos.append(result)
@@ -96,12 +96,26 @@ def useDatabase(database: str) :
     print('Use ' + database)
 
 # CREATE a table checking their existence
-def createTbl(database: str, table: str, numberColumns: int):
+def createTbl(database: str, table: str, listColumns: any):
     
-    instruccion = g.parse('CREATE TABLE tbProducto (idproducto integer primary key, \
-  						 producto varchar(150), \
-  						 fechacreacion date, \
-						 estado integer);')
+    cadenaE = 'CREATE TABLE ' + table.upper() + " ("
+    contaCol=0
+    for colIns in listColumns:
+        if contaCol==0:
+            cadenaE = cadenaE + colIns
+        else:
+            cadenaE = cadenaE + ", " + colIns
+        contaCol +=1
+    
+    cadenaE = cadenaE + ");"
+
+    # instruccion = g.parse('CREATE TABLE tbProducto (idproducto integer primary key, \
+  	# 					 producto varchar(150), \
+  	# 					 fechacreacion date, \
+	# 					 estado integer);')
+
+    instruccion = g.parse(cadenaE)
+
     erroresSemanticos = []
     for instr in instruccion['ast'] :
     
@@ -109,7 +123,7 @@ def createTbl(database: str, table: str, numberColumns: int):
                 result = instr.executec3d(datos)
                 #print(result+'--MF')
                 if isinstance(result, Error):
-                    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                    #print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                     
                     print(str(result.desc))
                     erroresSemanticos.append(result)
@@ -137,7 +151,50 @@ def insertC3D(database: str, table: str, register: list):
     #print('************ registro')   
     #print(register)
 
-    resultado = insert(database, table, register)
+    cadenaIns = 'INSERT INTO ' + table + ' VALUES('
+    contadorCampos=0
+    for campoIns in register:
+        if contadorCampos==0:
+            if es_numero(campoIns):
+                cadenaIns = cadenaIns + str(campoIns)
+            else:
+                fTipo = campoIns.find("NOW") 
+                if fTipo >=0 :
+                    cadenaIns = cadenaIns + str(campoIns) 
+                else:
+                    cadenaIns = cadenaIns + "'" + str(campoIns) + "'"
+        else:
+            if es_numero(campoIns):
+                cadenaIns = cadenaIns + "," + str(campoIns)
+            else:
+                fTipo = campoIns.find("NOW") 
+                if fTipo >=0 :
+                    cadenaIns = cadenaIns + "," + str(campoIns) 
+                else:
+                    cadenaIns = cadenaIns + ",'" + str(campoIns) + "'"
+
+        contadorCampos+=1;     
+    cadenaIns = cadenaIns + ");"
+
+
+    instruccion = g.parse(cadenaIns)
+    erroresSemanticos = []
+    for instr in instruccion['ast'] :
+    
+            if instr != None:
+                result = instr.executec3d(datos)
+                #print(result+'--MF')
+                if isinstance(result, Error):
+                    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                    
+                    print(str(result.desc))
+                    erroresSemanticos.append(result)
+                elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
+                    print(str(instr.ImprimirTabla(result)))
+                else:
+                    print(str(result))
+
+    resultado = 100 #insert(database, table, register)
     if resultado == 1:
         print('Error(42P16): invalid_table_definition.')
     elif resultado == 2:
@@ -193,11 +250,11 @@ def selectC3D(database: str, columns: any, tablas: any, cwhere: str):
 
         if len(cwhere)>0:
             cadenaE = cadenaE + ' WHERE ' + cwhere    
-
+    cadenaE = cadenaE + ';'
     instruccion = g.parse(cadenaE)
     erroresSemanticos = []
     for instr in instruccion['ast'] :
-    
+            varValor=0
             if instr != None:
                 result = instr.executec3d(datos)
                 #print(result+'--MF')
@@ -205,10 +262,22 @@ def selectC3D(database: str, columns: any, tablas: any, cwhere: str):
                     print(str(result.desc))
                     erroresSemanticos.append(result)
                 elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
-                    print(str(instr.ImprimirTabla(result)))
-                else:
-                    print(str(result))
+                    if 'count' in result:
+                        varValor =  result['count']['columnas'][0]   
+                    else:
+                        contResult=0
+                        varColName=''
+                        for colRes in result.keys():
+                            varColName = colRes
+                            contResult+=1
+                        if contResult==1:
+                            varValor = result[varColName]['columnas'][0][0]
+                        else:
+                            print(str(instr.ImprimirTabla(result)))
 
+                else:                    
+                    print(str(result))
+    
 
 
     resultado = 100 #update(database, table, register, columns)
@@ -225,7 +294,7 @@ def selectC3D(database: str, columns: any, tablas: any, cwhere: str):
     elif resultado == 0:
         print('Update realizado correctamente')
 
-
+    return varValor
 
 
 def existTableC3D(database: str, table: str) -> bool:       
@@ -233,6 +302,13 @@ def existTableC3D(database: str, table: str) -> bool:
     if resultado is False:
         print('La tabla no existe')
     return resultado
+
+def es_numero(variable : any):
+    try:
+        float(variable)
+        return True
+    except :
+        return False
 
 # show databases by constructing a list
 def showTables(database: str) -> list:

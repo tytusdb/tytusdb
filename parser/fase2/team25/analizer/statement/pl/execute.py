@@ -48,4 +48,8 @@ class Execute(instruction.Instruction):
         except:
             instruction.semanticErrors.append(
                 (f"ERROR: Error inesperado para procesamiento del procedimiento '{self.name}'",self.row)
-            ) 
+            )
+
+    def dot(self):
+        nodo = Nodo.Nodo('Execute')
+        return nodo

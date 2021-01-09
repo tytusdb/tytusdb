@@ -29,7 +29,7 @@ class Decode(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'Decode ({self.exp.generate(table, tree)})'
 
 
 class Encode(ASTNode):
@@ -43,7 +43,7 @@ class Encode(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'Encode({self.exp.generate(table, tree)})'
 
 
 class GetByte(ASTNode):
@@ -57,7 +57,7 @@ class GetByte(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'GetByte({self.exp.generate(table, tree)})'
 
 
 class Length(ASTNode):
@@ -71,7 +71,7 @@ class Length(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'Length({self.exp.generate(table, tree)})'
 
 
 class Md5(ASTNode):
@@ -85,7 +85,7 @@ class Md5(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'MD5({self.exp.generate(table, tree)})'
 
 
 class SetByte(ASTNode):
@@ -143,7 +143,7 @@ class Substring(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'Substring({self.exp.generate(table, tree)},{self.start.generate(table, tree)}, {self.end.generate(table, tree)})'
 
 
 class Trim(ASTNode):

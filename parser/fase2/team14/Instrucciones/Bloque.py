@@ -16,8 +16,13 @@ class Bloque(Instruccion):
     def traducir(self,ent):
         'tradyccuion del bloque'
         cad=''
+        strsql=''
         for inst in self.instrucciones:
-            cad+= inst.traducir(ent).codigo3d
 
+            obj= inst.traducir(ent)
+            cad+=obj.codigo3d
+            strsql+=obj.stringsql
         self.codigo3d = cad
+        self.stringsql=self.stringsql.replace('LISTACONTENIDO',strsql)
         return self
+

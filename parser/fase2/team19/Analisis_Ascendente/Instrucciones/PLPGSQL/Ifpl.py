@@ -29,6 +29,9 @@ from Analisis_Ascendente.Instrucciones.PLPGSQL.CasePL import CasePL
 from Analisis_Ascendente.Instrucciones.PLPGSQL.plCall import plCall
 from Analisis_Ascendente.Instrucciones.PLPGSQL.dropFunction import DropFunction
 
+import C3D.GeneradorEtiquetas as GeneradorEtiquetas
+import C3D.GeneradorTemporales as GeneradorTemporales
+import Analisis_Ascendente.reportes.Reportes as Reportes
 
 class Ifpl(Instruccion):
     ''' #1 If
@@ -136,3 +139,59 @@ class Ifpl(Instruccion):
             instr.ejecutar(tsglobal,ts,consola,exceptions)
         else:
             return
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        etiqueta_if = GeneradorEtiquetas.nueva_etiqueta()
+        etiqueta_else = GeneradorEtiquetas.nueva_etiqueta()
+        etiqueta_salida = GeneradorEtiquetas.nueva_etiqueta()
+        e_if = self.e_if.getC3D(lista_optimizaciones_C3D)
+        noOptimizado = '''if %s: goto .%s <br>
+goto .%s<br>
+label .%s<br>
+&lt;instrucciones&gt;<br>
+label .%s''' % (e_if['tmp'], etiqueta_if, etiqueta_else, etiqueta_if, etiqueta_else)
+        optimizado = '''if not %s: goto .%s <br>
+&lt;instrucciones&gt;<br>
+label .%s''' % (e_if['tmp'], etiqueta_else, etiqueta_else)
+        optimizacion1 = Reportes.ListaOptimizacion(noOptimizado, optimizado, Reportes.TipoOptimizacion.REGLA3)
+        lista_optimizaciones_C3D.append(optimizacion1)
+
+        sentencias_if = ''
+        for sentencias in self.s_if:
+            sentencias_if += sentencias.getC3D(lista_optimizaciones_C3D)
+        c3d = '''
+%s
+    if not %s: goto .%s
+%s
+    goto .%s
+''' % (e_if['code'], e_if['tmp'], etiqueta_else, sentencias_if, etiqueta_salida)
+
+        if self.s_else is not None:
+            sentencias_else = ''
+            for sentencias in self.s_else:
+                sentencias_else += sentencias.getC3D(lista_optimizaciones_C3D)
+            c3d += '''    label .%s
+%s
+    label .%s''' % (etiqueta_else, sentencias_else, etiqueta_salida)
+        else:
+            c3d += '''    label .%s
+    label .%s
+''' % (etiqueta_else, etiqueta_salida)
+        return c3d
+
+    def get_quemado(self):
+        sententias_if = ''
+        for sentencia in self.s_if:
+            sententias_if += sentencia.get_quemado() + ';\n'
+        quemado = '''   if %s then
+%s
+''' % (self.e_if.get_quemado(), sententias_if)
+        if self.s_else is not None:
+            sentencias_else = ''
+            for sentencia in self.s_else:
+                sentencias_else += sentencia.get_quemado() + ';\n'
+            quemado += '''ELSE
+%s
+''' % sentencias_else
+        quemado += '    end if'
+        return quemado

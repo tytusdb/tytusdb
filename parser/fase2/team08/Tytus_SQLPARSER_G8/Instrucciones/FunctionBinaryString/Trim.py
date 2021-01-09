@@ -4,6 +4,7 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 
 class Trim(Instruccion):
     def __init__(self, valor, tipo, strGram, linea, columna):
@@ -25,13 +26,15 @@ class Trim(Instruccion):
         return error
     
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        pass
+        super().traducir(tabla, arbol)
+        if isinstance(self.valor, Primitivo):
+            return f"TRIM({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"TRIM({self.valor.concatenar(tabla,arbol)})"
+        elif isinstance(self.valor, str) or isinstance(self.valor, int):
+            return f"TRIM({self.valor})"
+        return f"TRIM({self.valor.traducir(tabla,arbol)})"
     
-'''
-instruccion = Trim("hola mundo",None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''

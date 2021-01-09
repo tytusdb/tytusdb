@@ -4,6 +4,7 @@ from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.PL.Return import Return
 
 class Case(Instruccion):
     def __init__(self, expresion2, instrucciones, strGram, linea, columna):
@@ -17,9 +18,14 @@ class Case(Instruccion):
 
     def analizar(self, tabla, arbol):
         super().analizar(tabla,arbol)
+        retorno = None
         for i in self.instrucciones:
-            i.analizar(tabla, arbol)
-        
+            r = i.analizar(tabla, arbol)
+            if isinstance(r, Excepcion):
+                return None
+            if isinstance(r, Return):
+                retorno = r
+        return retorno
         
     def traducir(self, tabla:Tabla, arbol:Arbol):
         super().traducir(tabla,arbol)

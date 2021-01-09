@@ -1,11 +1,13 @@
 import sys
 sys.path.append('../G26/Expresiones')
+sys.path.append('../G26/Instrucciones/DDL')
 
 from TablaSimbolos import *
 from Primitivo import *
 from Identificador import *
 from Condicionales import *
 import json
+from index import *
 
 def readData(datos):
     try:
@@ -42,6 +44,27 @@ class Lista:
                 continue
 
             self.tablaSimbolos[llave] = {'tablas' : {}, 'enum' : {}, 'owner' : data['tablaSimbolos'][llave]['owner'], 'mode' : data['tablaSimbolos'][llave]['mode']}
+
+            if 'index' in data['tablaSimbolos'][llave]:
+                self.tablaSimbolos[llave]['index'] = []
+                for indexVal in data['tablaSimbolos'][llave]['index']:
+                    nombre = indexVal['name']
+
+                    try:
+                        if indexVal['columns']['option'] == 'True': opt = True
+                        else: opt = False
+                        columnas = PredIndexLH(indexVal['columns']['id'], opt)
+                    except:
+                        columnas = []
+                        for col in indexVal['columns']:
+                            columnas.append(Identificador(None, col['column']))
+
+                    tableI = indexVal['table']
+                    orderI = indexVal['order']
+
+                    a = saveIndex(nombre, columnas, tableI, orderI)
+                    self.tablaSimbolos[llave]['index'].append(a)
+
             if data['tablaSimbolos'][llave]['tablas'] != {}:
                 for tabla in data['tablaSimbolos'][llave]['tablas'].keys():
 

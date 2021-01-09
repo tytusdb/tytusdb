@@ -3,8 +3,8 @@ from Instrucciones.Sql_create.ShowDatabases import ShowDatabases
 from Instrucciones.Excepcion import Excepcion
 from storageManager.jsonMode import *
 class AlterDatabase(Instruccion):
-    def __init__(self, id, tipo, opcion, id2, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, opcion, id2, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.nombreAntiguo = id
         self.nombreNuevo = id2
         self.opcion = opcion
@@ -38,6 +38,11 @@ class AlterDatabase(Instruccion):
                 arbol.renombrarBd(self.nombreAntiguo,self.nombreNuevo)
                 arbol.consola.append(f"La base de datos se cambio: {self.nombreNuevo} correctamente.")
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 '''
 instruccion = AlterDatabase("hola mundo",None, 1,2)
 

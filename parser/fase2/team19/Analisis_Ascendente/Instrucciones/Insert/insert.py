@@ -10,6 +10,7 @@ from C3D import GeneradorTemporales
 from Analisis_Ascendente.Instrucciones.expresion import Funcion
 from Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
 from Analisis_Ascendente.Instrucciones.Time import Time
+from Analisis_Ascendente.Instrucciones.Expresiones.Expresion import *
 
 todoBien = True
 #INSERT INTO
@@ -21,6 +22,59 @@ class InsertInto(Instruccion):
         self.values = values
         self.fila = fila
         self.columna = columna
+        
+    def get_quemado(self):
+        quemado = 'insert into ' + self.id
+        if self.listaId is not None:
+                ides = ''
+                quemado += '('
+                for ide in self.listaId:
+                    ides += ide.id + ','
+                ids = list(ides)
+                size = len(ids) - 1
+                del (ids[size])
+                s = "".join(ids)
+                quemado += s + ') values('
+        else:
+                quemado += ' values ('
+        values = ''
+        for val in self.values:
+            if isinstance(val,Math_):
+                if val.E1 == None and val.E2 == None:
+                    quemado += '%s ,' %val.nombre + ','
+                else:
+                    if val.E2 == None:
+                        if isinstance(val.E1.valor, str):
+                            quemado += "'%s'" % str(val.E1.valor)
+                        else:
+                            val1 = str(val.E1.valor)
+                            quemado  += '%s ( %s ),' % (val.nombre, val1)
+                    else:
+                        val1 = ''
+                        if isinstance(val.E1.valor, str):
+                            quemado += "'%s'" % str(val.E1.valor)
+                        else:
+                            quemado += str(val.E1.valor)
+                        val2 = ''
+                        if isinstance(val.E2.valor, str):
+                            quemado += "'%s'" % str(val.E2.valor)
+                        else:
+                            quemado += str(val.E2.valor)
+                        #quemado += '%s ( %s , %s ),' % (val.nombre, val1, val2)
+            elif isinstance(val, Time):
+                quemado += '%s,' % val.get_quemado()
+            elif isinstance(val, Id):
+               quemado += val.id + ','
+            elif isinstance(val, Primitivo):
+                if isinstance(val.valor, str):
+                    quemado += '\''+ str(val.valor) + '\','
+                else:
+                    quemado += str(val.valor) + ','
+
+        quemado = quemado[:-1]
+        quemado += ')'
+        return quemado
+
 
     def getC3D(self, lista_Optim):
         etiqueta = GeneradorTemporales.nuevo_temporal()
@@ -67,10 +121,27 @@ class InsertInto(Instruccion):
                         values += '%s ( %s , %s ),' % (val.nombre, val1, val2)
             elif isinstance(val, Time):
                 values += '%s,' % val.getC3D()
-            elif isinstance(val.valor, str):
-                values += '\''+ str(val.valor) + '\','
-            else:
-                values += str(val.valor) + ','
+            elif isinstance(val, Id):
+                values += val.id
+            elif isinstance(val, Funcion):
+                lista_expresiones = ''
+                if val.listaexpresiones is not None:
+                    for expresion in val.listaexpresiones:
+                        if isinstance(expresion, Primitivo):
+                            if isinstance(expresion.valor, str):
+                                temporal = "'%s'" % expresion.valor
+                            else:
+                                temporal = str(expresion.valor)
+                            if lista_expresiones == '':
+                                lista_expresiones = temporal
+                            else:
+                                lista_expresiones += ', %s' % temporal
+                values += '%s(%s),' % (val.id, lista_expresiones)
+            elif isinstance(val, Primitivo):
+                if isinstance(val.valor, str):
+                    values += '\''+ str(val.valor) + '\','
+                else:
+                    values += str(val.valor) + ','
         vals = list(values)
         size = len(vals) - 1
         del (vals[size])

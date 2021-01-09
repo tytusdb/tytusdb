@@ -101,6 +101,7 @@ class Identificador(Instruccion):
         variable = tabla.getSimboloVariable(self.id)
         retorno = Nodo3D()
         temporal1 = tabla.getTemporal()
+        arbol.addComen(f"Obtiene id: {self.id}")
         arbol.addc3d(f"{temporal1} = P + {variable.posicion}")
         temporal2 = tabla.getTemporal()
         arbol.addc3d(f"{temporal2} = Pila[{temporal1}]")

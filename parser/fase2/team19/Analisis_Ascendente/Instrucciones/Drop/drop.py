@@ -93,7 +93,6 @@ class Drop(Instruccion):
     top_stack = top_stack + 1
     %s = "%s"
     stack[top_stack] = %s
-    funcion_intermedia()
 ''' % ('DATABASE' if self.caso == 2 else 'TABLE---', temporal, codigo_quemado, temporal)
         return c3d
 

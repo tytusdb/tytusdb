@@ -14,6 +14,8 @@ class Func(Instruccion):
         self.parametros = parametros
         self.declaraciones = declaraciones
         self.instrucciones = instrucciones
+        self.size = 0
+        self.activa = True
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
@@ -32,13 +34,14 @@ class Func(Instruccion):
                 # Espacio para los parámetros
                 arbol.contador += len(self.declaraciones)
 
-                print("tamaño de la función ------------>",arbol.contador)
+                #print("tamaño de la función ------------>",arbol.contador)
 
                 existe.rol = "Metodo"
                 existe.funcion = self
                 existe.tamanio = arbol.contador 
+                self.size = existe.tamanio
                 arbol.contador = 0
-                print("se limpió? ------------>",arbol.contador, existe.tamanio)
+                #print("se limpió? ------------>",arbol.contador, existe.tamanio)
                 return 
             else:
                 error = Excepcion("42723", "Semantico", f"La función {self.id} ya existe.", self.linea, self.columna)
@@ -62,6 +65,7 @@ class Func(Instruccion):
         f.rol = "Metodo"
         f.funcion = self
         f.tamanio = arbol.contador
+        self.size = f.tamanio
         tabla.agregarSimbolo(f) 
         arbol.contador = 0
         #print("se limpió? ------------>",arbol.contador, f.tamanio)       
@@ -83,13 +87,15 @@ class Func(Instruccion):
             esFuncion = True
         
         hayReturn = False
+        re = None
         for i in self.instrucciones:
             resultado = i.analizar(tablaLocal, arbol)
-            if isinstance(i, Return):
+            if isinstance(resultado, Return):
                 if isinstance(resultado, Excepcion):
                     return resultado
                 hayReturn = True
-
+                re = resultado
+        
         if esFuncion and not hayReturn:
             error = Excepcion("42723", "Semantico", f"La función {self.id} requiere un valor de retorno", self.linea, self.columna)
             arbol.excepciones.append(error)
@@ -101,16 +107,25 @@ class Func(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error  
+        
+        if hayReturn:
+            if re.tipo.tipo != self.tipo.tipo:
+                error = Excepcion("42723", "Semantico", f"El tipo de retorno {re.tipo.toString()} no coincide con el tipo de la función {self.tipo.toString()}", self.linea, self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
         #print("finaliza funcion")    
         
         
     def traducir(self, tabla, arbol):
         super().traducir(tabla,arbol)
         tablaLocal = Tabla(None)
-        arbol.addc3d(f"\ndef {self.id}():\n")
+        arbol.addc3d('\r@with_goto  # Decorador necesario.')
+        arbol.addc3d(f"\rdef {self.id}():")
         arbol.addc3d("global P")
         arbol.addc3d("global Pila")
-    
+        arbol.tamanio_actual = self.size
+        arbol.etiqueta_fin = tablaLocal.getEtiqueta()
         if self.tipo.tipo != Tipo_Dato.VOID:
             variable = Simbolo("return", self.tipo, None, self.linea, self.columna)
             variable.rol = "Variable Local"
@@ -134,7 +149,8 @@ class Func(Instruccion):
             i.ambito = self.id
             tabla.agregarReporteSimbolo(i)
 
-        arbol.addc3d(f"\n\treturn\n")
-
+        arbol.addComen("Etiqueta de salida función")
+        arbol.addc3d(f"label .{arbol.etiqueta_fin}\n")
+        arbol.tamanio_actual = None
         return
         

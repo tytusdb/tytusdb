@@ -5,6 +5,7 @@ from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Expresiones.Relacional import Relacional
+from Instrucciones.PL.Return import Return
 
 class Switch(Instruccion):
     def __init__(self, expresion1, lista_case, instrucciones_else, strGram, linea, columna):
@@ -19,6 +20,7 @@ class Switch(Instruccion):
 
     def analizar(self, tabla, arbol):
         super().analizar(tabla,arbol)
+        retorno = None
         for caso in self.lista_case:
             if len(caso.expresion2) == 1:
                 condicion = Relacional(self.expresion1, caso.expresion2[0], "=", "", self.linea, self.columna)
@@ -33,11 +35,13 @@ class Switch(Instruccion):
                         return resultado
         
         for caso in self.lista_case:
-            caso.analizar(tabla, arbol)
-        
-
-        
-        
+            r = caso.analizar(tabla, arbol)
+            if isinstance(r, Excepcion):
+                return None
+            if isinstance(r, Return):
+                retorno = r
+        return retorno
+         
     def traducir(self, tabla:Tabla, arbol:Arbol):
         super().traducir(tabla,arbol)
         arbol.addc3d("# Inicia Case")

@@ -59,12 +59,21 @@ def getColumnTypeNode(t):
 # Función para obtener el nodo Parametro de la produccion Insert-Into
 def getParamNode(t):
     g = '<parametroinsert> ::= '
-    if str(t[1]).upper() == 'DEFAULT':
+    if len(t) == 4:
+        g += 'NOW PARIZQ PADER\n'
+        n = Nodo('NOW()','',[],t.lexer.lineno,0,'')
+        return Nodo('Parametro','',[n],t.lexer.lineno,0,g)
+    elif len(t) == 5:
+        print('MD5')
+        g += '\"MD5\" PARIZQ <cualquiercadena> PARDER\n'
+        n = Nodo('MD5','',[t[3]],t.lexer.lineno,0,'')
+        return Nodo('Parametro','',[n],t.lexer.lineno,0,g)
+    elif str(t[1]).upper() == 'DEFAULT':
         g += '\"DEFAULT\"\n'
         return Nodo('Parametro','DEFAULT',[],t.lexer.lineno,0,g)
     else:
         g += '<expresion>\n'
-        return Nodo('Parametro','',[t[1]],t.lexer.lineno,0,g) 
+        return Nodo('Parametro','',[t[1]],t.lexer.lineno,0,g)
 
 # Función para crear el Nodo para la producción 'asignacion'
 def getAssignNode(t):
@@ -456,3 +465,324 @@ def getDistinctFrom(t) :
     else :
         gramatica += '<is_distinct_state> ::= <valores> \"IS\" \"NOT\" \"DISTINCT\" \"FROM\" <valores>'
         return Nodo('IS NOT DISTINCT', '', [t[1], t[6]], t.lexer.lineno, 0, gramatica)
+
+
+################################# funciones para crear AST de PL/pgsql ############################
+
+def getlistexpresiones(t):
+    if len(t) == 2:
+        return [t[1]]
+    else:
+        t[1].append(t[3])
+        return t[1]
+
+def getfuncion_procedimiento(t):
+    g = '<plsql_instr> : CREATE <procedfunct> ID PARIZQ <parametrosfunc> PARDER <tiporetorno> <cuerpofuncion>'
+    childs = []
+    if t[5] != None:
+        childs.append(Nodo('PARAMETROS', '', t[5], t.lexer.lineno))
+    if t[7] != None:
+        childs.append(t[7])
+    if t[8] != None:
+        childs.append(t[8])
+    return Nodo(t[2], t[3], childs, t.lexer.lineno, 0, g)
+
+def getparametrosfunc(t):
+    if len(t) == 2:
+        return [t[1]]
+    else:
+        t[1].append(t[3])
+        return t[1]
+
+def getparfunc(t):
+    if len(t) == 4:
+        g = '<parfunc> ::= OUT ID <type_column1>'
+        return Nodo(t[1], t[2], [t[3]], t.lexer.lineno, g)
+    elif len(t) == 3:
+        g = '<parfunc> ::= ID <type_column1>'
+        return Nodo('ID', t[1], [t[2]], t.lexer.lineno, g)
+    else:
+        return t[1]
+
+def gettypecolumn(t):
+    if len(t) == 2:
+        return Nodo('TYPE COLUMN', t[1], [], t.lexer.lineno)
+    elif len(t) == 5:
+        if t[1].lower() == 'table':
+            n1 = Nodo('PARAMETROS', '', t[3])
+            return Nodo('TYPE COLUMN', t[1], [n1], t.lexer.lineno)
+        a = Nodo('ENTERO', str(t[3]), [], t.lexer.lineno)
+        return Nodo('TYPE COLUMN', t[1], [a], t.lexer.lineno)
+    elif len(t) == 6:
+        a = Nodo('ENTERO', t[4], [], t.lexer.lineno)
+        return Nodo('TYPE COLUMN', t[1], [a], t.lexer.lineno)
+    else:
+        a = Nodo('ENTERO', str(t[3]), [], t.lexer.lineno)
+        b = Nodo('ENTERO', str(t[5]), [], t.lexer.lineno)
+        return Nodo('TYPE COLUMN', t[1], [a, b], t.lexer.lineno)
+
+def getretornofuncion(t):
+    if t[1] == None:
+        return None
+    elif t[1].lower() == 'returns':
+        g = '<tiporetorno> ::= RETURNS <type_columnn1> AS'
+        return Nodo(t[1], '', [t[2]], t.lexer.lineno, g)
+    elif t[1].lower() == 'language':
+        g = '<tiporetorno> ::= LANGUAGE PLPGSQL AS'
+        return Nodo(t[1], t[2], [], t.lexer.lineno, g)
+    elif t[1].lower() == 'as':
+        g = '<tiporetorno> ::= AS'
+        return Nodo('AS', '', [], t.lexer.lineno)
+    return None
+
+def getCuerpoFuncion(t):
+    childs = []
+    childs.append(Nodo('$$', '', []))
+    if t[2] != None:
+        childs.append(t[2])
+    childs.append(t[3])
+    childs.append(Nodo('$$', '', []))
+    return Nodo('CUERPO', '', childs, t.lexer.lineno)
+
+def getlistadeclaraciones(t):
+    if len(t) == 2:
+        return [t[1]]
+    else:
+        t[1].append(t[2])
+        return t[1]
+
+
+def getdeclaraciones(t):
+    childs = [Nodo('ID', t[1], [], t.lexer.lineno)]
+    if t[2] != None:
+        childs.append(t[2])
+    childs.append(t[3])
+    if t[4] != None:
+        childs.append(t[4])
+    if t[5] != None:
+        childs.append(t[5])
+    return Nodo('Declaracion', '', childs, t.lexer.lineno)
+
+def getdeclaraciones1(t):
+    childs = [Nodo('ID', t[1], [], t.lexer.lineno)]
+    childs.append(Nodo('ALIAS FOR', '', [], t.lexer.lineno))
+    if len(t) == 7:
+        childs.append(Nodo('$', str(t[5]), [], t.lexer.lineno))
+    else:
+        childs.append(Nodo('ID', str(t[4]), [], t.lexer.lineno))
+    return Nodo('Declaracion', '', childs, t.lexer.lineno)
+
+def getdeclaraciones2(t):
+    childs = [Nodo('ID', t[1], [], t.lexer.lineno)]
+    childs.append(t[2])
+    childs.append(Nodo('%', t[4], [], t.lexer.lineno))
+    return Nodo('Declaracion', '', childs, t.lexer.lineno)
+
+def getconstant(t):
+    if t[1] != None:
+        g = '<constantintr> ::= CONSTANT'
+        return Nodo(t[1], '', [], t.lexer.lineno, g)
+    return None
+
+def getnotnull(t):
+    if t[1] != None:
+        g = '<notnullinst> ::= NOT NULL'
+        return Nodo('NOT NULL', '', [], t.lexer.lineno,g )
+    return None
+
+def getasignavalor(t):
+    if t[1] == None:
+        return None
+    elif t[1] == '=':
+        g = '<asignavalor> ::= IGUAL <expresion>'
+        return Nodo('IGUAL', '=', [t[2]], t.lexer.lineno, g)
+    elif t[1] == ':=':
+        g = '<asignavalor> ::= PTIGUAL <expresion>'
+        return Nodo('PTIGUAL', ':=', [t[2]], t.lexer.lineno, g)
+    else:
+        g = '<asignavalor> ::= DEFAULT <expresion>'
+        return Nodo('DEFAULT', '', [t[2]], t.lexer.lineno, g)
+
+def getcuerpo(t):
+    childs = []
+    if t[2] != None:
+        childs.append(Nodo('LISTA', '', t[2], t.lexer.lineno))
+    childs.append(Nodo('END', '', [], t.lexer.lineno))
+    return Nodo('BEGIN', '', childs, t.lexer.lineno)
+
+def getinstlistabloque(t):
+    if t[1] == None:
+        return None
+    return t[1]
+
+def getlistabloque(t):
+    if len(t) == 2:
+        return [t[1]]
+    else:
+        t[1].append(t[2])
+        return t[1]
+
+def getraisenotice(t):
+    if len(t) == 5:
+        return Nodo('RAISE NOTICE', t[3], [], t.lexer.lineno)
+    else:
+        n1 = Nodo('ID', t[5], [], t.lexer.lineno)
+        return Nodo('RAISE NOTICE', t[3], [n1], t.lexer.lineno)
+
+def getasignacionbloque(t):
+
+    n1 = Nodo('ID', t[1], [], t.lexer.lineno)
+    return Nodo('ASIGNACION', t[2], [n1, t[3]], t.lexer.lineno)
+
+def getsubbloque(t):
+    childs = []
+    if t[1] != None:
+        childs.append(t[1])
+    childs.append(t[2])
+    return Nodo('SUBBLOQUE', '', childs, t.lexer.lineno)
+
+def getcuerposubbloque(t):
+    childs = [Nodo('BEGIN', '', [], t.lexer.lineno)]
+    if t[2] != None:
+        childs.append(Nodo('LISTA', '', t[2], t.lexer.lineno))
+    childs.append(Nodo('END', '', [], t.lexer.lineno))
+    return Nodo('CUERPO', '', childs, t.lexer.lineno)
+
+def getlistasubbloque(t):
+    if len(t) == 2:
+        return [t[1]]
+    else:
+        t[1].append(t[2])
+        return t[1]
+
+def getraisenoticesubbloque(t):
+    if len(t) == 5:
+        g = '<raisenotice1> ::= RAISE NOTICE CADENASIMPLE PTCOMA'
+        return Nodo('RAISE NOTICE', t[3], [], t.lexer.lineno, g)
+    elif len(t) == 7:
+        g = '<raisenotice1> ::= RAISE NOTICE CADENASIMPLE COMA ID PTCOMA'
+        n1 = Nodo('ID', t[5], [], t.lexer.lineno)
+        return Nodo('RAISE NOTICE', t[3], [n1], t.lexer.lineno, g)
+    else:
+        g = '<raisenotice1> ::= RAISE NOTICE CADENASIMPLE COMA OUTERBLOCK PUNTO ID PTCOMA'
+        n1 = Nodo('OUTERBLOCK', t[7], [], t.lexer.lineno)
+        return Nodo('RAISE NOTICE', t[3], [n1], t.lexer.lineno, g)
+
+def getinstrexecute(t):
+    childs = [t[3]]
+    if t[5] != None:
+        childs.append(t[5])
+    if t[6] != None:
+        childs.append(t[6])
+    return Nodo('EXECUTE', '', childs, t.lexer.lineno)
+
+def getinstrexecute1(t):
+    childs = [t[5]]
+    if t[8] != None:
+        childs.append(t[8])
+    if t[9] != None:
+        childs.append(t[9])
+    return Nodo('EXECUTE FORMAT', '', childs, t.lexer.lineno)
+
+def getintotarget(t):
+    if t[1] == None:
+        return None
+    else:
+        return Nodo(t[1], t[2], [], t.lexer.lineno)
+
+def getusingexpresion(t):
+    if t[1] == None:
+        return None
+    else:
+        return Nodo('USING', '', t[2], t.lexer.lineno)
+
+def getinstrif(t):
+    g = '<instrif>   : IF <condiciones> THEN <instrlistabloque> END IF PTCOMA'
+    childs = [Nodo('CONDICIONES', '', [t[2]], t.lexer.lineno)]
+    if t[4] != None:
+        childs.append(Nodo('THEN', '', t[4], t.lexer.lineno))
+    childs.append(Nodo('END IF', '', []))
+    return Nodo('IF', '', childs, t.lexer.lineno, 0, g)
+
+def getinstrif1(t):
+    g = '<instrif>   : IF <condiciones> THEN <instrlistabloque> ELSE <instrlistabloque> END IF PTCOMA'
+    childs = [Nodo('CONDICIONES', '', [t[2]], t.lexer.lineno)]
+    if t[4] != None:
+        childs.append(Nodo('THEN', '', t[4], t.lexer.lineno))
+    if t[6] != None:
+        childs.append(Nodo('ELSE', '', t[6], t.lexer.lineno))
+    childs.append(Nodo('END IF', '', [], t.lexer.lineno))
+    return Nodo('IF', '', childs, t.lexer.lineno, 0, g)
+
+def getinstrif2(t):
+    g = '<instrif>   : IF <condiciones> THEN <instrlistabloque> <instrelseif> END IF PTCOMA'
+    childs = [Nodo('CONDICIONES', '', [t[2]], t.lexer.lineno)]
+    if t[4] != None:
+        childs.append(Nodo('THEN', '', t[4], t.lexer.lineno))
+    if t[5] != None:
+        childs.append(Nodo('LISTA ELSIF', '', t[5], t.lexer.lineno))
+    childs.append(Nodo('END IF', '', [], t.lexer.lineno))
+    return Nodo('IF', '', childs, t.lexer.lineno, 0, g)
+
+def getinstrif3(t):
+    g = '<instrif>    : IF <condiciones> THEN <instrlistabloque> <instrelseif> ELSE <instrlistabloque> END IF PTCOMA'
+    childs = [Nodo('CONDICIONES', '', [t[2]], t.lexer.lineno)]
+    if t[4] != None:
+        childs.append(Nodo('THEN', '', t[4], t.lexer.lineno))
+    if t[5] != None:
+        childs.append(Nodo('LISTA ELSIF', '', t[5], t.lexer.lineno))
+    if t[7] != None:
+        childs.append(Nodo('ELSE', '', t[7], t.lexer.lineno))
+    childs.append(Nodo('END IF', '', [], t.lexer.lineno))
+    return Nodo('IF', '', childs, t.lexer.lineno, 0, g)
+
+def getinstrelseif(t):
+    if len(t) == 2:
+        return [t[1]]
+    else:
+        t[1].append(t[2])
+        return t[1]
+
+def getinstrcase(t):
+    childs = [t[2]]
+    n1 = Nodo('LISTA WHEN', '', t[3], t.lexer.lineno)
+    childs.append(n1)
+    if t[4] != None:
+        childs.append(t[4])
+    n2 = Nodo('END CASE', '', [], t.lexer.lineno)
+    childs.append(n2)
+    return Nodo('CASE', '', childs, t.lexer.lineno)
+    
+def getlistawhen1(t):
+    if len(t) == 2:
+        return [t[1]]
+    else:
+        t[1].append(t[2])
+        return t[1]
+
+def getwhen1(t):
+    childs = [Nodo('EXPRESIONES', '', t[2], t.lexer.lineno)]
+    childs.append(Nodo('THEN', '', t[4], t.lexer.lineno))
+    return Nodo('WHEN', '', childs, t.lexer.lineno)
+
+def getinstrcase2(t):
+    childs = [Nodo('LISTA WHEN', '', t[2], t.lexer.lineno)]
+    if t[3] != None:
+        childs.append(t[3])
+    n2 = Nodo('END CASE', '', [], t.lexer.lineno)
+    childs.append(n2)
+    return Nodo('CASE', '', childs, t.lexer.lineno)
+
+def getwhen21(t):
+    n1 = Nodo('ENTERO', str(t[4]), [], t.lexer.lineno)
+    n2 = Nodo('ENTERO', str(t[6]), [], t.lexer.lineno)
+    childs = [Nodo('ID', t[2], [], t.lexer.lineno)]
+    childs.append(Nodo('BETWEEN', '', [n1, n2], t.lexer.lineno))
+    childs.append(Nodo('THEN', '', t[8], t.lexer.lineno))
+    return Nodo('WHEN', '', childs, t.lexer.lineno)
+
+def getwhen22(t):
+    'when2  : WHEN condiciones THEN instrlistabloque'
+    childs = [Nodo('CONDICIONES', '', t[2], t.lexer.lineno)]
+    childs.append(Nodo('THEN', '', t[4], t.lexer.lineno))
+    return Nodo('WHEN', '', childs, t.lexer.lineno)

@@ -35,9 +35,10 @@ class Atan2(Instruccion):
             return error
 
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
+        super().traducir(tabla, arbol)
         resultadoIzq=""
         resultadoDer=""
         if isinstance(self.opIzq, Primitivo):

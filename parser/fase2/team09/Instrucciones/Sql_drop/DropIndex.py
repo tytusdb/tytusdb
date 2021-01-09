@@ -31,3 +31,9 @@ class DropIndex(Instruccion):
                     t.lista_de_campos.pop(i)
                     arbol.consola.append("\nSe ha eliminado el índice «" + self.nombre + "» correctamente.")
                     return
+
+    def traducir(self, tabla, controlador, arbol):
+        codigo = 'DropIndex.DropIndex(' + str(self.existe) + ',"' + self.nombre + '", "'
+        codigo += self.strGram + '", ' + str(self.linea) + ', ' + str(self.columna) + ').ejecutar(tabla, arbol)\n'
+        #print(codigo)
+        return None

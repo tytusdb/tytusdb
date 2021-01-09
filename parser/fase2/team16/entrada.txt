@@ -1,5 +1,241 @@
-DROP TABLE perro;
-DROP TABLE perro_salvaje;
-DROP TABLE perro_peludo;
+CREATE DATABASE DBFase2;
 
-UPDATE products SET price = B'1111' WHERE price = 5 and size = 20 or tabla1 != 2*2;
+USE DBFase2;
+
+CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+BEGIN
+	print(texto);
+	RETURN texto;
+END;
+$$ LANGUAGE plpgsql;
+
+select myFuncion('INICIO CALIFICACION FASE 2');
+
+CREATE TABLE tbProducto (idproducto integer not null primary key,
+  						 producto varchar(150) not null,
+  						 fechacreacion date not null,
+						 estado integer);
+
+CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
+
+CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
+							 item varchar(100) not null,
+							 punteo integer not null);
+
+CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
+
+ALTER INDEX idx_califica RENAME TO id_calificacion;
+						 
+INSERT INTO tbProducto values(1,'Laptop Lenovo',NOW(),1);
+INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',NOW(),1);
+INSERT INTO tbProducto values(3,'Teclado Inalambrico',NOW(),1);
+INSERT INTO tbProducto values(4,'Mouse Inalambrico',NOW(),1);
+INSERT INTO tbProducto values(5,'WIFI USB',NOW(),1);
+INSERT INTO tbProducto values(6,'Laptop HP',NOW(),1);
+INSERT INTO tbProducto values(7,'Teclado Flexible USB',NOW(),1);
+INSERT INTO tbProducto values(8,'Laptop Samsung','2021-01-02',1);
+
+	 
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER = 0; 
+		retorna INTEGER = 0;
+BEGIN
+	if tabla = 'tbProducto' then
+	    resultado := 8;
+    	if cantidad = resultado then
+			retorna = 1;
+			print(retorna);
+		else 
+			retorna = 0;
+			print(retorna);
+		end if;
+	end if;
+
+	if tabla = 'tbProductoUp' then
+	    resultado := 2;
+    	if cantidad = resultado then
+			retorna = 11;
+			print(retorna);
+		else 
+			retorna = 00;
+			print(retorna);
+		end if;
+	end if;
+
+	if tabla = 'tbbodega' then
+	    resultado := 6;
+    	if cantidad = resultado then
+			retorna = 1111;
+			print(retorna);
+		else 
+			retorna = 0000;
+			print(retorna);
+		end if;
+	end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+
+insert into tbCalificacion values(1,'PRUEBA Table and Insert',ValidaRegistros('tbProducto',8));
+
+update tbProducto set estado = 2 where estado = 1;
+
+insert into tbCalificacion values(2,'Update',ValidaRegistros('tbProductoUp',8));
+
+CREATE FUNCTION CALCULOS() RETURNS integer AS $$
+DECLARE hora integer = 0;
+	SENO DECIMAL = 0;
+	VALOR INTEGER = 0;
+	ABSOLUTO DECIMAL = 0;
+BEGIN
+	hora := (SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40'));	
+	SENO := (SELECT SIN(1));
+	VALOR := TRUNC(SENO*hora,0);	
+	VALOR := VALOR + LENGTH(SUBSTRING('FASE2',1,4));					
+	ABSOLUTO := ABS(SINH(-1));	
+	ABSOLUTO := (ABSOLUTO*SQRT(225));
+	VALOR := (VALOR + ABSOLUTO)/ACOSD(0.5);
+	IF VALOR > 1 THEN
+		VALOR = 20;
+	ELSE
+		VALOR = 10;
+	END IF;
+RETURN VALOR;
+END;
+$$ LANGUAGE plpgsql;
+
+
+insert into tbCalificacion values(3,' Valida Funciones',CALCULOS());
+
+insert into tbCalificacion values(4,'Valida Store Procedure',ValidaRegistros('tbbodega',5));
+
+insert into tbCalificacion values(5,'Valida Delete',ValidaRegistros('tbbodega',4));
+
+CREATE DATABASE DBFase2;
+
+USE DBFase2;
+
+
+create table tbbodega (idbodega integer not null primary key,
+					   bodega varchar(100) not null,
+					   estado integer);
+
+								  
+CREATE INDEX tb_index ON tbbodega (bodega);
+
+
+create procedure sp_validainsert()
+begin
+
+	insert into tbbodega values(1,'BODEGA CENTRAL',1);
+	insert into tbbodega values(2,'BODEGA ZONA 12',1);
+	insert into tbbodega values(3,'BODEGA ZONA 11',1);
+	insert into tbbodega values(4,'BODEGA ZONA 1',1);
+	insert into tbbodega values(5,'BODEGA ZONA 10',1);
+	delete from tbbodega where idbodega = 4;
+
+end; $$
+								 
+EXECUTE sp_validainsert();
+
+create procedure sp_validaupdate()
+begin
+	update tbbodega set bodega = 'bodega zona 9' where idbodega = 1; 
+end; $$
+
+EXECUTE sp_validaupdate();
+										  
+
+
+
+select * from tbbodega;
+
+
+
+CREATE FUNCTION optimizacion() RETURNS text AS $$
+DECLARE	
+	a integer = 0;
+	b integer = 0;
+	c integer = 0;
+	d integer = 0;
+	e integer = 0;
+	f integer = 0;
+	g integer = 0;
+	h integer = 0;
+	i integer = 0;
+BEGIN
+     a = a + 0;
+     b = b - 0;
+     c = c * 1;
+     d = d / 1;
+     e = d + 0;
+     f = d - 0;
+     g = g * 1;
+     h = h / 1;
+     i = i * 2;
+     j = i * 0;
+     k = 0 / i;
+
+     a = b;
+     b = a;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+
+
+
+CREATE FUNCTION optimizacion() RETURNS text AS $$
+DECLARE	
+	a integer = 0;
+	b integer = 0;
+	c integer = 0;
+	d integer = 0;
+	e integer = 0;
+	f integer = 0;
+	g integer = 0;
+	h integer = 0;
+	i integer = 0;
+BEGIN
+     a = a + 0;
+     b = b - 0;
+     c = c * 1;
+     d = d / 1;
+     e = d + 0;
+     f = d - 0;
+     g = g * 1;
+     h = h / 1;
+     i = i * 2;
+     j = i * 0;
+     k = 0 / i;
+
+     a = b;
+     b = a;
+END;
+$$ LANGUAGE plpgsql;
+
+create procedure sp_validaupdate()
+begin
+	update tbbodega set bodega = 'bodega zona 9' where idbodega = 1; 
+end; $$
+
+EXECUTE sp_validaupdate();
+								
+
+
+
+
+
+
+
+
+
+
+
+
+
+

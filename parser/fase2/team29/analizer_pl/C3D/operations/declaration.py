@@ -14,15 +14,19 @@ class Declaration(Instruction):
         self.ass = ass
 
     def execute(self, environment: Environment):
-        environment.addVar(self.id, self.id, self.type, self.row, self.column)
-        val = ""
-        tmp = self.id
-        if self.ass:
-            a = self.ass.execute(environment)
-            val = a.value
-            tmp = a.temp
-
-        return code.C3D(val, tmp, self.row, self.column)
+        try:
+            environment.addVar(self.id, self.id, self.type, self.row, self.column)
+            val = ""
+            tmp = self.id
+            if self.ass:
+                a = self.ass.execute(environment)
+                val = a.value
+                tmp = a.temp
+            else:
+                val = "\t" + self.id + " = None\n"
+            return code.C3D(val, tmp, self.row, self.column)
+        except:
+            grammar.PL_errors.append("Error P0000: plpgsql fatal error ")
 
     def dot(self):
         new = Nodo("DECLARATION")

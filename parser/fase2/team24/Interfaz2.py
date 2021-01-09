@@ -11,7 +11,7 @@ from reportBNF import *
 from reportTable import *
 import prettytable as pt
 import os
-from reportBNF import *
+
 import webbrowser as wb
 import OptimizarMirilla as optm
 import OptimizarObjetos as optobj
@@ -23,37 +23,17 @@ from procedural import objopt
 def analiz(input):
     raiz = g.parse(input)
     results = []
-    #executeGraphTree(raiz)
+    executeGraphTree(raiz)
     for val in raiz:
         res = val.ejecutar()
         if isinstance(res,CError):
             results.append("Error "+ res.tipo+". Descripcion: " +res.descripcion)
         else:
             results.append( res)
-    #graphTable(ts)
-    #report_errors()
-    #report_BNF()
-    #--------------------------------------------------------
-    ListaAsignaciones = []
-
-    ListaAsignaciones.append(optobj.Asignacion("x","x","0","+"))
-    ListaAsignaciones.append(optobj.Asignacion("x","x","0","-"))
-    ListaAsignaciones.append(optobj.Asignacion("x","x","1","*"))
-    ListaAsignaciones.append(optobj.Asignacion("x","x","1","/"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","0","+"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","0","-"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","1","*"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","1","/"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","2","*"))
-    ListaAsignaciones.append(optobj.Asignacion("x","y","0","*"))
-    ListaAsignaciones.append(optobj.Asignacion("x","0","y","/"))
-
-    print(optm.Optimizador(ListaAsignaciones).ejecutar())
-
-    for simbolo in ts.simbolos:
-        print("ID: " + str(ts.simbolos[simbolo].id) + " Nombre: " + ts.simbolos[simbolo].nombre + " Ambito: " + str(ts.simbolos[simbolo].ambito) + " Tipo indice: " + str(ts.simbolos[simbolo].tipoind) + " Orden Indice: " + str(ts.simbolos[simbolo].ordenind) + " Columna ind: " + str(ts.simbolos[simbolo].columnaind) + " Tabla indice: " + str(ts.simbolos[simbolo].tablaind))
-
-    #--------------------------------------------------------
+    graphTable(ts)
+    report_errors()
+    report_BNF()
+    
     return results
 
 def traducir(input):
@@ -151,6 +131,7 @@ def Analizar2(texto: str):
 
 # def para escribir el archivo de 3d y mostrarlo en la interfaz
 def escribir3D(entrada):
+    global objopt
 
     a = open("c3d.py", "w")
     a.write('''
@@ -162,6 +143,8 @@ import tablaDGA as TAS
 import sql as sql 
 import mathtrig as mt
 from reportTable import *
+from reportError import *
+from reportBNF import *
     
     
 pila = []
@@ -176,15 +159,19 @@ def ejecutar():
 
     input = entrada
     raiz = g.parse(input)
+    executeGraphTree(raiz)
     results = []
     res =''
-    #executeGraphTree(raiz)
+    
     for val in raiz:
-        res += val.traducir()
+        res += val.traducir().replace('\'\'','\'')
         #pass
     a.write(res)
 
     a.write('\tgraphTable(ts)\n')
+    a.write('\treport_errors()\n')
+    a.write('\treport_BNF()\n')
+    
     for fa in g.funciones:
         a.write(fa)
 
@@ -193,7 +180,18 @@ def ejecutar():
     f = open('c3d.py', 'r')
     file_contents = f.read()
     consola.insert(str(float(0)), file_contents)
-
+    #PARA OPTIMIZACION
+    """
+    objopt.append(optobj.Asignacion("x","x","0","+"))
+    objopt.append(optobj.Asignacion("x","x","0","-"))
+    objopt.append(optobj.Asignacion("x","x","1","*"))
+    objopt.append(optobj.Asignacion("x","x","1","/"))
+    objopt.append(optobj.Asignacion("t2000","t2000","0","+"))
+    objopt.append(optobj.Asignacion("t2525","t2525","0","-"))
+    objopt.append(optobj.Asignacion("t9999","t9999","1","*"))
+    objopt.append(optobj.Asignacion("t8888","t8888","1","/"))
+    """
+    optm.Optimizador(objopt).ejecutar()
 
 def Traducir():
     escribir3D(texto.get("1.0", "end-1c"))

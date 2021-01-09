@@ -173,6 +173,11 @@ class Select(instruction.Instruction):
             new.addNode(self.orderByCl.dot())
 
         return new
+    
+    def validaFuncionesFase2(self):
+        for parametro in self.params:
+            if isinstance( parametro , FunctionCall):
+                parametro.validaFuncionesFase2()
 
 
 class SelectOnlyParams(Select):

@@ -9,20 +9,26 @@ class Select(Instruccion):
        #5 p_instselect4
        #6 p_instselect7'''
 
-    def __init__(self, caso, distinct, time, columnas, subquery, inner, orderby, limit, complementS,fila,columna):
+    def __init__(self, caso, distinct, time, columnas, subquery, inner, orderby, mode, limit, complementS,fila,columna):
         self.caso = caso
         self.distinct = distinct
         self.time = time
         self.columnas = columnas #puede venir *
         self.subquery = subquery
         self.inner = inner #por el momento solo viene lista de columnas o group by #vienen los nombres
-        self.orderby = orderby #es listaID o None
+        if orderby is not None:
+            self.orderby = orderby["lista"]
+            self.orderbymod = orderby["mode"]
+        else:
+            self.orderby = orderby
+            self.orderbymod = orderby
         self.limit = limit
         self.complementS = complementS
         self.fila = fila
         self.columna = columna
 
-
+    def get_quemado(self):
+        return ''
 
 
 class Limit(Instruccion):

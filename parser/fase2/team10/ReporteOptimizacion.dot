@@ -1,0 +1,13 @@
+digraph ReporteGramatical{
+graph [ratio=fill];node [label="\N", fontsize=15, shape=plaintext];
+graph [bb="0,0,352,154"];
+arset [label=<<TABLE ALIGN="LEFT">
+<TR><TD>Produccion</TD><TD>Reglas Semanticas</TD></TR>
+<TR><TD>VALIDAREGISTROS</TD><TD><TABLE BORDER="0"><TR><TD>=array()VALIDAREGISTROS</TD></TR><TR><TD>=0""TABLA</TD></TR><TR><TD>=0CANTIDAD</TD></TR><TR><TD>=CANTIDADRESULTADOt0</TD></TR><TR><TD>ift0gotoL0</TD></TR><TR><TD>*VALORES8t1</TD></TR><TR><TD>-t15t2</TD></TR><TR><TD>=t2ID4</TD></TR><TR><TD>.L0label</TD></TR><TR><TD>=CANTIDADRESULTADOt3</TD></TR><TR><TD>ift3gotoL2</TD></TR><TR><TD>*VALORES8t4</TD></TR><TR><TD>-t45t5</TD></TR><TR><TD>=t5ID5</TD></TR><TR><TD>.L2label</TD></TR><TR><TD>='ALGO'VARLORES</TD></TR><TR><TD>=CANTIDAD8t6</TD></TR><TR><TD>ift6gotoL4</TD></TR><TR><TD>=VARLORESIDO</TD></TR><TR><TD>.L4label</TD></TR><TR><TD>=VAR'PRUEBA't7</TD></TR><TR><TD>ift7gotoL6</TD></TR><TR><TD>*73t8</TD></TR><TR><TD>=t8IDS5</TD></TR><TR><TD>.L6label</TD></TR><TR><TD>='GANAR'VAR2</TD></TR></TABLE></TD></TR>
+<TR><TD>if0</TD><TD><TABLE BORDER="0"><TR><TD>gotoL1</TD></TR></TABLE></TD></TR>
+<TR><TD>if1</TD><TD><TABLE BORDER="0"><TR><TD>gotoL3</TD></TR></TABLE></TD></TR>
+<TR><TD>if3</TD><TD><TABLE BORDER="0"><TR><TD>gotoL5</TD></TR></TABLE></TD></TR>
+<TR><TD>if4</TD><TD><TABLE BORDER="0"><TR><TD>gotoL7</TD></TR></TABLE></TD></TR>
+</TABLE>
+>, ];
+}

@@ -2,6 +2,7 @@ from graphviz import Graph
 import os
 import re
 import OptimizarObjetos as obj #Objetos utilizados en el optimizador mirilla
+import reportOptimizacion as reporteopt
 
 CodigoOptimizado = [] #Se guarda el codigo optimizado resultante para el reporte
 ResultadoFinal = [] #Se guarda el resultado final de la optimizacion
@@ -25,32 +26,37 @@ class Optimizador:
                     ResultadoFinal.append(CodigoOptimizado[-1].resultado)
                 else:
                     "SE AGREGA LA INSTRUCCION ORIGINAL AL RESULTADO"
-                    instruccion = objeto.indice + " = " + objeto.operador1 + " " + objeto.signo + " " + objeto.operador2
+                    if objeto.signo == None or objeto.operador2 == None:
+                        if objeto.cadena == True:
+                            instruccion = str(objeto.indice) + " = " + "\'" +  str(objeto.operador1) + "\'"
+                        else:
+                            instruccion = str(objeto.indice) + " = " + str(objeto.operador1)
+                    else:
+                        instruccion = str(objeto.indice) + " = " + str(objeto.operador1) + " " + str(objeto.signo) + " " + str(objeto.operador2)
                     ResultadoFinal.append(instruccion)
             else:
                 "NO ES OBJETO ASIGNACION ASI QUE SOLO SE AGREGA AL RESULTADO"
-                ResultadoFinal.append(objeto)
+                if isinstance(objeto, obj.Temporal):
+                    if objeto.cadena == True:
+                        Nobjeto = str(objeto.indice) + " = \'" + str(objeto.valor) + "\'"
+                        ResultadoFinal.append(Nobjeto)
+                    else:
+                        Nobjeto = str(objeto.indice) + " = " + str(objeto.valor)
+                        ResultadoFinal.append(Nobjeto)
+                else:  
+                    ResultadoFinal.append(objeto)
         self.GenerarReporte()
-        print("-----------------------OPTIMIZACIONES--------------------------------")
-        for elem in CodigoOptimizado:
-            print(elem.resultado)
-        print("-----------------------RESULTADO OPTIMIZACION------------------------")
-        for elem in ResultadoFinal:
-            print(elem)
-            
+
+    def BuscarTemporal(self, Nombre):
+        for elemento in self.Asignaciones:
+            if isinstance(elemento, obj.Temporal):
+                if elemento.indice == Nombre:
+                    return elemento
+
     #Metodos para realizar la optimizacion segun la regla.
     #Retornan False si no se cumple la regla de optimizacion y True si se cumple y se optimiza
     def Regla_1(self, asignacion, listaasignaciones):
         "Regla 1"
-        global CodigoOptimizado
-        indice = asignacion.indice
-        op1 = asignacion.operador1
-        op2 = asignacion.operador2
-        signo = asignacion.signo
-        for elem in listaasignaciones:
-            if elem.indice == op1 and elem.operador1 == indice:
-                "SE REALIZA EL CAMBIO"
-                
         return False
        
     def Regla_2(self):
@@ -84,6 +90,10 @@ class Optimizador:
         op1 = asignacion.operador1
         op2 = asignacion.operador2
         signo = asignacion.signo
+        if self.BuscarTemporal(op1):
+            op1 = str(self.BuscarTemporal(op1).valor)
+        if self.BuscarTemporal(op2):
+            op2 = str(self.BuscarTemporal(op2).valor)
         if (indice == op1 and op2 == '0' and signo == '+') or (indice == op2 and op1 == '0' and signo == '+'):
             NuevoObjeto = obj.Optimizado("Regla 8", indice + " = " + op1 + " " + signo + " " + op2, "Se elimina la instruccion")
             CodigoOptimizado.append(NuevoObjeto)
@@ -102,6 +112,10 @@ class Optimizador:
         op1 = asignacion.operador1
         op2 = asignacion.operador2
         signo = asignacion.signo
+        if self.BuscarTemporal(op1):
+            op1 = str(self.BuscarTemporal(op1).valor)
+        if self.BuscarTemporal(op2):
+            op2 = str(self.BuscarTemporal(op2).valor)
         if (indice == op1 and op2 == '1' and signo == '*') or (indice == op2 and op1 == '1' and signo == '*'):
             NuevoObjeto = obj.Optimizado("Regla 10", indice + " = " + op1 + " " + signo + " " + op2, "Se elimina la instruccion")
             CodigoOptimizado.append(NuevoObjeto)
@@ -120,6 +134,10 @@ class Optimizador:
         op1 = asignacion.operador1
         op2 = asignacion.operador2
         signo = asignacion.signo
+        if self.BuscarTemporal(op1):
+            op1 = str(self.BuscarTemporal(op1).valor)
+        if self.BuscarTemporal(op2):
+            op2 = str(self.BuscarTemporal(op2).valor)
         if op1 == '0' and op2 != '0' and signo == '+' and op2 != indice:
             NuevoObjeto = obj.Optimizado("Regla 12", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op2)
             CodigoOptimizado.append(NuevoObjeto)
@@ -142,6 +160,10 @@ class Optimizador:
         op1 = asignacion.operador1
         op2 = asignacion.operador2
         signo = asignacion.signo
+        if self.BuscarTemporal(op1):
+            op1 = str(self.BuscarTemporal(op1).valor)
+        if self.BuscarTemporal(op2):
+            op2 = str(self.BuscarTemporal(op2).valor)
         if op1 == '1' and op2 != '1' and signo == '*' and op2 != indice:
             NuevoObjeto = obj.Optimizado("Regla 14", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op2)
             CodigoOptimizado.append(NuevoObjeto)
@@ -164,6 +186,10 @@ class Optimizador:
         op1 = asignacion.operador1
         op2 = asignacion.operador2
         signo = asignacion.signo
+        if self.BuscarTemporal(op1):
+            op1 = str(self.BuscarTemporal(op1).valor)
+        if self.BuscarTemporal(op2):
+            op2 = str(self.BuscarTemporal(op2).valor)
         if op1 == '2' and not isinstance(op2, int) and signo == '*' and op2 != indice:
             NuevoObjeto = obj.Optimizado("Regla 16", indice + " = " + op1 + " " + signo + " " + op2, indice + " = " + op2 + " " + "+" + " " + op2)
             CodigoOptimizado.append(NuevoObjeto)
@@ -182,6 +208,10 @@ class Optimizador:
         op1 = asignacion.operador1
         op2 = asignacion.operador2
         signo = asignacion.signo
+        if self.BuscarTemporal(op1):
+            op1 = str(self.BuscarTemporal(op1).valor)
+        if self.BuscarTemporal(op2):
+            op2 = str(self.BuscarTemporal(op2).valor)
         if op1 == '0' and signo == '*' and op2 != indice:
             NuevoObjeto = obj.Optimizado("Regla 17", indice + " = " + op1 + " " + signo + " " + op2, indice + " = 0")
             CodigoOptimizado.append(NuevoObjeto)
@@ -198,16 +228,43 @@ class Optimizador:
             return False
 
     def GenerarReporte(self):
+        global CodigoOptimizado
         "Generar el reporte en graphviz y el archivo de optimizacion"
         #PARA EL ARCHIVO
         Nombre = "Salidas/CodigoOptimizado.py"
         texto = ""
         for elem in ResultadoFinal:
-            texto += elem + "\n"
+            if isinstance(elem, obj.Temporal):
+                texto += str(elem.indice) + " = " + str(elem.valor) + "\n"
+            else:
+                texto += elem + "\n"
         try:
             os.makedirs(os.path.dirname(Nombre), exist_ok=True)
             with open(Nombre, "w") as f:
+                f.write('''
+from datetime import date
+from variables import tabla as ts
+from variables import NombreDB 
+from variables import cont 
+import tablaDGA as TAS
+import sql as sql 
+import mathtrig as mt
+from reportTable import *
+    
+    
+pila = []
+for i in range(100):
+    pila.append(i)
+    
+def ejecutar():
+\tglobal cont
+\tglobal ts
+\tNombreDB = ts.nameDB
+\n''')
                 f.write(texto)
+                f.write('''ejecutar()''')
+                f.close()
         except:
             print("No se pudo generar el archivo del codigo generado")
         #PARA REPORTE
+        reporteopt.graphTable(CodigoOptimizado)

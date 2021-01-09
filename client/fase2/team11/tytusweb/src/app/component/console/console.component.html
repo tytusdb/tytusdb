@@ -1,9 +1,9 @@
-<ul class="nav nav-tabs" style="margin-top: 15px; margin-left: 15px;"> 
+<ul class="nav nav-tabs" style="margin-top: 15px; margin-left: 15px;">
     <li class="nav-item">
         <a class="nav-link active" data-toggle="tab" href="#console">Console</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" data-toggle="tab" href="#resultados">Results</a>
+    <li class="nav-item" *ngFor="let query of this.querys; let i = index">
+        <a class="nav-link" data-toggle="tab" href="#resultados{{i}}">Results {{i}}</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#errores">Errors</a>
@@ -11,11 +11,26 @@
 </ul>
 <div id="myTabContent" class="tab-content" style="margin-left: 15px; height: 100%; width: 100%;">
     <div class="tab-pane fade active show" id="console" style="height: 100%; width: 100%;">
-        <textarea rows="8" readonly disabled style="padding-left: 2%; padding-right: 2%; background-color: rgb(236, 234, 234); width: 97%; resize: none; border: none;">Consola.</textarea>
+        <textarea rows="8" id="consola" readonly disabled style="padding-left: 2%; padding-right: 2%; background-color: rgb(236, 234, 234); width: 97%; resize: none; border: none;">{{state}}</textarea>
     </div>
-    <div class="tab-pane fade" id="resultados" style="height: 100%; width: 100%;">
+    <div class="tab-pane fade" *ngFor="let query of this.querys; let i = index" id="resultados{{i}}" style="height: 100%; width: 100%;">
+        <div style="height:200px; width: 100%; overflow: auto;">
+            <table class="table table-hover">
+                <thead>
+                    <tr class="table-active">
+                        <th *ngFor="let head of query[0]; " scope="col">{{head}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let head of query[1];">
+                        <td *ngFor="let row of head">{{row}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
     <div class="tab-pane fade" id="errores">
-        <textarea rows="8" readonly disabled style="color: orangered; padding-left: 2%; padding-right: 2%; background-color: rgb(236, 234, 234); width: 97%; resize: none; border: none;">Errores.</textarea>
+        <textarea rows="8" readonly disabled style="color: orangered; padding-left: 2%; padding-right: 2%; background-color: rgb(236, 234, 234); width: 97%; resize: none; border: none;">{{this.errores}}</textarea>
     </div>
 </div>

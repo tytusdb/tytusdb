@@ -1,29 +1,21 @@
-import re
-from sys import path
-from os.path import dirname as dir
-from typing import Generator
-
-path.append(dir(path[0]))
 from optimization.optGrammar import optimize
 from optimization.abstract.optimize import OptimizedInstruction
 
-listaInstruccion = list()
+listaOpt = list()
 
-def optimizedCode(text):
-    global listaInstruccion
-    listaInstruccion = optimize(text)
-
-    #Intentamos optimizar cada instruccion
-    for ins in listaInstruccion:
-        if isinstance(ins, OptimizedInstruction):
-            ins.optimize()
+def optimizeCode(entradaOpt:str):
+    listaOpt = optimize(entradaOpt)
 
     generator = OptimizedGenerator()
+    #Intentamos optimizar cada instruccion
+    for ins in listaOpt:
+        if isinstance(ins, OptimizedInstruction):
+            ins.optimize(generator)
+
     #Agregamos al nuevo doc
-    for ins in listaInstruccion:
+    for ins in listaOpt:
         if isinstance(ins, OptimizedInstruction):
             ins.addToCode(generator)
-            ins.toReport(generator)
         elif isinstance(ins, str):
             generator.addToCode(ins)
 
@@ -55,10 +47,29 @@ class OptimizedGenerator:
         return string
 
     def genReport(self) -> str:
-        report = '<table><tr><th>Instrucción Optimizada</th><th>Regla</th><th>Linea</th></td>'
+        report = '''<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/lux/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <title>Reporte de Optimización</title>
+    <meta charset="utf-8">
+</head>
+
+<body>
+    <div class="container" style="padding: 50px;">
+        <h2 class="text-center">Reporte de Optimización</h2>
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr><th scope="col">Instrucción Optimizada</th><th scope="col">Regla</th><th scope="col">Linea</th></td>
+            </thead>
+            <tbody>'''
         for line in self.report:
             report += line
-        report += '</table>'
+        report += '''</tbody>
+        </table>
+    </div>
+</body>
+</html>'''
         return report
 
     def makeCode(self):
@@ -72,32 +83,3 @@ class OptimizedGenerator:
         with open('reporteOptimizado.html','w') as file:
             file.write(report)
             file.close()
-
-optimizedCode('''
-from goto import with_goto
-from interpreter import execution
-from c3d.stack import Stack
-
-stack = Stack()
-RETURN=[None]
-
-@with_goto
-def ptest():
-	x =  0
-	t0 = 4 * 4 
-	t1 = 8 / 5
-	t2 = t1 / 1
-	t3 = t2 * 0
-	t4 = t0 + t3
-	x =  t4
-	label .L0
-
-@with_goto
-def principal():
-    pass
-
-
-def funcionIntermedia():
-	execution(stack.pop())
-principal()
-''')

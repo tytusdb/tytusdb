@@ -3,7 +3,7 @@ from .AST.expression import *
 from .AST.error import * 
 from .AST.sentence import *
 from .storageManager.TypeChecker import * 
-from console import print_success, print_table, print_error
+from console import print_success, print_table, print_error, print_text
 
 def executeInstruction(self, instruction,indent, main):
     if isinstance(instruction, CreateFunction):
@@ -48,9 +48,14 @@ def executeInstruction(self, instruction,indent, main):
                         else: functioncode+="\t"+declaration.name+":"+vartype+"\n" # declaracion sin valor de la forma 'ID type;'
                     else:
                         # executeExpressionC3D, retorna codigo de 3 direcciones de una expresion declaration.expression
-                        functioncode+=declaration.expression.translate(self,indent)
-                        if(vartype==""):functioncode+="\t"+declaration.name+"="+self.getLastTemp()+"\n" #asigna el valor del ultimo temporal que contiene el valor de la expresion
-                        else: functioncode+="\t"+declaration.name+":"+vartype+"="+self.getLastTemp()+"\n" #asigna el valor del ultimo temporal que contiene el valor de la expresion
+                        expcode = declaration.expression.translate(self,indent)
+                        if not isinstance(expcode,Value): 
+                            functioncode+=expcode
+                            if(vartype==""):functioncode+="\t"+declaration.name+"="+self.getLastTemp()+"\n" #asigna el valor del ultimo temporal que contiene el valor de la expresion
+                            else: functioncode+="\t"+declaration.name+":"+vartype+"="+self.getLastTemp()+"\n" #asigna el valor del ultimo temporal que contiene el valor de la expresion
+                        else:
+                            if(vartype==""):functioncode+="\t"+declaration.name+"="+str(expcode.value)+"\n" #asigna el valor de la expresion
+                            else: functioncode+="\t"+declaration.name+":"+vartype+"="+str(expcode.value)+"\n" #asigna el valor de la expresion
         # statements
         for statement in instruction.block.statements:
             if isinstance(statement,Sentence):
@@ -62,11 +67,19 @@ def executeInstruction(self, instruction,indent, main):
                 sys.stdout = old_stdout
                 functioncode+=(indent*"\t")+str(val1)+"\n"
             if(isinstance(statement,StatementReturn)):
-                functioncode+=statement.expression.translate(self,indent)
-                functioncode+=(indent*"\t")+"return "+self.getLastTemp()+"\n"
+                expcode=statement.expression.translate(self,indent)
+                if not isinstance(expcode,Value):
+                    functioncode+=expcode
+                    functioncode+=(indent*"\t")+"return "+self.getLastTemp()+"\n"
+                else:
+                    functioncode+=(indent*"\t")+"return "+str(expcode.value)+"\n"
             elif isinstance(statement,If):
-                functioncode+=statement.expression.translate(self,indent)
-                ifcode=(indent*"\t")+"if "+self.getLastTemp()+":\n"
+                expcode=statement.expression.translate(self,indent)
+                if not isinstance(expcode,Value):
+                    functioncode+=expcode
+                    ifcode=(indent*"\t")+"if "+self.getLastTemp()+":\n"
+                else:
+                    ifcode=(indent*"\t")+"if "+str(expcode.value)+":\n"
                 iflabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
                 ifcode+=(indent*"\t")+"\tgoto ."+self.getLastLabel()+"\n"
                 for ifstatement in statement.statements:
@@ -87,39 +100,48 @@ def executeInstruction(self, instruction,indent, main):
                 functioncode+=ifcode+elsecode+iflabel+elselabel
             elif isinstance(statement,Asignment):
                 if statement.expression !=None:
-                    functioncode+=statement.expression.translate(self,indent)
-                    functioncode+=(indent*"\t")+statement.name+"="+self.getLastTemp()+"\n"
+                    expcode=statement.expression.translate(self,indent)
+                    if not isinstance(expcode,Value):
+                        functioncode+=expcode
+                        functioncode+=(indent*"\t")+statement.name+"="+self.getLastTemp()+"\n"
+                    else:
+                        functioncode+=(indent*"\t")+statement.name+"="+str(expcode.value)+"\n"
                 else:
-                    functioncode += "#SelectF1"
+                    functioncode += "#SelectF1" #asignment of select
             elif(isinstance(statement,Call) or isinstance(statement,Excute)):
                 params="("
                 for expression in statement.params:
-                    functioncode+=expression.translate(self,indent)
-                    params+=self.getLastTemp()+", "
+                    expcode=expression.translate(self,indent)
+                    if not isinstance(expcode,Value):
+                        functioncode+=expcode
+                        params+=self.getLastTemp()+", "
+                    else:
+                        params+=str(expcode.value)+", "
                 functioncode+=(indent*"\t")+statement.name+params[:-2]+")\n"
-        if(len(instruction.block.statements)==0): functioncode+="\tprint(1)"
+        if(len(instruction.block.statements)==0): functioncode+="\tprint(1)\n"
         # save functioncode in TypeChecker
-        res = TCcreateFunction(functionname,functioncode,replace)
-        if res==1:
-            print("Function "+functionname+" stored")
-            print_success("MESSAGE","Function "+functionname+" stored")
-        elif res==2:
-            print("Function "+functionname+" replaced")
-            print_success("MESSAGE","Function "+functionname+" replaced")
-        else:
-            print("Function "+functionname+" already exists")
-            print_error("SEMANTIC","Function "+functionname+" already exists")
+        archivo = open("C3D.py", 'a')
+        archivo.write("\n"+(indent*"\t")+"createFunction('"+functionname+"','''"+functioncode+"''',"+str(replace)+")\n") 
+        archivo.close()
         self.plcode += functioncode
     elif(isinstance(instruction,StatementReturn)):
         code = ""
-        code+=instruction.expression.translate(self,indent)
-        code+=(indent*"\t")+"return "+self.getLastTemp()+"\n"
+        expcode=instruction.expression.translate(self,indent)
+        if not isinstance(expcode,Value):
+            code+=expcode
+            code+=(indent*"\t")+"return "+self.getLastTemp()+"\n"
+        else:
+            code+=(indent*"\t")+"return "+str(expcode.value)+"\n"
         return code
     elif(isinstance(instruction,Asignment)):
         code = ""
         if instruction.expression !=None:
-            code+=instruction.expression.translate(self,indent)
-            code+=(indent*"\t")+instruction.name+"="+self.getLastTemp()+"\n"
+            expcode=instruction.expression.translate(self,indent)
+            if not isinstance(expcode,Value):
+                code+=expcode
+                code+=(indent*"\t")+instruction.name+"="+self.getLastTemp()+"\n"
+            else:
+                code+=(indent*"\t")+instruction.name+"="+str(expcode.value)+"\n"
         else:
             code += "#SelectF1"
         return code
@@ -128,9 +150,14 @@ def executeInstruction(self, instruction,indent, main):
         params="("
         if instruction.params != None:
             for expression in instruction.params:
-                code+=expression.translate(self,indent)
-                params+=self.getLastTemp()+", "
+                expcode=expression.translate(self,indent)
+                if not isinstance(expcode,Value):
+                    code+=expcode
+                    params+=self.getLastTemp()+", "
+                else:
+                    params+=str(expcode.value)+", "
             if(main==0): 
+                code+="\n"+(indent*"\t")+"print_text('"+instruction.name+"',"+instruction.name+params[:-2]+"),2)\n"
                 code+="\n"+(indent*"\t")+"print("+instruction.name+params[:-2]+"))\n"
                 archivo = open("C3D.py", 'a')
                 archivo.write(code) 
@@ -139,6 +166,7 @@ def executeInstruction(self, instruction,indent, main):
                 code+=(indent*"\t")+instruction.name+params[:-2]+")\n"
         else:
             if(main==0): 
+                code+="\n"+(indent*"\t")+"print_text('"+instruction.name+"',"+instruction.name+"(),2)\n"
                 code+="\n"+(indent*"\t")+"print("+instruction.name+"())\n"
                 archivo = open("C3D.py", 'a')
                 archivo.write(code) 
@@ -148,8 +176,12 @@ def executeInstruction(self, instruction,indent, main):
         return code
     elif isinstance(instruction,If):
         code = ""
-        code+=instruction.expression.translate(self,indent)
-        ifcode=(indent*"\t")+"if "+self.getLastTemp()+":\n"
+        expcode=instruction.expression.translate(self,indent)
+        if not isinstance(expcode,Value):
+            code+=expcode
+            ifcode=(indent*"\t")+"if "+self.getLastTemp()+":\n"
+        else:
+            ifcode=(indent*"\t")+"if "+str(expcode.value)+":\n"
         iflabel=(indent*"\t")+"label ."+self.generateLabel()+"\n"
         ifcode+=(indent*"\t")+"\tgoto ."+self.getLastLabel()+"\n"
         for ifstatement in instruction.statements:
@@ -167,14 +199,30 @@ def executeInstruction(self, instruction,indent, main):
         code+=ifcode+elsecode+iflabel+elselabel
         return code
     elif isinstance(instruction,DropFunction):
-        ans = TCdeleteFunction(instruction.name)
-        if(ans == 1):
-            print("Function "+instruction.name+" droped")
-            print_success("MESSAGE","Function "+instruction.name+" droped")
-        else: 
-            print("Function "+instruction.name+" does not exist")
-            print_error("SEMANTIC","Function "+instruction.name+" does not exist")
-    
+        archivo = open("C3D.py", 'a')
+        archivo.write("\n"+(indent*"\t")+"deleteFunction('"+instruction.name+"')\n") 
+        archivo.close()
+
+def createFunction(functionname:str,functioncode:str,replace:bool):
+    res = TCcreateFunction(functionname,functioncode,replace)
+    if res==1:
+        print("Function "+functionname+" stored")
+        print_success("MESSAGE","Function "+functionname+" stored",2)
+    elif res==2:
+        print("Function "+functionname+" replaced")
+        print_success("MESSAGE","Function "+functionname+" replaced",2)
+    else:
+        print("Function "+functionname+" already exists")
+        print_error("SEMANTIC","Function "+functionname+" already exists",2)
+
+def deleteFunction(function:str):
+    ans = TCdeleteFunction(function)
+    if(ans == 1):
+        print("Function "+str(function)+" droped")
+        print_success("MESSAGE","Function "+str(function)+" droped",2)
+    else: 
+        print("Function "+str(function)+" does not exist")
+        print_error("SEMANTIC","Function "+str(function)+" does not exist",2)
 
 def getType(sqltype):
     if(sqltype=="TEXT" 
@@ -192,4 +240,3 @@ def getType(sqltype):
     or sqltype=="REAL"):
         return "float"
     return ""
-    

@@ -320,20 +320,37 @@ def insert(database, table, register):
         val = 3
     return val
 
-# El storageManager debe permitir cambiar el modo de almacenamiento de una 
-# base de datos o de una tabla en cualquier momento. Al suceder, 
-# si no hay ningun error, se debe construir la estructura de datos asociada 
-# al modo y eliminar la anterior.
-
-#Cambia el modo de almacenamiento de una base de datos. (UPDATE)
-#Parámetro database: es el nombre de la base de datos que se desea 
-# modificar, debe cumplir con las reglas de identificadores de SQL.
-#Parámetro mode: es un string indicando el modo 'avl', 'b', 'bplus', 
-# 'dict', 'isam', 'json', 'hash'.
-#Valor de retorno: 0 operación exitosa, 1 error en la operación, 
-# 2 database no existente, 4 modo incorrecto.
 def alterDatabaseMode(database, mode):
-    print("alterDatabaseMode")
+    diccionario = {"avl":0, "b":1, "bplus":2, "dict":3, "isam":4, "json":5, "hash":6}
+    if mode in diccionario:
+        modo_anterior = None
+        for i in diccionario:
+            modo_anterior = obtenerBase(database, diccionario[i])
+            if modo_anterior != []:
+                break
+        if modo_anterior == []:
+            return 2
+        else:
+            modo_actual = diccionario[mode]
+            if modo_anterior == modo_actual:
+                return 1
+            else:
+                temp_tablas = obtenerTablas(database, modo_anterior)
+                temp_fila_tabla = []
+                for tabla in temp_tablas:
+                    temp_fila_tabla.append([tabla, extractTable(database, tabla)])
+                dropDatabase(database)
+                createDatabase(database, mode, "utf8")
+                for dato in temp_fila_tabla:
+                    nombre_tabla = dato[0]
+                    registros = dato[1]
+                    if registros != []:
+                        createTable(database, nombre_tabla, len(registros[0]))
+                    for registro in registros:
+                        insert(database, nombre_tabla, registro)
+                return 0
+    else:
+        return 4
 
 # Cambia el modo de almacenamiento de una tabla de una base de datos especificada. (UPDATE)
 # Parámetro database: es el nombre de la base de datos a utilizar.
@@ -343,6 +360,55 @@ def alterDatabaseMode(database, mode):
 # 2 database no existente, 3 table no existente, 4 modo incorrecto.
 def alterTableMode(database, table, mode):
     print("alterTableMode")
+
+def obtenerAtributosTabla(database, table):
+    mode = None
+    for i in range(7):
+        mode = obtenerBase(database,i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.dropTable(database, table)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.dropTable(database, table)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.dropTable(database, table)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.dropTable(database, table)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.dropTable(database, table)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.dropTable(database, table)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.dropTable(database, table)
+    else:
+        val = 3
+    return val
 
 def createTable(database, table, numColumns):
     mode = None
@@ -821,3 +887,4 @@ def alterTableDecompress(database, table):
                 return 3
         except:
             return 1
+

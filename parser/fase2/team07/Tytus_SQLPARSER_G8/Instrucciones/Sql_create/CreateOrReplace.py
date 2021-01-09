@@ -7,8 +7,8 @@ from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 from storageManager.jsonMode import *
 
 class CreateOrReplace(Instruccion):
-    def __init__(self, base, tipo, existe, owner, mode, strGram ,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, base, tipo, existe, owner, mode, strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.base=base
         self.tipo=tipo
         self.existe = existe
@@ -46,6 +46,12 @@ class CreateOrReplace(Instruccion):
                 error = Excepcion("100","Semantico","Error Interno.",self.linea,self.columna)
                 arbol.excepciones.append(error)
                 arbol.consola.append(error.toString())
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 
         '''for bd in lb:
             if bd== self.base:

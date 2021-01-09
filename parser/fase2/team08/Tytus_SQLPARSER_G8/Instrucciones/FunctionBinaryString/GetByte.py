@@ -3,6 +3,7 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 
 class GetByte(Instruccion):
     def __init__(self, valor, tipo, indice, strGram, linea, columna):
@@ -31,13 +32,29 @@ class GetByte(Instruccion):
         return error
     
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        pass
-    
-'''
-instruccion = GetByte("hola mundo",None, 1,2)
+        super().traducir(tabla, arbol)
+        valor=""
+        indice=""
+        if isinstance(self.valor, Primitivo):
+            valor = self.valor.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.valor, Aritmetica):
+            valor = self.valor.concatenar(tabla,arbol)
+        elif isinstance(self.valor, str) or isinstance(self.valor, int):
+            valor = self.valor
+        else:
+            valor=self.valor.traducir(tabla,arbol)
+        
+        if isinstance(self.indice, Primitivo):
+            indice = self.indice.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.indice, Aritmetica):
+            indice = self.indice.concatenar(tabla,arbol)
+        elif isinstance(self.indice, str) or isinstance(self.indice, int):
+            indice = self.indice
+        else:
+            indice= self.indice.traducir(tabla,arbol)
 
-instruccion.ejecutar(None,None)
-'''
+        return f"GET_BYTE({valor},{indice})"
+    
