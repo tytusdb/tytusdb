@@ -210,7 +210,115 @@ class main():
             return None
 
     # ---------------------FUNCIONES DE COMPRESION DE DATOS----------------------#
+    
+    def alterDatabaseCompress(self, database, level):
+        if self.identify(str(database)):
+            if self.searchDB2(database):
+                if level in range(0,10):
+                    try:
+                        for i in self.showTables(database):
+                            self.alterTableCompress(database, i, level)
+                        return 0
+                    except:
+                        return 1
+                return 4
+            return 2
+        return 1
 
+    def alterDatabaseDecompress(self, database):
+        if self.identify(str(database)):
+            if self.searchDB2(database):
+                try:
+                    for i in self.showTables(database):
+                            self.alterTableDecompress(database, i)
+                    return 0
+                except:
+                    return 1
+            return 2
+        return 1
+
+    def alterTableCompress(self, database, table, level):
+        if self.identify(str(database)):
+            if self.searchDB2(database):
+                if self.searchTB(database, table):
+                    if level in range(0,10):
+                        mode = ""
+                        for i in self.listMode:
+                            for j in switch.switchMode(i).showDatabases():
+                                if table in switch.switchMode(i).showTables(j):
+                                    mode = i
+                        try:
+                            if not self.godGuide[mode][database][0][table][3]:
+                                tabla = self.extTB(database, table)
+
+                                for i in tabla:
+                                    registro = []
+                                    n = 0
+                                    for j in i:
+                                        if type(j) is str and not j.isdigit():
+                                            # if mode == "json":
+                                            compress = zlib.compress(j.encode("utf-8"), level)
+                                            registro.append(compress.hex())
+                                            # else:    
+                                                # registro.append(zlib.compress(j.encode("utf-8"), level))
+                                        else:
+                                            registro.append(int(j))
+                                        n += 1
+                                    
+                                    pk = []
+                                    for j in self.godGuide[mode][database][0][table][1]:
+                                        pk.append(i[j])
+
+                                    self.delete2(database, table, pk)
+                                    self.insert2(database, table, registro)
+                                    self.godGuide[mode][database][0][table][3] = True
+                            return 0
+                        except:
+                            return 1
+                    return 4
+                return 3
+            return 2
+        return 1
+
+    def alterTableDecompress(self, database, table):
+        if self.identify(str(database)):
+            if self.searchDB2(database):
+                if self.searchTB(database, table):
+                    mode = ""
+                    for i in self.listMode:
+                        for j in switch.switchMode(i).showDatabases():
+                            if table in switch.switchMode(i).showTables(j):
+                                mode = i
+                    if self.godGuide[mode][database][0][table][3]:
+                        try:
+                            tabla = self.extTB(database, table)
+                               
+                            for i in tabla:
+                                registro2 = []
+                                for j in i:
+                                    if type(j) is not str and str(j).isdigit():
+                                        registro2.append(j)
+                                    else:
+                                        # if mode == "json":
+                                        registro2.append( zlib.decompress(bytes.fromhex(j)).decode("utf-8"))
+                                        # else:
+                                            # registro2.append(zlib.decompress(j).decode("utf-8"))
+
+                                pk = []
+                                for j in self.godGuide[mode][database][0][table][1]:
+                                    pk.append(i[j])
+
+                                self.delete2(database, table, pk)
+                                self.insert2(database, table, registro2)
+                                self.godGuide[mode][database][0][table][3] = False
+                            return 0
+                        except:
+                            return 1
+                    return 3
+                return 4
+            return 2
+        return 1
+   
     # ---------------------FUNCIONES DE SEGURIDAD----------------------#
 
     # ---------------------FUNCIONES DE GRAFOS----------------------#
