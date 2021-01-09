@@ -1052,6 +1052,102 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
         return 1
 
 
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+    try:
+        # se llama a la base de datos
+        bdata= __getDatabase(database)
+
+        if bdata:
+
+            # se extrae la tabla buscada y la tabla de referencia
+            tablafk = __getTable(database, table)
+            tablarf = __getTable(database, tableRef)
+
+            #for t in bdata.get("tables"):
+                #if t.get("nameTb") == table:
+                    #tablafk  = t.get("nameTb")
+                #if  t.get("nameTb") == tableRef:
+                    #tablarf  = t.get("nameTb")
+            
+            # se comprueba la existencia de las tablas
+            if len(tablafk) == 0 or len(tablarf) == 0: #tablafk != False or tablarf != False:
+                return 3
+            # cantidad entre columns y columnsRef
+            if len(columns) != len(columnsRef):
+                return 4
+            # se agrega la llave foranea
+            tablafk["foreign_keys"].insert([indexName, table, tableRef, columns, columnsRef])
+
+            #Se extraen los registros actualizados de la estructura Fk
+            registrosFk = tablafk["foreign_keys"].extractTable()
+            #Se guardan en el archivo data
+            listaDB = __rollback("data")
+            for db in listaDB:
+                if db["nameDb"] == database:
+                    for tb in db["tables"]:
+                        if tb["nameTb"] == table:
+                            tb["registrosFk"] = registrosFk
+                            break
+                
+            #Se guarda la lista de base de datos actualizada en el archivo data
+            __commit(listaDB, "data")
+            return 0
+        else:
+            return 2
+    except:
+        return 1
+
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    try:
+        # se llama a la base de datos
+        bdata= __getDatabase(database)
+
+        if bdata:
+
+            # se extrae la tabla buscada
+            tabla = __getTable(database, table)
+
+            #for t in bdata.get("tables"):
+                #if t.get("nombretb") == table:
+                    #tabla  = t.get("nombretb")
+
+            # se comprueba la existencia de las tablas
+            if tabla is False :
+                return 3
+           
+            # se busca el indexname
+            ForaneKey = tabla["foreign_keys"].extractRow(indexName)
+            
+            if ForaneKey:
+                val = tabla["foreign_keys"].delete(indexName)
+
+                #Se extraen los registros actualizados de la estructura Fk
+                registrosFk = tabla["foreign_keys"].extractTable()
+                #Se guardan en el archivo data
+                listaDB = __rollback("data")
+                for db in listaDB:
+                    if db["nameDb"] == database:
+                        for tb in db["tables"]:
+                            if tb["nameTb"] == table:
+                                tb["registrosFk"] = registrosFk
+                                break
+                    
+                #Se guarda la lista de base de datos actualizada en el archivo data
+                __commit(listaDB, "data")
+                return val   # valor esperado: 0
+            else:
+                return 4
+        else:
+            return 2
+    except:
+        return 1
+
+
+
+
+
+
+
 
 
 ##################
