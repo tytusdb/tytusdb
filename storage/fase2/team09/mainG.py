@@ -510,6 +510,7 @@ def truncate(database: str, table: str) -> int:
                 if d.base == database and d.tabla == table:
                     retorno = Help.TruncarTabla(d.modo, database, table)
                     if retorno == 0:
+                        d.codificado = []
                         d.datos.clear()
                         Actualizar(list_table, "tablasG")
                     return retorno
