@@ -91,3 +91,48 @@ def showDatabases():
     showALL = 'avl = ' + str(showAvl)+'\n'+'b = ' + str(showB)+'\n'+'bplus = ' + str(showBP)+'\n'+'dict = ' + str(showDict)+'\n'+'isam = ' + str(showIsam)+'\n'+'json = ' + str(showJson) +'\n'+'hash = ' + str(showHash)
                 
     return showALL
+
+def alterDatabase(old, new):
+    if searchInMode(old) != None:
+        currentMode = searchInMode(old)
+        if currentMode == 'avl':
+            avlList.append(new)
+            return avl.alterDatabase(old, new)
+        elif currentMode == 'b':
+            bList.append(new)
+            return b.alterDatabase(old, new)
+        elif currentMode == 'bplus':
+            bplusList.append(new)
+            return bplus.alterDatabase(old, new)
+        elif currentMode == 'dict':
+            dictList.append(new)
+            return DM.alterDatabase(old, new)
+        elif currentMode == 'isam':
+            isamList.append(new)
+            return isam.alterDatabase(old, new)
+        elif currentMode == 'json':
+            jsonList.append(new)
+            return j.alterDatabase(old, new)
+        elif currentMode == 'hash':
+            hashList.append(new)
+            return Hash.alterDatabase(old, new)
+        
+def dropDatabase(database):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            return avl.dropDatabase(database)
+        elif currentMode == 'b':
+            return b.dropDatabase(database)
+        elif currentMode == 'bplus':
+            return bplus.dropDatabase(database)
+        elif currentMode == 'dict':
+            return DM.dropDatabase(database)
+        elif currentMode == 'isam':
+            return isam.dropDatabase(database)
+        elif currentMode == 'json':
+            return j.dropDatabase(database)
+        elif currentMode == 'hash':
+            return Hash.dropDatabase(database)
+    else:
+        return 2
