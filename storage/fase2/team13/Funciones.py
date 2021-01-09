@@ -1504,7 +1504,10 @@ def update(database, table, register, columns):
         # Save the old tuple for the BChain method
         newColumns = []
         for key in columns:
-            newColumns.append(key.encode(dictionary[database][1]))
+            if isinstance(key, str):
+                newColumns.append(key.encode(dictionary[database][1]))
+            else:
+                newColumns.append(key)
         oldTuple = j.extractRow(database, table, newColumns)
         for key in register:
             if isinstance(register[key], str):
