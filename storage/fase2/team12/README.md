@@ -1,7 +1,6 @@
 # Tytus DB
 ---
 ## Grupo 12
-Modalidad 2, Arbol B
 ## Colaboradores
  
 |            Nombre            		|   Carnet  	|Usuario|
