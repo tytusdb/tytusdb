@@ -64,7 +64,7 @@ def get_struct(mode: str):
 
 
 # -------------------------------------------- --> <-> <-- -----------------------------------------------------------
-# Revisar para Metadata
+
 def createDatabase(database: str, mode: str, encoding: str):
     if verify_string(database):  # Metodo que verifica el nombre si cumple con las condiciones
         metadata, index = get_metadata_db(database)
@@ -148,7 +148,7 @@ def get_Data(database: str, table: str, mode: str):
     if metadata_db:
         struct = get_struct(metadata_db.get_mode())         
         return struct.extractTable(database, table)
-    
+
 def get_Data2(database: str, table: str, mode: str, metadata_db):
     if metadata_db:
         struct = get_struct(metadata_db.get_mode())
@@ -188,7 +188,7 @@ def alterTableMode(database: str, table: str, mode: str):
         return 2
 
 
-# Revisar para Metadata
+
 def alterDatabase(old_db, new_db):
     metadata_db, index_md_db = get_metadata_db(old_db)
     metadata_db_new, index_new_md_db = get_metadata_db(new_db)
@@ -202,7 +202,7 @@ def alterDatabase(old_db, new_db):
 
 
 
-# Revisar Para Metadata
+
 def dropDatabase(name_db):
     metadata_db, index_metadata = get_metadata_db(name_db)
     if metadata_db:
@@ -212,11 +212,11 @@ def dropDatabase(name_db):
             metadata_db_list.pop(index_metadata)
         return status
     else:
-        return 1
+        return 2
 
 
 
-# Revisar para Metadata
+
 def createTable(database, name_table, number_columns):
     metadata_db, index_metadata = get_metadata_db(database)
     if metadata_db:
@@ -226,7 +226,7 @@ def createTable(database, name_table, number_columns):
             metadata_db.create_table(name_table, number_columns, metadata_db.get_mode())
         return status
     else:
-        return 1
+        return 2
 
 
 def showTables(database):
@@ -235,7 +235,7 @@ def showTables(database):
         struct = get_struct(metadata_db.get_mode())
         status = struct.showTables(database)
         return status
-    return 1
+    return None
 
 
 def extractTable(database, name_table):
@@ -244,7 +244,7 @@ def extractTable(database, name_table):
         struct = get_struct(metadata_db.get_mode())
         status = struct.extractTable(database, name_table)
         return status
-    return 1
+    return None
 
 
 def extractRangeTable(database, name_table, number_column, lower, upper):
@@ -253,11 +253,10 @@ def extractRangeTable(database, name_table, number_column, lower, upper):
         struct = get_struct(metadata_db.get_mode())
         status = struct.extractRangeTable(database, name_table, number_column, lower, upper)
         return status
-    return 1
+    return None
 
 
 def alterAddPK(database, name_table, columns):
-    metadata_db: Database
     metadata_db, index_md_db = get_metadata_db(database)
     if metadata_db:
         struct = get_struct(metadata_db.get_mode())
@@ -266,7 +265,7 @@ def alterAddPK(database, name_table, columns):
             tabla: Table = metadata_db.get_table(name_table)
             tabla.add_pk_list(columns)
         return status
-    return 1
+    return 2
 
 
 def alterDropPK(database, name_table):
@@ -278,7 +277,7 @@ def alterDropPK(database, name_table):
             tabla: Table = metadata_db.get_table(name_table)
             tabla.add_pk_list([])
         return status
-    return 1
+    return 2
 
 
 def alterTable(database, old_table, new_table):
@@ -294,7 +293,7 @@ def alterTable(database, old_table, new_table):
     else: return 2
 
 def alterAddColumn(database, name_table, default):
-    metadata_db, index_metadata = get_metadata_db(database)  # verificar metadata
+    metadata_db, index_metadata = get_metadata_db(database)  
     if metadata_db:
         struct = get_struct(metadata_db.get_mode())
         status = struct.alterAddColumn(database, name_table, default)
@@ -305,7 +304,7 @@ def alterAddColumn(database, name_table, default):
     else:
         return 2
 
-def alterDropColumn(database, name_table, number_column): # verificar metadata
+def alterDropColumn(database, name_table, number_column): 
     metadata_db, index_metadata = get_metadata_db(database)
     if metadata_db:
         struct = get_struct(metadata_db.get_mode())
@@ -516,7 +515,7 @@ def loadCSV(file, database, name_table):
         struct = get_struct(metadata_db.get_mode())
         status = struct.loadCSV(file, database, name_table)
         return status
-    else: return 2
+    else: return []
 
 
 def delete(database, name_table, columns):
@@ -537,7 +536,7 @@ def delete(database, name_table, columns):
                     generate_grapviz(gra, str(ruta))
         return status
     else:
-        return 1
+        return 2
 
 
 def truncate(database, name_table):
@@ -677,14 +676,17 @@ def alterDatabaseCompress( database: str, level: int):
                                         lista_comprimida.append(col_compress)
                                     else:
                                         lista_comprimida.append(columna)
-                                insert(database,tabla,lista_comprimida)
+                                try:
+                                    insert(database,tabla,lista_comprimida)
+                                except:
+                                    return 1
                             tabla_metadatos.set_compress(True)
                 if bandera:
                     return 0
                 else:
                     return 1
             else:
-                return 4
+                return 3
         else:
             return 2
     else:
@@ -738,21 +740,24 @@ def alterTableCompress(database, table, level):
             if (level >= -1) and (level <= 9):
                 bandera = False
                 tabla_metadatos = metadata_db.get_table(table)
-                if not tabla_metadatos.get_compress():
-                    registros = extractTable(database, table)
-                    if registros:
-                        truncate(database, table)
-                    for tupla in registros:
-                        lista_comprimida = []
-                        bandera = True
-                        for columna in tupla:
-                            if type(columna) == str:
-                                col_compress = zlib.compress(columna.encode("utf-8"), level)
-                                lista_comprimida.append(col_compress)
-                            else:
-                                lista_comprimida.append(columna)
-                        insert(database, table, lista_comprimida)
-                    tabla_metadatos.set_compress(True)
+                if tabla_metadatos:
+                    if not tabla_metadatos.get_compress():
+                        registros = extractTable(database, table)
+                        if registros:
+                            truncate(database, table)
+                        for tupla in registros:
+                            lista_comprimida = []
+                            bandera = True
+                            for columna in tupla:
+                                if type(columna) == str:
+                                    col_compress = zlib.compress(columna.encode("utf-8"), level)
+                                    lista_comprimida.append(col_compress)
+                                else:
+                                    lista_comprimida.append(columna)
+                            insert(database, table, lista_comprimida)
+                        tabla_metadatos.set_compress(True)
+                else:
+                    return 3
                 if bandera:
                     return 0
                 else:
@@ -897,10 +902,11 @@ def graphDSD(database: str):
             gra = grafo.graficar()
             ruta = f"graphDSD_{database}"
             generate_grapviz(gra, str(ruta))
+            return 0
         else:
-            return "Tables empty"
+            return None
     else:
-        return 1
+        return None
     
 def graphDF(database: str, table: str):
     metadata_db, index = get_metadata_db(database)
@@ -956,8 +962,9 @@ def graphDF(database: str, table: str):
             gra = grafo.graficar()
             ruta = f"graphDF_{database}"
             generate_grapviz(gra, str(ruta))
-
+            return 0
         else:
-            return "Tables empty"
+            return None
     else:
-        return 1
+        return None
+
