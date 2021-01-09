@@ -705,3 +705,29 @@ def searchInMode(value):
         return 'hash'
     else:
         return None
+
+def alterDatabaseCompress(database: str, level: int) :
+    try:
+        baseexist = searchInMode(database)
+        if baseexist != None:
+            if not level > -1 and level < 10:
+                return 3
+            oldReg = []
+            # comp = []
+            oldTables = showTables(database)
+
+            for table in oldTables:
+                oldReg.append(extractTable(database,table))
+                valCol = len(extractTable(database,table)[0])
+            
+            for reg in oldReg:
+                for newReg in reg:
+                    compressed = zlib.compress(bytes(str(newReg),encoding = "utf-8"),level)
+                    comp.append(compressed)
+            print(comp)
+            return 0
+            
+        else:
+            return 2
+    except:
+        return 1
