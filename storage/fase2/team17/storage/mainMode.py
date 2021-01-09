@@ -1,5 +1,8 @@
-import hashlib
+import hashlib, os, json, datetime, base64
 import switchMode as switch
+from graphviz import Digraph
+from storage.Block import Block as BC
+from cryptography.fernet import Fernet
 
 class main():
     def __init__(self):
@@ -11,6 +14,11 @@ class main():
         self.index = {}
         self.listMode = ['avl', 'hash', 'b', 'bplus', 'dict', 'isam', 'json']
         self.listEncoding = ['ascii', 'iso-8859-1', 'utf8']
+        self.dataBlockChain = {}
+        self.blockChain = [BC.iniBlock()]
+        self.grafBC = Digraph(
+            format='svg', filename='BlockChain',
+            node_attr={'shape': 'note', 'height': '1', 'size': '8'})
 
     #---------------------FUNCIONES DE UNIFICACION DE MODOS DE ALMACENAMIENTO----------------------#
 
@@ -309,20 +317,21 @@ class main():
                                                 leTP += [str(x).encode(encoding= codi, errors= 'backslashreplace')]
                                             else:
                                                 leTP += [str(l).encode(encoding= codi, errors= 'backslashreplace')]
-                                        for h in llave:
-                                            leLlave.append(tp[k][h])
-                                        leNewtp = {}
-                                        for n in range(0,len(leTP)):
-                                            leNewtp[n] = leTP[n]
-                                        self.update(dataBase,j,leNewtp,leLlave)
-                                        leLlave = []
-                        self.godGuide[i][dataBase][0][j][2] = codi
+                                        if llave:
+                                            for h in llave:
+                                                leLlave.append(tp[k][h])
+                                            leNewtp = {}
+                                            for n in range(0,len(leTP)):
+                                                leNewtp[n] = leTP[n]
+                                            self.update(dataBase,j,leNewtp,leLlave)
+                                            leLlave = []
+                            self.godGuide[i][dataBase][0][j][2] = codi
                         return 0
                     else:
                         return 3
             return 2
-        except:
-            return 1
+        except Exception as e:
+            return e
 
     # ---------------------FUNCIONES DE GENERACION DEL CHECKSUM----------------------#
 
@@ -493,6 +502,62 @@ class main():
    
     # ---------------------FUNCIONES DE SEGURIDAD----------------------#
 
+    # ENCRIPTAR CADENA
+
+    def encrypt(self, backup, password):
+        try:
+            lePass = Fernet(self.genLePass(password))
+            return lePass.encrypt(backup.encode()).decode()
+        except:
+            return None
+
+    # DESENCRIPTAR CADENA
+
+    def decrypt(self, cipherBackup, password):
+        try:
+            lePass = Fernet(self.genLePass(password))
+            return lePass.decrypt(cipherBackup.encode()).decode()
+        except:
+            return None
+    
+    # ACTIVAR EL MODO SEGURO EN UNA TABLA
+
+    def safeModeOn(self, database, table):
+        try:
+            for i in self.listMode: #para saber si existe la base
+                if self.searchDB(database, i):
+                    if self.searchTB(database, table):
+                        if self.godGuide[self.searchTBMode(database, table)][database][0][table][4]:
+                            return 4
+                        else:
+                            self.godGuide[self.searchTBMode(database, table)][database][0][table][4] = True
+                            return 0
+                    else:
+                        return 3
+            return 2
+        except:
+            return 1
+    
+    # DESACTIVAR EL MODO SEGURO DE UNA TABLA
+
+    def safeModeOff(self, database, table):
+        try:
+            for i in self.listMode: #para saber si existe la base
+                    if self.searchDB(database, i):
+                        if self.searchTB(database, table):
+                            if self.godGuide[self.searchTBMode(database, table)][database][0][table][4]:
+                                self.godGuide[self.searchTBMode(database, table)][database][0][table][4] = False
+                                if os.path.isfile(database+'-'+table+'.json'):
+                                    os.remove(database+'-'+table+'.json')
+                                return 0
+                            else:
+                                return 4
+                        else:
+                            return 3
+            return 2
+        except:
+            return 1
+
     # ---------------------FUNCIONES DE GRAFOS----------------------#
 
     #---------------------FUNCIONES BASES DE DATOS (ANTERIORES)----------------------#
@@ -547,7 +612,7 @@ class main():
         re = switch.switchMode(self.guiaModos[database]).createTable(database, table, numberColumns)
         if re == 0:
             mod = self.guiaModos[database]
-            self.godGuide[mod][database][0][table] = [numberColumns, None, self.godGuide[self.guiaModos[database]][database][1], False]
+            self.godGuide[mod][database][0][table] = [numberColumns, None, self.godGuide[self.guiaModos[database]][database][1], False, False, False]
         return re
 
     # LISTA DE TABLAS AGREGADAS A UNA BASE DE DATOS
@@ -672,7 +737,23 @@ class main():
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
-                    return switch.switchMode(i).insert(database, table, register)
+                    if not self.godGuide[i][database][0][table][3]:
+                        if self.godGuide[i][database][0][table][4]:
+                            if self.godGuide[i][database][0][table][5]:
+                                self.addBlockChain(database, table, str(register), 'hotpink')
+                            else:
+                                self.addBlockChain(database, table, str(register), '#82ada9')
+                        return switch.switchMode(i).insert(database, table, register)
+                    else:
+                        self.alterTableDecompress(database, table)
+                        var = switch.switchMode(i).insert(database, table, register)
+                        self.alterTableCompress(database, table, 9)
+                        if self.godGuide[i][database][0][table][4]:
+                            if self.godGuide[i][database][0][table][5]:
+                                self.addBlockChain(database, table, str(register), 'hotpink')
+                            else:
+                                self.addBlockChain(database, table, str(register), '#82ada9')
+                        return var
 
     # CARGA DE REGISTROS MEDIANTE UN CSV
 
@@ -696,7 +777,19 @@ class main():
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
-                    return switch.switchMode(i).update(database, table, register, columns)
+                    if not self.godGuide[i][database][0][table][3]:
+                        if self.godGuide[i][database][0][table][4]:
+                            self.addBlockChain(database, table, str(register) + ' me actualizaron', 'hotpink')
+                            self.godGuide[i][database][0][table][5] = True
+                        return switch.switchMode(i).update(database, table, register, columns)
+                    else:
+                        self.alterTableDecompress(database, table)
+                        var = switch.switchMode(i).update(database, table, register, columns)
+                        self.alterTableCompress(database, table, 9)
+                        if self.godGuide[i][database][0][table][4]:
+                            self.addBlockChain(database, table, str(register) + ' me actualizaron', 'hotpink')
+                            self.godGuide[i][database][0][table][5] = True
+                        return var
 
     # ELIMINA UN REGISTRO EN ESPECIFICO
 
@@ -704,7 +797,19 @@ class main():
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
-                    return switch.switchMode(i).delete(database, table, columns)
+                    if not self.godGuide[i][database][0][table][3]:
+                        if self.godGuide[i][database][0][table][4]:
+                            self.addBlockChain(database, table, str(columns) + ' me eliminaron', 'hotpink')
+                            self.godGuide[i][database][0][table][5] = True
+                        return switch.switchMode(i).delete(database, table, columns)
+                    else:
+                        self.alterTableDecompress(database, table)
+                        var = switch.switchMode(i).delete(database, table, columns)
+                        self.alterTableCompress(database, table, 9)
+                        if self.godGuide[i][database][0][table][4]:
+                            self.addBlockChain(database, table, str(columns) + ' me eliminaron', 'hotpink')
+                            self.godGuide[i][database][0][table][5] = True
+                        return var
 
     # ELIMINA TODOS LOS REGISTROS DE UNA TABLA
 
@@ -712,6 +817,9 @@ class main():
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
+                    if self.godGuide[i][database][0][table][4]:
+                        self.addBlockChain(database, table, 'Eliminación Registros', 'hotpink')
+                        self.godGuide[i][database][0][table][5] = True
                     return switch.switchMode(i).truncate(database, table)
 
     # -------------------------UTILIDADES-------------------------#
@@ -780,4 +888,32 @@ class main():
                 if table in switch.switchMode(i).showTables(j):
                     switch.switchMode(i).dropTable(j, table)
                     return None
+
+    def genLePass(self, password):
+        salt = "leSalt"
+        lePa = hashlib.sha256(salt.encode() + password.encode()).digest()
+        lePa = base64.urlsafe_b64encode(lePa)
+        return lePa
+
+    def addBlockChain(self, database, table, data, colorr):
+        leTime = datetime.datetime.now()
+        self.blockChain.append(BC(self.blockChain[-1].hash,data, leTime))
+        leKey = len(self.dataBlockChain) + 1
+        self.dataBlockChain[leKey-1] = [self.blockChain[leKey-1].prevHash,data,self.blockChain[leKey-1].hash, str(leTime)]
+        self.grafBC.node(self.blockChain[leKey-1].hash,label='''<<TABLE><TR><TD>Hash Anterior</TD><TD>'''+ self.blockChain[leKey-1].prevHash +'''</TD></TR><TR><TD>Hash Propio</TD><TD>'''+ self.blockChain[leKey-1].hash +'''</TD></TR><TR><TD>Data</TD><TD>'''+ data +'''</TD></TR><TR><TD>TimeStamp</TD><TD>'''+ str(leTime) +'''</TD></TR></TABLE>>''',style='filled', color=colorr)
+        if self.blockChain[leKey-1].prevHash != '0':
+            self.grafBC.edge(self.blockChain[leKey-1].prevHash,self.blockChain[leKey-1].hash)
+        with open(database+'-'+table+'.json','w') as f:
+            json.dump(self.dataBlockChain, f)
+
+    def showBlockChain(self, database, table):
+        print(self.godGuide)
+        for i in self.listMode: #para saber si existe la base
+            if self.searchDB(database, i):
+                if self.searchTB(database, table):
+                    if os.path.isfile(database+'-'+table+'.json'):
+                        with open(database+'-'+table+'.json','r') as f:
+                            dat = json.load(f)
+                            self.grafBC.view()
+                            return dat
 
