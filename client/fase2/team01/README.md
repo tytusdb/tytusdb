@@ -35,7 +35,7 @@ En este menu se encuentran las siguientes opciones:
 Este es el lugar donde se peuden escribir consultas en el lenguaje SQL para su posterior ejecución. Este área permite copiar y pegar código de otros lugares, además de cargar un archivo con extensión .sql. Este editor de texto está complementado por los botones en su parte superior, los cuales explicamos a continuación.
 
 
-**Barra De Botones Del Editor De Texto*
+**Barra De Botones Del Editor De Texto**
 
 <img src="docs/Grupo01_Imagen05.png" width="450" height="125">
 
@@ -43,12 +43,31 @@ Acá se encuentran los botones relacionados al editor de texto. Los **botones co
 
 
 
-**Consola*
+**Consola**
 
 <img src="docs/Grupo01_Imagen04.png" width="550" height="150">
 
 Por último en la parte inferior de la pantalla, se encuentra la consola. Esta sirve para desplegar los mensajes de confirmación o error que pueda devolver el servidor, además de desplegar los resultados de las consultas y sentencias ejecutadas. 
 
+
+**Código**
+
+<img src="docs/Grupo01_Imagen12.jpg" width="550" height="150">
+
+El lenguaje de Tytus utiliza sintaxis de SQL, permite ingresar consultas, crear tablas, crear bases de datos y obtener reportes, por medio de querys. Por ejemplo
+
+`
+CREATE TABLE tblUsuario (
+  idUsuario integer not null,
+  nombreUsuario varchar(25)
+);
+`
+
+**Consola De Salida v2**
+
+<img src="docs/Grupo01_Imagen13.jpg" width="550" height="150">
+
+La consola de salida se encuentra en la parte inferior de la interfaz y en esta se muestran los resultados de los querys colocados en el editor de texto. Esta consola de salida permite visualizar a manera de tabla los reportes solicitados, asi como tambien listar la información y mostrar mensajes de resultados de la ejecución de las consultas.
 
 
 
