@@ -1066,3 +1066,11 @@ class SortOptions(ExpresionNumerica):
     def __init__(self, sort, option):
         self.sort = sort
         self.option = option
+
+class ExpresionCOUNT(ExpresionNumerica):
+    '''
+        Esta clase representa la expresión para castear datos.
+        Esta clase recibe un tipo a convertir y el dato
+    '''
+    def __init__(self, exp) :
+        self.exp = exp

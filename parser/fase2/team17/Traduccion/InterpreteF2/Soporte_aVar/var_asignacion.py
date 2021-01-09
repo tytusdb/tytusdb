@@ -22,7 +22,14 @@ class var_asignacion(NodoArbol):
         if entorno.varibaleExiste(str(self.identificador)):
             pass
         else:
-            return var_declaracion(str(self.identificador), 0, self.exp, self.linea, self.columna)
+            tmp = ''
+            try:
+                nodo = var_declaracion(str(self.identificador), 0, self.exp, self.linea, self.columna)
+                tmp = nodo.traducir(entorno, arbol)
+            except:
+                tmp = arbol.getTemp()
+                arbol.addC3D(tmp + ' = \'Invalid\'')
+            return tmp
 
         tmp = entorno.obtener_temporal_deVar(str(self.identificador))
         #val:Valor = self.exp.getValueAbstract(entorno, arbol)

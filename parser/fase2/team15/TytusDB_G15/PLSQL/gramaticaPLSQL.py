@@ -302,7 +302,8 @@ reservadas = {
     'exit' : 'EXIT',
     'text_pattern_ops' : 'TEXT_PATTERN_OPS',
     'varchar_pattern_ops' : 'VARCHAR_PATTERN_OPS',
-    'bpchar_pattern_ops' : 'BPCHAR_PATTERN_OPS'
+    'bpchar_pattern_ops' : 'BPCHAR_PATTERN_OPS',
+    'btree':'BTREE', 'hash':'HASH', 'gist' : 'GIST', 'spgist': 'SPGIST', 'gin': 'GIN', 'brin':'BRIN',
 }
 
 # Declaracion tokens
@@ -557,9 +558,11 @@ def p_instrucciones_global_sent(t):
                                     | alterTable_insrt
                                     | insert_insrt
                                     | update_insrt
-                                    | createIndex
+                                    | delete_insrt
+                                    | createIndex2
                                     | drop_insrt_index
-                                    | alterindex_insrt'''
+                                    | alterindex_insrt
+                                    | drop_insrt_function'''
     reporte_bnf.append("<instrucciones_global_sent> ::= <funciones> | <llamada_funcion> | <createDB_insrt> | <show_databases_instr> ")
     rep_sintaxis.append("<TR><TD> instrucciones_global_sent -> funciones <br> | llamada_funcion <br> | createDB_insrt <br>  | show_databases_instr <br> | use_database_instr <br> | drop_database_instr <br> | create_Table_isnrt <br> | drop_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | createIndex </TD><TD> instrucciones_global_sent = t[1] </TD></TR>")
     t[0] = t[1]
@@ -605,13 +608,54 @@ def p_instrucciones_funct_sent(t):
                                     | llamada_funcion
                                     | insert_insrt
                                     | update_insrt
+                                    | delete_insrt
                                     | empty'''
     reporte_bnf.append("<instrucciones_funct_sent> ::= <asignacion> | <declaracion> | <imprimir> | <sentencia_if> ")
     rep_sintaxis.append("<TR><TD> instrucciones_funct_sent -> asignacion <br> | declaracion <br> | imprimir <br>  | sentencia_if <br> | sentencia_switch <br> | PTCOMA <br> | llamada_funcion <br> | insert_insrt <br> | alterDB_insrt <br> | alterTable_insrt <br> | insert_insrt <br> | empty </TD><TD> instrucciones_funct_sent = t[1] </TD></TR>")
     t[0] = t[1]
 
+def p_instrucciones_funct_sent1(t):
+    '''instrucciones_funct_sent    : select_insrt PTCOMA'''
+    reporte_bnf.append("<instrucciones_funct_sent> ::= <select_insrt> PTCOMA")
+    rep_sintaxis.append("<TR><TD> instrucciones_funct_sent -> select_insrt PTCOMA </TD><TD> instrucciones_funct_sent = SelectTable(' ' + str(t[1]) + ';') </TD></TR>")
+    t[0] = SelectTable(' ' + str(t[1]) + ';')
+
+def p_instrucciones_funct_sent2(t):
+    '''instrucciones_funct_sent    : select_uniones PTCOMA'''
+    reporte_bnf.append("<instrucciones_funct_sent> ::= <select_uniones> PTCOMA")
+    rep_sintaxis.append("<TR><TD> instrucciones_funct_sent -> select_uniones PTCOMA </TD><TD> cadena = "" <br> for i in t[1]: <br> cadena += ' ' + str(i) + ' ' <br> instrucciones_funct_sent = SelectUniones(' ' + str(cadena) + ';') </TD></TR>")
+    cadena = ""
+    for i in t[1]:
+        cadena += ' ' + str(i) + ' '
+    t[0] = SelectUniones(' ' + str(cadena) + ';')
+
+
 def p_instrucciones_funct_sent_error(t):
     'instrucciones_funct_sent    : error'
+
+#? ####################################################################
+# TODO          DROP FUNCTION
+#? ####################################################################
+def p_drop_function(t):
+    '''drop_insrt_function : DROP FUNCTION ID PTCOMA'''
+    t[0] = DropFunction(t[3],False)
+
+def p_drop_function2(t):
+    '''drop_insrt_function : DROP FUNCTION IF EXISTS ID PTCOMA'''
+    t[0] = DropFunction(t[5],True)
+
+#? ####################################################################
+# TODO          DROP PROCEDURE
+#? ####################################################################
+def p_drop_procedure(t):
+    '''drop_insrt_function : DROP PROCEDURE  ID PTCOMA'''
+    t[0] = DropProcedure(t[3],False)
+
+def p_drop_procedure1(t):
+    '''drop_insrt_function : DROP PROCEDURE  IF EXISTS ID PTCOMA'''
+    t[0] = DropProcedure(t[5],True)
+
+
 
 #CREATE DATABASE
 def p_createDB(t):
@@ -1233,6 +1277,22 @@ def p_parametro_update(t):
     reporte_bnf.append("<lista_update> ::= ID IGUAL <exclusiva_insert>")
     rep_sintaxis.append("<TR><TD> lista_update -> ID IGUAL  <exclusiva_insert></TD><TD> cadena = "" <br>  for i in t[3]: <br>     cadena += str(i) <br>  drop_insrt = UpdateTable(t[1] + ' ' +t[2] + ' ' + cadena + ';') </TD></TR>")
     t[0] = ' ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' '
+
+#?######################################################
+# TODO        GRAMATICA INSTRUCCION DELETE
+#?######################################################
+
+def p_delete_insrt_delete(t):
+    ' delete_insrt : DELETE FROM ID PTCOMA'
+    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID PTCOMA")
+    rep_sintaxis.append("<TR><TD> delete_insrt -> DELETE FROM ID PTCOMA </TD><TD> cadena = "" <br>   t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+';') </TD></TR>")
+    t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+';')
+
+def p_delete_insrt5(t):
+    ' delete_insrt : DELETE FROM ID cond_where PTCOMA ' 
+    reporte_bnf.append("<delete_insrt> ::= DELETE FROM ID <cond_where> PTCOMA")
+    rep_sintaxis.append("<TR><TD> delete_insrt -> DELETE FROM ID <cond_where> PTCOMA</TD><TD> cadena = "" <br>  t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+ ' ' +str(t[4])+';') </TD></TR>")
+    t[0] = DeleteTable(' ' + str(t[1]) + ' ' +str(t[2]) + ' ' +str(t[3])+ ' ' +str(t[4])+';')
 
 # DROP
 #?######################################################
@@ -2517,7 +2577,7 @@ def p_funciones_select__15(t):
     ''' funciones_select : DIV PARA expresion COMA expresion PARC '''
     reporte_bnf.append("<funciones_select> ::= DIV PARA <expresion> COMA <expresion> PARC")
     rep_sintaxis.append("<TR><TD> funciones_select -> DIV PARA expresion COMA expresion PARC </TD><TD> t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' ' </TD></TR>")
-    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '
+    t[0] = ' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '
 
 def p_funciones_select__16(t):
     ''' funciones_select : GCD PARA expresion COMA expresion PARC
@@ -2957,7 +3017,7 @@ def p_funcion(t):
     'funciones    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     reporte_bnf.append("<funciones> ::= CREATE FUNCTION ID PARA <parametros> PARC RETURNS <tipo> AS DOLAR DOLAR BEGIN <instrucciones_funct_list> END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA")
     rep_sintaxis.append("<TR><TD> funciones -> CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA </TD><TD> t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13])) </TD></TR>")
-    t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.FUNCTION,TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_funcion2(t):
     'funciones    : CREATE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
@@ -2968,13 +3028,13 @@ def p_funcion2(t):
         instrucs.append(instru1)
     for instru2 in t[14]:
         instrucs.append(instru2)
-    t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.FUNCTION,TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
 def p_funcion_r(t):
     'funciones    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
     reporte_bnf.append("<funciones> ::= CREATE OR REPLACE FUNCTION ID PARA <parametros> PARC RETURNS <tipo> AS DOLAR DOLAR BEGIN <instrucciones_funct_list> END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA")
     rep_sintaxis.append("<TR><TD> funciones -> CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA </TD><TD> t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15])) </TD></TR>")
-    t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.FUNCTION,TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_funcion2_r(t):
     'funciones    : CREATE OR REPLACE FUNCTION ID PARA parametros PARC RETURNS tipo AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR LANGUAGE PLPGSQL PTCOMA'
@@ -2985,14 +3045,14 @@ def p_funcion2_r(t):
         instrucs.append(instru1)
     for instru2 in t[16]:
         instrucs.append(instru2)
-    t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.FUNCTION,TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
 
 #PROCEDURE
 def p_procedure(t):
     'funciones    : CREATE PROCEDURE ID PARA parametros PARC RETURNS tipo LANGUAGE PLPGSQL DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR'
     reporte_bnf.append("<funciones> ::= ")
     rep_sintaxis.append("<TR><TD> funciones ->  </TD><TD>  </TD></TR>")
-    t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.PROCEDURE,TIPO_DATO.INT, t[3], t[5], Principal(t[13]))
 
 def p_procedure2(t):
     'funciones    : CREATE PROCEDURE ID PARA parametros PARC LANGUAGE PLPGSQL AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR '
@@ -3003,13 +3063,13 @@ def p_procedure2(t):
         instrucs.append(instru1)
     for instru2 in t[14]:
         instrucs.append(instru2)
-    t[0] = Funcion(TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.PROCEDURE,TIPO_DATO.INT, t[3], t[5], Principal(instrucs))
 
 def p_procedure_r(t):
     'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC LANGUAGE PLPGSQL AS DOLAR DOLAR BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR '
     reporte_bnf.append("<funciones> ::= ")
     rep_sintaxis.append("<TR><TD> funciones ->  </TD><TD>  </TD></TR>")
-    t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.PROCEDURE,TIPO_DATO.INT, t[5], t[7], Principal(t[15]))
 
 def p_procedure2_r(t):
     'funciones    : CREATE OR REPLACE PROCEDURE ID PARA parametros PARC LANGUAGE PLPGSQL AS DOLAR DOLAR instrucciones_funct_list BEGIN instrucciones_funct_list END PTCOMA DOLAR DOLAR'
@@ -3020,7 +3080,7 @@ def p_procedure2_r(t):
         instrucs.append(instru1)
     for instru2 in t[16]:
         instrucs.append(instru2)  
-    t[0] = Funcion(TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
+    t[0] = Funcion(TIPO_DECLARACION_FUNCION.PROCEDURE,TIPO_DATO.INT, t[5], t[7], Principal(instrucs))
     
 
 def p_llamada_funcion(t):
@@ -3696,155 +3756,89 @@ def p_count_insrt(t):
 #? ###################################################################
 # TODO                         INDEX
 #? ###################################################################
+
 def p_createIndex(t):
-    ' createIndex : CREATE INDEX ID ON ID opc_index PTCOMA '
+    'createIndex2 : CREATE unique_option INDEX ID ON ID usingIndex PARA lista_index PARC PTCOMA'
     reporte_bnf.append("<createIndex> ::= CREATE INDEX ID ON ID <opc_index> PTCOMA")
     rep_sintaxis.append("<TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';') </TD></TR>")
-    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';')
-    
-def p_createIndex1(t):
-    ' createIndex : CREATE INDEX ID ON ID opc_index cond_where PTCOMA '
-    reporte_bnf.append("<createIndex> ::= CREATE INDEX ID ON ID <opc_index> <cond_where> PTCOMA")
-    rep_sintaxis.append("<TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index cond_where PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ';') </TD></TR>")
-    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ';')
+    cadena = ""
+    for i in t[9]:
+        cadena+= str(i) + ' '
+    t[0] = CreateIndexNewNew(' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ cadena + ' '+ str(t[10]) + ';')
 
 def p_createIndex2(t):
-    ' createIndex : CREATE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA '
-    reporte_bnf.append("<createIndex> ::= CREATE INDEX ID ON ID <opc_index> INCLUDE <opc_index> PTCOMA ")
-    rep_sintaxis.append("<TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA  </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ';') </TD></TR>")
-    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ';')
-
-def p_createIndex3(t):
-    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index PTCOMA '
-    reporte_bnf.append("<createIndex> ::= CREATE UNIQUE INDEX ID ON ID <opc_index> PTCOMA")
-    rep_sintaxis.append("<TR><TD> createIndex -> CREATE UNIQUE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7])+';') </TD></TR>")
-    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7])+';')
-
-def p_createIndex4(t):
-    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index cond_where PTCOMA '
-    reporte_bnf.append("<createIndex> ::= CREATE UNIQUE INDEX ID ON ID <opc_index> <cond_where> PTCOMA")
-    rep_sintaxis.append("<TR><TD> createIndex -> CREATE UNIQUE INDEX ID ON ID opc_index cond_where PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8])+ ';') </TD></TR>")
-    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8])+ ';')
-
-def p_createIndex5(t):
-    ' createIndex : CREATE UNIQUE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA '
-    reporte_bnf.append("<createIndex> ::= CREATE UNIQUE INDEX ID ON ID <opc_index> INCLUDE <opc_index> PTCOMA")
-    rep_sintaxis.append("<TR><TD> createIndex -> CREATE UNIQUE INDEX ID ON ID opc_index INCLUDE opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ str(t[9]) + ';') </TD></TR>")
-    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ str(t[9]) + ';')
-
-def p_otro_index(t):
-    'createIndex : CREATE INDEX ID ON ID PARA ID opclass PARC PTCOMA'
-    reporte_bnf.append("<createIndex> ::= CREATE INDEX ID ON ID PARA ID <opclass> PARC PTCOMA")
-    rep_sintaxis.append("<TR><TD> createIndex -> CREATE INDEX ID ON ID PARA ID opclass PARC PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ str(t[9]) + ';') </TD></TR>")
-    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ str(t[9]) + ';')
-    
-def p_otro_index1(t):
-    'createIndex : CREATE INDEX ID ON ID PARA ID opclass sortoptions PARC PTCOMA'
-    reporte_bnf.append("<createIndex> ::= CREATE INDEX ID ON ID PARA ID <opclass> <sortoptions> PARC PTCOMA ")
-    rep_sintaxis.append("<TR><TD> createIndex -> CREATE INDEX ID ON ID PARA ID opclass sortoptions PARC PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ str(t[9]) + ' '+ str(t[10]) + ';') </TD></TR>")
-    t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ str(t[9]) + ' '+ str(t[10]) + ';')
-
-def p_createIndex6(t):
-    '''opc_index :  PARA opc_index_par PARC'''
-    reporte_bnf.append("<opc_index> ::= PARA <opc_index_par> PARC")
-    rep_sintaxis.append("<TR><TD> opc_index -> PARA opc_index_par PARC </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '
-
-def p_createIndex7(t):
-    '''opc_index :  USING HASH PARA ID PARC'''
-    reporte_bnf.append("<opc_index> ::= USING HASH PARA ID PARC ")
-    rep_sintaxis.append("<TR><TD> opc_index -> USING HASH PARA ID PARC </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '
-
-def p_createIndex2_0(t):
-    ' opc_index_par : campos_c '
-
-    reporte_bnf.append("<opc_index_par> ::= <campos_c> ")
-    rep_sintaxis.append("<TR><TD> opc_index_par -> campos_c </TD><TD> cadena = "" for i in t[1]: cadena += str(i) t[0] = ' '+ cadena + ' ' </TD></TR>")
+    'createIndex2 : CREATE unique_option INDEX ID ON ID usingIndex PARA lista_index PARC cond_where PTCOMA'
+    reporte_bnf.append("<createIndex> ::= CREATE INDEX ID ON ID <opc_index> PTCOMA")
+    rep_sintaxis.append("<TR><TD> createIndex -> CREATE INDEX ID ON ID opc_index PTCOMA </TD><TD> t[0] = FuncionIndex(' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ';') </TD></TR>")
     cadena = ""
-    for i in t[1]:
-        cadena += str(i)
-    t[0] = ' '+ cadena + ' '
-
-def p_createIndex2_1(t):
-    ' opc_index_par : ID NULLS first_last'
-    reporte_bnf.append("<opc_index_par> ::= ID NULLS <first_last> ")
-    rep_sintaxis.append("<TR><TD> opc_index_par -> ID NULLS first_last </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '
-
-def p_createIndex2_1_1(t):
-    ' opc_index_par : ID orden NULLS first_last '
-    reporte_bnf.append("<opc_index_par> ::= ID <orden> NULLS <first_last> ")
-    rep_sintaxis.append("<TR><TD> opc_index_par -> ID orden NULLS first_last </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+    for i in t[9]:
+        cadena+= str(i) + ' '
+    t[0] = CreateIndexNewNew(' ' + str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '+ str(t[5]) + ' '+ str(t[6]) + ' '+ str(t[7]) + ' '+ str(t[8]) + ' '+ cadena + ' '+ str(t[10]) + ' '+ str(t[11]) + ';')
 
 
-def p_createIndex2_3(t):
-    ' opc_index_par : ID COLLATE string_type '   
-    reporte_bnf.append("<opc_index_par> ::= ID COLLATE <string_type> ")
-    rep_sintaxis.append("<TR><TD> opc_index_par -> ID COLLATE string_type </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '
 
-def p_createIndex2_30(t):
-    ' opc_index_par : LOWER PARA ID PARC '
-    reporte_bnf.append("<opc_index_par> ::= LOWER PARA ID PARC ")
-    rep_sintaxis.append("<TR><TD> opc_index_par -> LOWER PARA ID PARC </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
+def p_index_unique_option(t):
+    '''unique_option : UNIQUE
+                    | empty'''
+    if t[1] == None:
+        t[0] = ' '
+    else:
+        t[0] = ' ' + str(t[1]) + ' '
+    
 
-def p_createIndex_5(t):
-    ' opc_index_par : ID PARA ID PARC '
-    reporte_bnf.append("<opc_index_par> ::= ID PARA ID PARC ")
-    rep_sintaxis.append("<TR><TD> opc_index_par -> ID PARA ID PARC </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '+ str(t[3]) + ' '+ str(t[4]) + ' '
-
-
-def p_first_last(t):
-    ''' first_last : FIRST
-                   | LAST'''
-    reporte_bnf.append("<first_last> ::= FIRST | LAST ")
-    rep_sintaxis.append("<TR><TD> first_last -> FIRST | LAST </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '
+def p_index_usingIndex(t):
+    '''usingIndex : USING HASH
+                    | USING BTREE 
+                    | USING GIST 
+                    | USING SPGIST
+                    | USING GIN 
+                    | USING BRIN
+                    | empty'''
+    if t[1] == None:
+        t[0] = ' '
+    else:
+        t[0] = ' ' + str(t[1]) + ' ' + str(t[2]) + ' '
 
 
-def p_sortoptions(t):
-    'sortoptions : sortoptions sortoption'
-    reporte_bnf.append("<sortoptions> ::= <sortoptions> <sortoption> ")
-    rep_sintaxis.append("<TR><TD> sortoptions -> sortooptions sortoption </TD><TD> t[1].append(t[2]) t[0] = t[1] </TD></TR>")
+def p_index_lista_index(t):
+    '''lista_index : lista_index COMA paramIndex'''
     t[1].append(t[2])
+    t[1].append(t[3])
     t[0] = t[1]
 
-def p_sortoptions0(t):
-    'sortoptions : sortoption'
-    reporte_bnf.append("<sortoptions> ::= <sortoption> ")
-    rep_sintaxis.append("<TR><TD> sortoptions -> sortoption </TD><TD> t[0] = [t[1]] </TD></TR>")
+def p_index_lista_index1(t):
+    '''lista_index : paramIndex'''
     t[0] = [t[1]]
 
 
-def p_sortoptions1(t):
-    '''sortoption : COLLATE
-                    | ASC
-                    | DESC '''
-    reporte_bnf.append("<sortoption> ::= COLLATE | ASC | DESC")
-    rep_sintaxis.append("<TR><TD> sortoption -> COLLATE | ASC | DESC </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '
+def p_index_paramIndex(t):
+    '''paramIndex : LOWER PARA ID PARC sort_options null_options'''
+    t[0] = ' ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + str(t[6]) + ' ' 
+
+def p_index_paramIndex1(t):
+    '''paramIndex : ID sort_options null_options '''
+    t[0] = ' ' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' 
+
+def p_index_sort_options(t):
+    '''sort_options : ASC
+                    | DESC
+                    | empty'''
+    if t[1] == None:
+        t[0] = ' '
+    else:
+        t[0] = ' ' + str(t[1]) + ' ' 
 
 
- 
-def p_sortoptions2(t):
-    '''sortoption :  NULLS FIRST
-                    | NULLS LAST '''
-    reporte_bnf.append("<sortoption> ::= NULLS FIRST | NULLS LAST")
-    rep_sintaxis.append("<TR><TD> sortoption -> NULLS FIRST | NULLS LAST </TD><TD> t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '+ str(t[2]) + ' '
+def p_index_null_options(t):
+    '''null_options : NULLS FIRST
+                    | NULLS LAST
+                    | empty'''
+    if t[1] == None:
+        t[0] = ' '
+    else:
+        t[0] = ' ' + str(t[1]) + ' ' + str(t[2]) + ' '
 
 
-def p_opclass(t):
-    '''opclass : TEXT_PATTERN_OPS
-               | VARCHAR_PATTERN_OPS
-               | BPCHAR_PATTERN_OPS '''
-    reporte_bnf.append("<opclass> ::= TEXT_PATTERN_OPS | VARCHAR_PATTERN_OPS | BPCHAR_PATTERN_OPS")
-    rep_sintaxis.append("<TR><TD> opclass -> TEXT_PATTERN_OPS | VARCHAR_PATTERN_OPS | BPCHAR_PATTERN_OPS </TD><TD> t[0] = ' '+ str(t[1]) + ' ' </TD></TR>")
-    t[0] = ' '+ str(t[1]) + ' '
 
 # DROP
 #?######################################################
@@ -3887,16 +3881,16 @@ def p_AlterIndex(t):
     t[0] = AlterIndex(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+';')
 
 def p_Alter_Index_Column(t):
-    'alterindex_insrt : ALTER INDEX ID ALTER ID opcionIndex PTCOMA'
+    'alterindex_insrt : ALTER INDEX ID ALTER COLUMN ID opcionIndex PTCOMA'
     reporte_bnf.append("<alterindex_insrt> ::= ALTER INDEX ID ALTER ID <opcionIndex> PTCOMA")
-    rep_sintaxis.append("<TR><TD> alterindex_insrt -> ALTER INDEX ID ALTER ID <opcionIndex> PTCOMA </TD><TD> t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+';')</TD></TR>")
-    t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+';')
+    rep_sintaxis.append("<TR><TD> alterindex_insrt -> ALTER INDEX ID ALTER ID <opcionIndex> PTCOMA </TD><TD> t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+' ' + t[7]+';')</TD></TR>")
+    t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+' ' + t[7]+';')
 
 def p_Alter_Index_Column2(t):
-    'alterindex_insrt : ALTER INDEX IF EXISTS ID ALTER ID opcionIndex PTCOMA'
+    'alterindex_insrt : ALTER INDEX IF EXISTS ID ALTER COLUMN ID opcionIndex PTCOMA'
     reporte_bnf.append("<alterindex_insrt> ::= ALTER INDEX IF EXISTS ID ALTER ID <opcionIndex> PTCOMA")
-    rep_sintaxis.append("<TR><TD> alterindex_insrt -> ALTER INDEX IF EXISTS ID ALTER ID <opcionIndex> PTCOMA </TD><TD> t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+' ' + t[7]+' ' + t[8]+';') </TD></TR>")
-    t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+' ' + t[7]+' ' + t[8]+';')
+    rep_sintaxis.append("<TR><TD> alterindex_insrt -> ALTER INDEX IF EXISTS ID ALTER ID <opcionIndex> PTCOMA </TD><TD> t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+' ' + t[7]+' ' + t[8]+' ' + t[9]+';') </TD></TR>")
+    t[0] = AlterIndexColumn(' ' + t[1]+' ' + t[2]+' ' + t[3]+' ' + t[4]+' ' + t[5]+' ' + t[6]+' ' + t[7]+' ' + t[8]+' ' + t[9]+';')
 
 def p_Alter_Index_Column_Opciones(t):
     '''opcionIndex : ENTERO'''

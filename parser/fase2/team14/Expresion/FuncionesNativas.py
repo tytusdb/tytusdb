@@ -1,8 +1,6 @@
-from Expresion.Expresion import Expresion
+from Expresion.LlamadaFuncion import LLamadaFuncion
 from Expresion.Terminal import *
-from Entorno import Entorno
-import math
-import random as rn
+
 import hashlib
 import base64
 from reportes import *
@@ -19,53 +17,40 @@ class FuncionesNativas(Expresion):
         Expresion.__init__(self)
         self.identificador = identificador
         self.expresiones = expresiones
-        self.stringsql = self.identificador+'('
-        i = 0
-        if self.expresiones!=None:
-            for i in range(0, len(self.expresiones), 1):
-                if str(self.identificador).lower() == 'convert':
-                    self.stringsql += '\'' + self.expresiones[i].stringsql+'\' as '+ self.expresiones[i].tipo.tipo
-                else:
-                    if (i == 0):
-                        self.stringsql += self.expresiones[i].stringsql
-                    else:
-                        self.stringsql += ', ' + self.expresiones[i].stringsql
-                i = i + 1
-            self.stringsql += ')'
-       
+
+
+
         # print("en funci==========",self.identificador,self.expresiones[0])
 
     def getval(self, entorno):
         # print("++++++++++++++++++")
-        sizeparametro = len(self.expresiones)
-        funcion = self.identificador.lower()
-        i=0
-        for param in self.expresiones:
-            if(i==0):
-                self.stringsql += str(param.getval(entorno).valor)
-            else:
-                self.stringsql += ', ' + str(param.getval(entorno).valor)
-            i=i+1
-        self.stringsql += ')'
-      
-        for param in self.expresiones:
-            if isinstance(param, Terminal):
-                if param.tipo.tipo == 'identificador':
-                    return self
-            
+        if self.expresiones != None:
+            sizeparametro = len(self.expresiones)
+            funcion = self.identificador.lower()
+            i = 0
+            ''' for param in self.expresiones:
+                if str(self.identificador).lower() == 'convert':
+                    self.stringsql += self.expresiones[i].stringsql + ' as ' + self.expresiones[i].getTipo(entorno)
+                else:
+                    if (i == 0):
+                        self.stringsql += str(param.getval(entorno).valor)
+                    else:
+                        self.stringsql += ', ' + str(param.getval(entorno).valor)
+                i = i + 1
+            self.stringsql += ')' '''
 
         # print("aqqqqqqqqqqqqq")
         try:
             # print("retornamos el id")
             if (funcion == "abs" or funcion == "cbrt" or funcion == "ceil" or funcion == "ceiling" or
                     funcion == "degrees" or funcion == "exp" or funcion == "factorial" or funcion == "floor" or
-                    funcion == "ln" or funcion == "log" or funcion == "radians" or funcion == "sing" or
+                    funcion == "ln" or funcion == "log" or funcion == "radians" or funcion == "sign" or
                     funcion == "trunc" or funcion == "acos" or funcion == "acosd" or funcion == "asin" or
                     funcion == "asind" or funcion == "atan" or funcion == "atand" or funcion == "cos" or
                     funcion == "cosd" or funcion == "cot" or funcion == "cotd" or funcion == "sin" or
                     funcion == "sind" or funcion == "tan" or funcion == "tand" or funcion == "sinh" or
                     funcion == "cosh" or funcion == "tanh" or funcion == "asinh" or funcion == "acosh" or
-                    funcion == "atanh"
+                    funcion == "atanh" or funcion == 'sqrt'
             ):
                 valexpresion = self.expresiones[0].getval(entorno).valor
                 return self.FunctionWithOneParameter(funcion, sizeparametro, valexpresion)
@@ -85,19 +70,20 @@ class FuncionesNativas(Expresion):
         except:
             return "Error: La función: " + funcion + " solo recibe valores númericos"
 
-        if (funcion == "length" or funcion == "md5" or funcion == "sha256" or funcion == "convert"  or funcion == "trim"):
+        if (
+                funcion == "length" or funcion == "md5" or funcion == "sha256" or funcion == "convert" or funcion == "trim"):
             valexpresion = self.expresiones[0].getval(entorno).valor
-            t=0
+            t = 0
             for tam in self.expresiones:
-                t=t+1
+                t = t + 1
 
-            if (funcion=="trim" and t==2):
+            if (funcion == "trim" and t == 2):
                 val1expresion = self.expresiones[1].getval(entorno).valor
-                return self.FunctionWithTwoParameter(funcion, sizeparametro, valexpresion,val1expresion)
+                return self.FunctionWithTwoParameter(funcion, sizeparametro, valexpresion, val1expresion)
 
             # print(valexpresion,'valooooor')
-            r=self.FunctionWithOneParameter(funcion, sizeparametro, valexpresion)
-            r.stringsql=self.stringsql
+            r = self.FunctionWithOneParameter(funcion, sizeparametro, valexpresion)
+            r.stringsql = self.stringsql
             return r
         elif (
                 funcion == "get_byte" or funcion == "set_byte" or funcion == "encode" or funcion == "decode" or funcion == "date_part"):
@@ -111,8 +97,10 @@ class FuncionesNativas(Expresion):
             val3expresion = self.expresiones[2].getval(entorno).valor
             return self.FunctionWithTreeParameter(funcion, sizeparametro, val1expresion, val2expresion, val3expresion)
         else:
-            reporteerrores.append(Lerrores("Error Semantico", "La funcion" + funcion + "no existe", 0, 0))
-            return "Error: La función: " + funcion + " no existe"
+            llam = LLamadaFuncion(self.identificador, self.expresiones)
+            return llam.getval(entorno)
+            # reporteerrores.append(Lerrores("Error Semantico", "La funcion" + funcion + "no existe", 0, 0))
+            # return "Error: La función: " + funcion + " no existe"
 
     def FunctionWithOneParameter(self, funcion, parametros, exp):
         result = None
@@ -158,7 +146,7 @@ class FuncionesNativas(Expresion):
             elif (funcion == "radians"):
                 return Terminal(Tipo('decimal', math.radians(exp), self.l(math.radians(exp)), -1), math.radians(exp))
 
-            elif (funcion == "sing"):
+            elif (funcion == "sign"):
                 if (exp > 0):
                     return Terminal(Tipo('integer', 1, self.l(1), -1), 1)
 
@@ -266,7 +254,7 @@ class FuncionesNativas(Expresion):
 
             elif (funcion == "convert"):
                 return self.expresiones[0]
-            
+
             elif (funcion == "trim"):
                 trim = exp.strip()
                 return Terminal(Tipo('varchar', trim, self.l(trim), -1), trim)
@@ -345,12 +333,12 @@ class FuncionesNativas(Expresion):
 
             elif (funcion == "date_part"):
                 datepart = Date_Part(exp1, exp2)
-                datepart=datepart.getval()
+                datepart = datepart.getval()
 
                 return Terminal(Tipo('integer', datepart, self.l(datepart), -1), datepart)
-            
+
             elif (funcion == "trim"):
-                print('exp',exp2)
+                print('exp', exp2)
                 trim = exp1.strip(exp2)
                 return Terminal(Tipo('varchar', trim, self.l(trim), -1), trim)
 
@@ -399,9 +387,9 @@ class FuncionesNativas(Expresion):
                     for valores in range(inicio, final):
                         if (exp1 == valores):
                             posbucket = fila + 1
-                            msg="El valor de: " + str(exp1) + " esta en el bucket: " + str(posbucket)
-                            tipo =Tipo('varchar',self.l(msg),-1,-1)
-                            return Terminal(tipo,msg)
+                            msg = "El valor de: " + str(exp1) + " esta en el bucket: " + str(posbucket)
+                            tipo = Tipo('varchar', self.l(msg), -1, -1)
+                            return Terminal(tipo, msg)
                     inicio = final
                     final = final + columnas
         else:
@@ -414,6 +402,27 @@ class FuncionesNativas(Expresion):
             return len(valor)
         else:
             return len(str(valor))
+
+    def traducir(self, entorno):
+        if self.expresiones != None:
+            self.stringsql = self.identificador + '('
+            i = 0
+            for i in range(0, len(self.expresiones), 1):
+                if str(self.identificador).lower() == 'convert':
+                    self.stringsql += '\'' + self.expresiones[i].traducir(entorno).stringsql + '\' as ' + self.expresiones[i].tipo.tipo
+                else:
+                    if (i == 0):
+                        self.stringsql += self.expresiones[i].traducir(entorno).stringsql
+                    else:
+                        self.stringsql += ', ' + self.expresiones[i].traducir(entorno).stringsql
+                i = i + 1
+            self.stringsql += ')'
+        try:
+            self.temp = self.getval(entorno,0).valor
+            return self
+        except:
+            self.temp=self.stringsql
+            return self
 
 
 class Date_Part(FuncionesNativas):
@@ -429,7 +438,6 @@ class Date_Part(FuncionesNativas):
         cont = 0
         for contenido in splited:
             if contenido == self.field:
-
                 return splited[cont - 1]
             cont = cont + 1
         return None

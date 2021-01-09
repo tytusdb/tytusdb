@@ -1,6 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
+from Instrucciones.Expresiones.Primitivo import Primitivo
 import math
 
 class Exp(Instruccion):
@@ -29,13 +31,13 @@ class Exp(Instruccion):
             return math.exp(resultado)
         
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        
-        retorno = self.valor.traducir(tabla,arbol)
-        #print(retorno.temporalAnterior)
-        #print(type(self.valor))
-        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
-        return f"EXP({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        super().traducir(tabla, arbol)
+        if isinstance(self.valor, Primitivo):
+            return f"EXP({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"EXP({self.valor.concatenar(tabla,arbol)})"
+        return f"EXP({self.valor.traducir(tabla,arbol)})"
         

@@ -135,6 +135,7 @@ class CreateTable(Instruccion):
 
             if ctable==0: #CUANDO LA TABLA SE CREA CORRECTAMENTE
                 arbol.consola.append(f"La Tabla: <<{self.tabla}>> se creo correctamente.")
+                print(f"LA TABLA: <<{self.tabla}>> SE CREO CORRECTAMENTE.")
                 arbol.agregarTablaABd(tablaNueva)                  
             elif ctable==3: #CUANDO LA TABLA YA EXISTE
                 error = Excepcion("100","Semantico","La Tabla ya Existe.",self.linea,self.columna)
@@ -208,12 +209,13 @@ class CreateTable(Instruccion):
         codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo
 
 class IdentificadorColumna(Instruccion):
     def __init__(self, id, linea, columna):

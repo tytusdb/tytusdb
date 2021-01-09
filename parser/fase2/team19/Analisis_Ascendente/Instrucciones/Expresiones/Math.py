@@ -13,13 +13,17 @@ class Math_(Instruccion):
         self.fila = fila
         self.columna = columna
 
+    def getC3D(self):
+        code = self.nombre + '('
+        if self.E1 is not None:
+            code += str(self.E1.valor)
+        if self.E2 is not None:
+            code += ', ' + str(self.E2.valor)
+        code += ')'
+        return code
+
 
     def Resolver(mathe,ts, Consola,exceptions):
-
-        #Consola.append('E1 -- ' + mathe.nombre + '\n')
-        #Consola.append('E2 -- ' + type(mathe.E2).__name__ + '\n')
-
-
         if isinstance(mathe,Math_):
             if mathe.E1 == None and mathe.E2 == None:
                 if mathe.nombre == 'PI':

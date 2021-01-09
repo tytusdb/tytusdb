@@ -1,8 +1,12 @@
+
+from Instrucciones.Expresiones import Primitivo
+from typing import Container
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Identificador import Identificador
 
 class Llamada(Instruccion):
     def __init__(self, id,lista_expresion, strGram, linea, columna):
@@ -30,6 +34,12 @@ class Llamada(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error 
+        else:
+            if not f.funcion.activa:
+                error = Excepcion("42723", "Semantico", f"La función: {self.id} no existe.", self.linea, self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
 
         listaTiposFuncion = []
         for i in f.funcion.parametros:
@@ -60,6 +70,7 @@ class Llamada(Instruccion):
         
     def traducir(self, tabla, arbol):
         super().traducir(tabla,arbol)
+        retorno = Nodo3D()
         funcion = tabla.getSimboloFuncion(self.id)
         arbol.addComen("Simulando el paso de parámetros")
         temporal1 = tabla.getTemporal()
@@ -71,7 +82,7 @@ class Llamada(Instruccion):
                 valor = self.lista_expresion[i].traducir(tabla, arbol)
                 temporal2 = tabla.getTemporal()
                 arbol.addc3d(f"{temporal2} = {temporal1} + {i}")
-                arbol.addc3d(f"Pila[{temporal2}] = {valor.temporalAnterior}")
+                arbol.addc3d(f"Pila[{temporal2}] = \"{valor.temporalAnterior}\"")
         else:
             for i in range(0,len(self.lista_expresion)):
                 valor = self.lista_expresion[i].traducir(tabla, arbol)
@@ -85,11 +96,13 @@ class Llamada(Instruccion):
         arbol.addc3d(f"P = P + {funcion.tamanio}")
         arbol.addComen("Llamada a la función")
         arbol.addc3d(f"{self.id}()")
-        arbol.addComen("Posición del return en el ámbito de la función")
-        arbol.addc3d(f"{temporal3} = {temporal1} + 0")
-        arbol.addc3d(f"{temporal4} = Pila[{temporal3}]")
+        if funcion.tipo.tipo != Tipo_Dato.VOID:
+            arbol.addComen("Posición del return en el ámbito de la función")
+            arbol.addc3d(f"{temporal3} = {temporal1} + 0")
+            arbol.addc3d(f"{temporal4} = Pila[{temporal3}]")        
         arbol.addc3d(f"P = P - {funcion.tamanio}")
-        return
+        retorno.temporalAnterior = temporal4
+        return retorno
         
     def comprobarTipo(self, tipoColumna, tipoValor, val):
         if (tipoColumna.tipo == Tipo_Dato.MONEY) and (tipoValor.tipo == Tipo_Dato.CHAR):
@@ -119,4 +132,38 @@ class Llamada(Instruccion):
         return False    
         
     def concatenar(self, tabla,arbol):
-        return f"\"+ {self.id}() +\""
+        #ESTO SE AGREGO------------------------
+        for expre in self.lista_expresion:
+            if isinstance(expre, Primitivo.Primitivo):
+                if expre.tipo.tipo==Tipo_Dato.CHAR or expre.tipo.tipo==Tipo_Dato.TEXT:
+                    expre.valor = f"\\'{expre.valor}\\'"
+        #FIN ESTO SE AGREGO------------------------
+        valor = self.traducir(tabla, arbol)
+        concatenar = "{"
+        concatenar +=f"{valor.temporalAnterior}"
+        concatenar +="}"
+        return concatenar
+
+    def concatenar2(self, tabla,arbol):
+        #print("PASO POR EL CONCATENAR2")
+        cadena = f"{self.id}("
+        if self.lista_expresion != None:
+            for col in self.lista_expresion:
+                if isinstance(col, Identificador):
+                    cadena += col.concatenar(tabla,arbol)
+                else:
+                    cadena += col.traducir(tabla,arbol) 
+                #col.concatenar(tabla, arbol)
+        cadena += ")"
+        return cadena
+
+    def parseindex(self, tabla, arbol):
+        cadena = f""
+        if self.lista_expresion != None:
+            for col in self.lista_expresion:
+                if isinstance(col, Identificador):
+                    cadena += col.concatenar(tabla,arbol)
+                else:
+                    cadena += col.traducir(tabla,arbol) 
+                #col.concatenar(tabla, arbol)
+        return cadena

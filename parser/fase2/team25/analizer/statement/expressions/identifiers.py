@@ -58,7 +58,6 @@ class Identifiers(Expression):
                 nombre,tipo,valor=SymbolTable.search_symbol(self.name)
                 while not SymbolTable.search_symbol(valor)==0:
                     nombre,tipo,valor=SymbolTable.search_symbol(valor)
-                self.name = nombre
                 self.type=tipo
                 self.value=valor
                 print(self.type, self.value)

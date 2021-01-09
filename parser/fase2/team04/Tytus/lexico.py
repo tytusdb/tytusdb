@@ -51,8 +51,6 @@ reservadas = (
     'SUM', 'MAX', 'MIN', 'AVG', 'COUNT', 'TOP',
     # JOIN
     'INNER', 'JOIN', 'LEFT', 'RIGHT', 'FULL', 'OUTER', 'ON',
-    # FUNCTIONS
-    'GROUP' , 'HAVING', 
     # MATHEMATICAL FUNCTIONS
     'ABS', 'CBRT', 'CEIL', 'CEILING', 'DEGREES', 'DIV', 
     'EXP', 'FACTORIAL', 'FLOOR', 'GCD',
@@ -67,16 +65,18 @@ reservadas = (
     'COS', 'COSD', 'COT', 'COTD', 'SIN', 'SIND', 'TAN', 'TAND', 'SINH',
     'COSH', 'TANH', 'ASINH', 'ACOSH', 'ATANH',
     # SORTING ROWS
-    'ORDER', 'BY', 'FIRST', 'LAST', 'ASC', 'DESC', 'NULLS', 
+    'ORDER', 'BY', 'FIRST', 'LAST', 'ASC', 'DESC', 'NULLS',  'GROUP' , 'HAVING',
     #EXPRESSIONS
     'CASE','WHEN','THEN','ELSE', 'LEAST', 'GREATEST',
     #LIMIT AND OFFSET
     'LIMIT', 'OFFSET',
     #COMBINING QUERIES
-    'UNION', 'INTERSECT', 'EXCEPT', 'ALL',
-    # Begin
-    'FUNCTION', 'BEGIN', 'END',
-    'DECLARE'
+    'UNION', 'INTERSECT', 'EXCEPT', 'ALL',   
+    # INDEX
+     'INDEX', 'USING', 'HASH', 'INET','LOWER', 'RETURN','TABLESPACE', 'RESET','DEPENDS', 'EXTENSION', 'CASCADE','RESTRICT',
+    # FUNCIONES Y PROCEDIMIENTOS
+    'FUNCTION',  'PROCEDURE', 'DECLARE','BEGIN', 'END', 'RETURNS', 'LANGUAGE', 'PLPGSQL','EXECUTE'
+   
 )
 
 tokens = reservadas + (
@@ -109,7 +109,10 @@ tokens = reservadas + (
     'CARACTER',
     'COMENTARIO_MULTILINEA',
     'COMENTARIO_SIMPLE',
-    'ARROBA'
+    'ARROBA',
+    'DOLLAR',
+    '2PUNTOS',
+    'IGUAL_IGUAL'
 )
 
 # EXPRESIONES REGULARES BASICAS
@@ -119,7 +122,7 @@ t_PARDER = r'\)'
 t_CORIZQ = r'\['
 t_CORDER = r'\]'
 t_PUNTO_COMA = r';'
-t_COMA = r','
+t_COMA = r'\,'
 t_PUNTO = r'\.'
 # OPERADORES ARITMETICOS
 t_MAS = r'\+'
@@ -135,6 +138,10 @@ t_MAYORQ = r'\>'
 t_MENORQ = r'\<'
 t_MAYOR_IGUALQ = r'\>\='
 t_MENOR_IGUALQ = r'\<\='
+t_IGUAL_IGUAL = r'=='
+#FUNCIONES Y PROCEDIMIENTOS
+t_DOLLAR = r'\$\$'
+t_2PUNTOS = r'\:'
 
 
 
@@ -152,7 +159,7 @@ def t_CADENA(t):
 
 def t_CARACTER(t):
     r'\'.*?\''
-    t.value = t.value[1:-1]  # remuevo las comillas simples
+    #t.value = t.value[1:-1]  # remuevo las comillas simples
     #print('esto es un caracter: ', t.value)
     return t
 

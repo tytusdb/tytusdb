@@ -682,8 +682,8 @@ def p_tipo_datos(t):
             | DATE
             | ID PARIZQ ID PARDER
     '''
-    t[0]=Tipo(Tipo_Dato.INT,t.lineno,t.lexpos)
-    t[0]=Tipo(Tipo_Dato.DATE,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.INT,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.DATE,t.lineno,t.lexpos)
 
 def p_tipo_datos1(t):
     '''tipo : VARCHAR PARIZQ ENTERO PARDER
@@ -714,22 +714,22 @@ def p_tipo_datos3(t):
              | MONEY
              | BOOLEAN
     '''
-    t[0]=Tipo(Tipo_Dato.SMALLINT,t.lineno,t.lexpos)
-    t[0]=Tipo(Tipo_Dato.INTEGER,t.lineno,t.lexpos)
-    t[0]=Tipo(Tipo_Dato.BIGINT,t.lineno,t.lexpos)
-    t[0]=Tipo(Tipo_Dato.NUMERIC,t.lineno,t.lexpos)
-    t[0]=Tipo(Tipo_Dato.REAL,t.lineno,t.lexpos)
-    t[0]=Tipo(Tipo_Dato.BOOLEAN,t.lineno,t.lexpos)
-    t[0]=Tipo(Tipo_Dato.MONEY,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.SMALLINT,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.INTEGER,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.BIGINT,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.NUMERIC,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.REAL,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.BOOLEAN,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.MONEY,t.lineno,t.lexpos)
 
 def p_tipo_datos_date(t):
     '''tipo : TIMESTAMP
              | TIME
              | INTERVAL
     '''
-    t[0]=Tipo(Tipo_Dato.TIMESPACE,t.lineno,t.lexpos)
-    t[0]=Tipo(Tipo_Dato.TIME,t.lineno,t.lexpos)
-    t[0]=Tipo(Tipo_Dato.INTERVAL,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.TIMESPACE,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.TIME,t.lineno,t.lexpos)
+    t[0]=Tipo("",Tipo_Dato.INTERVAL,t.lineno,t.lexpos)
 
 #FIN DE LA GRAMATICA
 

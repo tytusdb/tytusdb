@@ -3,6 +3,8 @@ import numpy as np
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
+from Instrucciones.Expresiones.Primitivo import Primitivo
 
 class Ln(Instruccion):
     def __init__(self, valor, strGram, linea, columna):
@@ -30,18 +32,13 @@ class Ln(Instruccion):
             return math.log2(resultado)
 
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        
-        retorno = self.valor.traducir(tabla,arbol)
-        #print(retorno.temporalAnterior)
-        #print(type(self.valor))
-        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
-        return f"LN({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        super().traducir(tabla, arbol)
+        if isinstance(self.valor, Primitivo):
+            return f"LN({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"LN({self.valor.concatenar(tabla,arbol)})"
+        return f"LN({self.valor.traducir(tabla,arbol)})"
 
-'''
-instruccion = Ln(0.25,None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''

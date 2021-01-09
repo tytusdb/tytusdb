@@ -4,6 +4,8 @@ import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 from Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
 from Analisis_Ascendente.Instrucciones.expresion import *
 from Analisis_Ascendente.Instrucciones.Time import Time
+from C3D import GeneradorTemporales
+
 
 class Update(Instruccion):
     def __init__(self, id, asignaciones, where,fila,columna):
@@ -13,13 +15,64 @@ class Update(Instruccion):
         self.fila = fila
         self.columna = columna
 
+    def getC3D(self, lista_Optim):
+        etiqueta = GeneradorTemporales.nuevo_temporal()
+        code = '\n     # ---------UPDATE----------- \n'
+        code += '    top_stack = top_stack + 1 \n'
+        code += '    %s = ' % etiqueta
+        code += '\"update ' + self.id + ' set \" \n'
+        asigs = ''
+        tmps = []
+        for asig in self.asignaciones[:-1]:
+            etq = GeneradorTemporales.nuevo_temporal()
+            asigs += '    %s = ' % etq
+            tmp = '%s' % etq
+            tmps.append(tmp)
+            asigs += '\"' + str(asig.iz.id) + ' '
+            asigs += str(asig.operador) + ' '
+            if isinstance(asig.dr.valor, str):
+                asigs += '\''+str(asig.dr.valor)+'\''
+            else:
+                asigs += str(asig.dr.valor)
+            asigs += ', \" \n'
+        # ultimo elemento
+        etq = GeneradorTemporales.nuevo_temporal()
+        asigs += '    %s = ' % etq
+        tmp = '%s' % etq
+        tmps.append(tmp)
+        asigs += '\"' + str(self.asignaciones[-1].iz.id) + ' '
+        asigs += str(self.asignaciones[-1].operador) + ' '
+        if isinstance(self.asignaciones[-1].dr.valor, str):
+            asigs += '\'' + str(self.asignaciones[-1].dr.valor) + '\''
+        else:
+            asigs += str(self.asignaciones[-1].dr.valor)
+        asigs += '\" \n'
+        code += asigs
+        tempos = ''
+        for tmp in tmps:
+            tempos += '    %s = %s + '% (etiqueta, etiqueta)
+            tempos += str(tmp) + '\n'
+        code += tempos
+        if self.where is not None:
+            etq = GeneradorTemporales.nuevo_temporal()
+            code += '    %s = \" where ' % etq
+            code += str(self.where.iz.id) + str(self.where.operador)
+            if isinstance(self.where.dr.valor,str):
+                code += '\''+str(self.where.dr.valor) + '\'\" \n'
+            else:
+                code += str(self.where.dr.valor) + '\" \n'
+            code += '    %s = %s + ' % (etiqueta,etiqueta)
+            code += etq + '\n'
+        code += '    %s = %s + \";\" \n' % (etiqueta, etiqueta)
+        code += '    stack[top_stack] = %s \n' % etiqueta
+        return code
 
     def ejecutar(updateinst, ts, consola, exceptions):
 
         #simular
-        print('Update')
+        ##print('Update')
 
-        #print('add pk')
+        ##print('add pk')
         ##alterAddPK('test', 'tabla1', [1])       ##
         #insert('test','tabla1',['Daniel',1,'Gonzalez', 24])
         #insert('test','tabla1',['Cindy', 2,'Lopez', 15])
@@ -30,24 +83,24 @@ class Update(Instruccion):
 
 
         #lista = extractTable('test','tabla1')
-        #print(lista)
+        ##print(lista)
 
         if ts.validar_sim("usedatabase1234") == 1:
             bdactual = ts.buscar_sim("usedatabase1234") #devuelve el simbolo de usedatabase1234
             BD = ts.buscar_sim(bdactual.valor) #devuelve el nombre de la base de datos que esta en uso
             entornoBD = BD.Entorno #devuelve todo el entorno de la base de datos en uso, tabla de simbolos
             listaTablas = entornoBD.simbolos    #devuelve las tablas
-            #print(listaTablas)
+            ##print(listaTablas)
 
             #indices de la posicion respecto a los campos de la tabla
             indices = []
             #id de la tabla
             tablaB = updateinst.id
-            #print('id: ' + tablaB)
-            #print(len(tablaB))
+            ##print('id: ' + tablaB)
+            ##print(len(tablaB))
             #campos a actualizar
             lCampos =ListaCampos(updateinst.asignaciones, consola, exceptions, updateinst)
-            #print(lCampos)
+            ##print(lCampos)
             #datos nuevos
             expr = []
             #campos y tipos de la tabla
@@ -59,7 +112,7 @@ class Update(Instruccion):
                 for tabla in listaTablas:
                     if listaTablas.get(tabla).id == tablaB: #buscar la tabla
                         #listaTablas.get(tabla).categoria
-                        #print(listaTablas.get(tabla).id)
+                        ##print(listaTablas.get(tabla).id)
                         #listaTablas.get(tabla).tipo
                         #listaTablas.get(tabla).valor
                         entornoTabla = listaTablas.get(tabla).Entorno
@@ -67,30 +120,23 @@ class Update(Instruccion):
                         i = 0
                         for campo in campos:
                             #campos.get(campo).categoria
-                            #print(campos.get(campo).id)
+                            ##print(campos.get(campo).id)
                             tipos.append(campos.get(campo).tipo)
                             campos2.append(campos.get(campo).id)
                             for v in campos.get(campo).valor:
                                 if v == 'PRIMARYKEY':
                                     indexPK.append(i)
                             i = i + 1
-                print(indexPK)
-                print(campos2)
-                print(tipos)
                 #indices
                 indices = Indice(lCampos, campos2, consola, exceptions, updateinst)
-                print(indices)
-                print(expr)
                 si = VTipo(expr, tipos, indices)
                 if len(indices) == len(expr) and si:#si coinciden los tipos
-                    print('todo correcto')
                     #tienen que ser de la misma longitud
                     data = {}
                     i = 0
                     for ind in indices:
                         data[ind] = expr[i]
                         i = i + 1
-                    print(data)
                     #data = {3: 30, 1: 'nom'}
                     #prueba
                     #pk = []
@@ -98,20 +144,19 @@ class Update(Instruccion):
                     ##fin prueba
                     #si no tiene where
                     ta = extractTable(bdactual.valor, tablaB)
-                    print(ta)
 
                     #prueba del where
                     if updateinst.where != None:
-                        print('SI HAY WHERE')
                         ta = WhereUp(updateinst.where, ta, campos2, ts, consola, exceptions, updateinst)
                     else:
-                        print('no hay WHERE')
+                        pass
+                        ##print('no hay WHERE')
                     primarias = ValorLLaves(ta, indexPK)
                     if primarias != None:
                         bandera = 1
                         for p in primarias:
                             #pk = p
-                            #print(p)
+                            ##print(p)
                             bandera = update(bdactual.valor, tablaB, data, p)
                         if bandera == 0:
                             consola.append(f"Se actualizó la tabla {tablaB} exitosamente\n")
@@ -119,8 +164,6 @@ class Update(Instruccion):
                             #consola.append(f"La tabla {tablaB} no puede actualizarse")
                             exceptions.append(f"Error semantico-42P01- 42P01 -{updateinst.fila}-{updateinst.columna}")
 
-                    print(bdactual.valor)
-                    print(extractTable(bdactual.valor, tablaB))
 
 
                 elif not si:
@@ -143,13 +186,11 @@ def ListaCampos(asignaciones, consola, exceptions, updateinst) -> list:
                     if campos.count(asign.iz.id) == 0:
                         campos.append(asign.iz.id)
                     else:
-                        print('error campos repetidos')
                         consola.append(f"La tabla {updateinst.id} no puede actualizarse, campos repetidos\n")
                         exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, campos repetidos -{updateinst.fila}-{updateinst.columna}")
                         campos = []
                         return campos
                 else:
-                    print('error nombre campos')
                     consola.append(f"La tabla {updateinst.id} no puede actualizarse, campos incorrectos\n")
                     exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, campos incorrectos -{updateinst.fila}-{updateinst.columna}")
                     campos = []
@@ -168,8 +209,6 @@ def Indice(lCampos, campos2, consola, exceptions, updateinst) -> list:
 
             if len(campos2) - 1 == idx:
                 if ban == False:
-                    print(c1)
-                    print('el campo que desea modificar no existe en la tabla')
                     consola.append(f"La tabla {updateinst.id} no puede actualizarse, campos incorrectos\n")
                     exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, campos incorrectos -{updateinst.fila}-{updateinst.columna}")
 
@@ -179,7 +218,6 @@ def Indice(lCampos, campos2, consola, exceptions, updateinst) -> list:
     return indices
 
 def Asignaciones(asignaciones, consola, ts, exceptios) -> list:
-    print('asignaciones...')
     valores = []
     for asign in asignaciones:
         if isinstance(asign, Expresion):
@@ -194,16 +232,16 @@ def Expre(expre, consola, ts, exceptions):
     res = 0
     if isinstance(expre, Primitivo):
         res = expre.valor
-        #print('es primitivo ' + str(res))
+        ##print('es primitivo ' + str(res))
     elif isinstance(expre, Id):
-        #print('es id error semantico')
+        ##print('es id error semantico')
         res = None
     elif isinstance(expre, Time):
         res = Time.resolverTime(expre)
     else:
-        #print('es expresion')
+        ##print('es expresion')
         res = Expresion.Resolver(expre, ts, consola, exceptions)
-        #print(str(res))
+        ##print(str(res))
     return res
 
 def VTipo(valores, tipos, indices) -> bool:
@@ -218,7 +256,7 @@ def VTipo(valores, tipos, indices) -> bool:
     return False
 
 def ValidacionTipos(valor, tipo) -> bool:
-    #print(valor, '   ', tipo)
+    ##print(valor, '   ', tipo)
     var = tipo.split('-')
     if var[0] == 'CHARACTER' or var[0] == 'VARCHAR' or var[0] == 'CHAR' or var[0] == 'CHARACTERVARYING':
         return Varchar(valor, var[1])
@@ -247,7 +285,7 @@ def ValidacionTipos(valor, tipo) -> bool:
             return False
 
 def ValorLLaves(tabla, primaria) -> list:
-    #print(primaria)
+    ##print(primaria)
     dev = []    #lista de listas con el valor que esta en la llave primaria
     if tabla != None:
         for tupla in tabla:
@@ -255,7 +293,7 @@ def ValorLLaves(tabla, primaria) -> list:
             for p in primaria:
                 ll.append(tupla[p])
             dev.append(ll)
-    #print(dev)
+    ##print(dev)
     return dev
 
 def TDate(valor) -> bool:
@@ -282,11 +320,11 @@ def Decimal(valor) -> bool:
         return False
 
 def Varchar(valor, longitud) -> bool:
-    #print(valor, ' - ', longitud)
+    ##print(valor, ' - ', longitud)
     try:
         if isinstance(valor, str):
             if len(valor) <= int(longitud):
-                #print('longitud correcta')
+                ##print('longitud correcta')
                 return True
             else:
                 return False
@@ -304,18 +342,14 @@ def WhereUp(where, tabla, campos, ts, consola, exceptions, updateinst) -> list:
             bandera = False
             for c in campos:
                 if c == where.iz.id:
-                    print(str(ix), 'aqui esta el campo id')
                     bandera = True
                     break
                 ix = ix + 1
             expre = Expresion.Resolver(where.dr, ts, consola, exceptions)
             if bandera:
                 tf = Filtrar(tabla, ix, where.operador, expre)
-                print('filtrado')
-                print(tf)
                 return tf
             else:
-                print('el campo no existe')
                 consola.append(f"La tabla {updateinst.id} no puede actualizarse, el campo no existe\n")
                 exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, el campo no existe -{updateinst.fila}-{updateinst.columna}")
 
@@ -326,33 +360,23 @@ def WhereUp(where, tabla, campos, ts, consola, exceptions, updateinst) -> list:
             tf2 = []
             if isinstance(where.iz, Expresion):
                 tf1 = WhereUp(where.iz, tabla, campos, ts, consola, exceptions, updateinst)
-                print('tf1')
-                print(tf1)
             if isinstance(where.dr, Expresion):
                 tf2 = WhereUp(where.dr, tabla, campos, ts, consola, exceptions, updateinst)
-                print('tf2')
-                print(tf2)
             if where.operador == 'and':
                 tabla = AndManual(tf1, tf2)
-                print('filtrado and')
-                print(tabla)
                 return tabla
             elif where.operador == 'or':
                 if len(tf1) != 0 and len(tf2) != 0:
                     tabla = tf1 + tf2
-                    print('filtrado or')
-                    print(tabla)
                     return tabla
                 else:
                     return []
         else:
-            print('error el campo no existe')
             consola.append(f"La tabla {updateinst.id} no puede actualizarse, el campo no existe\n")
             exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, el campo no existe -{updateinst.fila}-{updateinst.columna}")
 
             return []
     else:
-        print('error')
         consola.append(f"La tabla {updateinst.id} no puede actualizarse, where no contemplado semanticamente\n")
         exceptions.append(
             f"Error semantico-42P01- 42P01	undefined_table, where no contemplado semanticamente -{updateinst.fila}-{updateinst.columna}")

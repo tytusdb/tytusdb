@@ -3,11 +3,11 @@ from sys import path
 from os.path import dirname as dir
 
 path.append(dir(path[0]))
-
-import analizer_pl.grammar as grammar
-from analizer_pl.abstract import global_env
-from analizer_pl.reports import BnfGrammar
 from analizer_pl.C3D.operations import block
+from analizer_pl.reports import BnfGrammar
+from analizer_pl.abstract import global_env
+import analizer_pl.grammar as grammar
+from analizer_pl.libs import File
 
 
 def traducir(input):
@@ -37,15 +37,21 @@ def traducir(input):
     f = open("test-output/c3dopt.py", "w+")
     f.write(optimizacion)
     f.close()
-    semanticErrors = []
+    semanticErrors = grammar.returnSemanticErrors()
+    postgres = grammar.returnPLErrors()
     functions = functionsReport(env)
     symbols = symbolReport()
+    indexes = indexReport()
     obj = {
+        "messages": [],
+        "querys": [],
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
         "semantic": semanticErrors,
+        "postgres": postgres,
         "symbols": symbols,
         "functions": functions,
+        "indexes": indexes,
     }
     grammar.InitTree()
     BnfGrammar.grammarReport()
@@ -91,89 +97,18 @@ def functionsReport(env):
     return rep
 
 
-s = """ 
-CREATE function foo(i integer) RETURNS integer AS $$
-declare 
-	j integer := -i + 5;
-	k integer:= date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
-    texto text := "3+3"||md5("Francisco");
-BEGIN
-	case 
-        when i > -10 then
-            RETURN k;
-        when i < 10 then
-            RETURN texto;
-        else 
-            RETURN k;
-    end case;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE procedure p1() AS $$
-declare 
-	k integer;
-BEGIN
-	k = foo(5);
-    k = foo(10);
-    k = foo(15);
-END;
-$$ LANGUAGE plpgsql;
-
---drop procedure p1;
-execute foo(5);
-execute foo(20);
-"""
-
-sql = """
-CREATE DATABASE DBFase2;
-USE DBFase2;
-CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$ BEGIN RETURN texto;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TABLE tbProducto (
-  idproducto integer not null primary key,
-  producto varchar(150) not null,
-  fechacreacion date not null,
-  estado integer
-);
-CREATE UNIQUE INDEX idx_producto ON tbProducto (idproducto);
-CREATE TABLE tbCalificacion (
-  idcalifica integer not null primary key,
-  item varchar(100) not null,
-  punteo integer not null
-);
-CREATE UNIQUE INDEX idx_califica ON tbCalificacion (idcalifica);
-execute myFuncion("Francisco");
-"""
-
-s2 = """
---Manipulacion de datos
-CREATE DATABASE IF NOT EXISTS test OWNER = 'root' MODE = 1;
-CREATE DATABASE IF NOT EXISTS califica OWNER = 'root' MODE = 2;
-SHOW DATABASES;
-USE test;
-create table tbcalifica (
-  iditem integer not null primary key,
-  item varchar(150) not null,
-  puntos decimal(8, 2) not null
-);
-CREATE TABLE tbusuario (
-  idusuario integer NOT NULL primary key,
-  nombre varchar(50),
-  apellido varchar(50),
-  usuario varchar(15) UNIQUE NOT NULL,
-  password varchar(15) NOT NULL,
-  fechacreacion date
-);
-CREATE TABLE tbroles (
-  idrol integer NOT NULL primary key,
-  rol varchar(15)
-);
-DROP TABLE tbroles;
-CREATE TABLE tbrol (
-  idrol integer NOT NULL primary key,
-  rol varchar(15)
-);
-"""
-
-traducir(sql)
+def indexReport():
+    index = File.importFile("Index")
+    enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
+    filas = []
+    for (name, Index) in index.items():
+        columns = ""
+        for column in Index["Columns"]:
+            columns += (
+                ", " + column["Name"] + " " + column["Order"] + " " + column["Nulls"]
+            )
+        filas.append(
+            [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
+        )
+    enc.append(filas)
+    return enc

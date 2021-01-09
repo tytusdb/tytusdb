@@ -267,7 +267,6 @@ def extractColumns(database, table):
         List.append(newColumn)
     return List
 
-
 def extractPKIndexColumns(database, table):
     lst = []
     for db in Databases:
@@ -487,6 +486,16 @@ def extractColmn(dbName, tableName, colName):
             return col
     return None
 
+def extractColmnPos(dbName, tableName, colPos):
+    table = extractTable(dbName, tableName)
+    if table == 0 or table == 1:
+        return None
+    contador = 1
+    for col in table["columns"]:
+        if contador == colPos:
+            return col
+        contador += 1
+    return None
 
 def getIndex(dbName, tableName, colName):
     table = extractTable(dbName, tableName)

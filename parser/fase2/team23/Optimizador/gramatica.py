@@ -114,7 +114,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
-import ply.lex as lex
+import Optimizador.ply.lex as lex
 lexer = lex.lex()
 
 
@@ -161,15 +161,16 @@ def p_instruccion(t) :
     t[0] = t[1]
 
     if bandera1[0] :
-        print('Pila impresa')
-        print(pila)
         reglas(pila)
         #if  (reglas(pila)==False):
             #respuesta.append(bandera1[1])
+    elif bandera1[2]:
+        respuesta.append(bandera1[1])
+        bandera1[2]=False
+        bandera1[1]=''
 
     bandera1[0]=False
     pila.clear()
-    print(str(t[1]))
 
 def p_from(t) :
     ''' fromS     : FROM GOTO IMPORT WITH_GOTO  '''
@@ -214,13 +215,11 @@ def p_instruccion_import(t) :
     'import_instr     : IMPORT ID '
     respuesta.append(str(t[1])+' '+str(t[2])+'\n')
     t[0] = []
-    print(str(t[2]))
 
 def p_instruccion_definicion(t) :
     'definicion_instr   : DEF ID PARIZQ PARDER DOSPT'
     respuesta.append(str(t[1])+' '+str(t[2])+str(t[3])+str(t[4])+' '+str(t[5])+'\n')
     t[0] = []
-    print(str(t[2]))
 
 def p_asignacion_instr(t) :
     'asignacion_instr   : ID IGUAL expression '
@@ -228,6 +227,7 @@ def p_asignacion_instr(t) :
     pila.append(t[1])
     t[0]=t[1]
     bandera1[1] = ('\n    '+str(t[1])+' '+str(t[2])+' '+str(t[3])+'\n')
+    bandera1[2]=True
     #respuesta.append(+'\t'+str(t[1])+' '+str(t[2]))
 
 def p_asignacion_instr_aux(t) :
@@ -299,7 +299,7 @@ def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
 
-import ply.yacc as yacc
+import Optimizador.ply.yacc as yacc
 parser = yacc.yacc()
 
 def reglas(auxP):
@@ -362,7 +362,6 @@ def reglas(auxP):
         respuesta.append('\n    '+str(idP) + ' = ' + str(izquierda) + str(operador) + str(derecha))
         return True
     except:
-        print('Pasa algo malo en optimizar esta funcion')
         return False
     
 

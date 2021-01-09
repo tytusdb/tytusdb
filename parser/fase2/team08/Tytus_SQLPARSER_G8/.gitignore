@@ -30,8 +30,6 @@ ambiente_de_instalacion.txt
 Reporte_Errores.html
 /Tabla_Simbolos.html
 Tabla_Simbolos.html
-archivos_entrada
-/archivos_entrada
 /ply
 ply
 data
@@ -42,4 +40,14 @@ TablaSimbolos.html
 Reporte_Gramatical/Reporte_Gramatical.html
 TablaSimbolos.html
 prueba.py
+/prueba.py
 
+Digraph.dot
+Digraph.gv.pdf
+hola.png
+ast.png
+optimizacion/parser.out
+optimizacion/parsetab.py
+hola.svg
+prueba.py
+TablaSimbolos2.html

@@ -4,4 +4,7 @@ class OpTAC(Enum):
     GOTO = 21
     LABEL = 22
     CONDITIONAL = 23
+    PUSH = 24
+    POP =25
+    CALL = 26
     

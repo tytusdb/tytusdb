@@ -13,20 +13,16 @@ class Aritmetica(Binaria):
     def __init__(self, exp1, exp2, operador):
         'Se usan los valores de las clases padres'
         Binaria.__init__(self,exp1,exp2,operador)
-        self.stringsql+= str(exp1.stringsql) +' '
-        self.stringsql+= self.operador +' '
-        self.stringsql+= str(exp2.stringsql)+' 
+
 
     def getval(self,entorno):
 
-        if isinstance(self.exp1,Identificador) and isinstance(self.exp2,Identificador):
-            return self
-
-
         valizq=self.exp1.getval(entorno)
         valder=self.exp2.getval(entorno)
-        valizq=valizq.valor
-        valder=valder.valor
+        if valizq == None or valder == None:
+            return self
+        valizq=float(valizq.valor)
+        valder=float(valder.valor)
 
 
 
@@ -70,6 +66,15 @@ class Aritmetica(Binaria):
             cad += nt + '=' + str(exp1.temp) + ' ' + self.operador + ' ' + str(exp2.temp) + '\n'
             self.codigo3d=cad
 
+        stringsql = str(self.exp1.stringsql) + ' '
+        stringsql += self.operador + ' '
+        stringsql += str(self.exp2.stringsql) + ' '
+        if self.stringsql == '()':
+            self.stringsql = '(' + stringsql + ')'
+        else:
+            self.stringsql = stringsql
+
         return self
 
-    
+
+

@@ -3,6 +3,7 @@ from analizer_pl.statement.expressions import code
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.environment import Environment
 from analizer_pl.C3D.operations.func_call import FunctionCall
+from analizer_pl import grammar
 
 
 class Execute(Instruction):
@@ -11,11 +12,18 @@ class Execute(Instruction):
         self.procedures = procedures
 
     def execute(self, environment):
-        cd = "\n"
-        p = self.procedures
-        cd += p.execute(environment).value
-        cd += "\n"
-        return code.C3D(cd, "execute", self.row, self.column)
+        try:
+            cd = "\n"
+            p = self.procedures
+            temp = p.execute(environment).value
+            cd += temp
+            cd += "\n"
+            grammar.optimizer_.addIgnoreString(str(temp), self.row, False)
+            return code.C3D(cd, "execute", self.row, self.column)
+        except:
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Execute Function"
+            )
 
     def dot(self):
         new = Nodo("EXECUTE")

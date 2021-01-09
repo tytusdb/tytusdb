@@ -39,7 +39,7 @@ class AlterIndex(Instruccion):
         print(type(self.columnaNew))
 
         if type(self.columnaNew) == str:
-            print("*********************************")
+            # print("*********************************")
             val = self.id_tabla.devolverTabla(tabla, arbol)
             objetoTabla = arbol.devolviendoTablaDeBase(val)
 
@@ -51,23 +51,23 @@ class AlterIndex(Instruccion):
                 consideraciones = str(i.lRestricciones).replace("[", "").replace("'", "").replace("\"", "").replace("]", "").replace(",", "")
                 column_index = consideraciones.split("#")
 
-                print(column_index[0], "<>", self.columnaOld)
+                # print(column_index[0], "<>", self.columnaOld)
                 if column_index[0] == self.columnaOld and i.nombre.id == self.idIndex.id:
                     i.lRestricciones = self.columnaNew + '#' + column_index[1]
 
         elif type(self.columnaNew) == int:
-            print("============================================")
+            # print("============================================")
             val = self.id_tabla.devolverTabla(tabla, arbol)
             objetoTabla = arbol.devolviendoTablaDeBase(val)
             iterador = self.columnaNew
             columna_a_cambiar = ''
             
             for i in objetoTabla.lista_de_campos:
-                print("*.", i.nombre)
+                # print("*.", i.nombre)
                 iterador = iterador - 1
                 if iterador == 0:
                     columna_a_cambiar = i.nombre
-            print("+++++++++++++++++++++", columna_a_cambiar)
+            # print("+++++++++++++++++++++", columna_a_cambiar)
 
 
             for i in objetoTabla.lista_de_indices:
@@ -78,7 +78,7 @@ class AlterIndex(Instruccion):
                 consideraciones = str(i.lRestricciones).replace("[", "").replace("'", "").replace("\"", "").replace("]", "").replace(",", "")
                 column_index = consideraciones.split("#")
 
-                print(column_index[0], "<==>", self.columnaOld)
+                # print(column_index[0], "<==>", self.columnaOld)
                 if column_index[0] == self.columnaOld and i.nombre.id == self.idIndex.id:
                     i.lRestricciones = columna_a_cambiar + '#' + column_index[1]
                 # print("!!!!",i.nombre.id,'-',self.idIndex.id )
@@ -87,10 +87,18 @@ class AlterIndex(Instruccion):
     def generar3D(self, tabla, arbol):
         super().generar3D(tabla,arbol)
         code = []
-        t0 = c3d.getTemporal()
-        code.append(c3d.asignacionString(t0, "DROP INDEX "  + ";"))
-        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.asignacionH())
         code.append(c3d.aumentarP())
+        t0 = c3d.getTemporal()
+        column = ''
+        if type(self.columnaNew) == 'int':
+            column = self.columnaNew
+        else:
+            column = self.columnaNew
+
+        code.append(c3d.asignacionString(t0, "ALTER INDEX " + self.idIndex.id + " " + self.columnaOld + " " + str(column) + ";"))
+        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
         
         return code
 

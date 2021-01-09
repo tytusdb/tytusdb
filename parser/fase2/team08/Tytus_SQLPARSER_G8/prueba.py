@@ -1,7 +1,10 @@
 from goto import with_goto
+import math
 from sintactico import *
+import reportes.reportesimbolos as rs
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
+from storageManager.jsonMode import *
 import sys
 global P
 global Pila
@@ -10,53 +13,173 @@ Pila = [None] * 1000
 tablaGlobal = Tabla(None)
 global sql
 global inst
-global arbol
+arbol = Arbol(None)
 def funcionintermedia():
 	global P
 	global Pila
 	t0 = P+0
 	t1 = t0+1
 	t2 = Pila[t1]
-	print(t2)
+	print("\n"+'\033[96m'+t2+'\033[0m')
 	sql = Pila[t1]
-	inst = ejecutar_analisis(sql)
-	arbol = Arbol(inst)
-	for instruccion in arbol.instrucciones:
-		instruccion.ejecutar(tablaGlobal,arbol)
+	instrucciones = ejecutar_analisis(sql)
+	for instruccion in instrucciones:
+		t3 = instruccion.ejecutar(tablaGlobal,arbol)
+	t4 = P+0
+	t5 = t0+2
+	Pila[t5] = t3
 	for msj in arbol.consola:
 		print(f"{msj}")
-@with_goto  # Decorador necesario.
-def main():
+	arbol.consola = []
+	@with_goto  # Decorador necesario.
+	def ValidaRegistros():
 	global P
 	global Pila
-<<<<<<< HEAD
-	goto .l0
-	label .l0
-	goto .l1
+	# Inicia If
+	#Obtiene id: tabla
+	t0 = P + 1
+	t1 = Pila[t0]
+	if(t1 == 'tbProducto'):
+		goto .l1
 	goto .l2
-	#Inicio print
 	label .l1
-	t0 = 1
-	goto .l3
-	label .l2
-	t0 = 0
-	goto .l3
-	label .l3
-	if(t0 == 1):
+	#Inicia asignación: resultado
+	t2 = P + 3
+	#Se obtiene el valor
+	t3 = 12
+	Pila[t2] = t3
+	#Fin Asignación
+	# Inicia If
+	#Obtiene id: cantidad
+	t4 = P + 2
+	t5 = Pila[t4]
+	#Obtiene id: resultado
+	t6 = P + 3
+	t7 = Pila[t6]
+	if(t5 == t7):
 		goto .l4
 	goto .l5
-	#True
 	label .l4
-	print(True)
+	#Inicia asignación: retorna
+	t8 = P + 4
+	#Se obtiene el valor
+	t9 = 1
+	Pila[t8] = t9
+	#Fin Asignación
 	goto .l6
-	#False
 	label .l5
-	print(False)
+	#Inicia asignación: retorna
+	t10 = P + 4
+	#Se obtiene el valor
+	t11 = 0
+	Pila[t10] = t11
+	#Fin Asignación
 	label .l6
-	#Fin print
-=======
+	goto .l3
+	label .l2
+	label .l3
+	# Inicia If
+	#Obtiene id: tabla
+	t12 = P + 1
+	t13 = Pila[t12]
+	if(t13 == 'tbProductoUp'):
+		goto .l7
+	goto .l8
+	label .l7
+	#Inicia asignación: resultado
+	t14 = P + 3
+	#Se obtiene el valor
+	t15 = 12
+	Pila[t14] = t15
+	#Fin Asignación
+	# Inicia If
+	#Obtiene id: cantidad
+	t16 = P + 2
+	t17 = Pila[t16]
+	#Obtiene id: resultado
+	t18 = P + 3
+	t19 = Pila[t18]
+	if(t17 == t19):
+		goto .l10
+	goto .l11
+	label .l10
+	#Inicia asignación: retorna
+	t20 = P + 4
+	#Se obtiene el valor
+	t21 = 1
+	Pila[t20] = t21
+	#Fin Asignación
+	goto .l12
+	label .l11
+	#Inicia asignación: retorna
+	t22 = P + 4
+	#Se obtiene el valor
+	t23 = 0
+	Pila[t22] = t23
+	#Fin Asignación
+	label .l12
+	goto .l9
+	label .l8
+	label .l9
+	# Inicia If
+	#Obtiene id: tabla
+	t24 = P + 1
+	t25 = Pila[t24]
+	if(t25 == 'tbbodega'):
+		goto .l13
+	goto .l14
+	label .l13
+	#Inicia asignación: resultado
+	t26 = P + 3
+	#Se obtiene el valor
+	t27 = 12
+	Pila[t26] = t27
+	#Fin Asignación
+	# Inicia If
+	#Obtiene id: cantidad
+	t28 = P + 2
+	t29 = Pila[t28]
+	#Obtiene id: resultado
+	t30 = P + 3
+	t31 = Pila[t30]
+	if(t29 == t31):
+		goto .l16
+	goto .l17
+	label .l16
+	#Inicia asignación: retorna
+	t32 = P + 4
+	#Se obtiene el valor
+	t33 = 1
+	Pila[t32] = t33
+	#Fin Asignación
+	goto .l18
+	label .l17
+	#Inicia asignación: retorna
+	t34 = P + 4
+	#Se obtiene el valor
+	t35 = 0
+	Pila[t34] = t35
+	#Fin Asignación
+	label .l18
+	goto .l15
+	label .l14
+	label .l15
+	#Se asigna el valor a la posición de return
+	#Obtiene id: retorna
+	t36 = P + 4
+	t37 = Pila[t36]
+	t38 = P + 0
+	Pila[t38] = t37
+	goto .l0
+	#Etiqueta de salida función
+	label .l0
+
+def main():
+	dropAll()
+	global P
+	global Pila
 	#Asignar cadena
-	t0 = "create database if not exists test owner = 'root' mode = 1;"
+	t0 = "create database DBFase2 mode = 1;"
 	#Entrar al ambito
 	t1 = P+2
 	#parametro 1
@@ -72,7 +195,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t5 = "create database if not exists califica owner = 'root' mode = 2;"
+	t5 = "use DBFase2;"
 	#Entrar al ambito
 	t6 = P+2
 	#parametro 1
@@ -88,7 +211,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t10 = "create database if not exists califica2 owner = 'root' mode = 3;"
+	t10 = "Create table tbProducto ( idproducto integer not null primary key, producto varchar(150) not null, fechacreacion date not null, estado integer ) ;"
 	#Entrar al ambito
 	t11 = P+2
 	#parametro 1
@@ -104,7 +227,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t15 = "use test;"
+	t15 = f"insert into tbProducto values ( 1, 'Laptop Lenovo', now(), 1 );"
 	#Entrar al ambito
 	t16 = P+2
 	#parametro 1
@@ -120,7 +243,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t20 = "SELECT 'VALIDA CREATE DATABASE' ;"
+	t20 = f"insert into tbProducto values ( 2, 'Bateria para Laptop Lenovo T420', now(), 1 );"
 	#Entrar al ambito
 	t21 = P+2
 	#parametro 1
@@ -136,7 +259,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t25 = "Create table tbcalifica ( iditem integer not null primary key, item varchar(150) not null, puntos decimal(8,2) not null);"
+	t25 = f"insert into tbProducto values ( 3, 'Teclado Inalambrico', now(), 1 );"
 	#Entrar al ambito
 	t26 = P+2
 	#parametro 1
@@ -152,7 +275,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t30 = "Create table tbusuario ( idusuario integer not null primary key, nombre varchar(50), apellido varchar(50), usuario varchar(15) unique not null, password varchar(15) not null, fechacreacion date);"
+	t30 = f"insert into tbProducto values ( 4, 'Mouse Inalambrico', now(), 1 );"
 	#Entrar al ambito
 	t31 = P+2
 	#parametro 1
@@ -168,7 +291,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t35 = "Create table tbroles ( idrol integer not null primary key, rol varchar(15));"
+	t35 = f"insert into tbProducto values ( 5, 'WIFI USB', now(), 1 );"
 	#Entrar al ambito
 	t36 = P+2
 	#parametro 1
@@ -184,7 +307,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t40 = "SELECT 'VALIDA TIPO DE DATOS' ;"
+	t40 = f"insert into tbProducto values ( 6, 'Laptop HP', now(), 1 );"
 	#Entrar al ambito
 	t41 = P+2
 	#parametro 1
@@ -200,7 +323,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t45 = "SELECT EXTRACT (YEAR FROM TIMESTAMP '2001-02-16 20:38:40') ;"
+	t45 = f"insert into tbProducto values ( 7, 'Teclado Flexible USB', now(), 1 );"
 	#Entrar al ambito
 	t46 = P+2
 	#parametro 1
@@ -216,7 +339,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t50 = "SELECT date_part('hour', INTERVAL '4 hours 3 minutes') ;"
+	t50 = f"insert into tbProducto values ( 8, 'Laptop Samsung', '2021-01-02', 1 );"
 	#Entrar al ambito
 	t51 = P+2
 	#parametro 1
@@ -232,7 +355,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t55 = "SELECT now() ;"
+	t55 = "Create table tbCalificacion ( idcalifica integer not null primary key, item varchar(100) not null, punteo integer not null ) ;"
 	#Entrar al ambito
 	t56 = P+2
 	#parametro 1
@@ -248,7 +371,7 @@ def main():
 	#Salida de funcion
 	P = P-2
 	#Asignar cadena
-	t60 = "SELECT EXTRACT (HOUR FROM TIMESTAMP '2001-02-16 20:38:40') ;"
+	t60 = f"SELECT * FROM tbProducto  ;"
 	#Entrar al ambito
 	t61 = P+2
 	#parametro 1
@@ -263,24 +386,23 @@ def main():
 	t64 = Pila[t63]
 	#Salida de funcion
 	P = P-2
-	#Asignar cadena
-	t65 = "SELECT EXTRACT (MINUTE FROM TIMESTAMP '2001-02-16 20:38:40') ;"
-	#Entrar al ambito
-	t66 = P+2
-	#parametro 1
-	t67 = t66+1
-	#Asignacion de parametros
-	Pila[t67] = t65
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t68 = P+2
+	#Simulando el paso de parámetros
+	t65 = P + 5
+	#Asignación de parámetros
+	t66 = t65 + 1
+	Pila[t66] = 'tbProducto'
+	t67 = t65 + 2
+	Pila[t67] = 8
+	#Cambio de ámbito
+	P = P + 5
+	#Llamada a la función
+	ValidaRegistros()
+	#Posición del return en el ámbito de la función
+	t68 = t65 + 0
 	t69 = Pila[t68]
-	#Salida de funcion
-	P = P-2
+	P = P - 5
 	#Asignar cadena
-	t70 = "SELECT EXTRACT (SECOND FROM TIMESTAMP '2001-02-16 20:38:40') ;"
+	t70 = f"insert into tbCalificacion values ( 1, 'Create Table and Insert', "+ str(t69) + "  );"
 	#Entrar al ambito
 	t71 = P+2
 	#parametro 1
@@ -295,294 +417,6 @@ def main():
 	t74 = Pila[t73]
 	#Salida de funcion
 	P = P-2
-	#Asignar cadena
-	t75 = "SELECT EXTRACT (YEAR FROM TIMESTAMP '2001-02-16 20:38:40') ;"
-	#Entrar al ambito
-	t76 = P+2
-	#parametro 1
-	t77 = t76+1
-	#Asignacion de parametros
-	Pila[t77] = t75
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t78 = P+2
-	t79 = Pila[t78]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t80 = "SELECT EXTRACT (MONTH FROM TIMESTAMP '2001-02-16 20:38:40') ;"
-	#Entrar al ambito
-	t81 = P+2
-	#parametro 1
-	t82 = t81+1
-	#Asignacion de parametros
-	Pila[t82] = t80
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t83 = P+2
-	t84 = Pila[t83]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t85 = "SELECT EXTRACT (DAY FROM TIMESTAMP '2001-02-16 20:38:40') ;"
-	#Entrar al ambito
-	t86 = P+2
-	#parametro 1
-	t87 = t86+1
-	#Asignacion de parametros
-	Pila[t87] = t85
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t88 = P+2
-	t89 = Pila[t88]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t90 = "SELECT date_part('minutes', INTERVAL '4 hours 3 minutes') ;"
-	#Entrar al ambito
-	t91 = P+2
-	#parametro 1
-	t92 = t91+1
-	#Asignacion de parametros
-	Pila[t92] = t90
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t93 = P+2
-	t94 = Pila[t93]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t95 = "SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds') ;"
-	#Entrar al ambito
-	t96 = P+2
-	#parametro 1
-	t97 = t96+1
-	#Asignacion de parametros
-	Pila[t97] = t95
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t98 = P+2
-	t99 = Pila[t98]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t100 = "SELECT CURRENT_DATE ;"
-	#Entrar al ambito
-	t101 = P+2
-	#parametro 1
-	t102 = t101+1
-	#Asignacion de parametros
-	Pila[t102] = t100
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t103 = P+2
-	t104 = Pila[t103]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t105 = "SELECT CURRENT_TIME ;"
-	#Entrar al ambito
-	t106 = P+2
-	#parametro 1
-	t107 = t106+1
-	#Asignacion de parametros
-	Pila[t107] = t105
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t108 = P+2
-	t109 = Pila[t108]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t110 = "SELECT TIMESTAMP 'now' ;"
-	#Entrar al ambito
-	t111 = P+2
-	#parametro 1
-	t112 = t111+1
-	#Asignacion de parametros
-	Pila[t112] = t110
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t113 = P+2
-	t114 = Pila[t113]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t115 = "SELECT 'VALIDA Funciones Date-Extract' ;"
-	#Entrar al ambito
-	t116 = P+2
-	#parametro 1
-	t117 = t116+1
-	#Asignacion de parametros
-	Pila[t117] = t115
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t118 = P+2
-	t119 = Pila[t118]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t120 = "create type area as enum (  'CONTABILIDAD', 'ADMINISTRACION', 'VENTAS', 'TECNOLOGIA', 'FABRICA');"
-	#Entrar al ambito
-	t121 = P+2
-	#parametro 1
-	t122 = t121+1
-	#Asignacion de parametros
-	Pila[t122] = t120
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t123 = P+2
-	t124 = Pila[t123]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t125 = "SELECT 'VALIDA TYPE' ;"
-	#Entrar al ambito
-	t126 = P+2
-	#parametro 1
-	t127 = t126+1
-	#Asignacion de parametros
-	Pila[t127] = t125
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t128 = P+2
-	t129 = Pila[t128]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t130 = "show databases;"
-	#Entrar al ambito
-	t131 = P+2
-	#parametro 1
-	t132 = t131+1
-	#Asignacion de parametros
-	Pila[t132] = t130
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t133 = P+2
-	t134 = Pila[t133]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t135 = "SELECT 'VALIDA SHOW DATBASE' ;"
-	#Entrar al ambito
-	t136 = P+2
-	#parametro 1
-	t137 = t136+1
-	#Asignacion de parametros
-	Pila[t137] = t135
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t138 = P+2
-	t139 = Pila[t138]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t140 = "drop database if exists califica2;"
-	#Entrar al ambito
-	t141 = P+2
-	#parametro 1
-	t142 = t141+1
-	#Asignacion de parametros
-	Pila[t142] = t140
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t143 = P+2
-	t144 = Pila[t143]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t145 = "SELECT 'VALIDA DROP DATABASE' ;"
-	#Entrar al ambito
-	t146 = P+2
-	#parametro 1
-	t147 = t146+1
-	#Asignacion de parametros
-	Pila[t147] = t145
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t148 = P+2
-	t149 = Pila[t148]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t150 = "drop table tbroles;"
-	#Entrar al ambito
-	t151 = P+2
-	#parametro 1
-	t152 = t151+1
-	#Asignacion de parametros
-	Pila[t152] = t150
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t153 = P+2
-	t154 = Pila[t153]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t155 = "SELECT 'VALIDA DROP TABLES' ;"
-	#Entrar al ambito
-	t156 = P+2
-	#parametro 1
-	t157 = t156+1
-	#Asignacion de parametros
-	Pila[t157] = t155
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t158 = P+2
-	t159 = Pila[t158]
-	#Salida de funcion
-	P = P-2
-	#Asignar cadena
-	t160 = "Create table tbrol ( idrol integer not null primary key, rol varchar(15));"
-	#Entrar al ambito
-	t161 = P+2
-	#parametro 1
-	t162 = t161+1
-	#Asignacion de parametros
-	Pila[t162] = t160
-	#Llamada de funcion
-	P = P+2
-	funcionintermedia()
-	#obtener resultado
-	t163 = P+2
-	t164 = Pila[t163]
-	#Salida de funcion
-	P = P-2
->>>>>>> 48cd4d37c23a2e7ba9edcfefe53ef801055b5866
 if __name__ == "__main__":
 	main()
+	rs.crear_tabla(arbol)

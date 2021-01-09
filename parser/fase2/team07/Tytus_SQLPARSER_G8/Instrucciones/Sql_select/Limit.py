@@ -1,8 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 
 class Limit(Instruccion):
-    def __init__(self, listaExpre, expre, strGram, linea, columna):
-        Instruccion.__init__(self, None, linea,columna,strGram)
+    def __init__(self, listaExpre, expre, strGram, linea, columna, strSent):
+        Instruccion.__init__(self, None, linea,columna,strGram, strSent)
         self.listaExpre = listaExpre
         self.expre = expre
 

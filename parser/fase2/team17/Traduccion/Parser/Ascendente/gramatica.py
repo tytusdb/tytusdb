@@ -6,6 +6,9 @@ from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relaci
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
 from Interprete.SELECT.indexador_auxiliar import indexador_auxiliar
+from InterpreteF2.DML.function.function import Function
+from InterpreteF2.DML.select.select import Select
+from InterpreteF2.DML.select.selectCompuesto import SelectCompuesto
 from InterpreteF2.Arbol import Arbol
 from Interprete.Insert.insert import Insert
 from Interprete.SELECT.select_simples_date import Select_simples_date
@@ -47,6 +50,9 @@ from InterpreteF2.OperacionesPrimitivas.SUMA import SUMA
 from InterpreteF2.OperacionesPrimitivas.RESTA import RESTA
 from InterpreteF2.OperacionesPrimitivas.MULTIPLICACION import MULTIPLICACION
 from InterpreteF2.OperacionesPrimitivas.DIVISION import DIVISION
+from InterpreteF2.OperacionesPrimitivas.EXPONENTE import EXPONENTE
+from InterpreteF2.OperacionesPrimitivas.MODULO import MODULO
+from InterpreteF2.OperacionesPrimitivas.UNITARIO import UNITARIO
 from InterpreteF2.OperacionesPrimitivas.OperaRelacional import OperaRelacional
 from InterpreteF2.IF.SI import SI
 from InterpreteF2.IF.SIELSE import SIELSE
@@ -65,8 +71,12 @@ from InterpreteF2.DML.drops.droptable import droptable
 from InterpreteF2.indices.alterindex import alterindex
 from InterpreteF2.Soporte_aFun.dropfun import dropfun
 from InterpreteF2.Soporte_aFun.lappel import lappel
-
-ArbolErrores:Arbol = Arbol(None)
+from Main.erroresglobales import erroresglobales
+from InterpreteF2.indices.indice import Id_Indice
+from InterpreteF2.indices.indice import Option
+from InterpreteF2.indices.indice import Index_Param
+from InterpreteF2.indices.alterindex import  alterindexColumn
+ArbolErrores: Arbol = Arbol(None)
 
 
 reservadas = {
@@ -481,8 +491,12 @@ def t_COMENTARIO_MULTILINEA(t):
 def t_error(t):
     global ArbolErrores
     print("Caracter ilegal '%s'" % t.value[0])
-    Error: ErroresLexicos = ErroresLexicos("Caracter ilegal " + t.value[0], int(t.lexer.lineno), 0, 'Lexico')
-    ArbolErrores.ErroresLexicos.append(Error)
+    descripncion = "Caracter ilegal " + str(t.value[0])
+    error_l: ErroresLexicos = ErroresLexicos(descripncion, int(t.lexer.lineno),  int(t.lexer.lineno), 'Lexico')
+    ArbolErrores.ErroresLexicos.append(error_l)
+    print("Caracter ilegal ")
+
+
     t.lexer.skip(1)
 
 
@@ -513,11 +527,11 @@ precedence = (
 
 def p_init(t):
     'init : definitions'
-    #aux:Arbol = Arbol(t[1])
-    #aux.ErroresLexicos = ArbolErrores.ErroresLexicos
-    #aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
-    t[0] = Arbol(t[1])
-    #t[0] = aux
+    aux:Arbol = Arbol(t[1])
+    aux.ErroresLexicos = ArbolErrores.ErroresLexicos
+    aux.ErroresSintacticos = ArbolErrores.ErroresSintacticos
+    #t[0] = Arbol(t[1])
+    t[0] = aux
 
 def p_definitions(t):
     '''
@@ -557,13 +571,9 @@ def p_cierreplpgsql(t):
 
 def p_plpgsql(t):
     '''
-        plpgsql : functions_or_procedures definitions BEGIN definitions plpgsql_ending
-                | functions_or_procedures label definitions BEGIN definitions plpgsql_ending
-                | functions_or_procedures BEGIN definitions plpgsql_ending
-                | label BEGIN definitions plpgsql_ending
-                | definitions BEGIN definitions plpgsql_ending
-                | DECLARE BEGIN definitions plpgsql_ending
-                | BEGIN definitions plpgsql_ending
+        plpgsql : function_or_procedure definitions BEGIN definitions plpgsql_ending
+                | function_or_procedure label definitions BEGIN definitions plpgsql_ending
+                | function_or_procedure BEGIN definitions plpgsql_ending
     '''
     if len(t) == 6:
         # functions_or_procedures definitions BEGIN definitions plpgsql_ending
@@ -572,15 +582,15 @@ def p_plpgsql(t):
         # functions_or_procedures label definitions BEGIN definitions plpgsql_ending
         t[0] = funexecute(t[1], t[3], t[5], 1, 1)
     elif len(t) == 5:
-        if t[1].lower()  == 'label':
-            pass
-        elif t[1].lower()  == 'declare':
-            pass
-        else:
+        #if t[1].lower()  == 'label':
+        #    pass
+        #elif t[1].lower()  == 'declare':
+        #    pass
+        #else:
             # functions_or_procedures BEGIN definitions plpgsql_endingng
-            t[0] = funexecute(t[1], None, t[3], 1, 1)
+        t[0] = funexecute(t[1], None, t[3], 1, 1)
     else:
-        pass
+        t[0] = None
     set('<TR> \n <TD> plpgsql → functions_or_procedures label declare BEGIN stmts plpgsql_ending | functions_or_procedures declare BEGIN stmts plpgsql_ending | functions_or_procedures BEGIN stmts plpgsql_ending | label BEGIN stmts plpgsql_ending | declare BEGIN stmts plpgsql_ending | BEGIN stmts plpgsql_ending : </TD> \n <TD>  plpgsql = plpgsqlTraduccion(t[0], t[1], t[2], t[3], t[4]) </TD> \n </TR> \n')
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
@@ -600,7 +610,7 @@ def p_function_or_procedure(t):
                               | procedure
     '''
     t[0] = t[1]
-    set('<TR> \n <TD> function_or_procedure → functions_or_procedures function_or_procedure | function_or_procedure : </TD> \n <TD>  function_or_procedure = function() </TD> \n </TR> \n')
+    #set('<TR> \n <TD> function_or_procedure → functions_or_procedures function_or_procedure | function_or_procedure : </TD> \n <TD>  function_or_procedure = function() </TD> \n </TR> \n')
 
 def p_procedure(t):
     '''
@@ -683,10 +693,10 @@ def p_function(t):
         # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
         t[0] = funheader(t[5], t[7], 1, 1)
     elif len(t) == 6:
-        # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+        # CREATE FUNCTION ID PARIZQ function_ending
         t[0] = funheader(t[3], None, 1, 1)
     elif len(t) == 8:
-        # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+        # CREATE OR REPLACE FUNCTION ID PARIZQ function_ending
         t[0] = funheader(t[5], None, 1, 1)
 
     set('<TR> \n <TD> function → CREATE FUNCTION ID PARIZQ arguments function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending | CREATE FUNCTION ID PARIZQ function_ending | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending : </TD> \n <TD>  function = function(t[2], t[4]) </TD> \n </TR> \n')
@@ -874,14 +884,23 @@ def p_case(t):
 def p_drop_function(t):
     '''
         drop_function : DROP FUNCTION ID
+                      | DROP FUNCTION IF EXISTS ID
     '''
-    t[0] = dropfun(t[3], 1, 1)
+    if len(t) == 6:
+        t[0] = dropfun(t[5], 1, 1)
+    else:
+        t[0] = dropfun(t[3], 1, 1)
+
 
 def p_drop_procedure(t):
     '''
-        drop_procedure : DROP PROCEDURE ID
+        drop_procedure : DROP PROCEDURE IF EXISTS ID
+                       | DROP PROCEDURE ID
     '''
-    t[0] = dropfun(t[3], 1, 1)
+    if len(t) == 6:
+        t[0] = dropfun(t[5], 1, 1)
+    else:
+        t[0] = dropfun(t[3], 1, 1)
 
 
 # -------------------------------Pablo PL/PGSQL ---------------------------------------------
@@ -958,34 +977,6 @@ def p_statements_assign(t):
     set('<TR> \n <TD> asignacionvar → ID  DOSPTS IGUAL exp | ID  IGUAL exp: </TD> \n <TD> asignacionvar = var_asignacion(t[1], t[4], 1, 1) </TD> \n </TR> \n')
 
 
-# ================= perform =================
-def p_statements_perfom(t):
-    '''
-        statements : PERFORM select
-    '''
-    pass
-    set('<TR> \n <TD> statements → PERFORM select: </TD> \n <TD> statements  = perform(t[1]) </TD> \n </TR> \n')
-
-
-# ================= select =================
-def p_statements_select(t):
-    '''
-        statements  : SELECT exp_list INTO exp_list FROM exp_list
-                    | SELECT exp_list INTO exp_list FROM exp_list conditions
-    '''
-    pass
-    set('<TR> \n <TD> statements → SELECT exp_list INTO exp_list FROM exp_list | SELECT exp_list INTO exp_list FROM exp_list conditions: </TD> \n <TD> statements  = select(t[2], t[4], t[6]) </TD> \n </TR> \n')
-
-
-def p_statements_select_strict(t):
-    '''
-        statements : SELECT exp_list INTO STRICT ID FROM exp_list
-                   | SELECT exp_list INTO STRICT ID FROM exp_list conditions
-    '''
-    pass
-    set('<TR> \n <TD> statements → SELECT exp_list INTO STRICT ID FROM exp_list | SELECT exp_list INTO STRICT ID FROM exp_list conditions: </TD> \n <TD> statements  = select(t[2], t[4], t[6]) </TD> \n </TR> \n')
-
-
 # ================= insert =================
 
 def p_statements_insert(t):
@@ -994,25 +985,6 @@ def p_statements_insert(t):
                    | INSERT INTO ID                      VALUES PARIZQ exp_list PARDER returning
     '''
     set('<TR> \n <TD> statements → INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER returning | INSERT INTO ID VALUES PARIZQ exp_list PARDER returning: </TD> \n <TD> statements  = insert(t[3], t[6]) </TD> \n </TR> \n')
-
-
-# ================= update =================
-def p_statements_update(t):
-    '''
-        statements : UPDATE ID SET exp_list WHERE exp returning
-                   | UPDATE ID SET exp_list           returning
-    '''
-    set('<TR> \n <TD> statements → UPDATE ID SET setcolumns WHERE exp returning | UPDATE ID SET setcolumns returning: </TD> \n <TD> statements  = update(t[2], t[4], t[6]) </TD> \n </TR> \n')
-
-
-# ================= update =================
-def p_statements_delete(t):
-    '''
-    statements : DELETE                FROM ID WHERE exp returning
-               | DELETE 			   FROM ID           returning
-    '''
-    set('<TR> \n <TD> statements → DELETE FROM ID WHERE exp returning | DELETE FROM ID returning | DELETE groupatributes FROM ID WHERE exp returning | DELETE groupatributes FROM ID returning: </TD> \n <TD> statements  = delete(t[2], t[4], t[6]) </TD> \n </TR> \n')
-
 
 
 def p_returning(t):
@@ -1064,39 +1036,39 @@ def p_create_index1(t):
     '''
        create_index : CREATE        index_id_on_id             PARIZQ index_params PARDER
     '''
-    t[0] = indice(t[2], 1, 1)
+    t[0] = indice(t[2],t[4],'index' ,1, 1)
 
 def p_create_index2(t):
     '''
         create_index : CREATE        index_id_on_id             PARIZQ index_params PARDER conditions
     '''
-    t[0] = indice(t[2], 1, 1)
+    t[0] = indice(t[2],t[4],'index' ,1, 1)
 
 
 def p_create_index3(t):
     '''
         create_index : CREATE UNIQUE index_id_on_id             PARIZQ index_params PARDER conditions
     '''
-    t[0] = indice(t[3], 1, 1)
+    t[0] = indice(t[3],t[5],'unique index' ,1, 1)
 
 def p_create_index4(t):
     '''
         create_index : CREATE UNIQUE index_id_on_id             PARIZQ index_params PARDER
     '''
-    t[0] = indice(t[3], 1, 1)
+    t[0] = indice(t[3],t[5],'unique index' ,1, 1)
 
 def p_create_index5(t):
     '''
         create_index : CREATE        index_id_on_id USING HASH  PARIZQ index_params PARDER
     '''
-    t[0] = indice(t[2], 1, 1)
+    t[0] = indice(t[2],t[6],'index' ,1, 1)
 
 
 def p_create_index(t):
     '''
         create_index : CREATE        index_id_on_id USING HASH  PARIZQ index_params PARDER conditions
     '''
-    t[0] = indice(t[2], 1, 1)
+    t[0] = indice(t[2],t[6],'index' ,1, 1)
 
 # ================= INDEX_PARAMS =================
 
@@ -1106,9 +1078,9 @@ def p_index_id_on_id(t):
                        | INDEX    ON ID
     '''
     if len(t)==5:
-        t[0] = t[2]
+        t[0] = Id_Indice(t[2],t[4])
     if len(t) == 4:
-        t[0] = str(t[3])+'_idx'
+        t[0] = Id_Indice('',t[3])
 
 
 
@@ -1117,20 +1089,72 @@ def p_index_params(t):
         index_params    : index_params COMA index_param
                         | index_param
     '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
 
 def p_index_param(t):
     '''
-        index_param     :  ID options
-                        |  ID
-                        |  exp
-                        |  exp options
+        index_param     :  ID       options
+                        |  call_fun options
     '''
+    t[0] = Index_Param(t[1],t[2])
+
+def p_index_param1(t):
+    '''
+        index_param     :  ID
+                        |  call_fun
+    '''
+    t[0] = Index_Param(t[1],[])
+
+def p_call_fun(t):
+    '''
+        call_fun   : LOWER PARIZQ ID            PARDER
+                   | LOWER PARIZQ CADENA        PARDER
+                   | LOWER PARIZQ CADENADOBLE   PARDER
+                   | LOWER PARIZQ ENTERO        PARDER
+    '''
+    try:
+        t[0] = str(t[3]).lower()
+    except Exception as e:
+        print(e)
+        t[0] = 'column1'
+
+def p_call_fun1(t):
+    '''
+        call_fun   : ID    PARIZQ ID            PARDER
+                   | ID    PARIZQ CADENA        PARDER
+                   | ID    PARIZQ CADENADOBLE   PARDER
+                   | ID    PARIZQ ENTERO        PARDER
+    '''
+    try:
+        t[0] = str(t[3])
+        pass
+    except Exception as e:
+        print(e)
+        t[0] = 'column1'
+
+
+def p_call_fun2(t):
+    '''
+        call_fun   :       PARIZQ call_fun      PARDER
+    '''
+    t[0] = t[2]
+
 
 def p_options(t):
     '''
         options    : options option
                    | option
     '''
+    if len(t) == 3:
+        t[0] = t[1]
+        t[0].append(t[2])
+    else:
+        t[0] = [t[1]]
 
 
 def p_option(t):
@@ -1142,6 +1166,7 @@ def p_option(t):
                   | FIRST
                   | LAST
     '''
+    t[0] = Option(t[1])
 
 
 # ================= drop index =================
@@ -1193,6 +1218,12 @@ def p_alter_index1(t):
     '''
     t[0] = alterindex(t[2],t[5],t.lineno,t.lexpos)
 
+def p_alter_index2(t):
+    '''
+        alter_index  : sub_alter ID ALTER COLUMN ID ID
+    '''
+    print('SI usamos esta produccion')
+    t[0] = alterindexColumn(t[2],t[5],t[6],t.lineno,t.lexpos)
 
 def p_alter_index(t):
     '''
@@ -1210,7 +1241,8 @@ def p_alter_index(t):
 
                      | sub_alter ALL IN TABLESPACE ID OWNED BY idlist SET TABLESPACE ID NOWAIT
     '''
-    t[0] = alterindex(t[2],'l',t.lineno,t.lexpos)
+    pass
+    #t[0] = alterindex(t[2],'l',t.lineno,t.lexpos)
 
 
 def p_sub_alter(t):
@@ -1332,48 +1364,101 @@ def p_DataManipulationLenguage_drop_database(t):
 
 def p_DataManipulationLenguage_UNION(t):
     '''
-        DataManipulationLenguage  : select UNION select
+        DataManipulationLenguage  : selectSubquery UNION selectSubquery
     '''
-    t[0] = union(t[1], t[3], 1 , 1)
+    t[0] = SelectCompuesto(t[1], t[2], t[3], 1, 1)
     set('<TR> \n <TD> DataManipulationLenguage → select UNION select : </TD> \n <TD>  DataManipulationLenguage = Union() </TD> \n </TR> \n')
+
+
+def p_selectSubquery_UNION(t):
+    '''
+        selectSubquery  : selectSubquery UNION selectSubquery
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    set('<TR> \n <TD> DataManipulationLenguage → select UNION select : </TD> \n <TD>  DataManipulationLenguage = Union() </TD> \n </TR> \n')
+
+
+def p_selectSubquery_INTERSECT(t):
+    '''
+        selectSubquery : selectSubquery INTERSECT selectSubquery
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    set('<TR> \n <TD> DataManipulationLenguage → select INTERSECT select : </TD> \n <TD>  DataManipulationLenguage = Intersect() </TD> \n </TR> \n')
+
 
 def p_DataManipulationLenguage_INTERSECT(t):
     '''
-        DataManipulationLenguage  : select INTERSECT select
+        DataManipulationLenguage  : selectSubquery INTERSECT selectSubquery
     '''
-    t[0] = intersect(t[1], t[3], 1 , 1)
+    t[0] = SelectCompuesto(t[1], t[2], t[3], 1, 1)
     set('<TR> \n <TD> DataManipulationLenguage → select INTERSECT select : </TD> \n <TD>  DataManipulationLenguage = Intersect() </TD> \n </TR> \n')
+
+
+def p_selectSubquery_except(t):
+    '''
+        selectSubquery  : selectSubquery EXCEPT selectSubquery
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    set('<TR> \n <TD> DataManipulationLenguage → select EXCEPT select : </TD> \n <TD>  DataManipulationLenguage = Except() </TD> \n </TR> \n')
+
 
 def p_DataManipulationLenguage_except(t):
     '''
-        DataManipulationLenguage  : select EXCEPT select
+        DataManipulationLenguage  : selectSubquery EXCEPT selectSubquery
     '''
-    t[0] = except_(t[1], t[3], 1, 1)
+    t[0] = SelectCompuesto(t[1], t[2], t[3], 1, 1)
     set('<TR> \n <TD> DataManipulationLenguage → select EXCEPT select : </TD> \n <TD>  DataManipulationLenguage = Except() </TD> \n </TR> \n')
+
+
+def p_selectSubquery(t):
+    '''
+        selectSubquery  : SELECT expF2_list FROM expF2_list conditionsF2
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
+
 
 def p_select(t):
     '''
-        select  : SELECT exp_list FROM exp_list conditions
+        select  : SELECT expF2_list FROM expF2_list conditionsF2
     '''
-    if len(t) == 6:
-        # SELECT exp_list FROM exp_list conditions
-        t[0] = select(t[2], t[4], t[5], 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
+    t[0] = Select(string, 1, 1)
     set('<TR> \n <TD> select → SELECT exp_list FROM exp_list conditions: </TD> \n <TD>  select = Select(t[2], t[4], t[5]) </TD> \n </TR> \n')
+
+
+def p_selectSubquery_simple(t):
+    '''
+        selectSubquery : SELECT expF2_list FROM expF2_list
+    '''
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> select → SELECT exp_list FROM exp_list: </TD> \n <TD>  select = Select(t[2], N/A, t[5]) </TD> \n </TR> \n')
+
 
 def p_select_simple(t):
     '''
-        select : SELECT exp_list FROM exp_list
+        select : SELECT expF2_list FROM expF2_list
     '''
-    # SELECT SIMPLE
-    t[0] = select(t[2], t[4], "N/A", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Select(string, 1, 1)
     set('<TR> \n <TD> select → SELECT exp_list FROM exp_list: </TD> \n <TD>  select = Select(t[2], N/A, t[5]) </TD> \n </TR> \n')
+
+
+def p_selectSubquery_simple_simple(t):
+    '''
+        selectSubquery : SELECT expF2_list
+    '''
+    t[0] = t[1] + ' ' + t[2]
+    set('<TR> \n <TD> select → SELECT exp_list: </TD> \n <TD>  select = Select_simple(t[2]) </TD> \n </TR> \n')
+
 
 def p_select_simple_simple(t):
     '''
-        select : SELECT exp_list
+        select : SELECT expF2_list
     '''
-    t[0] = select_simple_simple(t[2], 1, 1)
+    string = t[1] + ' ' + t[2]
+    t[0] = Select(string, 1, 1)
     set('<TR> \n <TD> select → SELECT exp_list: </TD> \n <TD>  select = Select_simple(t[2]) </TD> \n </TR> \n')
+
 
 def p_time(t):
     '''
@@ -1387,6 +1472,34 @@ def p_time(t):
     t[0] = t[1].lower()
     set('<TR> \n <TD> time → YEAR | HOUR | SECOND | MINUTE | MONTH | DAY: </TD> \n <TD>  time = t[1] </TD> \n </TR> \n')
 
+
+def p_conditionsF2(t):
+    '''
+        conditionsF2  : conditionsF2 conditionF2
+                    | conditionF2
+    '''
+    if len(t) == 3:
+        t[0] = t[1] + ' ' + t[2]
+    else:
+        t[0] = t[1]
+
+
+def p_conditionF2(t):
+    '''
+        conditionF2 : WHERE expF2
+                     | ORDER BY expF2 setOrder
+                     | GROUP BY expF2_list
+                     | LIMIT expF2
+                     | HAVING expF2
+    '''
+    if len(t) == 3:
+        t[0] = t[1] + ' ' + t[2]
+    elif len(t) == 4:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
+    elif len(t) == 5:
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+
+
 def p_conditions(t):
     '''
         conditions  : conditions condition
@@ -1399,6 +1512,7 @@ def p_conditions(t):
     else:
         t[0] = [t[1]]
         set('\n <TR><TD> conditions → condition  </TD><TD> t[0] = [t[1]] </TD> </TR> ')
+
 
 def p_condition(t):
     '''
@@ -1473,162 +1587,175 @@ def p_expF2_list(t):
 # --------------------------------------------------------------------------------------
 def p_exp_call(t):
     '''
-        exp   : LOWER PARIZQ exp PARDER
-              |       PARIZQ exp PARDER
+        exp   : LOWER PARIZQ expF2 PARDER
     '''
-    if len(t)==4:
-        set('<TR> \n <TD> exp → LOWER PARIZQ exp PARDER: </TD> \n <TD>  exp = lower(t[3]) </TD> \n </TR> \n')
-    else:
-        set('<TR> \n <TD> exp →  PARIZQ exp PARDER: </TD> \n <TD>  exp  = t[3] </TD> \n </TR> \n')
-
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
+    set('<TR> \n <TD> exp →  PARIZQ exp PARDER: </TD> \n <TD>  exp  = t[3] </TD> \n </TR> \n')
 
 
 def p_exp_count(t):
     '''
-        exp   : COUNT PARIZQ exp PARDER
-              | COUNT PARIZQ MULTI PARDER
+        exp   : COUNT PARIZQ expF2 PARDER
     '''
-    if t[3]=='*':
-        #COUNT PARIZQ MULTI PARDER
-        set('<TR> \n <TD> exp → COUNT PARIZQ exp PARDER: </TD> \n <TD>  exp = count(t[3]) </TD> \n </TR> \n')
-    else:
-        #COUNT PARIZQ exp PARDER
-        set('<TR> \n <TD> exp → COUNT PARIZQ exp PARDER: </TD> \n <TD>  exp = count(t[3]) </TD> \n </TR> \n')
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
 
 def p_exp_sum(t):
     '''
-        exp   : SUM PARIZQ exp PARDER
+        exp   : SUM PARIZQ expF2 PARDER
     '''
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SUM PARIZQ exp PARDER: </TD> \n <TD>  exp = sum(t[3]) </TD> \n </TR> \n')
 
 def p_exp_avg(t):
     '''
-        exp   : AVG PARIZQ exp PARDER
+        exp   : AVG PARIZQ expF2 PARDER
     '''
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → AVG PARIZQ exp PARDER: </TD> \n <TD>  exp = avg(t[3]) </TD> \n </TR> \n')
 
 def p_exp_greatest(t):
     '''
-        exp   : GREATEST PARIZQ exp_list PARDER
+        exp   : GREATEST PARIZQ expF2_list PARDER
     '''
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → GREATEST PARIZQ exp_list PARDER: </TD> \n <TD>  exp = avg(t[3]) </TD> \n </TR> \n')
 
 def p_exp_least(t):
     '''
-        exp   : LEAST PARIZQ exp_list PARDER
+        exp   : LEAST PARIZQ expF2_list PARDER
     '''
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → LEAST PARIZQ exp_list PARDER: </TD> \n <TD>  exp = least(t[3]) </TD> \n </TR> \n')
 
 
 def p_exp_max(t):
     '''
-        exp   : MAX PARIZQ exp PARDER
+        exp   : MAX PARIZQ expF2 PARDER
     '''
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → MAX PARIZQ exp PARDER: </TD> \n <TD>  exp = max(t[3]) </TD> \n </TR> \n')
 
 
 def p_exp_min(t):
     '''
-        exp   : MIN PARIZQ exp PARDER
+        exp   : MIN PARIZQ expF2 PARDER
     '''
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → MIN PARIZQ exp PARDER: </TD> \n <TD>  exp = min(t[3]) </TD> \n </TR> \n')
 
 
 def p_exp_abs(t):
     '''
-        exp   : ABS PARIZQ exp PARDER
+        exp   : ABS PARIZQ expF2 PARDER
     '''
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ABS PARIZQ exp PARDER: </TD> \n <TD>  exp = abs(t[3]) </TD> \n </TR> \n')
 
 
 def p_exp_cbrt(t):
     '''
-        exp   : CBRT PARIZQ exp PARDER
+        exp   : CBRT PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "CBRT", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → CBRT PARIZQ exp PARDER: </TD> \n <TD>  exp = cbrt(t[3]) </TD> \n </TR> \n')
 
 def p_exp_ceil(t):
     '''
-        exp   : CEIL PARIZQ exp PARDER
+        exp   : CEIL PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "CEIL", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → CEIL PARIZQ exp PARDER: </TD> \n <TD>  exp = ceil(t[3]) </TD> \n </TR> \n')
 
 def p_exp_ceiling(t):
     '''
-        exp   : CEILING PARIZQ exp PARDER
+        exp   : CEILING PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "CEIL", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → CEILING PARIZQ exp PARDER: </TD> \n <TD>  exp = ceiling(t[3]) </TD> \n </TR> \n')
 
 def p_exp_degrees(t):
     '''
-        exp   : DEGREES PARIZQ exp PARDER
+        exp   : DEGREES PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "DEGREES", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → DEGREES PARIZQ exp PARDER: </TD> \n <TD>  exp = degrees(t[3]) </TD> \n </TR> \n')
 
 def p_exp_div(t):
     '''
-        exp   : DIV PARIZQ exp_list PARDER
+        exp   : DIV PARIZQ expF2_list PARDER
     '''
-    t[0] = Select_simples(t[3], "DIV", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → DIV PARIZQ exp_list PARDER: </TD> \n <TD>  exp = div(t[3]) </TD> \n </TR> \n')
 
 def p_exp_tkexp(t):
     '''
-        exp   : TKEXP PARIZQ exp PARDER
+        exp   : TKEXP PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "EXP", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → TKEXP PARIZQ exp PARDER: </TD> \n <TD>  exp = exp(t[3]) </TD> \n </TR> \n')
 
 def p_exp_factorial(t):
     '''
-        exp   : FACTORIAL PARIZQ exp PARDER
+        exp   : FACTORIAL PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3],"FACTORIAL", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → FACTORIAL PARIZQ exp PARDER: </TD> \n <TD>  exp = factorial(t[3]) </TD> \n </TR> \n')
 
 def p_exp_floor(t):
     '''
-        exp   : FLOOR PARIZQ exp PARDER
+        exp   : FLOOR PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "FLOOR", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → FLOOR PARIZQ exp PARDER: </TD> \n <TD>  exp = floor(t[3]) </TD> \n </TR> \n')
 
 def p_exp_gcd(t):
     '''
-        exp   : GCD PARIZQ exp_list PARDER
+        exp   : GCD PARIZQ expF2_list PARDER
     '''
-    t[0] = Select_simples(t[3], "GCD", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → GCD PARIZQ exp_list PARDER: </TD> \n <TD>  exp = gcd(t[3]) </TD> \n </TR> \n')
 
 def p_exp_ln(t):
     '''
-        exp   : LN PARIZQ exp PARDER
+        exp   : LN PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "LN", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → LN PARIZQ exp PARDER: </TD> \n <TD>  exp = ln(t[3]) </TD> \n </TR> \n')
 
 def p_exp_log(t):
     '''
-        exp   : LOG PARIZQ exp PARDER
+        exp   : LOG PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "LOG", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → LOG PARIZQ exp PARDER: </TD> \n <TD>  exp = Select_simples(t[3], "LOG", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_mod(t):
     '''
-        exp   : MOD PARIZQ exp_list PARDER
+        exp   : MOD PARIZQ expF2_list PARDER
    '''
-    t[0] = Select_simples(t[3], "MOD", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → MOD PARIZQ exp_list PARDER: </TD> \n <TD>  exp = Select_simples(t[3], "MOD", 1, 1) </TD> \n </TR> \n')
 
 
@@ -1636,71 +1763,72 @@ def p_exp_pi(t):
     '''
         exp   : PI PARIZQ PARDER
     '''
-    t[0] = Select_simples(None, "PI", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → PI PARIZQ PARDER: </TD> \n <TD> exp = Select_simples(None, "PI", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_power(t):
     '''
-        exp   : POWER PARIZQ exp_list PARDER
+        exp   : POWER PARIZQ expF2_list PARDER
     '''
-    t[0] = Select_simples(t[3], "POWER", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → POWER PARIZQ exp_list PARDER: </TD> \n <TD> exp = Select_simples(t[3], "POWER", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_radians(t):
     '''
-        exp   : RADIANS PARIZQ exp PARDER
+        exp   : RADIANS PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "RADIANS", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → RADIANS PARIZQ exp PARDER: </TD> \n <TD> exp = Select_simples(t[3], "RADIANS", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_round(t):
     '''
-        exp   : ROUND PARIZQ exp PARDER
+        exp   : ROUND PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "ROUND", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp →  ROUND PARIZQ exp PARDER: </TD> \n <TD> exp = Select_simples(t[3], "ROUND", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_sign(t):
     '''
-        exp   : SIGN PARIZQ exp PARDER
+        exp   : SIGN PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "SIGN", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SIGN PARIZQ exp PARDER: </TD> \n <TD> exp = Select_simples(t[3], "SIGN", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_sqrt(t):
     '''
-        exp   : SQRT PARIZQ exp PARDER
+        exp   : SQRT PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "SQRT", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SQRT PARIZQ exp PARDER: </TD> \n <TD> exp = Select_simples(t[3], "SQRT", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_width(t):
     '''
-        exp   : WIDTH_BUCKET PARIZQ exp COMA exp COMA exp COMA exp PARDER
+        exp   : WIDTH_BUCKET PARIZQ expF2 COMA expF2 COMA expF2 COMA expF2 PARDER
     '''
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8] + ' ' + t[9] + ' ' + t[10]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → WIDTH_BUCKET PARIZQ exp COMA exp COMA exp COMA exp PARDER: </TD> \n <TD> exp = Select_simples(t[3], "WB", 1, 1) </TD> \n </TR> \n')
 
 
 
 def p_exp_trunc(t):
     '''
-        exp   : TRUNC PARIZQ exp PARDER
+        exp   : TRUNC PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples(t[3], "TRUNC", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → TRUNC PARIZQ exp PARDER: </TD> \n <TD> exp = Select_simples(t[3], "TRUNC", 1, 1) </TD> \n </TR> \n')
 
 
@@ -1709,8 +1837,8 @@ def p_exp_random(t):
     '''
         exp   : RANDOM PARIZQ PARDER
     '''
-    t[0] = Select_simples(None, "RANDOM", 1, 1)
-    pass
+    string = t[1] + ' ' + t[2] + ' ' + t[3]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → RANDOM PARIZQ PARDER: </TD> \n <TD> exp = Select_simples(None, "RANDOM", 1, 1) </TD> \n </TR> \n')
 
 
@@ -1720,178 +1848,200 @@ def p_exp_random(t):
 
 def p_exp_acos(t):
     '''
-        exp   : ACOS PARIZQ exp PARDER
+        exp   : ACOS PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"acos", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp →  ACOS PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"acos", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_acosd(t):
     '''
-        exp   : ACOSD PARIZQ exp PARDER
+        exp   : ACOSD PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"acosd", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp →  ACOSD PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"acosd", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_asin(t):
     '''
-        exp   : ASIN PARIZQ exp PARDER
+        exp   : ASIN PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"asin", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp →  ASIN PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"asin", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_asind(t):
     '''
-        exp   : ASIND PARIZQ exp PARDER
+        exp   : ASIND PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"asind", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ASIND PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"asind", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_atan(t):
     '''
-        exp   : ATAN PARIZQ exp PARDER
+        exp   : ATAN PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"atan", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ATAN PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"atan", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_atand(t):
     '''
-        exp   : ATAND PARIZQ exp PARDER
+        exp   : ATAND PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"atand", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ATAND PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"atand", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_atan2(t):
     '''
-        exp   : ATAN2 PARIZQ exp COMA exp PARDER
+        exp   : ATAN2 PARIZQ expF2 COMA expF2 PARDER
     '''
-    t[0] = Select_Trig([t[3],t[5]],"atan2", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ATAN2 PARIZQ exp COMA exp PARDER: </TD> \n <TD> exp = Select_Trig([t[3],t[5]],"atan2", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_atan2d(t):
     '''
-        exp   : ATAN2D PARIZQ exp COMA exp PARDER
+        exp   : ATAN2D PARIZQ expF2 COMA expF2 PARDER
     '''
-    t[0] = Select_Trig([t[3],t[5]],"atan2d", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ATAN2D PARIZQ exp COMA exp PARDER: </TD> \n <TD> exp = Select_Trig([t[3],t[5]],"atan2d", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_cos(t):
     '''
-        exp   : COS PARIZQ exp PARDER
+        exp   : COS PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"cos", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → COS PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"cos", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_cosd(t):
     '''
-        exp   : COSD PARIZQ exp PARDER
+        exp   : COSD PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"cosd", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → COSD PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"cosd", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_cot(t):
     '''
-        exp   : COT PARIZQ exp PARDER
+        exp   : COT PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"cot", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → COT PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"cot", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_cotd(t):
     '''
-        exp   : COTD PARIZQ exp PARDER
+        exp   : COTD PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"cotd", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → COTD PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"cotd", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_sin(t):
     '''
-        exp   : SIN PARIZQ exp PARDER
+        exp   : SIN PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"sin", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SIN PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"sin", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_sind(t):
     '''
-        exp   : SIND PARIZQ exp PARDER
+        exp   : SIND PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"sind", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SIND PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"sind", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_tan(t):
     '''
-        exp   : TAN PARIZQ exp PARDER
+        exp   : TAN PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"tan", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → TAN PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"tan", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_tand(t):
     '''
-        exp   : TAND PARIZQ exp PARDER
+        exp   : TAND PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"tand", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → TAND PARIZQ exp PARDERR: </TD> \n <TD> exp = Select_Trig(t[3],"tand", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_sinh(t):
     '''
-        exp   : SINH PARIZQ exp PARDER
+        exp   : SINH PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"sinh", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SINH PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"sinh", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_cosh(t):
     '''
-        exp   : COSH PARIZQ exp PARDER
+        exp   : COSH PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"cosh", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → COSH PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"cosh", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_tanh(t):
     '''
-        exp   : TANH PARIZQ exp PARDER
+        exp   : TANH PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"tanh", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → TANH PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"tanh", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_asinh(t):
     '''
-        exp   : ASINH PARIZQ exp PARDER
+        exp   : ASINH PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"asinh", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ASINH PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"asinh", 1,1) </TD> \n </TR> \n')
 
 
 
 def p_exp_acosh(t):
     '''
-        exp   : ACOSH PARIZQ exp PARDER
+        exp   : ACOSH PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"acosh", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ACOSH PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"acosh", 1,1) </TD> \n </TR> \n')
 
 
 def p_exp_atanh(t):
     '''
-        exp   : ATANH PARIZQ exp PARDER
+        exp   : ATANH PARIZQ expF2 PARDER
     '''
-    t[0] = Select_Trig(t[3],"atanh", 1,1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ATANH PARIZQ exp PARDER: </TD> \n <TD> exp = Select_Trig(t[3],"atanh", 1,1) </TD> \n </TR> \n')
 
 
@@ -1901,89 +2051,100 @@ def p_exp_atanh(t):
 
 def p_exp_length(t):
     '''
-        exp   : LENGTH PARIZQ exp PARDER
+        exp   : LENGTH PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "LENGTH", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → LENGTH PARIZQ exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "LENGTH", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_substring(t):
     '''
-        exp   : SUBSTRING PARIZQ exp COMA exp COMA exp PARDER
+        exp   : SUBSTRING PARIZQ expF2 COMA expF2 COMA expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "SUBSTRING", 1, 1, t[5], t[7])
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SUBSTRING PARIZQ exp COMA exp COMA exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "SUBSTRING", 1, 1, t[5], t[7]) </TD> \n </TR> \n')
 
 
 def p_exp_trim(t):
     '''
-        exp   : TRIM PARIZQ exp PARDER
+        exp   : TRIM PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "TRIM", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → TRIM PARIZQ exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "TRIM", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_md5(t):
     '''
-        exp   : MD5 PARIZQ exp PARDER
+        exp   : MD5 PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "MD5", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → MD5 PARIZQ exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "MD5", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_sha256(t):
     '''
-        exp   : SHA256 PARIZQ exp PARDER
+        exp   : SHA256 PARIZQ expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "SHA256", 1, 1)
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SHA256 PARIZQ exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "SHA256", 1, 1) </TD> \n </TR> \n')
 
 
 def p_exp_substr(t):
     '''
-        exp   : SUBSTR PARIZQ exp COMA exp COMA exp PARDER
+        exp   : SUBSTR PARIZQ expF2 COMA expF2 COMA expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "SUBSTR", 1, 1, t[5], t[7])
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SUBSTR PARIZQ exp COMA exp COMA exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "SUBSTR", 1, 1, t[5], t[7]) </TD> \n </TR> \n')
 
 
 def p_exp_getbyte(t):
     '''
-        exp   : GET_BYTE PARIZQ exp COMA exp PARDER
+        exp   : GET_BYTE PARIZQ expF2 COMA expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "GET_BYTE", 1, 1, t[5])
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → GET_BYTE PARIZQ exp COMA exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "GET_BYTE", 1, 1, t[5]) </TD> \n </TR> \n')
 
 
 def p_exp_setbyte(t):
     '''
-        exp   : SET_BYTE PARIZQ exp COMA exp COMA exp PARDER
+        exp   : SET_BYTE PARIZQ expF2 COMA expF2 COMA expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "SET_BYTE", 1, 1, t[5], t[7])
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6] + ' ' + t[7] + ' ' + t[8]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → SET_BYTE PARIZQ exp COMA exp COMA exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "SET_BYTE", 1, 1, t[5], t[7]) </TD> \n </TR> \n')
 
 
 def p_exp_convert(t):
     '''
-        exp   : CONVERT PARIZQ exp AS types PARDER
+        exp   : CONVERT PARIZQ expF2 AS typesF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "CONVERT", 1, 1, t[5])
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → CONVERT PARIZQ exp AS types PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "CONVERT", 1, 1, t[5]) </TD> \n </TR> \n')
 
 
 def p_exp_encode(t):
     '''
-        exp   : ENCODE PARIZQ exp COMA exp PARDER
+        exp   : ENCODE PARIZQ expF2 COMA expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "ENCODE", 1, 1, t[5])
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → ENCODE PARIZQ exp COMA exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "ENCODE", 1, 1, t[5]) </TD> \n </TR> \n')
 
 
 def p_exp_decode(t):
     '''
-        exp   : DECODE PARIZQ exp COMA exp PARDER
+        exp   : DECODE PARIZQ expF2 COMA expF2 PARDER
     '''
-    t[0] = Select_simples_binarias(t[3], "DECODE", 1, 1, t[5])
+    string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
+    t[0] = Function(string, 1, 1)
     set('<TR> \n <TD> exp → DECODE PARIZQ exp COMA exp PARDER: </TD> \n <TD> exp = Select_simples_binarias(t[3], "DECODE", 1, 1, t[5]) </TD> \n </TR> \n')
 
 
@@ -2013,6 +2174,11 @@ def p_exp_opunary(t):
         pass
     elif t[1] == '-':
         # MENOS exp
+        t[0] = UNITARIO(t[2], t[1], 1, 1)
+        pass
+    elif t[1] == '!':
+        # MENOS exp
+        t[0] = UNITARIO(t[2], t[1], 1, 1)
         pass
     elif t[1] == 'not':
         # NOT exp
@@ -2077,6 +2243,7 @@ def p_exp(t):
               | exp NOTNULL     exp
               | exp AND         exp
               | exp OR          exp
+              | exp DISTINTO exp
               | expSimple
               | dateFunction
               | callfunction
@@ -2104,6 +2271,7 @@ def p_exp(t):
             pass
         elif t[2]=='^':
             # exp TKEXP exp
+            t[0] = EXPONENTE(t[1], t[3], 1, 1)
             pass
         elif t[2]=='*':
             # exp MULTI exp
@@ -2115,6 +2283,7 @@ def p_exp(t):
             pass
         elif t[2]=='%':
             # exp MODULO exp
+            t[0] = MODULO(t[1], t[3], 1, 1)
             pass
         elif t[2]=='+':
             # exp MAS exp
@@ -2143,6 +2312,7 @@ def p_exp(t):
             # exp IGUAL exp
             #t[0] = OperadoresCondicionales(t[1], t[3], "=")
             #t[0] = OperaRelacional(t[1], t[3], "=", 1, 1)
+            t[0] = OperaRelacional(t[1], t[3], "==", 1, 1)
             pass
         elif t[2] == '==':
             t[0] = OperaRelacional(t[1], t[3], "==", 1, 1)
@@ -2158,6 +2328,9 @@ def p_exp(t):
         elif t[2]=='<=':
             # exp MENO
             t[0] = OperaRelacional(t[1], t[3], "<=", 1, 1)
+        elif t[2]=='!=':
+            # exp MENO
+            t[0] = OperaRelacional(t[1], t[3], "!=", 1, 1)
         elif t[2].lower()=='is':
             # exp IS exp
             pass
@@ -2181,6 +2354,11 @@ def p_exp(t):
     elif len(t) == 2:
         # expSimple
         t[0] = t[1]
+    elif len(t) == 3:
+        if t[1].lower()=='!':
+            t[0] = UNITARIO(t[2], t[1], 1, 1)
+        elif t[1].lower()=='-':
+            t[0] = UNITARIO(t[2], t[1], 1, 1)
 
     set('<TR> \n <TD> exp → exp ANDBB exp| exp ORBB exp | exp NUMERAL exp | exp SHIFTIZQ exp | exp SHIFTDER exp | exp TKEXP exp | exp MULTI exp | exp DIVISION exp | expSimple| dateFunction | exp NOT IN exp: </TD> \n <TD> exp = exp(t[1], t[5]) </TD> \n </TR> \n')
 
@@ -2215,7 +2393,8 @@ def p_dateFunction(t):
         t[0] = Select_simples_date(t.lineno, 0, 'date_part', t[3], t[6])
     elif t[1].lower() == "now":
         # SELECT NOW PARIZQ PARDER
-        t[0] = Select_simples_date(t.lineno, 0, 'now')
+        #t[0] = Select_simples_date(t.lineno, 0, 'now')
+        t[0] = t[0] = lappel('now', None, 1, 1)
     elif t[1].lower() == "current_date":
         # SELECT CURRENT_DATE
         t[0] = Select_simples_date(t.lineno, 0, 'current_date')
@@ -2276,10 +2455,7 @@ def p_expSimples_ID_ID(t):
 
 def p_expSimples_exp_AS_ID(t):
     '''
-        expSimple : ID AS ID
-                  | exp AS CADENA
-                  | exp AS ID
-                  | exp AS CADENADOBLE
+        expSimple : exp AS exp
     '''
     t[0] = indexador_auxiliar(t[1], t[3], 1)
     set('<TR> \n <TD> expSimple  →  exp AS CADENA | exp AS ID | exp AS CADENADOBLE : </TD> \n <TD> expSimple  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
@@ -2289,20 +2465,11 @@ def p_expSimples_exp_AS_ID(t):
 # --------------------------------------------------------------------------------------
 def p_subquery(t):
     '''
-        subquery : PARIZQ select PARDER
-                 | PARIZQ select PARDER ID
-                 | PARIZQ select PARDER AS ID
+        subquery : PARIZQ DataManipulationLenguage PARDER
+                 | PARIZQ callfunction PARDER
+                 | PARIZQ exp PARDER
     '''
-    if len(t) == 4:
-        #PARIZQ select PARDER
-        pass
-    elif len(t) == 5:
-        #PARIZQ select PARDER ID
-        t[0] = indexador_auxiliar(t[2], t[4], 2)
-    elif len(t) == 6:
-        #PARIZQ select PARDER AS ID
-        t[0] = indexador_auxiliar(t[2], t[5], 2)
-        pass
+    t[0] = t[2]
     set('<TR> \n <TD> subquery  → PARIZQ select PARDER : </TD> \n <TD> subquery  = select(t[1]) </TD> \n </TR> \n')
 
 
@@ -2360,23 +2527,15 @@ def p_expSimples_false(t):
 def p_expF2_call(t):
     '''
         expF2   : LOWER PARIZQ expF2 PARDER
-              |       PARIZQ expF2 PARDER
     '''
-    if len(t)==4:
-        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
-
-        set('<TR> \n <TD> expF2 → LOWER PARIZQ expF2 PARDER: </TD> \n <TD>  expF2 = lower(t[3]) </TD> \n </TR> \n')
-    else:
-        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
-
-        set('<TR> \n <TD> expF2 →  PARIZQ expF2 PARDER: </TD> \n <TD>  expF2  = t[3] </TD> \n </TR> \n')
+    t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    set('<TR> \n <TD> expF2 →  PARIZQ expF2 PARDER: </TD> \n <TD>  expF2  = t[3] </TD> \n </TR> \n')
 
 
 
 def p_expF2_count(t):
     '''
         expF2   : COUNT PARIZQ expF2 PARDER
-              | COUNT PARIZQ MULTI PARDER
     '''
     t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
 
@@ -2988,6 +3147,7 @@ def p_expSimplesF2(t):
         t[0] = t[1]
     set('<TR> \n <TD> expSimpleF2 → subquery </TD> \n <TD>  exp = select() </TD> \n </TR> \n')
 
+
 def p_dateFunctionF2(t):
     '''
         dateFunctionF2 : EXTRACT PARIZQ time FROM TIMESTAMP expF2 PARDER
@@ -3057,10 +3217,7 @@ def p_expSimplesF2_ID_ID(t):
 
 def p_expSimplesF2_exp_AS_ID(t):
     '''
-        expSimpleF2 : ID AS ID
-                  | expF2 AS CADENA
-                  | expF2 AS ID
-                  | expF2 AS CADENADOBLE
+        expSimpleF2 : expF2 AS expF2
     '''
     t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
     set('<TR> \n <TD> expSimpleF2  →  exp AS CADENA | exp AS ID | exp AS CADENADOBLE : </TD> \n <TD> expSimpleF2  = indexador_auxiliar(t[1], t[3]) </TD> \n </TR> \n')
@@ -3070,21 +3227,18 @@ def p_expSimplesF2_exp_AS_ID(t):
 # --------------------------------------------------------------------------------------
 def p_subqueryF2(t):
     '''
-        subqueryF2 : PARIZQ select PARDER
-                 | PARIZQ select PARDER ID
-                 | PARIZQ select PARDER AS ID
+        subqueryF2 : PARIZQ selectSubquery PARDER
+                 | PARIZQ selectSubquery PARDER ID
+                 | PARIZQ selectSubquery PARDER AS ID
+                 | PARIZQ expF2 PARDER
     '''
     if len(t) == 4:
-        #PARIZQ select PARDER
-        pass
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3]
     elif len(t) == 5:
-        #PARIZQ select PARDER ID
-        t[0] = indexador_auxiliar(t[2], t[4], 2)
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
     elif len(t) == 6:
-        #PARIZQ select PARDER AS ID
-        t[0] = indexador_auxiliar(t[2], t[5], 2)
-        pass
-    set('<TR> \n <TD> subquery  → PARIZQ select PARDER : </TD> \n <TD> subquery  = select(t[1]) </TD> \n </TR> \n')
+        t[0] = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
+        set('<TR> \n <TD> subquery  → PARIZQ select PARDER : </TD> \n <TD> subquery  = select(t[1]) </TD> \n </TR> \n')
 
 
 def p_expSimplesF2_entero(t):
@@ -3107,14 +3261,14 @@ def p_expSimplesF2_cadenas(t):
     '''
         expSimpleF2   :   CADENA
     '''
-    t[0] = '\'' + t[1] + '\''
+    t[0] = '\\' + '\'' + t[1] + '\\' + '\''
     set('<TR> \n <TD> expSimplesF2  → CADENA: </TD> \n <TD> expSimpleF2  = cadena(t[1]) </TD> \n </TR> \n')
 
 def p_expSimplesF2_cadenadoble(t):
     '''
         expSimpleF2   :   CADENADOBLE
     '''
-    t[0] = '\"' + t[1] + '\"'
+    t[0] = '\\' + '\"' + t[1] + '\\' + '\"'
     set('<TR> \n <TD> expSimplesF2  → CADENADOBLE: </TD> \n <TD> expSimpleF2  = cadena(t[1]) </TD> \n </TR> \n')
 
 
@@ -3306,12 +3460,6 @@ def p_definitionTypes(t):
     t[0] = t[1]
     set('<TR> \n <TD> definitionTypes → types: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
 
-def p_definitionTypes_id(t):
-    '''
-        definitionTypes : ID
-    '''
-    t[0] = t[1]
-    set('<TR> \n <TD> definitionTypes → ID: </TD> \n <TD> definitionTypes = t[1] </TD> \n </TR> \n')
 
 def p_typesF2(t):
     '''
@@ -3331,6 +3479,7 @@ def p_typesF2(t):
               | BOOLEAN
               | DOUBLE PRECISION
               | CHARACTER VARYING PARIZQ expF2 PARDER
+              | CHARACTER PARIZQ expF2 PARDER
               | VARCHAR PARIZQ expF2 PARDER
               | CHAR PARIZQ expF2 PARDER
               | STRING
@@ -3346,7 +3495,6 @@ def p_typesF2(t):
         t[0] = t[1] + t[2] + t[3] + t[4] + t[5]
     elif len(t) == 5:
         t[0] = t[1] + t[2] + t[3] + t[4]
-
 
 
 def p_types(t):
@@ -3451,16 +3599,15 @@ def p_idlist(t):
 # --------------------------------------------------------------------------------------
 def p_update(t):
     '''
-        update : UPDATE ID SET exp_list WHERE exp
-               | UPDATE ID SET exp_list
+        update : UPDATE ID SET expF2_list WHERE expF2
+               | UPDATE ID SET expF2_list
     '''
+    string = ''
     if len(t)==7:
-        #UPDATE ID SET setcolumns WHERE exp
-        t[0] = Update(t.lineno, 0, t[2], t[4], t[6])
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5] + ' ' + t[6]
     elif len(t)==5:
-        t[0] = Update(t.lineno, 0, t[2], t[4])
-        #UPDATE ID SET setcolumns
-        pass
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4]
+    t[0] = Update(string, 1, 1)
     set('<TR> \n <TD> update → UPDATE ID SET setcolumns WHERE exp: </TD> \n <TD> update = Update(t[2], t[4], t[6]) </TD> \n </TR> \n')
 
 
@@ -3544,16 +3691,15 @@ def p_newInstructions(t):
 # --------------------------------------------------------------------------------------
 def p_deletetable(t):
     '''
-        deletetable : DELETE FROM ID WHERE exp
+        deletetable : DELETE FROM ID WHERE expF2
                     | DELETE FROM ID
     '''
+    string = ''
     if len(t)==6:
-        #DELETE FROM ID WHERE exp
-        t[0] = Delete(t[3], t[5], 1, 1)
-        pass
+        string = t[1] + ' ' + t[2] + ' ' + t[3] + ' ' + t[4] + ' ' + t[5]
     elif len(t) == 4:
-        t[0] = Delete(t[3], None, 1, 1)
-        pass
+        string = t[1] + ' ' + t[2] + ' ' + t[3]
+    t[0] = Delete(string, 1, 1)
     set('<TR> \n <TD> deletetable → DELETE FROM ID WHERE exp | DELETE FROM ID: </TD> \n <TD> defAcces = deleteTable(t[2], t[4]) </TD> \n </TR> \n')
 
 

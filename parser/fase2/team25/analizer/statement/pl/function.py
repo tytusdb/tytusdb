@@ -25,7 +25,7 @@ class Function(instruction.Instruction):
             valores = defaultValues(tipo[0])
             SymbolTable.add_symbol(nombre, valores[0], valores[1], 0,0,None)
 
-        header = f'\n@with_goto\ndef f{self.name}('
+        header = f'\n@with_goto\ndef {self.name}(' # solo le quite la f :v
         for param in range(len(self.params)):
             header += self.params[param][0]
             if param != len(self.params) -1:
@@ -82,7 +82,8 @@ class Function(instruction.Instruction):
                 parametro.addNode(tipo)
                 if param[1][1][0] != None:
                     dim = Nodo("DIMENSION")
-                    dim.addNode(Nodo(str(param[1][1][0])))
+                    for dimen in param[1][1]:
+                        dim.addNode(Nodo(str(dimen)))
                     tipo.addNode(dim)
                 params.addNode(parametro)
             new.addNode(params)

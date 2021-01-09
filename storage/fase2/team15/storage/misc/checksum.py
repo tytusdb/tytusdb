@@ -3,7 +3,7 @@
 # Copyright (c) 2020 TytusDb Team
 
 import hashlib
-from storage import main as h
+from storage import TytusStorage as h
 
 def checksumDatabase(database, mode):
     try:

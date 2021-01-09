@@ -1163,49 +1163,103 @@ def procesar_create_type(instr,ts,tc):
 
 #delete
 def procesar_delete(instr,ts,tc):
+#print(instr.expresion.expresion)
+
+    global salida
+    arrayPK = []
+    arrayFilter = []
+    arrayColumnasIds = []
     if instr.etiqueta == TIPO_DELETE.DELETE_NORMAL:
-        nada = 1
+        if instr.expresion != None:
+            columnas = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+            if columnas == []:
+                salida = "\nERROR:  relation \"" + str(instr.val) +"\" does not exist\nSQL state: 42P01"
+            else:
+                iPk = 0
+                for ic in columnas:
+                    get = tc.obtenerReturn(str(useCurrentDatabase),instr.val,ic)
+                    if get:
+                        for icons in get.listaCons:
+                            if icons == OPCIONES_CONSTRAINT.PRIMARY:
+                                arrayPK.append(iPk)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_RETURNING:
-        nada = 1
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                    iPk += 1
+                
+                columnsTable = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+                resultArray = j.extractTable(str(useCurrentDatabase),str(instr.val))
+                arrayWhere = resultArray
+                arrayWhere.insert(0,columnsTable)   
+                #print(resultArray)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_EXIST:    
-        if instr.expresion.operador == OPERACION_RELACIONAL.MAYQUE:
-            if instr.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR and instr.expresion.exp2.etiqueta ==  TIPO_VALOR.NUMERO:
-                nada = 1           
+                arrayFilter.append(arrayWhere[0])
+                arrayupdateNum = []
+                i = 1
+                coli = 0
+                while i < len(arrayWhere):
+                    arrayTS = []
+                    arrayTS.append(arrayWhere[0])
+                    arrayTS.append(arrayWhere[i])
+                    val = resolver_expresion_logica(instr.expresion.expresion,arrayTS)
+                    if val == 1:
+                        arrayFilter.append(arrayWhere[i])
+                        arrayupdateNum.append(coli)
+                    i+=1
+                    coli += 1
 
-   
-    elif instr.etiqueta == TIPO_DELETE.DELETE_EXIST_RETURNING:
-        
-        nada = 1
+                #print(arrayFilter)
+                #print(arrayupdateNum)
 
-        if instr.expresion.operador == OPERACION_RELACIONAL.MAYQUE:
-            if instr.expresion.exp1.etiqueta == TIPO_VALOR.IDENTIFICADOR and instr.expresion.exp2.etiqueta ==  TIPO_VALOR.NUMERO:
-                nada = 1
+                arrayDeletePks = []
 
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                iArrF = 1
+                while iArrF < len(arrayFilter):
+                    #print(arrayFilter[iArrF])
+                    tempPks = []
+                    for itPK in arrayPK:
+                        tempPks.append(arrayFilter[iArrF][itPK])
+                    arrayDeletePks.append(tempPks)
+                    iArrF+=1
+                
+                #print(arrayDeletePks)
 
-        
-    elif instr.etiqueta == TIPO_DELETE.DELETE_CONDIFION:
-        nada = 1
-    
-    elif instr.etiqueta == TIPO_DELETE.DELETE_CONDICION_RETURNING:
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                for pksDelete in arrayDeletePks:
+                    j.delete(str(useCurrentDatabase),str(instr.val),pksDelete)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_USING:
-        nada = 1
+                salida = '\nDELETE ' + str(len(arrayDeletePks))
+        else:
+            columnas = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+            if columnas == []:
+                salida = "\nERROR:  relation \"" + str(instr.val) +"\" does not exist\nSQL state: 42P01"
+            else:
+                iPk = 0
+                for ic in columnas:
+                    get = tc.obtenerReturn(str(useCurrentDatabase),instr.val,ic)
+                    if get:
+                        for icons in get.listaCons:
+                            if icons == OPCIONES_CONSTRAINT.PRIMARY:
+                                arrayPK.append(iPk)
 
-    elif instr.etiqueta == TIPO_DELETE.DELETE_USING_returnin:
-        if instr.returning != []:
-            for retornos in instr.returning:
-                nada = 1
+                    iPk += 1
+                
+                columnsTable = tc.obtenerColumns(str(useCurrentDatabase),instr.val)
+                resultArray = j.extractTable(str(useCurrentDatabase),str(instr.val))
+                arrayFilter = resultArray
+                arrayFilter.insert(0,columnsTable)   
+                
+                arrayDeletePks = []
+
+                iArrF = 1
+                while iArrF < len(arrayFilter):
+                    tempPks = []
+                    for itPK in arrayPK:
+                        tempPks.append(arrayFilter[iArrF][itPK])
+                    arrayDeletePks.append(tempPks)
+                    iArrF+=1
+
+                for pksDelete in arrayDeletePks:
+                    j.delete(str(useCurrentDatabase),str(instr.val),pksDelete)
+
+                salida = '\nDELETE ' + str(len(arrayDeletePks))
 
 
 
@@ -2828,65 +2882,91 @@ def procesar_index(instr, ts, tc,tsIndex):
     global salida
     
     buscar = tc.obtenerReturnTabla(useCurrentDatabase,instr.nombre_index)
+    arrayList = tsIndex.getIds()
     if buscar == False:
         salida = "\nERROR:  relation \"" + str(instr.nombre_index) +"\" does not exist\nSQL state: 42P01"
-    else:
-        #print('---------------- si entra al index ---------------------')
-        if instr.etiqueta == INDEX.INDEX:
-            columsAr = []
-            colums = ""
-            if type(instr.lista_index.identificador) == type([]):
-                for lista in instr.lista_index.identificador:
-                    columsAr.append(lista.val)
+    else:        
+        if instr.identificador in arrayList:
+            salida = "\nERROR:  relation \"" + str(instr.identificador) +"\" already exists\nSQL state: 42P07"
+        else:
+            if instr.etiqueta == INDEX.INDEX:
+                columsAr = []
+                colums = ""
+                if type(instr.lista_index.identificador) == type([]):
+                    for lista in instr.lista_index.identificador:
+                        columsAr.append(lista.val)
 
-            else:
-                columsAr.append(instr.lista_index.identificador)
+                else:
+                    columsAr.append(instr.lista_index.identificador)
+                
+                temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,columsAr,instr.etiqueta)
+                tsIndex.agregar(temp)
+                salida = '\nCREATE INDEX'
+
             
-            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,columsAr,instr.etiqueta)
-            tsIndex.agregar(temp)
-            salida = '\nCREATE INDEX'
+            elif instr.etiqueta == INDEX.INDEX_WHERE:
+                #print(instr.identificador)
+                #print(instr.nombre_index)
+                temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
+                tsIndex.agregar(temp)
+                salida = '\nCREATE INDEX'
 
+            elif instr.etiqueta == INDEX.INDEX_INCLUDE:
+                #print(instr.identificador)
+                #print(instr.nombre_index)
+
+                temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
+                tsIndex.agregar(temp)
+                salida = '\nCREATE INDEX'
+
+            elif instr.etiqueta == INDEX.INDEX_UNIQUE_WHERE:
+                #print(instr.identificador)
+                #print(instr.nombre_index)
+
+                temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
+                tsIndex.agregar(temp)
+                salida = '\nCREATE INDEX'
+
+            elif instr.etiqueta == INDEX.INDEX_INCLUDE:
+                #print(instr.identificador)
+                #print(instr.nombre_index)
+                temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
+                tsIndex.agregar(temp)
+                salida = '\nCREATE INDEX'
+
+            elif instr.etiqueta == INDEX.INDEX_CLASS:
+                #print(instr.identificador)
+                #print(instr.nombre_index)
+                temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
+                tsIndex.agregar(temp)
+                salida = '\nCREATE INDEX'
         
-        elif instr.etiqueta == INDEX.INDEX_WHERE:
-            #print(instr.identificador)
-            #print(instr.nombre_index)
-            
-            
-            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
-            tsIndex.agregar(temp)
-            salida = '\nCREATE INDEX'
-
-        elif instr.etiqueta == INDEX.INDEX_INCLUDE:
-            #print(instr.identificador)
-            #print(instr.nombre_index)
-
-            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
-            tsIndex.agregar(temp)
-            salida = '\nCREATE INDEX'
-
-        elif instr.etiqueta == INDEX.INDEX_UNIQUE_WHERE:
-            #print(instr.identificador)
-            #print(instr.nombre_index)
-            
-            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
-            tsIndex.agregar(temp)
-            salida = '\nCREATE INDEX'
-
-        elif instr.etiqueta == INDEX.INDEX_INCLUDE:
-            #print(instr.identificador)
-            #print(instr.nombre_index)
-            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
-            tsIndex.agregar(temp)
-            salida = '\nCREATE INDEX'
-
-        elif instr.etiqueta == INDEX.INDEX_CLASS:
-            #print(instr.identificador)
-            #print(instr.nombre_index)
-            temp = TSINDEX.Simbolo(instr.identificador,'INDEX',instr.nombre_index,instr.lista_index.identificador,instr.etiqueta)
-            tsIndex.agregar(temp)
-            salida = '\nCREATE INDEX'
+        
     
-
+def procesar_indexNew(instr, ts, tc,tsIndex):
+    global salida
+    arrayList = tsIndex.getIds()
+    if instr.id_index in arrayList:
+        salida = "\nERROR:  relation \"" + str(instr.id_index) +"\" already exists\nSQL state: 42P07"
+    else: 
+        buscar = tc.obtenerReturnTabla(useCurrentDatabase,instr.id_tabla)
+        if buscar == False:
+            salida = "\nERROR:  relation \"" + str(instr.id_tabla) +"\" does not exist\nSQL state: 42P01"
+        else:
+            varr = True
+            columnasT = tc.obtenerColumns(useCurrentDatabase,instr.id_tabla)
+            for inn in instr.ids:
+                if inn in columnasT:
+                    varr = True
+                else:
+                    varr = False
+                    salida = "\nERROR:  column \"" + str(inn) +"\" does not exist\nSQL state: 42703"
+                    
+            
+            if varr:
+                temp = TSINDEX.Simbolo(instr.id_index,'INDEX',instr.id_tabla,instr.ids,instr.restriccion)
+                tsIndex.agregar(temp)
+                salida = '\nCREATE INDEX'
     
     
     
@@ -3051,6 +3131,8 @@ def procesar_instrucciones(instrucciones,ts,tc,tsIndex) :
                 procesar_select_general(instr,ts,tc)
             elif isinstance(instr, Select_Uniones) : 
                 procesar_select_uniones(instr,ts,tc)
+            elif isinstance(instr, CreateIndexNew) : 
+                procesar_indexNew(instr,ts,tc,tsIndex) 
         
             #SELECT 
             

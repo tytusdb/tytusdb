@@ -4,6 +4,7 @@ from tkinter import messagebox as MessageBox
 from tkinter import ttk
 import tkinter.simpledialog
 from tkinter import *
+from tkinter import font as tkFont
 #Metodo para enumerar las lineas
 class TextLineNumbers(Canvas):
     def __init__(self, *args, **kwargs):
@@ -68,6 +69,12 @@ class Campo(Frame):
 
         self.text.bind("<<Change>>", self._on_change)
         self.text.bind("<Configure>", self._on_change)
+        
+        # clone the text widget font and use it as a basis for some tag
+        bold_font = tkFont.Font(self.text, self.text.cget("font"))
+        bold_font.configure(weight="bold")
+        self.text.tag_configure("bold", font=bold_font)
+        self.text.tag_configure("reserve", foreground="blue", underline=False)
 
     def _on_change(self, event):
         self.linenumbers.redraw()
