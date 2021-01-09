@@ -152,3 +152,20 @@ class blockchain:
             f.close()
             os.system('dot -Tpng ./Data/security/'+database+'_'+table+'.dot -o tupla.png')
             os.system('tupla.png')
+        
+    def fail(self, database, table):
+        file = open("./Data/security/"+database+"_"+table+".json", "r")
+        lista = json.loads(file.read())
+        file.close()
+        if type(lista)!=list:
+            lista = []
+        for x in lista:
+            if x['Estructure']=='incorrecta':
+                return True
+        return False
+
+    
+    def activo(self, database, table):
+        if os.path.isfile("./Data/security/"+database+"_"+table+".json"):
+            return True
+        return False
