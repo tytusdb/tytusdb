@@ -11,7 +11,7 @@ from storage.hash import HashMode as hash
 from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as json
 
-import os, traceback, csv, zlib
+import os, csv, zlib
 from storage.misc import serealizar as sr, ForeignKeyStr as fk_str, UniqueIndexStr as ui_str, IndexStr as i_str, \
     checksum as ch, compresion as comp, BlockChain as BC, Grafos as graph
 
@@ -38,7 +38,9 @@ def __init__():
         #   pk: list,
         #   foreign_keys: ForeignKeyStr,
         #   unique_index: UniqueIndexStr,
-        #   index: IndexStr
+        #   index: IndexStr,
+        #   compress: bool,
+        #   level: int
         # }
 
             # REGISTROS
@@ -1608,9 +1610,7 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
         else:
             return 2
 
-    except Exception:
-        print("=" * 30)
-        traceback.print_exc()
+    except:
         return 1
 
 
