@@ -79,11 +79,24 @@ export class EditorComponent implements OnInit {
 
   public check() {
     let editor = ace.edit('editor').getSelectedText()
-    console.log(editor)
-    Swal.fire(
-      'Entrada sin errores',
-      '',
-      'info'
-    )
+    this.puebaService.ejecucion(editor).subscribe(
+      res => {
+        //@ts-ignore
+        for (const iterator of res.response.messages) {
+          this.messages += iterator + "\n\n"
+        }
+        //@ts-ignore
+        console.log(res.response);
+        //@ts-ignore
+        this.querys = res.response.querys
+        this.errores = ""
+        //@ts-ignore
+        for (const iterator of res.response.postgres) {
+          this.errores += iterator + "\n\n"
+        }
+        console.log(this.errores)
+      },
+      err => console.error(err)
+    );
   }
 }

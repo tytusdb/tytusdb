@@ -1,5 +1,5 @@
-<div class="overflow-auto" style="height: 100%;">
-
+<div class="overflow-hidden" style="height: 100%;">
+    <button type="button" class="btn btn-primary btn-block" (click)="update()">update</button>
     <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" style=" height: 100%; background-color: rgb(178, 178, 178);">
 
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
