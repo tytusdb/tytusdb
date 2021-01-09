@@ -19,6 +19,7 @@ def conectar():
 @app.route('/query',methods=['POST'])
 def transaccionar():
     query = request.json['query']
+    print(query)
     #  codigo de parser para analizar
     return jsonify({"msj":"Query procesado"})
 

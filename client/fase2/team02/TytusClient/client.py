@@ -128,14 +128,26 @@ class Example(Frame):
 # METODO PARA ENVIAR QUERYS AL SERVIDOR
     def run(self):
         active_object = self.nb.nametowidget(self.nb.select())
-        try:
+        try: 
             cadena = active_object.area.get("sel.first", "sel.last")
-            messagebox.showinfo("Info", active_object.area.get("sel.first", "sel.last"))
+            messagebox.showinfo("Tytus", active_object.area.get("sel.first", "sel.last"))
             nueva = str(cadena).upper()
             print(nueva)
-
-        except:
-            cadena2 =  messagebox.showinfo("Info",active_object.area.get("1.0",'end-1c'))
+        except:          
+            query = str(active_object.area.get("1.0", 'end-1c'))
+            url = "http://localhost:10000/query"
+            data = {'query' : query}
+            response = requests.post(url, json = data)
+            if response.status_code == 200:
+                response_json = response.json()
+                print(response_json['msj'])
+                messagebox.showinfo("TytusDB",response_json['msj'])
+                return True
+            else:
+                messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
+                root.destroy()
+                return False 
+            cadena2 =  messagebox.showinfo("Helo",active_object.area.get("1.0",'end-1c'))
             nuevaV = str(cadena2).upper()
             print(nuevaV)
 
