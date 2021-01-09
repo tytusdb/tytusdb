@@ -20,6 +20,7 @@ import Instrucciones.PL.pl_funciones as pl_funciones
 import Instrucciones.INDEX.index_create as index_create
 import Instrucciones.PL.pl_procedimientos as pl_procedimientos
 import Instrucciones.PL.pl_cadval as pl_cadval
+import Instrucciones.OPT.opt_instruccion as opt_instruccion
 
 import Expresiones.Condicionales as condicion
 import Expresiones.Aritmeticas as arit

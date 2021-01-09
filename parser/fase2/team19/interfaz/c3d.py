@@ -9,15 +9,19 @@ salida = ''
 stack = [None] * 1000
 top_stack = -1
 
-
 @with_goto
 def funcion_intermedia():
     global salida
     global stack
     global top_stack
+    texto_parser = ''
+    label .agregar_texto_para_parser
     t1 = top_stack
+    if top_stack < 0: goto .fin_agregar_texto_consola
     top_stack = top_stack - 1
-    texto_parser = stack[t1]
+    t2 = stack[t1]
+    texto_parser = t2 + texto_parser
+    if top_stack > -1: goto .agregar_texto_para_parser
     parser.ejecutarAnalisis(texto_parser)
     t1 = parser.consola
     tamanio_consola = len(t1)
@@ -39,31 +43,59 @@ def funcion_intermedia():
     
     
 
+def sp_validainsert ( valorcito ):
+    global stack
+    global top_stack 
+
+    t4 = 1> 5
+    if not t4: goto .label2
+    valor = 20
+    goto .label3
+    label .label2
+    label .label3
+
+
 @with_goto
 def main():
-    global salida, stack, top_stack
+    global salida
+    global stack
+    global top_stack 
+    global sp_validainsert
 
     # ---------CREATE DATABASE-----------
     top_stack = top_stack + 1
-    label1 = "create database holamundo ;"
-    stack[top_stack] = label1
-    funcion_intermedia()
- 
-
-    # ----------SHOW DATABASES-----------
-    top_stack = top_stack + 1
-    t1 = "show databases;"
+    t1 = "create database db1 ;"
     stack[top_stack] = t1
-    funcion_intermedia()
-
-    # ---------CREATE DATABASE-----------
-    top_stack = top_stack + 1
-    label1 = "create or replace database otradb ;"
-    stack[top_stack] = label1
-    funcion_intermedia()
  
+    # ---------USE DB-------- 
+    top_stack = top_stack + 1 
+    t2 = "use db1;" 
+    stack[top_stack] = t2 
 
-# ----------FIN C3D---------------
+    # ---------CREATE PROCEDURE----------
+    top_stack = top_stack + 1
+    t3 = 'create procedure sp_validainsert ( valorcito INTEGER ) language plpgsql as $$\n'
+    t5 = '''BEGIN 
+       if 1 > 5 then
+    valor = 20;
+
+    end if;
+ 
+    end; $$\n'''
+    t5 = t3 + t5
+    stack[top_stack] = t5
+
+    # --------- Execute -----------
+    funcion_intermedia()
+    try:
+        sp_validainsert(10)
+    except:
+        t6 = "El stored procedure sp_validainsert, no existe"
+        salida = salida + t6
+        salida = salida + '\n'
+    
+    # ----------FIN C3D---------------
+    funcion_intermedia()
     reportes = parser.RealizarReportes()
     t1 = parser.L_errores_lexicos
     reportes.generar_reporte_lexicos(t1)
@@ -83,4 +115,5 @@ def main():
 
 
 if __name__ == "__main__":
+    dropAll()
     main()

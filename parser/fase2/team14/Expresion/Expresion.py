@@ -9,6 +9,7 @@ class Expresion(Nodo):
     'Todas las Instrrucciones tienen un valor y un tipo'
     def __init__(self):
         'Obtener el valor de la Instrruccion'
+        Nodo.__init__(self)
         self.valor=None
         self.tipo=None
 

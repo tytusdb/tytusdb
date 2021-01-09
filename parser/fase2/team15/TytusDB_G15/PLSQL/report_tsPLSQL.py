@@ -86,7 +86,8 @@ class RTablaDeSimbolosF:
                 self.getFunciones(instr.declaraciones,ambito,instr.tipo)
             elif(isinstance(instr,Declaracion)):
                 #print('DECLARACION',instr.id,self.getExpresion(instr.exp),ambito)
-                funcionTemp = FuncionesTipo(instr.id,'DECLARACION',tipo,self.getExpresion(instr.exp),ambito)
+
+                funcionTemp = FuncionesTipo(instr.id,'DECLARACION','DECLARACION',self.getExpresion(instr.exp),ambito)
                 FuncionesTipoArr.append(funcionTemp)
             elif(isinstance(instr,Asignacion)):
                 #print('ASIGNACION',instr.id,self.getExpresion(instr.exp),ambito)
@@ -123,7 +124,7 @@ class RTablaDeSimbolosF:
                 FuncionesTipoArr.append(funcionTemp)
             elif(isinstance(instr,Parametro)):
                 #print('Parametro',instr.tipo,instr.id,ambito) 
-                funcionTemp = FuncionesTipo(instr.id,'PARAMETRO',instr.tipo,0,ambito)
+                funcionTemp = FuncionesTipo(instr.id,'PARAMETRO','PARAMETRO',0,ambito)
                 FuncionesTipoArr.append(funcionTemp)           
             elif(isinstance(instr,Principal)):
                 self.getFunciones(instr.instrucciones,ambito,tipo)
@@ -136,7 +137,12 @@ class RTablaDeSimbolosF:
 
         if len(ts_globalFunciones.funciones) > 0:
             for simb in ts_globalFunciones.funciones.values():
-                funcionTemp = FuncionesTipo(simb.id,'DECLARACION FUNCION','DECLARACION FUNCION',0,'GLOBAL')
+                CadenaFuncion = ""
+                if simb.tipo_funcion == TIPO_DECLARACION_FUNCION.FUNCTION:
+                    CadenaFuncion = 'FUNCTION'
+                else:
+                    CadenaFuncion = 'PROCEDURE'
+                funcionTemp = FuncionesTipo(simb.id,'DECLARACION FUNCION',CadenaFuncion,0,'GLOBAL')
                 FuncionesTipoArr.append(funcionTemp)
                 if simb.parametros != None:
                     self.getFunciones(simb.parametros,simb.id,'INTEGER')

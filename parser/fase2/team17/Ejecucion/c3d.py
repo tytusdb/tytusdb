@@ -43,7 +43,6 @@ SELECT * FROM tbcalifica;
     
     """
 
-    heap  ='select DECIMAL(10,2);'
     t1 = 5
     t2 = 3
 

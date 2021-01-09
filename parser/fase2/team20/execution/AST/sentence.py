@@ -538,13 +538,12 @@ class AlterTableDropConstraint(Sentence):
         return dot
 
 class AlterIndex(Sentence):
-    def __init__(self, oldname, newname,ifExistsFlag,isNum):
+    def __init__(self,index,oldname, newname):
+        self.index= index
         self.oldname = oldname #id
         self.newname = newname #id
-        self.ifExistsFlag=ifExistsFlag
-        self.isNum=isNum
     def __str__(self):
-        return "executeSentence(AlterIndex,AlterIndex('"+str(self.oldname)+"','"+str(self.newname)+"',"+str(self.ifExistsFlag)+","+str(self.isNum)+"))"
+        return "executeSentence(AlterIndex,AlterIndex('"+str(self.index)+"','"+str(self.oldname)+"','"+str(self.newname)+"'))"
     def graphAST(self,dot,parent):
         return ""
     

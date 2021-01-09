@@ -11,7 +11,7 @@ from storage.hash import HashMode as hash
 from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as json
 
-import os, traceback
+import os, traceback, csv, zlib
 from storage.misc import serealizar as sr, ForeignKeyStr as fk_str, UniqueIndexStr as ui_str, IndexStr as i_str, \
     checksum as ch, compresion as comp, BlockChain as BC, Grafos as graph
 
@@ -223,11 +223,11 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
     """
 
     if not _database(database):
-
+        compress = False
         val = _createDatabase(database, mode, encoding)
-
+        level = 0
         if val == 0:
-            _data.append({"nombre": database, "modo": mode, "encoding": encoding, "tablas": []})
+            _data.append({"nombre": database, "modo": mode, "encoding": encoding, "tablas": [], "compress": compress, "level": level})
             _Guardar()
 
         return val
@@ -455,10 +455,12 @@ def _createTable(database, table, numberColumns, mode):
         val = dict.createTable(database, table, numberColumns)
 
     if val == 0:
+        compress = False
+        level = 0
         _database(database)["tablas"].append({"nombre": table, "modo": mode, "columnas": numberColumns, "pk": [],
-                                              "foreign_keys": fk_str.ForeignKeyStr(mode, database, table),
-                                              "unique_index": ui_str.UniqueIndexStr(mode, database, table),
-                                              "index": i_str.IndexStr(mode, database, table)})
+                                            "foreign_keys": fk_str.ForeignKeyStr(mode, database, table),
+                                            "unique_index": ui_str.UniqueIndexStr(mode, database, table),
+                                            "index": i_str.IndexStr(mode, database, table), "compress": compress, "level":level})
         _Guardar()
 
     return val
@@ -507,7 +509,7 @@ def extractTable(database: str, table: str) -> list:
     if bd:
 
         tb = _table(database, table)
-        encodingold = bd["encoding"]
+
         if tb:
 
             mode = tb["modo"]
@@ -534,15 +536,6 @@ def extractTable(database: str, table: str) -> list:
             elif mode == "dict":
                 val = dict.extractTable(database, table)
 
-            for x in val:
-                i = 0
-                for y in x:
-                    if type(y) == str:
-                        try:
-                            x[i] = y.decode(encodingold, "strict")
-                        except: 
-                            return 1
-                    i += 1
             return val
 
         else:
@@ -576,6 +569,7 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
         if tb:
 
             mode = tb["modo"]
+            compress = tb["compress"]
 
             val = -1
 
@@ -600,6 +594,14 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
             elif mode == "dict":
                 val = dict.extractRangeTable(database, table, columnNumber, lower, upper)
 
+            if compress:
+                if len(val):
+                    for x in val:
+                        for y in x:
+                            if type(y) == str:
+                                i = x.index(y)
+                                x[i] = zlib.decompress(bytes.fromhex(y)).decode()
+
             return val
 
         else:
@@ -607,7 +609,6 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
 
     else:
         return 2
-
 
 def alterAddPK(database: str, table: str, columns: list) -> int:
     """Adds a PK to a table in a database
@@ -1007,18 +1008,16 @@ def insert(database: str, table: str, register: list) -> int:
 
         if tb:
 
-            # if _Comprobar(database, table, register):
+            encoding = bd["encoding"]	
+            mode = tb["modo"]	  
 
-            encoding = bd["encoding"]
-            mode = tb["modo"]
-            i = 0
-            for y in register:
-                if type(y) == str:
-                    try:
-                        register[i] = y.encode(encoding, "strict")
-                    except: 
+            for y in register:	
+                if type(y) == str:	
+                    try:	
+                        y.encode(encoding, "strict")	
+                    except: 	
                         return 1
-                i += 1
+
             val = -1
 
             if mode == "avl":
@@ -1049,9 +1048,6 @@ def insert(database: str, table: str, register: list) -> int:
 
             return val
 
-        # else:
-        #     return -1
-
         else:
             return 3
 
@@ -1076,12 +1072,21 @@ def loadCSV(file: str, database: str, table: str) -> list:
     bd = _database(database)
 
     if bd:
-
         tb = _table(database, table)
-
+        encoding = bd["encoding"]
         if tb:
 
             mode = tb["modo"]
+            try:
+                with open(file, 'r', encoding='utf-8-sig') as leer:
+                    reader = csv.reader(leer, delimiter=',')
+                    for x in reader:
+                        for y in x:
+                            if type(y) == str:
+                                y.encode(encoding, "strict")
+                    leer.close()
+            except:
+                return []
 
             val = -1
 
@@ -1107,9 +1112,12 @@ def loadCSV(file: str, database: str, table: str) -> list:
                 val = dict.loadCSV(file, database, table)
 
             nombreST = str(database) + '-' + str(table)
+
             if 0 in val:
+
                 if BC.EsUnaTablaSegura(nombreST, _main_path):
                     BC.insertCSV(nombreST, file, _main_path, val)
+
             return val
 
         else:
@@ -1117,7 +1125,6 @@ def loadCSV(file: str, database: str, table: str) -> list:
 
     else:
         return []
-
 
 def extractRow(database: str, table: str, columns: list) -> list:
     """Shows a register of a table in a database
@@ -1141,7 +1148,7 @@ def extractRow(database: str, table: str, columns: list) -> list:
         if tb:
 
             mode = tb["modo"]
-
+            compress = tb["compress"]
             val = -1
 
             if mode == "avl":
@@ -1165,6 +1172,13 @@ def extractRow(database: str, table: str, columns: list) -> list:
             elif mode == "dict":
                 val = dict.extractRow(database, table, columns)
 
+            if compress:
+                if len(val):
+                    for x in val:
+                        for y in x:
+                            if type(y) == str:
+                                i = x.index(y)
+                                x[i] = zlib.decompress(bytes.fromhex(y)).decode()
             return val
 
         else:
@@ -1172,7 +1186,6 @@ def extractRow(database: str, table: str, columns: list) -> list:
 
     else:
         return []
-
 
 def update(database: str, table: str, register: dict, columns: list) -> int:
     """Updates a register into a table in a database
@@ -1202,17 +1215,29 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
         tb = _table(database, table)
 
         if tb:
-
-            lista = list(register.keys())
+            compress = tb["compress"]
+            level = tb["level"]
             mode = tb["modo"]
-            for t in lista:
-                if type(register[t]) == str:
-                    register[t] = register[t].encode(bd["encoding"],"strict")
-            i = 0
-            for c in columns:
-                c = str(c).encode(bd["encoding"],"strict")
-                columns[i] = x
-                i += 1
+            encoding = bd["encoding"]	
+
+            for y in list(register.values()):	
+                if type(y) == str:	
+                    try:	
+                        y.encode(encoding, "strict")	
+                    except: 	
+                        return 1
+            
+            if compress:
+                for x in register.keys():
+                    if type(register[x]) == str:
+                        i = register.index(x)
+                        register[i] = zlib.compress(register[i].encode(), level).hex()
+                
+                for x in columns:
+                    if type(x) == str:
+                        i = columns.index(x)
+                        columns[i] =zlib.compress(x.encode(), level).hex()
+
             val = -1
 
             if mode == "avl":
@@ -1249,6 +1274,7 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
         return 2
 
 
+
 def delete(database: str, table: str, columns: list) -> int:
     """Deletes a register into a table in a database
 
@@ -1272,9 +1298,16 @@ def delete(database: str, table: str, columns: list) -> int:
         tb = _table(database, table)
 
         if tb:
-
+            compress = tb["compress"]
             mode = tb["modo"]
+            level = tb["level"]
 
+            if compress:
+                for x in columns:
+                    if type(x) == str:
+                        i = columns.index(x)
+                        columns[i] =zlib.compress(x.encode(), level).hex()
+                            
             val = -1
 
             if mode == "avl":
@@ -1305,6 +1338,7 @@ def delete(database: str, table: str, columns: list) -> int:
 
     else:
         return 2
+
 
 
 def truncate(database: str, table: str) -> int:
@@ -1740,7 +1774,7 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
 # ===============================//=====================================
 #                      ADMINISTRACION DE CODIFICACION
 
-def alterDatabaseEncoding(database: str, encoding: str) -> int:
+ef alterDatabaseEncoding(database: str, encoding: str) -> int:
     """Changes a database encoding
 
         Pararameters:\n
@@ -1757,46 +1791,21 @@ def alterDatabaseEncoding(database: str, encoding: str) -> int:
     bd = _database(database)
 
     if bd:
-
-        if bd["encoding"] == encoding or encoding not in ["utf8", "ascii", "iso-8859-1"]:
+        if encoding not in ["utf8", "ascii", "iso-8859-1"]:
             return 3
         else:
-            res = 0
-            aux = {}
-            encodingold = bd["encoding"]
             bd["encoding"] = encoding
             try:
-                table = _database(database)["tablas"]
+                table = bd["tablas"]
                 for t in table:
-                    val = t.extractTable(database, t)['nombre']
-                    aux.update({t['nombre']:val[:]})
-                    truncate(database,t['nombre'])
+                    val = extractTable(database, t['nombre'])
                     if len(val):
                         for x in val:
-                            i = 0
                             for y in x:
                                 if type(y) == str:
-                                    try:
-                                        x[i] = y.decode(encodingold, "strict")
-                                    except: 
-                                        res = 1
-                                        break
-                                i += 1
-                            if res:
-                                break
-                            res = insert(database, t['nombre'], x)
-                            if res:
-                                break
-                        if res:
-                            break        
-                if res:
-                    for t in list(aux.keys()):
-                        truncate(database,t['nombre'])
-                        for x in aux[t]:
-                            insert(database, t['nombre'], x)
-                else:
-                    _Guardar()
-                    return 0
+                                       y.encode(encoding, "strict")
+                                       
+                return 0
             except:
                 return 1
     else:
@@ -1883,13 +1892,31 @@ def alterDatabaseCompress(database: str, level: int) -> int:
     bd = _database(database)
 
     if bd:
-        pass
 
-    # if level not valid:
-    #     return 4
+        if level > 0 and level < 10:
+            try:
+                table = bd["tablas"]
+                for t in table:
+                    val = extractTable(database, t['nombre'])
+                    truncate(database, t['nombre'])
+                    if len(val):
+                        for x in val:
+                            for y in x:
+                                if type(y) == str:
+                                    try:
+                                        i = x.index(y)
+                                        x[i] = zlib.compress(y.encode(), level).hex()
+                                    except:
+                                        return 1
+                            insert(database, t['nombre'], x)
+                bd["compress"] = True
+                bd["level"] = level
 
-    # return database_compress(database, level)
-
+                return 0
+            except:
+                return 1
+        else:
+            return 3
     else:
         return 2
 
@@ -1910,13 +1937,32 @@ def alterDatabaseDecompress(database: str) -> int:
     bd = _database(database)
 
     if bd:
-        pass
+        com = bd["compress"]
+        if com:
+            try:
+                table = bd["tablas"]
+                for t in table:
+                    val = extractTable(database, t['nombre'])
+                    truncate(database, t['nombre'])
+                    print("Lista antes")
+                    print(val)
+                    if len(val):
+                        for x in val:
+                            for y in x:
+                                if type(y) == str:
+                                    try:
+                                        i = x.index(y)
+                                        x[i] = zlib.decompress(bytes.fromhex(y)).decode()
+                                    except:
+                                        return 1
+                            insert(database, t['nombre'], x)
+                bd["compress"] = False
 
-    # if level not valid:
-    #     return 4
-
-    # return database_decompress(database)
-
+                return 0
+            except:
+                return 1
+        else:
+            return 3
     else:
         return 2
 
@@ -1940,20 +1986,39 @@ def alterTableCompress(database: str, table: str, level: int) -> int:
     bd = _database(database)
 
     if bd:
+        if level > 0 and level < 10:
 
-        tb = _table(table)
+            tb = _table(database, table)
 
-        if tb:
-            pass
+            if tb:
+                com = tb["compress"]
+                tb["level"] = level
 
-        # if level not valid:
-        #     return 4
-
-        # return table_compress(database, table, level)
-
+                if not com:
+                    try:
+                        val = extractTable(database, tb['nombre'])
+                        truncate(database, tb['nombre'])
+                        if len(val):
+                            for x in val:
+                                for y in x:
+                                    if type(y) == str:
+                                        try:
+                                            i = x.index(y)
+                                            x[i] =zlib.compress(y.encode(), level).hex()
+                                        except:
+                                            return 1
+                                insert(database, tb['nombre'], x)
+                        tb["compress"] = True
+                        tb["level"] = level
+                        return 0
+                    except:
+                        return 1
+                else:
+                    return 1
+            else:
+                return 3        
         else:
-            return 3
-
+            return 4
     else:
         return 2
 
@@ -1969,27 +2034,40 @@ def alterTableDecompress(database: str, table: str) -> int:
             0: operation successful
             1: an error ocurred
             2: non-existent database
-            3: non-existent table
-            4: non-existent compression
+            3: non-existent compression
     """
 
     bd = _database(database)
 
     if bd:
-
         tb = _table(database, table)
-
+        
         if tb:
-            pass
-
-        # if level not valid:
-        #     return 4
-
-        # return table_decompress(database, table)
-
+            com = tb["compress"]
+            
+            if com:
+                try:
+                    val = extractTable(database, tb['nombre'])
+                    truncate(database, tb['nombre'])
+                    
+                    if len(val):
+                        for x in val:
+                            for y in x:
+                                if type(y) == str:
+                                    try:
+                                        i = x.index(y)
+                                        x[i] =zlib.decompress(bytes.fromhex(y)).decode()
+                                    except:
+                                        return 1
+                            insert(database, tb['nombre'], x)
+                    tb["compress"] = False
+                    return 0
+                except:
+                    return 1
+            else:
+                return 3
         else:
-            return 3
-
+            return 1
     else:
         return 2
 

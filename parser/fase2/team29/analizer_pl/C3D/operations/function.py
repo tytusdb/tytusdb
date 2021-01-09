@@ -14,22 +14,42 @@ class FunctionDeclaration(Instruction):
         self.proc = proc
 
     def execute(self, environment):
-        if not self.params:
-            self.params = []
-        environment.globalEnv.addFunction(
-            self.proc, self.id, self.returns, len(self.params)
-        )
-        cd = "\n@with_goto\ndef " + self.id + "():\n"
-        grammar.optimizer_.addIgnoreString(str(cd), self.row,False)
-        for p in self.params:
-            cd += "\t" + p.execute(environment).temp + " = stack.pop()\n"
-            grammar.optimizer_.addIgnoreString(
-                str(p.execute(environment).temp + " = stack.pop()"), self.row,True
+        try:
+            if not self.params:
+                self.params = []
+            environment.globalEnv.addFunction(
+                self.proc, self.id, self.returns, len(self.params)
             )
-        if self.params:
+            cd = "\n@with_goto\ndef " + self.id + "():\n"
+            grammar.optimizer_.addIgnoreString(str(cd), self.row, False)
             for p in self.params:
-                p.execute(environment)
-        return code.C3D(cd, self.id, self.row, self.column)
+                t = p.execute(environment).temp
+                temp = t + " = stack.pop()\n"
+                cd += "\t" + t + " = stack.pop()\n"
+                """
+                fix = (
+                    "\t"
+                    + "if isinstance("
+                    + t
+                    + ", str): "
+                    + t
+                    + ' = "\'"+'
+                    + t
+                    + '+"\'"'
+                    + "\n"
+                )
+                cd += fix
+                temp += fix
+                """
+                grammar.optimizer_.addIgnoreString(str(temp), self.row, True)
+            if self.params:
+                for p in self.params:
+                    p.execute(environment)
+            return code.C3D(cd, self.id, self.row, self.column)
+        except:
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Function " + self.id
+            )
 
     def dot(self):
         new = Nodo("FUNCTION")

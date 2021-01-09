@@ -22,7 +22,12 @@ class CADENAS(NodoArbol):
         pass
 
     def getString(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-        retorno = '\\' + '\'' + str(self.data) + '\\' + '\''
+        #retorno = '\\' + '\'' + str(self.data) + '\\' + '\''
+        retorno = '\'' + str(self.data) + '\''
+        return retorno
+
+    def getString_especiale(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        retorno = '\'' + str(self.data) + '\''
         return retorno
 
     def getValueAbstract(self, entorno: Tabla_de_simbolos, arbol:Arbol):

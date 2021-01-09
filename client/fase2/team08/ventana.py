@@ -6,8 +6,11 @@ import os
 import pathlib
 from campo import Campo, MyDialog
 from arbol import Arbol
+from PIL import ImageTk, Image
 import http.client
 import json
+from PIL.ImagePalette import load
+from tkinter import messagebox
 
 formularios=[]
 textos=[]
@@ -17,8 +20,7 @@ consola = None
 raiz = None
 tools = None
 loginOn = False
-
-
+listas=""
 #Variables para simular credenciales
 ActiveUsername = ""
 ActivePassword = ""
@@ -36,13 +38,50 @@ def myGET():
     global consola
     print("GET: Status: {} and reason: {}".format(response.status, response.reason))
     if response.status == 200:       
-        data = response.read()   
+        data = response.read() 
+        data_1=  str(str(data.decode("utf-8").replace("],", "],\n").replace("{", "{\n "))).replace("}", "\n}")
         consola.config(state=NORMAL)
-        consola.insert(INSERT,"\n" + data.decode("utf-8"))
+        consola.insert(INSERT,"\n\n" + data_1)
         consola.config(state=DISABLED)
     else:
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
+    myConnection.close()
+
+def DataQuery():
+    global notebook
+    global listas
+    global textos
+    ## notebook seleccionado print(notebook.select())
+    if notebook.select():
+    ##numero de index de pesta;a
+        pestana_no = notebook.index('current')
+        
+    listas=textos[pestana_no].text.get("1.0", END)
+    jsonData = { "texto": listas }
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+    myJson = json.dumps(jsonData)
+    headers = {
+                "Content-type": "application/json"
+            }
+
+    myConnection.request("POST", "/dataquery", myJson, headers)
+    response = myConnection.getresponse()
+    print("POST: Status: {} and reason: {}".format(response.status, "TODO OK"))
+    if response.status == 200:       
+        data = response.read()
+        result = data.decode("utf-8")
+        dividir= result.replace("{\"consola\": \"","")
+        dividir1=dividir.replace("\"}","")
+        dividir2=str(str(dividir1).replace("\\n","\n")).replace(".",".\n")
+        print(dividir2)
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\n\n"+dividir2)
+        consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nERROR EN RESPUESTA.")
         consola.config(state=DISABLED)
     myConnection.close()
 
@@ -253,11 +292,19 @@ def guardarComo():
 
 def CrearVentana():
     global raiz
+    global load
     raiz = Tk()
     #Configuracion de ventana
-    raiz.title("TytuSQL") #Cambiar el nombre de la ventana
+    raiz.title("TytuDB") #Cambiar el nombre de la ventana
+    #cambiar icono de pantalla
+    load = Image.open("../team08/resources/icondb.png")
+    render = ImageTk.PhotoImage(load)
+    img = Label(raiz, image=render)
+    img.image = render
+    img.place(x=0, y=0)
+    raiz.iconphoto(False, ImageTk.PhotoImage(load))
     #raiz.iconbitmap('resources/icon.ico')
-    raiz.configure(bg='gray21')
+    raiz.configure(bg='gray20')
     raiz.rowconfigure(0, minsize=800, weight=1)
     raiz.columnconfigure(1, minsize=800, weight=1)
     raiz.config(menu=CrearMenu(raiz), background='silver')
@@ -267,7 +314,7 @@ def CrearVentana():
     #Se llama a la clase Arbol
     Arbol(FrameIzquiero)
     #Boton para realizar consulta
-    Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray').pack(side="top",fill="both")
+    buton1=Button(raiz, text="Enviar Consulta",bg='#1BA1FD',fg='white',activebackground='slate gray', command=DataQuery).pack(side="top",fill="both")
     #Consola de Salida
     global consola
     consola = Text(raiz,bg='gray7',fg='white',selectbackground="gray21")
@@ -282,7 +329,9 @@ def CrearVentana():
     style = ttk.Style()
     style.theme_use("classic")
     style.configure("TNotebook.Tab", background="gray21", font="helvetica 14",foreground='white')
-    style.map("TNotebook.Tab", background = [("selected", "slate gray")])
+    style.map("TNotebook.Tab", background = [("selected", "#0854A9"), ("active", "#0876F1")],
+    foreground=[("selected", "#ffffff"),("active", "#000000")]
+    )
     notebook=ttk.Notebook(raiz)
     notebook.pack(side="right", fill="both", expand=True)
     añadir('Nuevo')
@@ -317,6 +366,7 @@ def cerrarPestaña():
 
 def cerrarVentana():
     global raiz
+    messagebox.showinfo(message="Gracias por utilizar este programa! :v", title="TytusDB")
     raiz.destroy()
 
 def main():

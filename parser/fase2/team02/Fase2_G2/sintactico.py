@@ -26,8 +26,9 @@ from Instrucciones.Sql_truncate import Truncate
 from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones import Relaciones
-from Instrucciones.PL import Func, Declaracion,Execute,Asignacion,Return
+from Instrucciones.PL import Func, Declaracion,Execute,Asignacion,Return,If,Drop
 from Instrucciones.PL.Imprimir import Imprimir
+from Instrucciones.Index import Index
 
 # IMPORTAMOS EL STORAGE
 from storageManager import jsonMode as storage
@@ -1390,9 +1391,7 @@ def p_expresion7(t):
     strGram = strGram + "<expresion> ::= ARROBA ID"
     t[0] = Primitivo.Primitivo(t[1],Tipo_Dato.ARROBA, strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_expresion8(t):
-    '''expresion : ID PARIZQ lcol PARDER
-    '''
+
 def p_expresion82(t):
     '''expresion : POR
     '''
@@ -1631,7 +1630,8 @@ def p_funciones2(t):
     '''
     strGram = "<instruccion> ::= CREATE <orreplace> FUNCTION ID  PARIZQ <lista_pars> PARDER RETURNS  <tipo> AS <dolares> <INSDECLARE> BEGIN <instrucciones> END PUNTO_COMA"
    
-    t[0] = Func.Func(t[4], t[2], t[6], t[14], [12],strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Func.Func("funcion",t[4], t[2], t[6], t[14], [12],strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_lista_pars_f20(t):
     '''lista_pars : tiposanidados
@@ -1702,25 +1702,23 @@ def p_lista_parametros_f20(t):
     '''
     t[0] = [t[1]]
 ############################# stored procedures
+def p_proced(t):
+    '''
+     instruccion : CREATE orreplace PROCEDURE ID  PARIZQ  lista_pars PARDER LANGUAGE  PLPGSQL  AS dolares    BEGIN instrucciones END PUNTO_COMA dolares 
+    '''
+    strGram = "<instruccion> ::= CREATE <orreplace> PROCEDURE ID  PARIZQ <lista_pars> PARDER RETURNS  <tipo> AS <dolares> <INSDECLARE> BEGIN <instrucciones> END PUNTO_COMA"
+   
+    t[0] = Func.Func("Procedimiento",t[4], t[2], [], t[13], [],strGram, t.lexer.lineno, t.lexer.lexpos)
 
-def p_sp1(t):
-    '''
-     instruccion : CREATE orreplace PROCEDURE ID PARIZQ l_param PARDER LANGUAGE ID AS ID BEGIN instrucciones END PUNTO_COMA
-    '''
-def p_sp2(t):
-    '''
-     instruccion : CREATE orreplace PROCEDURE ID PARIZQ l_param PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
-    '''
-
-def p_sp3(t):
-    '''
-     instruccion : CREATE orreplace PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS ID BEGIN instrucciones END PUNTO_COMA
-    '''
-def p_sp4(t):
-    '''
-     instruccion : CREATE orreplace PROCEDURE ID PARIZQ PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
+def p_lista_parametros_declare(t):
+    '''instruccion : DROP FUNCTION ID PUNTO_COMA 
+                    | DROP PROCEDURE ID PUNTO_COMA
     '''
 
+   
+    strGram = "<instruccion> ::= DROP  FUNCTION ID  "
+   
+    t[0] = Drop.Drop(  t[3],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_orreplace(t):
     '''
@@ -1731,6 +1729,7 @@ def p_orreplace(t):
 def p_return(t):
     '''
     instruccion : RETURN expre PUNTO_COMA
+            | RETURN expre
     '''
     strGram = "<instruccion> ::= RETURN <expre> PUNTO_COMA"
 
@@ -1759,20 +1758,56 @@ def p_execute2(t):
     strGram = "<instruccion> ::= EXECUTE  ID PARIZQ PARDER PUNTO_COMA"
 
 
-    t[0] = Execute.Execute(t[2],[],strGram, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Execute.Execute(t[2],t[4],strGram, t.lexer.lineno, t.lexer.lexpos)
 
+
+""" def p_expresion8(t):
+    '''expresion : ID PARIZQ lcol PARDER
+    ''' """
+
+
+def p_expresion8(t):
+    '''expresion : ID PARIZQ l_expresiones PARDER
+    '''  
+    strGram = "<instruccion> ::= EXECUTE  ID PARIZQ PARDER PUNTO_COMA"
+
+
+    t[0] = Execute.Execute(t[1],t[3],strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_expresion80(t):
+    '''
+    expresion :  ID PARIZQ PARDER PUNTO_COMA
+               
+    '''
+  
+    strGram = "<instruccion> ::= EXECUTE  ID PARIZQ PARDER PUNTO_COMA"
+
+
+    t[0] = Execute.Execute(t[1],[],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 
 
 def p_if(t):
     '''
-    instruccion : IF expre THEN instrucciones END IF PUNTO_COMA
+    instruccion : IF expre THEN instrucciones elseoptions END IF PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= IF <expre>  THEN  <instrucciones> <elseoptions>  END IF PUNTO_COMA"
 
-def p_if1(t):
+    t[0] = If.If(t[2],t[4],t[5],strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_elseoptions1(t):
     '''
-    instruccion : IF expre THEN instrucciones l_elsif END IF PUNTO_COMA
+    elseoptions : ELSE asignacion 
     '''
+    t[0] = [t[2]]
+    
+def p_elseoptions17(t):
+    '''
+    elseoptions : 
+    '''
+    t[0] = []
+
+
 
 def p_if2(t):
     '''
@@ -1863,31 +1898,43 @@ def p_for3(t):
 def p_create_index1(t):
     '''instruccion : CREATE INDEX ID ON ID PARIZQ lcol PARDER indexWhere PUNTO_COMA
     '''
-    
+    strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ  <lcol> PARDER  <indexWhere> PUNTO_COMA"
+
+    t[0] = Index.Index(t[3],"Indice",t[7],t[9],strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_create_index2(t):
     '''
     instruccion : CREATE UNIQUE INDEX ID ON ID PARIZQ lcol PARDER indexWhere PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= CREATE UNIQUE INDEX ID ON ID PARIZQ  <lcol> PARDER  <indexWhere> PUNTO_COMA"
     
+    t[0] = Index.Index(t[4],t[6],t[8],t[10],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_create_index3(t):
     '''
     instruccion : CREATE INDEX ID ON ID USING HASH PARIZQ ID PARDER indexWhere PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= CREATE INDEX ID ON ID USING HASH PARIZQ ID PARDER  <indexWhere> PUNTO_COMA"
     
+    t[0] = Index.Index(t[3],t[5],t[9],t[12],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_create_index4(t):
     '''
     instruccion : CREATE INDEX ID ON ID PARIZQ ID NULLS FIRST PARDER indexWhere PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ ID NULLS FIRST PARDER PARDER  <indexWhere> PUNTO_COMA"
     
+    t[0] = Index.Index(t[3],t[5],t[7],t[13],strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_create_index5(t):
     '''
     instruccion : CREATE INDEX ID ON ID PARIZQ ID DESC NULLS LAST PARDER indexWhere PUNTO_COMA
     '''
+    strGram = "<instruccion> ::= CREATE INDEX ID ON ID PARIZQ ID DESC NULLS LAST PARDER  <indexWhere> PUNTO_COMA"
     
+    t[0] = Index.Index(t[3],t[5],t[7],t[13],strGram, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_index_where(t):
     '''
@@ -1953,6 +2000,18 @@ def p_asignacion(t):
     strGram = "ID DOS_PUNTOS IGUAL <expre> PUNTO_COMA"
 
     t[0] = Asignacion.Asignacion(t[1],t[4],strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_asignacionr(t):
+    '''
+    asignacion : ID  IGUAL expre PUNTO_COMA
+               
+    '''
+    strGram = "ID DOS_PUNTOS IGUAL <expre> PUNTO_COMA"
+
+    t[0] = Asignacion.Asignacion(t[1],t[3],strGram, t.lexer.lineno, t.lexer.lexpos)
+
+
+
 
 
 

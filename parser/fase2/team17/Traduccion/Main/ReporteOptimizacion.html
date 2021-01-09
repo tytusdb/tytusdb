@@ -1,0 +1,23 @@
+
+            <!DOCTYPE html>
+            <html lang="es">
+            <head><meta charset="UTF-8">  <title> Reporte de Optimizacion</title> 
+            <style type="text/css"> 
+body{ background-color: white; font-family: Arial;} 
+        #main-container{ margin: 170px auto; width: 500px;}
+        table{ background-color: white; text-align: center; border-collapse: collapse; width: 100%;}
+        th, td{padding: 10px;}
+        thead{background-color: #2464333;border-bottom: solid 5px #0F3543; color: black;}
+        tr:nth-child(even){ background-color: #ddd;}
+        tr:hover td{background-color: black;color: white;}</style> </head> </body>
+            <div id="main-container">
+            <h1>Reporte de Optimizaxion OLC2- G17</h1>
+            <table> <thead> <tr>
+            <th>No.</th>
+            <th>Regla Utilizada</th>
+            <th>Codigo Original</th>
+            <th>Codigo Optimizado</th>
+            <th>Fila</th>
+            <th>Columna</th>
+            </tr> </thead>
+            <tr><td> 1</td><td> Regla 4</td><td> if t23 == t24 goto L2 goto L3</td><td> goto L2</td><td> 1</td><td> 1</td></tr><tr><td> 2</td><td> Regla 5</td><td> if t22 == t26 goto L0 goto L1</td><td> goto L1</td><td> 1</td><td> 1</td></tr><tr><td> 3</td><td> Regla 4</td><td> if t23 == t24 goto L7 goto L8</td><td> goto L7</td><td> 1</td><td> 1</td></tr><tr><td> 4</td><td> Regla 5</td><td> if t22 == t30 goto L5 goto L6</td><td> goto L6</td><td> 1</td><td> 1</td></tr><tr><td> 5</td><td> Regla 4</td><td> if t23 == t24 goto L12 goto L13</td><td> goto L12</td><td> 1</td><td> 1</td></tr><tr><td> 6</td><td> Regla 5</td><td> if t22 == t34 goto L10 goto L11</td><td> goto L11</td><td> 1</td><td> 1</td></tr><tr><td> 7</td><td> Regla 3</td><td> if t45 > t54 goto L15 goto L16</td><td> if t45 > t54 goto L16</td><td> 1</td><td> 1</td></tr><tr><td> 8</td><td> Regla 5</td><td> if t102 == t104 goto L18 goto L19</td><td> goto L19</td><td> 1</td><td> 1</td></tr></table> </div> </body> </html>

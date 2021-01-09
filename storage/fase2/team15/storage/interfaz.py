@@ -1,6 +1,7 @@
-# HASH Mode Package
+# -------------------------------
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
+
 
 import os
 from storage.misc import serealizar as sr
@@ -8,10 +9,6 @@ from storage.misc import serealizar as sr
 from tkinter import *
 from tkinter import ttk
 from storage import main as h
-from storage.avl.DataAccessLayer import reports as GraficoAVL
-from storage.b import BMode as B
-from storage.hash import Tabla as GraficoHash
-from storage.bplus import BplusTree as GraficoBplus
 
 _main_path = os.getcwd() + "\\data"
 
@@ -46,7 +43,7 @@ class Databases_Window:
         Label(self.window, text="DATABASES: ", font=("Arial Black", 9)).place(x=20, y=65)
 
         '''  SCROLL PARA DIRECCIONAR LA IMAGEN DE LA ESTRUCTURA HASH   '''
-        Frame1 = LabelFrame(window)
+        '''Frame1 = LabelFrame(window)
         can = Canvas(Frame1, width=450, height=70)
         Scrollbar_x = Scrollbar(Frame1, orient="vertical", command=can.yview)
         Scrollbar_y = Scrollbar(Frame1, orient="horizontal", command=can.xview)
@@ -57,7 +54,7 @@ class Databases_Window:
         frame = Frame(can)
         can.create_window((False, False), window=frame, anchor="nw")
         can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
-        Frame1.place(x=300, y=383)
+        Frame1.place(x=300, y=383)'''
 
         ''' AGREGARA LA IMAGEN DE LAS BASES DE DATOS'''
         #h._storage.graficar()
@@ -140,7 +137,7 @@ class Databases_Window:
     '''
     def Default_frame(self):
         tmp = self.new_frame(self.window, 470, 273, 300, 160)
-        Frame(tmp, width=470, height=200).pack()
+        Frame(tmp, width=470, height=300).pack()
         Label(self.new_frame(tmp, 0, 0, 20, 20), text="Select a database to start managing",
               font=("Arial Black", 12)).pack()
         return tmp
@@ -152,7 +149,7 @@ class Databases_Window:
     '''
     def Settings_Frame(self, database):
         temp = self.new_frame(self.window, 470, 273, 300, 160)
-        Frame(temp, width=470, height=200).pack()
+        Frame(temp, width=470, height=300).pack()
 
         Label(self.new_frame(temp, 0, 0, 20, 10), text="DATABASE NAME: ", font=("Arial Black", 8)).pack()
         Label(self.new_frame(temp, 0, 0, 150, 10), text=str(database), font=("Arial", 9)).pack()
@@ -176,6 +173,45 @@ class Databases_Window:
 
         Label(self.new_frame(temp, 0, 0, 20, 70), text="Encording: ", font=("Arial Black", 8)).pack()
         Label(self.new_frame(temp, 0, 0, 100, 70), text=str(h._database(database)["encoding"]), font=("Arial", 9)).pack()
+
+        Label(self.new_frame(temp, 0, 0, 20, 200), text="GRAPH:", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 240), text="SHOW DSD", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 20, 230), text=" ☄ ", font=("", 14), foreground="blue",command=self.command_DSD(database)).pack()
+
+
+    def command_DSD(self, database):
+        return lambda : self._command_DSD(database)
+
+    def _command_DSD(self, database):
+        temp = Toplevel()
+        Label(self.new_frame(temp, 0, 0, 30, 10), text="Database: ", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 100, 10), text=str(database), font=("Arial", 9)).pack()
+
+        '''  FRAME PARA MOSTRAR EL GRAFO DE DEPENDENCIA   '''
+        Frame1 = LabelFrame(temp)
+        can = Canvas(Frame1, width=600, height=300)
+        Scrollbar_x = Scrollbar(Frame1, orient="vertical", command=can.yview)
+        Scrollbar_y = Scrollbar(Frame1, orient="horizontal", command=can.xview)
+        Scrollbar_y.pack(side="bottom", fill="x")
+        Scrollbar_x.pack(side="right", fill="y")
+        can.pack(expand=True, fill="both")
+        can.configure(yscrollcommand=Scrollbar_x.set, xscrollcommand=Scrollbar_y.set)
+        frame = Frame(can)
+        can.create_window((False, False), window=frame, anchor="nw")
+        can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
+        Frame1.place(x=30, y=50)
+
+        ''' AGREGARA LA IMAGEN'''
+        h.graphDSD(database)
+        photo = PhotoImage(file=f'data/graph/_DSD.png')
+        Label(frame, image=photo).pack()
+
+        temp.geometry('{}x{}'.format(700, 400))
+        temp.title("graph_DSD")
+        temp.resizable(0, 0)
+        temp.mainloop()
+
+
 
     '''
         ACCION DE MOSTRAR VENTANA EMERGENTE PARA DECIDIR SI ELIMINAR LA BASE DE DATOS
@@ -488,7 +524,6 @@ class Databases_Window:
         Frame1.place(x=x, y=y)
         return Frame1
 
-
 class Tables_Window:
     def __init__(self, win,   database, table_name, settings_frame, tuplas_settings):
         if win == "":
@@ -515,25 +550,6 @@ class Tables_Window:
         '''  BARRA DE NAVEGACION DE TABLAS DISPONIBLES   '''
         self.nav_var_tables(window, database)
 
-        '''  SCROLL PARA DIRECCIONAR LA IMAGEN DE LAS TABLAS   '''
-        Frame1 = LabelFrame(self.window)
-        can = Canvas(Frame1, width=430, height=70)
-        Scrollbar_x = Scrollbar(Frame1, orient="vertical", command=can.yview)
-        Scrollbar_y = Scrollbar(Frame1, orient="horizontal", command=can.xview)
-        Scrollbar_y.pack(side="bottom", fill="x")
-        Scrollbar_x.pack(side="right", fill="y")
-        can.pack(expand=True, fill="both")
-        can.configure(yscrollcommand=Scrollbar_x.set, xscrollcommand=Scrollbar_y.set)
-        frame = Frame(can)
-        can.create_window((False, False), window=frame, anchor="nw")
-        can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
-        Frame1.place(x=300, y=383)
-
-        ''' AGREGARA LA IMAGEN DE LAS TABLAS'''
-        '''tmp = h._database(database)
-        tmp.graficar()
-        photo = PhotoImage(file="tablas.png")
-        Label(frame, image=photo).pack()'''
 
         '''  ESPECIFICAR NOMBRE DE LA BASE DE DATOS   '''
         self.Title_BD = Label(self.window, text="BASE DE DATOS: ", font=("Arial Black", 9)).place(x=70, y=10)
@@ -681,7 +697,7 @@ class Tables_Window:
     '''
     def Default_Frame(self):
         temp = self.new_frame(self.window, 470, 200, 300, 100)
-        Frame(temp, width=470, height=270).pack()
+        Frame(temp, width=470, height=320).pack()
         Label(self.new_frame(temp, 0, 0, 20, 20), text="Please select a table", font=("Arial Black", 8)).pack()
 
     def Tuplas_Default_Frame(self):
@@ -697,38 +713,75 @@ class Tables_Window:
     '''
     def Settings_Frame(self, database, table):
         temp = self.new_frame(self.window, 470, 200, 300, 100)
-        Frame(temp, width=470, height=270).pack()
+        Frame(temp, width=470, height=320).pack()
 
-        Label(self.new_frame(temp, 0, 0, 80, 30), text="ALTER COLUMN", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 20, 20), text=" ✎ ", font=("", 14), foreground="brown", command=self.command_alter_add_column(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 20), text="ALTER COLUMN", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 20, 10), text=" ✎ ", font=("", 14), foreground="brown", command=self.command_alter_add_column(database, table)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 330, 180), text="DROP COLUMN", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 270, 170), text=" ✘ ", font=("", 14), foreground="red", command=self.command_alter_drop_column(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 170), text="DROP COLUMN", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 20, 160), text=" ✘ ", font=("", 14), foreground="red", command=self.command_alter_drop_column(database, table)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 80, 80), text="ALTER ADD PK", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 20, 70), text="  ¶  ", font=("", 14), foreground="orange", command=self.command_alter_add_PK(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 70), text="ALTER ADD PK", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 20, 60), text="  ¶  ", font=("", 14), foreground="orange", command=self.command_alter_add_PK(database, table)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 330, 80), text="ALTER ADD FK", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 270, 70), text="  ¶  ", font=("", 14), foreground="blue").pack()
+        #Label(self.new_frame(temp, 0, 0, 330, 80), text="ALTER ADD FK", font=("Arial Black", 8)).pack()
+        #Button(self.new_frame(temp, 0, 0, 270, 70), text="  ¶  ", font=("", 14), foreground="blue").pack()
 
-        Label(self.new_frame(temp, 0, 0, 80, 130), text="ALTER ADD INDEX", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 20, 120), text=" ✎ ", font=("", 14), foreground="brown").pack()
+        #Label(self.new_frame(temp, 0, 0, 80, 130), text="ALTER ADD INDEX", font=("Arial Black", 8)).pack()
+        #Button(self.new_frame(temp, 0, 0, 20, 120), text=" ✎ ", font=("", 14), foreground="brown").pack()
 
-        Label(self.new_frame(temp, 0, 0, 330, 130), text="ALTER DROP PK", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 270, 120), text=" ☒ ", font=("", 14), foreground="red", command=self.command_alter_drop_PK(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 330, 120), text="ALTER DROP PK", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 270, 110), text=" ☒ ", font=("", 14), foreground="red", command=self.command_alter_drop_PK(database, table)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 80, 180), text="EXTRACT RANGE TABLE", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 20, 170), text=" № ", font=("", 14), foreground="black", command=self.command_extract_range_table(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 120), text="EXTRACT RANGE TABLE", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 20, 110), text=" № ", font=("", 14), foreground="black", command=self.command_extract_range_table(database, table)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 330, 30), text="EXTRACT TABLE", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 270, 20), text=" ★ ", font=("", 14), foreground="yellow", command=self.command_extract_table(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 330, 20), text="EXTRACT TABLE", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 270, 10), text=" ★ ", font=("", 14), foreground="yellow", command=self.command_extract_table(database, table)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 80, 230), text="RENAME TABLE", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 20, 220), text=" ✎ ", font=("", 14), foreground="brown", command=self.command_alter_table(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 330, 70), text="RENAME TABLE", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 270, 60), text=" ✎ ", font=("", 14), foreground="brown", command=self.command_alter_table(database, table)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 330, 230), text="DROP TABLE", font=("Arial Black", 8)).pack()
-        Button(self.new_frame(temp, 0, 0, 270, 220), text=" ✘ ", font=("", 14), foreground="red", command=self.command_delete_table(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 330, 170), text="DROP TABLE", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 270, 160), text=" ✘ ", font=("", 14), foreground="red", command=self.command_delete_table(database, table)).pack()
 
+        Label(self.new_frame(temp, 0, 0, 20, 230), text="GRAPH:", font=("Arial Black", 7)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 270), text="SHOW DF", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 20, 260), text=" ☄ ", font=("", 14), foreground="blue", command=self.command_DF(database, table)).pack()
+
+    def command_DF(self, database, table):
+        return lambda : self._command_DF(database, table)
+
+    def _command_DF(self, database, table):
+        temp = Toplevel()
+        Label(self.new_frame(temp, 0, 0, 30, 10), text="Database: ", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 100, 10), text=str(database), font=("Arial", 9)).pack()
+        Label(self.new_frame(temp, 0, 0, 300, 10), text="Table: ", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 360, 10), text=str(table), font=("Arial", 9)).pack()
+
+        '''  FRAME PARA MOSTRAR EL GRAFO DE DEPENDENCIA   '''
+        Frame1 = LabelFrame(temp)
+        can = Canvas(Frame1, width=600, height=300)
+        Scrollbar_x = Scrollbar(Frame1, orient="vertical", command=can.yview)
+        Scrollbar_y = Scrollbar(Frame1, orient="horizontal", command=can.xview)
+        Scrollbar_y.pack(side="bottom", fill="x")
+        Scrollbar_x.pack(side="right", fill="y")
+        can.pack(expand=True, fill="both")
+        can.configure(yscrollcommand=Scrollbar_x.set, xscrollcommand=Scrollbar_y.set)
+        frame = Frame(can)
+        can.create_window((False, False), window=frame, anchor="nw")
+        can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
+        Frame1.place(x=30, y=50)
+
+        ''' AGREGARA LA IMAGEN'''
+        h.graphDF(database, table)
+        photo = PhotoImage(file=f'data/graph/_DF.png')
+        Label(frame, image=photo).pack()
+
+        temp.geometry('{}x{}'.format(700, 400))
+        temp.title("graph_DF")
+        temp.resizable(0, 0)
+        temp.mainloop()
 
 
     '''
@@ -738,11 +791,11 @@ class Tables_Window:
         temp = self.new_frame(self.window, 470, 200, 480, 10)
         Frame(temp, width=290, height=80).pack()
 
-        Label(self.new_frame(temp, 0, 0, 10, 10), text="TABLE NAME:", font=("Arial Black", 7)).pack()
-        Label(self.new_frame(temp, 0, 0, 10, 40), text=str(table), font=("Arial", 7)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 1), text="TABLE NAME:", font=("Arial Black", 7)).pack()
+        Label(self.new_frame(temp, 0, 0, 90, 2), text=str(table), font=("Arial", 7)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 210, 30), text="SHOW TUPLES", font=("Arial Black", 7)).pack()
-        Button(self.new_frame(temp, 0, 0, 150, 20), text=" ☄ ", font=("", 14), foreground="blue", command=self.show_Tuples(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 65, 40), text="SHOW TUPLES", font=("Arial Black", 7)).pack()
+        Button(self.new_frame(temp, 0, 0, 10, 30), text=" ☄ ", font=("", 14), foreground="blue", command=self.show_Tuples(database, table)).pack()
 
     def show_Tuples(self, database, table):
         return lambda : Tuples_Window("", database, table, "")
@@ -1138,7 +1191,8 @@ class Tuples_Window:
         '''  MOSTRAR BARRA DE NAVEGACION EN TUPLAS   '''
         self.nav_var_tables(window, database, table)
 
-        '''  OPCIONES PARA TUPLA SELECCIONADA    '''
+        Label(self.new_frame(window, 0, 0, 700, 20), text="BLOCKCHAIN", font=("Arial Black", 7)).pack()
+        Button(self.new_frame(window, 0, 0, 650, 10), text=" 🔒 ", font=("", 14), foreground="yellow", command=self.command_blockchain(database,table)).pack()
 
 
 
@@ -1157,9 +1211,9 @@ class Tuples_Window:
         Frame1.place(x=300, y=150)
 
         ''' AGREGARA LA IMAGEN DE LAS TABLAS'''
-        self.ImageStructure(database, table)
-        '''photo = PhotoImage(file=modo)
-        Label(frame, image=photo).pack()'''
+        pat = self.ImageStructure(database, table)
+        photo = PhotoImage(file=f'data/graph/{pat}.png')
+        Label(frame, image=photo).pack()
 
 
         window.geometry("800x500")
@@ -1171,31 +1225,33 @@ class Tuples_Window:
         FRAME POR DEFECTO
     '''
     def Default_Frame(self):
-        temp = self.new_frame(self.window, 470, 200, 300, 10)
-        Frame(temp, width=470, height=130).pack()
+        temp = self.new_frame(self.window, 320, 200, 300, 10)
+        Frame(temp, width=320, height=130).pack()
         Label(self.new_frame(temp, 0, 0, 20, 20), text="Please select a tuple for start work", font=("Arial Black", 10)).pack()
 
     '''
         FRAME DE OPCCIONES PARA TUPLA SELECCIONADA
     '''
     def Settings_Frame(self, database, table, pk):
-        temp = self.new_frame(self.window, 470, 200, 300, 10)
-        Frame(temp, width=470, height=130).pack()
+        temp = self.new_frame(self.window, 320, 200, 300, 10)
+        Frame(temp, width=320, height=130).pack()
 
-        Label(self.new_frame(temp, 0, 0, 10, 10), text="PRIMARY KEY:", font=("Arial Black", 7)).pack()
-        Label(self.new_frame(temp, 0, 0, 90, 10), text=str(pk), font=("Arial Black", 7)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 5), text="PRIMARY KEY:", font=("Arial Black", 7)).pack()
+        Label(self.new_frame(temp, 0, 0, 90, 5), text=str(pk), font=("Arial Black", 7)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 70, 90), text="EXTRACT ROW", font=("Arial Black", 7)).pack()
-        Button(self.new_frame(temp, 0, 0, 10, 80), text=" ★ ", font=("", 14), foreground="yellow", command=self.command_extract_row(database, table, pk)).pack()
+        Label(self.new_frame(temp, 0, 0, 70, 40), text="EXTRACT ROW", font=("Arial Black", 7)).pack()
+        Button(self.new_frame(temp, 0, 0, 10, 30), text=" ★ ", font=("", 14), foreground="yellow", command=self.command_extract_row(database, table, pk)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 255, 90), text="UPDATE", font=("Arial Black", 7)).pack()
-        Button(self.new_frame(temp, 0, 0, 195, 80), text=" ⇧ ", font=("", 14), foreground="blue", command=self.command_update(database, table, pk)).pack()
+        Label(self.new_frame(temp, 0, 0, 75, 90), text="UPDATE", font=("Arial Black", 7)).pack()
+        Button(self.new_frame(temp, 0, 0, 10, 80), text="  ⇧ ", font=("", 14), foreground="blue", command=self.command_update(database, table, pk)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 390, 20), text="TRUNCATE", font=("Arial Black", 7)).pack()
-        Button(self.new_frame(temp, 0, 0, 330, 10), text=" ✎ ", font=("", 14), foreground="brown", command=self.command_truncate(database,table)).pack()
+        Label(self.new_frame(temp, 0, 0, 230, 40), text="TRUNCATE", font=("Arial Black", 7)).pack()
+        Button(self.new_frame(temp, 0, 0, 175, 30), text=" ✎ ", font=("", 14), foreground="brown", command=self.command_truncate(database,table)).pack()
 
-        Label(self.new_frame(temp, 0, 0, 410, 90), text="DELETE", font=("Arial Black", 7)).pack()
-        Button(self.new_frame(temp, 0, 0, 350, 80), text=" ✘ ", font=("", 14), foreground="red", command=self.command_delete(database, table, pk)).pack()
+        Label(self.new_frame(temp, 0, 0, 230, 90), text="DELETE", font=("Arial Black", 7)).pack()
+        Button(self.new_frame(temp, 0, 0, 175, 80), text=" ✘ ", font=("", 14), foreground="red", command=self.command_delete(database, table, pk)).pack()
+
+
 
 
     '''  BOTON DE ACTUALIZAR PARA LIMPIAR LA IMAGEN EN PANTALLA   '''
@@ -1426,6 +1482,14 @@ class Tuples_Window:
         tmp.destroy()
         Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
 
+
+    '''
+        VENTANA DE BLOCKCHAIN
+    '''
+    def command_blockchain(self, database, table):
+        return lambda : Blockchain_Window("", database, table, "")
+
+
     '''
         CANCELAR LA ACCION DE LA VENTANA EMERGENTE
     '''
@@ -1459,11 +1523,149 @@ class Tuples_Window:
         Frame1.place(x=x, y=y)
         return Frame1
 
-    '''def ImageStructure(self, database, table):
-        h._Graficar(database, table)'''
+    def ImageStructure(self, database, table):
+        
+        return h._Graficar(database, table)
+
+class Blockchain_Window:
+    def __init__(self, win, database, table, show):
+        temp=""
+        if win=="":
+            temp=Toplevel()
+        else:
+            temp=win
+
+        Label(self.new_frame(temp, 0, 0, 30, 10), text="Database: ", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 100, 10), text=str(database), font=("Arial", 9)).pack()
+        Label(self.new_frame(temp, 0, 0, 300, 10), text="Table: ", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 360, 10), text=str(table), font=("Arial", 9)).pack()
+
+        Label(self.new_frame(temp, 0, 0, 70, 50), text="SafeModoOn", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 20, 40), text=" 🔒 ", font=("", 14), foreground="green", command=self.command_SafeModeOn(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 235,50), text="SafeModoOff", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 180, 40), text=" 🔐 ", font=("", 14), foreground="red", command=self.command_SafeModeOff(database, table)).pack()
+        Label(self.new_frame(temp, 0, 0, 430, 50), text="Show Blockchain", font=("Arial Black", 8)).pack()
+        Button(self.new_frame(temp, 0, 0, 375, 40), text=" ☄ ", font=("", 14), foreground="blue", command=self.show_blockchain(database,table, temp)).pack()
+
+        '''  FRAME PARA MOSTRAR ESTRUCTURA HASH QUE ALMACENA LOS REGISTROS   '''
+        Frame1 = LabelFrame(temp)
+        can = Canvas(Frame1, width=600, height=220)
+        Scrollbar_x = Scrollbar(Frame1, orient="vertical", command=can.yview)
+        Scrollbar_y = Scrollbar(Frame1, orient="horizontal", command=can.xview)
+        Scrollbar_y.pack(side="bottom", fill="x")
+        Scrollbar_x.pack(side="right", fill="y")
+        can.pack(expand=True, fill="both")
+        can.configure(yscrollcommand=Scrollbar_x.set, xscrollcommand=Scrollbar_y.set)
+        frame = Frame(can)
+        can.create_window((False, False), window=frame, anchor="nw")
+        can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
+        Frame1.place(x=30, y=100)
+
+        ''' AGREGARA LA IMAGEN DE LAS TABLAS'''
+        photo = PhotoImage(file=show)
+        Label(frame, image=photo).pack()
+
+
+        temp.geometry('{}x{}'.format(700, 400))
+        temp.title("BLOCKCHAIN")
+        temp.resizable(0, 0)
+        temp.mainloop()
+
+
+    '''
+        SAFE MODE ON
+    '''
+    def command_SafeModeOn(self,database, table):
+        return lambda : self._command_SafeModeOn(database, table)
+
+    def _command_SafeModeOn(self,database, table):
+        temp = Toplevel()
+        Label(self.new_frame(temp, 0, 0, 10, 0), text="Are you sure to enable Safe Mode?", font=("Arial Black", 10)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 30), text="Database:",font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 30), text=str(database), font=("Arial", 9)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 55), text="Table:", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 55), text=str(table), font=("Arial", 9)).pack()
+        Button(self.new_frame(temp, 0, 0, 80, 100), text="Aceptar", font=("Arial", 12), command=self.SafeModeOn(database, table, temp)).pack()
+        Button(self.new_frame(temp, 0, 0, 170, 100), text="Cancelar", font=("Arial", 12), command=self.Cancel(temp)).pack()
+
+        x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
+        y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
+        temp.geometry('{}x{}+{}+{}'.format(350, 150, x, y))
+        temp.title("SafeModeOn")
+        temp.resizable(0, 0)
+        #temp.mainloop()
+
+    def SafeModeOn(self,database, table, tmp):
+        return lambda: self._SafeModeOn(database,table, tmp)
+
+    def _SafeModeOn(self,database, table, tmp):
+        print(h.safeModeOn(database, table))
+        tmp.destroy()
+
+
+    '''
+        SAFE MODE OFF
+    '''
+    def command_SafeModeOff(self,database, table):
+        return lambda : self._command_SafeModeOff(database, table)
+
+    def _command_SafeModeOff(self,database, table):
+        temp = Toplevel()
+        Label(self.new_frame(temp, 0, 0, 10, 0), text="Are you sure to disable Safe Mode?", font=("Arial Black", 10)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 30), text="Database:",font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 30), text=str(database), font=("Arial", 9)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 55), text="Table:", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 80, 55), text=str(table), font=("Arial", 9)).pack()
+        Button(self.new_frame(temp, 0, 0, 80, 100), text="Aceptar", font=("Arial", 12), command=self.SafeModeOff(database, table, temp)).pack()
+        Button(self.new_frame(temp, 0, 0, 170, 100), text="Cancelar", font=("Arial", 12), command=self.Cancel(temp)).pack()
+
+        x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
+        y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
+        temp.geometry('{}x{}+{}+{}'.format(350, 150, x, y))
+        temp.title("SafeModeOff")
+        temp.resizable(0, 0)
+        #temp.mainloop()
+
+    def SafeModeOff(self,database, table, tmp):
+        return lambda: self._SafeModeOff(database,table, tmp)
+
+    def _SafeModeOff(self,database, table, tmp):
+        print(h.safeModeOff(database, table))
+        tmp.destroy()
+
+
+
+    '''
+        SHOW BLOCKCHAIN
+    '''
+    def show_blockchain(self, database, table, temp):
+        return lambda : self._show_blockchain(database, table, temp)
+
+    def _show_blockchain(self, database, table, temp):
+        retornar = str(h.GraphSafeTable(database, table))
+        print(retornar)
+        if retornar == "0":
+            Blockchain_Window(temp,database,table,f'data/graph/BlockChain.png')
+        else:
+            Blockchain_Window(temp, database, table, "")
 
 
 
 
 
+    '''
+        CANCELAR LA ACCION DE LA VENTANA EMERGENTE
+    '''
+    def Cancel(self, temp):
+        return lambda: temp.destroy()
 
+
+
+    '''  CREACION DE FRAMES PARA QUE NO SE REPITAN LOS WIDGETS AL MOMENTO DE ACTUALIZAR LA PAGINA  '''
+    def new_frame(self, window, width, height, x, y):
+        Frame1 = LabelFrame(window)
+        can = Canvas(Frame1, width=width, height=height)
+        frame = Frame(can)
+        can.create_window((False, False), window=frame, anchor="nw")
+        Frame1.place(x=x, y=y)
+        return Frame1

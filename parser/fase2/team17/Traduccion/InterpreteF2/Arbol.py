@@ -1,3 +1,7 @@
+from typing import List
+from InterpreteF2.Reporteria.ReporteTS_Indice import ReportIndice
+
+
 class Arbol:
 
     def __init__(self, instructions):
@@ -8,6 +12,7 @@ class Arbol:
         self.ErroresSintacticos: list = []
         self.ReporteTS: list = []
         self.ReporteTS_Funciones: list = []
+        self.ReporteTS_Indice:List[ReportIndice] = []
         self.ReporteOptimizacion: list = []
 
         # Soporte de temporales
@@ -120,3 +125,10 @@ class Arbol:
                 if str(i.estado) == 'INACTIVO':
                     return True
         return False
+
+    def covertInactivaeTOactivate(self, id):
+        for i in self.ReporteTS_Funciones:
+            if str(i.nombre) == str(id):
+                i.estado = 'ACTIVO'
+                return
+        return

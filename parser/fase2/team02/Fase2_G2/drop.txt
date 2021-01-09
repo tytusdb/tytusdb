@@ -1,0 +1,21 @@
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+
+retorna := 9;
+ 
+	    
+
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+
+
+select ValidaRegistros('house',9) ;
+
+drop function ValidaRegistros;
+
+
+select ValidaRegistros('housoooe',98) ;
+

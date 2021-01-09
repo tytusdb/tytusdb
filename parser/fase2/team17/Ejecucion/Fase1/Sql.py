@@ -92,21 +92,21 @@ class Sql:
 
 	def query(self, input) -> str:
 		self.parse(input)
-		result = str(self.analize(input))
+		result = str(self.analize1(input))
 		return  result
 
 	def analize1(self,entrada) -> str:
 		self.refresh()
-		resultado = ''
 		result = interpreter.execution(entrada)
 		querys = result["querys"]
 
 		try:
-			result = str(querys[0][1])
+			resultado = str(querys[0][1])
+			return resultado
 		except:
 			resultado='error'
+			return resultado
 
-		return   resultado
 
 
 

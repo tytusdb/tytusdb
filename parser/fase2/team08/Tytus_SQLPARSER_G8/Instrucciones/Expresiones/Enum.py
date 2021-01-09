@@ -11,6 +11,11 @@ class Enum(Instruccion):
         super().ejecutar(tabla,arbol)
         return self.valor
 
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+    
+    def traducir(self, tabla, arbol):
+        return super().traducir(tabla, arbol)
     
     def buscarTipo(self, nombre):
         for x in range(0, len(self.listaValores)):

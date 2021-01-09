@@ -20,9 +20,9 @@ class WhenElse(NodoArbol):
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         # Se genera la etiqueta de inicio, final, temporal y la variable de expresion si la hay
-        startlabel = arbol.getLabel()
-        finallabel = arbol.getLabel()
-        templabel = arbol.getLabel()
+        startlabel = '.' + str(arbol.getLabel())
+        finallabel = '.' + str(arbol.getLabel())
+        templabel = '.' + str(arbol.getLabel())
         var_add = " "
         # Si el case trae una expresion
         if self.expression is not None:
@@ -33,19 +33,19 @@ class WhenElse(NodoArbol):
                 self.elsecase.expression = self.expression
         arbol.addC3D("if" + var_add + self.condition.traducir(entorno, arbol) + " goto " + str(startlabel))
         arbol.addC3D("goto " + finallabel)
-        arbol.addC3D(startlabel + ":")
+        arbol.addC3D('label ' + startlabel)
         arbol.addIdentacion()
         for instruction in self.instructions:
             instruction.traducir(entorno, arbol)
         arbol.popIdentacion()
         arbol.addC3D("goto " + templabel)
-        arbol.addC3D(finallabel + ":")
+        arbol.addC3D('label ' + finallabel)
         if isinstance(self.elsecase, WhenElse) or isinstance(self.elsecase, When):
             arbol.addC3D(self.elsecase.traducir(entorno, arbol))
         else:
             for ins in self.elsecase:
                 ins.traducir(entorno, arbol)
-        arbol.addC3D(templabel + ":")
+        arbol.addC3D('label ' + templabel)
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         pass

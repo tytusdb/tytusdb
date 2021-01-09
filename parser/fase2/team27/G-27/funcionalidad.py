@@ -328,12 +328,17 @@ def assignQ(identificador,valor):
 ______________________________________________________________
 
 """
+
+
 def resFinal(funciones, codigo):
-      resultado = 'from goto import with_goto\nfrom parser import parser\n\n'
+      resultado = 'from goto import with_goto\nfrom parser_ import Parser\nfrom libraries.bstring_functions import *\n'
+      resultado += 'from libraries.datetime_functions import *\nfrom libraries.math_functions import *\nfrom libraries.trigonometric_functions import *\n\n' 
+      resultado += 'parser = Parser()\n'
       for f in funciones:
             resultado += f +'\n'
       resultado += codigo 
-      return resultado     
+      funciones = []
+      return resultado  
 
 
 """
@@ -416,28 +421,16 @@ def get_lower(name_func):
 ______________________________________________________________
 
 """
-def deleteProcFunc(tipo, id, parametros):
+def deleteProcFunc(tipo, id, ListaFunciones):
       for v in arregloFunciones:
-            if v['tipo'] == tipo and v['id'] == id and v['parametros']== parametros:
+            if v['tipo'] == tipo and v['id'] == id:                          
                   v['estado'] = 'ELIMINADO'
-                  return 'SELECT "SE HA ELIMINADO ' + fp[tipo] + ' CON ÉXITO.";'
-      return 'SELECT "ERROR NO SE HA ENCONTRADO' + fp[tipo] + ' QUE DESEA ELIMINAR";'
+                  return 'del '+ id
+      return ''
 
-"""
-______________________________________________________________
 
-"""
-def resFinal(funciones, codigo):
-      resultado = 'from goto import with_goto\nfrom parser import parser\nfrom libraries.bstring_functions import *\n'
-      resultado += 'from libraries.datetime_functions import *\nfrom libraries.math_functions import *\nfrom libraries.trigonometric_functions import *\n\n' 
-      for f in funciones:
-            resultado += f +'\n'
-      resultado += codigo 
-      funciones = []
-      return resultado    
 
-"""
-______________________________________________________________
+"""______________________________________________________________
 
 """
 def AddTs(id, tipo, operacion):

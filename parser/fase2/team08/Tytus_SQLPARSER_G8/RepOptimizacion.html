@@ -1,0 +1,138 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>Reporte Optimizacion</title><style> 
+table{ 
+width:100%;} 
+table, th, td {
+border: 1px solid black;
+border-collapse: collapse;
+}
+th, td {
+padding: 5px;
+text-align: left;
+}
+table#t01 tr:nth-child(even) {
+background-color: #eee;
+}
+table#t01 tr:nth-child(odd) {
+background-color:#fff;
+}
+table#t01 th {
+background-color: black;
+color: white;
+}
+</style></head><body><h1><center>Reporte optimizacion</center></h1>
+<table id="t01">
+<tr>
+<th><center>#</center></th>
+<th><center>No. Regla</center></th>
+<th><center>Regla</center></th>
+<th><center>Linea</center></th>
+<th><center>Instruccion</center></th>
+<th><center>Cambio</center></th>
+</tr>
+<tr>
+<td><center>0</center></td>
+<td><center>8</center></td>
+<td><center>Simplificacion algebraica: X = X + 0</center></td>
+<td><center>2</center></td>
+<td><center>['t1'] = t1 + 0</center></td>
+<td><center>Instruccion eliminada</center></td>
+</tr>
+<tr>
+<td><center>1</center></td>
+<td><center>8</center></td>
+<td><center>Simplificacion algebraica: X = X + 0</center></td>
+<td><center>4</center></td>
+<td><center>['t1'] = 0 + t1</center></td>
+<td><center>Instruccion eliminada</center></td>
+</tr>
+<tr>
+<td><center>2</center></td>
+<td><center>9</center></td>
+<td><center>Simplificacion algebraica: X = X - 0</center></td>
+<td><center>6</center></td>
+<td><center>['t2'] = t2 - 0</center></td>
+<td><center>Instruccion eliminada</center></td>
+</tr>
+<tr>
+<td><center>3</center></td>
+<td><center>10</center></td>
+<td><center>Simplificacion algebraica: X = X * 1</center></td>
+<td><center>8</center></td>
+<td><center>['t8'] = t8 * 1</center></td>
+<td><center>Instruccion eliminada</center></td>
+</tr>
+<tr>
+<td><center>4</center></td>
+<td><center>11</center></td>
+<td><center>Simplificacion algebraica: X = X / 1</center></td>
+<td><center>10</center></td>
+<td><center>['t15'] = t15 / 1</center></td>
+<td><center>Instruccion eliminada</center></td>
+</tr>
+<tr>
+<td><center>5</center></td>
+<td><center>12</center></td>
+<td><center>Simplificacion algebraica: X = Y + 0 ->  X = Y</center></td>
+<td><center>11</center></td>
+<td><center>['t12'] = t1 + 0</center></td>
+<td><center>t12 = t1</center></td>
+</tr>
+<tr>
+<td><center>6</center></td>
+<td><center>12</center></td>
+<td><center>Simplificacion algebraica: X = 0 + Y ->  X = Y</center></td>
+<td><center>13</center></td>
+<td><center>['t13'] = 0 + t12</center></td>
+<td><center>t13 = t12</center></td>
+</tr>
+<tr>
+<td><center>7</center></td>
+<td><center>13</center></td>
+<td><center>Simplificacion algebraica: X = Y - 0 ->  X = Y</center></td>
+<td><center>15</center></td>
+<td><center>['tx'] = ty - 0</center></td>
+<td><center>['tx'] = ty</center></td>
+</tr>
+<tr>
+<td><center>8</center></td>
+<td><center>14</center></td>
+<td><center>Simplificacion algebraica: X = Y * 1 ->  X = Y</center></td>
+<td><center>17</center></td>
+<td><center>['t5'] = t14 * 1</center></td>
+<td><center>['t5'] = t14</center></td>
+</tr>
+<tr>
+<td><center>9</center></td>
+<td><center>15</center></td>
+<td><center>Simplificacion algebraica: X = Y / 1 ->  X = Y</center></td>
+<td><center>19</center></td>
+<td><center>['t6'] = t15 / 1</center></td>
+<td><center>['t6'] = t15 / 1</center></td>
+</tr>
+<tr>
+<td><center>10</center></td>
+<td><center>16</center></td>
+<td><center>Simplificacion algebraica: X = Y * 2 ->  X = Y + Y</center></td>
+<td><center>21</center></td>
+<td><center>['t7'] = t16 * 2</center></td>
+<td><center>['t7'] = t16 * t16</center></td>
+</tr>
+<tr>
+<td><center>11</center></td>
+<td><center>17</center></td>
+<td><center>Simplificacion algebraica: X = Y * 0 ->  X = 0</center></td>
+<td><center>23</center></td>
+<td><center>['t8'] = t17 * 0</center></td>
+<td><center>['t8'] = 0</center></td>
+</tr>
+<tr>
+<td><center>12</center></td>
+<td><center>18</center></td>
+<td><center>Simplificacion algebraica: X = 0 / Y ->  X = 0</center></td>
+<td><center>25</center></td>
+<td><center>['t9'] = 0 / t18</center></td>
+<td><center>['t9'] = 0</center></td>
+</tr>
+</table>
+</body>
+</html>

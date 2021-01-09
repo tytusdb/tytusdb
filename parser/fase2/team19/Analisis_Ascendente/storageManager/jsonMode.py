@@ -530,7 +530,7 @@ def showJSON(fileName: str):
     initCheck()
     with open('data/json/'+fileName) as file:
         data = json.load(file)
-        print(data)
+        #print(data)
 
 # Delete all databases and tables by creating a new file
 def dropAll():
@@ -552,12 +552,12 @@ def showCollection():
             for t in data[d]:
                 tables.append(t)
                 datatables.append(d+'-'+t)
-    print('Databases: '+str(databases))
-    print('Tables: '+str(tables))
+    #print('Databases: '+str(databases))
+    #print('Tables: '+str(tables))
     for d in datatables:
         registers = []
         with open('data/json/'+d) as file:
             data = json.load(file)
             for r in data:
                 registers.append(r)
-            print(d+' pkeys: '+str(registers))
+            #print(d+' pkeys: '+str(registers))

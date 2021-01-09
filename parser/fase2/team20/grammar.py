@@ -206,6 +206,7 @@ reservedwords = (
     'WHEN',
     'PROCEDURE',
     'EXECUTE',
+    'DATE_PART',
 )
 
 symbols = (
@@ -306,7 +307,7 @@ def t_multi_line_comment(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    print_error("LEXICAL ERROR", "Illegal character in " + str(t.value[0]) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
+    print_error("LEXICAL ERROR", "Illegal character in " + str(t.value[0]) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)), 0)
     grammarerrors.append(
         Error("Lexical","Ilegal character in '%s'." % (t.value[0]),t.lineno,find_column(input,t)))
     t.lexer.skip(1)
@@ -803,18 +804,27 @@ def p_instruction_create_index_unique(t):
     t[0] = CreateIndex(t[4],t[6],t[7])
 
 def p_instruction_createindexoption(t):
-    '''createIndexOption : USING HASH BRACKET_OPEN createIndexColumn BRACKET_CLOSE
-                         | BRACKET_OPEN createIndexColumn BRACKET_CLOSE
-                         | USING HASH BRACKET_OPEN createIndexColumn BRACKET_CLOSE WHERE expression
-                         | BRACKET_OPEN createIndexColumn BRACKET_CLOSE WHERE expression'''
+    '''createIndexOption : USING HASH BRACKET_OPEN listCreateIndexColumn BRACKET_CLOSE
+                         | BRACKET_OPEN listCreateIndexColumn BRACKET_CLOSE
+                         | USING HASH BRACKET_OPEN listCreateIndexColumn BRACKET_CLOSE WHERE expression
+                         | BRACKET_OPEN listCreateIndexColumn BRACKET_CLOSE WHERE expression'''
     if(t[3]=='(' ):
         t[0]=t[4]
     else:
         t[0]=t[2]
+    
+def p_instruction_createindex_listcolumn(t):
+    '''listCreateIndexColumn : listCreateIndexColumn COMMA createIndexColumn'''
+    t[1].append(t[3])
+    t[0]=t[1]
+
+def p_instruction_createindex_listcolumn_single(t):
+    '''listCreateIndexColumn : createIndexColumn'''
+    t[0]=[t[1]]
 
 def p_instruction_createindex_column(t):
-    '''createIndexColumn : idList
-                         | LOWER BRACKET_OPEN idList BRACKET_CLOSE
+    '''createIndexColumn : LOWER BRACKET_OPEN ID BRACKET_CLOSE
+                         | ID
                          | ID ascDesc
                          | ID ascDesc NULLS firstLast
                          | ID NULLS firstLast'''
@@ -825,10 +835,10 @@ def p_instruction_createindex_column(t):
         elif(t[2]=='NULLS'):
             t[0]==[]
         elif(t[1]=='LOWER'):
-            t[0]=[]
+            t[0]=[t[3]]
     except Exception as e:
         print(e)
-        t[0]= t[1]
+        t[0]= [t[1]]
         #grammarreport = "<selectInstruction> ::= SELECT DISTINCT <expressionList> FROM <expressionList> { selectInstruction.val=Select(expressionList.val,True,expressionList.val,None) }\n" + grammarreport
     
 
@@ -919,37 +929,22 @@ def p_instruction_alterdatabase_owner(t):
     global grammarreport
     grammarreport = "<alterDatabase> ::= ALTER DATABASE ID OWNER TO ID { ID1.val='"+t[3]+"'; ID2.val='"+t[6]+"'; alterDatabase.val=AlterDatabaseOwner(ID1.val,ID2.val) }\n" + grammarreport
 
-def p_instruction_alterindexnum(t):
-    '''alterIndex : ALTER INDEX ID ALTER ID INT
-                  | ALTER INDEX ID ALTER INT '''
-    try:
-        t[0]=AlterIndex(t[3],t[6],False,True)
-    except Exception as e:
-        t[0]=AlterIndex(t[3],t[5],False,True)
-
-def p_instruction_alterindexnum_ifexists(t):
-    '''alterIndex : ALTER INDEX IF EXISTS ID ALTER ID INT
-                  | ALTER INDEX IF EXISTS ID ALTER INT '''
-    try:
-        t[0]=AlterIndex(t[5],t[6],True,True)
-    except Exception as e:
-        t[0]=AlterIndex(t[5],t[6],True,True)
 
 def p_instruction_alterindexid(t):
     '''alterIndex : ALTER INDEX ID ALTER ID ID
                   | ALTER INDEX ID ALTER ID '''
     try:
-        t[0]=AlterIndex(t[3],t[6],False,False)
+        t[0]=AlterIndex(t[3],t[5],t[6])
     except Exception as e:
-        t[0]=AlterIndex(t[3],t[5],False,False)
+        t[0]=AlterIndex(t[3],t[5],t[5])
 
 def p_instruction_alterindexid_ifexists(t):
     '''alterIndex : ALTER INDEX IF EXISTS ID ALTER ID ID
                   | ALTER INDEX IF EXISTS ID ALTER ID '''
     try:
-        t[0]=AlterIndex(t[5],t[8],True,False)
+        t[0]=AlterIndex(t[5],t[7],t[8])
     except Exception as e:
-        t[0]=AlterIndex(t[5],t[7],True,False)
+        t[0]=AlterIndex(t[5],t[7],t[7])
 
 def p_instruction_altertable_drop(t):
     '''alterTable : ALTER TABLE ID DROP COLUMN ID'''
@@ -1104,20 +1099,23 @@ def p_instruction_selectoption(t):
 
 #UPDATE
 def p_instruction_update(t):
-    '''update : UPDATE ID SET reallocationOfValues WHERE expression'''
+    '''update : UPDATE ID SET reallocationOfValues WHERE expression
+              | UPDATE STRING SET reallocationOfValues WHERE expression'''
     t[0] = Update(t[2],t[4],t[6])
     global grammarreport
     grammarreport = "<update> ::= UPDATE ID SET <reallocationOfValues> WHERE <expression> { ID.val='"+t[2]+"'; update.val=Update(ID.val,reallocationOfValues.val,expression.val) }\n" + grammarreport
 
 def p_instruction_reallocationofvalues_list(t):
-    '''reallocationOfValues : reallocationOfValues COMMA ID EQUAL expression'''
+    '''reallocationOfValues : reallocationOfValues COMMA ID EQUAL expression
+                            | reallocationOfValues COMMA STRING EQUAL expression'''
     t[1].append([t[3],t[5]])
     t[0]  = t[1]
     global grammarreport
     grammarreport = "<reallocationOfValues> ::= <reallocationOfValues> ',' ID '=' <expression> { ID.val='"+t[3]+"'; reallocationOfValues.val = reallocationOfValues1.val.append([ID.val,expression.val]) }\n" + grammarreport
 
 def p_instruction_reallocationofvalues_single(t):
-    '''reallocationOfValues : ID EQUAL expression'''
+    '''reallocationOfValues : ID EQUAL expression
+                            | STRING EQUAL expression'''
     t[0] = [[t[1],t[3]]]
     global grammarreport
     grammarreport = "<reallocationOfValues> ::= ID '=' <expression> { ID.val='"+t[1]+"'; reallocationOfValues.val = [ID.val,expression.val] }\n" + grammarreport
@@ -1143,11 +1141,15 @@ def p_instruction_idlist_list(t):
     t[0]  = t[1]
     global grammarreport
     grammarreport = "<idList> ::= <idList> ',' ID { ID.val='"+t[3]+"'; idList.val = idList1.val.append(ID.val) }\n" + grammarreport
+
+
+
 def p_instruction_idlist_single(t):
     '''idList : ID'''
     t[0] = [t[1]]
     global grammarreport
     grammarreport = "<idList> ::= ID { ID.val='"+t[1]+"'; idList.val = [ID.val] }\n" + grammarreport
+
 
 def p_instruction_sortexpressionlist_list(t):
     '''sortExpressionList : sortExpressionList COMMA expression
@@ -1336,9 +1338,13 @@ def p_expression_aggfunctions(t):
     '''expression : COUNT BRACKET_OPEN expression BRACKET_CLOSE
                   | AVG BRACKET_OPEN expression BRACKET_CLOSE
                   | SUM BRACKET_OPEN expression BRACKET_CLOSE'''
-    t[0] = AggFunction(t[1],t[3])
     global grammarreport
-    grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = AggFunction('"+t[1]+"',expression.val) }\n" + grammarreport
+    if(t[1]=='COUNT'):
+        t[0] = CountFunction(t[1])
+        grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = CountFunction('"+t[1]+"') }\n" + grammarreport
+    else:
+        t[0] = AggFunction(t[1],t[3])
+        grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = AggFunction('"+t[1]+"',expression.val) }\n" + grammarreport
 
 #EXTRACT
 def p_expression_extractfunctions(t):
@@ -1353,12 +1359,26 @@ def p_expression_extractfunctions(t):
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = ExtractFunction('"+t[3]+"',expression.val) }\n" + grammarreport
 
+#DATE PART
+def p_expression_datepartfunctions(t):
+    '''expression : DATE_PART BRACKET_OPEN expression COMMA INTERVAL expression BRACKET_CLOSE 
+                  '''
+    t[0] = DatePartFunction(t[3],t[6])
+    global grammarreport
+    grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = DatePartFunction(expression.val,expression.val) }\n" + grammarreport
+
+
 #CREATED FUNCTIONS
 def p_expression_createdfunctions(t):
     '''expression : ID BRACKET_OPEN expressionList BRACKET_CLOSE'''
     t[0] = CreatedFunction(t[1],t[3])
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expressionList> ')' { expression.val = CreatedFunction('"+t[1]+"',expressionList.val) }\n" + grammarreport
+
+# BRACKETS
+def p_expression_brackets(t):
+    '''expression : BRACKET_OPEN expression BRACKET_CLOSE'''
+    t[0] = t[2]
 
 #SELECT
 def p_expression_selectfunctions(t):
@@ -1457,15 +1477,15 @@ def p_pl_function_3(t):
 
 def p_pl_function_4(t):
     '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
-    t[0] = CreateFunction(t[3],True,None,t[9],t[13])
+    t[0] = CreateFunction(t[5],True,None,t[9],t[13])
 
 def p_pl_function_5(t):
     '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE RETURNS optReturns AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
-    t[0] = CreateFunction(t[3],True,t[7],t[10],t[14])
+    t[0] = CreateFunction(t[5],True,t[7],t[10],t[14])
 
 def p_pl_function_6(t):
     '''function : CREATE OR REPLACE FUNCTION ID BRACKET_OPEN paramList BRACKET_CLOSE AS DOLLAR DOLLAR mainBlock DOLLAR DOLLAR LANGUAGE PLPGSQL'''
-    t[0] = CreateFunction(t[3],True,t[7],None,t[12])
+    t[0] = CreateFunction(t[5],True,t[7],None,t[12])
 
 #PARAMS
 def p_pl_paramlist_list(t):
@@ -1790,12 +1810,12 @@ def p_pl_when(t):
 #ERROR
 def p_error(t):
     if t:
-        print_error("SYNTACTIC ERROR", "Syntactic Error in " + str(t.value) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
+        print_error("SYNTACTIC ERROR", "Syntactic Error in " + str(t.value) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)), 0)
         grammarerrors.append(
             Error("Syntactic","Syntactic Error in '%s'." % (t.value),t.lineno,find_column(input,t)))
         parser.errok()
     else:
-        print_error("SYNTACTIC ERROR","Syntax error at EOF")
+        print_error("SYNTACTIC ERROR","Syntax error at EOF", 0)
         grammarerrors.append(
             Error("Syntactic","Syntax error at EOF",0,0))
 import ply.yacc as yacc

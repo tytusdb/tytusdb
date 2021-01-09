@@ -4,8 +4,8 @@ from Instrucciones.Expresiones.Enum import Enum
 from storageManager.jsonMode import *
 
 class CreateType(Instruccion):
-    def __init__(self, id, tipo, listaExpre, strGram,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, listaExpre, strGram,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = id
         self.listaExpre = listaExpre
 
@@ -27,4 +27,10 @@ class CreateType(Instruccion):
         arbol.lEnum.append(enum1)
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
         arbol.consola.append("Consulta devuelta correctamente.")
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 

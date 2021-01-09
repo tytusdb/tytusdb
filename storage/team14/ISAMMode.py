@@ -12,11 +12,10 @@ def createDatabase(database: str) -> int:
     try:
         if not identifierValidation(database):
             return 1
-        for i in showDatabases():
-            if i.lower() == database.lower():
+        if database in showDatabases():
                 return 2
         databases = rollback('databasesISAM')
-        databases.append(DataBase(database.lower()))
+        databases.append(DataBase(database))
         commit(databases, 'databasesISAM')
         return 0
     except:
@@ -41,26 +40,17 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
             return 1
         elif not identifierValidation(databaseOld):
             return 1
-        noOldDB = False
-        yesNewDB = False
-        for i in showDatabases():
-            if i.lower() == databaseOld.lower():
-                noOldDB = True
-            if i.lower() == databaseNew.lower():
-                yesNewDB = True
-            if noOldDB and yesNewDB:
-                break
-        if not noOldDB:
+        if databaseOld not in showDatabases():
             return 2
-        elif yesNewDB:
+        elif databaseNew in showDatabases():
             return 3
         else:
             databases = rollback('databasesISAM')
-            index = showDatabases().index(databaseOld.lower())
-            databases[index].name = databaseNew.lower()
+            index = showDatabases().index(databaseOld)
+            databases[index].name = databaseNew
             commit(databases, 'databasesISAM')
             for i in showTables(databaseNew):
-                os.rename('data/ISAMMode/tables/' + databaseOld.lower() + i.lower() + '.bin', 'data/ISAMMode/tables/' + databaseNew.lower() + i.lower() + '.bin')
+                os.rename('data/ISAMMode/tables/' + databaseOld + i + '.bin', 'data/ISAMMode/tables/' + databaseNew + i + '.bin')
             return 0
     except:
         return 1
@@ -72,18 +62,13 @@ def dropDatabase(database: str) -> int:
     try:
         if not identifierValidation(database):
             return 1
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        if not dbExists:
+        elif database not in showDatabases():
             return 2
         else:
             databases = rollback('databasesISAM')
-            index = showDatabases().index(database.lower())
+            index = showDatabases().index(database)
             for i in databases[index].tables:
-                os.remove('data/ISAMMode/tables/' + database.lower() + i + '.bin')
+                os.remove('data/ISAMMode/tables/' + database + i + '.bin')
             databases.pop(index)
             commit(databases, 'databasesISAM')
             return 0
@@ -101,27 +86,17 @@ def createTable(database, tableName, numberColumns):
             return 1
         elif not identifierValidation(tableName):
             return 1
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database):
-            if i.lower() == tableName.lower():
-                tableExists = True
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif tableExists:
+        elif tableName in showTables(database):
             return 3
         else:
             databases = rollback('databasesISAM')
-            index = showDatabases().index(database.lower())
-            databases[index].tables.append(tableName.lower())
+            index = showDatabases().index(database)
+            databases[index].tables.append(tableName)
             commit(databases, 'databasesISAM')
-            table = Table(tableName.lower(), numberColumns)
-            commit(table, 'tables/' + database.lower() + tableName.lower())
+            table = Table(tableName, numberColumns)
+            commit(table, 'tables/' + database + tableName)
             return 0
     except:
         return 1
@@ -131,14 +106,9 @@ def createTable(database, tableName, numberColumns):
 def showTables(database) -> list:
     checkDirs()
     tableNames = []
-    dbExists = False
-    for i in showDatabases():
-        if i.lower() == database.lower():
-            dbExists = True
-            break
-    if dbExists:
+    if database in showDatabases():
         databases = rollback('databasesISAM')
-        index = showDatabases().index(database.lower())
+        index = showDatabases().index(database)
         aux_database = databases[index]
         for i in aux_database.tables:
             tableNames.append(i)
@@ -149,41 +119,22 @@ def showTables(database) -> list:
 def extractTable(database: str, table: str):
     registers = []
     if not identifierValidation(database):
-        return 1
+        return None
     elif not identifierValidation(table):
-        return 1
-    dbExists = False
-    for i in showDatabases():
-        if i.lower() == database.lower():
-            dbExists = True
-            break
-    tableExists = False
-    for i in showTables(database):
-        if i.lower() == table.lower():
-            tableExists = True
-    if dbExists:
-        if tableExists:
-            aux_table = rollback('tables/' + database.lower() + table.lower())
+        return None
+    if database in showDatabases():
+        if table in showTables(database):
+            aux_table = rollback('tables/' + database + table)
             registers = aux_table.extractTable()
-            return registers
+    return registers
 
 
 # extrae y devuelve una lista de registros dentro de un rango especificado
 def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database):
-            if i.lower() == table.lower():
-                tableExists = True
-                break
-        if dbExists:
-            if tableExists:
-                table = rollback('tables/' + database.lower() + table.lower())
+        if database in showDatabases():
+            if table in showTables(database):
+                table = rollback('tables/' + database + table)
                 return table.extractRangeTable(lower, upper, columnNumber)
     except:
         return []
@@ -193,22 +144,12 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
 def alterAddPK(database: str, table: str, columns: list) -> int:
     checkDirs()
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database):
-            if i.lower() == table.lower():
-                tableExists = True
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableExists:
+        elif table not in showTables(database):
             return 3
         else:
-            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table = rollback('tables/' + database + table)
             if len(aux_table.PK) > 0:
                 return 4
             else:
@@ -225,11 +166,11 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
                     keys = []
                     if len(extractTable(database, table)) == 0:
                         aux_table.PKDefined = True
-                        commit(aux_table, 'tables/' + database.lower() + table.lower())
+                        commit(aux_table, 'tables/' + database + table)
                         return 0
                     else:
                         vercompleto = False
-                        for i in extractTable(database.lower(), table.lower()):
+                        for i in extractTable(database, table):
                             if len(i) > 0:
                                 key = ''
                                 for j in aux_table.PK:
@@ -251,7 +192,7 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
                             aux_table.tuples.truncate()
                             for nuevos in registros:
                                 aux_table.insert(nuevos.PK, nuevos.data)
-                            commit(aux_table, 'tables/' + database.lower() + table.lower())
+                            commit(aux_table, 'tables/' + database + table)
                             return 0
                         else:
                             return 1
@@ -263,29 +204,19 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
 def alterDropPK(database: str, table: str) -> int:
     checkDirs()
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database):
-            if i.lower() == table.lower():
-                tableExists = True
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableExists:
+        elif table not in showTables(database):
             return 3
         else:
-            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table = rollback('tables/' + database + table)
             if len(aux_table.PK) == 0:
                 return 4
             else:
                 aux_table.PK.clear()
                 aux_table.PKDefined = False
                 aux_table.droppdedPK = True
-                commit(aux_table, 'tables/' + database.lower() + table.lower())
+                commit(aux_table, 'tables/' + database + table)
                 return 0
     except:
         return 1
@@ -296,34 +227,20 @@ def alterTable(database, tableOld, tableNew):
     checkDirs()
     databases = rollback('databasesISAM')
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableOldExists = False
-        tableNewExists = False
-        for i in showTables(database):
-            if i.lower() == tableOld.lower():
-                tableOldExists = True
-            if i.lower() == tableNew.lower():
-                tableNewExists = True
-            if tableNewExists and tableOldExists:
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableOldExists:
+        elif tableOld not in showTables(database):
             return 3
-        elif tableNewExists:
+        elif tableNew in showTables(database):
             return 4
         else:
-            table = rollback('tables/' + database.lower() + tableOld.lower())
-            table.name = tableNew.lower()
-            commit(table, 'tables/' + database.lower() + tableOld.lower())
-            os.rename('data/ISAMMode/tables/' + database.lower() + tableOld.lower() + '.bin', 'data/ISAMMode/tables/' + database.lower() + tableNew.lower() + '.bin')
-            index = showDatabases().index(database.lower())
-            table_index = databases[index].tables.index(tableOld.lower())
-            databases[index].tables[table_index] = tableNew.lower()
+            table = rollback('tables/' + database + tableOld)
+            table.name = tableNew
+            commit(table, 'tables/' + database + tableOld)
+            os.rename('data/ISAMMode/tables/' + database + tableOld + '.bin', 'data/ISAMMode/tables/' + database + tableNew + '.bin')
+            index = showDatabases().index(database)
+            table_index = databases[index].tables.index(tableOld)
+            databases[index].tables[table_index] = tableNew
             commit(databases, 'databasesISAM')
             return 0
     except:
@@ -335,25 +252,15 @@ def alterTable(database, tableOld, tableNew):
 def alterAddColumn(database: str, table: str, default: any) -> int:
     checkDirs()
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database.lower()):
-            if i.lower() == table.lower():
-                tableExists = True
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableExists:
+        elif table not in showTables(database):
             return 3
         else:
-            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table = rollback('tables/' + database + table)
             aux_table.tuples.addAtEnd(default)
             aux_table.numberColumns += 1
-            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            commit(aux_table, 'tables/' + database + table)
             return 0
     except:
         return 1
@@ -364,20 +271,12 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
     checkDirs()
     aux_table = None
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-        tableExists = False
-        for i in showTables(database):
-            if i.lower() == table.lower():
-                tableExists = True
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableExists:
+        elif table not in showTables(database):
             return 3
         else:
-            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table = rollback('tables/' + database + table)
         if aux_table.numberColumns == 1 or columnNumber in aux_table.PK:
             return 4
         elif columnNumber > aux_table.numberColumns - 1:
@@ -388,7 +287,7 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
             for i in aux_table.PK:
                 if i > columnNumber:
                     i -= 1
-            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            commit(aux_table, 'tables/' + database + table)
             return 0
     except:
         return 1
@@ -398,25 +297,15 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
 def dropTable(database, tableName):
     checkDirs()
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database.lower()):
-            if i.lower() == tableName.lower():
-                tableExists = True
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableExists:
+        elif tableName not in showTables(database):
             return 3
         else:
             databases = rollback('databasesISAM')
-            os.remove('data/ISAMMode/tables/' + database.lower() + tableName.lower() + '.bin')
-            index = showDatabases().index(database.lower())
-            table_index = databases[index].tables.index(tableName.lower())
+            os.remove('data/ISAMMode/tables/' + database + tableName + '.bin')
+            index = showDatabases().index(database)
+            table_index = databases[index].tables.index(tableName)
             databases[index].tables.pop(table_index)
             commit(databases, 'databasesISAM')
             return 0
@@ -429,22 +318,12 @@ def insert(database: str, table: str, register: list):
     checkDirs()
     aux_table = None
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database):
-            if i.lower() == table.lower():
-                tableExists = True
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableExists:
+        elif table not in showTables(database):
             return 3
         else:
-            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table = rollback('tables/' + database + table)
             if len(register) > aux_table.numberColumns or aux_table.numberColumns > len(register):
                 return 5
             else:
@@ -457,7 +336,7 @@ def insert(database: str, table: str, register: list):
                     PK = str(aux_table.hiddenPK)
                     aux_table.hiddenPK += 1
                 if len(aux_table.insert(PK, register)) == 0:
-                    commit(aux_table, 'tables/' + database.lower() + table.lower())
+                    commit(aux_table, 'tables/' + database + table)
                     return 0
                 else:
                     return 4
@@ -473,7 +352,7 @@ def loadCSV(file: str, database: str, table: str) -> list:
         with open(file, 'r') as f:
             reader = csv.reader(f, delimiter=',')
             for row in reader:
-                res.append(insert(database.lower(), table.lower(), row))
+                res.append(insert(database, table, row))
         return res
     except:
         return []
@@ -484,7 +363,7 @@ def extractRow(database, table, columns):
     checkDirs()
     try:
         PK = ''
-        aux_tabla = rollback('tables/' + database.lower() + table.lower())
+        aux_tabla = rollback('tables/' + database + table)
         for i in columns:
             PK += str(i) + '_'
         PK = PK[:-1]
@@ -500,25 +379,15 @@ def extractRow(database, table, columns):
 #Metodo que modifica los valores de un registro
 def update(database: str, table: str, register: dict, columns: list) -> int:
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database):
-            if i.lower() == table.lower():
-                tableExists = True
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableExists:
+        elif table not in showTables(database):
             return 3
         else:
-            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table = rollback('tables/' + database + table)
             updated = aux_table.update(register, columns)
             if updated == 0:
-                commit(aux_table, 'tables/' + database.lower() + table.lower())
+                commit(aux_table, 'tables/' + database + table)
                 return 0
             elif updated == 1:
                 return 4
@@ -531,29 +400,19 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
 #Metodo que elimina un registro
 def delete(database, table, columns):
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database):
-            if i.lower() == table.lower():
-                tableExists = True
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableExists:
+        elif table not in showTables(database):
             return 3
         else:
-            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table = rollback('tables/' + database + table)
             PK = ''
             for i in columns:
                 PK += str(i) + '_'
             PK = PK[:-1]
             deleted = aux_table.delete(PK)
             if deleted == 0:
-                commit(aux_table, 'tables/' + database.lower() + table.lower())
+                commit(aux_table, 'tables/' + database + table)
                 return 0
             elif deleted == 1:
                 return 4
@@ -564,24 +423,14 @@ def delete(database, table, columns):
 #Metodo que elimina todos los registros de una tabla
 def truncate(database, table):
     try:
-        dbExists = False
-        for i in showDatabases():
-            if i.lower() == database.lower():
-                dbExists = True
-                break
-        tableExists = False
-        for i in showTables(database):
-            if i.lower() == table.lower():
-                tableExists = True
-                break
-        if not dbExists:
+        if database not in showDatabases():
             return 2
-        elif not tableExists:
+        elif table not in showTables(database):
             return 3
         else:
-            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table = rollback('tables/' + database + table)
             aux_table.tuples.truncate()
-            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            commit(aux_table, 'tables/' + database + table)
             return 0
     except:
         return 1
@@ -679,9 +528,3 @@ def chartList(list):
     file.write('}')
     file.close()
     os.system("dot -Tpng list.dot -o list.png")
-
-
-
-
-    
-    

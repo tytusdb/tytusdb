@@ -2,8 +2,6 @@ import json
 
 TypeChecker_path = "data/json/TypeChecker"
 
-separator: str = "■▲"
-
 class TypeChecker_Manager:
     def __init__(self, use, databases):
         self.use = use
@@ -52,107 +50,88 @@ class check:
 def get_TypeChecker_Manager_Aux(json_string: str):
 
     TypeChecker_Manager_ = TypeChecker_Manager(None, [])
+    
+    jsonObject = json.loads(json_string)
 
-    content_one = json_string
-    content_one = str(content_one).replace("'", "\"")
-    content_one = str(content_one).replace("True", "true")
-    content_one = str(content_one).replace("False", "false")
-    content_one = str(content_one).replace("\\\"", separator)
-    jsonObject_one = json.loads(content_one)
-
-    #Database Name---------------------------------
-    for key_one in jsonObject_one:
-        value_one = jsonObject_one[key_one]
+    #Database Name------------------------------------
+    for key_one in jsonObject:
+        value_one = jsonObject[key_one]
 
         if key_one == "USE":
-            TypeChecker_Manager_.use = value_one
+            TypeChecker_Manager_.use = jsonObject[key_one]
 
         else:
             Database = database(key_one, None, None, None, None, [])
             TypeChecker_Manager_.databases.append(Database)
-    #----------------------------------------------
-            #Table Name------------------------------------
-            content_two = value_one
-            content_two = str(content_two).replace("'", "\"")
-            content_two = str(content_two).replace("True", "true")
-            content_two = str(content_two).replace("False", "false")
-            jsonObject_two = json.loads(content_two)
-
-            for key_two in jsonObject_two:  
-                value_two = jsonObject_two[key_two]
+    #-------------------------------------------------
+            #Table Name---------------------------------------
+            for key_two in jsonObject[key_one]:  
+                value_two = jsonObject[key_one][key_two]
 
                 if key_two == "MODE":
-                    Database.mode = value_two
+                    Database.mode = jsonObject[key_one][key_two]
 
                 elif key_two == "TYPES":
-                    Database.types = str(value_two).replace(separator, "\\\"")
+                    Database.types = jsonObject[key_one][key_two]
                 
                 elif key_two == "INDEX": 
-                    Database.index = str(value_two).replace(separator, "\\\"")
+                    Database.index = jsonObject[key_one][key_two]
 
                 elif key_two == "FUNCTIONS": 
-                    Database.functions = str(value_two).replace(separator, "\\\"")
+                    Database.functions = jsonObject[key_one][key_two]
 
                 else:
                     Table = table(key_two, [])
                     Database.tables.append(Table)
-            #----------------------------------------------
-                    #Column Name------------------------------------
-                    content_three = value_two
-                    content_three = str(content_three).replace("'", "\"")
-                    content_three = str(content_three).replace("True", "true")
-                    content_three = str(content_three).replace("False", "false")
-                    jsonObject_three = json.loads(content_three)
-            
-                    for key_three in jsonObject_three:
-                        value_three = jsonObject_three[key_three]
+                #-------------------------------------------------
+                    #Column Name--------------------------------------
+                    for key_three in jsonObject[key_one][key_two]:
+                        value_three = jsonObject[key_one][key_two][key_three]
 
                         Column = column(key_three, [])
                         Table.columns.append(Column)
-                    #-----------------------------------------------
-                        #Constraints and Checks-------------------------
-                        content_four = value_three
-                        content_four = str(content_four).replace("'", "\"")
-                        content_four = str(content_four).replace("True", "true")
-                        content_four = str(content_four).replace("False", "false")
-                        jsonObject_four = json.loads(content_four)
+                    #-------------------------------------------------
+                        #Constraints and Checks---------------------------
 
-                        #Constraints------------------------------------
+                        #Constraints--------------------------------------
                         try:
-                            Column.type_ = jsonObject_four["CONST"]["TYPE"]
+                            Column.type_ = jsonObject[key_one][key_two][key_three]["CONST"]["TYPE"]
                         except Exception as e:
                             i=0#print(e)
                         try:
-                            Column.primary_ = jsonObject_four["CONST"]["PRIMARY"]
+                            Column.primary_ = jsonObject[key_one][key_two][key_three]["CONST"]["PRIMARY"]
                         except Exception as e:
                             i=0#print(e)
                         try:
-                            Column.default_ = jsonObject_four["CONST"]["DEFAULT"]
+                            Column.default_ = jsonObject[key_one][key_two][key_three]["CONST"]["DEFAULT"]
                         except Exception as e:
                             i=0#print(e)
                         try:
-                            Column.null_ = jsonObject_four["CONST"]["NULL"]
+                            Column.null_ = jsonObject[key_one][key_two][key_three]["CONST"]["NULL"]
                         except Exception as e:
                             i=0#print(e)
                         try:
-                            Column.maxlength_ = jsonObject_four["CONST"]["MAXLENGTH"]
+                            Column.maxlength_ = jsonObject[key_one][key_two][key_three]["CONST"]["MAXLENGTH"]
                         except Exception as e:
                             i=0#print(e)
                         try:
-                            Column.unique_ = jsonObject_four["CONST"]["UNIQUE"]
+                            Column.unique_ = jsonObject[key_one][key_two][key_three]["CONST"]["UNIQUE"]
                         except Exception as e:
                             i=0#print(e)
-                        #-----------------------------------------------
+                        #-------------------------------------------------
                         
-                        #Checks-----------------------------------------
+                        #Checks-------------------------------------------
                         try:
-                            for entity in jsonObject_four["CHECKS"]:
-                                Check = check(entity["OP"], entity["VALUE"])
+                            for entity in jsonObject[key_one][key_two][key_three]["CHECKS"]:
+                                value_op = jsonObject[key_one][key_two][key_three]["CHECKS"]["OP"]
+                                value_value = jsonObject[key_one][key_two][key_three]["CHECKS"]["VALUE"]
+                                Check = check(jsonObject[key_one][key_two][key_three]["CHECKS"]["OP"], jsonObject[key_one][key_two][key_three]["CHECKS"]["VALUE"])
                                 Column.checks.append(Check)
                         except Exception as e:
                             i=0#print(e)
-                        #-----------------------------------------------
-                        #-----------------------------------------------
+                        #-------------------------------------------------
+
+                        #-------------------------------------------------
     
     return TypeChecker_Manager_
 
@@ -175,25 +154,32 @@ def get_string_json_TypeChecker_Manager(TypeChecker_Manager_: TypeChecker_Manage
         #----------------------------------------
         
         #Mode------------------------------------
-        json_ += "          \"MODE\":" + str(TypeChecker_Manager_.databases[i].mode) + ",\n"
+        json_ += "          \"MODE\":" + str(TypeChecker_Manager_.databases[i].mode)
         #----------------------------------------
 
         #Types-----------------------------------
-        json_ += "          \"TYPES\":" + str(TypeChecker_Manager_.databases[i].types).replace("\"", "\\\"") + ",\n"
+        if TypeChecker_Manager_.databases[i].types != None:
+            json_ += ",\n"
+            json_ += "          \"TYPES\":" + str(TypeChecker_Manager_.databases[i].types).replace("\"", "\\\"")
         #----------------------------------------
 
         #Index-----------------------------------
-        json_ += "          \"INDEX\":"  + str(TypeChecker_Manager_.databases[i].index).replace("\"", "\\\"") + ",\n"
+        if TypeChecker_Manager_.databases[i].index != None:
+            json_ += ",\n"
+            json_ += "          \"INDEX\":"  + str(TypeChecker_Manager_.databases[i].index).replace("\"", "\\\"")
         #----------------------------------------
 
         #Functions-------------------------------
-        json_ += "          \"FUNCTIONS\":"  + str(TypeChecker_Manager_.databases[i].functions).replace("\"", "\\\"") 
+        if TypeChecker_Manager_.databases[i].functions != None:
+            json_ += ",\n"
+            json_ += "          \"FUNCTIONS\":"  + str(TypeChecker_Manager_.databases[i].functions).replace("\"", "\\\"")
+        #----------------------------------------
+        
         if len(TypeChecker_Manager_.databases[i].tables) > 0:
             json_ += ",\n"
         else:
             json_ += "\n"
-        #----------------------------------------
-        
+
         j = 0
         while j < len(TypeChecker_Manager_.databases[i].tables):
             #table start+++++++++++++++++++++++++++++

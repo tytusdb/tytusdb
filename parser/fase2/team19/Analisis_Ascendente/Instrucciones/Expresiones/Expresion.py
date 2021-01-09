@@ -2,11 +2,13 @@ from Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
 from Analisis_Ascendente.Instrucciones.Time import Time
 from Analisis_Ascendente.Instrucciones.expresion import *
 import Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonometrica
-import Analisis_Ascendente.Instrucciones.Expresiones.Math as  Math
+import Analisis_Ascendente.Instrucciones.Expresiones.Math as Math
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Declaracion import Declaracion
 from Analisis_Ascendente.Instrucciones.PLPGSQL.Return import Return
 from Analisis_Ascendente.Instrucciones.PLPGSQL.plasignacion import Plasignacion
+from Analisis_Ascendente.reportes import Reportes
+from C3D import GeneradorTemporales
 
 class Expresion(Exp):
     def __init__(self, iz, dr, operador,fila,columna):
@@ -16,6 +18,77 @@ class Expresion(Exp):
         self.fila = fila
         self.columna = columna
 
+    def getC3D(self, listop):
+        codigo = {}
+        etq = GeneradorTemporales.nuevo_temporal()
+        code = '    %s = ' % etq
+        nodo = self
+        while isinstance(nodo, Expresion):
+            if isinstance(nodo.iz, Id):
+                code += nodo.iz.id + ' '
+                if nodo.operador == '+':
+                    if isinstance(nodo.dr, Primitivo):
+                        if nodo.dr.valor == 0:
+                            optimizacion1 = Reportes.ListaOptimizacion(nodo.iz.id + nodo.operador + '0', "Se elimino la instrucción",
+                                    Reportes.TipoOptimizacion.REGLA8)
+                            listop.append(optimizacion1)
+                            break
+                elif nodo.operador == '-':
+                    if isinstance(nodo.dr, Primitivo):
+                        if nodo.dr.valor == 0:
+                            optimizacion1 = Reportes.ListaOptimizacion(nodo.iz.id + nodo.operador + '0', "Se elimino la instrucción",
+                                    Reportes.TipoOptimizacion.REGLA9)
+                            listop.append(optimizacion1)
+                            break
+                elif nodo.operador == '/':
+                    if isinstance(nodo.dr, Primitivo):
+                        if nodo.dr.valor == 1:
+                            optimizacion1 = Reportes.ListaOptimizacion(nodo.iz.id + nodo.operador + '1', "Se elimino la instrucción",
+                                    Reportes.TipoOptimizacion.REGLA10)
+                            listop.append(optimizacion1)
+                            break
+                elif nodo.operador == '-':
+                    if isinstance(nodo.dr, Primitivo):
+                        if nodo.dr.valor == 1:
+                            optimizacion1 = Reportes.ListaOptimizacion(nodo.iz.id + nodo.operador + '1', "Se elimino la instrucción",
+                                    Reportes.TipoOptimizacion.REGLA11)
+                            listop.append(optimizacion1)
+                            break
+                else:
+                    code += nodo.operador + ''
+            elif isinstance(nodo.iz, Primitivo):
+                if isinstance(nodo.iz.valor, str):
+                    code += '\''+nodo.dr.valor + '\' '
+                else:
+                    code += str(nodo.iz.valor)
+                code += nodo.operador + ' '
+            elif isinstance(nodo.iz, Expresion):
+                dicto = nodo.iz.getC3D(listop)
+                code = '\n'+dicto["code"] + '\n'
+            if isinstance(nodo.dr, Primitivo):
+                if isinstance(nodo.dr.valor, str):
+                    code += '\''+nodo.dr.valor + '\''
+                else:
+                    code += str(nodo.dr.valor)
+            elif isinstance(nodo.dr, Time):
+                code += nodo.dr.getC3D()
+            elif isinstance(nodo.dr, Trigonometrica.Trigonometrica):
+                code += nodo.dr.getC3D()
+            elif isinstance(nodo.dr, Math.Math_):
+                code += nodo.dr.getC3D()
+            elif isinstance(nodo.dr, Expresion):
+                dicto = nodo.dr.getC3D(listop)
+                code += '\n'+dicto["code"] + '\n'
+            nodo = nodo.dr
+        code += ''
+        codigo = {
+            "code": code,
+            "tmp": etq
+        }
+        return codigo
+
+    def get_quemado(self):
+        return '%s %s %s' % (self.iz.get_quemado(), self.operador, self.dr.get_quemado())
 
     def limpiarFuncion(expr,tsglobal):
         if isinstance(expr,Funcion):
@@ -74,7 +147,7 @@ class Expresion(Exp):
                 if (isinstance(exp1,float) and isinstance(exp2,float)) or (isinstance(exp1,int) and isinstance(exp2,int)) or (isinstance(exp1,float) and isinstance(exp2,int))  or (isinstance(exp1,int) and isinstance(exp2,float)):
                     return exp1 %  exp2
                 return 'error'
-            elif expr.operador == '==': #comparacion---------------------------------------
+            elif expr.operador == '==':
                 boole= exp1 == exp2
                 return  boole
             elif expr.operador == '<>':
@@ -97,9 +170,10 @@ class Expresion(Exp):
                 return boole
         elif isinstance(expr,Id):
             if ts.validar_sim(expr.id) == 1:
-                return expr.id
+                simvariable = ts.buscar_sim(expr.id)
+                return simvariable.valor
             else:
-                return 'holamundo'
+                return 'holamundo' #No deberia de pasar
         elif isinstance(expr, Primitivo):
             if expr.valor == 'TRUE':
                 return True

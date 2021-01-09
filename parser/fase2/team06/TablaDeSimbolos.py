@@ -532,7 +532,7 @@ class TablaDeSimbolos() :
         datos={}
         for simb in self.simbolos:   
             print(simb)         
-            if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == bd:                
+            if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == bd and self.simbolos[simb].tipo !=None:                
                 print("res: ",self.simbolos[simb].valor)
                 print( simb,"  = ",self.simbolos[simb].valor)
                 a+=str(simb)+"  = "+str(self.simbolos[simb].valor)+"\n"
@@ -542,6 +542,7 @@ class TablaDeSimbolos() :
             print("A va vacio")
             return "0"
         else:
+            print("DATOS:",datos)
             print("vera si genera el dataframe")
             df=pd.DataFrame(datos)
             print(df)
@@ -565,7 +566,7 @@ class TablaDeSimbolos() :
                 print(simb)         
                 key=str(self.simbolos[simb].nombre)+str(self.simbolos[simb].BD)+str(self.simbolos[simb].tabla)
                 print("el nombre sera ====",key)
-                if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == bd and (self.simbolos[simb].nombre+self.simbolos[simb].BD+self.simbolos[simb].tabla)==campos[x]:                
+                if self.simbolos[simb].tabla == tabla and self.simbolos[simb].BD == bd and (self.simbolos[simb].nombre+self.simbolos[simb].BD+self.simbolos[simb].tabla)==campos[x] and self.simbolos[simb].tipo !=None:                
                     print("res: ",self.simbolos[simb].valor)
                     print( simb,"  = ",self.simbolos[simb].valor)
                     a+=str(simb)+"  = "+str(self.simbolos[simb].valor)+"\n"
@@ -616,7 +617,7 @@ class TablaDeSimbolos() :
                     print(simb)         
                     key=str(self.simbolos[simb].nombre)+str(self.simbolos[simb].BD)+str(self.simbolos[simb].tabla)
                     print("el nombre sera ====",key)
-                    if self.simbolos[simb].tabla == tabla[x] and self.simbolos[simb].BD == bd and (self.simbolos[simb].nombre+self.simbolos[simb].BD+self.simbolos[simb].tabla)==campos[y]:                
+                    if self.simbolos[simb].tabla == tabla[x] and self.simbolos[simb].BD == bd and (self.simbolos[simb].nombre+self.simbolos[simb].BD+self.simbolos[simb].tabla)==campos[y] and self.simbolos[simb].tipo !=None:                
                         print("res: ",self.simbolos[simb].valor)
                         print( simb,"  = ",self.simbolos[simb].valor)
                         a+=str(simb)+"  = "+str(self.simbolos[simb].valor)+"\n"
@@ -649,7 +650,7 @@ class TablaDeSimbolos() :
                 print(simb)         
                 key=str(self.simbolos[simb].nombre)+str(self.simbolos[simb].BD)+str(self.simbolos[simb].tabla)
                 print("el nombre sera ====",key)
-                if self.simbolos[simb].tabla == tabla[x] and self.simbolos[simb].BD == bd:                
+                if self.simbolos[simb].tabla == tabla[x] and self.simbolos[simb].BD == bd and self.simbolos[simb].tipo !=None:                
                     print("res: ",self.simbolos[simb].valor)
                     print( simb,"  = ",self.simbolos[simb].valor)
                     a+=str(simb)+"  = "+str(self.simbolos[simb].valor)+"\n"
@@ -685,27 +686,49 @@ class TablaDeSimbolos() :
                 return self.simbolos[simb].nombre
         return 0
 
+    # def verificacionColumnaIndex(self,nombre,BD,tabla,old_column,new_column):
+    #     clave = str(nombre) + str(BD) + str(tabla)
+    #     print("CLAVE: ",clave)
+    #     if clave in self.simbolos :
+    #         for simb in self.simbolos:
+    #             if self.simbolos[simb].BD == BD and self.simbolos[simb].tabla == tabla:
+    #                 print("VALOR:",self.simbolos[simb].valor)
+    #                 if self.simbolos[simb].valor != None:
+    #                     print("VALOR CON VALOR:",self.simbolos[simb].valor)
+    #                     y = [self.simbolos[simb].nombre]
+    #                     y = [new_column if x==old_column else x for x in y]
+    #                     print("NUEVA TABLA: ",y)
+    #                     tipo = self.simbolos[simb].tipoIndex
+    #                     sort = self.simbolos[simb].sortIndex
+    #                     tabla = self.simbolos[simb].tabla
+    #                     valores = y
+    #                     BDatos = BD
+    #                     simbolo = Simbolo(None,nombre,None,None,BDatos,tabla,None,None,None,None,None,None,None,None,None,None,valores,None,None,None,tipo,sort,None,None)
+    #                     print(simbolo)                
+    #                     self.simbolos[clave] = simbolo
+    #                     return 0
+    #     else:
+    #         return 1
+
     def verificacionColumnaIndex(self,nombre,BD,tabla,old_column,new_column):
         clave = str(nombre) + str(BD) + str(tabla)
         print("CLAVE: ",clave)
         if clave in self.simbolos :
-            for simb in self.simbolos:
-                if self.simbolos[simb].BD == BD and self.simbolos[simb].tabla == tabla:
-                    print("VALOR:",self.simbolos[simb].valor)
-                    if self.simbolos[simb].valor != None:
-                        print("VALOR CON VALOR:",self.simbolos[simb].valor)
-                        y = self.simbolos[simb].valor
-                        y = [new_column if x==old_column else x for x in y]
-                        print("NUEVA TABLA: ",y)
-                        tipo = self.simbolos[simb].tipoIndex
-                        sort = self.simbolos[simb].sortIndex
-                        tabla = self.simbolos[simb].tabla
-                        valores = y
-                        BDatos = BD
-                        simbolo = Simbolo(None,nombre,None,None,BDatos,tabla,None,None,None,None,None,None,None,None,None,None,valores,None,None,None,tipo,sort,None,None)
-                        print(simbolo)                
-                        self.simbolos[clave] = simbolo
-                        return 0
+            print("VALOR:",self.simbolos[clave].valor)
+            if self.simbolos[clave].valor != None:
+                print("VALOR CON VALOR:",self.simbolos[clave].valor)
+                y = self.simbolos[clave].valor
+                y = [new_column if x==old_column else x for x in y]
+                print("NUEVA TABLA: ",y)
+                tipo = self.simbolos[clave].tipoIndex
+                sort = self.simbolos[clave].sortIndex
+                tabla = self.simbolos[clave].tabla
+                valores = y
+                BDatos = BD
+                simbolo = Simbolo(None,nombre,None,None,BDatos,tabla,None,None,None,None,None,None,None,None,None,None,valores,None,None,None,tipo,sort,None,None)
+                print(simbolo)                
+                self.simbolos[clave] = simbolo
+                return 0
         else:
             return 1
 

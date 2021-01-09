@@ -1,12 +1,13 @@
 import traceback
 from tkinter import *
 from tkinter import filedialog
+from tkinter import messagebox as MessageBox
 
 sys.path.append('.')
 sys.path.append('../')
 from Parser.Ascendente.gramatica import parse as AnaParse
 #from Parser.Ascendente.gramatica import parse_1 as AnaParse_1
-#from Parser.Reportes.gramatica1 import parse as ReportParse
+from Parser.Reportes.gramatica1 import parseo as ReportParse
 from InterpreteF2.Tabla_de_simbolos import Tabla_de_simbolos
 from InterpreteF2.Arbol import Arbol
 from InterpreteF2.Reporteria.ErroresSemanticos import ErroresSemanticos
@@ -14,11 +15,14 @@ from InterpreteF2.Reporteria.ErroresSintacticos import ErroresSintacticos
 from InterpreteF2.Reporteria.ErroresLexicos import ErroresLexicos
 from InterpreteF2.Reporteria.ReporteTS import ReporteTS
 from InterpreteF2.Reporteria.ReporteOptimizacion import  ReporteOptimizacion
+from InterpreteF2.Reporteria.ReporteTS_forFunction import  ReporteTS_forFunction
+from InterpreteF2.Reporteria.ReporteTS_Indice import ReportIndice
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from Parser.Reportes.Nodo1 import Nodo
 from Parser.Reportes.TourTree import TourTree
 from graphviz import Source
+from Main.erroresglobales import erroresglobales
 
 #================================================================
 #======================Declaracion de variables globales========
@@ -38,11 +42,8 @@ input = ''
 COD3D ="""
 from Fase1.Sql import Sql
 from goto import with_goto
-heap = None
-def inter():
-    global  heap
-    sql:Sql = Sql()
-    sql.run(heap)
+heap = ''
+def inter() -> str:
 """
 
 #================================================================
@@ -122,14 +123,21 @@ def analizador():
         result: Arbol = AnaParse(cadena)
         entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
         entornoCero.NuevoAmbito()
+        print('Nodo abstracto < ARBOL > :')
         print(result)
+        print('------------------------------------- > Buen viaje tytus-G17')
+
         for item in result.instrucciones:
             if item == None:
                 pass
             else:
-                item.traducir(entornoCero, result)
-        print("C3D generado:")
-        print(result.getC3D())
+                try:
+                    item.traducir(entornoCero, result)
+                except:
+                    pass
+
+        #print("C3D generado:")
+        #print(result.getC3D())
 
         consola = 'def main(): \n'
         consola = consola + result.getC3D()
@@ -151,6 +159,24 @@ def analizador():
         my_text1.insert(END, consola)
         print('SIntactico realizado con exito')
 
+        try:
+            global COD3D
+            COD3D += '\t' + 'global heap' + '\n'
+            COD3D += '\t' + 'sql: Sql = Sql()' + '\n'
+            COD3D += '\t' + 'result = str(sql.query(heap))' + '\n'
+            COD3D += '\t' + 'return result' + '\n\n'
+
+            COD3D += '@with_goto' + '\n' + 'def principal():'
+            COD3D += '\n'
+            COD3D += result.getC3D()
+
+            COD3D += '\n'
+            COD3D += '\n'
+            COD3D += """if __name__ == '__main__':\n"""
+            COD3D += '\t' + 'principal()'
+        except:
+            pass
+
         global arboAux_errores
 
         arboAux_errores = result
@@ -165,31 +191,45 @@ def Seleccionar():
         cadena = my_text.get(SEL_FIRST, SEL_LAST)
 
         result: Arbol = AnaParse(cadena)
-        #entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
-        #entornoCero.NuevoAmbito()
-        #print(result)
-        #for item in result.instrucciones:
-        #    item.traducir(entornoCero, result)
-        #print("C3D generado:")
-        #print(result.getC3D())
+        entornoCero: Tabla_de_simbolos = Tabla_de_simbolos()
+        entornoCero.NuevoAmbito()
+        print(result)
+        for item in result.instrucciones:
+            item.traducir(entornoCero, result)
+        print("C3D generado:")
+        print(result.getC3D())
 
-        #consola = result.getC3D()
-        #consola = consola + '\n\n' + result.getC3D_funciones()
+        consola = result.getC3D()
+        consola = consola + '\n\n' + result.getC3D_funciones()
 
-        #for i in result.ReporteTS:
-        #    print('Nombre: ' + str(i.nombre))
-        #    print('Tipo: ' + str(i.tipo))
-        #    print('----------------------------------------------')
+        for i in result.ReporteTS:
+            print('Nombre: ' + str(i.nombre))
+            print('Tipo: ' + str(i.tipo))
+            print('----------------------------------------------')
 
-        #for i in result.ReporteTS_Funciones:
-        #    print('Nombre: ' + str(i.nombre))
-        #    print('Tipo: ' + str(i.tipo))
-        #    print('Estado: ' + str(i.estado))
-        #    print('----------------------------------------------')
-        ##for item in result.console:
-        ##    consola = consola + item
+        for i in result.ReporteTS_Funciones:
+            print('Nombre: ' + str(i.nombre))
+            print('Tipo: ' + str(i.tipo))
+            print('Estado: ' + str(i.estado))
+            print('----------------------------------------------')
 
-        #my_text1.insert(END, consola)
+        print('---------------------INDICES-------------------------')
+        for i in result.ReporteTS_Indice:
+            print('Nombre: ' + str(i.nombre))
+
+            print('columnas ======== ')
+            for col in i.columnas:
+                print('col: ' + str(col))
+
+            print('consideracion: ' + str(i.consideracion))
+            print('Tipo: ' + str(i.tipo))
+            print('Posicion: ' + str(i.fila)+ str(i.columna))
+            print('----------------------------------------------')
+
+        #for item in result.console:
+        #    consola = consola + item
+
+        my_text1.insert(END, consola)
         print('SIntactico realizado con exito')
 
         global arboAux_errores
@@ -202,34 +242,40 @@ def Seleccionar():
 
 def ReporteSelect():
     global dotString
-    #cadena = my_text.get(SEL_FIRST, SEL_LAST)
-    #result: Nodo = ReportParse(cadena)
-    #tour:TourTree = TourTree()
-    #dotString = tour.getDot(result)
-    #graph = Source(dotString)
-    ##graph.render(view=True, format='svg')
 
-    #try:
-    #    graph.render(format='svg')
-    #    print('Reporte Generado Con exito')
-    #except:
-    #    print('No se genero el reporte:w')
+    try:
+        cadena = my_text.get(SEL_FIRST, SEL_LAST)
+        result: Nodo = ReportParse(cadena)
+        print('sintactico realizado con exito')
+        tour: TourTree = TourTree()
+        dotString = tour.getDot(result)
+        graph = Source(dotString)
+        # graph.render(view=True, format='svg')
+
+        try:
+            graph.render(format='svg')
+            print('Reporte Generado Con exito')
+        except:
+            print('No se genero el reporte:w')
+    except EXCEPTION as e:
+        print(e)
+
 
 
 def Reporte():
      global dotString
-     #cadena = my_text.get("1.0", END)
-     #result: Nodo = ReportParse(cadena)
-     #tour:TourTree = TourTree()
-     #dotString = tour.getDot(result)
-     #graph = Source(dotString)
-    ##graph.render(view=True, format='svg')
+     cadena = my_text.get("1.0", END)
+     result: Nodo = ReportParse(cadena)
+     tour:TourTree = TourTree()
+     dotString = tour.getDot(result)
+     graph = Source(dotString)
+     #graph.render(view=True, format='svg')
 
-     #try:
-     #   graph.render(format='svg')
-     #   print('Reporte Generado Con exito')
-     #except:
-     #   print('No se genero el reporte:w')
+     try:
+        graph.render(format='svg')
+        print('Reporte Generado Con exito')
+     except:
+        print('No se genero el reporte:w')
 
 
 
@@ -251,7 +297,7 @@ def Err_Lexico():
         tr:hover td{background-color: black;color: white;}"""
     texto += '''</style> </head> </body>
             <div id=\"main-container\">
-            <h1>Reporte de errores Lexicos OLC2- G17</h1>
+            <h1>Reporte de errores Lexicos OLC2- G17 F2</h1>
             <table> <thead> <tr>
             <th>#</th>
             <th>Descripcion</th>
@@ -261,7 +307,7 @@ def Err_Lexico():
             '''
     contador = 1
 
-    for i in arboAux_errores.ErroresLexicos:
+    for i in erroresglobales.errores_lexicos:
         Error: ErroresLexicos = i
         texto += '<tr><td> ' + str(contador) + '</td>'
         texto += '<td> ' + Error.descripcion + '</td>'
@@ -273,6 +319,7 @@ def Err_Lexico():
     try:
         with open('ErroresLexicos.html', 'w') as lexicos:
             lexicos.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte lexico generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -315,6 +362,7 @@ def Err_Sintactico():
     try:
         with open('ErroresSintacticos.html', 'w') as sintacticos:
             sintacticos.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte sintactico generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -358,6 +406,7 @@ def Err_Semantico():
     try:
         with open('ErroresSemanticos.html', 'w') as semanticos:
             semanticos.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte semantico generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -382,10 +431,12 @@ def Tabla_Simbolos():
                 <h1>Reporte de Tabla de Simbolos OLC2- G17</h1>
                 <table> <thead> <tr>
                 <th>#</th>
-                <th>identificador</th>
-                <th>tipo</th>
-                <th>declarada_en</th>
+                <th>Alias</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Consideracion</th>
                 <th>linea</th>
+                <th>Columna</th>
                 </tr> </thead>
                 '''
 
@@ -394,16 +445,19 @@ def Tabla_Simbolos():
     for i in arboAux_errores.ReporteTS:
         Simbolo: ReporteTS = i
         texto += '<tr><td> ' + str(contador) + '</td>'
-        texto += '<td> ' + Simbolo.identificador + '</td>'
+        texto += '<td> ' + Simbolo.alias + '</td>'
+        texto += '<td> ' + Simbolo.nombre + '</td>'
         texto += '<td> ' + Simbolo.tipo + '</td>'
-        texto += '<td> ' + Simbolo.declarada_en + '</td>'
-        texto += '<td> ' + str(Simbolo.linea) + '</td></tr>'
+        texto += '<td> ' + Simbolo.consideracion + '</td>'
+        texto += '<td> ' + str(Simbolo.fila) + '</td>'
+        texto += '<td> ' + str(Simbolo.columna) + '</td></tr>'
         contador = contador + 1
     texto += "</table> </div> </body> </html>"
 
     try:
         with open('tabladesimbolos.html', 'w') as ts:
             ts.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte TS generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
@@ -451,9 +505,115 @@ def Optimizacion():
     try:
         with open('ReporteOptimizacion.html', 'w') as optimizacion:
             optimizacion.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte de optimizacion generado exitosamente")
     except Exception as e:
         print("No fue posible escribir el html: " + str(e))
 
+def Tabla_Simbolos_Indice():
+
+    global arboAux_errores
+
+    texto = '''
+            <!DOCTYPE html>
+            <html lang=\"es\">
+            <head><meta charset=\"UTF-8\">  <title> Indices</title> 
+            <style type=\"text/css\"> \n'''
+    texto += """body{ background-color: white; font-family: Arial;} 
+        #main-container{ margin: 170px auto; width: 500px;}
+        table{ background-color: white; text-align: center; border-collapse: collapse; width: 100%;}
+        th, td{padding: 10px;}
+        thead{background-color: #2464333;border-bottom: solid 5px #0F3543; color: black;}
+        tr:nth-child(even){ background-color: #ddd;}
+        tr:hover td{background-color: black;color: white;}"""
+    texto += '''</style> </head> </body>
+            <div id=\"main-container\">
+            <h1>Reporte de Tabla de Simbolos para Indices OLC2- G17</h1>
+            <table> <thead> <tr>
+            <th>No.</th>
+            <th>Alias</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Columnas</th>
+            <th>Consideracion</th>
+            <th>Fila</th>
+            <th>Columna</th>
+            </tr> </thead>
+            '''
+    contador = 1
+
+    for i in arboAux_errores.ReporteTS_Indice:
+        Error:ReportIndice = i
+        texto += '<tr><td> ' + str(contador) + '</td>'
+        texto += '<td> ' + Error.alias + '</td>'
+        texto += '<td> ' + Error.nombre + '</td>'
+        texto += '<td> ' + Error.tipo + '</td>'
+        col = ''
+        for i in Error.columnas:
+            col = col + str(i) + ' '
+        texto += '<td> ' + col + '</td>'
+
+        texto += '<td> ' + Error.consideracion+ '</td>'
+        texto += '<td> ' + str(Error.fila) + '</td>'
+        texto += '<td> ' + str(Error.columna) + '</td></tr>'
+        contador = contador + 1
+    texto += "</table> </div> </body> </html>"
+
+    try:
+        with open('ReporteTS_indices.html', 'w') as tsindices:
+            tsindices.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte TS para indices generado exitosamente")
+    except Exception as e:
+        print("No fue posible escribir el html: " + str(e))
+
+def Tabla_Simbolos_Funciones():
+
+    global arboAux_errores
+
+    texto = '''
+            <!DOCTYPE html>
+            <html lang=\"es\">
+            <head><meta charset=\"UTF-8\">  <title>  Funciones</title> 
+            <style type=\"text/css\"> \n'''
+    texto += """body{ background-color: white; font-family: Arial;} 
+        #main-container{ margin: 170px auto; width: 500px;}
+        table{ background-color: white; text-align: center; border-collapse: collapse; width: 100%;}
+        th, td{padding: 10px;}
+        thead{background-color: #2464333;border-bottom: solid 5px #0F3543; color: black;}
+        tr:nth-child(even){ background-color: #ddd;}
+        tr:hover td{background-color: black;color: white;}"""
+    texto += '''</style> </head> </body>
+            <div id=\"main-container\">
+            <h1>Reporte de Tabla de Simbolos para Funciones OLC2- G17</h1>
+            <table> <thead> <tr>
+            <th>No.</th>
+            <th>Alias</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Fila</th>
+            <th>Columna</th>
+            </tr> </thead>
+            '''
+    contador = 1
+
+    for i in arboAux_errores.ReporteTS_Funciones:
+        Error: ReporteTS_forFunction = i
+        texto += '<tr><td> ' + str(contador) + '</td>'
+        texto += '<td> ' + Error.alias + '</td>'
+        texto += '<td> ' + Error.nombre + '</td>'
+        texto += '<td> ' + Error.tipo + '</td>'
+        texto += '<td> ' + Error.estado + '</td>'
+        texto += '<td> ' + str(Error.fila) + '</td>'
+        texto += '<td> ' + str(Error.columna) + '</td></tr>'
+        contador = contador + 1
+    texto += "</table> </div> </body> </html>"
+
+    try:
+        with open('ReporteTS_Funciones.html', 'w') as tsfunciones:
+            tsfunciones.write(texto)
+        MessageBox.showinfo("TYTUS << G17 >>", "Reporte TS para funciones generado exitosamente")
+    except Exception as e:
+        print("No fue posible escribir el html: " + str(e))
 def generar():
     global COD3D
 
@@ -461,11 +621,12 @@ def generar():
     COD3D += ''
 
     #llamando a la funcion principal
-    COD3D+= """if __name__ == '__main__':\n\tprincipal()"""
+    #COD3D+= """if __name__ == '__main__':\n\tprincipal()"""
 
     f = open("./../../Ejecucion/Codigo3DGenerado.py", "w")
     f.write(COD3D)
     f.close()
+    MessageBox.showinfo("TYTUS << G17 >>", "C3D generado exitosamente!")
 
 
 # ############################################################################################
@@ -546,5 +707,7 @@ edit_menu.add_command(label='Lexico', command=Err_Lexico)
 edit_menu.add_command(label='Sintactico', command=Err_Sintactico)
 edit_menu.add_command(label='Semantico', command=Err_Semantico)
 edit_menu.add_command(label='Tabla Simbolos', command=Tabla_Simbolos)
+edit_menu.add_command(label='Tabla Simbolos Funciones', command=Tabla_Simbolos_Funciones)
+edit_menu.add_command(label='Tabla Simbolos Indices', command=Tabla_Simbolos_Indice)
 edit_menu.add_command(label='Optimizacion', command=Optimizacion)
 file_menu.add_separator()

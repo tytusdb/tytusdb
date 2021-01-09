@@ -7,7 +7,7 @@ sys.path.append('../../../../parser/team26/G26/')
 sys.path.append('../../../../parser/team26/G26/Utils')
 sys.path.append('../../../../parser/team26/G26/Expresiones')
 sys.path.append('../../../../parser/team26/G26/Instrucciones')
-sys.path.append('../../../../parser/team26/G26/Librerias')
+sys.path.append('../../../../storage/storageManager')
 
 # Server imports
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -18,7 +18,7 @@ import json
 # Parser imports
 import Instrucciones.DML.select as select
 from Error import *
-import Librerias.storageManager.jsonMode as storage
+import jsonMode as storage
 import gramatica as g
 import Utils.Lista as l
 
@@ -38,6 +38,8 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         #Definiendo rutas para peticiones get
         if self.path == '/getUsers':           
             self.do_getUsers()
+        elif self.path == '/getDatabases':
+            self.do_getDatabases()
         else:
             self.send_response(400)
             self.wfile.write(bytes("",'utf-8'))
@@ -70,15 +72,6 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         erroresSemanticos = []
         contenido = ""
         text = ""
-        try:
-            f = open("../../../../parser/team26/G26/Utils/tabla.txt", "r")
-            text = f.read()
-            text = text.replace('\'','"')
-            text = text.replace('False','"False"')
-            text = text.replace('None','""')
-            text = text.replace('True','"True"')
-        except:
-            print('error')
 
 
         for instr in instrucciones['ast']:
@@ -92,10 +85,18 @@ class MyRequestHandler(BaseHTTPRequestHandler):
                     contenido = contenido + str(instr.ImprimirTabla(result))  + "\n"
                 else:
                     contenido = contenido + str(result) + "\n"
+
+        databases = ""
+        url = "../../../../parser/team26/G26/data/json/databases"
+        try:
+            databases = open(url).read()
+        except:
+            databases = ""
+            print("F")
         
         ####################################################FIN PARSER    
         
-        respuesta = { "consola": contenido, "jsonText": text }
+        respuesta = { "consola": contenido, "jsonText": text, "databases": databases }
         myJsonResponse = json.dumps(respuesta)
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -159,6 +160,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(bytes(myFile, 'utf-8'))
 
     def do_getUsers(self):
+        myFile = ""
         url = "./data/tytus.json"
         try:
             myFile = open(url).read()
@@ -170,6 +172,31 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(myFile, 'utf-8'))
 
+    def do_getDatabases(self):
+
+        text = ""
+        try:
+            f = open("../../../../parser/team26/G26/Utils/tabla.txt", "r")
+            text = f.read()
+            text = text.replace('\'','"')
+            text = text.replace('False','"False"')
+            text = text.replace('None','""')
+            text = text.replace('True','"True"')
+        except:
+            text = ""
+
+        databases = ""
+        try:
+            databases = open("../../../../parser/team26/G26/data/json/databases").read()           
+        except:
+            databases = ""
+        self.send_response(200)
+        respuesta = { "jsonText": text, "databases": databases }
+        myJsonResponse = json.dumps(respuesta)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(bytes(myJsonResponse, 'utf-8'))
+         
     def do_root(self):
         dataSize = int(self.headers['Content-Length']) #Getting size of data
         myData = self.rfile.read(dataSize) #Reading data (form)
