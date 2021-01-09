@@ -38,7 +38,7 @@ Este Programa consiste en una interfaz gráfica que permite la interacción del 
 
 ## Opciones de Bases de Datos
 
-<p align="center"><img src="img/bases.png" width="800" alt="Opciones de bases de Datos"></p>
+<p align="center"><img src="/storage/fase2/team14/img/bases.png" width="800" alt="Opciones de bases de Datos"></p>
 
 1. Lista de Bases de Datos disponibles: al iniciar el programa, las bases de datos que ya se encuentren creadas se desplegarán en este panel.
 
@@ -50,7 +50,7 @@ Este Programa consiste en una interfaz gráfica que permite la interacción del 
 ## Opciones de Tablas
 
 
-<p align="center"><img src="img/tablas.png" width="800" alt="Opciones de bases de Datos"></p>
+<p align="center"><img src="/storage/fase2/team14/img/tablas.png" width="800" alt="Opciones de bases de Datos"></p>
 
 
 4. Lista de tablas almacenadas: Al acceder a la ventana de tablas, se podrá visualizar todas las tablas que se encuentran disponibles dentro de la base de datos elegida con anterioridad.
@@ -70,7 +70,7 @@ Este Programa consiste en una interfaz gráfica que permite la interacción del 
 ## Pantalla de Reporte gráfico
 
 
-<p align="center"><img src="img/grafico.png" width="800" alt="Opciones de bases de Datos"></p>
+<p align="center"><img src="/storage/fase2/team14/img/grafico.png" width="800" alt="Opciones de bases de Datos"></p>
 
 
 10. Salir: Si se desea regresar a la ventana anterior solamente es necesario presionar el botón para poder visualizar nuevamente la ventana con las bases de datos.
