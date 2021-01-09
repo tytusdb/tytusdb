@@ -8,13 +8,13 @@ from .storage.dict import DictMode as mdict
 from .storage.hash import HashMode as thash
 from .storage.isam import ISAMMode as isam
 from .storage.json import jsonMode as json
-import team09.codificacion
+from team09 import codificacion
 import os, pickle, csv
-import team09.checksum
-import team09.crypto
-import team09.blockchain
+from team09 import checksum
+from team09 import crypto
+from team09 import blockchain
 import pathlib
-import team09.indices
+from team09 import indices
 import zlib
 blokFlag = False
 
