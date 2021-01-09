@@ -8,7 +8,7 @@ from storage.misc import serealizar as sr
 
 from tkinter import *
 from tkinter import ttk
-from storage import main as h
+from storage import TytusStorage as h
 
 _main_path = os.getcwd() + "\\data"
 
@@ -1212,7 +1212,7 @@ class Tuples_Window:
 
         ''' AGREGARA LA IMAGEN DE LAS TABLAS'''
         pat = self.ImageStructure(database, table)
-        photo = PhotoImage(file=f'data/graph/{pat}.png')
+        photo = PhotoImage(file=f'{pat}')
         Label(frame, image=photo).pack()
 
 
@@ -1525,7 +1525,7 @@ class Tuples_Window:
 
     def ImageStructure(self, database, table):
         
-        return h._Graficar(database, table)
+        return h.graphTable(database, table)
 
 class Blockchain_Window:
     def __init__(self, win, database, table, show):
@@ -1642,9 +1642,9 @@ class Blockchain_Window:
         return lambda : self._show_blockchain(database, table, temp)
 
     def _show_blockchain(self, database, table, temp):
-        retornar = str(h.GraphSafeTable(database, table))
+        retornar = h.graphSafeTable(database, table)
         print(retornar)
-        if retornar == "0":
+        if retornar:
             Blockchain_Window(temp,database,table,f'data/graph/BlockChain.png')
         else:
             Blockchain_Window(temp, database, table, "")
