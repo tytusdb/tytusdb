@@ -78,5 +78,16 @@ def alterDatabaseMode(database, mode):
         else:
             return 2        
     except:
-        return 1
-    
+        return 1            
+
+def showDatabases():
+    showAvl = avl.showDatabases()
+    showB = b.showDatabases()
+    showBP = bplus.showDatabases()
+    showDict = DM.showDatabases()
+    showIsam = isam.showDatabases()
+    showHash = Hash.showDatabases()
+    showJson = j.showDatabases()
+    showALL = 'avl = ' + str(showAvl)+'\n'+'b = ' + str(showB)+'\n'+'bplus = ' + str(showBP)+'\n'+'dict = ' + str(showDict)+'\n'+'isam = ' + str(showIsam)+'\n'+'json = ' + str(showJson) +'\n'+'hash = ' + str(showHash)
+                
+    return showALL
