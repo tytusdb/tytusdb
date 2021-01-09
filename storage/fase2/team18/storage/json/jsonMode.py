@@ -360,7 +360,7 @@ def loadCSV(filepath: str, database: str, table: str, tipado) -> list:
     try:
         res = []
         import csv
-        with open(filepath, 'r') as file:
+        with open(filepath, 'r', encoding='utf-8-sig') as file:
             reader = csv.reader(file, delimiter = ',')
             j = 0
             for row in reader:
@@ -407,7 +407,10 @@ def extractRow(database: str, table: str, columns: list) -> list:
             pk = columns[0]
         else:
             for i in pkey:
-                pk += str(columns[i])
+                if i!=pkey[-1]:
+                    pk += str(columns[i])+'|'
+                else:
+                    pk += str(columns[i])
         if not pk in data:
             return []
         else:
@@ -440,7 +443,10 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
             pk = columns[0]
         else:
             for i in pkey:
-                pk += str(columns[i])
+                if i!=pkey[-1]:
+                    pk += str(columns[i])+'|'
+                else:
+                    pk += str(columns[i])
         if not pk in data:
             return 4
         else:            
@@ -481,7 +487,10 @@ def delete(database: str, table: str, columns: list) -> int:
             pk = columns[0]
         else:
             for i in pkey:
-                pk += str(columns[i])
+                if i!=pkey[-1]:
+                    pk += str(columns[i])+'|'
+                else:
+                    pk += str(columns[i])
         if not pk in data:
             return 4
         else:

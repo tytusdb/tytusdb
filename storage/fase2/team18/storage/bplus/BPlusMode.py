@@ -426,7 +426,7 @@ def loadCSV(filepath, database, table, tipado):
             res = []
             import csv
             PKsTree = serializable.Read(f'./Data/BPlusMode/{database}/{table}/', table)
-            with open(filepath, 'r') as file:
+            with open(filepath, 'r', encoding='utf-8-sig') as file:
                 reader = csv.reader(file, delimiter=',')
                 j = 0
                 for row in reader:

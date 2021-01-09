@@ -211,6 +211,72 @@ def alterDatabaseMode(database: str, mode: str) -> int:
     return 0
 
 # Descripción:
+#     Cambia el modo de almacenamiento de una tabla de una base de datos especificada
+# Parámetros:
+#     database:str - El nombre de la base de datos que se desea modificar
+#     table:str - El nombre de la tabla que se desea modificar
+#     mode:str - Es un string indicando el modo 'avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash'
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - modo incorrecto
+def alterTableMode(database: str, table: str, mode: str) -> int:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    if databases.find_table(database, table) == None:
+        return 3
+    if mode not in MODES:
+        return 4
+    for db in dbs:
+        tb = db.tables.search(table)
+        if tb != None:
+            # Revisando si la tabla ya se encuentra en una base de datos con el modo indicado
+            if db.mode == mode:
+                return 0
+            # Se revisa si ya existe una base de datos alternativa con el modo indicado
+            alt_db_exists = False
+            for aux in dbs:
+                if aux.name == database and aux.mode == mode and aux.encoding == db.encoding:
+                    alt_db_exists = True
+
+            # Extraer los registros de la tabla
+            registers = extractTable(database, table)
+            if alt_db_exists:
+                # Crear tabla en esta base de datos
+                if __create_table_sp(database, table, tb.columns, mode) != 0:
+                    return 1
+                __alter_add_pk_sp(database, table, tb.pk, mode)
+                # Insertar registros
+                for register in registers:
+                    if __insert_sp(database, table, register, mode) != 0:
+                        return 1
+            else:
+                # Crear base de datos y tabla e insertar las tuplas
+                if __create_database_sp(database, mode, db.encoding) != 0:
+                    return 1
+                # Crear tabla en esta base de datos
+                if __create_table_sp(database, table, tb.columns, mode) != 0:
+                    return 1
+                if tb.pk != []:
+                    if __alter_add_pk_sp(database, table, tb.pk, mode) != 0:
+                        return 1
+                # Insertar registros
+                for register in registers:
+                    if __insert_sp(database, table, register, mode) != 0:
+                        return 1
+            # Eliminar tabla original
+            if __drop_table_sp(database, table, db.mode) != 0:
+                return 1
+            if db.tables.first == None and not db.main_db:
+                if __drop_database_sp(db.name, db.mode) != 0:
+                    return 1
+            return 0
+    return 1
+
+# Descripción:
 #     Devuelve una lista con los nombres de las bases de datos
 # Valores de retorno:
 #     Lista de strings con los nombres de las bases de datos
@@ -1296,3 +1362,175 @@ def checksumTable(database: str, table:str, mode: str):
 			return 1 #error: la db no tiene tablas
 	except:
 		return 1 #error en la operacion
+
+# Descripción:
+#     Verifica que un texto pueda tener la codificación indicada
+# Parámetros:
+#     text:str - El texto que se desea verificar
+#     encoding:str - El tipo de codificación que se desea utilizar
+# Valores de retorno:
+#     True - Si se puede codificar el texto
+#     False - Si no se puede codificar el texto
+def verify_encoding(text: str, encoding: str):
+    if encoding in VALID_ENCODING:
+        try:
+            text.encode(encoding)
+            return True
+        except UnicodeEncodeError:
+            pass
+    return False
+
+# Descripción:
+#     Asocia una codificación a una base de datos
+# Parámetros:
+#     database:str - El nombre de la base de datos a utilizar
+#     encoding:str - El tipo de codificación a utilizar
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - Nombre de codificación no existente
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    if encoding not in VALID_ENCODING:
+        return 3
+    for db in dbs:
+        tables = []
+        aux = db.tables.first
+        while aux != None:
+            tables.append(aux)
+            aux = aux.next
+        for table in tables:
+            registers = extractTable(db.name, table.name)
+            for register in registers:
+                for x in register:
+                    if type(x) == str:
+                        if not verify_encoding(x, encoding):
+                            return 1
+    databases.search(database).encoding = encoding
+    for x in range(5):
+        try:
+            Serializable.commit(databases, "lista_bases_de_datos")
+            return 0
+        except:
+            continue
+    return 1
+
+# Descripción:
+#     Agrega un índice de llave foránea, creando una estructura adicional con el modo indicado para la base de datos
+# Parámetros:
+#     database:str - El nombre de la base de datos a utilizar
+#     table:str - El nombre de la tabla a utilizar
+#     indexName:str - El nombre único del índice
+#     columns:list - Conjunto de índices de columnas que forman parte de la llave foránea
+#     tableRef:str - El nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s)
+#     columnsRef:list - El conjunto de índices de columnas que forman parte de la llave primaria
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - Cantidad no exacta entre columnas
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb_local = databases.find_table(database, table)
+    tb_reference = databases.find_table(database, tableRef)
+    if tb_local == None or tb_reference == None:
+        return 3
+    if len(columns) != len(columnsRef):
+        return 4
+    
+    for fk in tb_local.fk:
+        if fk["indexName"] == indexName:
+            return 1
+
+    registers = extractTable(database, tableRef)
+    if len(registers) != len(extractTable(database, table)):
+        return 1
+
+    # Obteniendo las llaves primarias de la tabla referida
+    pkRef = tb_reference.pk
+
+    # Creando la nueva estructura
+    if createTable(database, indexName, len(columns) + 1) != 0:
+        return 1
+    
+    # Definiendo las llaves primarias de la nueva estructura
+    aux_pk = []
+    for x in range(len(columns)):
+        aux_pk.append(x)
+    if alterAddPK(database, indexName, aux_pk) != 0:
+        return 1
+
+    # Insertando los registros a la nueva estructura
+    for register in registers:
+        aux_register = []
+        for x in range(len(register)):
+            if x in columnsRef:
+                aux_register.append(register[x])
+        reference_pk = {}
+        for x in range(len(register)):
+            if x in pkRef:
+                reference_pk[x] = register[x]
+        aux_register.append(reference_pk)
+        
+        if insert(database, indexName, aux_register) != 0:
+            return 1
+
+    # Agregando la información de la FK a la tabla
+    tb_local.fk.append({"indexName":indexName,
+                        "table":table,
+                        "columns":columns,
+                        "tableRef":tableRef,
+                        "columnsRef":columnsRef,
+                        "pkRef": pkRef})
+    databases.find_table(database, indexName).hidden = True
+
+    # Almacenando la información de la lista de bases de datos
+    for x in range(5):
+        try:
+            Serializable.commit(databases, "lista_bases_de_datos")
+            return 0
+        except:
+            continue
+    
+    return 1
+
+# Descripción:
+#     Destruye el índice tanto como metadato de la tabla como la estructura adicional creada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+#     table:str - El nombre de la tabla
+#     indexName:str - El nombre único del índice
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - Nombre de índice no existente
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb_local = databases.find_table(database, table)
+    if tb_local == None:
+        return 3
+    
+    for x in range(len(tb_local.fk)):
+        if tb_local.fk[x]["indexName"] == indexName:
+            if dropTable(database, indexName) != 0:
+                return 1
+            tb_local.fk.pop(x)
+            for x in range(5):
+                try:
+                    Serializable.commit(databases, "lista_bases_de_datos")
+                    return 0
+                except:
+                    continue
+    return 4

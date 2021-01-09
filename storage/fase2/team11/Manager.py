@@ -5,12 +5,16 @@ from storage.dict import DictMode as diccionario
 from storage.isam import ISAMMode as isam
 from storage.hash import HashMode as hash
 from storage.json import jsonMode as json
-from Binary import verify_string
+from Binary import verify_string, generate_grapviz
 from checksum import checksum_database, checksum_table
 import criptografia as crypt
-from estruct.blockChain import BlockChain
+from blockChain import BlockChain
 from metadata import Database, Table, FK
+from grafo import Graph
 import zlib
+import os.path as path
+from shutil import rmtree
+import copy
 
 metadata_db_list = list()
 flag_block = False
@@ -82,18 +86,51 @@ def createDatabase(database: str, mode: str, encoding: str):
 
 
 def alterDatabaseMode(database: str, mode: str):
-    metadata_db,index=get_metadata_db(database)
+    metadata_db, index = get_metadata_db(database)
+    metadata_db=copy.copy(metadata_db)
     metadata_db_list.pop(index)
-    createDatabase(database, mode, metadata_db.get_encondig())
+    
+    
     if metadata_db:
         oldMode = metadata_db.get_mode()
+        old_mode_struct = get_struct(oldMode)
         mode_struct = get_struct(mode)
-        tables = mode_struct.showTables(database)
+
+        if mode not in ["avl", "b", "bplus", "isam", "hash", "json", "dict"]:
+            return 4
+
+        tables=list()
+        for value in metadata_db.get_tab().values():
+            
+            tables.append(value.get_name_table())
+
+        createDatabase(database, mode, metadata_db.get_encondig())
+        metadata_new, index2 = get_metadata_db(database)        
+        
         for tabla in tables:
-            listaDatos = get_Data(database, tabla, oldMode)
+            
+            listaDatos = get_Data2(database, tabla, oldMode,metadata_db)
             numberColumns = metadata_db.get_table(tabla).get_nums_colums()
             insertAlter(database, tabla, numberColumns, mode, listaDatos)
-        metadata_db.dropDatabase(database)
+            metadata_new.create_table(tabla,numberColumns,mode)             
+            
+             
+            for fk in metadata_db.get_table(tabla).fk.extractForeign():     
+                metadata_new.get_table(tabla).fk.insertFK(fk)
+            for unique in metadata_db.get_table(tabla).unique.extractUnique():     
+                metadata_new.get_table(tabla).unique.insertUnique(unique)
+            for index in metadata_db.get_table(tabla).index.extractIndex():     
+                metadata_new.get_table(tabla).index.insertIndex(index)
+
+            metadata_db.drop_table(tabla)
+            
+
+        x = old_mode_struct.dropDatabase(database)
+        if x != 0:
+            return 1
+        return 0
+    else:
+        return 2
         
 
 
@@ -111,30 +148,41 @@ def get_Data(database: str, table: str, mode: str):
     if metadata_db:
         struct = get_struct(metadata_db.get_mode())         
         return struct.extractTable(database, table)
+    
+def get_Data2(database: str, table: str, mode: str, metadata_db):
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        return struct.extractTable(database, table)
 
 
 def alterTableMode(database: str, table: str, mode: str):
-    metadata_db, index_metadata = get_metadata_db(database) 
-    metadata_db = Database() 
+    metadata_db, index_metadata = get_metadata_db(database)
     if metadata_db:
         oldMode = metadata_db.get_mode()
         encoding = metadata_db.get_encondig()
-        if mode not in ["avl","b","bPlus","dict","isam","hash","json"]: return 4
-        struct = get_struct(metadata_db.get_mode())
-        tables = struct.showTables(database)
-        for tabla in tables:
-            if tabla == table:
-                listaDatos = get_Data(database, tabla, oldMode)  # UNA LISTA VACIA NO EJECUTA EL FOR
-                numberColumns = len(listaDatos[0])
-                #insertAlter(database+"_"+mode, tabla, numberColumns, mode, listaDatos)
-                if metadata_db.get_table(table).get_pk_list() != []:
-                    alterAddPK(database, table,metadata_db.get_table(table).get_pk_list())
-                createDatabase(database+"_"+mode, mode, encoding)
-                createTable(database+"_"+mode, table, numberColumns)
-                for i in listaDatos:
-                    insert(database, table,i)
-                struct.dropTable(database, table)
-                return 0
+        if mode not in ["avl", "b", "bplus", "dict", "isam", "hash", "json"]: return 4
+        struct = get_struct(metadata_db.get_mode())        
+        if metadata_db.get_table(table):
+            listaDatos = get_Data(database, table, oldMode)            
+            numberColumns = metadata_db.get_table(table).get_nums_colums()            
+            if metadata_db.get_table(table).get_pk_list() != []:
+                alterAddPK(database, table, metadata_db.get_table(table).get_pk_list())
+            createDatabase(database + "_" + mode, mode, encoding)
+            metadata_new, index2 = get_metadata_db(database + "_" + mode) 
+            createTable(database + "_" + mode, table, numberColumns)
+            for i in listaDatos:
+                insert(database, table, i)
+            
+            for fk in metadata_db.get_table(table).fk.extractForeign():     
+                metadata_new.get_table(table).fk.insertFK(fk)
+            for unique in metadata_db.get_table(table).unique.extractUnique():     
+                metadata_new.get_table(table).unique.insertUnique(unique)
+            for index in metadata_db.get_table(table).index.extractIndex():     
+                metadata_new.get_table(table).index.insertIndex(index)
+            struct.dropTable(database, table)
+            metadata_db.drop_table(table)
+
+            return 0
         return 3
     else:
         return 2
@@ -288,35 +336,44 @@ def insert(database, name_table, register: list):
         if name_table in metadata_db.get_tab():
             struct = get_struct(metadata_db.get_mode())
             if metadata_db.get_encondig().lower().strip() == "ascii":
-                if encodi_ascii_decod(register,"ascii") != 1:
+                if encodi_ascii_decod(register, "ascii") != 1:
                     status = struct.insert(database, name_table, register)
                     if status == 0:
                         if flag_block:
                             block: BlockChain = get_block_chain(name_table)
                             if block:
                                 block.create_block(register)
+                                gra = block.graficar()
+                                ruta = f"bc_insert_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
-            elif metadata_db.get_encondig().lower().strip() == "utf-8":
-                if encodi_utf_decod(register,"utf-8") !=1:
+            elif metadata_db.get_encondig().lower().strip() == "utf8":
+                if encodi_utf_decod(register, "utf8") != 1:
                     status = struct.insert(database, name_table, register)
                     if status == 0:
                         if flag_block:
                             block: BlockChain = get_block_chain(name_table)
                             if block:
                                 block.create_block(register)
+                                gra = block.graficar()
+                                ruta = f"bc_insert_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
             elif metadata_db.get_encondig().lower().strip() == "iso-8859-1":
-                if encodi_iso_decod(register,"iso-8859-1") !=1:
+                if encodi_iso_decod(register, "iso-8859-1") != 1:
                     status = struct.insert(database, name_table, register)
                     if status == 0:
                         if flag_block:
                             block: BlockChain = get_block_chain(name_table)
                             if block:
                                 block.create_block(register)
+                                gra = block.graficar()
+                                ruta = f"bc_insert_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
@@ -394,7 +451,7 @@ def update(database, name_table, register: dict, columns):
         if name_table in metadata_db.get_tab():
             struct = get_struct(metadata_db.get_mode())
             if metadata_db.get_encondig().lower().strip() == "ascii":
-                if encodi_ascii_decod(register.values(),"ascii") != 1:
+                if encodi_ascii_decod(register.values(), "ascii") != 1:
                     data = struct.extractRow(database, name_table, columns).copy()
                     status = struct.update(database, name_table, register, columns)
                     if status == 0:
@@ -403,12 +460,16 @@ def update(database, name_table, register: dict, columns):
                             id_block = block.get_block(data)
                             if block and id_block:
                                 block.update(register, id_block)
-                                #block.graficar()
+                                # block.graficar()
+                                gra = block.graficar()
+                                ruta = f"bc_update_{database}"
+                                generate_grapviz(gra, str(ruta))
+
                     return status
                 else:
                     return 1
-            elif metadata_db.get_encondig().lower().strip() == "utf-8":
-                if encodi_utf_decod(register.values(),"utf-8") !=1:
+            elif metadata_db.get_encondig().lower().strip() == "utf8":
+                if encodi_utf_decod(register.values(), "utf8") != 1:
                     data = struct.extractRow(database, name_table, columns).copy()
                     status = struct.update(database, name_table, register, columns)
                     if status == 0:
@@ -417,12 +478,15 @@ def update(database, name_table, register: dict, columns):
                             id_block = block.get_block(data)
                             if block and id_block:
                                 block.update(register, id_block)
-                                #block.graficar()
+                                # block.graficar()
+                                gra = block.graficar()
+                                ruta = f"bc_update_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
             elif metadata_db.get_encondig().lower().strip() == "iso-8859-1":
-                if encodi_iso_decod(register.values(),"iso-8859-1") !=1:
+                if encodi_iso_decod(register.values(), "iso-8859-1") != 1:
                     data = struct.extractRow(database, name_table, columns).copy()
                     status = struct.update(database, name_table, register, columns)
                     if status == 0:
@@ -431,7 +495,10 @@ def update(database, name_table, register: dict, columns):
                             id_block = block.get_block(data)
                             if block and id_block:
                                 block.update(register, id_block)
-                                #block.graficar()
+                                # block.graficar()
+                                gra = block.graficar()
+                                ruta = f"bc_update_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
@@ -441,7 +508,6 @@ def update(database, name_table, register: dict, columns):
             return 3
     else:
         return 2
-
 
 
 def loadCSV(file, database, name_table):
@@ -465,7 +531,10 @@ def delete(database, name_table, columns):
                 id_block = block.get_block(data)
                 if block and id_block:
                     block.delete_block(id_block)
-                    #block.graficar()
+                    # block.graficar()
+                    gra = block.graficar()
+                    ruta = f"bc_delete_{database}"
+                    generate_grapviz(gra, str(ruta))
         return status
     else:
         return 1
@@ -825,9 +894,70 @@ def graphDSD(database: str):
 
                         grafo.join(str(table_1), str(table_2))
                         # print(f"{str(table_1)},{str(table_2)}")
-            grafo.graficar()
+            gra = grafo.graficar()
+            ruta = f"graphDSD_{database}"
+            generate_grapviz(gra, str(ruta))
         else:
             return "Tables empty"
     else:
         return 1
+    
+def graphDF(database: str, table: str):
+    metadata_db, index = get_metadata_db(database)
+    if metadata_db:
+        table_md: Table = metadata_db.get_table(table)
+        if table_md:
+            grafo = Graph()
+            list_ui = list()
+            list_pk = list()
+            list_general: list = [x for x in range(table_md.get_nums_colums())]
+            pk_list: list = table_md.get_pk_list()
+            unique_list: list = table_md.unique.extractUnique()
 
+            for pk in pk_list:
+                pk_l = f"pk_{pk}"
+                if pk_l not in list_pk:
+                    list_pk.append(pk_l)
+                grafo.add_vertex(pk_l)
+                if pk in list_general:
+                    list_general.remove(pk)
+
+            for ui in unique_list:
+                for ui_index in ui[2]:
+                    ui_l = f"ui_{ui_index}"
+                    if ui_l not in list_ui:
+                        list_ui.append(ui_l)
+                    grafo.add_vertex(ui_l)
+                    if ui_index in list_general:
+                        list_general.remove(ui_index)
+
+            for general in list_general:
+                grafo.add_vertex(general)
+
+            if len(pk_list) == 0:
+                hidden_pk = "Hidden_PK"
+                grafo.add_vertex(hidden_pk)
+                for ui in list_ui:
+                    grafo.join(hidden_pk, ui)
+                    for normal in list_general:
+                        grafo.join(ui, normal)
+                        grafo.join(hidden_pk, normal)
+            else:
+                for pk in list_pk:
+                    for ui in list_ui:
+                        grafo.join(pk, ui)
+                        for normal in list_general:
+                            grafo.join(pk, normal)
+                for ui in list_ui:
+                    for normal in list_general:
+                        grafo.join(ui, normal)
+
+                    # print(f"{str(table_1)},{str(table_2)}")
+            gra = grafo.graficar()
+            ruta = f"graphDF_{database}"
+            generate_grapviz(gra, str(ruta))
+
+        else:
+            return "Tables empty"
+    else:
+        return 1

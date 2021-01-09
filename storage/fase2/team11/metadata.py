@@ -51,6 +51,9 @@ class Database:
 
     def get_table(self, name_table):
         return self.dict_tables.get(name_table)
+    
+    def get_tab(self):
+        return self.dict_tables
 
     def alter_table(self, old_name, new_name):
         table_old: Table = self.dict_tables.get(old_name)
@@ -71,6 +74,8 @@ class Table:
         self.mode = mode
         self.compress = False
         self.fk = FK(self.database, self.name_table, self.mode)
+        self.unique = UNIQUE(self.database, self.name_table, self.mode)
+        self.index = INDEX(self.database, self.name_table, self.mode)
         self.pk_list = list()
 
     def set_name(self, name_table):
@@ -140,14 +145,14 @@ class FK:
                 return struct.delete(self.database, self.table, [name])
     
     def extractForeign(self):        
-        for modo, func in modes.items():
-            if self.modo == modo:
+        for mode, func in modes.items():
+            if self.mode == mode:
                 return func.extractTable(self.database, self.table)
 
     def alterForeignMode(self, database: str, table: str, mode: str):
                                 
         data = self.extractForeign()
-        self.modo = mode
+        self.mode = mode
 
         self.dropForeign()
         self.createForeign()
@@ -156,8 +161,8 @@ class FK:
             self.insertFK(register)
 
         return 0
-    
-  class UNIQUE:
+  
+class UNIQUE:
     def __init__(self, database, table, mode):
         self.mode = mode
         self.database = database
