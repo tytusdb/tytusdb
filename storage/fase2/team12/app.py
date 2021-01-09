@@ -1,5 +1,3 @@
-import shutil
-
 from storage.b import BMode as b_mode
 from storage.bplus import BPlusMode as bplus_mode
 from storage.isam import ISAMMode as isam_mode
@@ -7,11 +5,13 @@ from storage.hash import HashMode as hash_mode
 from storage.avl import AVLMode as avl_mode
 from storage.dict import DictMode as dict_mode
 from storage.json import jsonMode as json_mode
+from encript import *
+from blockchain import *
+import os
+import shutil
 import hashlib
 import zlib
 import pickle
-from encript import *
-import os
 # AVL: AVLMode
 # B: BMode
 # B+: BPlusMode
@@ -21,11 +21,10 @@ import os
 Bases = {}
 Tablas = {}
 
-def createDatabase(database_1, mode, encoding):
+#**********************************************FASE 1****************************************************
+#-------------------------------------Funciones de bases de datos----------------------------------------
+def createDatabase(database, mode, encoding):
     val = 1
-    database = gen_convert(database_1,encoding)
-    if database == 1:
-        return 1
     if encoding != "ascii" and encoding != "iso-8859-1" and encoding != "utf8":
         val = 4
     else:
@@ -71,10 +70,125 @@ def createDatabase(database_1, mode, encoding):
                 fichero_escritura.close()
     return val
 
+def showDatabases():
+    print("AVL")
+    print(avl_mode.showDatabases())
+    print("b")
+    print(b_mode.showDatabases())
+    print("b+")
+    print(bplus_mode.showDatabases())
+    print("dict")
+    print(dict_mode.showDatabases())
+    print("isam")
+    print(isam_mode.showDatabases())
+    print("json")
+    print(json_mode.showDatabases())
+    print("hash")
+    print(hash_mode.showDatabases())
+
+def alterDatabase(databaseOld, databaseNew):
+    mode = None
+    for i in range(7):
+        mode = obtenerBase(databaseOld,i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.alterDatabase(databaseOld, databaseNew)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.alterDatabase(databaseOld, databaseNew)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.alterDatabase(databaseOld, databaseNew)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.alterDatabase(databaseOld, databaseNew)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.alterDatabase(databaseOld, databaseNew)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.alterDatabase(databaseOld, databaseNew)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.alterDatabase(databaseOld, databaseNew)
+    else:
+        val = 3
+    #-----------------Renombra la base de datos en los registros de bases de datos serializados-----------------
+    if val == 0:
+        global Bases
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            fichero_lectura = open("BD_register", "rb")
+            Bases = pickle.load(fichero_lectura)
+            Aux = Bases[databaseOld]
+            Bases.pop(databaseOld)
+            Bases.update({databaseNew: Aux})
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("BD_register", "wb")
+            pickle.dump(Bases, fichero_escritura)
+            fichero_escritura.close()
+        except:
+            Aux = Bases[databaseOld]
+            Bases.pop(databaseOld)
+            Bases.update({databaseNew: Aux})
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("BD_register", "wb")
+            pickle.dump(Bases, fichero_escritura)
+            fichero_escritura.close()
+    #----------------Renombra la base de datos en los registros de tablas serializados-----------------------
+        global Tablas
+        try:
+            # Leemos el archivo binario de los registros de tablas
+            lectura = open("TB_register", "rb")
+            Tablas = pickle.load(lectura)
+            try:
+                Aux = Tablas[databaseOld]
+                Tablas.pop(databaseOld)
+                Tablas.update({databaseNew:Aux})
+            except:
+                #Si no hay tablas creadas en esa base de datos no hay clave en el diccionario entonces no hace nada
+                """"""
+            # Actualizamos el archivo binario de los registros de tablas
+            escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, escritura)
+            escritura.close()
+        except:
+            try:
+                Aux = Tablas[databaseOld]
+                Tablas.pop(databaseOld)
+                Tablas.update({databaseNew: Aux})
+            except:
+                # Si no hay tablas creadas en esa base de datos no hay clave en el diccionario entonces no hace nada
+                """"""
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, fichero_escritura)
+            fichero_escritura.close()
+
 def dropDatabase(database):
     mode = None
     for i in range(7):
-        mode = obtenerBase(database,i)
+        mode = obtenerBase(database, i)
         if mode == []:
             continue
         else:
@@ -174,13 +288,233 @@ def dropDatabase(database):
                     Tablas.pop(database)
                 except:
                     """"""
-                # Actualizamos el archivo binario de los registros de tablas
-                fichero_escritura = open("TB_register", "wb")
-                pickle.dump(Tablas, fichero_escritura)
-                fichero_escritura.close()
+                    # Actualizamos el archivo binario de los registros de tablas
+                    fichero_escritura = open("TB_register", "wb")
+                    pickle.dump(Tablas, fichero_escritura)
+                    fichero_escritura.close()
+            return val
+
+#--------------------------------------Funciones de tablas-----------------------------------------------
+def createTable(database, table, numColumns):
+    mode = None
+    val = None
+    for i in range(7):
+        mode = obtenerBase(database,i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.createTable(database, table, numColumns)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.createTable(database, table, numColumns)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.createTable(database, table, numColumns)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.createTable(database, table, numColumns)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.createTable(database, table, numColumns)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.createTable(database, table, numColumns)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.createTable(database, table, numColumns)
+    else:
+        return val
+    if val == 0:
+        global Tablas
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            lectura = open("TB_register", "rb")
+            Tablas = pickle.load(lectura)
+            try:
+                Tablas[database].update({table: {"PK": None,"mode":mode,"safe":False}})
+            except:
+                Tablas.update({database:{table: {"PK": None,"mode":mode,"safe":False}}})
+            # Actualizamos el archivo binario de los registros de bases de datos
+            escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, escritura)
+            escritura.close()
+        except:
+            try:
+                Tablas[database].update({table: {"PK": None, "FK": None}})
+            except:
+                Tablas.update({database: {table: {"PK": None, "FK": None}}})
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, fichero_escritura)
+            fichero_escritura.close()
+    return val
+
+def showTables(database):
+    mode = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.showTables(database)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.showTables(database)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.showTables(database)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.showTables(database)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.showTables(database)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.showTables(database)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.showTables(database)
+    else:
+        val = 3
     return val
 
 def extractTable(database, table):
+    mode = None
+    val = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.extractTable(database, table)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.extractTable(database, table)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.extractTable(database, table)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.extractTable(database, table)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.extractTable(database, table)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.extractTable(database, table)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.extractTable(database, table)
+    else:
+        return val
+    return val
+
+def extractRangeTable(database, table, columnNumber, lower, upper):
+    mode = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.extractRangeTable(database, table, columnNumber, lower, upper)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.extractRangeTable(database, table, columnNumber, lower, upper)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.extractRangeTable(database, table, columnNumber, lower, upper)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.extractRangeTable(database, table, columnNumber, lower, upper)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.extractRangeTable(database, table, columnNumber, lower, upper)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.extractRangeTable(database, table, columnNumber, lower, upper)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.extractRangeTable(database, table, columnNumber, lower, upper)
+    else:
+        val = 3
+    return val
     mode = None
     for i in range(7):
         mode = obtenerBase(database, i)
@@ -226,11 +560,12 @@ def extractTable(database, table):
         # Grupo 15
         val = hash_mode.extractTable(database, table)
     else:
-        val = 3
+        return val
     return val
 
-def truncate(database, table):
+def alterAddPK(database, table, columns):
     mode = None
+    val = None
     for i in range(7):
         mode = obtenerBase(database, i)
         if mode == []:
@@ -255,31 +590,32 @@ def truncate(database, table):
         return 2
     if mode == "avl":
         # Grupo 16
-        val = avl_mode.truncate(database, table)
+        val = avl_mode.alterAddPK(database, table, columns)
     elif mode == "b":
         # Grupo 17
-        val = b_mode.truncate(database, table)
+        val = b_mode.alterAddPK(database, table, columns)
     elif mode == "bplus":
         # Grupo 18
-        val = bplus_mode.truncate(database, table)
+        val = bplus_mode.alterAddPK(database, table, columns)
     elif mode == "dict":
         # Auxiliar
-        val = dict_mode.truncate(database, table)
+        val = dict_mode.alterAddPK(database, table, columns)
     elif mode == "isam":
         # Grupo 14
-        val = isam_mode.truncate(database, table)
+        val = isam_mode.alterAddPK(database, table, columns)
     elif mode == "json":
         # Ingeniero
-        val = json_mode.truncate(database, table)
+        val = json_mode.alterAddPK(database, table, columns)
     elif mode == "hash":
         # Grupo 15
-        val = hash_mode.truncate(database, table)
+        val = hash_mode.alterAddPK(database, table, columns)
     else:
-        val = 3
+        return val
     return val
 
-def insert(database, table, register):
+def alterDropPK(database, table):
     mode = None
+    val = None
     for i in range(7):
         mode = obtenerBase(database, i)
         if mode == []:
@@ -304,57 +640,34 @@ def insert(database, table, register):
         return 2
     if mode == "avl":
         # Grupo 16
-        val = avl_mode.insert(database, table, register)
+        val = avl_mode.alterDropPK(database, table)
     elif mode == "b":
         # Grupo 17
-        val = b_mode.insert(database, table, register)
+        val = b_mode.alterDropPK(database, table)
     elif mode == "bplus":
         # Grupo 18
-        val = bplus_mode.insert(database, table, register)
+        val = bplus_mode.alterDropPK(database, table)
     elif mode == "dict":
         # Auxiliar
-        val = dict_mode.insert(database, table, register)
+        val = dict_mode.alterDropPK(database, table)
     elif mode == "isam":
         # Grupo 14
-        val = isam_mode.insert(database, table, register)
+        val = isam_mode.alterDropPK(database, table)
     elif mode == "json":
         # Ingeniero
-        val = json_mode.insert(database, table, register)
+        val = json_mode.alterDropPK(database, table)
     elif mode == "hash":
         # Grupo 15
-        val = hash_mode.insert(database, table, register)
+        val = hash_mode.alterDropPK(database, table)
     else:
-        val = 3
+        return val
     return val
 
-# El storageManager debe permitir cambiar el modo de almacenamiento de una 
-# base de datos o de una tabla en cualquier momento. Al suceder, 
-# si no hay ningun error, se debe construir la estructura de datos asociada 
-# al modo y eliminar la anterior.
-
-#Cambia el modo de almacenamiento de una base de datos. (UPDATE)
-#Parámetro database: es el nombre de la base de datos que se desea 
-# modificar, debe cumplir con las reglas de identificadores de SQL.
-#Parámetro mode: es un string indicando el modo 'avl', 'b', 'bplus', 
-# 'dict', 'isam', 'json', 'hash'.
-#Valor de retorno: 0 operación exitosa, 1 error en la operación, 
-# 2 database no existente, 4 modo incorrecto.
-def alterDatabaseMode(database, mode):
-    print("alterDatabaseMode")
-
-# Cambia el modo de almacenamiento de una tabla de una base de datos especificada. (UPDATE)
-# Parámetro database: es el nombre de la base de datos a utilizar.
-# Parámetro mode: es un string indicando el modo 'avl', 'b', 'bplus', 'dict', 
-# 'isam', 'json', 'hash'.
-# Valor de retorno: 0 operación exitosa, 1 error en la operación, 
-# 2 database no existente, 3 table no existente, 4 modo incorrecto.
-def alterTableMode(database, table, mode):
-    print("alterTableMode")
-
-def createTable(database, table, numColumns):
+def alterTable(database, tableOld, tableNew):
     mode = None
+    val = None
     for i in range(7):
-        mode = obtenerBase(database,i)
+        mode = obtenerBase(database, i)
         if mode == []:
             continue
         else:
@@ -377,50 +690,148 @@ def createTable(database, table, numColumns):
         return 2
     if mode == "avl":
         # Grupo 16
-        val = avl_mode.createTable(database, table, numColumns)
+        val = avl_mode.alterTable(database, tableOld, tableNew)
     elif mode == "b":
         # Grupo 17
-        val = b_mode.createTable(database, table, numColumns)
+        val = b_mode.alterTable(database, tableOld, tableNew)
     elif mode == "bplus":
         # Grupo 18
-        val = bplus_mode.createTable(database, table, numColumns)
+        val = bplus_mode.alterTable(database, tableOld, tableNew)
     elif mode == "dict":
         # Auxiliar
-        val = dict_mode.createTable(database, table, numColumns)
+        val = dict_mode.alterTable(database, tableOld, tableNew)
     elif mode == "isam":
         # Grupo 14
-        val = isam_mode.createTable(database, table, numColumns)
+        val = isam_mode.alterTable(database, tableOld, tableNew)
     elif mode == "json":
         # Ingeniero
-        val = json_mode.createTable(database, table, numColumns)
+        val = json_mode.alterTable(database, tableOld, tableNew)
     elif mode == "hash":
         # Grupo 15
-        val = hash_mode.createTable(database, table, numColumns)
+        val = hash_mode.alterTable(database, tableOld, tableNew)
     else:
-        val = 3
+        return val
     if val == 0:
         global Tablas
         try:
-            # Leemos el archivo binario de los registros de bases de datos
+            # Leemos el archivo binario de los registros de tablas
             lectura = open("TB_register", "rb")
             Tablas = pickle.load(lectura)
-            try:
-                Tablas[database].update({table: {"PK": None, "FK": None}})
-            except:
-                Tablas.update({database:{table: {"PK": None, "FK": None}}})
-            # Actualizamos el archivo binario de los registros de bases de datos
+            Aux = Tablas[database][tableOld]
+            Tablas[database].pop(tableOld)
+            Tablas[database].update({tableNew: Aux})
+            # Actualizamos el archivo binario de los registros de tablas
             escritura = open("TB_register", "wb")
             pickle.dump(Tablas, escritura)
             escritura.close()
         except:
-            try:
-                Tablas[database].update({table: {"PK": None, "FK": None}})
-            except:
-                Tablas.update({database: {table: {"PK": None, "FK": None}}})
-            # Actualizamos el archivo binario de los registros de bases de datos
+            Aux = Tablas[database][tableOld]
+            Tablas[database].pop(tableOld)
+            Tablas[database].update({tableNew: Aux})
+            # Actualizamos el archivo binario de los registros de tablas
             fichero_escritura = open("TB_register", "wb")
             pickle.dump(Tablas, fichero_escritura)
             fichero_escritura.close()
+    return 0
+
+def alterAddColumn(database, table, default):
+    mode = None
+    val = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.alterAddColumn(database, table, default)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.alterAddColumn(database, table, default)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.alterAddColumn(database, table, default)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.alterAddColumn(database, table, default)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.alterAddColumn(database, table, default)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.alterAddColumn(database, table, default)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.alterAddColumn(database, table, default)
+    else:
+        return val
+    return val
+
+def alterDropColumn(database, table, columnNumber):
+    mode = None
+    val = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.alterDropColumn(database, table, columnNumber)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.alterDropColumn(database, table, columnNumber)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.alterDropColumn(database, table, columnNumber)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.alterDropColumn(database, table, columnNumber)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.alterDropColumn(database, table, columnNumber)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.alterDropColumn(database, table, columnNumber)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.alterDropColumn(database, table, columnNumber)
+    else:
+        return val
     return val
 
 def dropTable(database, table):
@@ -493,6 +904,58 @@ def dropTable(database, table):
             fichero_escritura.close()
     return val
 
+#--------------------------------------Funciones de tuplas-----------------------------------------------
+
+def insert(database, table, register):
+    mode = None
+    val = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.insert(database, table, register)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.insert(database, table, register)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.insert(database, table, register)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.insert(database, table, register)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.insert(database, table, register)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.insert(database, table, register)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.insert(database, table, register)
+    else:
+        return val
+    return val
+
 def loadCSV(file,database,table):
     mode = None
     for i in range(7):
@@ -542,6 +1005,214 @@ def loadCSV(file,database,table):
         val = 3
     return val
 
+def extractRow(database, table, columns):
+    mode = None
+    val = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.extractRow(database, table, columns)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.extractRow(database, table, columns)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.extractRow(database, table, columns)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.extractRow(database, table, columns)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.extractRow(database, table, columns)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.extractRow(database, table, columns)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.extractRow(database, table, columns)
+    else:
+        return val
+    return val
+
+def update(database, table, register, columns):
+    mode = None
+    val = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.update(database, table, register, columns)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.update(database, table, register, columns)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.update(database, table, register, columns)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.update(database, table, register, columns)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.update(database, table, register, columns)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.update(database, table, register, columns)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.update(database, table, register, columns)
+    else:
+        return val
+    return val
+
+def delete(database, table, columns):
+    mode = None
+    val = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.delete(database, table, columns)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.delete(database, table, columns)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.delete(database, table, columns)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.delete(database, table, columns)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.delete(database, table, columns)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.delete(database, table, columns)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.delete(database, table, columns)
+    else:
+        return val
+    return val
+
+def truncate(database, table):
+    mode = None
+    val = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if mode == None:
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.truncate(database, table)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.truncate(database, table)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.truncate(database, table)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.truncate(database, table)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.truncate(database, table)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.truncate(database, table)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.truncate(database, table)
+    else:
+        return val
+    return val
+#********************************************************************************************************
+#*******************************************Fase 2******************************************************
+
+def alterDatabaseMode(database, mode):
+    print("alterDatabaseMode")
+
+def alterTableMode(database, table, mode):
+    print("alterTableMode")
+
 def checksumDatabase(database, mode):
     import hashlib
     var = None
@@ -576,26 +1247,6 @@ def checksumDatabase(database, mode):
     except:
         return None
     return hash.hexdigest()
-
-def showDatabases():
-    print("AVL")
-    print(avl_mode.showDatabases())
-    print("b")
-    print(b_mode.showDatabases())
-    print("b+")
-    print(bplus_mode.showDatabases())
-    print("dict")
-    print(dict_mode.showDatabases())
-    print("isam")
-    print(isam_mode.showDatabases())
-    print("json")
-    print(json_mode.showDatabases())
-    print("hash")
-    print(hash_mode.showDatabases())
-
-def showTables():
-    val = dict_mode.showTables("Base1AVL")
-    print(val)
 
 def obtenerBase(database,estructura):
     val = []
@@ -828,6 +1479,7 @@ def alterTableDecompress(database, table):
                 return 3
         except:
             return 1
+
 def alterDatabaseEncoding(database,encoding):
     print("ejcutando")
     var = None
@@ -873,203 +1525,133 @@ def alterDatabaseEncoding(database,encoding):
         dropDatabase(database)
         createDatabase(database,mode_name)
     else:
+            try:
+                for i in range(len(tables)):
+                    contenidoTabla = extractTable(database,tables[i])
+                    for j in range(len(contenidoTabla)):
+                        tupla = contenidoTabla[j]
+                        for k in range(len(tupla)):
+                            if type(tupla[k])==str:
+                                tupla[k] = gen_convert(tupla[k],encoding)
+                        contenidoTabla[j] = tupla
+                        truncate(database,tables[i])
+                        for register in contenidoTabla:
+                            insert(database,tables[i],register)
+                return 0
+
+            except:
+                return 1
+
+def make_Blockchain(lista_tuples,nameJson):
+    block = blockchain()
+    for tuple in lista_tuples:
+        block.insertBlock(tuple,nameJson)
+    return block
+def safeModeOn(database,table):
+    try:
+        var = None
+        mode = None
+        tables = None
+        mode_name = None
+        for i in range(7):
+            var = obtenerBase(database, i)
+            mode = i
+            if var == []:
+                continue
+            else:
+                if var >= 0 and var <= 6:
+                    break
+                else:
+                    return 2
         if mode == 0:
-            db = load('metadata')
-            DB = {}
-            for t in tables:
-                registros = avl_mode.extractTable(database, t)
-                newRegisters = []
-                for r in registros:
-                    newRegister = []
-                    for c in r:
-                        if isinstance(c, bytes):
-                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
-                            if '?' in str(aux):
-                                return 1
-                            newRegister.append(aux)
-                        else:
-                            newRegister.append(c)
-                        newRegisters.append(newRegister)
-                    DB.update({t: newRegisters})
-                for key in DB:
-                    avl_mode.truncate(database, key)
-                    registros = DB[key]
-                    for r in registros:
-                        avl_mode.insert(database, key, r)
-                db[database][1] = encoding
-                save(db, 'metadata')
-                return 0
+            mode_name = "avl"
+            tables = avl_mode.showTables(database)
         elif mode == 1:
-            db = load('metadata')
-            DB = {}
-            for t in tables:
-                registros = b_mode.extractTable(database, t)
-                newRegisters = []
-                for r in registros:
-                    newRegister = []
-                    for c in r:
-                        if isinstance(c, bytes):
-                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
-                            if '?' in str(aux):
-                                return 1
-                            newRegister.append(aux)
-                        else:
-                            newRegister.append(c)
-                        newRegisters.append(newRegister)
-                    DB.update({t: newRegisters})
-                for key in DB:
-                    b_mode.truncate(database, key)
-                    registros = DB[key]
-                    for r in registros:
-                        b_mode.insert(database, key, r)
-                db[database][1] = encoding
-                save(db, 'metadata')
-                return 0
-
+            mode_name = "b"
+            tables = b_mode.showTables(database)
         elif mode == 2:
-            db = load('metadata')
-            DB = {}
-            for t in tables:
-                registros = bplus_mode.extractTable(database, t)
-                newRegisters = []
-                for r in registros:
-                    newRegister = []
-                    for c in r:
-                        if isinstance(c, bytes):
-                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
-                            if '?' in str(aux):
-                                return 1
-                            newRegister.append(aux)
-                        else:
-                            newRegister.append(c)
-                        newRegisters.append(newRegister)
-                    DB.update({t: newRegisters})
-                for key in DB:
-                    bplus_mode.truncate(database, key)
-                    registros = DB[key]
-                    for r in registros:
-                        bplus_mode.insert(database, key, r)
-                db[database][1] = encoding
-                save(db, 'metadata')
-                return 0
+            mode_name = "bplus"
+            tables = bplus_mode.showTables(database)
         elif mode == 3:
-            db = load('metadata')
-            DB = {}
-            for t in tables:
-                registros = dict_mode.extractTable(database, t)
-                newRegisters = []
-                for r in registros:
-                    newRegister = []
-                    for c in r:
-                        if isinstance(c, bytes):
-                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
-                            if '?' in str(aux):
-                                return 1
-                            newRegister.append(aux)
-                        else:
-                            newRegister.append(c)
-                        newRegisters.append(newRegister)
-                    DB.update({t: newRegisters})
-                for key in DB:
-                    dict_mode.truncate(database, key)
-                    registros = DB[key]
-                    for r in registros:
-                        dict_mode.insert(database, key, r)
-                db[database][1] = encoding
-                save(db, 'metadata')
-                return 0
+            mode_name = "dict"
+            tables == dict_mode.showTables(database)
         elif mode == 4:
-            db = load('metadata')
-            DB = {}
-            for t in tables:
-                registros = isam_mode.extractTable(database, t)
-                newRegisters = []
-                for r in registros:
-                    newRegister = []
-                    for c in r:
-                        if isinstance(c, bytes):
-                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
-                            if '?' in str(aux):
-                                return 1
-                            newRegister.append(aux)
-                        else:
-                            newRegister.append(c)
-                        newRegisters.append(newRegister)
-                    DB.update({t: newRegisters})
-                for key in DB:
-                    isam_mode.truncate(database, key)
-                    registros = DB[key]
-                    for r in registros:
-                        isam_mode.insert(database, key, r)
-                db[database][1] = encoding
-                save(db, 'metadata')
-                return 0
+            mode_name = "isam"
+            tables == isam_mode.showTables(database)
         elif mode == 5:
-            db = load('metadata')
-            DB = {}
-            for t in tables:
-                registros = json_mode.extractTable(database, t)
-                newRegisters = []
-                for r in registros:
-                    newRegister = []
-                    for c in r:
-                        if isinstance(c, bytes):
-                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
-                            if '?' in str(aux):
-                                return 1
-                            newRegister.append(aux)
-                        else:
-                            newRegister.append(c)
-                        newRegisters.append(newRegister)
-                    DB.update({t: newRegisters})
-                for key in DB:
-                    json_mode.truncate(database, key)
-                    registros = DB[key]
-                    for r in registros:
-                        json_mode.insert(database, key, r)
-                db[database][1] = encoding
-                save(db, 'metadata')
-                return 0
+            mode_name = "json"
+            tables == json_mode.showTables(database)
         elif mode == 6:
-            db = load('metadata')
-            DB = {}
-            for t in tables:
-                registros = hash_mode.extractTable(database, t)
-                newRegisters = []
-                for r in registros:
-                    newRegister = []
-                    for c in r:
-                        if isinstance(c, bytes):
-                            aux = c.decode(db[database][1]).encode(encoding, 'replace')
-                            if '?' in str(aux):
-                                return 1
-                            newRegister.append(aux)
-                        else:
-                            newRegister.append(c)
-                        newRegisters.append(newRegister)
-                    DB.update({t: newRegisters})
-                for key in DB:
-                    hash_mode.truncate(database, key)
-                    registros = DB[key]
-                    for r in registros:
-                        hash_mode.insert(database, key, r)
-                db[database][1] = encoding
-                save(db, 'metadata')
+            mode_name = "hash"
+            tables == hash_mode.showTables(database)
+
+        dict_tables_ = open("TB_register","rb")
+        dictionary = pickle.load(dict_tables_)
+
+        dict_tables = dictionary.get(database)[1]
+        table_info = dict_tables.get(table)
+        if table_info[2] is False:
+            table_info[2] = True
+            if table_info[2] is not None:
+                list_tuple = extractTable(database, table)
+                nameJson = str(database) + '-' + str(table)
+                BChain = make_Blockchain(list_tuple, nameJson)
+                table_info[2] = BChain
+    except:
+        return 0
+
+
+def safeModeOff(database, table):
+    try:
+        var = None
+        mode = None
+        tables = None
+        mode_name = None
+        for i in range(7):
+            var = obtenerBase(database, i)
+            mode = i
+            if var == []:
+                continue
+            else:
+                if var >= 0 and var <= 6:
+                    break
+                else:
+                    return 2
+        if mode == 0:
+            mode_name = "avl"
+            tables = avl_mode.showTables(database)
+        elif mode == 1:
+            mode_name = "b"
+            tables = b_mode.showTables(database)
+        elif mode == 2:
+            mode_name = "bplus"
+            tables = bplus_mode.showTables(database)
+        elif mode == 3:
+            mode_name = "dict"
+            tables == dict_mode.showTables(database)
+        elif mode == 4:
+            mode_name = "isam"
+            tables == isam_mode.showTables(database)
+        elif mode == 5:
+            mode_name = "json"
+            tables == json_mode.showTables(database)
+        elif mode == 6:
+            mode_name = "hash"
+            tables == hash_mode.showTables(database)
+
+        dict_tables_ = open("TB_register", "rb")
+        dictionary = pickle.load(dict_tables_)
+
+        dict_tables = dictionary.get(database)[1]
+        table_info = dict_tables.get(table)
+        if table_info[2] is True:
+            table_info[2] = False
+            if table_info[2] is not None:
+
+                name_JSON =str(database)+'-'+str(table)
+                table_info[2].removeFilesBlock(name_JSON)
+                table_info[2]=None
                 return 0
+    except:
+        return 0
 
-
-
-
-
-def load(nombre):
-    file = open(os.getcwd() + "\\Data\\" + nombre + ".bin", "rb")
-    objeto = file.read()
-    file.close()
-    return pickle.loads(objeto)
-def save(objeto, nombre):
-    file = open(nombre + ".bin", "wb")
-    file.write(pickle.dumps(objeto))
-    file.close()
-    if os.path.isfile(os.getcwd() + "\\Data\\" + nombre + ".bin"):
-        os.remove(os.getcwd() + "\\Data\\" + nombre + ".bin")
-    shutil.move(os.getcwd() + "\\" + nombre + ".bin", os.getcwd() + "\\Data")
