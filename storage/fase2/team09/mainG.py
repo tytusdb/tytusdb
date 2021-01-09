@@ -900,10 +900,11 @@ def alterDatabaseDecompress(database: str) -> int:
     else:
         return 2  # Database no existe
 
+
 def alterTableDecompress(database: str, table: str) -> int:
-    if (comprimidoTabla(database, table)):
-        if (buscarbase(database)):
-            if (buscartabla(database, table)):
+    if (buscarbase(database)):
+        if (buscartabla(database, table)):
+            if (comprimidoTabla(database, table)):
                 try:
                     for d in list_table:
                         if d.base == database and d.tabla == table:
@@ -919,11 +920,13 @@ def alterTableDecompress(database: str, table: str) -> int:
                 except:
                     return 1  # Error en la operación
             else:
-                return 3  # Table no existe
+                return 4  # Sin compresion
         else:
-            return 2  # Database no existe
+            return 3  # Table no existe
+
     else:
-        return 4  # Sin compresion
+        return 2  # Database no existe
+
 
 def alterTableCompress(database: str, table: str, level: int) -> int:
     if (-1 <= level or level > 9):
