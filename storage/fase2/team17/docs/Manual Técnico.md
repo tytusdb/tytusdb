@@ -193,11 +193,11 @@ Diagramas de flujo
 
 ### Alter Database Mode ###
 
-![](https://github.com/DiiAns23/Prueba-2/blob/Master/img/Database.png)
+![](https://github.com/tytusdb/tytus/blob/main/storage/fase2/team17/docs/img/Database.png)
 
 ### Alter Table Mode ###
 
-![](https://github.com/DiiAns23/Prueba-2/blob/Master/img/TYTUS.png)
+![](https://github.com/tytusdb/tytus/blob/main/storage/fase2/team17/docs/img/Database.png)
 
 ### Requerimientos
 * Tener instalado [pip](https://pypi.org/project/pip/).
