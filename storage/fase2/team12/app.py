@@ -295,6 +295,7 @@ def dropDatabase(database):
             return val
 #--------------------------------------Funciones de tablas-----------------------------------------------
 def createTable(database, table, numColumns):
+    val = None
     mode = None
     for i in range(7):
         mode = obtenerBase(database,i)
@@ -416,6 +417,7 @@ def showTables(database):
     return val
 
 def extractTable(database, table):
+    val = None
     mode = None
     for i in range(7):
         mode = obtenerBase(database, i)
@@ -1844,7 +1846,7 @@ def obtenerContenidoTabla(database, table, estructura):
         val = json_mode.extractTable(database,table)
     elif estructura == 6:
         val = hash_mode.extractTable(database,table)
-    if val == []:
+    if val == [] or type(val)==int:
         return ""
     contenido = ""
     for i in range(len(val)):
@@ -2098,8 +2100,7 @@ def alterDatabaseEncoding(database,encoding):
 
             except:
                 return 1
-
-
+#------------------------------------------- Inciso 7 ---------------------------------------------------
 def make_Blockchain(lista_tuples,nameJson):
     block = blockchain()
     for tuple in lista_tuples:
@@ -2158,7 +2159,6 @@ def safeModeOn(database,table):
     except:
         return 0
 
-
 def safeModeOff(database, table):
     try:
         var = None
@@ -2212,7 +2212,6 @@ def safeModeOff(database, table):
                 return 0
     except:
         return 0
-
 #------------------------------------------- Inciso 8 ---------------------------------------------------
 def graphDSD(database):
     global Bases
