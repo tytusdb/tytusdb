@@ -1246,6 +1246,238 @@ def alterTableMode(database, table, mode):
     print("alterTableMode")
 
 #------------------------------------------- Inciso 3 ----------------------------------------------------
+def alterTableAddFK(database, table, indexName, columns,  tableRef, columnsRef):
+    mode = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if type(mode)!=str:
+        #No se encontró la base de datos
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.showTables(database)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.showTables(database)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.showTables(database)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.showTables(database)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.showTables(database)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.showTables(database)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.showTables(database)
+    Existe_tabla1 = False
+    Existe_tabla2 = False
+    if val ==[]:
+        return 3
+    for i in range(len(val)):
+        if val[i]==table:
+            Existe_tabla1 = True
+            break
+    for j in range(len(val)):
+        if val[j]==tableRef:
+            Existe_tabla2 = True
+            break
+    if Existe_tabla1 == False or Existe_tabla2 == False:
+        return 3
+    if len(columns)!=len(columnsRef):
+        return 4
+    global Bases
+    try:
+        # Leemos el archivo binario de los registros de bases de datos
+        fichero_lectura = open("BD_register", "rb")
+        Bases = pickle.load(fichero_lectura)
+        Bases[database]["FK"].update({indexName: [tableRef, table]})
+        # Actualizamos el archivo binario de los registros de bases de datos
+        fichero_escritura = open("BD_register", "wb")
+        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura.close()
+    except:
+        Bases[database]["FK"].update({indexName: [tableRef, table]})
+        # Actualizamos el archivo binario de los registros de bases de datos
+        fichero_escritura = open("BD_register", "wb")
+        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura.close()
+    return 0
+
+def alterTableDropFK(database, table, indexName):
+    mode = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if type(mode) != str:
+        # No se encontró la base de datos
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.extractTable(database, table)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.extractTable(database, table)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.extractTable(database, table)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.extractTable(database, table)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.extractTable(database, table)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.extractTable(database, table)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.extractTable(database, table)
+    if val == []:
+        return 3
+    global Bases
+    try:
+        # Leemos el archivo binario de los registros de bases de datos
+        fichero_lectura = open("BD_register", "rb")
+        Bases = pickle.load(fichero_lectura)
+        try:
+            Bases[database]["FK"].pop(indexName)
+        except:
+            return 4
+        # Actualizamos el archivo binario de los registros de bases de datos
+        fichero_escritura = open("BD_register", "wb")
+        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura.close()
+    except:
+        try:
+            Bases[database]["FK"].pop(indexName)
+        except:
+            return 4
+        # Actualizamos el archivo binario de los registros de bases de datos
+        fichero_escritura = open("BD_register", "wb")
+        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura.close()
+    return 0
+
+def alterTableAddUnique(database, table, indexName, columns):
+    mode = None
+    for i in range(7):
+        mode = obtenerBase(database, i)
+        if mode == []:
+            continue
+        else:
+            if mode == 0:
+                mode = "avl"
+            elif mode == 1:
+                mode = "b"
+            elif mode == 2:
+                mode = "bplus"
+            elif mode == 3:
+                mode = "dict"
+            elif mode == 4:
+                mode = "isam"
+            elif mode == 5:
+                mode = "json"
+            elif mode == 6:
+                mode = "hash"
+            break
+    if type(mode) != str:
+        # No se encontró la base de datos
+        return 2
+    if mode == "avl":
+        # Grupo 16
+        val = avl_mode.showTables(database)
+    elif mode == "b":
+        # Grupo 17
+        val = b_mode.showTables(database)
+    elif mode == "bplus":
+        # Grupo 18
+        val = bplus_mode.showTables(database)
+    elif mode == "dict":
+        # Auxiliar
+        val = dict_mode.showTables(database)
+    elif mode == "isam":
+        # Grupo 14
+        val = isam_mode.showTables(database)
+    elif mode == "json":
+        # Ingeniero
+        val = json_mode.showTables(database)
+    elif mode == "hash":
+        # Grupo 15
+        val = hash_mode.showTables(database)
+    Existe_tabla = False
+    if val == []:
+        return 3
+    for i in range(len(val)):
+        if val[i] == table:
+            Existe_tabla1 = True
+            break
+    if Existe_tabla1 == False or Existe_tabla2 == False:
+        return 3
+    if len(columns) ==0:
+        return 4
+    Aplica = verificarIntegridadRef(table,columns)
+    if Aplica == False:
+        return 5
+    else:
+        global Bases
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            fichero_lectura = open("BD_register", "rb")
+            Bases = pickle.load(fichero_lectura)
+            Bases[database]["IU"].update({indexName: table})
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("BD_register", "wb")
+            pickle.dump(Bases, fichero_escritura)
+            fichero_escritura.close()
+        except:
+            Bases[database]["IU"].update({indexName: table})
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("BD_register", "wb")
+            pickle.dump(Bases, fichero_escritura)
+            fichero_escritura.close()
+        return 0
+    return 1
+
 def alterTableDropUnique(database, table, indexName):
     mode = None
     for i in range(7):
