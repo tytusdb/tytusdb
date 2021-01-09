@@ -2,9 +2,17 @@ from flask import Flask, render_template, jsonify, url_for, request, redirect
 import requests,json
 import time
 from consola import consola
+from flask_codemirror import CodeMirror
+
+CODEMIRROR_LANGUAGES = ['sql']
+WTF_CSRF_ENABLED = True
+SECRET_KEY = 'secret'
+CODEMIRROR_THEME = 'idea'
 
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
+app.config.from_object(__name__)
+codemirror = CodeMirror(app)
 
 @app.route('/')
 def index():
@@ -15,14 +23,15 @@ def index():
 def SomeFunction():
     form = consola(request.form)
     print('Envio de la entrada') 
-    entr = request.form['content']
+    entr = form.entrada2.data
+   # entr = request.form['content']
     print(entr)
     dictToSend = {'entrada':entr}
     res = requests.post('http://127.0.0.1:5000/ejecutar', json=dictToSend)
-    y = json.loads(res.text)       
-    print("Mensaje del servidor: "+y['resultado'])
+    y = json.loads(res.text) 
     mens = y['resultado']
     form.text.data = mens
+    print("Resultado del servidor para text:\n"+form.text.data) 
   #  request.form['content2'] = y['resultado']
     return render_template("index.html", form=form)
 
