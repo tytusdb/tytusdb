@@ -470,3 +470,280 @@ def alterDropPK(database: str, table: str) -> int:
         return 1
 
 ###################################### SARAI ######################################
+
+def alterTable(database: str, tableOld: str, tableNew: str) -> int:
+    try:
+        if not database.isidentifier() \
+        or not tableOld.isidentifier() \
+        or not tableNew.isidentifier():
+            raise Exception()
+
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return 2
+
+        tabla = __getTable(database, tableOld)
+        if tabla is False:
+            return 3
+
+        existe = __getTable(database, tableNew)
+        if existe:
+            return 4
+
+        # Fase 2
+        modo = tabla["mode"]
+
+        res = 1  # esperando que la respuesta sea exitosa
+
+        if modo == "avl":
+            res = avl.alterTable(database, tableOld, tableNew)
+        elif modo == "b":
+            res = b.alterTable(database, tableOld, tableNew)
+        elif modo == "bplus":
+            res = bplus.alterTable(database, tableOld, tableNew)
+        elif modo == "hash":
+            res = ha.alterTable(database, tableOld, tableNew)
+        elif modo == "isam":
+            res = isam.alterTable(database, tableOld, tableNew)
+        elif modo == "json":
+            res = j.alterTable(database, tableOld, tableNew)
+        elif modo == "dict":
+            res = d.alterTable(database, tableOld, tableNew)
+
+        if res == 0:  # fue satisfactoria la operacion
+            # Pedir la lista de diccionarios de base de datos
+            listaDB = __rollback("data")
+
+            for db in listaDB:
+                if db["nameDb"] == database:
+                    for tb in db["tables"]:
+                        if tb["nameTb"] == tableOld:
+                            tb["foreign_keys"].alterTable(tableNew)
+                            tb["unique_index"].alterTable(tableNew)
+                            tb["index"].alterTable(tableNew)
+                            tb["nameTb"] = tableNew
+                            break
+
+            # Se guarda la lista de base de datos ya actualizada en el archivo data
+            __commit(listaDB, "data")
+        
+        return res
+    except:
+        return 1
+
+def alterAddColumn(database: str, table: str, default: any) -> int:
+    try:
+        if not database.isidentifier() \
+                or not table.isidentifier():
+            raise Exception()
+
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return 2
+
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return 3
+
+        # Fase 2
+        modo = tabla["mode"]
+
+        res = 1
+
+        if modo == "avl":
+            res = avl.alterAddColumn(database, table, default)
+        elif modo == "b":
+            res = b.alterAddColumn(database, table, default)
+        elif modo == "bplus":
+            res = bplus.alterAddColumn(database, table, default)
+        elif modo == "hash":
+            res = ha.alterAddColumn(database, table, default)
+        elif modo == "isam":
+            res = isam.alterAddColumn(database, table, default)
+        elif modo == "json":
+            res = j.alterAddColumn(database, table, default)
+        elif modo == "dict":
+            res = d.alterAddColumn(database, table, default)
+
+        if res == 0:
+            # Pedir la lista de diccionarios de base de datos
+            listaDB = __rollback("data")
+
+            for db in listaDB:
+                if db["nameDb"] == database:
+                    for tb in db["tables"]:
+                        if tb["nameTb"] == table:
+                            columnasNew = tb["columns"] + 1
+                            tb["columns"] = columnasNew
+                            break
+
+            # Se guarda la lista de base de datos ya actualizada en el archivo data
+            __commit(listaDB, "data")
+
+        return res
+    except:
+        return 1
+
+def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
+    try:
+        if not database.isidentifier() \
+        or not table.isidentifier() \
+        or not isinstance(columnNumber, int):
+            raise Exception()
+
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return 2
+
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return 3
+
+        modo = tabla["mode"]
+
+        res = 1
+
+        if modo == "avl":
+            res = avl.alterDropColumn(database, table, columnNumber)
+        elif modo == "b":
+            res = b.alterDropColumn(database, table, columnNumber)
+        elif modo == "bplus":
+            res = bplus.alterDropColumn(database, table, columnNumber)
+        elif modo == "hash":
+            res = ha.alterDropColumn(database, table, columnNumber)
+        elif modo == "isam":
+            res = isam.alterDropColumn(database, table, columnNumber)
+        elif modo == "json":
+            res = j.alterDropColumn(database, table, columnNumber)
+        elif modo == "dict":
+            res = d.alterDropColumn(database, table, columnNumber)
+
+        if res == 0:
+            # Pedir la lista de diccionarios de base de datos
+            listaDB = __rollback("data")
+
+            for db in listaDB:
+                if db["nameDb"] == database:
+                    for tb in db["tables"]:
+                        if tb["nameTb"] == table:
+                            columnasNew = tb["columns"] - 1
+                            tb["columns"] = columnasNew
+                            break
+
+            # Se guarda la lista de base de datos ya actualizada en el archivo data
+            __commit(listaDB, "data")
+
+        return res
+    except:
+        return 1
+
+def dropTable(database: str, table: str) -> int:
+    try:
+        if not database.isidentifier() \
+        or not table.isidentifier():
+            raise Exception()
+
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return 2
+
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return 3
+
+        # Fase2
+        mode = tabla["mode"]
+
+        res = 1
+
+        if mode == "avl":
+            res = avl.dropTable(database, table)
+        elif mode == "b":
+            res = b.dropTable(database, table)
+        elif mode == "bplus":
+            res = bplus.dropTable(database, table)
+        elif mode == "hash":
+            res = ha.dropTable(database, table)
+        elif mode == "isam":
+            res = isam.dropTable(database, table)
+        elif mode == "json":
+            res = j.dropTable(database, table)
+        elif mode == "dict":
+            res = d.dropTable(database, table)
+
+        if res == 0:
+            # Pedir la lista de diccionarios de base de datos
+            listaDB = __rollback("data")
+
+            #Se eliminan los registros de las estructuras correspondientes a
+            #FK, indice unico, indice
+            for db in listaDB:
+                if db["nameDb"] == database:
+                    for tb in db["tables"]:
+                        if tb["nameTb"] == table:
+                            tb["foreign_keys"].dropTable()
+                            tb["unique_index"].dropTable()
+                            tb["index"].dropTable()
+                            break
+
+            #Se elimina el diccionario correspondiente a la tabla del archivo data
+            for db in listaDB:
+                if db["nameDb"] == database:
+                    db["tables"].remove(tabla)
+                    break
+
+            # Se guarda la lista de base de datos ya actualizada en el archivo data
+            __commit(listaDB, "data")
+
+        return res   
+    except:
+        return 1
+
+
+##################
+# Registers CRUD #
+##################
+
+def insert(database: str, table: str, register: list) -> int:
+    try:
+        if not database.isidentifier() \
+        or not table.isidentifier() \
+        or not isinstance(register, list):
+            raise Exception()        
+        
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return 2
+
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return 3
+
+        mode = tabla["mode"]
+
+        res = 1
+
+        if mode == "avl":
+            res = avl.insert(database, table, register)
+        elif mode == "b":
+            res = b.insert(database, table, register)
+        elif mode == "bplus":
+            res = bplus.insert(database, table, register)
+        elif mode == "hash":
+            res = ha.insert(database, table, register)
+        elif mode == "isam":
+            res = isam.insert(database, table, register)
+        elif mode == "json":
+            res = j.insert(database, table, register)
+        elif mode == "dict":
+            res = d.insert(database, table, register)
+
+        if res == 0:
+            # ************* Modificar *********************
+            nombreTablaSegura = database + '-' + table
+            if blockC.EsUnaTablaSegura(nombreTablaSegura):
+                blockC.insertSafeTable(nombreTablaSegura, register)
+            # ************* Modificar *********************
+        return res      
+    except:
+        return 1
