@@ -347,7 +347,8 @@ El método se encarga de descomprimir una tabla especifica de la base de datos e
 | 0 | Operación exitosa |
 | 1 | Error en la operación |
 | 2 | Base de datos inexistente |
-| 3 | No existe compresión |
+| 3 | No existe la tabla |
+| 4 | No existe compresión |
 
 
 
