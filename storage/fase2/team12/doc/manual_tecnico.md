@@ -115,3 +115,13 @@ Grafos
 | --- | --- |
 | **graphDSD** | Genera un gráfico mediante Graphviz acerca de la base de datos especificada |
 | **graphDF** | Genera un gráfico mediante Graphviz acerca de las dependencias funcionales de una tabla especificada de una base de datos |
+
+Diagrama de Estructura 
+<p align="center">
+  <img src="img/diargama_1.png" width="700" alt="img1">
+</p>
+
+Diagrama de Clases 
+<p align="center">
+  <img src="img/Diagrama de Clases .png" width="700" alt="img1">
+</p>

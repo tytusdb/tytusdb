@@ -5,6 +5,7 @@
 
 
 from .Complements.checksum import *
+from .table_module import Table
 from .Complements.compress import Compression
 from .handler import Handler
 from ..path import *
@@ -120,6 +121,18 @@ class DatabaseModule:
                 return 1
             prevmode = db.mode
             tables = db.tables[:]
+            if db.fk:
+                new = Table('_PKSTRUCTURE__', db.mode, db.compress, 5)
+                new.pk = [0]
+                tables.append(new)
+            if db.unique:
+                new = Table('_UNIQUESTRUCTURE__', db.mode, db.compress, 3)
+                new.pk = [0]
+                tables.append(new)
+            if db.index:
+                new = Table('_INDEXSTRUCTURE__', db.mode, db.compress, 3)
+                new.pk = [0]
+                tables.append(new)
             for table in tables:
                 tuples = result = eval(actionCreator(table.mode, 'extractTable', ['database', 'table.name']))
                 if result or result == []:
