@@ -607,9 +607,9 @@ def alterTableDropIndex(database, table, indexName):
         return 2
     
 def graphDSD(database):
-    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
     nodo = buscar(database)
     if nodo != None:
+        grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
         lista = showTables(database)
         for tabla in lista:
             grafica += tabla + "[\nlabel="+tabla+"\nshape=record\n];\n"
@@ -625,43 +625,47 @@ def graphDSD(database):
                 bandera = False
             c = c + 1
 
-    grafica +="}"
+        grafica +="}"
+    else:
+        return None
     if grafica != "":
-        tabGen = open("tab.dot","w")
+        tabGen = open("grafoDB.dot","w")
         tabGen.write(grafica)
         tabGen.close()
-        tab = open("tab.cmd","w")
-        tab.write("dot -Tpng tab.dot -o tab.png")
+        tab = open("grafoDB.cmd","w")
+        tab.write("dot -Tpng grafoDB.dot -o grafoDB.png")
         tab.close()
         try:
-            os.system('tab.cmd')
-            os.system('tab.png')
+            os.system('grafoDB.cmd')
+            os.system('grafoDB.png')
         except:
             return None
-    return 'tab.png'
+    return grafica
 
 def graphDF(database, table):
-    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
+    grafica = ""
     nodo = buscar(database)
     if nodo != None:
         lista = showTables(database)
-        for tabla in lista:
-            if tabla == table:
-                grafica += tabla + "[\nlabel=" + tabla + "\nshape=record\n];\n"
-        fk = nodo[6]
-        c = 0
-        bandera = False
-        for tabla in lista:
-            if tabla ==table:
-                for t in nodo[6]:
-                    if bandera == False:
-                        if tabla == t[3]:
-                            grafica += t[1] + ":f1 -> " + tabla + ":f2 [\nid = " + str(c) + "\n];\n"
-                            bandera = True
-                    bandera = False
-                c = c + 1
-
-        for tabla in lista:
+        if table in lista:
+            grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
+            for tabla in lista:
+                if tabla == table:
+                    grafica += tabla + "[\nlabel=" + tabla + "\nshape=record\n];\n"
+            fk = nodo[6]
+            c = 0
+            bandera = False
+            for tabla in lista:
+                if tabla ==table:
+                    for t in nodo[6]:
+                        if bandera == False:
+                            if tabla == t[3]:
+                                grafica += t[1] + ":f1 -> " + tabla + ":f2 [\nid = " + str(c) + "\n];\n"
+                                bandera = True
+                        bandera = False
+                    c = c + 1
+                    
+            for tabla in lista:
             if tabla ==table:
                 for t in nodo[6]:
                     if bandera == False:
@@ -669,22 +673,24 @@ def graphDF(database, table):
                             grafica += t[1] + ":f1 -> " + t[3] + ":f2 [\nid = " + str(c) + "\n];\n"
                             bandera = True
                     bandera = False
-                c = c + 1
-
-    grafica += "}"
+                c = c + 1   
+            grafica += "}"
+    else:
+        return None
+    
     if grafica != "":
-        tabGen = open("tab.dot","w")
+        tabGen = open("grafoTABLE.dot","w")
         tabGen.write(grafica)
         tabGen.close()
-        tab = open("tab.cmd","w")
-        tab.write("dot -Tpng tab.dot -o tab.png")
+        tab = open("grafoTABLE.cmd","w")
+        tab.write("dot -Tpng grafoTABLE.dot -o grafoTABLE.png")
         tab.close()
         try:
-            os.system('tab.cmd')
-            os.system('tab.png')
+            os.system('grafoTABLE.cmd')
+            os.system('grafoTABLE.png')
         except:
             return None
-    return 'tab.png'
+    return grafica
 
 def decrypt(cipherbackup,clave):
     encrypt=""
