@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { DatabaseService } from 'src/app/service/database/database.service';
 // commit 1.3 import { TableService } from 'src/app/service/table/table.service';
 
+
+
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -27,6 +29,8 @@ export class NavbarComponent implements OnInit {
       ]*
   }*/
 
+  
+
 
   constructor(private dbServs: DatabaseService) { }
 
@@ -34,22 +38,26 @@ export class NavbarComponent implements OnInit {
 
   }
 
+
+
   createBD() {
     let dbName = this.database.name.trim()
     if (dbName.length === 0) {
       alert('Especifique nombre para la base de datos');
     } else {
-      this.dbServs.create(dbName).subscribe((response)=> {
-        const body = response.body;
-        // Adaptar el mensaje 'response' para mostrar result.messages
+      this.dbServs.create(dbName).subscribe(( response )=> {
 
-        // result.messages es una lista, pero solo se envía una instrucción
-        // se debe recuperar la PRIMERA POSICIÓN de esa lista y mostrar ese mensaje
+        
+       const body = response.body;
+        
+       alert(body.result.messages[0]);
+        
       }, (err) => {
-        // Indicar al usuario que hubo un error al crear la base de datos 'dbName'
-        // Por ejemplo:
-        //    alert('Error del servidor al intetnar crear la base de datos ' + dbName)
-        // Imprimir en consola (con console.log) el error 'err'
+
+        alert('Error del servidor al intentar crear la base de datos ' + dbName);
+
+        console.log(err);
+        
       });
     }
   }
