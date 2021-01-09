@@ -1,3 +1,5 @@
+ MANUAL TECNICO
+===================
 
 ## Indice
 
@@ -12,6 +14,8 @@
 #### • [Diccionario de Funciones](#diccionario-de-funciones) ####
 
 #### • [Diagramas de Flujo](#diagramas-de-flujo) ####
+
+#### • [Diagramas de Componentes](#diagramas-de-componentes) ####
 
 Descripción de la solución 
 -----------------------
@@ -191,6 +195,9 @@ Diagramas de flujo
 
 ![](https://github.com/DiiAns23/Prueba-2/blob/Master/img/Eliminar.png)
 
+Diagramas de componentes
+-----------------------
+
 ### Alter Database Mode ###
 
 ![](https://github.com/tytusdb/tytus/blob/main/storage/fase2/team17/docs/img/Database.png)
@@ -208,7 +215,7 @@ Diagramas de flujo
 
 * Para iniciar copiar, en un archivo .py fuera de la carpeta del paquete, el siguiente código:
 ```
-from team17 import Interfaz as i
-i.runInterface()
+from storage import Interfaz
+Interfaz.runInterface()
 ```
 
