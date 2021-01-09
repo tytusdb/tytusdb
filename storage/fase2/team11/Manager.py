@@ -857,3 +857,63 @@ def graphDSD(database: str):
             return "Tables empty"
     else:
         return 1
+    
+def graphDF(database: str, table: str):
+    metadata_db, index = get_metadata_db(database)
+    if metadata_db:
+        table_md: Table = metadata_db.get_table(table)
+        if table_md:
+            grafo = Graph()
+            list_ui = list()
+            list_pk = list()
+            list_general: list = [x for x in range(table_md.get_nums_colums())]
+            pk_list: list = table_md.get_pk_list()
+            unique_list: list = table_md.unique.extractUnique()
+
+            for pk in pk_list:
+                pk_l = f"pk_{pk}"
+                if pk_l not in list_pk:
+                    list_pk.append(pk_l)
+                grafo.add_vertex(pk_l)
+                if pk in list_general:
+                    list_general.remove(pk)
+
+            for ui in unique_list:
+                for ui_index in ui[2]:
+                    ui_l = f"ui_{ui_index}"
+                    if ui_l not in list_ui:
+                        list_ui.append(ui_l)
+                    grafo.add_vertex(ui_l)
+                    if ui_index in list_general:
+                        list_general.remove(ui_index)
+
+            for general in list_general:
+                grafo.add_vertex(general)
+
+            if len(pk_list) == 0:
+                hidden_pk = "Hidden_PK"
+                grafo.add_vertex(hidden_pk)
+                for ui in list_ui:
+                    grafo.join(hidden_pk, ui)
+                    for normal in list_general:
+                        grafo.join(ui, normal)
+                        grafo.join(hidden_pk, normal)
+            else:
+                for pk in list_pk:
+                    for ui in list_ui:
+                        grafo.join(pk, ui)
+                        for normal in list_general:
+                            grafo.join(pk, normal)
+                for ui in list_ui:
+                    for normal in list_general:
+                        grafo.join(ui, normal)
+
+                    # print(f"{str(table_1)},{str(table_2)}")
+            gra = grafo.graficar()
+            ruta = f"graphDF_{database}"
+            generate_grapviz(gra, str(ruta))
+
+        else:
+            return "Tables empty"
+    else:
+        return 1
