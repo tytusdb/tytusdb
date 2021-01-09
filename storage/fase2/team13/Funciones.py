@@ -2,11 +2,13 @@ import os
 import pickle
 import shutil
 import zlib
+import hashlib
 from Blockchain import *
 
 databases = {}  # LIST WITH DIFFERENT MODES
 dict_encoding = {'ascii': 1, 'iso-8859-1': 2, 'utf8': 3}
 dict_modes = {'avl': 1, 'b': 2, 'bplus': 3, 'dict': 4, 'isam': 5, 'json': 6, 'hash': 7}
+algoritms = ['SHA256', 'MD5']
 
 
 # ---------------------------------------------------- FASE 2  ---------------------------------------------------------
@@ -64,7 +66,58 @@ def alterDatabaseMode(database, mode):
     except:
         return 1  
     
-
+# ALTER FOREIGN KEY
+def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
+    try:
+        if os.path.isfile(os.getcwd() + "\\Data\\FK.bin"):
+            FK = load('FK')
+        else:
+            FK = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            j = checkMode(db[database][0])
+            tables = j.showTables(database)
+            if (table in tables) and (tableRef in tables):
+                if len(columns) != 0 and len(columnsRef) != 0:
+                    if FK.get(indexName) is None:
+                        if 'FK' not in tables:
+                            j.createTable(database, 'FK', 6)
+                            j.alterAddPK(database, 'FK', [1])
+                        j.insert(database, 'FK', [database, indexName, table, columns, tableRef, columnsRef])
+                        FK.update({indexName: [database, indexName, table, columns, tableRef, columnsRef]})
+                        save(FK, 'FK')
+                        return 0
+                    return 1
+                return 4
+            return 3
+        return 2
+    except:
+        return 1
+    
+# DROP FOREIGN KEY
+def alterTableDropFK(database, table, indexName):
+    try:
+        if os.path.isfile(os.getcwd() + "\\Data\\FK.bin"):
+            FK = load('FK')
+            db = load('metadata')
+            if db.get(database) is not None:
+                j = checkMode(db[database][0])
+                tables = j.showTables(database)
+                if table in tables:
+                    if FK.get(indexName) is not None:
+                        j.delete(database, 'FK', [indexName])
+                        FK.pop(indexName)
+                        save(FK, 'FK')
+                        return 0
+                    return 4
+                return 3
+            return 2
+        else:
+            FK = {}
+            save(FK, 'FK')
+    except:
+        return 1
+    
 # Blockchain
 def safeModeOn(database, table):
     try:
