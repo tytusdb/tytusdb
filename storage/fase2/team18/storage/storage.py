@@ -1598,7 +1598,7 @@ def alterDatabaseDecompress(database):
         database = db[0]
         try:
             for table in showTables(database):
-                tab = dataTable.get(database + "_" + table)
+                tab = dataTable.get(database.upper() + "_" + table.upper())
                 if tab:
                     if db[3] == -2:
                         return 3
@@ -1644,7 +1644,7 @@ def alterDatabaseDecompress(database):
                 dataTable[database.upper()+"_"+table.upper()] = tab
             Serializable.update('./Data', 'DataTables', dataTable)
         db[3] = -2
-        data[database] = db
+        data[database.upper()] = db
         Serializable.update('./Data', 'Data', data)
         return 0
     else:
