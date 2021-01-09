@@ -683,20 +683,43 @@ def getCodificationMode(database):
 # 5. GENERACION DEL CHECKSUM
 def checksumDatabase(database,mode):
     try:
-        file = open("C:/Users/Usuario/Desktop/Fase2-main/filename.txt", "wb") ##cambiar ruta si es en otra pc
+        file = open("C:/Users/Usuario/Desktop/Fase2-main/Check1.txt", "wb") ##cambiar ruta si es en otra pc
         file.write(str(extractDatabase(database)).encode("utf-8"))
         file.close()
-
-        if mode == "MD5":
+        if mode == "MD5": 
             md5_hash = hashlib.md5()
-            a_file = open("filename.txt", "rb")
-            content = a_file.read()
-            md5_hash.update(content)
-            digest = md5_hash.hexdigest()
-            return digest
+            with open("Check1.txt", "rb") as f:
+                for byte_block in iter(lambda: f.read(4096),b""):
+                    md5_hash.update(byte_block)
+                digest = md5_hash.hexdigest()
+                return digest
         elif mode == "SHA256":
             sha256_hash = hashlib.sha256()
-            with open(filename,"rb") as f:
+            with open("Check1.txt","rb") as f:
+                for byte_block in iter(lambda: f.read(4096),b""):
+                    sha256_hash.update(byte_block)
+                digest=sha256_hash.hexdigest()
+                return digest
+        else:
+            return None
+    except:
+        return None
+    
+def checksumTable(database,table,mode):
+    try:
+        file = open("C:/Users/Usuario/Desktop/Fase2-main/Check2.txt", "wb") ##cambiar ruta si es en otra pc
+        file.write(str(extractTable2(database, table)).encode("utf-8"))
+        file.close()
+        if mode == "MD5": 
+            md5_hash = hashlib.md5()
+            with open("Check2.txt", "rb") as f:
+                for byte_block in iter(lambda: f.read(4096),b""):
+                    md5_hash.update(byte_block)
+                digest = md5_hash.hexdigest()
+                return digest
+        elif mode == "SHA256":
+            sha256_hash = hashlib.sha256()
+            with open("Check2.txt","rb") as f:
                 for byte_block in iter(lambda: f.read(4096),b""):
                     sha256_hash.update(byte_block)
                 digest=sha256_hash.hexdigest()
