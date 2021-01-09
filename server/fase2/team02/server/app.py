@@ -32,26 +32,20 @@ def conectar():
         return jsonify({"msj":"Conexion establecida"})
     return jsonify({"msj":"Usuario o contraseña invalidos"})
 
-
 # recibe los queries del cliente
 @app.route('/query',methods=['POST'])
 def transaccionar():
     query = request.json['query']
     print(query)
     #  codigo de parser para analizar
-    try:
-        nueva = str(query).upper()
-        print(nueva)
-        Inter.inicializarEjecucionAscendente(query)
-        if len(Lista) >0:
-            return jsonify({"msj":Lista[0]})
-        else:
-            return jsonify({"msj":"Query procesado"})
-    
-    #retornar hacia el cliente los resultados
-    return jsonify({"msj":"Query procesado"}) # cambiar ese msj por los resultados
-
-
+    nueva = str(query).upper()
+    print(nueva)
+    Inter.inicializarEjecucionAscendente(query)
+    if len(Lista) >0:
+        return jsonify({"msj":Lista[0]})
+    else:
+        return jsonify({"msj":"Query procesado"})
+            
 @app.route('/newUser', methods=['POST'])
 def addUser():
     user_name = request.json['user']
