@@ -1,6 +1,8 @@
 # Flask api
 Backend para aplicación tytus para el [cliente](../../../client/fase2/team05) 'team05'
 
+Esta es una versión más "completa" de la versión que se encuentra en el [direcotrio superior](../team05)
+
 ## Probar código:
 Tener instalado:
 * Python 3.8.5
@@ -10,9 +12,7 @@ Tener instalado:
 Luego de clonar el repositorio y posicionarse en esta carpeta (server/team05)
 
 ### Para instalar pipenv
-pipenv es un entorno virutal que Python ofrece para ejecutar una aplicación en un entorno "controlado" y apartado. De esta forma, no es necesario instalar las dependencias manualmente si no únicamente ejecutar una serie de comandos
-
-En Windows:
+pipenv es un entorno virutal que Python ofrece para ejecutar una aplicación en un entorno "controlado" y apartado. De esta forma, no es necesario instalar las dependencias manualmente si no únicamente ejecutar una serie de comandos:
 ```cmd
 $ pip install --user pipenv
 $ pipenv install
