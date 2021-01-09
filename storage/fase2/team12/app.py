@@ -6,6 +6,10 @@ from storage.avl import AVLMode as avl_mode
 from storage.dict import DictMode as dict_mode
 from storage.json import jsonMode as json_mode
 import hashlib
+from encript import *
+from blockchain import *
+import os
+import shutil
 import zlib
 import pickle
 # AVL: AVLMode
@@ -1982,3 +1986,177 @@ def alterTableDecompress(database, table):
                 return 3
         except:
             return 1
+
+def alterDatabaseEncoding(database,encoding):
+    print("ejcutando")
+    var = None
+    mode = None
+    tables = None
+    mode_name = None
+    if encoding == "ascii" or encoding == "utf8" or encoding == "iso-8859-1":
+        pass
+    else:
+        return 3
+    for i in range(7):
+        var = obtenerBase(database, i)
+        mode = i
+        if var == []:
+            continue
+        else:
+            if var >= 0 and var <= 6:
+                break
+            else:
+                return 2
+    if mode == 0 :
+        mode_name = "avl"
+        tables = avl_mode.showTables(database)
+    elif mode == 1 :
+        mode_name = "b"
+        tables = b_mode.showTables(database)
+    elif mode == 2 :
+        mode_name = "bplus"
+        tables = bplus_mode.showTables(database)
+    elif mode == 3:
+        mode_name = "dict"
+        tables == dict_mode.showTables(database)
+    elif mode == 4:
+        mode_name = "isam"
+        tables == isam_mode.showTables(database)
+    elif mode == 5 :
+        mode_name = "json"
+        tables == json_mode.showTables(database)
+    elif mode == 6:
+        mode_name = "hash"
+        tables == hash_mode.showTables(database)
+    if tables is None:
+        dropDatabase(database)
+        createDatabase(database,mode_name)
+    else:
+            try:
+                for i in range(len(tables)):
+                    contenidoTabla = extractTable(database,tables[i])
+                    for j in range(len(contenidoTabla)):
+                        tupla = contenidoTabla[j]
+                        for k in range(len(tupla)):
+                            if type(tupla[k])==str:
+                                tupla[k] = gen_convert(tupla[k],encoding)
+                        contenidoTabla[j] = tupla
+                        truncate(database,tables[i])
+                        for register in contenidoTabla:
+                            insert(database,tables[i],register)
+                return 0
+
+            except:
+                return 1
+
+def make_Blockchain(lista_tuples,nameJson):
+    block = blockchain()
+    for tuple in lista_tuples:
+        block.insertBlock(tuple,nameJson)
+    return block
+def safeModeOn(database,table):
+    try:
+        var = None
+        mode = None
+        tables = None
+        mode_name = None
+        for i in range(7):
+            var = obtenerBase(database, i)
+            mode = i
+            if var == []:
+                continue
+            else:
+                if var >= 0 and var <= 6:
+                    break
+                else:
+                    return 2
+        if mode == 0:
+            mode_name = "avl"
+            tables = avl_mode.showTables(database)
+        elif mode == 1:
+            mode_name = "b"
+            tables = b_mode.showTables(database)
+        elif mode == 2:
+            mode_name = "bplus"
+            tables = bplus_mode.showTables(database)
+        elif mode == 3:
+            mode_name = "dict"
+            tables == dict_mode.showTables(database)
+        elif mode == 4:
+            mode_name = "isam"
+            tables == isam_mode.showTables(database)
+        elif mode == 5:
+            mode_name = "json"
+            tables == json_mode.showTables(database)
+        elif mode == 6:
+            mode_name = "hash"
+            tables == hash_mode.showTables(database)
+
+        dict_tables_ = open("TB_register","rb")
+        dictionary = pickle.load(dict_tables_)
+        dict_tables = dictionary.get(database)[1]
+        table_info = dict_tables.get(table)
+        if table_info[2] is False:
+            table_info[2] = True
+            if table_info[2] is not None:
+                list_tuple = extractTable(database, table)
+                nameJson = str(database) + '-' + str(table)
+                BChain = make_Blockchain(list_tuple, nameJson)
+                table_info[2] = BChain
+    except:
+        return 0
+
+
+def safeModeOff(database, table):
+    try:
+        var = None
+        mode = None
+        tables = None
+        mode_name = None
+        for i in range(7):
+            var = obtenerBase(database, i)
+            mode = i
+            if var == []:
+                continue
+            else:
+                if var >= 0 and var <= 6:
+                    break
+                else:
+                    return 2
+        if mode == 0:
+            mode_name = "avl"
+            tables = avl_mode.showTables(database)
+        elif mode == 1:
+            mode_name = "b"
+            tables = b_mode.showTables(database)
+        elif mode == 2:
+            mode_name = "bplus"
+            tables = bplus_mode.showTables(database)
+        elif mode == 3:
+            mode_name = "dict"
+            tables == dict_mode.showTables(database)
+        elif mode == 4:
+            mode_name = "isam"
+            tables == isam_mode.showTables(database)
+        elif mode == 5:
+            mode_name = "json"
+            tables == json_mode.showTables(database)
+        elif mode == 6:
+            mode_name = "hash"
+            tables == hash_mode.showTables(database)
+
+        dict_tables_ = open("TB_register", "rb")
+        dictionary = pickle.load(dict_tables_)
+
+        dict_tables = dictionary.get(database)[1]
+        table_info = dict_tables.get(table)
+        if table_info[2] is True:
+            table_info[2] = False
+            if table_info[2] is not None:
+
+                name_JSON =str(database)+'-'+str(table)
+                table_info[2].removeFilesBlock(name_JSON)
+                table_info[2]=None
+                return 0
+    except:
+        return 0
