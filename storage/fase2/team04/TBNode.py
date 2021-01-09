@@ -11,5 +11,8 @@ class TBNode:
         self.pk = []
         self.fk = []
         self.iu = []
+        self.indx = []
+        self.compress = False
+        self.safeMode = False
         self.hidden = False
         self.next = None

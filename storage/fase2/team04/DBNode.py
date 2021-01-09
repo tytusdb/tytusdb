@@ -11,6 +11,7 @@ class DBNode:
         self.main_db = False
         self.name = name
         self.mode = mode
+        self.compress = False
         self.encoding = encoding
         self.tables = TBList()
         self.next = None
