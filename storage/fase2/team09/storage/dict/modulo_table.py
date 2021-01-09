@@ -1,8 +1,8 @@
 # License:      Released under MIT License
 # Notice:       Copyright (c) 2020 TytusDB Team
 # Developer:    Andree Avalos
-from storage.dict.singleton import existTable, existDB, insertTable, showTBS, alterTB, dropTB
-from storage.dict.diccionario import Estructura
+from ...storage.dict.singleton import existTable, existDB, insertTable, showTBS, alterTB, dropTB
+from ...storage.dict.diccionario import Estructura
 
 def createTable(database: str, table: str, numberColumns: int):
     try:

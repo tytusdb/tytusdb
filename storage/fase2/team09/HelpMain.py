@@ -11,15 +11,15 @@ from CopyTable import *
 #from team14 import ISAMMode as isam
 from storageManager import jsonMode as json 
 '''
-from storage.avl.DataAccessLayer.reports import graphAVL as avltablas, graphicTables
-from storage.hash import Tabla as hashreporte
-from storage.avl import avlMode as avl
-from storage.b import BMode as b
-from storage.bplus import BPlusMode as bplus
-from storage.dict import DictMode as mdict
-from storage.hash import HashMode as mhash
-from storage.isam import ISAMMode as isam
-from storage.json import jsonMode as json 
+from .storage.avl.DataAccessLayer.reports import graphAVL as avltablas, graphicTables
+from .storage.hash import Tabla as hashreporte
+from .storage.avl import avlMode as avl
+from .storage.b import BMode as b
+from .storage.bplus import BPlusMode as bplus
+from .storage.dict import DictMode as mdict
+from .storage.hash import HashMode as mhash
+from .storage.isam import ISAMMode as isam
+from .storage.json import jsonMode as json 
 
 def Grafico(arreglo,database,table):
     if arreglo == "avl":

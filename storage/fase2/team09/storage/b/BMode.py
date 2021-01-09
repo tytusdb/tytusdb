@@ -2,9 +2,9 @@
 # License:  Released under MIT License
 # Notice:   Copyright (c) 2020 TytusDB Team
 
-from storage.b import DataBase as db
-from storage.b import Serializable as serializar
-from storage.b import Estructura_ArbolB as bt
+from ...storage.b import DataBase as db
+from ...storage.b import Serializable as serializar
+from ...storage.b import Estructura_ArbolB as bt
 
 b = db.DB()
 

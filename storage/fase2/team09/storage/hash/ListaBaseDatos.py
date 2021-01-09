@@ -6,7 +6,7 @@
 import os
 import shutil
 
-from storage.hash import BaseDatos as DB
+from ...storage.hash import BaseDatos as DB
 
 main_path = os.getcwd() + "\\data\\hash"
 

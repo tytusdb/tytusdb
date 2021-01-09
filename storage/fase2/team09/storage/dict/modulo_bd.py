@@ -1,7 +1,7 @@
 # License:      Released under MIT License
 # Notice:       Copyright (c) 2020 TytusDB Team
 # Developer:    Andree Avalos
-from storage.dict.singleton import existDB, insertDB, alterDB, dropDB, showDB, dropAll
+from ...storage.dict.singleton import existDB, insertDB, alterDB, dropDB, showDB, dropAll
 
 
 def createDatabase(database: str):

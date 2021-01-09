@@ -2,11 +2,11 @@
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
 
-from storage.bplus import AVLTree
-from storage.bplus import BplusTree
+from ...storage.bplus import AVLTree
+from ...storage.bplus import BplusTree
 import os
 import pickle
-from storage.bplus import Serializable as serializable
+from ...storage.bplus import Serializable as serializable
 import re
 import shutil
 

@@ -7,7 +7,7 @@ import csv
 import os
 import re
 
-from storage.hash import ListaBaseDatos
+from ...storage.hash import ListaBaseDatos
 
 _storage = ListaBaseDatos.ListaBaseDatos()
 _main_path = os.getcwd() + "\\data\\hash"

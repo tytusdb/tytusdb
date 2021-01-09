@@ -1,20 +1,20 @@
 # Copyright (c) 2020 TytusDb Team
-import CopyTable as Arreglos
-import HelpMain as Help
-from storage.avl import avlMode as avl
-from storage.b import BMode as b
-from storage.bplus import BPlusMode as bplus
-from storage.dict import DictMode as mdict
-from storage.hash import HashMode as thash
-from storage.isam import ISAMMode as isam
-from storage.json import jsonMode as json
-import codificacion
+import team09.CopyTable as Arreglos
+import team09.HelpMain as Help
+from .storage.avl import avlMode as avl
+from .storage.b import BMode as b
+from .storage.bplus import BPlusMode as bplus
+from .storage.dict import DictMode as mdict
+from .storage.hash import HashMode as thash
+from .storage.isam import ISAMMode as isam
+from .storage.json import jsonMode as json
+import team09.codificacion
 import os, pickle, csv
-import checksum
-import crypto
-import blockchain
+import team09.checksum
+import team09.crypto
+import team09.blockchain
 import pathlib
-import indices
+import team09.indices
 import zlib
 blokFlag = False
 

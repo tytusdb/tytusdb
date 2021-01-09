@@ -1,7 +1,7 @@
 # License:      Released under MIT License
 # Notice:       Copyright (c) 2020 TytusDB Team
 # Developer:    Andree Avalos
-from storage.dict.singleton import alterAPK, existTable, existDB, insertRegistro, extraerRegistros, deleteRegistro, alterDPK, addColumn, dropColumn, \
+from ...storage.dict.singleton import alterAPK, existTable, existDB, insertRegistro, extraerRegistros, deleteRegistro, alterDPK, addColumn, dropColumn, \
     extraerRango, extraerPorColumna, updateRegistro, truncateRegistros
 
 def alterAddPK(database: str, table: str, columns: list):

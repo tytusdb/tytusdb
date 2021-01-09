@@ -6,7 +6,7 @@
 import os
 import re
 
-from storage.hash import Tabla, serealizar
+from ...storage.hash import Tabla, serealizar
 
 table_name_pattern = "^[a-zA-Z_][a-zA-Z0-9#@$_]*"
 

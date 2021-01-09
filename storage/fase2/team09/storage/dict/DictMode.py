@@ -3,10 +3,10 @@
 # Notice:       Copyright (c) 2020 TytusDB Team
 # Developer:    Andree Avalos
 
-from storage.dict import modulo_bd as bd
-from storage.dict import modulo_table as tb
-from storage.dict import modulo_llaves as ky
-from storage.dict import modulo_carga as ld
+from ...storage.dict import modulo_bd as bd
+from ...storage.dict import modulo_table as tb
+from ...storage.dict import modulo_llaves as ky
+from ...storage.dict import modulo_carga as ld
 
 
 def createDatabase(database: str):

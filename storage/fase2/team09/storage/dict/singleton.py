@@ -3,8 +3,8 @@
 # Developer:    Andree Avalos
 import os
 import shutil
-from storage.dict.diccionario import Estructura
-from storage.dict.modulo_serializar import rollback, hacerCommit
+from ...storage.dict.diccionario import Estructura
+from ...storage.dict.modulo_serializar import rollback, hacerCommit
 
 data = {}
 

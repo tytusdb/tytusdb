@@ -1,7 +1,7 @@
 # License:      Released under MIT License
 # Notice:       Copyright (c) 2020 TytusDB Team
 # Developer:    Andree Avalos
-from storage.dict.modulo_llaves import insert
+from ...storage.dict.modulo_llaves import insert
 import csv
 def loadCSV(filepath: str, database: str, table: str):
     try:
