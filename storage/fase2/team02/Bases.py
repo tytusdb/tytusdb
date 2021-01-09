@@ -731,3 +731,28 @@ def alterDatabaseCompress(database: str, level: int) :
             return 2
     except:
         return 1
+
+def alterDatabaseDecompress(database: str) :
+    try:
+        baseexist = searchInMode(database)
+        if baseexist != None:
+            if len(comp) == 0:
+                return 3
+            oldReg = []
+            # comp = []
+            oldTables = showTables(database)
+
+            for table in oldTables:
+                oldReg.append(extractTable(database,table))
+                valCol = len(extractTable(database,table)[0])
+            
+            for c in comp:
+                decompressed = zlib.decompress(c)
+                decomp.append(decompressed)
+            print(decomp)
+            # print(comp)
+            return 0
+        else:
+            return 2       
+    except:
+        return 1
