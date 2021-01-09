@@ -159,6 +159,53 @@ def dropDatabase(database):
     else:
         return 2
 
+def alterTableAddFK(database, table, indexName, columns,  tableRef, columnsRef):  
+    Temporal = showTables(database)
+    bandera = False
+    contador = 0
+
+    if Temporal == 2:
+        return 2
+
+    try: 
+        for i in Temporal:
+            if table == i:
+                contador += 1
+                if contador >= 1:
+                    bandera = True
+                
+
+        if len(columns) <= 0 or len(columnsRef) <=0 or len(columns) != len(columnsRef):
+            return 4
+
+        elif bandera == False:
+            return 3
+
+        else:
+            lista.append(controlFK(database,table,indexName,columns,tableRef,columnsRef))
+            return 0
+    except:
+        return 1
+
+def alterTableDropFK(database, table, indexName):
+    try:
+        for j in range(len(lista)):
+            if database == lista[j].database:
+                for k in range(len(lista)):
+                    if table == lista[k].table:
+                        for i in range(len(lista)):
+                            if indexName == lista[i].indexName:
+                                lista.pop(i)
+                                return 0
+                            else:
+                                return 4
+                    else:
+                        return 3
+            else:
+                return 2
+    except:
+        return 1
+
 #-------------TABLAS-------------------
 def createTable(database, table, numbercolumns):
     if searchInMode(database) != None:
