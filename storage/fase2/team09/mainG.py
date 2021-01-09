@@ -24,6 +24,7 @@ import checksum
 import crypto
 import blockchain
 import pathlib
+import indices
 
 blokFlag = False
 
@@ -687,3 +688,130 @@ def codTupla(registro: list, cod) -> list:
             elif cod == "utf-8":
                 codificado.append(codificacion.utf(i))
     return codificado
+
+# Indices
+
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
+    try:
+        db = showDatabases()
+        if database in db:
+            if buscartabla(database, table):
+                if buscartabla(database, tableRef):
+                    for d in list_table:
+                        if d.base == database and d.tabla == table:
+                            j = extractTable(database, table) 
+                            co=len(j[0])
+                            mo = d.modo
+                            retorno = indices.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef,mo,co)
+                            if retorno == 0:
+                                Actualizar(list_table, "tablasG")
+                            return retorno
+                else:
+                    return 3
+            else:
+                return 3
+        else:
+            return 2
+    except:
+        return 1
+
+
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    try:
+        db = showDatabases()
+        if database in db:
+            if buscartabla(database, table):
+                for d in list_table:
+                    if d.base == database and d.tabla == table:
+                        retorno = indices.alterTableDropFK(database, table, indexName, d.mode)
+                        if retorno == 0:
+                            Actualizar(list_table, "tablasG")
+                        return retorno
+            else:
+                return 3
+        else:
+            return 2
+    except:
+        return 1
+
+
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
+    try:
+        db = showDatabases()
+        if database in db:
+            if buscartabla(database, table):
+                for d in list_table:
+                    if d.base == database and d.tabla == table:
+                        j = extractTable(database, table) 
+                        co=len(j[0])
+                        mo = d.modo
+                        retorno = indices.alterTableAddUnique(database, table, indexName, columns,mo,co)
+                        if retorno == 0:
+                            Actualizar(list_table, "tablasG")
+                        return retorno
+            else:
+                return 3
+        else:
+            return 2
+    except:
+        return 1
+
+
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+    try:
+        db = showDatabases()
+        if database in db:
+            if buscartabla(database, table):
+                for d in list_table:
+                    if d.base == database and d.tabla == table:
+                        retorno = indices.alterTableDropUnique(database, table, indexName, d.mode)
+                        if retorno == 0:
+                            Actualizar(list_table, "tablasG")
+                        return retorno
+            else:
+                return 3
+        else:
+            return 2
+    except:
+        return 1
+
+
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
+    try:
+        db = showDatabases()
+        if database in db:
+            if buscartabla(database, table):
+                for d in list_table:
+                    if d.base == database and d.tabla == table:
+                        j = extractTable(database, table) 
+                        co=len(j[0])
+                        mo = d.modo
+                        retorno = indices.alterTableAddIndex(database, table, indexName, columns,mo,co)
+                        if retorno == 0:
+                            Actualizar(list_table, "tablasG")
+                        return retorno
+            else:
+                return 3
+        else:
+            return 2
+    except:
+        return 1
+
+
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+    try:
+        db = showDatabases()
+        if database in db:
+            if buscartabla(database, table):
+                for d in list_table:
+                    if d.base == database and d.tabla == table:
+                        retorno = indices.alterTableDropIndex(database, table, indexName, d.mode)
+                        if retorno == 0:
+                            Actualizar(list_table, "tablasG")
+                        return retorno
+            else:
+                return 3
+        else:
+            return 2
+    except:
+        return 1
