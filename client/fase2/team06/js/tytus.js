@@ -103,11 +103,12 @@ function Guarda() {
     resfreshJSTree();
     autoincre++;
   }
+  textoNombre=nameingresa;
   nameingresa = "";
   parentname = "";
   document.getElementsByName("namedb22")[0].value = "";
   CierraPopup("#ModalDB");
-  crearBD();
+  crearBD(textoNombre);
 }
 
 function Guardatb() {
@@ -124,11 +125,12 @@ function Guardatb() {
     resfreshJSTree();
     autoincre++;
   }
+  nombreTabla=nameingresa;
   nameingresa = "";
   parentname = "";
   document.getElementsByName("nametb2")[0].value = "";
   CierraPopup("#Modaltable");
-  crearTabla();
+  crearTabla(nombreTabla);
 }
 
 function CierraPopup(namePop) {
@@ -245,6 +247,15 @@ $(document).ready(function () {
 function input2(elemID, text) {
   var elem = document.getElementById(elemID);
   elem.innerHTML += text + "\n";
+
+  if (text="Crear nuevo Query"){
+    toastr.success('Nuevo query','TytusDB',{
+      "closeButton": true,
+      "progressBar":true,
+      "positionClass": "toast-top-center",
+      "preventDuplicates": true,
+    });
+  }
 }
 
 function saveTextAsFile() {
@@ -267,6 +278,12 @@ function saveTextAsFile() {
   }
 
   downloadLink.click();
+  toastr.success('Guardado','TytusDB',{
+    "closeButton": true,
+    "progressBar":true,
+    "positionClass": "toast-top-center",
+    "preventDuplicates": true,
+  });
 }
 
 function destroyClickedElement(event) {
@@ -274,9 +291,15 @@ function destroyClickedElement(event) {
   document.body.removeChild(event.target);
 }
 
-function limpiar(elemID) {
-  var elem = document.getElementById(elemID);
-  elem.innerHTML = "";
+function limpiar() {
+  var text1 = document.getElementsByClassName("tab-pane fade active show");
+  text1[0].getElementsByClassName("form-control")[0].value="";
+  toastr.success('Ventana limpia','TytusDB',{
+    "closeButton": true,
+    "progressBar":true,
+    "positionClass": "toast-top-center",
+    "preventDuplicates": true,
+  });
 }
 
 function ejecutarScript() {
@@ -292,15 +315,29 @@ function guardarArchivo() {
   //console.log(texto);
 }
 
-function crearBD() {
+function crearBD(textoNombre) {
   var texto = eel.PYcrearBD().value;
-  alert("Se ha creado la base de datos");
-  console.log(texto);
+  //alert("Se ha creado la base de datos");
+  texto2="Se creo la base de datos "+textoNombre;
+  toastr.success(texto2,'TytuDB',{
+    "closeButton": true,
+    "progressBar":true,
+    "positionClass": "toast-top-center",
+    "preventDuplicates": true,
+  });
+  console.log(texto2);
 }
-function crearTabla() {
+function crearTabla(nombreTabla) {
   var texto = eel.PYcrearTabla().value;
-  alert("Se ha creado la tabla");
-  console.log(texto);
+  texto2="Se creo la tabla "+nombreTabla;
+  //alert("Se ha creado la tabla");
+  toastr.success(texto2,"TytusDB",{
+    "closeButton": true,
+    "progressBar":true,
+    "positionClass": "toast-top-center",
+    "preventDuplicates": true,
+  });
+
 }
 
 function cerrar() {
@@ -308,8 +345,21 @@ function cerrar() {
 }
 
 function analize() {
-  var text = document.getElementById("entrada").value;
-  eel.analize(text);
+  /*var text = document.getElementById("entrada").value;
+  eel.analize(text);*/
+
+  var text1 = document.getElementsByClassName("tab-pane fade active show");
+  var text2 = text1[0].getElementsByClassName("form-control");
+  var text3 = text2[0].value;
+
+  console.log(text3);
+  eel.analize(text3);
+  toastr.info('Ejecutando script','TytusDB',{
+    "closeButton": true,
+    "progressBar":true,
+    "positionClass": "toast-top-center",
+    "preventDuplicates": true,
+  });
 }
 
 
