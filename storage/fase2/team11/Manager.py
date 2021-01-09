@@ -388,22 +388,59 @@ def extractRow(database, name_table, columns):
     else: return []
 
 
-def update(database, name_table, register, columns):
-    metadata_db, indexDB = get_metadata_db(database)
+def update(database, name_table, register: dict, columns):
+    metadata_db, index_metadata = get_metadata_db(database)
     if metadata_db:
-        struct = get_struct(metadata_db.get_mode())
-        data = struct.extractRow(database, name_table, columns).copy()
-        status = struct.update(database, name_table, register, columns)
-        if status == 0:
-            if flag_block:
-                block: BlockChain = get_block_chain(name_table)
-                id_block = block.get_block(data)
-                if block and id_block:
-                    block.update(register, id_block)
-                    #block.graficar()
-        return status
+        if name_table in metadata_db.get_tab():
+            struct = get_struct(metadata_db.get_mode())
+            if metadata_db.get_encondig().lower().strip() == "ascii":
+                if encodi_ascii_decod(register.values(),"ascii") != 1:
+                    data = struct.extractRow(database, name_table, columns).copy()
+                    status = struct.update(database, name_table, register, columns)
+                    if status == 0:
+                        if flag_block:
+                            block: BlockChain = get_block_chain(name_table)
+                            id_block = block.get_block(data)
+                            if block and id_block:
+                                block.update(register, id_block)
+                                #block.graficar()
+                    return status
+                else:
+                    return 1
+            elif metadata_db.get_encondig().lower().strip() == "utf-8":
+                if encodi_utf_decod(register.values(),"utf-8") !=1:
+                    data = struct.extractRow(database, name_table, columns).copy()
+                    status = struct.update(database, name_table, register, columns)
+                    if status == 0:
+                        if flag_block:
+                            block: BlockChain = get_block_chain(name_table)
+                            id_block = block.get_block(data)
+                            if block and id_block:
+                                block.update(register, id_block)
+                                #block.graficar()
+                    return status
+                else:
+                    return 1
+            elif metadata_db.get_encondig().lower().strip() == "iso-8859-1":
+                if encodi_iso_decod(register.values(),"iso-8859-1") !=1:
+                    data = struct.extractRow(database, name_table, columns).copy()
+                    status = struct.update(database, name_table, register, columns)
+                    if status == 0:
+                        if flag_block:
+                            block: BlockChain = get_block_chain(name_table)
+                            id_block = block.get_block(data)
+                            if block and id_block:
+                                block.update(register, id_block)
+                                #block.graficar()
+                    return status
+                else:
+                    return 1
+            else:
+                return 1
+        else:
+            return 3
     else:
-        return 1
+        return 2
 
 
 
