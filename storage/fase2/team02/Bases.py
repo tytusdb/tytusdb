@@ -6,6 +6,7 @@ from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as j
 from storage.Hash import HashMode as Hash
 import zlib
+import hashlib
 # from storage.HashWindows import HashMode as Hash
 
 currentMode,avlList,bList,bplusList,dictList,jsonList,isamList,hashList = [],[],[],[],[],[],[],[]
