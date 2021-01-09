@@ -559,6 +559,56 @@ def alterTableDecompress(database, table):
         return 1
     
     
+# FIRST REPORT GRAPH
+def graphDSD(database):
+    try:
+        dictionaryFK = load('FK')
+        listValues = FKDatabse(dictionaryFK, database)
+        dictionaryAux = {}
+        counter = 0
+
+        dictDatabases = load('metadata')
+        if dictDatabases.get(database) is None:
+            return None
+
+        string = 'digraph G{\n'
+        string += f'label = "DIAGRAMA DE ESTRUCTURA DE DATOS: {database}"\n'
+        string += 'labelloc = \"t\"\n'
+        string += 'fontsize = \"30\"\n'
+        string += 'edge[ arrowhead = \"open\" ]\n'
+        string += "node[shape = \"ellipse\", fillcolor = \"turquoise\", style = \"filled\", fontcolor = \"black\" ]\n"
+
+        for element in range(0, len(listValues)):
+            listElement = listValues[element]
+            start = listElement[4]
+            end = listElement[2]
+
+            if dictionaryAux.get(start) is None:
+                dictionaryAux[start] = [start, counter]
+                counter += 1
+            if dictionaryAux.get(end) is None:
+                dictionaryAux[end] = [end, counter]
+                counter += 1
+
+            valuesStart = dictionaryAux.get(start)
+            valuesEnd = dictionaryAux.get(end)
+            string += f'node{valuesStart[1]} -> node{valuesEnd[1]}\n'
+
+        for key in dictionaryAux:
+            values = dictionaryAux.get(key)
+            string += f'node{values[1]} [ label = "{values[0]}"]\n'
+
+        string += '}'
+        file = open("DSD.dot", "w")
+        file.write(string)
+        file.close()
+        os.system("dot -Tpng DSD.dot -o DSD.png")
+
+        return string
+    except:
+        return None
+
+    
 # ---------------------------------------------- AUXILIARY FUNCTIONS  --------------------------------------------------
 # SHOW DICTIONARY
 def showDict(dictionary):
@@ -800,6 +850,17 @@ def tupleGraph(list_):
     file.close()
     os.system("circo -Tpng List.circo -o List.png")   
     
+
+# FIRST REPORT GRAPH: SELECT ONLY ONE DATABASE
+def FKDatabse(dictionary, database):
+    listValues = []
+    for key in dictionary:
+        values = dictionary[key]
+        if values[0] == database:
+            listValues.append(values)
+
+    return listValues
+
 
 # ------------------------------------------------------ FASE 1 --------------------------------------------------------
 # -------------------------------------------------- Table CRUD --------------------------------------------------------
