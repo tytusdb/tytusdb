@@ -18,7 +18,7 @@ from storage.dict import DictMode as mdict
 from storage.hash import HashMode as thash
 from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as json
-
+import codificacion
 import os, pickle, csv
 
 
