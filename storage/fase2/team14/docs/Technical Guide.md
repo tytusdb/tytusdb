@@ -348,6 +348,12 @@ Método que elimina la tabla `table` de la base de datos `database`. El flujo de
 ## Tablas
 - [Definición de llave primaria "*alterAddPK*"](#alterAddPK)
 - [Eliminación de llave primaria "*alterDropPK*"](#alterDropPK)
+- [Definición de llave foranea "*alterTableAddFK*"](#alterTableAddFK)
+- [Eliminación de llave foranea "*alterTableDropFK*"](#alterTableDropFK)
+- [Definición de índice único "*alterTableAddUnique*"](#alterTableAddUnique)
+- [Eliminación de índice único "*alterTableDropUnique*"](#alterTableDropUnique)
+- [Definición de índice "*alterTableAddIndex*"](#alterTableAddIndex)
+- [Eliminación de índice "*alterTableDropIndex*"](#alterTableDropIndex)
 - [Inserción de columna "*alterAddColumn*"](#alterAddColumn)
 - [Eliminación de Columna "*alterDropColumn*"](#alterDropColumn)
 - [Inserción de Tuplas "*insert*"](#insert)
@@ -385,6 +391,92 @@ Método que desvincula la llave primaria de los registros de la tabla `table` en
 - 2: Base de datos no existente.
 - 3: Tabla no existente.
 - 4: Llave primaria no definida.
+
+### alterTableAddFK
+```python 
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+```
+
+Método que vincula una llave foránea en la tabla `table` en la base de datos `database` y utilizando la tabla de referencia `tableRef` para las llaves primarias, almacenando las referencias de `tableRef` en un nuevo archivo y manejando como metadato `indexName` para poder encontrarlo más rápido. El flujo de este método comienza con el método [initCheck](#initCheck), se extrae la lista de bases de datos del servidor con el método [rollback](#rollback) guardando esto en una lista temporal y el método retorna una lista con los nombres de las bases de datos existentes, se comprueba que exista `database`, de existir se procede a buscar las tablas asociadas a esta base de datos con el método [rollback](#rollback), se retorna una lista con los nombres de las tablas, si `table` y `tableRef` se encuentran en esta lista se procederá a verificar la integridad referencial dentro de `tableRef`, si se cumple la integridad se procede a crear el nuevo metadato y la nueva estructura donde se almacenará la tabla de referencia, posteriormente para actualizar los atributos de la tabla se utiliza el metodo [commit](#commit).
+
+#### Valores de Retorno:
+- 0: Se ha vinculado la llave.
+- 1: Error en la operación.
+- 2: Base de datos no existente.
+- 3: Tabla no existente.
+- 4: Cantidad no exacta entre columns y columnsRef.
+- 5: No se cumple la integridad referencial
+
+### alterTableDropFK
+```python 
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+```
+
+Método que desvincula una llave foránea en la tabla `table` en la base de datos `database`, mediante el atributo `indexName` se procede a buscar si el metadato existe al igual que la estructura que almacena las referencias. El flujo de este método comienza con el método [initCheck](#initCheck), se extrae la lista de bases de datos del servidor con el método [rollback](#rollback) guardando esto en una lista temporal y el método retorna una lista con los nombres de las bases de datos existentes, se comprueba que exista `database`, de existir se procede a buscar las tablas asociadas a esta base de datos con el método [rollback](#rollback), se retorna una lista con los nombres de las tablas, si `table` y `tableRef` se encuentra en esta lista se procederá buscar el `indexName` dentro de los metadatos de la tabla, de ser así se procede a eliminar tanto el metadato como la estructura que almacena las referencias, posteriormente para actualizar los atributos de la tabla se utiliza el metodo [commit](#commit).
+
+#### Valores de Retorno:
+- 0: Se ha eliminado la llave.
+- 1: Error en la operación.
+- 2: Base de datos no existente.
+- 3: Tabla no existente.
+- 4: Nombre de índice no existente.
+
+### alterTableAddUnique
+```python 
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
+```
+
+Método que vincula un índice único en la tabla `table` en la base de datos `database`, manejando como metadato `indexName` para poder encontrarlo más rápido y creando una estructura donde se almacena las columnas que pertenecen al índice. El flujo de este método comienza con el método [initCheck](#initCheck), se extrae la lista de bases de datos del servidor con el método [rollback](#rollback) guardando esto en una lista temporal y el método retorna una lista con los nombres de las bases de datos existentes, se comprueba que exista `database`, de existir se procede a buscar las tablas asociadas a esta base de datos con el método [rollback](#rollback), se retorna una lista con los nombres de las tablas, si `table` se encuentra en esta lista se procederá a verificar la integridad referencial dentro de `table`, si se cumple la integridad se procede a crear el nuevo metadato y la nueva estructura donde se almacenarán las columnas que forman parte del índice, posteriormente para actualizar los atributos de la tabla se utiliza el metodo [commit](#commit).
+
+#### Valores de Retorno:
+- 0: Se ha vinculado el índice.
+- 1: Error en la operación.
+- 2: Base de datos no existente.
+- 3: Tabla no existente.
+- 4: Cantidad no exacta entre columns y columnsRef.
+- 5: No se cumple la integridad referencial
+
+### alterTableDropUnique
+```python 
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+```
+
+Método que elimina el índice único en la tabla `table` en la base de datos `database`, buscando como metadato de la tabla el atributo `indexName`. El flujo de este método comienza con el método [initCheck](#initCheck), se extrae la lista de bases de datos del servidor con el método [rollback](#rollback) guardando esto en una lista temporal y el método retorna una lista con los nombres de las bases de datos existentes, se comprueba que exista `database`, de existir se procede a buscar las tablas asociadas a esta base de datos con el método [rollback](#rollback), se retorna una lista con los nombres de las tablas, si `table` se encuentra en esta lista se procederá a verificar si existe el metadato dentro de la tabla, de ser así se eliminará tanto metadato como la estructura donde se almacenan las columnas que forman parte del índice, posteriormente para actualizar los atributos de la tabla se utiliza el metodo [commit](#commit).
+
+#### Valores de Retorno:
+- 0: Se ha eliminado el índice.
+- 1: Error en la operación.
+- 2: Base de datos no existente.
+- 3: Tabla no existente.
+- 4: Nombre de índice no existente.
+
+### alterTableAddIndex
+```python 
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
+```
+
+Método que vincula un índice en la tabla `table` en la base de datos `database`, manejando como metadato `indexName` para poder encontrarlo más rápido y creando una estructura donde se almacena las columnas que pertenecen al índice. El flujo de este método comienza con el método [initCheck](#initCheck), se extrae la lista de bases de datos del servidor con el método [rollback](#rollback) guardando esto en una lista temporal y el método retorna una lista con los nombres de las bases de datos existentes, se comprueba que exista `database`, de existir se procede a buscar las tablas asociadas a esta base de datos con el método [rollback](#rollback), se retorna una lista con los nombres de las tablas, si `table` se encuentra en esta lista, se procede a crear el nuevo metadato y una nueva estructura donde se almacenarán las columnas que forman parte del índice, posteriormente para actualizar los atributos de la tabla se utiliza el metodo [commit](#commit).
+
+#### Valores de Retorno:
+- 0: Se ha vinculado el índice.
+- 1: Error en la operación.
+- 2: Base de datos no existente.
+- 3: Tabla no existente.
+- 4: Cantidad no exacta entre columns y columnsRef.
+
+### alterTableDropIndex
+```python 
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+```
+
+Método que elimina el índice vinculado a la tabla `table` en la base de datos `database`, buscando como metadato de la tabla el atributo `indexName`. El flujo de este método comienza con el método [initCheck](#initCheck), se extrae la lista de bases de datos del servidor con el método [rollback](#rollback) guardando esto en una lista temporal y el método retorna una lista con los nombres de las bases de datos existentes, se comprueba que exista `database`, de existir se procede a buscar las tablas asociadas a esta base de datos con el método [rollback](#rollback), se retorna una lista con los nombres de las tablas, si `table` se encuentra en esta lista se procederá a verificar si existe el metadato dentro de la tabla, de ser así se eliminará tanto metadato como la estructura donde se almacenan las columnas que forman parte del índice, posteriormente para actualizar los atributos de la tabla se utiliza el metodo [commit](#commit).
+
+#### Valores de Retorno:
+- 0: Se ha eliminado el índice.
+- 1: Error en la operación.
+- 2: Base de datos no existente.
+- 3: Tabla no existente.
+- 4: Nombre de índice no existente.
 
 ### alterAddColumn
 ```python
@@ -542,3 +634,22 @@ def loadCSV(file: str, database: str, table: str) -> list:
 
 Método que lee todos los registros en el archivo `file` y los inserta en la tabla `table` en la base de datos `database`. El flujo de este método con declarar una lista para almacenar los registros que se inserten a la tabla, con la función open de la librería de archivos csv leemos todas las líneas del archivo `file` y se agregan a una lista auxiliar. Se recorren todos los registros que tiene la lista auxiliar, en cada iteración del recorrido de la lista auxiliar se insertan los registros a la tabla `table` utilizando el metodo [insert](#insert) con los datos de cada fila como parametros, si se insertan sin conflicto los registros se añaden a la lista principal del método, al terminar de leer el archivo se retorna la lista con los registros que se insertaron exitosamente. Si existe algún error o el archivo se encuentra vacío se retornara una lista vacía.
 
+### graphDSD
+```python
+def graphDSD(database: str) -> str:
+```
+Genera el diagrama de estructura de datos de `database`. El flujo de este método es verificar que `database` exista dentro del registro de las bases de datos, de ser así, se procede a verificar todos los vinculos que poseen entre sí todas las tablas registradas dentro de la base de datos, posteriormente se genera un archivo .DOT y un archivo .PNG para poder visualizar el diagrama generado.
+
+#### Valores de Retorno:
+- Archivo en formato Graphviz para dibujar.
+- None: Si hay un error.
+
+### graphDF
+```python
+def graphDF(database: str, table: str) -> str:
+```
+Genera el diagrama de dependencias de una tabla ubicada dentro de una base de datos. El flujo de este método es verificar que `database` exista dentro del registro de las bases de datos, de ser así, se verifica que `table` exista dentro del registro de tablas, de ser así, se procede a verificar las dependencias que poseen las columnas entre sí, luego se procede a generar el archivo .DOT y un archivo .PNG donde se podrá visualizar el diagrama generado.
+
+#### Valores de Retorno:
+- Archivo en formato Graphviz para dibujar.
+- None: Si hay un error.

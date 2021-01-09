@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../services/api.service'
+import { Mandar } from 'src/app/model/mandar';
 
 @Component({
   selector: 'app-newdatabase',
@@ -7,7 +9,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NewdatabaseComponent implements OnInit {
   message: string;
-  constructor() {
+  publicar:Mandar={
+    codigo: ''
+  };
+  constructor( private apiService: ApiService ) {
   
    }
 
@@ -17,8 +22,18 @@ export class NewdatabaseComponent implements OnInit {
   createdatabase(name: string, event:Event)
   {
     console.log(`Nombre: ${name}`); 
+    this.publicar.codigo="CREATE DATABASE IF NOT EXISTS "+name+"\
+    OWNER = 'BD_Grupo3'\
+    MODE = 1;";
+    this.apiService.postquery(this.publicar)
+      .subscribe(
+        res => {
+          console.log(res)
+        },
+        err => console.log(err)
+      )
     this.message = "Se creo la base de datos";
-    alert(`Creando base de datos: ${name}`);
+    alert(`Se creo la base de datos: ${name}`);
   }
 
 }

@@ -55,6 +55,15 @@ def validar_Usuario(user_val):
         return jsonify({"mensaje": "Exito"})
     return jsonify({"mensaje": "Error"})
 
+#Verificacion del usuario si existe
+@app.route('/login/<string:user_val>')
+def validar_Usuari1(user_val):
+    user_val_ = user_val.split('-')
+    user_validado = [user for user in usuarios if user['name'] == user_val_[0] and user['password'] == user_val_[1] ]
+    if (len(user_validado) > 0):
+        return jsonify({"mensaje": "Exito"})
+    return jsonify({"mensaje": "Error"})
+
 #Insercion de usuarios a la lista
 @app.route('/login/nuevo', methods=['POST'])
 def agregar_usuario():
@@ -74,7 +83,7 @@ def Ejecutar():
     #f = open ('TytusTest.sql','r')
     #texto = f.read()
     #print(texto)
-    f.close()
+    #f.close()
     instrucciones = g.parse(texto)
     erroresSemanticos = []
     salida = ""

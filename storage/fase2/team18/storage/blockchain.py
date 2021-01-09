@@ -72,6 +72,18 @@ class blockchain:
         file.close()
         # self.graficar(database, table)
     
+    def dropAddColumn(self, row1, row2, database, table):
+        ldata = ",".join(str(x) for x in row1)
+        lnewData = ",".join(str(x) for x in row2)
+        h1 = sha.generate(ldata)
+        h2 = sha.generate(lnewData)
+        dic = {}
+        y=1
+        for x in row2:
+            dic.update({y:x})
+            y+=1
+        self.update(dic, h1, database, table, h2)
+
     def delete(self, registro, database, table):
         file = open("./Data/security/"+database+"_"+table+".json", "r")
         lista = json.loads(file.read())
@@ -152,3 +164,20 @@ class blockchain:
             f.close()
             os.system('dot -Tpng ./Data/security/'+database+'_'+table+'.dot -o tupla.png')
             os.system('tupla.png')
+        
+    def fail(self, database, table):
+        file = open("./Data/security/"+database+"_"+table+".json", "r")
+        lista = json.loads(file.read())
+        file.close()
+        if type(lista)!=list:
+            lista = []
+        for x in lista:
+            if x['Estructure']=='incorrecta':
+                return True
+        return False
+
+    
+    def activo(self, database, table):
+        if os.path.isfile("./Data/security/"+database+"_"+table+".json"):
+            return True
+        return False
