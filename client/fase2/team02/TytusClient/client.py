@@ -47,7 +47,7 @@ class Example(Frame):
         self.lbl2 = Label(self, text="Consola")
         self.lbl2.grid(row=2, column=1)
         #Textbox de la consola, aqui se debe mostrar la data que devuelve el proyecto de compi
-        self.areaConsole = Text(self,height=10,state='disabled')
+        self.areaConsole = Text(self,height=10)
         self.areaConsole.grid(row=3, column=1,padx=5, sticky=E + W )
 
 
@@ -127,6 +127,8 @@ class Example(Frame):
 
 # METODO PARA ENVIAR QUERYS AL SERVIDOR
     def run(self):
+        self.areaConsole.config(state='normal')
+        self.areaConsole.delete(1.0, "end")
         active_object = self.nb.nametowidget(self.nb.select())
         try: 
             cadena = active_object.area.get("sel.first", "sel.last")
@@ -135,21 +137,23 @@ class Example(Frame):
             print(nueva)
         except:          
             query = str(active_object.area.get("1.0", 'end-1c'))
-            url = "http://localhost:10000/query"
-            data = {'query' : query}
-            response = requests.post(url, json = data)
-            if response.status_code == 200:
-                response_json = response.json()
-                print(response_json['msj'])
-                messagebox.showinfo("TytusDB",response_json['msj'])
-                return True
-            else:
-                messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
-                root.destroy()
-                return False 
-            cadena2 =  messagebox.showinfo("Helo",active_object.area.get("1.0",'end-1c'))
+            if len(query) != 0:
+                url = "http://localhost:10000/query"
+                data = {'query' : query}
+                response = requests.post(url, json = data)
+                if response.status_code == 200:
+                    response_json = response.json()
+                    print(response_json['msj'])
+                    self.areaConsole.insert(tk.INSERT,response_json['msj'])
+                    return True
+                else:
+                    messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
+                    root.destroy()
+                    return False 
+            cadena2 = messagebox.showinfo("TytusDB", "Escriba un query para procesarlo.")
             nuevaV = str(cadena2).upper()
             print(nuevaV)
+            self.areaConsole.config(state='disable')
 
         #print(self.nb.index(self.nb.select()))
         #print(self.nb.tab(self.nb.select(), "text"))
