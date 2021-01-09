@@ -559,6 +559,118 @@ class main():
             return 1
 
     # ---------------------FUNCIONES DE GRAFOS----------------------#
+    # GRAFICA LA RELACION DE LAS TABLAS Y SUS LLAVES FORANEAS
+
+    def graphDSD(self, database):
+        try:
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database, i):
+                    tables = self.showTables(database)
+                    if len(tables) != 0:
+                        clave = True
+                        break
+                    else:
+                        return None
+            if clave:
+                f = open('relacionesBD.dot', 'w', encoding='utf-8')
+                f.write("digraph dibujo {\n")
+                f.write('node [shape=record];\n')
+                f.write('graph [ranksep = 2, nodesep = 1.5 ,rankdir=TB]\n')
+                f.write("subgraph clusterA {\n")
+                f = self._graphDSC(f, database, tables)
+                f.write('label = "' + database + '";\n color="red"')
+                f.write('}')
+                f.write('}')
+                f.close()
+                os.system('dot -Tsvg relacionesBD.dot -o relacionesBD.svg')
+                os.system("relacionesBD.svg")
+                return f
+            else:
+                return None
+        except:
+            return None
+
+    # GRAFICA LAS RELACIONES EXISTENTES ENTRE UNA TABLE Y SUS IDENTIFICADORES UNICOS
+
+    def _graphDSC(self, f, database, tables):
+        if database in self.fk.keys():
+            for z in tables:
+                nombre = "Table_" + z
+                f.write(nombre + ' [ label = "' + str(z) + '",fillcolor = "#ff9d3f", style = filled];\n')
+            for a in self.fk[database].keys():
+                for b in self.fk[database][a]:
+                    f.write("Table_" + str(a) + '->' + "Table_" + self.fk[database][a][b][2] + ' [label="' + b + '"];\n')
+        else:
+            for z in tables:
+                nombre = "Table_" + z
+                f.write(nombre + ' [ label = "' + str(z) + '",fillcolor = "#ff9d3f", style = filled];\n')
+        return f
+
+    # GRAFICA LAS RELACIONES EXISTENTES ENTRE UNA TABLE Y SUS IDENTIFICADORES UNICOS
+
+    def graphDF(self, database, table):
+        try:
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database, i):
+                    if self.searchTB(database, table):
+                        clave = True
+                        break
+            if clave:
+                f = open('relacionesTB.dot', 'w', encoding='utf-8')
+                f.write("digraph dibujo {\n")
+                f.write('node [shape=record];\n')
+                f.write('graph [ranksep = 5, nodesep = 0.5 ,rankdir=LR]\n')
+                f.write("subgraph clusterA {\n")
+                f = self._graphDF(f, database, table)
+                f.write('label = "' + database + ": " + table + '";\n color="blue"')
+                f.write('}')
+                f.write('}')
+                f.close()
+                os.system('dot -Tsvg relacionesTB.dot -o relacionesTB.svg')
+                os.system("relacionesTB.svg")
+                return f
+            else:
+                return None
+        except:
+            return None
+
+    def _graphDF(self, f, database, table):
+        pk = self.getPK(database, table)
+        c = self.getNumColumns(database, table)
+        u = {}
+        t = list()
+        aux = list()
+        if database in self.Betzy.keys():
+            if table in self.Betzy[database].keys():
+                for indexName in self.Betzy[database][table].keys():
+                    u[indexName] = self.Betzy[database][table][indexName][0]
+                    t.append(self.Betzy[database][table][indexName][0])
+        for h in t:
+            for z in h:
+                aux.append(z)
+        for i in range(c + 1):
+            clave = True
+            for index in u.keys():
+                if i in u[index]:
+                    f.write("Nodo_U_" + str(i) + ' [ label = "<f0>' + str(index) + ' |<f1>' + str(i) + '", fillcolor = "#b2dfdb", style = filled];\n')
+                    clave = False
+                    break
+            if i in pk:
+                f.write("Nodo_PK_" + str(i) + ' [ label = "<f0> PK |<f1>' + str(i) + '", fillcolor = "#82ada9", style = filled];\n')
+                clave = False
+            if clave:
+                f.write("Nodo_" + str(i) + ' [ label = "<f0>' + str(i) + '", fillcolor = "#e5ffff", style = filled];\n')
+        for j in pk:
+            for k in range(c + 1):
+                if k not in aux and k not in pk:
+                    f.write("Nodo_PK_" + str(j) + ':f0 ->' + "Nodo_" + str(k) + ':f0; \n')
+        for d in aux:
+            for e in range(c + 1):
+                if e not in pk and e not in aux:
+                    f.write("Nodo_U_" + str(d) + ':f0 ->' + "Nodo_" + str(e) + ':f0; \n')
+        return f
 
     #---------------------FUNCIONES BASES DE DATOS (ANTERIORES)----------------------#
 
