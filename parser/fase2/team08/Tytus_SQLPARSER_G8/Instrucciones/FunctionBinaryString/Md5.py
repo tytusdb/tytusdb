@@ -3,6 +3,7 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 import hashlib 
 class Md5(Instruccion):
     def __init__(self, valor, tipo, strGram, linea, columna):
@@ -25,10 +26,17 @@ class Md5(Instruccion):
         return error
     
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        pass
+        super().traducir(tabla, arbol)
+        if isinstance(self.valor, Primitivo):
+            return f"MD5({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"MD5({self.valor.concatenar(tabla,arbol)})"
+        elif isinstance(self.valor, str) or isinstance(self.valor, int):
+            return f"MD5({self.valor})"
+        return f"MD5({self.valor.traducir(tabla,arbol)})"
     
 '''
 instruccion = Md5("hola mundo",None, 1,2)

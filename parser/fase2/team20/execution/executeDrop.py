@@ -16,7 +16,7 @@ def executeDropDatabase(self,database):
         elif res==8:
             return jsonMode.dropDatabase(database.name)
         else:
-            print_error("SEMANTIC ERROR","Mode between 1-5")
+            print_error("SEMANTIC ERROR","Mode between 1-5",2)
     else:
         res=TCSearchDatabase(database.name)
         if res==1:
@@ -30,7 +30,7 @@ def executeDropDatabase(self,database):
         elif res==8:
             return jsonMode.dropDatabase(database.name)
         else:
-            print_error("SEMANTIC ERROR","Mode between 1-5")
+            print_error("SEMANTIC ERROR","Mode between 1-5",2)
 
 def executeDropTable(self,table):
     database=TCgetDatabase()
@@ -46,7 +46,7 @@ def executeDropTable(self,table):
     elif res==8:
         return jsonMode.dropTable(database,table.name)
     else:
-        print_error("SEMANTIC ERROR","Mode between 1-5")
+        print_error("SEMANTIC ERROR","Mode between 1-5",2)
 
 def executeDropIndex(self,index):
     database=TCgetDatabase()
@@ -62,4 +62,4 @@ def executeDropIndex(self,index):
     elif res==8:
         return TCDropIndex(database,index.name)
     else:
-        print_error("SEMANTIC ERROR","Mode between 1-5")
+        print_error("SEMANTIC ERROR","Mode between 1-5",2)

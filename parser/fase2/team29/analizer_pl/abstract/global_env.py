@@ -1,3 +1,6 @@
+from analizer_pl import grammar
+
+
 class FunctionSymbol:
     def __init__(self, type_, id, returnType, params) -> None:
         self.id = id
@@ -9,6 +12,7 @@ class FunctionSymbol:
 class GlobalEnvironment:
     def __init__(self) -> None:
         self.functions = {}
+        self.isBlock = False
 
     def addFunction(self, type_, id, returnType, params):
         if id not in self.functions:
@@ -28,4 +32,6 @@ class GlobalEnvironment:
         if id in self.functions:
             del self.functions[id]
             return True
+        grammar.PL_errors.append("Error P0000: No se pudo eliminar " + id)
+        grammar.semantic_errors.append(["No se pudo eliminar " + id, ""])
         return None

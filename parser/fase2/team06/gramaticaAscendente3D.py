@@ -244,7 +244,8 @@ reservadas = {
     'language' : 'LANGUAGE',
     'plpgsql' : 'PLPGSQL',
     'rowtype' : 'ROWTYPE',
-    'alias' : 'ALIAS'
+    'alias' : 'ALIAS',
+    'return' : 'RETURN'
 
 
 # revisar funciones de tiempo y fechas
@@ -445,10 +446,20 @@ def p_inicio_1(t) :
     a+="from storageManager import jsonMode as j\n"
     a+="import pandas as pd\n"
     a+="import time\n"
+    a+="from goto import with_goto\n"
+    a+="import sys\n"
     a+="from decimal import Decimal, getcontext\n\n\n"
     
     print("trae: ",t[1])
-    a+=t[1]
+    a+="def main():\n"
+    j=t[1].splitlines()
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n"
+    a+=salida
+    a+="if __name__ == \"__main__\":\n"
+    a+="   main()"
     t[0]=a
 
     
@@ -576,7 +587,7 @@ def p_crear_replace_param_BaseDatos_1(t):
     parametro = ""
     for param in t[6]:
         parametro+=param+" "
-    a="t"+str(h.conteoTemporales)+"= \"CREATE OR REPLACE DATABASE ID "+str(t[5])+" "+ str(parametro)+";\"\n"
+    a="t"+str(h.conteoTemporales)+"= \"CREATE OR REPLACE DATABASE "+str(t[5])+" "+ str(parametro)+";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
@@ -1700,10 +1711,10 @@ def p_funcionJJBH_basica(t):
         print("esta no")
     elif t[1].upper()=="EXTRACT":
         print("si llega al extract", t[6])
-        pex=t[6].replace("\\\'","\"")
+        pex=t[6].replace("\\\'","")
         print(pex)
-        ex3=time.strptime(pex,"%Y-%m-%d %H:%M:%S")
-        print(str(ex3))
+        ex3=time.strptime(str(pex),"%Y-%m-%d %H:%M:%S")
+        print("valores: ",str(ex3))
         print(t[3])
         if t[3]=="YEAR":
             res=ex3.tm_year
@@ -2171,12 +2182,12 @@ def p_final_cadena(t):
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
     'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
-    parametro = ""
-    for param in t[6]:
-        parametro+=param+","
-    param = parametro[:-1]
+    #parametro = ""
+    #for param in t[6]:
+    #    parametro+=param+","
+    #param = parametro[:-1]
     
-    a="t"+str(h.conteoTemporales)+"= \"INSERT INTO "+str(t[3])+" VALUES ( "+str(param)+" );\"\n"
+    a="t"+str(h.conteoTemporales)+"= \"INSERT INTO "+str(t[3])+" VALUES ( "+str(t[6])+" );\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
@@ -2192,13 +2203,13 @@ def p_insertBD_2(t):
 def p_listaParam(t):
     '''listaParam         : listaParam COMA listaP
     '''
-    t[1].append(t[3])
-    t[0] = t[1]
+    #t[1].append(t[3])
+    t[0] = t[1] + ", " + t[3]
 
 def p_listaParam_2(t):
     '''listaParam           : listaP
     '''
-    t[0] = [t[1]]
+    t[0] = t[1]
 
 def p_listaP_1(t):
     'listaP                 : operacion'
@@ -2207,7 +2218,31 @@ def p_listaP_1(t):
 
 def p_listaP_2(t):
     'listaP             : ID operacion'
-    t[0] = t[1] +" "+ t[2]
+    remp1 = t[2].replace('(','')
+    remp2 = remp1.replace(')','')
+    remp3 = remp2.replace('[','')
+    remp4 = remp3.replace(']','')
+    remp5 = remp4.split(',')
+    conttt = 0
+    a = ''
+    for oper in remp5:
+        print(oper)
+        conttt+=1
+        if '\"' in oper:
+            remp6 = oper.replace('\"','')
+            remp7 = remp6.replace('\\','')
+            remp8 = remp7.replace('\'','')
+            remp9 = remp8.replace(' ','')
+            remp10 = "\\'"+remp9+"\\'"
+            a+=remp10
+        else:
+            remp6 = oper.replace('\\','')
+            remp7 = remp6.replace('\'','')
+            remp8 = remp7.replace(' ','')
+            a +=remp7
+        if conttt < len(remp5):
+            a+=', '
+    t[0] = t[1] +"("+a+")"
     print(t[0])
 
 def p_listaP_3(t):
@@ -2516,7 +2551,7 @@ def p_tipo_2(t):
 # -------------------------------------------------------------------------------------------------------------- 
 def p_tipo_3(t):
     'tipo               : DECIMAL PARENTESISIZQUIERDA ENTERO COMA ENTERO PARENTESISDERECHA '
-    t[0] = " DECIMAL ( " + str(t[3]) + " , " + str(t[5]) +" )"
+    t[0] = " DECIMAL(" + str(t[3]) + "," + str(t[5]) +")"
 
 
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
@@ -2815,29 +2850,58 @@ def p_otroTipoJoin(t):
 
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                                     LABEL
+def p_bloqueFuncion(t):
+    'bloqueFuncion     :        declaraciones_lista BEGIN queries RETURN ID PUNTOYCOMA END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    t[0]=t[1]+"\n"+t[3]+"\nreturn "+str(t[5])
+
+def p_bloqueFuncion_1(t):
+    'bloqueFuncion     :        BEGIN queries RETURN ID PUNTOYCOMA  END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA '
+    t[0]=t[2]+"\nreturn "+str(t[5])
+
+def p_bloqueFuncion_2(t):
+    'bloqueFuncion     :        declaraciones_lista BEGIN  RETURN ID PUNTOYCOMA END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA'
+    t[0]=t[1]+"\nreturn "+str(t[4])
+
+def p_bloqueFuncion_3(t):
+    'bloqueFuncion     :        BEGIN  RETURN ID PUNTOYCOMA  END PUNTOYCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOYCOMA '
+    t[0]="\nreturn "+str(t[3])
+
 def p_Function_1(t):
-    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR bloqueFuncion'
     a = 'salida=analizador.agregarFuncionaTS("'+t[3]+'",h.bd_enuso)\n'
     a+= 'salida=analizador.agregarVariableaTS("'+t[7]+'",None,h.bd_enuso,"'+t[3]+'")\n'
-
+    a+="@with_goto\n"
     a += "def "+t[3]+" ():\n"
-    a +='   print("FUNCTION")\n'
+     #a +='   print("FUNCTION")\n'
+    print(a)
+    j=t[11].splitlines()
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n#fin\n"
+    print("entra a la funcion 1")
+    a+=salida
+    print(a)
 
     t[0] = a
 
 def p_Function_2(t):
-    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    'createFunction             : CREATE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR bloqueFuncion'
     a = 'salida=analizador.agregarFuncionaTS("'+t[3]+'",h.bd_enuso)\n'
 
-    vartip = t[5].split(',')
-    conttemp1 = 0
+    parametro = ""
+    for param in t[5]:
+       parametro+=param+","
+    param = parametro[:-1]
+    
+    
+    vartip = param.split(',')
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[3]+'")\n'
-        conttemp1+=1
-    a+= 'salida=analizador.agregarVariableaTS("'+t[8]+'",None,h.bd_enuso,"'+t[3]+'")\n\n'
     
+    a+= 'salida=analizador.agregarVariableaTS("'+t[8]+'",None,h.bd_enuso,"'+t[3]+'")\n\n'
+    a+="@with_goto\n"
     a += "def "+t[3]+" ( "
     
     conttemp2 = 0
@@ -2848,9 +2912,16 @@ def p_Function_2(t):
         
         if conttemp2 < len(vartip):
             a+=", "
-        conttemp2+=1
+
     a +=" ):\n"
-    a +='   print("FUNCTION")\n'
+    #a +='   print("FUNCTION")\n'
+    j=t[12].splitlines()
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n#fin\n"
+    print("entra a la funcion 1")
+    a+=salida
 
     
 
@@ -2858,30 +2929,38 @@ def p_Function_2(t):
 
 
 def p_Function_3(t):
-    'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
+    'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR bloqueFuncion'
     a = 'salida=analizador.agregarFuncionaTS("'+t[5]+'",h.bd_enuso)\n'
     a+= 'salida=analizador.agregarVariableaTS("'+t[9]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
-
+    a+="@with_goto\n"
     a += "def "+t[5]+" ():\n"
-    a +='   print("REPLACE FUNCTION")'
+    j=t[14].splitlines()
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n#fin\n"
+    a+=salida
     t[0] = a
 
 
 def p_Function_4(t):
-    'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS ID AS DOLAR DOLAR'
-    vartip = t[7].split(',')
+    'createFunction             : CREATE OR REPLACE FUNCTION ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA RETURNS tipo AS DOLAR DOLAR bloqueFuncion'
+    #vartip = t[7].split(',')
     
     a = 'salida=analizador.agregarFuncionaTS("'+t[5]+'",h.bd_enuso)\n'
 
-    vartip = t[7].split(',')
-    conttemp1 = 0
+    parametro = ""
+    for param in t[7]:
+       parametro+=param+","
+    param = parametro[:-1]
+    
+    vartip = param.split(',')
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[5]+'")\n'
-        conttemp1+=1
+
     a += 'salida=analizador.agregarVariableaTS("'+t[10]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
-    
+    a+="@with_goto\n"
     a += "def "+t[5]+" ( "
     conttemp = 0
     for i in vartip:
@@ -2890,33 +2969,58 @@ def p_Function_4(t):
         conttemp+=1
         if conttemp < len(vartip):
             a+=", "
-        conttemp+=1
+
     a +=" ):\n"
-    a +='   print("REPLACE FUNCTION")\n'
+    #a +='   print("REPLACE FUNCTION")\n'
+    j=t[14].splitlines()
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n"
+    print("entra a la funcion 1")
+    a+=salida
 
     t[0] = a
+#-------------------------------------------------------------------------------------------------------------------------------
+#                       EMPIEZAN LOS PROCEDIMIENTOS
+def p_bloque(t):
+    'bloque     :        declaraciones_lista BEGIN queries END PUNTOYCOMA DOLAR DOLAR '
+    t[0]=t[1]+"\n"+t[3]
 
+def p_bloque_1(t):
+    'bloque     :        BEGIN queries END PUNTOYCOMA DOLAR DOLAR '
+    t[0]=t[2]
 
 def p_Procedure_1(t):
-    'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
+    'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR  bloque'
+    print(t[11])
+    j=t[11].splitlines()
     a = 'salida=analizador.agregarProcedureaTS("'+t[3]+'",h.bd_enuso)\n\n'
     a += "def "+t[3]+"():\n"
-    a += '   print("PROCEDURE")\n'
+    #a += '   print("PROCEDURE")\n'
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n#fin\n"
+    a+=salida
     t[0] = a
 
 def p_Procedure_2(t):
-    'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
-    vartip = t[5].split(',')
+    'createProcedure            : CREATE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR bloque'
+    #vartip = t[5].split(',')
     
     a = 'salida=analizador.agregarProcedureaTS("'+t[3]+'",h.bd_enuso)\n'
 
-    vartip = t[5].split(',')
-    conttemp1 = 0
+    parametro = ""
+    for param in t[5]:
+       parametro+=param+","
+    param = parametro[:-1]
+    print('---------',param)
+
+    vartip = param.split(',')
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[3]+'")\n'
-        conttemp1+=1
     
     a += "def "+t[3]+" ( "
     conttemp = 0
@@ -2926,33 +3030,50 @@ def p_Procedure_2(t):
         conttemp+=1
         if conttemp < len(vartip):
             a+=", "
-        conttemp+=1
+
     a +=" ):\n"
-    a +='   print("PROCEDURE")\n'
+    #a +='   print("PROCEDURE")\n'
+    j=t[12].splitlines()
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n#fin\n"
+    a+=salida
     t[0] = a
 
 def p_Procedure_3(t):
-    'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
+    'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR bloque'
     a = 'salida=analizador.agregarProcedureaTS("'+t[5]+'",h.bd_enuso)\n'
 
     a += "def "+t[3]+"():\n"
-    a += '   print("REPLACE PROCEDURE")\n'
+    a += "def "+t[5]+"():\n"
+    #a += '   print("REPLACE PROCEDURE")\n'
+    j=t[13].splitlines()
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n#fin\n"
+    a+=salida
     t[0] = a
 
 def p_Procedure_4(t):
-    'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR'
+    'createProcedure            : CREATE OR REPLACE PROCEDURE ID PARENTESISIZQUIERDA parametroproc PARENTESISDERECHA LANGUAGE PLPGSQL AS DOLAR DOLAR bloque'
 
-    vartip = t[7].split(',')
+    #vartip = t[7].split(',')
     
     a = 'salida=analizador.agregarProcedureaTS("'+t[5]+'",h.bd_enuso)\n'
 
-    vartip = t[7].split(',')
+    parametro = ""
+    for param in t[7]:
+       parametro+=param+","
+    param = parametro[:-1]
+
+    vartip = param.split(',')
     conttemp1 = 0
     for i in vartip:
         x = i.split(' ')
-        conttemp1+=1
         a+= 'salida=analizador.agregarVariableaTS("'+x[0]+'","'+x[1]+'",h.bd_enuso,"'+t[5]+'")\n'
-        conttemp1+=1
+
     a += 'salida=analizador.agregarVariableaTS("'+t[10]+'",None,h.bd_enuso,"'+t[5]+'")\n\n'
     
     a += "def "+t[5]+" ( "
@@ -2963,23 +3084,42 @@ def p_Procedure_4(t):
         conttemp+=1
         if conttemp < len(vartip):
             a+=", "
-        conttemp+=1
+
     a +=" ):\n"
-    a += '   print("REPLACE PROCEDURE")\n'
+    #a += '   print("REPLACE PROCEDURE")\n'
+    j=t[14].splitlines()
+    salida=""
+    for x in range(0,len(j)):
+        salida+="   "+str(j[x])+"\n"
+    salida+="\n#fin\n"
+    a+=salida
     t[0] = a
 
 
 def p_dropfunction(t):
-    'dropFunction               : DROP FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA'
+    '''dropFunction               : DROP FUNCTION ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA
+                                  | DROP PROCEDURE ID PARENTESISIZQUIERDA PARENTESISDERECHA PUNTOYCOMA
+    '''
     a='salida = analizador.procesar_dropFunction(h.bd_enuso,"'+t[3]+'")'
     t[0]=a
 
+
 #--------------------------------------------------------------------------------------------------------------------------------------------
 #                                               DECLARATIONS
+def p_declaraciones_lista(t):
+    'declaraciones_lista    :   declaraciones_lista declaraciones'
+    print("pasa por aca2")
+    a=t[1]+"\n"+t[2]
+    t[0]=a
+
+def p_declaraciones_lista_1(t):
+    'declaraciones_lista    :    declaraciones'
+    print("pasa por aca1")
+    t[0]=t[1]
 
 def p_declaraciones_1(t):
     'declaraciones      :   DECLARE ID tipo PUNTOYCOMA'
-    t[0]=str(t[1])+" "+str(t[2])
+    t[0]=str(t[2])+" = 0"
     simbolo = TS.Simbolo(None,t[2],t[3],None,h.bd_enuso,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,'Variable')
     TS.TablaDeSimbolos().agregarVariable(simbolo)
 
@@ -3080,15 +3220,16 @@ def p_declaraciones_7(t):
 
 def p_parametroproc_1(t):
     'parametroproc              : parametroproc COMA paramproc'
-    t[0] = t[1] +","+ t[3]
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_parametroproc_2(t):
     'parametroproc              : paramproc'
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 def p_paramproc_1(t):
     'paramproc                  : ID tipo'
-    t[0] = t[1] + t[2]
+    t[0] = t[1] + " " + t[2]
 
 #def p_paramproc_2(t):
 #    'paramproc                  : OUT ID tipo'
@@ -3163,10 +3304,11 @@ def p_statementValores_2(t):
 #----------------------------------------------------- IF --------------------------------------------------------------------
 def p_if_1(t):
     '''
-    if          : IF operacion THEN operacion ELSE ifAnidados END IF PUNTOYCOMA
+    if          : IF operacion THEN queries ELSE ifAnidados END IF PUNTOYCOMA
     '''
+    j=t[2].replace("\\'",'"')
     EtiquetasSalida =[]
-    a= "if "+str(t[2])+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
+    a= "if "+str(j)+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
     a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"
     a+= "label .L"+str(h.conteoEtiquetas)+"\n"+str(t[4])+"\n"
     a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"
@@ -3205,17 +3347,19 @@ def p_if_1(t):
     t[0]=a
 def p_if_2(t):
     '''
-    if          : IF  operacion THEN operacion END IF PUNTOYCOMA
+    if          : IF  operacion THEN queries END IF PUNTOYCOMA
     '''
-    a= "if "+str(t[2])+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
-    a+= "label .L"+str(h.conteoEtiquetas)+"\n  "+str(t[4])+"\n"
+    j=t[2].replace("\\'",'"')
+    a= "if "+str(j)+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
+    a+= "label .L"+str(h.conteoEtiquetas)+"\n"+str(t[4])+"\n"
     h.conteoEtiquetas+=1
     t[0]=a 
 def p_if_3(t):
     '''
-    if          : IF operacion THEN operacion ELSE operacion END IF PUNTOYCOMA
+    if          : IF operacion THEN queries ELSE queries END IF PUNTOYCOMA
     '''       
-    a= "if "+str(t[2])+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
+    j=t[2].replace("\\'",'"')
+    a= "if "+str(j)+":"+"\n"+"   goto .L"+str(h.conteoEtiquetas)+"\n"
     a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"
     a+= "label .L"+str(h.conteoEtiquetas)+"\n"+str(t[4])+"\n"
     a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"#salida
@@ -3238,22 +3382,25 @@ def p_ifAnidados_2(t):
 
 def p_ifFinal_1(t):
     '''
-    ifFinal          :  IF  operacion THEN operacion ELSE  
+    ifFinal          :  IF  operacion THEN queries ELSE   
     '''
-    t[0]=contIf(t[2],t[4],None)
+    j=t[2].replace("\\'",'"')
+    t[0]=contIf(j,t[4],None)
      
 
 def p_ifFinal_2(t):
     '''
-    ifFinal          : IF operacion THEN operacion ELSE operacion 
+    ifFinal          : IF operacion THEN queries ELSE queries 
     '''
-    t[0]=contIf(t[2],t[4],t[6])
+    j=t[2].replace("\\'",'"')
+    t[0]=contIf(j,t[4],t[6])
     
 #----------------------------------------------------- CASE --------------------------------------------------------------------
 def p_case_1(t):
     '''
     case          :  CASE operacion contCase END CASE PUNTOYCOMA
     '''
+    j=t[2].replace("\\'",'"')
     EtiquetasSalida =[]
     contenido = t[3]
     cases = len(contenido)
@@ -3265,7 +3412,7 @@ def p_case_1(t):
         contador=contador+1
         #a+= "IF "+str(t[2])+"=="+x.when+" goto L"+str(h.conteoEtiquetas)+":"+"\n"
         if x.elsee!=None and contador==cases: #VIENE UN ELSE EN ESTE CONTCASE Y ES EL ULTIMO, COMO DEBE SER
-            a+= "if "+str(t[2])+"=="+x.when+":   goto .L"+str(h.conteoEtiquetas)+"\n"
+            a+= "if "+str(j)+"=="+x.when+":   goto .L"+str(h.conteoEtiquetas)+"\n"
             a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"
             a+= "label .L"+str(h.conteoEtiquetas)+"\n"+x.then+"\n"
             a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"#ir a etiqueta de salida
@@ -3273,7 +3420,7 @@ def p_case_1(t):
             a+= "label .L"+str(h.conteoEtiquetas+1)+"\n"+x.elsee+"\n"
             h.conteoEtiquetas+=3
         elif x.elsee==None:
-            a+= "if "+str(t[2])+"=="+x.when+":  goto .L"+str(h.conteoEtiquetas)+"\n"
+            a+= "if "+str(j)+"=="+x.when+":  goto .L"+str(h.conteoEtiquetas)+"\n"
             a+= "goto .L"+str(h.conteoEtiquetas+2)+"\n"
             a+= "label .L"+str(h.conteoEtiquetas)+"\n"+x.then+"\n"
             a+= "goto .L"+str(h.conteoEtiquetas+1)+"\n"#ir a etiqueta de salida
@@ -3309,18 +3456,18 @@ def p_contCase_4(t):
 
 def p_contCaseFinal_1(t):
     '''
-    contCaseFinal      :  WHEN operacion THEN operacion ELSE operacion
+    contCaseFinal      :  WHEN operacion THEN queries ELSE queries
     '''
-  
-    t[0]=contCase(t[2],t[4],None,t[6])
+    j=t[2].replace("\\'",'"')
+    t[0]=contCase(j,t[4],None,t[6])
 
 def p_contCaseFinal_2(t):
     '''
-    contCaseFinal      :  WHEN operacion THEN operacion
+    contCaseFinal      :  WHEN operacion THEN queries
     '''
- 
+    j=t[2].replace("\\'",'"')
     #(self, when,then,contcase, elsee):
-    t[0]=contCase(t[2],t[4],None,None)
+    t[0]=contCase(j,t[4],None,None)
     
 def p_statements(t):
     '''
@@ -3345,7 +3492,8 @@ def p_execFunction_1(t):
     for param in t[4]:
         parametro+=param+","
     param = parametro[0:-1]
-    a="print("+str(t[2])+ "(" + param + "))"  + "\n"
+    par = param.replace("\\'","\"")
+    a="print("+str(t[2])+ "(" + par + "))"  + "\n"
     t[0]= a
 
 def p_execFunction_2(t):
@@ -3364,37 +3512,31 @@ def p_execOption_2(t):
 #                                           STATEMENTS - INDEX
 #-----------------------------------------------------CREATE INDEX--------------------------------------------------------------------
 def p_createIndex(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     parametro = ""
     for param in t[7]:
-        parametro+=param+","
-    param = parametro[0:-1]
+       parametro+=param+","
+    param = parametro[:-1]
+    print(param)
     a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(param) + " )"+  ";\"\n"
-    a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
-    h.conteoTemporales+=1
-    t[0]= a
-
-def p_createIndex_5(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) + " )"+  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 def p_createIndex_1_1(t):
     'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA ID indexParams PARENTESISDERECHA PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) + str(t[8]) + " )"+  ";\"\n"
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(t[7]) +" "+ str(t[8]) + " )"+  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 def p_createIndex_1_2(t):
-    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     parametro = ""
     for param in t[7]:
         parametro+=param+","
     param = parametro[0:-1]
-    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(param) +" ) "+ "WHERE "+str(t[11]) +  ";\"\n"
+    a="t"+str(h.conteoTemporales)+"= \"CREATE INDEX "+str(t[3])+ " ON " + str(t[5])+ " ( "+ str(param) +" ) "+ "WHERE "+str(t[10]) +  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
@@ -3406,7 +3548,7 @@ def p_createIndex_1_1_2(t):
     h.conteoTemporales+=1
     t[0]= a
 def p_createIndex_2(t):
-    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     parametro = ""
     for param in t[9]:
         parametro+=param+","
@@ -3424,7 +3566,7 @@ def p_createIndex_2_1(t):
     t[0]= a
 
 def p_createIndex_2_2(t):
-    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE INDEX ID ON ID USING HASH  PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     parametro = ""
     for param in t[9]:
         parametro+=param+","
@@ -3442,7 +3584,7 @@ def p_createIndex_2_1_2(t):
     t[0]= a
 
 def p_createIndex_3(t):
-    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA PUNTOYCOMA'
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA PUNTOYCOMA'
     parametro = ""
     for param in t[8]:
         parametro+=param+","
@@ -3459,7 +3601,7 @@ def p_createIndex_3_1(t):
     t[0]= a
 
 def p_createIndex_3_2(t):
-    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA listaid PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
+    'createIndex    : CREATE UNIQUE INDEX ID ON ID PARENTESISIZQUIERDA lower PARENTESISDERECHA WHERE whereOptions PUNTOYCOMA'
     parametro = ""
     for param in t[8]:
         parametro+=param+","
@@ -3505,29 +3647,29 @@ def p_alterIndex_1(t):
     t[0]= a
 # ------------------------------------------------------ALTER INDEX COLUMN ----------------------------------------------------
 def p_alterIndex_2(t):
-    'alterIndex    : ALTER INDEX ID ALTER final PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER " + str(t[5]) +  ";\"\n"
+    'alterIndex    : ALTER INDEX ID ALTER ID final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER " + str(t[5]) + " " + str(t[6]) +  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 def p_alterIndex_3(t):
-    'alterIndex    : ALTER INDEX ID ALTER COLUMN final PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER COLUMN " + str(t[6]) +  ";\"\n"
+    'alterIndex    : ALTER INDEX ID ALTER COLUMN ID final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX "+str(t[3])+ " ALTER COLUMN " + str(t[6]) + " " + str(t[7]) +  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 def p_alterIndex_4(t):
-    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER final PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ " ALTER " + str(t[7]) +  ";\"\n"
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER ID final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ " ALTER " + str(t[7]) + " " + str(t[8]) +  ";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
 
 def p_alterIndex_5(t):
-    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER COLUMN final PUNTOYCOMA'
-    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ "  ALTER COLUMN " + str(t[8]) +  ";\"\n"
+    'alterIndex    : ALTER INDEX IF EXISTS ID ALTER COLUMN ID final PUNTOYCOMA'
+    a="t"+str(h.conteoTemporales)+"= \"ALTER INDEX IF EXISTS "+str(t[5])+ "  ALTER COLUMN " + str(t[8]) + " " + str(t[9]) +";\"\n"
     a+="salida=analizador.ejecucionAscendente(t"+str(h.conteoTemporales)+") \n"
     h.conteoTemporales+=1
     t[0]= a
@@ -3579,9 +3721,22 @@ def p_sortOptions_2_2(t):
     t[0]= a
 
 def p_lower(t):
-    'lower    : ID PARENTESISIZQUIERDA ID PARENTESISDERECHA'
-    a= t[1] + "(" + t[3] + ")"
-    t[0]= a
+    'lower    : lower COMA low'
+    t[1].append(t[3])
+    t[0]=t[1]
+
+def p_lower_1(t):
+    'lower    : low'
+    t[0] = [t[1]]
+
+
+def p_low(t):
+    'low    : ID PARENTESISIZQUIERDA ID PARENTESISDERECHA'
+    t[0] = t[1]+" ( "+t[3]+" ) "
+
+def p_low_1(t):
+    'low    : ID'
+    t[0] = t[1]
 
 
 #para manejar los errores sintacticos
@@ -3631,6 +3786,10 @@ def p_error(t):
      
 import ply.yacc as yacc
 parser = yacc.yacc()
+
+
+
+
 
 def parse(input) :
     global caden

@@ -10,9 +10,11 @@ from TablaSimbolos import *
 
 class pl_asignacion(Instruccion):
 
-    def __init__(self, variable, asignaciones):
+    def __init__(self,arg0,arg1, variable, asignaciones):
         self.variable = variable
         self.asignaciones = asignaciones
+        self.arg0 = arg0
+        self.arg1 = arg1
 
 
     def __repr__(self):

@@ -4,18 +4,23 @@ import gramatica as g
 import Utils.TablaSimbolos as table
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
+import Librerias.storageManager.c3dGen as c3dgen
 from tkinter.filedialog import askopenfilename as files
 import os
 import webbrowser
 from Utils.fila import fila
 from Error import *
 import Instrucciones.DML.select as select
-#from select import *
-
+import json
+from select import *
+import reporteIndexGen as repIndex
+from imports import *
+#import optimizacion.optimizador as optimizador
 ##########################################################################
 
 storage.dropAll()
 datos = l.Lista({}, '')
+
 ##################################FUNCIONES#################################
 def openFile():
     route = files(
@@ -32,6 +37,13 @@ def openFile():
 
 def analisis():
     global datos
+    fc3d = open("./c3d/codigo3Dgenerado.py", "w")
+    fc3d.write("from sentencias import *\n")
+    fc3d.write("from goto import with_goto\n")
+    fc3d.write("@with_goto  # Decorador necesario.\n")
+    fc3d.write("\n")
+    fc3d.write("def main():\n")
+    fc3d.close()
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
     instrucciones = g.parse(texto)
@@ -42,29 +54,47 @@ def analisis():
     except:
         print("")
 
+    try:
+        f = open("./Utils/tabla.txt", "r")
+        text = f.read()
+        text = text.replace('\'','"')
+        text = text.replace('False','"False"')
+        text = text.replace('None','""')
+        text = text.replace('True','"True"')
 
+        #print(text)
+        datos.reInsertarValores(json.loads(text))
+        #print(str(datos))
+    except:
+        print('error bloque utils tabla')
     for instr in instrucciones['ast'] :
 
             if instr != None:
                 result = instr.execute(datos)
-                print(result)
+                #print(result)
                 if isinstance(result, Error):
-                    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                    #sprint("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
                     escribirEnSalidaFinal(str(result.desc))
                     erroresSemanticos.append(result)
-                elif isinstance(instr, select.Select):
-                    print("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
+                elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
                     escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))
                 else:
                     escribirEnSalidaFinal(str(result))
 
 
+    f = open("Utils/tabla.txt", "w")
+    f.write(str(datos))
+    f.close()
+    fc3d = open("./c3d/codigo3Dgenerado.py", "a")
+    fc3d.write("\n")
+    fc3d.write("main()\n")
+    fc3d.close()
     errores = g.getMistakes()
     recorrerErrores(errores)
     Rerrores(errores, erroresSemanticos)
     errores.clear()
     erroresSemanticos.clear()
-
+    repIndex.reporteTablaIndices(datos)
     reporteTabla()
     del instrucciones
     #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
@@ -98,6 +128,10 @@ def tabla():
     ruta = ".\\Reportes\\Reporte_TablaSimbolos.html"
     webbrowser.open(ruta)
 
+def tablaindices():
+    ruta = ".\\Reportes\\Reporte_TablaSimbolosIndices.html"
+    webbrowser.open(ruta)
+
 def ast():
     g.grafo.showtree()
 
@@ -112,6 +146,12 @@ def ayuda():
 
 def mistakes():
     ruta = ".\\Reportes\\Reporte_Errores.html"
+    webbrowser.open(ruta)
+
+#Reporte de funciones y procedimientos
+def funcsyprocs():
+    ReporteFuns_y_Procs()
+    ruta = ".\\Reportes\\Reporte_fyP.html"
     webbrowser.open(ruta)
 
 def recorrerErrores(errores):
@@ -134,6 +174,16 @@ def hacerReporteGramatica(gramatica):
         f.write("#Gramatica Generada Automaticamente\n")
         f.write("No se detecto")
 
+def hacerReporteLexicoProcesado(gramatica):
+    if gramatica != None:
+        f = open("./Reportes/LexicoProcesado.txt", "w")
+        f.write(gramatica)
+        f.close()
+    else:
+        f = open("./Reportes/LexicoProcesado.txt", "w")
+        f.write("")
+
+
 def reporteTabla():
     f = open("./Reportes/Reporte_TablaSimbolos.html", "w")
     f.write("<!DOCTYPE html>\n")
@@ -152,102 +202,277 @@ def reporteTabla():
         f.write("               <p class='base'>BASE DE DATOS: ")
         f.write(a)
         f.write("</p>\n")
-        owner = datos.tablaSimbolos[a]['owner']
-        for table in datos.tablaSimbolos[a]['tablas']:
-                columnas = []
-                for column in datos.tablaSimbolos[a]['tablas'][table]['columns']:
-                    cc = ""
-                    try:
-                        cc = column['name']
-                    except:
-                        cc = column.name
-                    nombre = cc
 
-                    tt = ""
-                    try:
-                        tt = column.type
-                    except:
-                        tt = column['type']
-                    tipo = tt
+        #for table in datos.tablaSimbolos['FuncionesTS']:
+        columnas = []
+        for column in range(0,len(datos.tablaSimbolos['FuncionesTS'])): #datos.tablaSimbolos['FuncionesTS']['nombre']:
+            cc = ""
+            # try:
+            #     cc = column['nombre']
+            # except:
+            #     cc = column.nombre
+            nombre = datos.tablaSimbolos['FuncionesTS']['nombre']#'Nombre'#cc
 
-                    yy = ""
-                    try:
-                        yy = column.size
-                    except:
-                        yy = column['size']
-                    size = yy
+            # tt = ""
+            # # try:
+            # #     tt = column.parametros
+            # # except:
+            # #     tt = column['parametros']
+            # parametros = datos.tablaSimbolos['FuncionesTS']['parametros']#'Parametros'#tt
 
-                    c = fila(nombre, tipo, size)
+            # yy = ""
+            # # try:
+            # #     yy = column.tipo
+            # # except:
+            # #     yy = column['tipo']
+            # tipo = datos.tablaSimbolos['FuncionesTS']['tipo']#'Tipo'#yy
 
-                    ff = ""
-                    try:
-                        ff = column['pk']
-                    except:
-                        ff = column.pk
-                    if ff != None:
-                        c.setPK()
+            #c = fila(nombre, '', '')
 
-                    gg = ""
-                    try:
-                        gg = column['fk']
-                    except:
-                        gg = column.fk
-                    if gg != None:
-                        c.setFK()
+            #columnas.append(c)
+        f.write("<p class='tabla'>Tabla: ")
+        # f.write(table)
+        # f.write("</p>")
+        f.write("               <table>\n")
+        f.write("                   <tr class='titulo'>   <td><b>Nombre</b></td> </tr>\n")
+        #for col in columnas:
+        f.write("               <tr><td>")
+        f.write(nombre)                    
+        f.write("</td><td>")
+        # f.write(col.parametros)
+        # f.write("</td><td>")
+        # f.write(col.tipo)
+        # f.write("</td><td>")
+        f.write("</td></tr>\n")
+        f.write("               </table>\n")
+        f.write("           </div>\n")
+        f.write("         </div>\n")
+    
 
-                    aa = ""
-                    try:
-                        aa = column['unique']
-                    except:
-                        aa = column.unique
-                    if aa != None:
-                        c.setUnique()
+        # owner = datos.tablaSimbolos[a]['owner']
+        # for table in datos.tablaSimbolos[a]['tablas']:
+        #         columnas = []
+        #         for column in datos.tablaSimbolos[a]['tablas'][table]['columns']:
+        #             cc = ""
+        #             try:
+        #                 cc = column['name']
+        #             except:
+        #                 cc = column.name
+        #             nombre = cc
 
-                    bb = ""
-                    try:
-                        bb = column['default']
-                    except:
-                        bb = column.default
-                    if bb == None:
-                        c.setDefault('None')
-                    else:
-                        c.setDefault(column.default)
-                    columnas.append(c)
-                f.write("<p class='tabla'>Tabla: ")
-                f.write(table)
-                f.write("</p>")
-                f.write("               <table>\n")
-                f.write("                   <tr class='titulo'>   <td><b>Nombre</b></td>   <td><b>Tipo</b></td>   <td><b>Size</b></td>   <td><b>PK</b></td>  <td><b>FK</b></td> <td><b>Unique</b></td>  <td><b>Default</b></td> </tr>\n")
-                for col in columnas:
-                    f.write("               <tr><td>")
-                    f.write(col.nombre)
-                    f.write("</td><td>")
-                    f.write(col.tipo)
-                    f.write("</td><td>")
-                    f.write(str(col.size))
-                    f.write("</td><td>")
-                    if col.PK == False:
-                        f.write("False")
-                    else:
-                        f.write("True")
-                    f.write("</td><td>")
-                    if col.FK == False:
-                        f.write("False")
-                    else:
-                        f.write("True")
-                    f.write("</td><td>")
-                    if col.unique == False:
-                        f.write("False")
-                    else:
-                        f.write("True")
-                    f.write("</td><td>")
-                    f.write(col.default)
-                f.write("</td></tr>\n")
-                f.write("               </table>\n")
-                f.write("           </div>\n")
-                f.write("         </div>\n")
+        #             tt = ""
+        #             try:
+        #                 tt = column.type
+        #             except:
+        #                 tt = column['type']
+        #             tipo = tt
+
+        #             yy = ""
+        #             try:
+        #                 yy = column.size
+        #             except:
+        #                 yy = column['size']
+        #             size = yy
+
+        #             c = fila(nombre, tipo, size)
+
+        #             ff = ""
+        #             try:
+        #                 ff = column['pk']
+        #             except:
+        #                 ff = column.pk
+        #             if ff != None:
+        #                 c.setPK()
+
+        #             gg = ""
+        #             try:
+        #                 gg = column['fk']
+        #             except:
+        #                 gg = column.fk
+        #             if gg != None:
+        #                 c.setFK()
+
+        #             aa = ""
+        #             try:
+        #                 aa = column['unique']
+        #             except:
+        #                 aa = column.unique
+        #             if aa != None:
+        #                 c.setUnique()
+
+        #             bb = ""
+        #             try:
+        #                 bb = column['default']
+        #             except:
+        #                 bb = column.default
+        #             if bb == None:
+        #                 c.setDefault('None')
+        #             else:
+        #                 c.setDefault(column.default)
+        #             columnas.append(c)
+        #         f.write("<p class='tabla'>Tabla: ")
+        #         f.write(table)
+        #         f.write("</p>")
+        #         f.write("               <table>\n")
+        #         f.write("                   <tr class='titulo'>   <td><b>Nombre</b></td>   <td><b>Tipo</b></td>   <td><b>Size</b></td>   <td><b>PK</b></td>  <td><b>FK</b></td> <td><b>Unique</b></td>  <td><b>Default</b></td> </tr>\n")
+        #         for col in columnas:
+        #             f.write("               <tr><td>")
+        #             f.write(col.nombre)
+        #             f.write("</td><td>")
+        #             f.write(col.tipo)
+        #             f.write("</td><td>")
+        #             f.write(str(col.size))
+        #             f.write("</td><td>")
+        #             if col.PK == False:
+        #                 f.write("False")
+        #             else:
+        #                 f.write("True")
+        #             f.write("</td><td>")
+        #             if col.FK == False:
+        #                 f.write("False")
+        #             else:
+        #                 f.write("True")
+        #             f.write("</td><td>")
+        #             if col.unique == False:
+        #                 f.write("False")
+        #             else:
+        #                 f.write("True")
+        #             f.write("</td><td>")
+        #             f.write(col.default)
+        #         f.write("</td></tr>\n")
+        #         f.write("               </table>\n")
+        #         f.write("           </div>\n")
+        #         f.write("         </div>\n")
+    
+
+    
     f.write("   </body>\n")
     f.write("</html>\n")
+    f.close()
+
+def ReporteFuns_y_Procs():
+    dic=[]
+    cad=""
+    #Recorremos la lista de funciones creadas
+    for i in pl_funciones.funciones: 
+        nombre=""
+        param1=""
+        tip="" 
+        #Recorremos las tablas de simbolos con la clave de cada funcion
+        for key, value in datos.tablaSimbolos.items():
+            #sacando nombre
+            nombre=datos.tablaSimbolos[i]['nombre']
+            #para sacar los parametros
+            for p in range(0,len(datos.tablaSimbolos[i]['parametros'])):
+                #recorro la lista de parametros hago esplit por coma 
+                param=str(datos.tablaSimbolos[i]['parametros'][p]).split(",")
+                #dependiendo el numero de parametros recorremos la clave
+                param1+=","+str(param[0][9:])    
+            #para sacar el tipo    
+            t=str(datos.tablaSimbolos[i]['tipo'])[1 : -1].split(",")
+            #Clave tipo split por coma y hagarro el primero y le quito 7 caracteres 'type':
+            tip=str(t[0][7:])
+            cad=nombre+":"+param1+":"+tip  
+            param1="" 
+        dic.append(cad)
+        cad=""  
+    print(dic)
+    f = open("./Reportes/Reporte_fyP.html", "w")
+    f.write('<!DOCTYPE HTML5>\n')
+    f.write('<html>\n')
+    f.write('<head>\n')
+    f.write('<title>FUNCIONES Y PROCEDIMIENTOS</title>\n')
+    f.write('<style type="text/css">\n')
+    f.write('.styled-table {\n')
+    f.write('border-collapse: collapse;\n')
+    f.write('margin:0 auto;\n')
+    f.write('font-size: 0.9em;\n')
+    f.write('font-family: sans-serif;\n')
+    f.write('min-width: 400px;\n')
+    f.write('box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);}\n')
+    f.write('.styled-table thead tr {\n')
+    f.write('background-color: #009879;\n')
+    f.write('color: #ffffff;\n')
+    f.write('text-align: left;}\n')
+    f.write('.styled-table th,\n')
+    f.write('.styled-table td {\n')
+    f.write('padding: 12px 15px;}\n')
+    f.write('.styled-table tbody tr {\n')
+    f.write('border-bottom: 1px solid #dddddd;}\n')
+    f.write('.styled-table tbody tr:nth-of-type(even) {\n')
+    f.write('background-color: #f3f3f3;}\n')
+    f.write('.styled-table tbody tr:last-of-type {\n')
+    f.write('border-bottom:4px solid #009879;}\n')
+    f.write('.styled-table tbody tr.active-row {\n')
+    f.write('font-weight: bold;\n')
+    f.write('color: black;}\n')
+    f.write('H2 { text-align: center}\n')
+    f.write('</style>\n')    
+    f.write('</head>\n')
+    f.write('<body style="background-color:grey;">\n')
+    f.write('<h2>Funciones en la Tabla de simbolos</h2>\n')
+    f.write('<div style="text-align:center;">\n')
+    f.write('<table class="styled-table">\n')
+    f.write('<thead>\n')
+    f.write('<tr>\n')
+    f.write('<th>Nombre</th>\n')
+    f.write('<th>Tipo</th>\n')
+    f.write('<th>Parametros</th>\n')
+    f.write('</tr>\n')
+    f.write('</thead>\n')
+    f.write('<tbody>\n')    
+    #Recorro la lista de funciones
+    p=0
+    for j in dic:
+        p+=1
+        c=str(j).split(":")
+        if p%2==0:
+            f.write('<tr>\n')
+            f.write('<td>'+c[0]+'</td>\n')
+            f.write('<td>'+c[2]+'</td>\n')
+            f.write('<td>'+c[1][1:]+'</td>\n')
+            f.write('</tr>\n')  
+        else:
+            f.write('<tr class="active-row">\n')
+            f.write('<td>'+c[0]+'</td>\n')
+            f.write('<td>'+c[2]+'</td>\n')
+            f.write('<td>'+c[1][1:]+'</td>\n')
+            f.write('</tr>\n') 
+    f.write('</tbody>\n')  
+    f.write('</table>\n')
+    f.write('</div>\n')
+    #para procedimientos    
+    f.write('<br>\n')
+    f.write('<br>\n')
+    f.write('<h2>Procedimientos en la Tabla de simbolos</h2>\n')
+    f.write('<div style="text-align:center;">\n')
+    f.write('<table class="styled-table">\n')
+    f.write('<thead>\n')
+    f.write('<tr>\n')
+    f.write('<th>Nombre</th>\n')
+    f.write('<th>Tipo</th>\n')
+    f.write('</tr>\n')
+    f.write('</thead>\n')
+    f.write('<tbody>\n')    
+    #Recorro la lista de funciones
+    p1=0
+    for i in pl_procedimientos.procedimientos:
+        if p1%2==0:
+            f.write('<tr>\n')
+            f.write('<td>'+str( datos.tablaSimbolos[i]['nombre'])+'</td>\n')
+            f.write('<td>Void</td>\n')
+            f.write('</tr>\n')  
+        else:
+            f.write('<tr class="active-row">\n')
+            f.write('<td>'+str( datos.tablaSimbolos[i]['nombre'])+'</td>\n')
+            f.write('<td>Void</td>\n')
+            f.write('</tr>\n') 
+    f.write('</tbody>\n')  
+    f.write('</table>\n')
+    f.write('</div>\n')     
+    #Termina procedimiento
+    f.write('</body>\n')
+    f.write('</html> \n')         
     f.close()
 
 def escribirEnSalidaInicio(texto): #borra lo que hay y escribe al inicio
@@ -256,6 +481,15 @@ def escribirEnSalidaInicio(texto): #borra lo que hay y escribe al inicio
 def escribirEnSalidaFinal(texto): # no borra y escribe al final de lo que ya estaACTIVE
     text = texto + "\n"
     salida.insert("end", text)
+
+
+
+def optimizadorcodigo():
+    optimizador.reporteOptimizador()
+
+
+
+
 #root
 ################################Configuracion#################################
 root = Tk()
@@ -281,6 +515,9 @@ reporteMenu.add_command(label="Reporte errores", command=mistakes)
 reporteMenu.add_command(label="Tabla de simbolos", command=tabla)
 reporteMenu.add_command(label="Reporte AST", command=ast)
 reporteMenu.add_command(label="Reporte Gramatical", command=gramatica)
+reporteMenu.add_command(label="Tabla Simbolos Indices", command=tablaindices)
+reporteMenu.add_command(label="Funciones y Procedimientos", command=funcsyprocs)
+reporteMenu.add_command(label="Optimizar Código", command=optimizadorcodigo)
 barra.add_cascade(label="Reportes", menu=reporteMenu)
 
 ayudaMenu=Menu(barra, tearoff=0)

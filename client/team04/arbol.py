@@ -22,7 +22,7 @@ class Arbol(Frame):
 
         # Creando el treeview
         self.treeview = ttk.Treeview(self)
-
+        self.treeview.heading("#0", text="Navegador")
         self.treeview.pack(side="top", fill="both", expand=True)
         self.pack(side="top", fill="both", expand=True)
         # Se llena el ultimo nivel del arbol, como es el ultimo nivel 
@@ -41,12 +41,11 @@ class Arbol(Frame):
         # Colocando el arbol en el frame
         
 
-    def entregado(self):
-        p = '{"TEST": {"TBUSUARIO": {"NCOL": 3, "PKEY": [0]}, "TBROL": {"NCOL": 2, "PKEY": [0]}, "TBROLXUSUARIO": {"NCOL": 2}}, "PRUEBA1": {}, "PRUEBA2": {}}'
-        persons = json.loads(p)
+    def entregado(self, data):
+        print(data)
+        persons = json.loads(data)
         
         # Encabezado de treeview
-        self.treeview.heading("#0", text="Navegador")
         self.file_image = tk.PhotoImage(file="resources/file.png")
         self.folder_image = tk.PhotoImage(file="resources/folder.png")
         self.file_image = self.file_image.subsample(35)

@@ -1,6 +1,7 @@
 import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
-
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
+from Instrucciones.Expresiones.Primitivo import Primitivo
 class Lcm(Instruccion):
     def __init__(self, valor, strGram, linea, columna):
         Instruccion.__init__(self,None,linea,columna,strGram)
@@ -11,18 +12,12 @@ class Lcm(Instruccion):
         arbol.consola.append('Función en proceso...')
 
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        
-        retorno = self.valor.traducir(tabla,arbol)
-        #print(retorno.temporalAnterior)
-        #print(type(self.valor))
-        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
-        return f"LCM({self.valor.traducir(tabla,arbol).temporalAnterior})"
-'''
-#esta funcion solo se  encuentra en la version 3.9 y nosotros no la tenemos :'(
-instruccion = Lcm("hola mundo",None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
+        super().traducir(tabla, arbol)
+        if isinstance(self.valor, Primitivo):
+            return f"LCM({self.valor.traducir(tabla,arbol).temporalAnterior})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"LCM({self.valor.concatenar(tabla,arbol)})"
+        return f"LCM({self.valor.traducir(tabla,arbol)})"

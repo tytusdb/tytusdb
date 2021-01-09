@@ -22,6 +22,7 @@ class index(Instruccion):
         self.lcol = lcol
         self.where = where
         self.tipoIndex = tipoIndex
+        print('********************************************',self.lcol)
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
@@ -48,12 +49,12 @@ class index(Instruccion):
         if self.where:
             listaMods = self.where.ejecutar(tabla, arbol)
 
-
         for x in range(0, len(self.lcol)):
             var = self.lcol[x]
             objetoTabla = arbol.devolviendoTablaDeBase(val)
             try:
                 for variable in var:
+
                     if 'Identificador' in str(variable):
                         idcol = variable.id
 
@@ -83,7 +84,7 @@ class index(Instruccion):
                                 ind.lRestricciones.append(self.tipoIndex)
                             
                             objetoTabla.lista_de_indices.append(ind)
-                            arbol.consola.append("Indice agregado con la columna: " + variable.id)    
+                            arbol.consola.append("Indice agregado con la columna: " + variable.id) 
                         else:
                             print("La columna indicada no pertenece a la tabla: " + self.idTabla)
             except:
@@ -131,13 +132,24 @@ class index(Instruccion):
     def generar3D(self, tabla, arbol):
         super().generar3D(tabla,arbol)
         code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
         t0 = c3d.getTemporal()
         # code.append(c3d.asignacionString(t0, "CREATE INDEX " + self.ID))
-        code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
+        params = ''
+        for x in range(0, len(self.lcol)):
+            var = self.lcol[x]
+            if params != '':
+                params += ', '
+            if 'Identificador' in str(var):
+                params += var.id
+
+        code.append(c3d.asignacionString(t0, "CREATE INDEX " + str(self.idIndex.id) + " ON " + str(self.idTabla.id) + " ( " + params + " ) ;"))
+        #code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
         #CREATE INDEX test2_mm_idx ON tabla(id);
 
         # code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
         code.append(c3d.asignacionTemporalStack(t0))
-        code.append(c3d.aumentarP())
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
 
         return code

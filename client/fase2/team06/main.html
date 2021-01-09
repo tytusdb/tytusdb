@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+
+   <!-- JQuery -->
+   <script src="node_modules/jquery/dist/jquery.min.js" ></script>
+
+   <script src="node_modules/bootstrap/dist/js/bootstrap.min.js" ></script>
+
+   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+   
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+   <!-- Bootstrap CSS -->
+   <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"crossorigin="anonymous">
+   <!-- Bootstrap CSS -->
+   <link href="css/tytus.css" rel="stylesheet"crossorigin="anonymous">
+   <!-- JSTree CSS -->
+   <link rel="stylesheet" href="node_modules/jstree/dist/themes/default/style.min.css">
+<!-- Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+
+    <title>TyTusDB</title>
+    <script type="text/javascript" src="/eel.js"></script>
+    <script src="js/tytus.js"></script>
+
+    
+
+    <script type="text/javascript">
+
+      
+      </script>
+
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light  bg-dark">
+    <div class="container-fluid ">
+ 
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active text-white" aria-current="page" href="#">TytusDB</a>
+          </li>
+          <div class="collapse navbar-collapse" id="navbarNavDarkDropdown">
+           <ul class="navbar-nav">
+             <li class="nav-item dropdown">
+               <a href="#" class="nav-link text-white dropdown-toggle" data-toggle="dropdown">File</a>
+ 
+               <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
+                 <li><a class="dropdown-item" href="#">Action</a></li>
+                 <li><a class="dropdown-item" href="#">Another action</a></li>
+                 <li><a class="dropdown-item" href="#">Something else here</a></li>
+               </ul>
+             </li>
+           </ul>
+         </div>
+ 
+         <div class="collapse navbar-collapse" id="navbarNavDarkDropdown">
+          <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+              <a href="#" class="nav-link dropdown-toggle text-white" data-toggle="dropdown">Help</a>
+ 
+              <ul class="dropdown-menu" aria-labelledby="navbarDarkDropdownMenuLink">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+                <li><a class="dropdown-item" href="#">Something else here</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+ 
+        </ul>
+ 
+      </div>
+    </div>
+  </nav>
+ 
+ 
+ 
+    <div class="row">
+ 
+      <div class="col-sm-2">
+ 
+        <nav class="navbar navbar-light bg-white">
+         <div class="container-fluid">
+           <a class="navbar-brand" href="#">Browser</a>
+         </div>
+        </nav>
+ 
+
+       <div id="tree"></div>
+ 
+ 
+      </div>
+        
+        
+                 <!-- Modal database-->
+    <div class="modal fade" id="ModalDB" tabindex="-1" role="dialog" aria-labelledby="ModalDBLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="tytusdb">TytusDB</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <h4>Welcome to TytusDB</h4>
+              <div class="form-group">
+                <label for="namebase">database name</label>
+                <input type="text" class="form-control" name="namedb22" placeholder="Escribe el nombre...">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              <button type="button" name="submitSave" onclick="Guarda()" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal table -->
+    <div class="modal fade" id="Modaltable" tabindex="-1" role="dialog" aria-labelledby="ModaltableLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="tytusdb">TytusDB</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <h4>Welcome to TytusDB</h4>
+              <div class="form-group">
+                <label for="nametable">table name</label>
+                <input type="text" class="form-control" name="nametb2" placeholder="Escribe el nombre...">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              <button type="button" name="submitSave" onclick="Guardatb()" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+      </div>
+    </div>  
+        
+     
+        
+      <div class="col-sm-10">
+ 
+        <nav class="navbar navbar-light bg-white">
+         <div class="container-fluid">
+           <a class="navbar-brand" href="#">SQL</a>
+         </div>
+       </nav>
+ 
+                 <nav class="navbar navbar-expand-lg navbar-light bg-light">
+ 
+         <div class="collapse navbar-collapse" id="navbarNav">
+           <ul class="navbar-nav">
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                
+                 <img id="btn-add-tab" type="button"  onclick="input2('salida', 'Crear nuevo Query');" src="img/mysql.png" width="30" height="30" alt="">
+                 <span class="sr-only">(current)</span></a>
+             </li>
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                <div class="image-upload">
+                <label for="abrir">
+                  <img src="img/open.png"  width="30" height="30" alt=""/>
+                </label>
+                 <input type="file" id="abrir" name="abrir" onclick="input2('salida', 'Abrir Query');">
+                </div>
+                 <span class="sr-only"></span></a>
+             </li>
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                   <img type="button" id="save" onclick="input2('salida', 'Guardar Query');" src="img/save.png" width="30" height="30" alt="">
+                  <span class="sr-only">(current)</span></a>
+             </li>
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                 <img type="button"  onclick="limpiar();" src="img/eraser.png" width="30" height="30" alt="">
+                  <span class="sr-only">(current)</span></a>
+             </li>
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                 <img type="button"  onclick="ejecutarScript();" src="img/run.png" width="30" height="30" alt="">
+                 <span class="sr-only">(current)</span></a>
+             </li>
+           </ul>
+         </div>
+       </nav>
+ 
+       
+ 
+        <!-- Nav tabs -->
+        <div id="tab">
+        <ul id="tab-list" class="nav nav-tabs" role="tablist">
+          <li class="active nav-item"><a href="#query" id="query1"  class="nav-link" role="tab" data-toggle="tab">   Query 1   </a></li>
+      </ul>
+    </div>
+
+      <!-- Tab panes -->
+      <div id="tab-content" class="tab-content">
+          <div class="tab-pane fade in active" id="query">
+          <textarea rows="15"  id = "entrada" name="entrada" class="form-control"></textarea>
+          </div>
+      </div>
+
+      <ul class="nav nav-tabs">
+       <li class="nav-item">
+         <a class="nav-link active" aria-current="page" href="#">Output</a>
+       </li>
+     </ul>
+
+      <div class="input-group">
+          <textarea disabled   rows="10" id = "salida" class="form-control" aria-label="With textarea"></textarea>
+
+      </div>
+ 
+
+      
+       <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js" ></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.js" ></script>
+    <!-- Jstree -->
+    
+    <script src="node_modules/jstree/dist/jstree.min.js" ></script>
+          <!-- toastr-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" ></script>
+  
+  
+      
+</body>
+</html>

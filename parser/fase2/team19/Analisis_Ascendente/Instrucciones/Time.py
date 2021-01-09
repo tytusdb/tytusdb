@@ -19,6 +19,48 @@ class Time(Instruccion):
         self.fila = fila
         self.columna = columna
 
+    def getC3D(self):
+        code = ''
+        if self.caso == 1:
+            code += 'extract('
+            code += str(self.momento)
+            code += ' from timestamp \''
+            code += str(self.cadena) + '\')'
+        elif self.caso == 2:
+            code += 'now()'
+        elif self.caso == 3:
+            code += 'date_part('
+            code += '\'' + self.cadena + '\', interval \''
+            code += self.cadena2 + '\')'
+        elif self.caso == 4:
+            code += 'current_date'
+        elif self.caso == 5:
+            code += 'current_time'
+        elif self.caso == 6:
+            code += 'timestamp ' + '\'' + self.cadena + '\''
+        return code
+
+    def get_quemado(self):
+        quemado = ''
+        if self.caso == 1:
+            quemado += 'extract('
+            quemado += str(self.momento)
+            quemado += ' from timestamp \''
+            quemado += str(self.cadena) + '\')'
+        elif self.caso == 2:
+            quemado += 'now()'
+        elif self.caso == 3:
+            quemado += 'date_part('
+            quemado += '\'' + self.cadena + '\', interval \''
+            quemado += self.cadena2 + '\')'
+        elif self.caso == 4:
+            quemado += 'current_date'
+        elif self.caso == 5:
+            quemado += 'current_time'
+        elif self.caso == 6:
+            quemado += 'timestamp ' + '\'' + self.cadena + '\''
+        return quemado
+
     def resolverTime(Time):
         tz_Guate = pytz.timezone('America/Guatemala')
         if (Time.caso == 1):  # EXTRACT
@@ -39,11 +81,11 @@ class Time(Instruccion):
             elif str(momento).lower() == 'year':
                 return t.strftime('%Y')
 
-        elif (Time.caso == 2):  # NOW
+        elif Time.caso == 2:  # NOW
             today = datetime.datetime.now(tz_Guate)
             return str(today)
 
-        elif (Time.caso == 3):  # date_part
+        elif Time.caso == 3:  # date_part
             moment = Time.cadena
             time = str(Time.cadena2).strip().split(' ')
             valor = 0
@@ -53,19 +95,14 @@ class Time(Instruccion):
                     return valor
                 if i.isnumeric():
                     valor = i
-
-        elif (Time.caso == 4):  # current_date
+        elif Time.caso == 4:  # current_date
             date = datetime.date.today()
             return str(date)
-
-        elif (Time.caso == 5):  # current_time
-
+        elif Time.caso == 5:  # current_time
             time = datetime.datetime.now(tz_Guate)
             return str(time.astimezone().timetz())
-
-        elif (Time.caso == 6):  # TIMESTAMP
-
-            if (str(Time.cadena).lower() == 'now'):
+        elif Time.caso == 6:  # TIMESTAMP
+            if str(Time.cadena).lower() == 'now':
                 today = datetime.datetime.now()
                 return str(today)
             else:

@@ -1,4 +1,5 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.Identificador import Identificador
 
 class Where(Instruccion):
     def __init__(self, valor, tipo, strGram, linea, columna):
@@ -22,7 +23,13 @@ class Where(Instruccion):
 
     def traducir(self, tabla, arbol):
         cadena ="WHERE "
-        cadena += self.valor.concatenar(tabla,arbol)
+        if isinstance(self.valor.opDer, Identificador):
+            tempIdentificador = self.valor.opDer.traducir(tabla, arbol)
+            cadena += self.valor.opIzq.concatenar(tabla,arbol)
+            cadena += self.valor.operador
+            cadena += "{str("+tempIdentificador.temporalAnterior+")}"
+        else:
+            cadena += self.valor.concatenar(tabla,arbol)
         return cadena
 
 '''

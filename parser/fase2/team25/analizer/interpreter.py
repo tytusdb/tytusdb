@@ -6,7 +6,7 @@ path.append(dir(path[0]))
 from analizer.statement.instructions.select.select import Select
 from analizer.abstract import instruction
 from analizer import grammar  # GRAMATICA DE LA FASE 2
-from analizer.gramaticaFase2 import getCodigo, parserTo3D
+from analizer.gramaticaFase2 import getCodigo, parserTo3D , InitTree
 from analizer import gramaticaFase2
 from analizer.reports import BnfGrammar
 
@@ -124,8 +124,14 @@ from analizer.statement.pl.index import indexEnv
 from analizer.statement.pl.procedure import envProcedure
 from analizer.statement.pl.function import envFunction
 from analizer.c3d.codigo3d import instancia_codigo3d
+from analizer.reports.AST import AST
 def generar_codigo_3d(entrada):
-    parserTo3D(entrada)
+    ast=parserTo3D(entrada)
+    graficador = AST()
+    try:
+        graficador.makeAst(ast.dot())
+    except:
+        pass
     #Ejectamos el c3d de cada funcion, procedimiento
     for func in envFunction.functions.values():
         func.generate3d(None,instancia_codigo3d)
@@ -146,6 +152,5 @@ def generar_codigo_3d(entrada):
         "semantic": semanticErrors,
         "symbols": symbols,
     }
-    astReport()
-    #BnfGrammar.grammarReport2()
+    BnfGrammar.grammarReport2() # ! DESCOMENTAR EN EL COMMIT FINAL :v
     return obj

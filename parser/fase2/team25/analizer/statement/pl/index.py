@@ -96,4 +96,17 @@ def alterIndex(id, indice, existencia = False):
     elif not existencia:
         instruction.semanticErrors.append(
             ("ERROR: El indice no existe",0)
+        )
+
+def alterIndexChange(id, oldCol, newCol, existencia = False):
+    if id in indexEnv.variables:
+        mod = dropIndex(id)
+        if oldCol in mod.campos and not newCol in mod.campos:
+            mod.campos.remove(oldCol)
+            mod.campos.append(newCol)
+            mod.execute(None)
+        raise Exception()
+    elif not existencia:
+        instruction.semanticErrors.append(
+            ("ERROR: El indice no existe",0)
         ) 

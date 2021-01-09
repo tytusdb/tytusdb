@@ -9,8 +9,8 @@ from Instrucciones.Tablas.Tablas import Tablas
 from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 
 class CreateTable(Instruccion):
-    def __init__(self, tabla, tipo, campos, herencia, strGram ,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, tabla, tipo, campos, herencia, strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.tabla = tabla
         self.campos = campos
         self.herencia = herencia
@@ -183,10 +183,16 @@ class CreateTable(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
+
 class IdentificadorColumna(Instruccion):
     def __init__(self, id, linea, columna):
         self.id = id
-        Instruccion.__init__(self,Tipo(Tipo_Dato.ID),linea,columna,strGram)
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.ID),linea,columna,strGram,"")
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)

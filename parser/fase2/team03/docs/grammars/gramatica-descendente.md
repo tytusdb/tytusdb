@@ -25,6 +25,208 @@
            
 <br>           
 
+
+
+
+
+
+
+
+## PLGSQL LANGUAGE
+<br>
+
+
+**\<ASIG_BASICA>** ::= tIdentifier \<ASIG_ASIGNACION>    \<VALOR_ASIGNACION>
+
+**\<SIG_ASIGNACION>** ::= tDospuntos tIgual
+
+               tIgual
+                               
+**\<VALOR_ASIGNACION>** ::= \<EXP>
+
+                | '('  <STATEMENTS_SQL> ')' 
+
+**\<STM_PERFORM>** ::=  tPerform tIdentifier PARA tTexto ',' tIdentifier  ')'
+
+**\<STM_IF>** ::=  tIf    \<CONDITION>  THEN  [\<IF_INST>]    [\<ELSIF_OPT>]  [\<ELSE_OPT>]   tEnd  tIf  ';'
+
+
+**\<CONDITION>** ::=  [\<EXP_PREDICATE>] 
+
+
+**\<ELSIF_OPT>** ::=  [ \<ELSIF_OPT> tElsIf  \<CONDITION> tThen  [\<IF_INST>]  ]
+
+
+**\<ELSIF_OPT>** ::=   [ tElse  \<IF_INST>   ]
+
+
+**\<IF_INST>** ::= \<IF_INST>  \<STATEMENTS_SQL>  ';'   
+
+                |   <IF_INST>  <RAISE_OP> 
+                | <IF_INST>  <ASIG_BASICA> ';
+                | <IF_INST>  <RETURN_>  ';'
+                | <IF_INST>  <STM_IF> ';'
+
+
+
+**\<STM_BEGIN>** ::=  [\<DECLARE_OPT>] tBegin [\<STATEMENTS_BEGIN>]  [\<EXCEPTION_OPT>] [\<RETURN_OPT>] tEnd  [\<IF_OPT>] 
+
+
+**\<STATEMENTS_BEGIN>** ::= \<STATEMENTS_BEGIN>  \<STATEMENTS_SQL>  ';' 
+
+               | <STATEMENTS_BEGIN>  <STM_IF> ';'
+               |  <STATEMENTS_BEGIN>  <ASIG_BASICA> ';' 
+               | <STATEMENTS_BEGIN>  <STM_CASE>  ';'
+               | <STATEMENTS_BEGIN>  <RETURN_>  ';'
+
+
+**\<RETURN_>** ::=   tReturn  \<EXP_LOG>
+
+
+**\<EXCEPTION_OPT>** ::=   tException  [\<WHEN_OPT>]  
+
+
+**\<WHEN_OPT>** ::=   \<WHEN_OPT> tWhen  \<ATR_WHEN> [\<THEN_OP>]
+
+               |  tWhen  <ATR_WHEN> [<THEN_OP>] 
+               |  tWhen 
+
+
+**\<ATR_WHEN>** ::=  tNo_data_found 
+
+               |  tToo_many_rows 
+               |  tIdentifier 
+
+**\<then_op>** ::= tTHEN [\<RAISE_OP>]
+
+**\<then_op>** ::= tThen tNull 
+
+**\<RAISE_OP>** ::= tRaise \<ATR_RAISE> tTexto ',' \<COL_NAME> ';' 
+
+               |  tRaise <ATR_RAISE> tTexto  ';'
+
+
+**\<ATR_RAISE>** ::=  tNotice  
+
+               |  tException  
+               |  tIdentifier 
+
+**\<RETURN_OPT>** ::=   tReturn  \<EXP_LOG>  ';' 
+
+**\<STM_EXECUTE>** ::=  tExecute  TEXTO    tInto  tIdentifier  tUsing    \<GROUP_LIST> 
+
+               |   tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   <COLUMN_LIST>   ’)’  tInto tIdentifier  tUsing    <GROUP_LIST>
+               |  tExecute  tIdentifier  ‘(’  TEXTO  TEXTO   ‘,’   <COLUMN_LIST>   ’)’  tInto tIdentifier  tUsing    <GROUP_LIST> 
+               |   tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   <COLUMN_LIST>   ’)’   tUsing    <GROUP_LIST>
+               |  tExecute  tIdentifier  ‘(’  TEXTO  TEXTO   ‘,’   <COLUMN_LIST>   ’)’   tUsing    <GROUP_LIST>
+               |   tExecute  tIdentifier  ‘(’  TEXTO     ‘,’   <COLUMN_LIST>   ’)’ 
+               |   tExecute  <EXPRESSION>   
+               |  tExecute  tIdentifier ‘(’ <EXP_LIST> ‘)’   
+               |  tExecute  tIdentifier ‘(’ ‘)’ 
+
+
+**\<STM_GET>** ::=  tGet  tDiagnostics \<ASIGNACION_BASICA> 
+
+**\<STM_CASE>** ::=   tCase  [\<ID_CASE>]     [\<WHEN_INST>]  \<CONDITION> tThen  [\<CASE_INST]  [\<WHEN_INST>] [\<CASE_ELSE>]   tEnd  tCase 
+
+
+**\<ID_CASE>** ::=  \<COLUMN_LIST> 
+
+**\<WHEN_INST>** ::=  \<WHEN_INST >    tWhen  \<CONDITION> tThen   \<CASE_INST> 
+
+               |    tWhen  \<CONDITION> tThen   \<CASE_INST>  
+
+
+**\<CASE_ELSE>** ::= tElse    \<CASE_INST>  
+
+**\<CASE_INST>** ::= [\<CASE_INST>]  \<STATEMENTS_SQL>  ';' 
+
+               |   [<CASE_INST>]   <RAISE_OP>  
+               |  [<CASE_INST>]    <ASIG_BASICA> ';'
+               |  <CASE_INST>  <RETURN_>  ';' 
+               |  <CASE_INST>  <STM_IF> ';' 
+
+
+
+**\<STATEMENTS_SQL>** ::= [\<STATEMENTS_SQL>]  \<STM_SELECT>  ';' 
+
+               |    <STM_INSERT>  
+               |    <STM_UPDATE> ';'
+
+
+
+**\<STM_CREATE FUNCTION>** ::= tCreate tFunction tIdentifier '(' [\<LIST_PARAM_FUNCTION_OPT>] ')' tReturns \<TYPE> [\<AS_OPT>] \<STM_BEGIN> ';' '$$' tLanguage tPlpgsql
+
+<br>
+
+**\<LIST_PARAM_FUNCTION_OPT>** ::= [\<PARAMS_FUNCTION>]
+
+
+**\<PARAMS_FUNCTION>** ::= \<PARAMS_FUNCTION> ','   \<PARAM_FUNCTION>
+
+               |  <PARAM_FUNCTION>
+               | tIdentifier
+               | <type>
+               | tIdentifier <TYPE>
+               | [<PARAM_MODE_OPT>] tIdentifier <TYPE>
+
+
+**\<PARAM_MODE>** ::=   [IN  |  OUT  |  INOUT]
+
+**\<AS_OPT>** ::= tAs '$$' ';'
+
+**\<DECLARES_OPT>** ::= [\<DECLARES_OPT>] tDeclare \<DECLARATIONS>
+
+**\<DECLARATIONS>** ::= [\<DECLARATIONS>] \<DECLARATION>
+
+               |  <DECLARATION>
+
+**\<DECLARATION>** ::= tIdentifier \<CONSTANT_OPT> \<TYPE>  \<COLLATE_OPT>  \<NOT_NULL_OPT> \<EXPRESSION_OPT> ';' 
+
+               |  tId tAlias tFor $ tEntero ';'
+               | tIdentifier tIdentifier '%' tRowtype ';'  
+               | tIdentifier tIdentifier tPunto '%' tType
+               |  tIdentifier tRecord ','
+
+
+ **\<CONSTANT>** ::= tConstant     
+
+               |  tCollate tIdentifier
+
+**\<NOT_NULL_OPT>** ::= tNot tNull
+
+**\<EXPRESSION_OPT>** ::= tDefault \<EXPRESSION>
+
+               |  ':=' <EXPRESSION> 
+               |  '=' <EXPRESSION>
+
+
+**\<STM_DROP_FUNCTION>** ::= tDrop tFunction [\<IF_EXISTS_OPT>] tIdentifier [\<MODE_DROP_FUNCTION_OPT>]
+
+**\<STM_DROP_PROCEDURE>** ::= tDrop tProcedure [\<IF_EXISTS_OPT>] tIdentifier [\<MODE_DROP_FUNCTION_OPT>]
+
+**\<MODE_DROP_FUNCTION>** ::= tCascade
+
+               |  tRestrict
+
+**\<STM_CREATE_PROCEDURE>** ::= tCreate tProcedure tIdentifier '(' [\<LIST_PARAM_FUNCTION_OPT>] ')' tLanguage tPlpgsql tAs \<STM_BEGIN> ';' '$$'
+
+**\<STM_INDEX>** ::= tCreate [\<UNIQUE_OPT>] tIndex  tIdentifier tOn tIdentifier \<USING_HASH_OPT> '(' \<PARAMS_INDEX> ')' \<WHERE_CLAUSE_OPT> 
+
+**\<PARAMS_INDEX>** ::= [\<PARAMS_INDEX>] ',' <PARAM_INDEX>
+
+               |  <PARAM_INDEX>
+               |  tIdendtifier <ORDER_OPT>
+               |  tIdentifier <ORDER_OPT>   tNUlls tFirst 
+               | tIdentifier <ORDER_OPT> tNulls tLast
+               | <EXP>
+
+
+
+
+
+
+
 ##   SELECT 
 <br>
 

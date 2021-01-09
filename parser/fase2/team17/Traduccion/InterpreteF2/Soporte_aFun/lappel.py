@@ -5,6 +5,7 @@ from InterpreteF2.Valor.Valor import Valor
 from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
 from InterpreteF2.Reporteria.ErroresSemanticos import ErroresSemanticos
+from datetime import datetime
 
 
 class lappel(NodoArbol):
@@ -45,8 +46,13 @@ class lappel(NodoArbol):
             argumentos = ''
 
         temp = arbol.getTemp()
-        arbol.addC3D(temp + ' = ' + str(self.identificador) + '(' + argumentos + ')')
+        if str(self.identificador) == 'now':
+            ahora = '\'' + str(datetime.now()) + '\''
+            arbol.addC3D(temp + ' = ' + ahora)
+        else:
+            arbol.addC3D(temp + ' = ' + str(self.identificador) + '(' + argumentos + ')')
         return temp
+
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):
         pass

@@ -1,0 +1,787 @@
+
+    <inicio> ::=   <sentencias>
+
+
+    <sentencias> ::= <sentencias> <sentencia>
+
+
+    <sentencias> ::= <sentencia>
+
+
+     <sentencia>::= <CrearBase>
+                  | <showBase>
+                  | <alterBase>
+                  | <DropBase>
+                  | <EnumType>
+                  | <UpdateBase>
+                  | <DeleteBase>
+                  | <TruncateBase>
+                  | <create_TABLE>
+                  | <show_TABLES>
+                  | <alter_TABLE>
+                  | <DROP_TABLE>
+                  | <INSERT>
+                  | <QUERIES> <ptcoma>
+                  | <USEDB>
+     
+
+
+
+     <DROP_FUNCTION> ::= <drop> <function> <id> <ptComa> 
+
+     <ALTER_INDEX> ::= <alter> <index> <id> <rename> <tTo> <id> <ptComa>
+                    | <alter> <index> <if> <exists> <id> <rename> <tTo> <id> <ptComa>
+                    | <alter> <index> <id> <id> <E> <ptComa> 
+                    | alter index if exists id id E ptComa 
+
+
+     <DROP_INDEX>  ::= <drop> <index> <L_IDs> <ptComa>
+                    | <drop> <index> <if> <exists> <L_IDs> <ptComa> 
+    
+    
+
+
+    < BLOCKDO> ::=  <do> <dobledolar> <BLOQUE> <dobledolar> <ptComa>
+    
+
+    <CREATE_FUNCION> ::=  <TIPOFUNCION> <id> <parAbre> <L_PARAMETROS> <parCierra> <returns> <TIPO> < as> <dobledolar> <BLOQUE> <dobledolar> <language> <id> <ptComa>
+                       |  <TIPOFUNCION> <id> <parAbre>  <parCierra> <returns> <TIPO>  <as> <dobledolar> <BLOQUE> <dobledolar> <language> <id> <ptComa>  
+                       |  <TIPOFUNCION> <id> <parAbre> <L_PARAMETROS> <parCierra> <returns> <TIPO>  <as> <dobledolar> <BLOQUE> <dobledolar> <ptComa>
+                       |  <TIPOFUNCION> <id> <parAbre>  <parCierra> <returns> <TIPO>  <as> <dobledolar> <BLOQUE> <dobledolar> <ptComa>   
+                       
+    
+
+ <CREATE_FUNCION> ::= <TIPOFUNCION> <id> <parAbre> <parCierra> <as> <dobledolar> <BLOQUE> <dobledolar> <language> <id> <ptComa> 
+                        | <TIPOFUNCION> <id> <parAbre> <L_PARAMETROS> <parCierra>  <as> <dobledolar> <BLOQUE> <dobledolar> <language> <id> <ptComa>    
+
+    <TIPOFUNCION> ::=   <create> <function>
+                      | <create> <procedure>
+                      | <create> <or> <replace> <function>
+                      | <create> <or> <replace> <procedure>  
+    
+
+ <BLOQUE>  ::= <DECLARE> <STATEMENT> 
+                | <DECLARE>
+                | <STATEMENT> 
+       
+ <DECLARE> ::= <declare> <BODYDECLARE>
+
+
+ <BODYDECLARE> ::= <BODYDECLARE> <DECLARATION>
+                    | <DECLARATION>
+   
+
+ <DECLARATION> ::=   <NAME_CONSTANT> <TIPO> <ASIGNAR> <E> <ptComa>
+                    | <NAME_CONSTANT> <ASIGNAR> <E> <ptComa>
+    
+ 
+
+  <DECLARATION> ::=  <NAME_CONSTANT><TIPO> <ptComa>
+                    |  <NAME_CONSTANT><TIPO> <not> <null> <ASIGNAR> <E> <ptComa> 
+                    |  <NAME_CONSTANT><talias> <tfor> <E> <ptComa> 
+                    |  <NAME_CONSTANT> <TIPO> <not> <null> <ptComa> 
+       
+            '''
+
+ DECLARATION ::=       <NAME_CONSTANT><ptComa>
+                    |  <NAME_CONSTANT><not> <null> <ASIGNAR> <E> <ptComa> 
+                    |  <NAME_CONSTANT><not> <null> <ptComa>
+
+ DECLARATION ::=  <NAME_CONSTANT> <ACCESO> <modulo> <ttype> <ptComa>
+                    |  <NAME_CONSTANT> <id> <modulo> <rowtype> <ptComa>
+   
+
+
+
+ 
+ <ASIGNAR> ::= <asig>
+                 | <igual>
+                 | <tDefault>              
+
+ <NAME_CONSTANT>: <id>
+                      | <id> <constant>              
+
+ <STATEMENT>   ::= <begin> <L_BLOCK> <end> <ptComa>
+                    | <begin> <end> <ptComa>
+ 
+
+ <L_BLOCK> ::= <L_BLOCK> <BLOCK> 
+                | <BLOCK>         
+
+
+     <BLOCK> ::=   <sentencias> 
+                | <ASIGNACION>
+                | <RETORNO>
+                | <SENTENCIAS_CONTROL>
+                | <DECLARACION_RAICENOTE>
+                | <STATEMENT>        
+
+   <ASIGNACION> ::= <id> <asig> <E> <ptComa>
+                     | <id> <igual> <E> <ptComa>         
+    
+#----------------IF--------------------------------------  
+    <IF> ::= <if> <E> <then>  <L_BLOCK>  <end><if> <ptComa>
+              | <if>  <E> <then>  <L_BLOCK> <ELSE>
+              | <if>  <E> <then>  <L_BLOCK>  <ELSEIF>  <ELSE>
+              | <if>  <E> <then>  <L_BLOCK>  <ELSEIF>  <end> <if> <ptComa>
+
+
+
+
+
+
+
+#------------------------INDEX
+
+     <CREATE_INDEX> ::=  <create> <index> <id> <on> <id> <OPCION_INDEX> <ptComa>
+                    |   <create> <tUnique> <index> <id> <on> <id> <OPCION_INDEX> <ptComa> 
+                    |   <create> <index> <id> <on> <id> <OPCION_INDEX> <EXPR_WHERE> <ptComa>
+                    |	<create> <tUnique> <index> <id> <on> <id> <OPCION_INDEX> <EXPR_WHERE> <ptComa>
+    
+
+
+     <OPCION_INDEX> ::=  <using> <hash> <parAbre> <id> <parCierra> 
+                     |  <parAbre> <OPT_INDEX_PAR> <parCierra>
+                    
+
+
+     <OPT_INDEX_PAR> ::= <L_IDs>
+
+     <OPT_INDEX_PAR>   ::= <id> <nulls> <FIRST_LAST>
+                        | <id> <DESC_ASC> <nulls> <FIRST_LAST> 
+
+
+     <OPT_INDEX_PAR> ::= <lower> <parAbre> <id> <parCierra> 
+   
+      <USEDB> ::= <tuse> <id> <ptcoma> 
+
+
+     <CrearBase> ::=  <create> <database><E><ptcoma>
+                 | <create> <database><E><owner> <igual><E><ptcoma>
+                 | <create> <database><E><mode> <igual> <entero> <ptcoma>
+                 | <create> <database><E><owner> <igual><E><mode> <igual> <entero> <ptcoma>
+                 | <create> <or> <replace> <database><E><ptcoma>
+                 | <create> <or> <replace> <database><E><owner> <igual><E><ptcoma>
+                 | <create> <or> <replace> <database><E><mode> <igual> <entero> <ptcoma>
+                 | <create> <or> <replace> <database><E><owner> <igual><E><mode> <igual> <entero> <ptcoma>
+                 | <create> <database> <if> <not> <exists><E><ptcoma>
+                 | <create> <database> <if> <not> <exists><E><owner> <igual><E><ptcoma>
+                 | <create> <database> <if> <not> <exists><E><mode> <igual> <entero> <ptcoma>
+                 | <create> <database> <if> <not> <exists><E><owner> <igual><E><mode> <igual> <entero> <ptcoma> 
+
+
+     <ShowBase> ::= <show> <database> <ptcoma>
+                | <show> <database> <like> <cadena> <like> <ptcoma> 
+
+     <AlterBase> ::= <alter> <database><E>rename<tTo><id> <ptcoma>
+                 | <alter> <database><E><owner><tTo><id> <ptcoma>
+                 | <alter> <database><E><owner><tTo> currentuser <ptcoma>
+                 | <alter> <database><E><owner><tTo> sessionuser <ptcoma>
+     
+
+      <DropBase> ::= <drop> <database><E><ptcoma>
+                | <drop> <database> <if> <exists> <E> <ptcoma> 
+
+
+     <EnumType>   ::= <create> <ttype> <id> <as> <tenum> <parAbre> <LISTA_EXP> <parCierra> <ptcoma> 
+
+
+      <UpdateBase>   ::= tUpdate <id> <tSet> <L_ASIGN>  <where>   <CondicionBase> <ptcoma>  
+
+      <DeleteBase>  ::= <tDelete> <from> <id>  <where>   <CondicionBase> <ptcoma>  
+
+
+      <DeleteBase> ::= <tDelete> <from> <id> <ptcoma> 
+
+
+      <CondicionBase>   ::= <CondicionBase> <Condiciones>
+                        | <CondicionBase>  <ORAND>  <Condiciones>
+                        |  <ORAND>  <Condiciones>
+                        | <Condiciones> 
+
+
+      <Condiciones>::= <E_FUNC> 
+                    | <E_FUNC> <tIs> <distinct> <from> <E_FUNC>
+                    | <E_FUNC> <tIs> <not> <distinct> <from> <E_FUNC>
+                    |  <substring>   <parAbre> <E_FUNC> <coma> <E_FUNC> <coma> <E_FUNC> <parCierra> <igual><E>
+                    | <E_FUNC> <tIs><tTrue>
+                    | <E_FUNC> <tIs><not> <tTrue> 
+                    | <E_FUNC> <tIs><tFalse>
+                    | <E_FUNC> <tIs><not> <tFalse>
+                    | <E_FUNC> <tIs><unknown>
+                    | <E_FUNC> <tIs><not> <unknown>
+                    | <E_FUNC> <tIs><null> 
+                    | <E_FUNC> <tIs><not> <null>
+                    | <E_FUNC> <is><null>
+                    | <E_FUNC> <not><null>
+                    | <E_FUNC> tI<like> <cadena><like>
+                    | <E_FUNC> <like> <cadena><like>
+                    | <E_FUNC> tSimilar<tTo><E_FUNC>
+                    | <substr> <parAbre> <E_FUNC> <coma> <E_FUNC> <coma> <E_FUNC> <parCierra> <igual><E> 
+
+
+      <Condiciones>::= <exists> <parAbre> <QUERY> <parCierra>
+                | <not> <exists> <parAbre> <QUERY> <parCierra>
+                | <E_FUNC><in><parAbre> <QUERY> <parCierra> 
+                | <E_FUNC> <not><in><parAbre> <QUERY> <parCierra>
+                | <E_FUNC> <OPERATOR><any> <parAbre> <QUERY> <parCierra>
+                | <E_FUNC> <OPERATOR><some><parAbre> <QUERY> <parCierra>
+                | <E_FUNC> <OPERATOR><all><parAbre> <QUERY> <parCierra>  
+
+
+      <Condiciones>::= <E_FUNC> <tBetween> <E_FUNC> 
+                    | <E_FUNC> <not> <tBetween> <E_FUNC>  
+
+
+
+      <TruncateBase>    ::= <tTruncate> <L_ids> <ptcoma> 
+
+
+      <L_ids>   ::= <L_ids> <coma> <id> 
+                | <id>  
+
+
+      <L_ASIGN> ::= <L_ASIGN> <coma> <id> <igual> <E>
+                | <id> <igual> <E>  
+
+
+     <CREATE_TABLE> ::= <create> <table> <id> <parAbre> <COLUMNS> <parCierra> <ptcoma>
+                    | <create> <table> <id> <parAbre> <COLUMNS> <parCierra> tInherits <parAbre> <id> <parCierra> <ptcoma>  
+
+     <COLUMNS>::=<COLUMNS> <coma>  <ASSIGNS>  
+                 |  <ASSIGNS>  
+     
+
+      <ASSIGNS> ::= <id> TIPO
+               | <id> <TIPO>  <OPCIONALES>  
+               |  <tCheck>   <E>
+               | tConstraint <id>  <tCheck>   <E>
+               | tUnique <parAbre>  <COLS>   <parCierra>
+               | tPrimary tKey <parAbre>  <COLS>   <parCierra>
+               | tConstraint <id> tForeign tKey <parAbre>  <COLS>   <parCierra> tReferences <id> <parAbre>  <COLS>   <parCierra>
+               | tForeign tKey <parAbre>  <COLS>   <parCierra> tReferences <id> <parAbre>  <COLS>   <parCierra> 
+
+       <OPCIONALES>   ::=  <OPCIONALES>    <OPCION>  
+                |  <OPCION>    
+
+
+
+       <OPCION>   ::=   <tDefault> <E> 
+                      | <tPrimary> <tKey>  
+                      | <not> <null> 
+                      | <null> 
+                      | <tUnique> 
+                      | <tCheck>   <E> 
+                      | <tConstraint> <id> <tUnique>  
+                      | <tConstraint> <id>  <tCheck>   <E> 
+
+
+      COLS ::=  <COLS>   <coma> <E>
+            | <E> 
+
+
+
+      <TIPO> ::= <NUMERIC_TYPES> 
+            | <CHAR_TYPES> 
+            | <DATE_TYPES> 
+            | <BOOL_TYPES> 
+            | <E>   
+
+
+      <NUMERIC_TYPES> ::= <tSmallint>
+                     | <tInteger>
+                     | <tBigint>
+                     | <tDecimal>
+                     | <tNumeric>
+                     | <tReal>
+                     | <tDouble> <tPrecision>
+                     | <tMoney> 
+
+
+      <CHAR_TYPES> ::= <tVarchar> <parAbre> <entero> <parCierra>
+                  | <tCharacter> <tVarying> <parAbre> <entero> <parCierra>
+                  | <tCharacter> <parAbre> <entero> <parCierra>
+                  | <tChar> <parAbre> <entero> <parCierra>
+                  | <tText> 
+
+
+      <DATE_TYPES> ::= <tDate>
+                  | <tTimestamp> 
+                  | <tTime> 
+                  | <tInterval>
+                  | <tInterval>  <FIELDS>   
+
+
+      <BOOL_TYPES> ::= <tBoolean> 
+
+
+     <FIELDS> ::= <tYear>
+              | <tMonth>
+              | <tDay>
+              | <tHour>
+              | <tMinute>
+              | <tSecond> 
+
+
+      <SHOW_TABLES> ::= <show> <tables> <ptcoma> 
+
+
+      <DROP_TABLE> ::= <drop> <table> <id> <ptcoma>
+     
+
+
+     <ALTER_TABLE> ::= <alter><table><id> rename <tColumn> <id><tTo><id> <ptcoma>
+                   | <alter><table><id> <EXPR_ALTER> 
+                   | <alter><table><id> LColumn <ptcoma>
+                   | <alter><table><id> <add>tConstraint <id>  <tCheck>  <E><ptcoma>
+                   | <alter><table><id> <add>tCheck<E><ptcoma>
+                   | <alter><table><id> <add>tConstraint <id> tUnique <parAbre> <id> <parCierra> <ptcoma>
+                   | <alter><table><id> <add>tConstraint <id> tForeign tKey <parAbre>  <COLS>   <parCierra> tReferences <id> <parAbre>  <COLS>   <parCierra> <ptcoma>
+                   | <alter><table><id> <add>tForeign tKey <parAbre>  <COLS>   <parCierra> tReferences <id> <parAbre>  <COLS>   <parCierra> <ptcoma>
+                   | <alter><table><id> <drop> tConstraint <id> <ptcoma>
+                   | <alter><table><id> rename<tTo><id> <ptcoma>
+                    
+
+      <ALTER_TABLE> ::= <alter> <table>  <id> <LDColumn> <ptcoma>  
+      <LDColumn> ::= <LDColumn> <coma> <LDCol> 
+                 | <LDCol>  
+      <LDCol> ::= <drop> <tColumn> <id>  
+
+
+      <LColumn> ::= <LColumn> <coma> <LCol>
+                | <LCol>  
+
+      <LCol> ::= <add> <tColumn> <id> <TIPO>  
+
+
+      <EXPR_ALTER> ::=   <EXPR_ALTER> <coma> <alter> <tColumn> <id> tSet <not> <null> <ptcoma>
+                       | <EXPR_ALTER> <coma> <alter> <tColumn> <id> ttype <CHAR_TYPES> <ptcoma>
+                       | <alter> <tColumn> <id> ttype <CHAR_TYPES> <ptcoma>
+                       | <alter> <tColumn> <id> tSet <not> <null> <ptcoma>
+                    
+
+
+      <INSERT> ::=  <insert> <into> <id> <values> <parAbre> <LISTA_EXP> <parCierra> <ptcoma>
+                 |  <insert> <into> <id> <parAbre> <LISTA_EXP> <parCierra> <values> <parAbre> <LISTA_EXP> <parCierra> <ptcoma> 
+
+
+      <LISTA_EXP> ::=    <LISTA_EXP> <coma> <E_FUNC>
+                    |  <E_FUNC>
+     
+
+      <E>::=   <E>  <or>           <E>
+             | <E>  <And>          <E>
+             | <E>  <diferente>    <E>
+             | <E>  <igual>        <E>
+             | <E>  <mayor>        <E>
+             | <E>  <menor>        <E>
+             | <E>  <mayorigual>   <E>
+             | <E>  <menorigual>   <E>
+             | <E>  <mas>          <E>
+             | <E>  <menos>        <E>
+             | <E>   <multi>       <E>
+             | <E>   <divi>        <E>
+             | <E>  <modulo>    <E>
+             | <E>  <elevado>   <E>
+             | <E>  <punto>     <E>
+     
+     <E>::= <not> <E> 
+
+     <E>::= <menos> <E> %prec umenos  
+
+
+     <E>::= <parAbre> <E> <parCierra>   
+
+
+     <E>::= <entero>    
+     
+
+
+     <E>::=<decimal>   
+     
+
+
+     <E>::= <cadena>    
+     
+
+
+     <E>::= <id>    
+     
+
+
+     <E>::=<fecha>   
+     
+
+
+     <E>::=<hora>   
+     
+
+     <E>::=<fecha_hora>  
+     
+
+
+     <E>  ::= <yes>
+          | <no>
+          | <on>
+          | <off>
+          | <tTrue>
+          | <tFalse>
+     
+
+     <E> ::= <intervaloc>  
+
+
+     QUERIES ::= <QUERY>  <union> <QUERY>
+               | <QUERY>  <intersect> <QUERY>
+               | <QUERY>  <Except> <QUERY>
+               | <QUERY> 
+
+     <QUERY> ::= <EXPR_SELECT> 
+             | <EXPR_SELECT> <EXPR_FROM> 
+             | <EXPR_SELECT> <EXPR_FROM> <EXPR_WHERE> <EXPR_GROUPBY> <EXPR_HAVING>  <EXPR_ORDERBY> <EXPR_LIMIT> 
+     
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_ORDERBY>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_HAVING>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_GROUPBY>  
+
+    
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_ORDERBY> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_ORDERBY>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_GROUPBY>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_GROUPBY> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_GROUPBY> <EXPR_ORDERBY>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_GROUPBY> <EXPR_HAVING>  
+
+
+     <QUERY> ::=  <EXPR_SELECT>  <EXPR_FROM> <EXPR_HAVING> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_HAVING> <EXPR_ORDERBY>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_HAVING>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_ORDERBY> <EXPR_LIMIT>  
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_GROUPBY> <EXPR_ORDERBY>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_GROUPBY> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_GROUPBY> <EXPR_HAVING>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_GROUPBY> <EXPR_ORDERBY> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_GROUPBY> <EXPR_HAVING> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_GROUPBY> <EXPR_HAVING> <EXPR_ORDERBY>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_HAVING> <EXPR_ORDERBY> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_HAVING> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_HAVING> <EXPR_ORDERBY>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_GROUPBY> <EXPR_ORDERBY> <EXPR_LIMIT>  
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_GROUPBY> <EXPR_HAVING> <EXPR_LIMIT>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_GROUPBY> <EXPR_HAVING> <EXPR_ORDERBY>  
+
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_GROUPBY> <EXPR_HAVING> <EXPR_ORDERBY> <EXPR_LIMIT>  
+
+     <QUERY> ::= <EXPR_SELECT>  <EXPR_FROM> <EXPR_WHERE> <EXPR_HAVING> <EXPR_ORDERBY> <EXPR_LIMIT>  
+
+      <EXPR_SELECT> ::= <select> <distinct> <EXPR_COLUMNAS> 
+                   | <select>  <multi>  
+                    
+
+      <EXPR_SELECT> ::= <select> <EXPR_COLUMNAS>  
+
+
+      <EXPR_COLUMNAS> ::= <EXPR_COLUMNAS> <coma> EXPR_COLUMNAS1
+                     | <EXPR_COLUMNAS1>  
+
+      <EXPR_COLUMNAS1> ::= <E>
+                     | <EXPR_AGREGACION>
+                     | <EXPR_MATHS>
+                     | <EXPR_TRIG>
+                     | <EXPR_BINARIAS>
+                     | <EXPR_EXTRA>
+                     | <EXPR_FECHA>
+                     | <EXPR_CASE>
+                     |<E> <as> <E>
+                     | <EXPR_AGREGACION> <as> <E>
+                     | <EXPR_MATHS> <as> <E>
+                     | <EXPR_TRIG> <as> <E>
+                     | <EXPR_BINARIAS> <as> <E>
+                     | <EXPR_EXTRA> <as> <E>
+                     | <EXPR_FECHA> <as> <E>
+                     | <EXPR_CASE> <as> <E>
+                     | <E> <E>
+                     | <EXPR_AGREGACION> <E>
+                     | <EXPR_MATHS> <E>
+                     | <EXPR_TRIG> <E>
+                     | <EXPR_BINARIAS> <E>
+                     | <EXPR_EXTRA> <E>
+                     | <EXPR_FECHA> <E>
+                     | <EXPR_CASE> <E>
+                     | <E> <punto>  <multi>   
+
+      <EXPR_COLUMNAS1> ::= <parAbre> <QUERY> <parCierra>
+                     | <parAbre> <QUERY> <parCierra><E>
+                     | <parAbre> <QUERY> <parCierra> <as> <E> 
+
+      <EXPR_COLUMNAS1> ::=  <substring>  <parAbre> <E> <coma> <E> <coma> <E> <parCierra>
+                     | <greatest> <parAbre> <E_LIST> <parCierra>
+                     | <least> <parAbre>  <E_LIST> <parCierra>
+                     |  <substring>   <parAbre> <E> <coma> <E> <coma> <E> <parCierra> <as> <E>
+                     | <substr> <parAbre> <E> <coma> <E> <coma> <E> <parCierra> <as> <E>
+                     | <substr> <parAbre> <E> <coma> <E> <coma> <E> <parCierra> 
+                     | <greatest> <parAbre> <E_LIST> <parCierra> <as> <E>
+                     | <least> <parAbre> <E_LIST> <parCierra> <as> <E> 
+   
+   
+      <EXPR_EXTRA> ::= <tExtract> <parAbre>  <FIELDS>   <from> <tTimestamp> <fecha_hora> <parCierra>
+                  | <tExtract> <parAbre>  <FIELDS>   <from> <E> <parCierra>  
+   
+      <EXPR_AGREGACION> ::=  <count>  <E>
+                       |  <avg>  <E>
+                       |  <max>  <E>
+                       |  <min>  <E>
+                       |  <sum>  <E>
+                       |  <count>  <parAbre>  <multi>   <parCierra>  
+                       |  <avg>  <parAbre>  <multi>   <parCierra>
+                       |  <max>  <parAbre>  <multi>   <parCierra>
+                       |  <min>  <parAbre>  <multi>   <parCierra>
+                       |  <sum>  <parAbre>  <multi>   <parCierra>   
+
+
+      <EXPR_MATHS> ::=  <abs>  <E>
+                     | <cbrt> <E>
+                     | <ceil> <E>
+                     | <ceiling> <E>
+                     | <degrees> <E>
+                     | <div> <parAbre> <E> <coma> <E> <parCierra>
+                     | <E> <E>
+                     | <factorial> <E>
+                     | <floor> <E>
+                     | <gcd> <parAbre> <E> <coma> <E> <parCierra>
+                     | <ln> <E>
+                     | <log> <E>
+                     | <mod> <parAbre> <E> <coma> <E> <parCierra>
+                     | <pi> <parAbre> <parCierra>
+                     | <power> <parAbre> <E> <coma> <E> <parCierra>
+                     | <radians> <E>
+                     | <round> <E>
+                     | <round> <parAbre> <E> <coma> <E> <parCierra>
+                     | <sign> <E>
+                     | <sqrt> <E>
+                     | <trunc> <E>
+                     | <wid> <th_bucket> <parAbre> <LISTA_EXP> <parCierra>
+                     | <random> <parAbre> <parCierra>  
+
+      EXPR_TRIG ::=  <acos> <E>
+                | <acosd> <E>
+                | <asin> <E>
+                | <asind> <E>
+                |  <atan>  <E>
+                | <atand> <E>
+                | <atan2> <parAbre>  <E> <coma> <E> <parCierra>
+                | <atan2d> <parAbre> <E> <coma> <E> <parCierra>
+                | <cos> <E>
+                | <cosd> <E>
+                | <cot> <E>
+                | <cotd> <E>
+                | <sin> <E>
+                | <sind> <E>
+                | <tan> <E>
+                | <sinh> <E>
+                | <cosh> <E>
+                | <tanh> <E>
+                | <tand> <E>
+                | <asinh> <E>
+                | <acosh> <E>
+                | <atanh> <E>   
+
+
+      EXPR_BINARIAS ::= <length> <E>
+                     | <trim> <E>
+                     | <get_byte> <parAbre> <E> dosPts dosPts bytea <coma> <E> <parCierra> 
+                     | <md5> <E>
+                     | <set_byte> <parAbre> <E> dosPts dosPts bytea <coma> <E> <coma> <E> <parCierra> 
+                     | <sha256> <E>
+                     | <convert> <parAbre> <E> <as> <TIPO> <parCierra>
+                     | <E> <ncode>  <parAbre> <E> dosPts <dosPts> <bytea> <coma> <E> <parCierra> 
+                     | <decode>  <parAbre> <E> <coma> <E> <parCierra> 
+                     | <barra>  <E>
+                     | <barraDoble> <E>
+                     | <E> <amp> <E>
+                     | <E> <barra> <E>
+                     | <E> <numeral> <E>
+                     | <virgulilla> <E>
+                     | <E> <menormenor> <E>
+                     | <E> <mayormayor> <E>  
+
+
+      <EXPR_FECHA> ::= <date_part>  <parAbre> <E> <coma>  <DATE_TYPES> <E> <parCierra>
+                  | <current_date> 
+                  | <current_time>
+                  | <now> <parAbre> <parCierra>
+                  | <DATE_TYPES> <E>  
+
+
+      EXPR_CASE ::= <case> <CASE_LIST> end
+                 | <case> <CASE_LIST> <else> <E> end  
+
+
+      <CASE_LIST> ::= <CASE_LIST> <when> <E> <then> <E>
+                | <when> <E> <then> <E>  
+
+
+      E_LIST ::= <E_LIST> <coma> <E_LIST1> 
+              |   <E_LIST1> 
+               
+
+      <E_LIST1> ::= <E>
+               | <now> <parAbre> <parCierra>  
+
+
+      <EXPR_FROM> ::= <from> L_idsAlias 
+                 | <from> <parAbre> <QUERY> <parCierra> 
+                 | <from> <parAbre> <QUERY> <parCierra> <id>
+                 | <from> <parAbre> <QUERY> <parCierra> <as> <id>  
+
+
+      L_idsAlias ::= L_idsAlias <coma> L_idsAlias1
+                  | L_idsAlias1  
+
+
+      L_idAlias1 ::= <id> <id> 
+                    | <id> <as> <id> 
+                    | <id>  
+
+      <EXPR_WHERE> ::=  <where>   <LIST_CONDS>  
+
+
+      <LIST_CONDS> ::= <LIST_CONDS> <COND1> 
+                  | <LIST_CONDS>  <ORAND>  <COND1> 
+                  |  <ORAND>  <COND1> 
+                  | <COND1>   
+
+      <ORAND> ::= <or>
+              | <And>  
+
+
+      <COND1> ::=  <E_FUNC> 
+                | <E_FUNC> <tIs> distinct <from> <E_FUNC>
+                | <E_FUNC> <tIs> <not> <distinct> <from> <E_FUNC>
+                |  <substring>   <parAbre> <E_FUNC> <coma> <E_FUNC> <coma> <E_FUNC> <parCierra> <igual><E>
+                | <E_FUNC> <tIs> <tTrue>
+                | <E_FUNC> <tIs> <not> <tTrue> 
+                | <E_FUNC> <tIs> <tFalse>
+                | <E_FUNC> <tIs> <not> <tFalse>
+                | <E_FUNC> <tIs> <unknown>
+                | <E_FUNC> <tIs> <not> <unknown>
+                | <E_FUNC> <tIs> <null> 
+                | <E_FUNC> <tIs> <not> <null>
+                | <E_FUNC> is <null>
+                | <E_FUNC> <not> <null> 
+                | <substr> <parAbre> <E_FUNC> <coma> <E_FUNC> <coma> <E_FUNC> <parCierra> <igual> <E>  
+
+      <COND1> ::=  <exists> <parAbre> <QUERY> <parCierra>
+                | <not> <exists> <parAbre> <QUERY> <parCierra>
+                | <E_FUNC> <in> <parAbre> <QUERY> <parCierra> 
+                | <E_FUNC> <not> <in> <parAbre> <QUERY> <parCierra>
+                | <E_FUNC> <OPERATOR> <any> <parAbre> <QUERY> <parCierra>
+                | <E_FUNC> <OPERATOR> <some> <parAbre> <QUERY> <parCierra>
+                | <E_FUNC> <OPERATOR> <all> <parAbre> <QUERY> <parCierra>  
+
+      <COND1> ::=  <E_FUNC> <tBetween> <E_FUNC> 
+                | <E_FUNC> <not> <tBetween> <E_FUNC>  
+
+
+
+     <OPERATOR> ::= <igual>
+                | <menor>
+                | <mayor>
+                | <menorigual>
+                | <mayorigual>
+                | <diferente>  
+
+
+      <EXPR_GROUPBY> ::= <group> <by> <LISTA_EXP>  
+
+
+      <EXPR_HAVING> ::= <having> <E_FUNC>  
+
+
+     <E_FUNC> ::= <EXPR_AGREGACION>
+              | <EXPR_MATHS>
+              | <EXPR_TRIG>
+              | <EXPR_BINARIAS>
+              | <EXPR_FECHA>
+              | <E> 
+               
+
+
+      <EXPR_ORDERBY> ::= <order> <by> <LIST_ORDERBY>  
+
+
+      <LIST_ORDERBY> ::= <LIST_ORDERBY> <coma> <LIST_ORDERBY_1> 
+                    | <LIST_ORDERBY_1>  
+
+
+      <LIST_ORDERBY_1> ::= <E> <asc>
+                    |<E> <asc> <nulls> <last> 
+                    |<E> <asc> <nulls> <last> 
+                    |<E> <desc> 
+                    |<E> <desc> <nulls> <last>  
+                    |<E> <desc> <nulls> <last> 
+                    |<E>
+                    |<E> <nulls> <last> 
+                    |<E> <nulls> <last>  
+
+
+      <EXPR_LIMIT> ::= <limit> <all>
+                  | <limit> <all> offset <E>  
+
+      <EXPR_LIMIT> ::= <limit> <E>
+                  |   <limit> <E> offset <E>  
+
+

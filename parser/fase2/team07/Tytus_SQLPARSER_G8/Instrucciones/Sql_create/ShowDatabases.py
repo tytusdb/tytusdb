@@ -2,8 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from storageManager.jsonMode import *
 from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
 class ShowDatabases(Instruccion):
-    def __init__(self, id, tipo, strGram ,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = id
 
     def ejecutar(self, tabla, arbol):
@@ -34,6 +34,12 @@ class ShowDatabases(Instruccion):
         print(lista)
         arbol.getMensajeTabla(columna,lista)
         #print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+    
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 '''
 instruccion = ShowDatabases("hola mundo",None, 1,2)
 

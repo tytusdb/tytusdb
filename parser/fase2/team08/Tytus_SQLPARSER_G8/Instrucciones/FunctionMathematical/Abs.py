@@ -3,6 +3,7 @@ import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 
 class Abs(Instruccion):
     def __init__(self, valor, strGram,linea, columna):
@@ -27,11 +28,12 @@ class Abs(Instruccion):
             return abs(resultado)
     
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        
+        super().traducir(tabla, arbol)
         if isinstance(self.valor, Primitivo):
             return f"ABS({self.valor.traducir(tabla,arbol).temporalAnterior})"
-
-        return f"ABS({self.valor.concatenar(tabla,arbol)})"
+        elif isinstance(self.valor, Aritmetica):
+            return f"ABS({self.valor.concatenar(tabla,arbol)})"
+        return f"ABS({self.valor.traducir(tabla,arbol)})"

@@ -4,11 +4,15 @@ import webbrowser
 import platform
 import socket
 import sys
+import pickle
+import json
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk, font, messagebox
+import analizer.typechecker.Metadata.Struct as databases
 from datetime import date
 from datetime import datetime
+from tkinter import simpledialog
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv_add = ('localhost', 10000)
@@ -17,47 +21,24 @@ serv.connect(serv_add)
 
 
 class cliente():
-
     def __init__(self, img_carpeta, iconos):
         self.consoleMode = False
-        # Prueba de conexion a base de datos
-        message = 'data from client'
-        print(message)
-        serv.sendall(message.encode('utf-8'))
+        databases.load()
+        self.databases = databases.Databases
 
-        recibido = 0
-        esperado = len(message)
 
-        while recibido < esperado:
-            data = serv.recv(4096)
-            recibido += len(data)
-            print(data)
-
+        # self.send_scritp('create database shooooooooooooooooo___x2_alv;')
+        databases.load()    
         # Creacion de la Ventana
         self.raiz = Tk()
         self.f_log()
         self.treeview = ttk.Treeview(self.raiz)
 
-        '''
-        iconos = (ruta_r + "pyremoto64x64.png",
-              ruta_r + "conec16x16.png",
-              ruta_r + "salir16x16.png",
-              ruta_r + "star16x16.png",
-              ruta_r + "conec32x32.png",
-              ruta_r + "salir32x32.png",
-              ruta_r + "grupo32x32.png", 
-              ruta_r + "tytusdb.png",
-              ruta_r + "open.png",
-              ruta_r + "save.png",
-              ruta_r + "serv.png") 
-        '''
 
         # Definicion de Iconos
         self.img_carpeta = img_carpeta
         self.iconos = iconos
         self.PYREMOTO_ICON = PhotoImage(file=self.iconos[0])
-        # icono2 = PhotoImage(file=self.iconos[1])
-        # icono3 = PhotoImage(file=self.iconos[2])
         self.START_ICON = PhotoImage(file=self.iconos[3])
         self.CONNECT_ICON = PhotoImage(file=self.iconos[4])
         self.EXIT_ICON = PhotoImage(file=self.iconos[5])
@@ -126,7 +107,9 @@ class cliente():
         # Programacion del Menu de Herramientas
         self.toolsMenu.add_command(
             label="Query Tool", command=self.f_query_tool, image=self.START_ICON, compound=LEFT)
-
+            
+        self.toolsMenu.add_command(
+            label="Crear DB", command=self.f_crear_db, image=self.START_ICON, compound=LEFT)
         # Programacion del Menu de informacion
         self.aboutMenu.add_command(
             label="GRUPO 10", command=self.f_integrantes, image=self.GRUPO_ICON, compound=LEFT)
@@ -145,10 +128,6 @@ class cliente():
         bot1 = Button(barraherr, image=self.CONNECT_ICON,
                       command=self.f_conectar)
         bot1.pack(side=RIGHT, padx=2, pady=2)
-
-        # Programacion de consola de PRUEBA, es unicamente para probar el switch de la consola
-        botconsole = Button(barraherr, image = self.CONSOLE_ICON, command = self.f_switch_console_mode)
-        botconsole.pack(side=RIGHT, padx=2, pady=2)
 
         # Barra Inferior
         now = datetime.now()
@@ -176,16 +155,8 @@ class cliente():
         style = ttk.Style(treeFrame)
         style.configure('Treeview', rowheight=40)
         self.treeview = ttk.Treeview(treeFrame, selectmode="extended")
-        self.treeview.column("#0", anchor=W, width=300)
-        
-        item = self.treeview.insert("", tk.END, text="Server", image=self.SERV_ICON)
-        for x in range(1, 5):
-            item2 = self.treeview.insert(item, tk.END,text="Databases"+str(x),image=self.BD_ICON)
-            item3 = self.treeview.insert(item2, tk.END, text="Tables",image=self.TB_ICON)
-            for x in range(1, 5):
-                item4 = self.treeview.insert(item3, tk.END, text="Tabla"+str(x),image=self.TB_ICON)
-                for x in range(1, 4):
-                    self.treeview.insert(item4, tk.END, text="Columna"+str(x),image=self.COL_ICON)
+        self.treeview.column("#0", anchor=W, width=300)    
+        self.f_charge_treeview()
         self.treeview.pack(fill=BOTH, expand=True)
 
         # SubCuerpo
@@ -209,39 +180,30 @@ class cliente():
         #botones
         toolbar3 = Label(self.QueryTool2, bg="Gainsboro")
         toolbar3.pack(side=TOP, fill = X)
-
         btnBase = Button(toolbar3, image=self.TBASE_ICON,command=self.f_cargar)
         # btnBase.grid(row=0,column=1, padx=8)
         btnBase.pack(side = LEFT, padx=2, pady=2)
-
         btnCarpeta = Button(toolbar3, image=self.TCARPETA_ICON)
         # btnCarpeta.grid(row=0,column=2, padx=8)
         btnCarpeta.pack(side = LEFT, padx=2, pady=2)
-
         btnGuardar = Button(toolbar3, image=self.TGUARDAR_ICON,command = self.f_guardar)
         # btnGuardar.grid(row=0,column=3, padx=8)
         btnGuardar.pack(side = LEFT, padx=2, pady=2)
-
         btnBuscar = Button(toolbar3, image=self.TBUSCAR_ICON,command = self.f_buscar)
         # btnBuscar.grid(row=0,column=4, padx=8)
         btnBuscar.pack(side = LEFT, padx=2, pady=2)
-
         btnVaciar = Button(toolbar3, image=self.TVACIAR_ICON)
         # btnVaciar.grid(row=0,column=5, padx=8)
         btnVaciar.pack(side = LEFT, padx=2, pady=2)
-
         btnCompilar = Button(toolbar3, image=self.TCOMPILAR_ICON,command = self.f_compilar)
         # btnCompilar.grid(row=0,column=6, padx=8)
         btnCompilar.pack(side = LEFT, padx=2, pady=2)
-
         btnExplicar = Button(toolbar3, image=self.TEXPLICAR_ICON)
         # btnExplicar.grid(row=0,column=7, padx=8)
         btnExplicar.pack(side = LEFT, padx=2, pady=2)
-
         btnDescargar = Button(toolbar3, image=self.TDESCARGAR_ICON)
         # btnDescargar.grid(row=0,column=8, padx=8)
         btnDescargar.pack(side = LEFT, padx=2, pady=2)
-
         btnCerrar = Button(toolbar3, image=self.TCERRAR_ICON, command=self.f_cerrar_query_tool)
         # btnCerrar.grid(row=0,column=9, padx=20)
         btnCerrar.pack(side = LEFT, padx=2, pady=2)
@@ -262,63 +224,175 @@ class cliente():
         #text
         scroll = Scrollbar(self.QueryTool2)
         scroll.pack(side=RIGHT, fill = Y)
-        texto = Text(self.QueryTool2)
-        texto.pack(fill = BOTH, expand = True)
-        texto.config(bd=0, padx=6, pady=4, bg="Beige", font=("Consolas", 12), yscrollcommand=scroll.set)
-        scroll.config(command=texto.yview)
+        self.texto = Text(self.QueryTool2)
+        self.texto.pack(fill = BOTH, expand = True)
+        self.texto.config(bd=0, padx=6, pady=4, bg="Beige", font=("Consolas", 12), yscrollcommand=scroll.set)
+        scroll.config(command=self.texto.yview)
 
 
         # Consola
         self.ConsoleTool = LabelFrame(SubCuerpo, text='Consola')
         self.ConsoleTool.config(bg='white')
         self.ConsoleTool.pack(side=BOTTOM, fill=BOTH, expand = True)
-        
-        # Primera Configuracion de TextBox
-        self.output = Text(self.ConsoleTool, pady = 1, padx = 1, state = 'normal', height = 12)
-        self.output.pack(side=BOTTOM, fill=BOTH, expand = True)
-        self.output.insert(INSERT, '''Error: Ha ocurrido un error
-        > Este mensaje se mostrara cuando ocurra un error o cuando se deba mostrar el log
-        > de alguna funcion de la base de datos o de la aplicacion     
-        ''')
-        self.output.tag_add('error', '1.0', '1.6')
-        self.output.tag_config('error', foreground="red")
-        self.output.config(state = 'disabled')
-        
-        
-       
+
+        # Creacion de OUTPUTS TABS
+        self.outputControl = ttk.Notebook(self.ConsoleTool)
+
+        self.outputTables = ttk.Frame(self.outputControl, height=200)
+        self.outputConsole = ttk.Frame(self.outputControl, height=200)
+
+        self.outputControl.add(self.outputTables, text='Salida')
+        self.outputControl.add(self.outputConsole, text='Consola')
+        self.outputControl.pack(fill=BOTH, expand=True)
+
+        # Agregar TextBox al outputConsola
+        self.outputText = Text(self.outputConsole, pady=2, padx=2, state='disabled')
+        self.outputText.pack(fill=BOTH, expand=True)
+        self.f_set_console_message('Cliente Iniciado.\n')   
+
+        # Agregar Tablas al outputTables 
+        self.outputQuery = ttk.Treeview(self.outputTables) 
+        self.outputQuery.pack(fill=BOTH, expand=True)
 
         # Ejecucion de la ventana
         self.raiz.mainloop()
 
-    def f_switch_console_mode(self):
-        self.consoleMode = not self.consoleMode
+    '''==================================
+       FUNCIONALIDADES CON QUERY TOOL
+    =================================='''
+    # ENCARGADO DE ENVIAR LA CONEXION AL SERVIDOR PARA QUE CONECTE CON EL QUERYTOOL
+    def send_scritp(self,texto):
+        # Mandamos el script
+        serv.sendall(texto.encode('utf-8'))
+        recibido = 0
+        esperado = len(texto)
+        #Recibiendo JSON
+        data = serv.recv(4096)     
+        data_json = json.loads(data.decode())
+        recibido += len(data)
+        #imprimiendo todo el json
+        #print(data_json)
+        #Leyendo los hijos del padre mensaje
+        self.obj = data_json['obj']    
+        self.databases = data_json['databases']
 
-        if self.consoleMode:
-            # De ser el valor True se mostrara la tabla con datos del query
-            self.output.pack_forget()
-            self.output = ttk.Treeview(self.ConsoleTool, columns = ('#1', '#2', '#3', '#4'))
-            self.output.pack(side=BOTTOM, fill=BOTH, expand = True)
-            self.output.heading('#1', text = 'Column1', anchor = CENTER)
-            self.output.heading('#2', text = 'Column2', anchor = CENTER)
-            self.output.heading('#3', text = 'Column3', anchor = CENTER)
-            self.output.heading('#4', text = 'Column4', anchor = CENTER)
-            self.output.insert('', 'end', text='index 1', values=("data 1", "data 2", "data 3", "data 4"))
-        else:
-            # de ser el valor False se mostrara un caja de texto con un mensaje
-            self.output.pack_forget()
-            self.output = Text(self.ConsoleTool, pady = 1, padx = 1, state = 'normal', height = 10)
-            self.output.pack(side=BOTTOM, fill=BOTH, expand = True)
-            self.output.insert(INSERT, '''Error: Ha ocurrido un error
-            > Este mensaje se mostrara cuando ocurra un error o cuando se deba mostrar el log
-            > de alguna funcion de la base de datos o de la aplicacion     
-            ''')
-            self.output.tag_add('error', '1.0', '1.6')
-            self.output.tag_config('error', foreground="red")
-            self.output.config(state = 'disabled')
+        # Imprimimos los Mensajes
+        for msg in self.obj['messages']:
+            self.f_set_console_message(msg)
         
+        # Imprimimos los Errores
+        for err in self.obj['postgres']:
+            self.f_set_console_message(err)
 
+        # Actualizamos el treeview
+        self.f_charge_treeview()
 
-    #abrir query tool
+        # Actualizamos la tabla de query
+        self.f_set_console_tables()
+
+        #print(data_json['databases'])
+
+    def f_compilar(self):
+        query = ''
+        try:
+            query = self.texto.selection_get()
+        except:
+            query = self.texto.get('1.0', END)
+        print(query)
+        self.send_scritp(query)
+
+        #print(self.texto.get('1.0', END))
+        # messagebox.showinfo(
+        #    "Loading...", "DEBERA COMPILAR EL SCRIPT ACTUAL")
+
+    '''===========================================================
+       FUNCIONALIDADES RESPONSIVAS DEL QUERYTOOL CON EL CLIENTE
+    ==========================================================='''
+    # SE ENCARGA DE CREAR UNA BASE DE DATOS
+    def f_crear_db(self):
+        dll_db = simpledialog.askstring("Create DB", "Ingresar nombre")
+        query = "create database "+dll_db+";"
+        #print(query)
+        self.send_scritp(query)
+        databases.load()
+        self.f_charge_treeview()
+        # self.f_set_console_message('La base de datos '+dll_db+' ha sido creada\n')
+
+    # SE ENCARGA DE ACTUALIZAR EL TREEVIEW
+    def f_charge_treeview(self):
+        # PRIMERO LIMPIAMOS TODOS LOS HIJOS QUE TENGA EL TREE RAIZ
+        children = self.treeview.get_children()
+        for item in children:
+            self.treeview.delete(item)
+
+        # CREAMOS LA RAIZ            
+        self.server = self.treeview.insert("", tk.END, text=" Server", image=self.SERV_ICON)
+
+        # ITERAMOS SUS HIJOS
+        for db in self.databases:
+            database_item = self.treeview.insert(self.server, tk.END, text = " " + db['name'], image = self.BD_ICON)
+            tables_parent = self.treeview.insert(database_item, tk.END, text=" Tables",image=self.TB_ICON)
+            for tb in db['tables']:
+                table_item = self.treeview.insert(tables_parent, tk.END, text = " " + tb['name'], image = self.TB_ICON)
+                for clm in tb['columns']:
+                    self.treeview.insert(table_item, tk.END, text = " " + clm['name'], image = self.COL_ICON)
+        # VOLVEMOS A IMPRIMIR
+
+    # IMPRIME UN MENSAJE EN LA CONSOLA
+    def f_set_console_message(self, text):
+        self.outputText.config(state='normal')
+        self.outputText.insert(END, text+'\n')
+        self.outputText.config(state='disabled')
+
+    # IMPRIME LA TABLA DE QUERYS
+    def f_set_console_tables(self):
+        if len(self.obj['querys']) == 0:
+            return
+        
+        try:
+            # INDIVIDUALIZACION DE PARAMETROS
+            encabezados = self.obj['querys'][0][0]
+            resultados = self.obj['querys'][0][1]
+
+            # LIMPIAMOS LA TABLA ANTERIOR
+            self.outputQuery.pack_forget()
+            self.outputQuery = ttk.Treeview(self.outputTables) 
+
+            #print(encabezados)
+            #print(resultados)
+
+            # CREAMOS EL INDICE DE ENCABEZADOS
+            enclist = []
+            index = 1
+            for enc in encabezados:
+                enclist.append("#"+str(index))
+                index += 1
+            
+            # ASIGNAMOS LOS INDICES Y LA COLUMNA 0
+            self.outputQuery["columns"] = enclist        
+            self.outputQuery.heading("#0", text = "NO.", anchor=CENTER)
+            
+            # ASIGNAMOS LOS VALORES A LOS ENCABEZADOS
+            index = 0
+            for head in encabezados:
+                self.outputQuery.heading(enclist[index], text=head, anchor=CENTER)
+                index += 1
+
+            # INSERTAMOS LOS DATOS OBTENIDOS
+            index = 1
+            for result in resultados:
+                self.outputQuery.insert('','end', text=str(index), values=result)
+                index += 1
+
+            # HACEMOS EL EMBALAJE
+            self.outputQuery.pack( fill=BOTH, expand=True)
+        except:
+            pass
+
+    '''=============================================
+       FUNCIONALIDADES DE LA INTERFAZ DEL CLIENTE
+    ============================================='''
+    #ABRE UN QUERY TOOL
     def f_query_tool(self):
         self.QueryTool2.pack(side = TOP, fill = X)     
         self.QueryTool.pack_forget()
@@ -326,16 +400,59 @@ class cliente():
         messagebox.showinfo(
             "Loading...", "DEBERA DEJAR EDITAR O MOSTRAR QUERY TOOL")
         """
+    
+    #GUARDA UN SCRIPT SQL
     def f_guardar(self):
             messagebox.showinfo(
             "Loading...", "DEBERA GUARDAR LOS QUERYS")
+    
+    
 
+    def f_buscar(self):
+        messagebox.showinfo(
+            "Loading...", "DEBERA BUSCAR DENTRO DEL QUERY")
+
+    
+
+    def f_cargar(self):
+        messagebox.showinfo(
+            "Loading...", "DEBERA CARGAR QUERY")
+
+    def f_eliminar(self):
+        messagebox.showinfo(
+            "Loading...", "DEBERA ELIMINAR QUERY ACTUAL")
+
+    #CIERRA EL QUERY TOOL
+    def f_cerrar_query_tool(self):
+        self.QueryTool2.pack_forget()
+        self.QueryTool.pack(side = TOP, fill = X) 
+
+    def f_conectar(self):
+        print("Conectando...")
+        self.send_scritp('tytus.connect_server')
+        databases.load()
+        self.f_charge_treeview()
+
+    def f_cambiaropc(self):
+        self.objectMenu.entryconfig("Guardar", state="normal")
+
+    def f_verestado(self):
+
+        if self.estado.get() == 0:
+            self.barraest.pack_forget()
+        else:
+            self.barraest.pack(side=BOTTOM, fill=X)
+
+
+    '''============================
+       FUNCIONALIDADES DEL LOGIN
+    ============================'''
+    #INGRESO DEL USUARIO
     def f_log(self):
         self.log_screen = tk.Toplevel(self.raiz)
         self.log_screen.title("Login")
         self.log_screen.config(relief="sunken") 
         self.log_screen.config(bd=25)  
-        ##self.log_screen.geometry("300x320")
         ancho_ventana = 900
         alto_ventana = 300
 
@@ -355,7 +472,6 @@ class cliente():
         usernameV = StringVar()
         passwordV = StringVar()
     
-    
         Label(self.log_screen, text="Username ").pack()
         self.username_entry = Entry(self.log_screen, textvariable=usernameV)
         self.username_entry.pack()
@@ -367,6 +483,7 @@ class cliente():
         Button(self.log_screen, text="Login", width=10, height=1, command=self.login_verification).pack()
         self.raiz.iconify()
 
+    # VERIFICA EL USUARIO Y CONTRASEÑA
     def login_verification(self):
         #print(usernameV.get())
         user = usernameV.get()
@@ -385,44 +502,9 @@ class cliente():
             messagebox.showinfo(
             "Loading...", "DATOS INCORRECTOS")
 
-    def f_buscar(self):
-    
-        messagebox.showinfo(
-            "Loading...", "DEBERA BUSCAR DENTRO DEL QUERY")
-
-    def f_compilar(self):
-        
-        messagebox.showinfo(
-            "Loading...", "DEBERA COMPILAR EL SCRIPT ACTUAL")
-
-    def f_cargar(self):
-
-        messagebox.showinfo(
-            "Loading...", "DEBERA CARGAR QUERY")
-
-    def f_eliminar(self):
-    
-        messagebox.showinfo(
-            "Loading...", "DEBERA ELIMINAR QUERY ACTUAL")
-
-    #cerrar query tool
-    def f_cerrar_query_tool(self):
-        self.QueryTool2.pack_forget()
-        self.QueryTool.pack(side = TOP, fill = X) 
-
-    def f_conectar(self):
-        print("Conectando")
-
-    def f_cambiaropc(self):
-        self.objectMenu.entryconfig("Guardar", state="normal")
-
-    def f_verestado(self):
-
-        if self.estado.get() == 0:
-            self.barraest.pack_forget()
-        else:
-            self.barraest.pack(side=BOTTOM, fill=X)
-
+    '''====================================
+       FUNCIONALIDADES DE LA INFORMACION
+    ===================================='''
     def f_web(self):
         tytus = 'https://github.com/tytusdb/tytus'
         webbrowser.open_new_tab(tytus)
@@ -467,7 +549,6 @@ def f_verificar_iconos(iconos):
 def main():
     ruta_relativa = os.getcwd()
     ruta_r = ruta_relativa + os.sep + "imagen" + os.sep
-
     iconos = (ruta_r + "pyremoto64x64.png",
               ruta_r + "conec16x16.png",
               ruta_r + "salir16x16.png",

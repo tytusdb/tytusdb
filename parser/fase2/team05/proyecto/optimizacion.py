@@ -71,26 +71,56 @@ def optimizar(pOpt):
                     codOpt += val
                 else:
                     codOpt += valor + '\n'
-            elif 'if' in valor:
-                v = ""
+            elif 'if ' in valor:
                 vIf = valor.split(':')
                 vIf[0] = vIf[0].replace("if","")
                 operador = vIf[0].split('==')
                 a = str(operador[0]).strip()
                 b = str(operador[1]).strip()
-                if a.isnumeric() and  b.isnumeric():
+                if (a.isnumeric() and  b.isnumeric()) or ( "\"" in a and "\"" in b):
                     if a == b:
-                        indiceB = indice + 1
+                        indiceA = indice + 1
                         val = str(vIf[1])
-                        reglasOpt.append("Regla 4: " + valor + '\n' + str(listaOp[indiceB]) + '. Se optimiza por: ' + str(val))
+                        reglasOpt.append("Regla 4: " + valor + '\n' + str(listaOp[indiceA]) + '. Se optimiza por: ' + str(val))
+                        listaOp[indiceA] = ''
+                        codOpt += val
+                    else:
+                        indiceB = indice + 1
+                        val = str(listaOp[indiceB])
+                        reglasOpt.append("Regla 5: " + valor + '<br>' + str(listaOp[indiceB]) + '<br> Se optimiza por: ' + str(val))
                         listaOp[indiceB] = ''
                         codOpt += val
                 else:
-                    print('b')
+                    indiceIf = indice + 1
+                    if2 = listaOp[indiceIf]
+                    if 'goto ' in if2:
+                        vLab1 = valor.split('goto .')
+                        vLab2 = vLab1[0].replace('==','!=')
+                        vLab3 = if2
+                        vLab4 = vLab2 + vLab3
+                        optimizado = 'Regla 3: ' + str(valor) + '<br>' + str(if2) + '<br' + str(listaOp[indiceIf + 1]) + '<br> se optimiza por: <br> ' + str(vLab4) + '<br>' + str(listaOp[indiceIf + 2] + '')
+                        reglasOpt.append(optimizado)
+                        listaOp[indiceIf] = ''
+                        listaOp[indiceIf + 1] = ''
+                        codOpt += str(vLab4) + str(listaOp[indiceIf + 2])
 
-                print(valor)
+                    else:
+                        codOpt += valor
+
             else:
-                codOpt += valor +'\n'
+                indiceAsig = indice + 1
+                asig2 = listaOp[indiceAsig]
+                if '=' in asig2:
+                    asig = valor.split('=')
+                    asig2 = asig2.split('=')
+                    if (str(asig[0]).strip() == str(asig2[1]).strip()) and (str(asig[1]).strip() == str(asig2[0]).strip()):
+                        reglasOpt.append("Regla 1: <br>" + valor + '<br>' +str(listaOp[indiceAsig]) + '. <br> Se optimiza por: ' + valor )
+                        listaOp[indiceAsig] = ''
+                        codOpt += valor
+                    else:
+                        codOpt += valor
+                else:
+                    codOpt += valor
         else:
             codOpt += valor + '\n'
 

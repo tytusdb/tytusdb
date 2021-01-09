@@ -5,6 +5,8 @@ import analizer.symbol.c3dSymbols as SymbolTable
 from analizer.statement.functions.call import FunctionCall
 from analizer.statement.expressions.identifiers import Identifiers
 from datetime import datetime
+from analizer.statement.instructions.select.select import Select
+from analizer.statement.pl.instruccionesF1 import F1
 from analizer.reports.Nodo import Nodo
 from analizer.reports.AST import AST
 
@@ -22,25 +24,24 @@ class Declaration(instruction.Instruction):
         pass
     def generate3d(self,environment,instanciaAux):
         tipo=self.tipo[0].casefold()
-        try:
-            TypeV = None
-            if type(self.valor) in (str, bool, float, int):
-                self.valor = None
-            if self.valor != None:
-                TypeV=self.valor.execute(environment).type
-                print('El tipo es: '+TypeV.name)
-        except:
-            instruction.semanticErrors.append(
-                    ( "ERROR: 42P18: tipo de dato indeterminado en '%s'" %self.nombre,self.row)
-            )
-            return None
+        if not isinstance(self.valor,F1):
+            try:
+                TypeV = None
+                if type(self.valor) in (str, bool, float, int):
+                    self.valor = None
+                if self.valor != None:
+                    TypeV=self.valor.execute(environment).type
+                    print('El tipo es: '+TypeV.name)
+            except:
+                instruction.semanticErrors.append(
+                        ( "ERROR: 42P18: tipo de dato indeterminado en '%s'" %self.nombre,self.row)
+                )
+                return None
         try:
             if not isinstance(self.valor, Identifiers):
                 self.valor=self.valor.value
         except:
-            print("Error nuevo valor")
             pass
-            print(self.valor,tipo)
         try:
             if 'primitive'==self.classType or self.valor == None:
                 if self.valor == None:
@@ -149,11 +150,14 @@ class Declaration(instruction.Instruction):
                 instanciaAux.addToCode(f'\t{self.nombre} =  {self.valor}')
     
             elif not self.classType == None:
-                print("Nuevo valor:",self.valor)
                 if isinstance(self.valor,FunctionCall):
                     callValue=self.valor.execute(environment).value
                     SymbolTable.add_symbol(self.nombre,TypeV,callValue,self.row,self.column,None)
                     instanciaAux.addToCode(f'\t{self.nombre} =  {callValue}')
+                elif isinstance(self.valor,F1):
+                    callTemp=self.valor.generate3d(environment,instanciaAux)
+                    SymbolTable.add_symbol(self.nombre,'Query',callTemp,self.row,self.column,None)
+                    instanciaAux.addToCode(f'\t{self.nombre} =  {callTemp}')
                 else:    
                     newTemp=self.valor.generate3d(environment,instanciaAux)
                     callValue=self.valor.execute(environment).value
@@ -171,7 +175,6 @@ class Declaration(instruction.Instruction):
         nuevo_nodo = Nodo("DECLARACION")
         id_nodo = Nodo("IDENTIFICADOR")
         tipo_nodo = Nodo("TIPO")
-        exp_nodo = Nodo("EXPRESION")
         ident_nodo = Nodo(self.nombre)
         type_nodo = Nodo(self.tipo[0])
         if isinstance (self.tipo[1], list):
@@ -185,8 +188,10 @@ class Declaration(instruction.Instruction):
             tipo_nodo.addNode(dim) 
         id_nodo.addNode(ident_nodo)
         tipo_nodo.addNode(type_nodo)
-        exp_nodo.addNode(self.exp.dot())
         nuevo_nodo.addNode(id_nodo)
         nuevo_nodo.addNode(tipo_nodo)
-        nuevo_nodo.addNode(exp_nodo)
+        if self.exp != None:
+            exp_nodo = Nodo("EXPRESION")
+            exp_nodo.addNode(self.exp.dot())
+            nuevo_nodo.addNode(exp_nodo)
         return nuevo_nodo

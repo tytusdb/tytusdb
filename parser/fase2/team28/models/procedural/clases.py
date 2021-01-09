@@ -17,10 +17,13 @@ class BodyDeclaration(Instruction):
                 declaration.compile(enviroment)
 
         if self.begin is not None:
-            for instr in self.begin:
-                print(instr)
-                instr.compile(enviroment)
-    
+            if type(self.begin) is list:
+                for instr in self.begin:
+                    print(instr)
+                    instr.compile(enviroment)
+            else:
+                self.begin.compile(enviroment)
+                
     def process(self):
         pass
 
@@ -47,10 +50,16 @@ class ReturnFuncProce(Instruction):
         return str(vars(self))
 
     def compile(self, environment):
-        value = self.val_return.compile(environment)
-        pos = ThreeAddressCode().stackCounter
-        ThreeAddressCode().addStack(value.value)
-        ThreeAddressCode().addCode(f"P = {pos}")
-    
+        if self.val_return is not None:
+            value = self.val_return.compile(environment)
+            pos = ThreeAddressCode().stackCounter
+            #Metiendo el valor a retornar al Stack
+            ThreeAddressCode().addStack(value.value)
+            ThreeAddressCode().addCode(f"P = {pos}")
+
+        #Poniendo salto incondicional
+        lbl_return = environment.getReturn()
+        ThreeAddressCode().addCode(f"goto .{lbl_return}")
+
     def process(self):
         pass

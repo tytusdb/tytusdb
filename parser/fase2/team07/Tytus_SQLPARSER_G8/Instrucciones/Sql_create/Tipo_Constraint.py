@@ -15,11 +15,12 @@ class Tipo_Dato_Constraint(Enum):
 
 class Tipo_Constraint():
     'Esta clase será de utilidad para la comprobación de tipos.'
-    def __init__(self,id, tipo, expresion):
+    def __init__(self,id, tipo, expresion, strSent):
         self.id =id
         self.tipo = tipo
         self.expresion = expresion
         self.referencia = ''
+        self.strSent = strSent
         
     def toString(self):
         if self.tipo == Tipo_Dato_Constraint.PRIMARY_KEY:

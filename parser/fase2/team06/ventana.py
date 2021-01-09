@@ -234,8 +234,10 @@ class Interfaz(tk.Frame):
         print(x)
 
         salida=self.terminal.get(1.0,tk.END)
-        exec(x)
+        a=exec(x)
         salida+=h.textosalida
+        salida+="-------------------------salida python ------------------------------\n"
+        salida+=str(a)
         self.terminal.insert(tk.END,salida) 
 
 

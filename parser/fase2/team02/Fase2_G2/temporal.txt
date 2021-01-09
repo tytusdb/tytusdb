@@ -1,0 +1,86 @@
+
+
+CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+BEGIN
+	RETURN texto;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE TABLE tbProducto (idproducto integer not null primary key,
+  						 producto varchar(150) not null,
+  						 fechacreacion date not null,
+						 estado integer);
+
+
+CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
+							 item varchar(100) not null,
+							 punteo integer not null);
+
+INSERT INTO tbProducto values(1,'Laptop Lenovo',now(),1);
+INSERT INTO tbProducto values(2,'Bateria para Laptop Lenovo T420',now(),1);
+INSERT INTO tbProducto values(3,'Teclado Inalambrico',now(),1);
+INSERT INTO tbProducto values(4,'Mouse Inalambrico',now(),1);
+INSERT INTO tbProducto values(5,'WIFI USB',now(),1);
+INSERT INTO tbProducto values(6,'Laptop HP',now(),1);
+INSERT INTO tbProducto values(7,'Teclado Flexible USB',now(),1);
+INSERT INTO tbProducto values(8,'Laptop Samsung','2021-01-02',1);
+
+	 
+
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+	if tabla = 'tbProducto' then
+	    resultado := 89;
+    	if cantidad = resultado then
+			retorna = 1;
+	else 
+			retorna = 50;
+		end if;
+	end if;
+	if tabla = 'tbProductoUp' then
+	    resultado := 666;
+    	if cantidad = resultado then
+			retorna = 1;
+		else 
+			retorna = 80;
+		end if;
+	end if;
+	if tabla = 'tbbodega' then
+	    resultado := 4;
+    	if cantidad = resultado then
+			retorna = 154;
+		else 
+			retorna = 70;
+		end if;
+	end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+
+insert into tbCalificacion values(1,'Create Table and Insert',ValidaRegistros('tbProducto',8));
+
+
+
+insert into tbCalificacion values(2,'Update',ValidaRegistros('tbProductoUp',8));
+
+								 
+insert into tbCalificacion values(4,'Valida Store Procedure',ValidaRegistros('tbbodega',5));
+																			  
+
+create procedure sp_validaupdate()
+language plpgsql
+as $$
+begin
+	update tbbodega set bodega = 'bodega zona 9' where idbodega = 4; 
+end; $$
+
+EXECUTE sp_validaupdate();
+
+
+insert into tbCalificacion values(5,'Valida Delete',ValidaRegistros('tbbodega',4));
+select * from tbbodega;
+

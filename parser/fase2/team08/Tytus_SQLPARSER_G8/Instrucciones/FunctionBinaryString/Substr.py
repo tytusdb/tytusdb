@@ -12,10 +12,10 @@ class Substr(Instruccion):
         '''
     
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        pass
+        return super().traducir(tabla, arbol)
     
 '''
 instruccion = Substr("hola mundo",None, 1,2)

@@ -65,6 +65,11 @@ class Pantalla:
         self.text_Consola.pack(fill=BOTH)
         console_frame.pack(fill=BOTH)
         self.tabControl.add(console_frame, text="Codigo 3 Direcciones")
+        console_frame1 = Frame(self.tabControl, height=20, width=150, bg="#d3d3d3")  
+        self.text_Consola1 = tk.Text(console_frame1, height=20, width=150)
+        self.text_Consola1.pack(fill=BOTH)
+        console_frame1.pack(fill=BOTH)
+        self.tabControl.add(console_frame1, text="Resultado Optimizado")
         self.tabControl.pack()
         self.window.mainloop()
 
@@ -74,14 +79,11 @@ class Pantalla:
             ) )
         instrucciones = g.parse(vairableSis)
         tempSis=[[['reglas','antes','despues'],g.reporte_optimizar]]
-        self.show_result(tempSis)
+        self.show_result(tempSis,"Reporte Optimizacion")
         for e in g.respuesta:
-            print(e,end="")
+            self.text_Consola1.insert(INSERT, e)
 
-        print('\n Reporte--\n')
-        print(g.reporte_optimizar)
-
-    def show_result(self, consults):
+    def show_result(self, consults, texto_a_mostrar):
         if consults != None:
             i = 0
             for consult in consults:
@@ -104,7 +106,7 @@ class Pantalla:
                     table_scrollX.pack(side=BOTTOM, fill=X)
                     table.pack(side=LEFT, fill=BOTH)
                     frame.pack(fill=BOTH)
-                    self.tabControl.add(frame, text="Consulta " + str(i))
+                    self.tabControl.add(frame, text=str(texto_a_mostrar))
                 else:
                     self.text_Consola.insert(
                         INSERT, "Error: Consulta sin resultado" + "\n"
@@ -169,17 +171,8 @@ class Pantalla:
             print("\n")
             print("\n")
         '''
-        #print('Imprimiendo querys')
-        #print(querys)
-        self.show_result(querys)
-        #messages = result["messages"]
-        #if len(messages) > 0:
-           # i = 0
-           # self.text_Consola.insert(INSERT, "-----------MESSAGES----------" + "\n")
-           # while i < len(messages):
-               # self.text_Consola.insert(INSERT, str(messages[i]) + "\n")
-               # i += 1
-        self.text_Consola.insert(INSERT, "-----------Codigo 3 Direcciones----------" + "\n")
+        self.show_result(querys,"Consulta")
+        self.text_Consola.insert(INSERT, "#-----------Codigo 3 Direcciones----------" + "\n")
         codigo = result_c3d["codigo"]
         self.text_Consola.insert(INSERT, codigo)
         self.Codigo3Direcciones = codigo
@@ -188,11 +181,12 @@ class Pantalla:
 
     def refresh(self):
         tabls = self.tabControl.tabs()
-        i = 1
+        i = 2
         while i < len(tabls):
             self.tabControl.forget(tabls[i])
             i += 1
         self.text_Consola.delete("1.0", "end")
+        self.text_Consola1.delete("1.0", "end")
         self.semanticErrors.clear()
         self.syntacticErrors.clear()
         self.lexicalErrors.clear()

@@ -1,6 +1,5 @@
 import analizer_pl.abstract.symbol as sym
 
-
 class Environment:
     """
     Esta clase representa los simbolos de las variables declaradas.
@@ -10,6 +9,7 @@ class Environment:
         self.variables = {}
         self.types = {}
         self.globalEnv = globalEnv
+        self.isBlock = False
 
     def updateVar(self, id, value, type_):
         """
@@ -20,8 +20,7 @@ class Environment:
             symbol = sym.Symbol(id, value, type_, symbol.row, symbol.column)
             self.variables[id] = symbol
             return True
-        return None
-
+    
     def addVar(self, id, value, type_, row, column):
         """
         Inserta un nuevo simbolo en la tabla de simbolos
@@ -49,3 +48,4 @@ class Environment:
         """
         if id in self.variables:
             return self.variables[id]
+       

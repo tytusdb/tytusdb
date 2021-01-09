@@ -20,6 +20,7 @@ from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from Instrucciones.plsql.proc import Proc
+from Instrucciones.plsql.call import Call
 from Instrucciones.plsql.statement import Statement
 
 from storageManager.jsonMode import *
@@ -277,7 +278,7 @@ class interfaz():
             messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico.lista_lexicos)
         
-        #PRIMERA PASADA: Para almacenar las funcines, procedimientos y variables
+        #PRIMERA PASADA: Para almacenar las funciones, procedimientos y variables
         for i in arbol.instrucciones:
             scope = 'Global'
             if isinstance(i, Proc):
@@ -297,16 +298,13 @@ class interfaz():
                     arbol.addSymbol(param[0], symbol)
                     pointer += 1
                     
-                for inst in i.block.inst:
+                for inst in i.block.instructions:
                     if isinstance(inst, Statement):
                         dec = inst.dec
                         symbol = {'name': dec[0], 'type': dec[1].toString(), 'scope': scope, 'rol': 'Variable Local', 'pointer': str(pointer)}
                         arbol.addSymbol(dec[0], symbol)
                         pointer += 1
                         
-        
-        for i in arbol.instrucciones:
-            resultado = i.getCodigo(tablaGlobal,arbol)
             
         # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semáretunticos.
         if len(arbol.excepciones) != 0:
@@ -327,6 +325,17 @@ class interfaz():
             mensaje += f"from Instrucciones.Sql_drop.DropTable import DropTable\n"     
             mensaje += f"from Instrucciones.Sql_select.Select import Select\n"
             mensaje += f"from Instrucciones.Sql_insert import insertTable\n"
+            mensaje += f"from Instrucciones.Expresiones.Primitivo import Primitivo\n"
+            mensaje += f"from Instrucciones.TablaSimbolos.Tipo import Tipo\n"
+            mensaje += f"from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato\n"
+            mensaje += f"from Instrucciones.FunctionMathematical.Trunc import Trunc\n"
+            mensaje += f"from Instrucciones.FunctionMathematical.Abs import Abs\n"
+            mensaje += f"from Instrucciones.FunctionMathematical.Sqrt import Sqrt\n"
+            mensaje += f"from Instrucciones.FunctionTrigonometric.Sin import Sin\n"
+            mensaje += f"from Instrucciones.FunctionTrigonometric.Sinh import Sinh\n"
+            mensaje += f"from Instrucciones.FunctionTrigonometric.Acosd import Acosd\n"
+            mensaje += f"from Instrucciones.FunctionBinaryString.Length import Length\n"
+            mensaje += f"from Instrucciones.FunctionBinaryString.Substring import Substring\n"
             mensaje += f"\n"
             mensaje += f"global pointer\n"
             mensaje += f"global stack\n"
@@ -349,12 +358,19 @@ class interfaz():
             mensaje += f"\tglobal pointer\n"
             mensaje += f"\tglobal stack\n"
             
-            for m in arbol.consola:
-                mensaje += m + '\n'
-            self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+            for i in arbol.instrucciones:
+                if not isinstance(i, Proc):
+                    if isinstance(i, Call):
+                        result = i.getCodigo(tablaGlobal,arbol)
+                        mensaje += result['codigo']
+                    else:
+                        mensaje += i.getCodigo(tablaGlobal,arbol)
+                    mensaje += f"\n"
             
-            mensaje += f"if __name__ == \"__main__\":\n"
-            mensaje += f"\tmain()\n"
+            mensaje += f"\n"
+            mensaje += f"main()\n"
+            
+            self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
             
             file = open("traducido.py", "w")
             file.write(mensaje)
@@ -387,14 +403,18 @@ class interfaz():
         intermedia += self.getCustomInter(arbol, 'inter_alterDataBaseOwner', 5, 'AlterDBOwner', 'AlterDBOwner')
         intermedia += self.getCustomInter(arbol, 'inter_DropDataBase', 7, 'DropDB', 'DropDatabase')
         intermedia += self.getCustomInter(arbol, 'inter_dropTable', 5, 'drop', 'DropTable')
+        intermedia += self.getCustomInter(arbol, 'inter_tipo', 2, 'tipo', 'Tipo')
+        intermedia += self.getCustomInter(arbol, 'inter_primitivo', 5, 'primitivo', 'Primitivo')
+        intermedia += self.getCustomInter(arbol, 'inter_trunc', 4, 'trunc', 'Trunc')
+        intermedia += self.getCustomInter(arbol, 'inter_abs', 4, 'abs', 'Abs')
+        intermedia += self.getCustomInter(arbol, 'inter_sqrt', 4, 'sqrt', 'Sqrt')
+        intermedia += self.getCustomInter(arbol, 'inter_acosd', 4, 'acosd', 'Acosd')
+        intermedia += self.getCustomInter(arbol, 'inter_sin', 4, 'sin', 'Sin')
+        intermedia += self.getCustomInter(arbol, 'inter_sinh', 4, 'sinh', 'Sinh')
+        intermedia += self.getCustomInter(arbol, 'inter_length', 5, 'length', 'Length')
+        intermedia += self.getCustomInter(arbol, 'inter_substring', 7, 'substring', 'Substring')
 
         return intermedia
-
-
-
-
-
-
 
     
     def getCustomInter(self, arbol, name, size, nameObject, nameClass):
@@ -424,6 +444,35 @@ class interfaz():
         intermedia += f"\t{nameObject} = {nameClass}({','.join(paramList)})\n"
         intermedia += f"\tres = {nameObject}.ejecutar(table,tree)\n"
         intermedia += f"\tstack[{temp_return}] = res\n\n"
+        
+        return intermedia
+
+    def getCustomNativeInter(self, arbol, name, size, nameObject, nameClass):
+        temp_return = arbol.getTemporal()
+        indexList = [None] * size
+        paramList = [None] * size
+        
+        i = 0
+        while i < size:
+            indexList[i] = arbol.getTemporal()
+            paramList[i] = arbol.getTemporal()
+            i += 1
+            
+        intermedia = f"def {name}():\n"
+        intermedia += f"\tglobal pointer\n"
+        intermedia += f"\tglobal stack\n"
+        intermedia += f"\tglobal table\n"
+        intermedia += f"\tglobal tree\n"
+        intermedia += f"\t{temp_return} = pointer + 0\n"
+        
+        i = 1
+        while i <= size:
+            intermedia += f"\t{indexList[i - 1]} = {temp_return} + {i}\n"
+            intermedia += f"\t{paramList[i - 1]} = stack[{indexList[i - 1]}]\n"
+            i += 1
+            
+        intermedia += f"\t{nameObject} = {nameClass}({','.join(paramList)})\n"
+        intermedia += f"\tstack[{temp_return}] = {nameObject}\n\n"
         
         return intermedia
 

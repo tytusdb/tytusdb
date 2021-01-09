@@ -3,11 +3,11 @@ from sys import path
 from os.path import dirname as dir
 
 path.append(dir(path[0]))
-
-import analizer_pl.grammar as grammar
-from analizer_pl.abstract import global_env
-from analizer_pl.reports import BnfGrammar
 from analizer_pl.C3D.operations import block
+from analizer_pl.reports import BnfGrammar
+from analizer_pl.abstract import global_env
+import analizer_pl.grammar as grammar
+from analizer_pl.libs import File
 
 
 def traducir(input):
@@ -37,15 +37,21 @@ def traducir(input):
     f = open("test-output/c3dopt.py", "w+")
     f.write(optimizacion)
     f.close()
-    semanticErrors = []
+    semanticErrors = grammar.returnSemanticErrors()
+    postgres = grammar.returnPLErrors()
     functions = functionsReport(env)
     symbols = symbolReport()
+    indexes = indexReport()
     obj = {
+        "messages": [],
+        "querys": [],
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
         "semantic": semanticErrors,
+        "postgres": postgres,
         "symbols": symbols,
         "functions": functions,
+        "indexes": indexes,
     }
     grammar.InitTree()
     BnfGrammar.grammarReport()
@@ -91,39 +97,18 @@ def functionsReport(env):
     return rep
 
 
-s = """ 
-CREATE function foo(i integer) RETURNS integer AS $$
-declare 
-	j integer := -i + 5;
-	k integer:= date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
-    texto text := "3+3"||md5("Francisco");
-    temp integer := fake("yosoyfr"); 
-BEGIN
-	case 
-        when i > -10 then
-            RETURN k;
-        when i < 10 then
-            RETURN texto;
-        else 
-            RETURN k;
-    end case;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE procedure p1() AS $$
-declare 
-	k integer;
-BEGIN
-	k = foo(5);
-    k = foo(10);
-    k = foo(15);
-END;
-$$ LANGUAGE plpgsql;
-
---drop procedure p1;
-execute foo(5);
-execute foo(20);
-"""
-
-
-traducir(s)
+def indexReport():
+    index = File.importFile("Index")
+    enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
+    filas = []
+    for (name, Index) in index.items():
+        columns = ""
+        for column in Index["Columns"]:
+            columns += (
+                ", " + column["Name"] + " " + column["Order"] + " " + column["Nulls"]
+            )
+        filas.append(
+            [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
+        )
+    enc.append(filas)
+    return enc

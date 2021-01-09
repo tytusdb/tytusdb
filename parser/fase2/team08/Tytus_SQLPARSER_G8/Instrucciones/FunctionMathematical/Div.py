@@ -2,6 +2,7 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Expresiones.Primitivo import Primitivo
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 class Div(Instruccion):
     def __init__(self, opIzq, opDer, strGram, linea, columna):
         Instruccion.__init__(self,Tipo(Tipo_Dato.NUMERIC),linea,columna,strGram)
@@ -32,16 +33,25 @@ class Div(Instruccion):
             return error
 
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        concatena ="DIV("
+        super().traducir(tabla, arbol)
+        resultadoIzq=""
+        resultadoDer=""
         if isinstance(self.opIzq, Primitivo):
-            concatena += f"{self.opIzq.traducir(tabla,arbol).temporalAnterior}"
-        concatena += ","
+            resultadoIzq = self.opIzq.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.opIzq, Aritmetica):
+            resultadoIzq = self.opIzq.concatenar(tabla,arbol)
+        else:
+            resultadoIzq=self.opIzq.traducir(tabla,arbol)
+        
         if isinstance(self.opDer, Primitivo):
-            concatena += f"{self.opDer.traducir(tabla,arbol).temporalAnterior}"
+            resultadoDer = self.opDer.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.opDer, Aritmetica):
+            resultadoDer = self.opDer.concatenar(tabla,arbol)
+        else:
+            resultadoDer= self.opDer.traducir(tabla,arbol)
 
-        concatena +=")"
-        return concatena
+        return f"DIV({resultadoIzq},{resultadoDer})"
 
