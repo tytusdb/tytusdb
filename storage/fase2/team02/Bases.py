@@ -4,10 +4,11 @@ from storage.bplus import BPlusMode as bplus
 from storage.DictMode import DictMode as DM
 from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as j
-from storage.Hash import HashMode as Hash
+#from storage.Hash import HashMode as Hash
 import zlib
 import hashlib
-# from storage.HashWindows import HashMode as Hash
+import os
+from storage.HashWindows import HashMode as Hash
 
 currentMode,avlList,bList,bplusList,dictList,jsonList,isamList,hashList = [],[],[],[],[],[],[],[]
 comp = []
@@ -1044,11 +1045,11 @@ def GDSD(baseDatos, lista: list) :
         f.write("digraph g {\n")
         f.write("node [shape=record]\n")
         f.write("subgraph cluster_0 {\n")
-        #f.write("\""+str(lista[0][0])+"\";\n")
+        f.write("\""+str(lista[0][0])+"\";\n")
         for i in range(len(lista[0][0])):
-            if i >= len(lista[0][0]):
-                break
-            f.write("\""+str(lista[0][i])+"\";\n") 
+            #if i >= len(lista[0][0]):
+               # break
+            f.write("\""+str(lista[0][i+1])+"\";\n") 
             
         f.write("label=\""+baseDatos+"\";")
         f.write("color=blue;\n")
