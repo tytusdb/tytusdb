@@ -66,6 +66,8 @@ CREATE DATABASE IF NOT EXISTS test
 ```sql 
 DROP DATABASE  IF EXISTS  califica2;
 ```
+*foto de las respuestas*
+
 
 ### Modificacion de Base de datos
 * **Paso 1:** Se dirige al apartado para Cambiar de nombre una base de datos
@@ -84,6 +86,7 @@ DROP DATABASE  IF EXISTS  califica2;
 ```sql 
 ALTER TABLE tbusuario
 ```
+*foto de las respuestas*
 
 
 
@@ -108,6 +111,8 @@ ALTER TABLE tbusuario
 ALTER DATABASE olddbname RENAME TO newdbname;
 ```
 
+*foto de las respuestas*
+
 
 ### Eliminacion Tablas
 * **Paso 1:** Se dirige al apartado para eliminar una tabla
@@ -126,3 +131,5 @@ ALTER DATABASE olddbname RENAME TO newdbname;
 ```sql 
 drop table tbempleadoidentificacion;
 ```
+*foto de las respuestas*
+
