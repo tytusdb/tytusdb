@@ -42,7 +42,9 @@ La aplicación cuenta con un servidor web que se conecta por medio del protocolo
 
 ### Descripcion Codigo
 La apicación web es genarada con Flask que renderiza la [pagina principal](https://github.com/tytusdb/tytus/blob/main/client/fase2/team07/tytus-flask/templates/homepage.html) en la ruta principal del servidor web. Contiene rutas que utiliza para ejecutar los comandos SQL que se ingresan en el editor de texto, esta ruta se comunica con el servidor flask que consume el query tool.
+
 ![codigo1](./img/cd1.jpeg)
+
 La ruta utilizada por el servidor es un metodo que analiza la consulta enviada por el cliente retornando el resultado segun la sintaxis de tytus. El resultado depende solamente de la consulta y del query tool, el servidor se encarga solo de comunicar al cliente con el query tool.
 
 ![codigo2](./img/cd2.jpeg )
