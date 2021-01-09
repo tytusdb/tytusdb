@@ -45,7 +45,7 @@ Agregando Grafos, Blockchain, codificación y encriptación.
 ## Unificación 
 
 <p align="center">
-  <img src="imag/basespy.png" width="300">
+  <img src="Imagenes/basespy.png" width="300">
 </p>
 
 En una clase llamada "Bases.py" , se importaron los modos que se realizarón en la fase I , en esta también se realizarón todos los metodos indicados para que funcione 
@@ -53,7 +53,7 @@ con todos los modos cuando el usuario lo desee.
 
 ## Pruebas
 <p align="center">
-  <img src="imag/pruebaspy.png" width="300">
+  <img src="Imagenes/pruebaspy.png" width="300">
 </p>
 
 Para realizar pruebas de los modos y las validaciones, hasta el final del código se pueden llamar los métodos y poder verificar cada uno de ellos. 
