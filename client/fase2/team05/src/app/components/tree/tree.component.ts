@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { faSync } from '@fortawesome/free-solid-svg-icons';
-import { ServiceTreeService } from 'src/app/service/service-tree/service-tree.service'
+import { DatabaseService } from 'src/app/service/database/database.service';
 
 @Component({
   selector: 'app-tree',
@@ -15,21 +15,21 @@ export class TreeComponent implements OnInit {
   array_database_service: any[]
   array_tabas_service = []
 
-  constructor(private ServiceTreeService: ServiceTreeService) {
+  constructor(private databaseservice: DatabaseService) {
   }
 
   ngOnInit(): void {
     //this.funcion1()
   }
 
-  funcion1() {
+  funcion1() {/*
     let toggler = document.getElementsByClassName("caret");
     for (let i = 0; i < toggler.length; i++) {
       toggler[i].addEventListener("click", function () {
         this.parentElement.querySelector(".animacion").classList.toggle("activada");
         this.classList.toggle("caret-down");
       });
-    }
+    }*/
   }
 
   refresh() {
@@ -38,7 +38,7 @@ export class TreeComponent implements OnInit {
 
   consumir_servicio() {
     var array_result: []
-    this.ServiceTreeService.getData_treedatabase().subscribe(
+    this.databaseservice.getData_treedatabase().subscribe(
       res => {
 
         this.data = (res)
@@ -96,11 +96,13 @@ export class TreeComponent implements OnInit {
         for (let i = 0; i < array.length; i++) {
 
           item_db.innerHTML +=
-            '<li> <span class="caret"> <i class="fa fa-database"></i> ' + array[i] + ' </span>' +
-            '<ul class="animacion">' +
-            '<li><span class="caret"><i class="fa fa-folder-o"></i> Tablas [<a id ="t_' + array[i] + '">0</a>]</span>' +
-            '<ul class="animacion" id="' + array[i] + '"></ul>' +
-            '</li></ul></li>'
+            '<li> <span class="caret caret-down"> <i class="fa fa-database"></i> ' + array[i] + ' </span>' +
+              '<ul class="animacion activada">' +
+                '<li><span class="caret caret-down"><i class="fa fa-folder-o"></i> Tablas [<a id ="t_' + array[i] + '">0</a>]</span>' +
+                  '<ul class="animacion activada" id="' + array[i] + '"></ul>' +
+                '</li>'+
+              '</ul>'+
+            '</li>'
 
           /*----------------------------- INGRESANDO TABLAS----------------------------------------*/
 
@@ -116,7 +118,7 @@ export class TreeComponent implements OnInit {
 
         }
         this.funcion1()
-        alert("listo...")
+        //alert("listo...")
 
       }, err => {
         alert("error al traer la data al arbol")

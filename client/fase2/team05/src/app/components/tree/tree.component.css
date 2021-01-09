@@ -4,7 +4,8 @@ ul,
 }
 
 #myTree {
-    padding: 3%;
+    margin: 0;
+    padding: 0;
 }
 
 .caret {
@@ -22,7 +23,7 @@ ul,
     content: "\25B6";
     color: black;
     display: inline-block;
-    margin-right: 8px;
+    margin-right: 6px;
 }
 
 .caret-down::before {

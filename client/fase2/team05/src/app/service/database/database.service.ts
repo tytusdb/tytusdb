@@ -12,5 +12,7 @@ export class DatabaseService {
   create(name: string) {
     return this.http.get<any>(this.URL + `create/${name}`, { observe: 'response' });
   }
-
+  getData_treedatabase(){
+    return  this.http.get(this.URL+`showall`)
+  }
 }
