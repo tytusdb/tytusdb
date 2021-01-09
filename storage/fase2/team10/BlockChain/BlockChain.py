@@ -4,7 +4,7 @@ import string
 import json as Json
 
 class Node:
-    def __init__(self, previousKey, value):
+    def _init_(self, previousKey, value):
         self.previousKey = previousKey
         self.value = value
         self.nextKey = self.generateKey(value)
@@ -41,7 +41,7 @@ class Node:
    
 class BlockChain:
     
-    def __init__(self, name):
+    def _init_(self, name):
         self.listNodes = []
         self.secureMode = False
         self.name = name
@@ -101,7 +101,7 @@ class BlockChain:
         
     def printList(self):
         for i in self.listNodes:
-            print("______________________Node______________________")
+            print("_______Node_______")
             print("LLAVE ANTERIOR:")
             print(i.getPreviousKey())
             print("VALOR:")

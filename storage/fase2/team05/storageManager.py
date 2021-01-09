@@ -1085,7 +1085,161 @@ def alterDatabaseEncoding(database: str, encoding: str) -> int:
             return 2
     except Exception:
         return 1
+    
+def safeModeOn(database: str, table: str):
+    data = {}
 
+    
+    retorno = showTables(database)
+       
+    if retorno:
+        for y in range(0, len(retorno)):
+           if(retorno[y]==table):
+                tabla=retorno[y]   
+
+    datos =  extractTable(database, table)
+    if datos:
+    
+        for t in datos:
+            indice = 0
+            listaAppend = {}
+            while indice < len(t):
+                listaAppend[indice] =  t[indice]
+                indice = indice + 1
+        json_data = j.dumps(listaAppend, indent = 3)
+        data[table] = []
+        data[table].append(json_data)
+
+    nombre = table + ".json"
+    with open(nombre, 'w') as file:
+        j.dump(data, file, indent=4)
+        file.close()
+    
+        
+def safeModeOff(database: str, table: str):
+    try:
+        booleanDB = False
+        booleanT = False
+        BaseDatos = showDatabases()
+        print(BaseDatos)
+        if BaseDatos:
+            for x in range(0, len(BaseDatos)):
+                if(BaseDatos[x] == database):
+                    booleanDB = True
+        Tablas = showTables(database)
+        if Tablas:
+            for x in range(0, len(Tablas)):
+                if(Tablas[x] == table):
+                    booleanT = True
+        if(booleanDB == True):
+            if(booleanT == True):
+                nombre = table + ".json"
+                try:
+                    remove(nombre)
+                    return 0
+          
+                except Exception:
+              
+                    return 4   
+            else:
+          
+                return 3
+                
+        else:
+           
+            return 2
+
+    except Exception:
+       
+        return 1
+
+def graphDSD(database: str):
+    
+    try:
+        s = open('graphDSD.dot', 'w')
+        s.write('digraph G{\n')
+        s.write('node[shape=record]\n')
+    
+        retorno = showTables(database)
+       
+        for x in range(0,len(retorno)):
+            s.write(retorno[x] + "[label=\"" + retorno[x] + "\"];")
+           
+        datos = extractTable(database, table)
+        s.write('}')
+        s.close()
+        
+        
+        path=os.getcwd()
+        print('path'+path)
+        
+        os.system('dot -Tpdf graphDSD.dot -o graphDSD.pdf')
+        os.system('graphDSD.pdf')
+    
+    except Exception:
+        return None
+
+
+def graphDF(database: str, table: str):
+    try:
+        s = open('graphDF.dot', 'w')
+        s.write('digraph G{\n')
+        s.write('rankdir = \"LR\" \n')
+        s.write('node[shape=record]\n')
+        retorno = showTables(database)
+        tabla = []
+        for y in range(0, len(retorno)):
+            if(retorno[y]==table):
+                tabla=retorno[y]   
+
+        NoColumnas = len(tabla)
+        numero = 0
+        s.write("" + tabla + "[label=\"")
+    
+        while(numero < NoColumnas-1):
+            if(numero == NoColumnas - 2):
+                s.write("<f" + str(numero) + ">" + str(numero) + "\", group = 0];")
+            else:
+                s.write("<f" + str(numero) + ">" + str(numero) + "|")
+            numero = numero + 1
+    
+        primaria = llavePrimarias(database, table)
+        print("primaria")
+        print(primaria)
+
+        foranea = []
+    
+        boolean = False
+        numero = 0
+        while(numero < NoColumnas -1):
+            for x in range(0, len(primaria)):
+                if(numero == primaria[x]):
+                    s.write("" + str(numero) + "[Label =\"" + str(numero) + "\", group = 1];" )
+                    boolean = True
+            if (boolean == False):
+                s.write(str(numero) + "[Label =\"" + str(numero) + "\", group = 2];" )
+                foranea.append(numero)
+            else:
+                boolean = False
+            numero = numero + 1
+        print("foranea")
+        print(foranea)
+
+        for x in range(0, len(primaria)):
+            for y in range(0, len(foranea)):
+                s.write("" + str(primaria[x]) + "->" + str(foranea[y]) + ";")
+        s.write('}')
+        s.close()
+
+        path=os.getcwd()
+        print('path'+path)
+        
+        os.system('dot -Tpdf graphDF.dot -o graphDF.pdf')
+        os.system('graphDF.pdf')
+
+    except Exception:
+        return None  
+    
 def encrypt(backup: str, password: str) -> str:
     return cripto.encrypt(backup, password)
 

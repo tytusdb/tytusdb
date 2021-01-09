@@ -24,4 +24,4 @@ def decrypt(data: str, key: str):
         decrypt_ = fernet.decrypt(data.encode()).decode()
         return decrypt_
     except:
-        return 1
+        return None

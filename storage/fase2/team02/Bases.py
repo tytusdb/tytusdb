@@ -4,14 +4,40 @@ from storage.bplus import BPlusMode as bplus
 from storage.DictMode import DictMode as DM
 from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as j
-from storage.Hash import HashMode as Hash
+#from storage.Hash import HashMode as Hash
 import zlib
-# from storage.HashWindows import HashMode as Hash
+import hashlib
+import os
+from storage.HashWindows import HashMode as Hash
 
 currentMode,avlList,bList,bplusList,dictList,jsonList,isamList,hashList = [],[],[],[],[],[],[],[]
 comp = []
 compT,decompT = [],[]
 decomp = []
+listMode = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
+listEncoding = ['ascii', 'iso-8859-1', 'utf8']
+
+global lista
+lista = list()
+
+global listados
+listados = list()
+
+class controlFK:
+    def __init__(self, database, table, indexName, columns, tableRef, columnsRef):
+        self.database = database
+        self.table = table
+        self.indexName = indexName
+        self.columns = columns
+        self.tableRef = tableRef
+        self.columnsRef = columnsRef
+
+class controlUnique:
+    def __init__(self, database, table, indexName, columns):
+        self.database = database
+        self.table = table
+        self.indexName = indexName
+        self.columns = columns      
 
 # ----------Bases de datos------------------
 def createDatabase(database, mode, encoding):
@@ -136,6 +162,104 @@ def dropDatabase(database):
             return Hash.dropDatabase(database)
     else:
         return 2
+
+def alterTableAddFK(database, table, indexName, columns,  tableRef, columnsRef):  
+    Temporal = showTables(database)
+    bandera = False
+    contador = 0
+
+    if Temporal == 2:
+        return 2
+
+    try: 
+        for i in Temporal:
+            if table == i:
+                contador += 1
+                if contador >= 1:
+                    bandera = True
+                
+
+        if len(columns) <= 0 or len(columnsRef) <=0 or len(columns) != len(columnsRef):
+            return 4
+
+        elif bandera == False:
+            return 3
+
+        else:
+            lista.append(controlFK(database,table,indexName,columns,tableRef,columnsRef))
+            return 0
+    except:
+        return 1
+
+def alterTableDropFK(database, table, indexName):
+    try:
+        for j in range(len(lista)):
+            if database == lista[j].database:
+                for k in range(len(lista)):
+                    if table == lista[k].table:
+                        for i in range(len(lista)):
+                            if indexName == lista[i].indexName:
+                                lista.pop(i)
+                                return 0
+                            else:
+                                return 4
+                    else:
+                        return 3
+            else:
+                return 2
+    except:
+        return 1
+
+def alterTableAddUnique(database, table, indexName, columns):    
+    Temporal = showTables(database)
+    bandera = False
+    bandera2 = False
+    contador = 0
+
+    if Temporal == 2:
+        return 2
+
+    try:
+        for i in Temporal:
+            if table == i:
+                contador += 1
+                if contador >= 1:
+                    bandera = True
+                
+        for j in range(len(listados)):
+            if indexName == listados[j].indexName:
+                bandera2 = True
+            
+
+        if bandera == False:
+            return 3
+        elif bandera2 == True:
+            return 5
+        else:
+            listados.append(controlUnique(database,table,indexName,columns))
+            return 0
+    except:
+        return 1
+
+
+def alterTableDropUnique(database, table, indexName):
+    try:
+        for j in range(len(listados)):
+            if database == listados[j].database:
+                for k in range(len(listados)):
+                    if table == listados[k].table:
+                        for i in range(len(listados)):
+                            if indexName == listados[i].indexName:
+                                listados.pop(i)
+                                return 0
+                            else:
+                                return 4
+                    else:
+                        return 3
+            else:
+                return 2
+    except:
+        return 1
 
 #-------------TABLAS-------------------
 def createTable(database, table, numbercolumns):
@@ -706,6 +830,44 @@ def searchInMode(value):
     else:
         return None
 
+def alterDataBaseEncoding(database, codificacion):
+    try:
+        if codificacion == '' or codificacion == None:
+            codificacion ='ascii'
+        key = []
+        #vamos a recorrer las bases, empezando por ver si existe la base 
+        for i in listMode:
+            if searchInMode(database)!= None :  #Buscamos la base 
+                if  listEncoding(codificacion):
+                   # tabla = showTables(database, i) #Verificamos si hay tablas en la BD
+                    if showTables(database, i):#tabla != []:
+                        for j in showTables : #La codificaci[on de las tablas] \
+                            tupla = extractTable(database, j)   
+                            if tupla !=[]:
+                                llave = currentMode[i][database][0][j][1]
+                                for n in range (0,len(tupla)):
+                                    Tup = []
+                                    for l in tupla[n]:
+                                        if type(l) is bytes: 
+                                            var1 = l.decode(currentMode[i][database][0][j][2])
+                                            Tup += [str(var1).encode(encoding = codificacion ,errors= 'backslashreplace' )]
+                                        else: 
+                                            Tup += [str(l).encode(encoding = codificacion ,errors= 'backslashreplace' )]
+                                    for x in llave:
+                                            key.append(tupla[n][x])
+                                            tuplaNew = {}
+                                    for f in range(0,len(Tup)):
+                                            tuplaNew[f] = Tup[f]
+                                    update(database,j,tuplaNew,key)
+                                    key = []
+                        currentMode[i][dataBase][0][j][2] = codificacion
+            return 0 
+                    
+            return 3
+        return 2
+    except:
+        return 1         
+
 def alterDatabaseCompress(database: str, level: int) :
     try:
         baseexist = searchInMode(database)
@@ -810,3 +972,122 @@ def alterTableDecompress(database: str, table: str):
             return 2       
     except:
         return 1
+
+def checksumDatabase(database, mode):
+    MegaCadena = ""
+
+    try:
+        lista = showTables(database)
+        MegaCadena = MegaCadena + database
+
+        for i in lista:
+            MegaCadena = MegaCadena + i
+
+            for j in extractTable(database, i):
+                MegaCadena = MegaCadena + str(j)
+        if mode == "MD5":
+            return CodMD5(MegaCadena)
+        else:
+            return CodSHA256(MegaCadena)
+    
+    except:
+        return None
+
+def checksumTable(database, table, mode):
+    MegaCadena = ""
+
+    try:
+        lista = showTables(database)
+
+        for i in lista:
+            if i == table:
+                MegaCadena = MegaCadena + i
+            
+            for j in extractTable(database, i):
+                if i == table:
+                    MegaCadena = MegaCadena + str(j)
+
+        
+        if mode == "MD5":
+            return CodMD5(MegaCadena)
+        else:
+            return CodSHA256(MegaCadena)
+
+    except:
+        return None
+
+        
+# ------------------ 8. Grafos ------------------
+
+#def graphDSD(database: str) -> str:
+#Relacion de tablas con respecto a las FK en una BD             #no son utiles todavia, al no usar fk no funcionan
+def graphDSD(database: str) :
+    l=[]
+    l.append(showTables(database))
+    print(l[0][2])
+    return GDSD(database,l)
+
+def CodMD5(Entrada):
+    MD5Codigo = hashlib.md5()
+    MD5Codigo.update(Entrada.encode('utf8'))
+    Proceso = MD5Codigo.hexdigest()
+    return Proceso
+
+def CodSHA256(Entrada):
+    SHACodigo = hashlib.sha256()
+    SHACodigo.update(Entrada.encode('utf8'))
+    Proceso = SHACodigo.hexdigest()
+    return Proceso
+
+def GDSD(baseDatos, lista: list) :
+    try:
+        f = open("GrafoBD.dot","w")
+        f.write("digraph g {\n")
+        f.write("node [shape=record]\n")
+        f.write("subgraph cluster_0 {\n")
+        f.write("\""+str(lista[0][0])+"\";\n")
+        for i in range(len(lista[0][0])):
+            #if i >= len(lista[0][0]):
+               # break
+            f.write("\""+str(lista[0][i+1])+"\";\n") 
+            
+        f.write("label=\""+baseDatos+"\";")
+        f.write("color=blue;\n")
+        f.write("}")
+        for i in range(len(lista[0][0])):
+            f.write(lista[0][0]+"->"+lista[0][i]+"\n")
+        f.write("}")
+        f.close()
+        os.system("dot -Tjpg GrafoBD.dot -o GrafoBD.png")
+        return 0
+    except Exception as e:
+        print(e)
+        return None
+
+#def graphDF(database: str, table: str) -> str:
+#Relacion de registros de 1 tabla con repecto a la PK e indices unicos        #no trabaja con indices todavia
+def graphDF(database: str, table: str) :
+    l=[] 
+    l.append(extractTable(database,table))
+    return GDF(table,l)
+
+def GDF(tabla, lista: list) :
+    try:
+        f = open("GrafoT.dot","w")
+        f.write("digraph g {\n")
+        f.write("node [shape=record]\n")
+        f.write("subgraph cluster_0 {")
+        f.write("\""+str(lista[0][0][0])+"\";\n")
+        for i in range(len(lista[0][0][0])):
+            f.write("\""+str(lista[0][i+1][0])+"\";\n") 
+        f.write("label=\""+tabla+"\";")
+        f.write("color=blue;\n")
+        f.write("}")
+        for i in range(len(lista[0][0][0])):
+            f.write(lista[0][0][0]+"->"+lista[0][i+1][0]+"\n")
+        f.write("}")
+        f.close()
+        os.system("dot -Tjpg GrafoT.dot -o GrafoT.png")
+        return 0
+    except:
+        return None  
