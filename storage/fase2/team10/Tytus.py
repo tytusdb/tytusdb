@@ -7,7 +7,6 @@ import sys
 import hashlib 
 from cryptography.fernet import Fernet
 from BlockChain.BlockChain import BlockChain
-from grafos import grafos, node
 from grafos import Grafo, Nodo
 
 # 1. UNIFICACION DE INDICES
@@ -28,10 +27,12 @@ fkIndex = {}
 isCompressed = False
 
 def dropAll():
+    chargePersistence()
     avl.dropAll()
     bplus.dropAll()
     _dict.dropAll()
     json.dropAll()
+    persistence(databases)
     return 0
 
 def addDatabase(name, mode, code, mod):
@@ -85,6 +86,7 @@ def showDatabases():
     return msg
 
 def alterDatabase(databaseOld, databaseNew):
+    chargePersistence()
     for item in structs:
         value = item.alterDatabase(databaseOld, databaseNew)
         if value != 2:
@@ -93,11 +95,12 @@ def alterDatabase(databaseOld, databaseNew):
             for i in databases:
                 if databaseOld == i["name"]:
                     i["name"] = databaseNew
-                    # persistence()
+                    persistence(databases)
                     return value
     return 2
 
 def dropDatabase(nameDB):
+    chargePersistence()
     for item in structs:
         value = item.dropDatabase(nameDB)
         if value != 2:
@@ -106,11 +109,12 @@ def dropDatabase(nameDB):
             for i in databases:
                 if nameDB == i["name"]:
                     databases.remove(i)
-                    # persistence()
+                    persistence(databases)
                     return value
     return 2
 
 def createTable(database, table, nCols):
+    chargePersistence()
     for item in structs:
         value = item.createTable(database, table, nCols)
         if value != 2:
@@ -165,9 +169,10 @@ def extractDatabase(database):
     for item in databases:    
         if item["name"]==database:
             return item["tables"]      
-    return None  
+    return None    
 
 def extractRangeTable(database, table, columnNumber, lower, upper):
+    chargePersistence()
     for item in structs:
         value = item.extractRangeTable(database, table, columnNumber, lower, upper)
         if value and value != 1:
@@ -175,6 +180,7 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
     return []
 
 def alterAddPK(database, table, columns):
+    chargePersistence()
     for item in structs:
         value = item.alterAddPK(database, table, columns)
         if value != 2:
@@ -190,6 +196,7 @@ def alterAddPK(database, table, columns):
     return 2
 
 def alterDropPK(database, table):
+    chargePersistence()
     for item in structs:
         value = item.alterDropPK(database, table)
         if value != 2:
@@ -200,10 +207,12 @@ def alterDropPK(database, table):
                     for t in i["tables"]:
                         if table == t["name"]:
                             t["pk"] = []
+                            persistence(databases)
                             return value
     return 2
 
 def alterTable(database, old, new):
+    chargePersistence()
     for item in structs:
         value = item.alterTable(database, old, new)
         if value != 2:
@@ -214,6 +223,7 @@ def alterTable(database, old, new):
                     for t in i["tables"]:
                         if old == t["name"]:
                             t["name"] = new
+                        persistence(databases)
                         return value
     return 2
 
@@ -235,15 +245,24 @@ def alterDropColumn(database, table, columnNumber):
     return 2
 
 def alterAddColumn(database, table, default):
+    chargePersistence()
     for item in structs:
         value = item.alterAddColumn(database, table, default)
         if value != 2:
             if value != 0:
                 return value
+            for db in databases:
+                if db["name"] == database:
+                    for t in db["tables"]:
+                        if t["name"] == table:
+                            for tup in t["tuples"]:
+                                tup["register"].append(default)
+            persistence(databases)
             return value
     return 2
 
 def dropTable(database, table):
+    chargePersistence()
     for item in structs:
         value = item.dropTable(database, table)
         if value != 2:
@@ -254,11 +273,15 @@ def dropTable(database, table):
                     for t in i["tables"]:
                         if table == t["name"]:
                             i["tables"].remove(t)
-                    persistence()
+                    persistence(databases)
                     return value
     return 2
 
 def insert(database, table, register):
+    chargePersistence()
+    chargeLBCPersistence()
+    chargeFKsPersistence()
+    chargeUKPersistence()
     for item in structs:
         codificacion = codificationValidation(getCodificationMode(database),register)
         if codificacion == True:
@@ -285,6 +308,7 @@ def insert(database, table, register):
                                         i += 1
                                     #END BlockChain
                                     persistence(databases)
+                                    persistenceListBlockChain()
                                     return value
             else:
                 return 1
@@ -301,6 +325,7 @@ def extractRow(database, table, columns):
     return []
 
 def loadCSV(fileCSV, db, table):
+    chargePersistence()
     for item in structs:
         # value = item.loadCSV(fileCSV, db, table)
         import csv
@@ -315,34 +340,36 @@ def loadCSV(fileCSV, db, table):
             raise
 
 def update(database, table, register, columns):
+    chargeLBCPersistence()
     for item in structs:
         codificacion = codificationValidation(getCodificationMode(database),register)
         if codificacion == True:
             value = item.update(database, table, register, columns)
-        # START BlockChain
-            i = 0
-            while i<len(listBlockChain):
-                if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
-                    j = 0
-                    tuplesBlockChain = listBlockChain[i].getListValues()
-                    tuples = extractTable("ventas", "producto")
-                    while j < len(tuplesBlockChain):
-                        k = 0
-                        newValue = ""
-                        while k < len(tuples):
-                            if tuples[k] not in tuplesBlockChain:
-                                newValue = tuples[k]
-                            k += 1
-                        if tuplesBlockChain[j] not in tuples:#.getValue()
-                            listBlockChain[i].alterValueNode(newValue, j)
-                            listBlockChain[i].generateJsonSafeMode()
-                        j += 1
-                    break    
-                i += 1
-        # END BlockChain
             if value != 2:
                 if value != 0:
                     return value
+                # START BlockChain
+                i = 0
+                while i<len(listBlockChain):
+                    if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
+                        j = 0
+                        tuplesBlockChain = listBlockChain[i].getListValues()
+                        tuples = extractTable("ventas", "producto")
+                        while j < len(tuplesBlockChain):
+                            k = 0
+                            newValue = ""
+                            while k < len(tuples):
+                                if tuples[k] not in tuplesBlockChain:
+                                    newValue = tuples[k]
+                                k += 1
+                            if tuplesBlockChain[j] not in tuples:#.getValue()
+                                listBlockChain[i].alterValueNode(newValue, j)
+                                listBlockChain[i].generateJsonSafeMode()
+                            j += 1
+                        break    
+                    i += 1
+                    persistenceListBlockChain()
+                # END BlockChain
                 for i in databases:
                     if database == i["name"]:
                         for t in i["tables"]:
@@ -358,7 +385,7 @@ def update(database, table, register, columns):
     return 2
 
 def delete(database, table, columns):
-    pass
+    chargePersistence()
     for item in structs:
         value = item.delete(database, table, columns)
         if value != 2:
@@ -380,6 +407,7 @@ def delete(database, table, columns):
     return 2
 
 def truncate(database, table):
+    chargePersistence()
     for item in structs:
         value = item.truncate(database, table)
         if value != 2:
@@ -390,7 +418,7 @@ def truncate(database, table):
                     for t in i["tables"]:
                         if table == t["name"]:
                             t["tuples"] = []
-                    persistence()
+                    persistence(databases)
                     return value
     return 2
 
@@ -417,10 +445,35 @@ def alterDatabaseMode(database, mode):
         return 1
 
 # 3. ADMINISTRACION DE INDICES
+def alterTableDropUnique(database, table, indexName):
+    try:
+        tabla = uIndex[database]
+        indices = tabla[table]
+        if indexName == indices[0]:
+            indiceTbl = table+indices[0]
+            listaIndices = indices[1]
+            del tabla[table]
+            value = 1
+            for i in structs:
+                value = i.dropTable(database,indiceTbl)
+                if value ==0: 
+                    break
+            if value != 0 :
+                return value            
+    except: 
+        return 1
+
+def printUnicos():
+    print(str(uIndex))
+
+def printFk():
+    print(str(fkIndex))
+
 def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
     tabla = {}
     indicePK = []
     table_dic = {}
+    chargeFKsPersistence()
     for db in databases: 
         if database == db["name"]: 
             for t in db["tables"]:
@@ -455,20 +508,19 @@ def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
                     createtbl =  item.createTable(database, table+tableRef+indexName, len(columnsRef))
                     createNewpk = item.alterAddPK(database, table+tableRef+indexName ,columnsRef)
                     if ( createtbl == 0 or createtbl ==3) and (createNewpk == 0 or createtbl == 3):
-                        contador = 0
                         for i in tuplas:
                             datos_Referenciados = [i[x] for x in columnsRef]
                             if None in datos_Referenciados: 
                                 return 2 
                             else: 
                                 value = item.insert(database, table+tableRef+indexName, datos_Referenciados)
-                                if value != 0 and value !=4  : 
-                                    return value
-                            contador +=1
-                        if contador == len(tuplas)-1:
-                            return 0 
+                                if value == 0:
+                                    persistenceFKs()
+                                    return 0
+                    else:
+                        return 1
                 else: 
-                    return "error columnas no son iguales"
+                    return 4
             elif tuplas ==[]: 
                 if database in list(fkIndex.keys()):
                     tablasReferenciadas = fkIndex[database]
@@ -487,8 +539,42 @@ def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
                     table_dic[tup_tbl] = indice
                     fkIndex[database] = table_dic
                 if len(columnsRef) == len(columns) :
-                    if item.createTable(database, table+tableRef+indexName, len(columnsRef))!=3 and item.alterAddPK(database, table+tableRef+indexName , len(columns)):
+                    a = item.createTable(database, table+tableRef+indexName, len(columnsRef))
+                    b = item.alterAddPK(database, table+tableRef+indexName , len(columns))
+                    if a==0 and b ==0:
+                        persistenceFKs()
                         return 0
+                    else:
+                        if a != 0: 
+                            return a
+                        if b != 0:
+                            return b 
+                else: 
+                    return 4
+
+def alterTableDropFK(database,table,indexName):
+    chargeFKsPersistence()
+    try:
+        tabla = fkIndex[database]
+        for i in list(tabla.keys()):
+            if table == i[0]:
+                tupla = tabla[i]
+                if tupla[0] == indexName: 
+                    del tabla[i]
+                    value = 0
+                    for n in structs:
+                        value = n.dropTable(database, i[0]+i[1]+indexName)
+                        if value == 0: 
+                            persistenceFKs()
+                            return 0
+                    if value != 0:
+                        return value  
+                else:
+                    return 4
+            else: 
+                return 1
+    except:
+        return 1
 
 def insertVerifyFK(database, table , tupla):
     try: 
@@ -550,6 +636,7 @@ def foreingKey(database, table, tupla):
             return False
         else: 
             return True
+
     except:
         return True
 
@@ -595,36 +682,68 @@ def Unique(database, table,  tupla):
 
 def alterTableaddUnique(database , table,  indexName, colums): 
     tabla = {}
+    chargeUKPersistence()
     for item in structs: 
         tuplas = item.extractTable(database,table)
         if tuplas :
-            if database in list(uIndex.keys()):
-                tabla_dic = uIndex[database]
-                if table in list(tabla_dic.keys()):
-                    indice = (indexName, colums)
-                    tabla_dic[table] = indice
-                    uIndex[database] = tabla_dic
+            if len(tuplas) > 0:
+                if database in list(uIndex.keys()):
+                    tabla_dic = uIndex[database]
+                    if table in list(tabla_dic.keys()):
+                        indice = (indexName, colums)
+                        tabla_dic[table] = indice
+                        uIndex[database] = tabla_dic
+                    else:
+                        indice = (indexName , colums)
+                        tabla_dic[table] = indice
+                        uIndex[database] = tabla_dic
                 else:
                     indice = (indexName , colums)
-                    tabla_dic[table] = indice
-                    uIndex[database] = tabla_dic
-            else:
-                indice = (indexName , colums)
-                tabla[table] = indice
-                uIndex[database] = tabla
-            if item.createTable(database, table+indexName , len(colums)) != 3 and item.alterAddPK(database, table+indexName, colums)!= 4:
-                for i in tuplas: 
-                    unicos = [i[x] for x in colums]
-                    if None in unicos:
-                        return 2
+                    tabla[table] = indice
+                    uIndex[database] = tabla
+                a = item.createTable(database, table+indexName , len(colums))
+                b = item.alterAddPK(database, table+indexName, colums)
+                if a ==0 and b== 0:
+                    for i in tuplas: 
+                        unicos = [i[x] for x in colums]
+                        if None in unicos:
+                            return 1
+                        else:
+                            value = item.insert(database, table+indexName, unicos)
+                            if value ==0 :
+                                persistenceUK()
+                                return 0
+                            else:
+                                return value 
+                        
+                elif a != 0: 
+                    return a
+                elif b!= 0:
+                    return b
+            elif tuplas == []:
+                if database in list(uIndex.keys()):
+                    tabla_dic = uIndex[database]
+                    if table in list(tabla_dic.keys()):
+                        indice = (indexName, colums)
+                        tabla_dic[table] = indice
+                        uIndex[database] = tabla_dic
                     else:
-                        value = item.insert(database, table+indexName, unicos)
-                        if value == 2:
-                            return 2 
-                    
-            else: 
-                return 2
-
+                        indice = (indexName , colums)
+                        tabla_dic[table] = indice
+                        uIndex[database] = tabla_dic
+                else:
+                    indice = (indexName , colums)
+                    tabla[table] = indice
+                    uIndex[database] = tabla
+                a = item.createTable(database, table+indexName , len(colums))
+                b = item.alterAddPK(database, table+indexName, colums)
+                if a ==0 and b== 0:
+                    persistenceUK()
+                    return 0                        
+                elif a != 0: 
+                    return a
+                elif b!= 0:
+                    return b
 
 # 4. ADMINISTRACION DE LA CODIFICACION
 def alterDatabaseEncoding(database,encoding):
@@ -704,7 +823,7 @@ def getCodificationMode(database):
 # 5. GENERACION DEL CHECKSUM
 def checksumDatabase(database,mode):
     try:
-        file = open("C:/Users/Usuario/Desktop/Fase2-main/Check1.txt", "wb") ##cambiar ruta si es en otra pc
+        file = open("Check1.txt", "wb") ##cambiar ruta si es en otra pc
         file.write(str(extractDatabase(database)).encode("utf-8"))
         file.close()
         if mode == "MD5": 
@@ -728,7 +847,7 @@ def checksumDatabase(database,mode):
     
 def checksumTable(database,table,mode):
     try:
-        file = open("C:/Users/Usuario/Desktop/Fase2-main/Check2.txt", "wb") ##cambiar ruta si es en otra pc
+        file = open("Check2.txt", "wb") ##cambiar ruta si es en otra pc
         file.write(str(extractTable2(database, table)).encode("utf-8"))
         file.close()
         if mode == "MD5": 
@@ -752,6 +871,7 @@ def checksumTable(database,table,mode):
 
 # 6. COMPRESION DE DATOS
 def alterDatabaseCompress(database, level):
+    chargePersistence()
     if level not in range(-1, 10):
         return 4
     try:
@@ -803,6 +923,7 @@ def alterDatabaseDecompress(database):
         return 1
 
 def alterTableCompress(database, table, level):
+    chargePersistence()
     if level not in range(-1, 9):
         return 4
     try:
@@ -893,6 +1014,8 @@ def decrypt(cipherBackup, password):
 
 #generar el grafo reporte del block chain
 def generateGraphBlockChain(database, table):
+    chargePersistence()
+    chargeLBCPersistence()
     i = 0
     fileName = str(database)+"_"+str(table)+"BC"
     while i < len(listBlockChain):
@@ -921,6 +1044,8 @@ def generateGraphBlockChain(database, table):
         4: Modo seguro inexistente
 """
 def safeModeOn(database, table):
+    chargePersistence()
+    chargeLBCPersistence()
     try:
         for db in databases:
             #verifica si la base de datos existe
@@ -939,6 +1064,9 @@ def safeModeOn(database, table):
                             bc.addNode(tp.get("register"))
                         bc.generateJsonSafeMode()
                         listBlockChain.append(bc)
+                        persistence(databases)
+                        persistenceListBlockChain()
+                        return 0
                         #_________________________________________________________
                 #tabel inexistente
                 return 3
@@ -962,6 +1090,8 @@ def safeModeOn(database, table):
         4: modo seguro no inexistente
 """
 def safeModeOff(database, table):
+    chargePersistence()
+    chargeLBCPersistence()
     try:
         for db in databases:
             #verifica si la base de datos existe
@@ -999,13 +1129,89 @@ def persistence(databases):
         pass
 
 def chargePersistence():
-    n = databases
-    if path.isfile("DB") and len(n) == 0 and path.getsize("DB") > 0:
-        archivo = open("DB" , "rb")
-        data = pickle.load(archivo)
-        changueMode(data, True)
+    try:
+        n = databases
+        if path.isfile("DB") and len(n) == 0 and path.getsize("DB") > 0:
+            archivo = open("DB" , "rb")
+            data = pickle.load(archivo)
+            changueMode(data, True)
+            # print("persistencia cargada")
+            archivo.close()
+            # print("bases de datos cargadas")
+    except Exception as e:
+        print(e)
+
+def persistenceListBlockChain():
+    try:
+        if path.exists("LBC"):
+            os.remove("LBC")
+        archivo = open("LBC", "wb")
+        pickle.dump(listBlockChain, archivo)
         archivo.close()
-        # print("bases de datos cargadas")
+        del(archivo)
+    except: 
+        pass
+
+def chargeLBCPersistence():
+    try:
+        n = databases
+        if path.isfile("LBC") and path.getsize("LBC") > 0:
+            archivo = open("LBC" , "rb")
+            data = pickle.load(archivo)
+            global listBlockChain
+            listBlockChain = data
+            # print("Blockchain cargado")
+            archivo.close()
+    except Exception as e:
+        print(e)
+
+def persistenceFKs():
+    try:
+        if path.exists("FK"):
+            os.remove("FK")
+        archivo = open("FK", "wb")
+        pickle.dump(fkIndex, archivo)
+        archivo.close()
+        del(archivo)
+    except: 
+        pass
+
+def chargeFKsPersistence():
+    try:
+        n = databases
+        if path.isfile("FK") and path.getsize("FK") > 0:
+            archivo = open("FK" , "rb")
+            data = pickle.load(archivo)
+            global fkIndex
+            fkIndex = data
+            # print("Blockchain cargado")
+            archivo.close()
+    except Exception as e:
+        print(e)
+
+def persistenceUK():
+    try:
+        if path.exists("UK"):
+            os.remove("UK")
+        archivo = open("UK", "wb")
+        pickle.dump(uIndex, archivo)
+        archivo.close()
+        del(archivo)
+    except: 
+        pass
+
+def chargeUKPersistence():
+    try:
+        n = databases
+        if path.isfile("UK") and path.getsize("UK") > 0:
+            archivo = open("UK" , "rb")
+            data = pickle.load(archivo)
+            global uIndex
+            uIndex = data
+            # print("Blockchain cargado")
+            archivo.close()
+    except Exception as e:
+        print(e)
 
 def changueMode(database, isPersistence = False):
     for i in database:
@@ -1025,7 +1231,7 @@ def changueMode(database, isPersistence = False):
             i["mod"] = json
         if isPersistence:
             databases.append(i)
-            
+
 """
     @description
         Agrega un índice, creando una estructura adicional con el 
@@ -1045,6 +1251,7 @@ def changueMode(database, isPersistence = False):
         4: ???
 """
 def alterTableAddIndex(database, table, indexName, columns):
+    chargePersistence()
     try:
         for i in databases:
             #verifica si la base de datos existe
@@ -1076,6 +1283,7 @@ def alterTableAddIndex(database, table, indexName, columns):
                             for col in columns:
                                 listaData.append(tp[col]) 
                             modeStorage.insert(database, (table+indexName), listaData)
+                            persistence(databases)
                         return 0
                 #Tabla no existente
                 return 3
@@ -1084,7 +1292,10 @@ def alterTableAddIndex(database, table, indexName, columns):
     except Exception as e:
         #Error en la operación
         return 1
-def graphDF(database):
+
+def graphDSD(database):
+    chargePersistence()
+    chargeFKsPersistence()
     try: 
         grafo = Grafo()
         tablas = fkIndex[database]
@@ -1094,8 +1305,6 @@ def graphDF(database):
             referencia = tablas[i]
             grafo.insertar(tabla_referenciada, referencia , tabla_con_referencia)
         agregados = [i.valor for i in grafo.nodosAgregados]
-        
-        
         for db in databases: 
             if database == db["name"]:
                 for t in db["tables"]:
@@ -1105,8 +1314,62 @@ def graphDF(database):
                     
         grafo.graficar()
         return "0"
-    except: 
+    except Exception as e:
+        print(e)
+
+def graphDF(database, table):
+    chargePersistence()
+    chargeFKsPersistence()
+    chargeUKPersistence()
+    try:
+        try:
+            grafo = Grafo()
+            tam_tabla = 0
+            lista_columna = []
+            pk = []
+            for db in databases: 
+                if database == db["name"]:
+                    for t in db["tables"]: 
+                        if t["name"] == table: 
+                            pk = t["pk"].copy()
+                            tam_tabla = int(t["nCols"])
+                            lista_columna = [x for x in range(tam_tabla)]
+
+            for i in lista_columna:
+                grafo.insertar(str(pk)," " ,str(i) )
+            grafo.ArbolGenerador(str(pk),"PK"+str(pk))
+        except:
+            pass
+        try:
+            tablas = fkIndex[database]
+            indice_foraneo = ""
+            indices_foraneos =[]
+            grafo2 = Grafo()
+            for i in list(tablas.keys()):
+                if table == i[0]:
+                    indices =tablas[i]
+                    indice_foraneo = indices[0]   
+                    indices_foraneos = indices[1]
+            for j in indices_foraneos:
+                grafo2.insertar(str(indice_foraneo), " " , str(j))
+            grafo2.ArbolGenerador(str(indice_foraneo),"FK"+str(indice_foraneo))
+        except:
+            pass
+
+        try: 
+            grafo3 = Grafo()
+            tabla_unicos = uIndex[database]
+            indices_unicos = tabla_unicos[database]
+            indice_unico = table+indices_unicos[0]
+            listaIndices = indices_unicos[1]
+            for m in listaIndices :
+                grafo3.insertar(str(indice_unico)," " ,str(m) )
+            grafo3.ArbolGenerador(str(indice_unico),"Unike"+str(indice_unico))
+        except:
+            pass
+    except:
         None
+
 """
     @description
         Destruye el índice tanto como metadato de la tabla como la
