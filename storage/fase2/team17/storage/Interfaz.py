@@ -165,6 +165,88 @@ class PP:
             if c == None:
                 messagebox.showinfo(message="No existen datos para graficar\n",
                         title="Sin datos")
+    
+#--------------------------------GRAFOS----------------------------------------#
+    def Grafos(self):
+        if self.safe:
+            self.safe.destroy()
+        self.FrameInicial.destroy()
+        self.isSeguridad = True
+        self.isPantFunciones = 0
+        self.ndb = Frame(height=500, width=800)
+        self.ndb.config(bg="#37474f")
+        self.ndb.pack(padx=15, pady=15)
+        Label(self.ndb,text="Tytus 2020",font=("Times New Roman",40),fg="#ffffff", bg="#37474f").place(x=250,y=10)
+        Label(self.ndb,text="Seguridad",font=("Times New Roman",10),fg="#ffffff", bg="#37474f").place(x=250,y=70)
+
+        Button(self.ndb, text="Base de Datos",command=self.Dsd,font=("Times New Roman",15),fg="#000000", bg="#ff6f00",width=10).place(x=200,y=200)
+        Button(self.ndb, text="Tabla",command=self.Tb1,font=("Times New Roman",15),fg="#000000",bg="#ff6f00",width=10).place(x=475,y=200)
+
+        Button(self.ndb, text="Atras", command=self.pantalla1,font=("Times New Roman",15),fg="#102027",bg="red",width=10).place(x=330,y=350)
+
+    def Dsd(self):
+        self.ndb.destroy()
+        self.isSafeOn = True
+        self.isPantFunciones = 0
+        self.safe = Frame(height=500, width=800)
+        self.safe.config(bg="#37474f")
+        self.safe.pack(padx=15, pady=15)
+        self.database = StringVar()
+        self.table = StringVar()
+        Label(self.safe,text="Tytus 2020",font=("Times New Roman",40),fg="#ffffff", bg="#37474f").place(x=250,y=10)
+        Label(self.safe,text="Bases",font=("Times New Roman",10),fg="#ffffff", bg="#37474f").place(x=250,y=70)
+
+        Label(self.safe,text="Base de Datos:",font=("Times New Roman",15),fg="#ffffff", bg="#37474f").place(x=150,y=200)
+
+        Entry(self.safe,textvariable=self.database,font=("Times New Roman",15),fg="black").place(x=300,y=200)
+
+        Button(self.safe, text="Atras", command=self.Grafos,font=("Times New Roman",15),fg="#102027",bg="red",width=10).place(x=260,y=350)
+        Button(self.safe, text="Aceptar", command=self._Dsd,font=("Times New Roman",15),fg="#102027",bg="#ff6f00",width=10).place(x=390,y=350)
+
+    def _Dsd(self):
+        if str(self.database.get()) != "":
+            r = str(self.database.get())
+            c = f.f.graphDSD(r)
+            if c == None:
+                messagebox.showinfo(message="No existen datos para graficar\n",
+                        title="Sin datos")
+        else:
+            messagebox.showinfo(message="Por favor ingrese todos los campos\n",
+                        title="Sin datos")
+    
+    def Tb1(self):
+        self.ndb.destroy()
+        self.isSafeOn = True
+        self.isPantFunciones = 0
+        self.safe = Frame(height=500, width=800)
+        self.safe.config(bg="#37474f")
+        self.safe.pack(padx=15, pady=15)
+        self.database = StringVar()
+        self.table = StringVar()
+        Label(self.safe,text="Tytus 2020",font=("Times New Roman",40),fg="#ffffff", bg="#37474f").place(x=250,y=10)
+        Label(self.safe,text="Tablas",font=("Times New Roman",10),fg="#ffffff", bg="#37474f").place(x=250,y=70)
+
+        Label(self.safe,text="Base de Datos:",font=("Times New Roman",15),fg="#ffffff", bg="#37474f").place(x=150,y=200)
+        Label(self.safe,text="Tabla:",font=("Times New Roman",15),fg="#ffffff", bg="#37474f").place(x=200,y=250)
+
+        Entry(self.safe,textvariable=self.database,font=("Times New Roman",15),fg="black").place(x=300,y=200)
+        Entry(self.safe,textvariable=self.table,font=("Times New Roman",15),fg="black").place(x=300,y=250)
+
+        Button(self.safe, text="Atras", command=self.Grafos,font=("Times New Roman",15),fg="#102027",bg="red",width=10).place(x=260,y=350)
+        Button(self.safe, text="Aceptar", command=self._Tbl,font=("Times New Roman",15),fg="#102027",bg="#ff6f00",width=10).place(x=390,y=350)
+
+    def _Tbl(self):
+        if str(self.database.get()) != "" and str(self.table.get()) != "":
+            r = str(self.database.get())
+            s = str(self.table.get())
+            c = f.f.graphDF(r,s)
+            if c == None:
+                messagebox.showinfo(message="No existen datos para graficar\n",
+                        title="Sin datos")
+
+        else:
+            messagebox.showinfo(message="Por favor ingrese todos los campos\n",
+                        title="Sin datos")
 
 #--------------------------------SALIR----------------------------------------#
     def Salir(self):
