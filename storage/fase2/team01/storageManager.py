@@ -553,6 +553,32 @@ def alterDatabaseMode(database: str, mode: str) -> int:
             return 2 #Base de Datos no existente
     except:
         return 1 #Error en la operación
+
+
+# Administración de la codificación
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    try:
+        #print("entro")
+        d=database.lower()
+        e=encoding.lower()
+
+        if existDatabase(d):
+            #print("entro en si existe bd")
+            if e in cCodificaciones:
+                #print("operacion exitosa")
+                return 0 #Operación exitosa
+            else:
+                #print("no")
+                return 3 #Codificación incorrecta
+            
+        else:
+            #print("no")
+            return 2 #Base de Datos existente
+    except:
+        #print("no entro")
+        return 1
+
+
 #funciones de checksum
 x = datetime.datetime.now()
 def checksumDatabase(database:str, mode:str) -> str:
