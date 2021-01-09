@@ -340,23 +340,23 @@ def createTable(database, table, numColumns):
     if val == 0:
         global Tablas
         try:
-            # Leemos el archivo binario de los registros de bases de datos
+            # Leemos el archivo binario de los registros de tablas
             lectura = open("TB_register", "rb")
             Tablas = pickle.load(lectura)
             try:
-                Tablas[database].update({table: {"PK": None,"mode":mode,"safe":False}})
+                Tablas[database].update({table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns}})
             except:
-                Tablas.update({database:{table: {"PK": None,"mode":mode,"safe":False}}})
-            # Actualizamos el archivo binario de los registros de bases de datos
+                Tablas.update({database:{table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns}}})
+            # Actualizamos el archivo binario de los registros de tablas
             escritura = open("TB_register", "wb")
             pickle.dump(Tablas, escritura)
             escritura.close()
         except:
             try:
-                Tablas[database].update({table: {"PK": None,"mode":mode,"safe":False}})
+                Tablas[database].update({table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns}})
             except:
-                Tablas.update({database: {table: {"PK": None,"mode":mode,"safe":False}}})
-            # Actualizamos el archivo binario de los registros de bases de datos
+                Tablas.update({database: {table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns}}})
+            # Actualizamos el archivo binario de los registros de tablas
             fichero_escritura = open("TB_register", "wb")
             pickle.dump(Tablas, fichero_escritura)
             fichero_escritura.close()
@@ -603,6 +603,26 @@ def alterAddPK(database, table, columns):
         val = hash_mode.alterAddPK(database, table, columns)
     else:
         return val
+    if val == 0:
+        global Tablas
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            lectura = open("TB_register", "rb")
+            Tablas = pickle.load(lectura)
+            Tablas[database][table]["PK"] = columns
+            # Actualizamos el archivo binario de los registros de bases de datos
+            escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, escritura)
+            escritura.close()
+        except:
+            try:
+                Tablas[database].update({table: {"PK": None, "mode": mode, "safe": False, "Ncol": numColumns}})
+            except:
+                Tablas.update({database: {table: {"PK": None, "mode": mode, "safe": False, "Ncol": numColumns}}})
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, fichero_escritura)
+            fichero_escritura.close()
     return val
 
 def alterDropPK(database, table):
