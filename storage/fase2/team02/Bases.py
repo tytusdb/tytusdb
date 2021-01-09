@@ -636,3 +636,54 @@ def isValidMode(mode):
         if check == mode:
             return True
     return False
+
+def isValidEncoding(encoding):
+    listEncoding = ['ascii', 'iso-8859-1', 'utf8']
+    for check in listEncoding:
+        if check == encoding:
+            return True
+    return False
+
+def chooseMode(mode,database):
+    if mode == 'avl':
+        if avl.createDatabase(database) == 0:
+            avlList.append(database)
+            return 0
+        else:
+            return avl.createDatabase(database)
+    elif mode == 'b':
+        if b.createDatabase(database) == 0:
+            bList.append(database)
+            return 0
+        else:
+            return b.createDatabase(database)
+    elif mode == 'bplus':
+        if bplus.createDatabase(database) == 0:
+            bplusList.append(database)
+            return 0
+        else:
+            return bplus.createDatabase(database)
+    elif mode == 'dict':
+        if DM.createDatabase(database) == 0:
+            dictList.append(database)
+            return 0
+        else:
+            return DM.createDatabase(database)
+    elif mode == 'isam':
+        if isam.createDatabase(database) == 0:
+            isamList.append(database)
+            return 0
+        else:
+            return isam.createDatabase(database)
+    elif mode == 'json':
+        if j.createDatabase(database) == 0:
+            jsonList.append(database)
+            return 0
+        else:
+            return j.createDatabase(database)
+    elif mode == 'hash':
+        if Hash.createDatabase(database) == 0:
+            hashList.append(database)
+            return 0
+        else:
+            return Hash.createDatabase(database)
