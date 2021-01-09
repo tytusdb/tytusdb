@@ -738,11 +738,47 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
         if metadata_db.get_table(table):
             if len(columns) != len(columnsRef):
                 return 4                
-                
-            return metadata_db.get_table(table).fk.insert([indexName, table, columns,tableRef,columnsRef])
+            
+            return metadata_db.get_table(table).fk.insertFK([indexName, table, columns,tableRef,columnsRef])
+        else: return 3
+    else: return 2
 
 def alterTableDropFK(database: str, table: str, indexName: str):
     metadata_db, indexDB = get_metadata_db(database)
     if metadata_db:       
         if metadata_db.get_table(table):                        
-            return metadata_db.get_table(table).fk.delete(indexName)
+            return metadata_db.get_table(table).fk.deleteFK(indexName)
+        else: return 3
+    else: return 2
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list):
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:       
+        if metadata_db.get_table(table):            
+            return metadata_db.get_table(table).unique.insertUnique([indexName, table, columns])
+        else: return 3
+    else: return 2
+
+def alterTableDropUnique(database: str, table: str, indexName: str):
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:       
+        if metadata_db.get_table(table):                        
+            return metadata_db.get_table(table).unique.deleteUnique(indexName)
+        else: return 3
+    else: return 2
+
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list):
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:       
+        if metadata_db.get_table(table):
+            return metadata_db.get_table(table).index.insertIndex([indexName, table, columns])
+        else: return 3
+    else: return 2
+
+def alterTableDropindex(database: str, table: str, indexName: str):
+    metadata_db, indexDB = get_metadata_db(database)
+    if metadata_db:       
+        if metadata_db.get_table(table):                        
+            return metadata_db.get_table(table).index.deleteIndex(indexName)
+        else: return 3
+    else: return 2
+
