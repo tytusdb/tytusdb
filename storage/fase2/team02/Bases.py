@@ -628,3 +628,11 @@ def loadCSV(file,database,table):
             return Hash.loadCSV(file,database,table)
     else:
         return 2
+
+#----------------------------------------------------
+def isValidMode(mode):
+    listMode = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
+    for check in listMode:
+        if check == mode:
+            return True
+    return False
