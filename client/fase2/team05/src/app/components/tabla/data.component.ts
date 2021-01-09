@@ -16,7 +16,12 @@ export class DataComponent implements OnInit, OnDestroy {
   subscription: Subscription;
 
 
-  constructor(private servicio: TableDataService, private data: ShareService) { }
+  constructor(private servicio: TableDataService, private data: ShareService) {
+    this.subscription =    this.data.getClickEvent().subscribe(() => {
+      this.refresh();
+    });
+
+  }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 

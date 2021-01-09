@@ -54,8 +54,14 @@ export class EditorComponent implements OnInit, OnDestroy {
       const body = response.body;
       // const msg = body;
       this.data.changeMessage(body);
+      this.clickMe();
     }, err => console.log(err));
     // -----------------------
+  }
+
+  // tslint:disable-next-line:typedef
+  clickMe(){
+    this.data.sendClickEvent();
   }
 
   // tslint:disable-next-line:typedef
