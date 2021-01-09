@@ -58,4 +58,8 @@ class Declaracion(Instruccion):
                 return resultado
         return True
 
+    def analizar(self, tabla, arbol):
+        super().analizar(tabla,arbol)
 
+    def traducir(self, tabla, arbol):
+        super().traducir(tabla,arbol)

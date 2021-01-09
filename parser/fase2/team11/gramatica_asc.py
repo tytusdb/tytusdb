@@ -99,7 +99,23 @@ reservadas = {
     'intersect': 'INTERSECT',       'except': 'EXCEPT',
     'extract': 'EXTRACT',           'date_part': 'DATE_PART',
     'current_date': 'CURRENT_DATE', 'current_time': 'CURRENT_TIME',
-    'now': 'NOW'
+    'now': 'NOW',                   'index': 'INDEX', 
+    'on': 'ON',                     'using': 'USING',
+    'hash': 'HASH',                 'lower': 'LOWER',
+    'function': 'FUNCTION',         'returns': 'RETURNS',
+    'declare': 'DECLARE',           'begin': 'BEGIN',
+    'raise': 'RAISE',               'notice': 'NOTICE',
+    'return': 'RETURN',             'outerblock': 'OUTERBLOCK',
+    'constant': 'CONSTANT',         'alias': 'ALIAS1',
+    'out': 'OUT',                   'language': 'LANGUAGE',
+    'plpgsql': 'PLPGSQL',           'record':'RECORD',
+    'query': 'QUERY',               'rowtype':'ROWTYPE',
+    'execute': 'EXECUTE',           'using':'USING',
+    'format': 'FORMAT',             'diagnostics':'DIAGNOSTICS', 
+    'get': 'GET',                   'procedure': 'PROCEDURE',
+    'inout': 'INOUT',               'elsif': 'ELSIF',
+    'rollback':'ROLLBACK',          'commit':'COMMIT', 
+    'call': 'CALL'
 
 }
 
@@ -115,7 +131,8 @@ tokens = [
     'CADENASIMPLE', 'ID',        'MENIGUAL',
     'MAYIGUAL',    'PUNTO',     'CADENALIKE',
     'CONCAT', 'BITWAND', 'BITWOR', 'BITWXOR',
-    'BITWNOT', 'BITWSHIFTL', 'BITWSHIFTR', 'CSIMPLE'
+    'BITWNOT', 'BITWSHIFTL', 'BITWSHIFTR', 'CSIMPLE',
+    'CADDOLAR', 'PTIGUAL', 'DOLAR'
 ] + list(reservadas.values())
 
 # Tokens
@@ -149,6 +166,9 @@ t_BITWNOT = r'~'
 t_BITWSHIFTL = r'<<'
 t_BITWSHIFTR = r'>>'
 t_CSIMPLE = r'\''
+t_CADDOLAR = r'\$\$'
+t_PTIGUAL = r':=' 
+t_DOLAR = r'\$'
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -246,18 +266,19 @@ precedence = (
 ###################################### Definición de la gramática #######################################
 def p_init(t):
     'init             : instrucciones'
-    t[0] = Nodo('INSTRUCCIONES','',t[1],t.lexer.lineno)
+    #t[0] = Nodo('INSTRUCCIONES','',t[1],t.lexer.lineno)
+    t[0] = t[1]
 
 
-def p_lista_instrucciones(t):
+'''def p_lista_instrucciones(t):
     'instrucciones    : instrucciones instruccion'
     t[1].append(t[2])
-    t[0] = t[1]
+    t[0] = t[1]'''
 
 
 def p_salida_instrucciones(t):
     'instrucciones    : instruccion'
-    t[0] = [t[1]]
+    t[0] = t[1]
 
 
 def p_instruccion(t):
@@ -275,7 +296,13 @@ def p_instruccion(t):
                       | delete_instr
                       | truncate_instr
                       | select_instr
-                      | use_instr'''
+                      | use_instr
+                      | indexinstr
+                      | alterindex
+                      | dropindex
+                      | plsql_instr
+                      | llamadafunciones
+                      | llamadaprocedimiento'''
     t[0] = t[1]
 
 # CREATE DATABASE
@@ -470,6 +497,8 @@ def p_lista_parametros_salida(t):
 
 def p_parametro(t):
     '''parametroinsert  : DEFAULT
+                        | NOW PARIZQ PARDER
+                        | MD5 PARIZQ cualquiercadena PARDER
                         | expresion'''
     t[0] = getParamNode(t)
 
@@ -647,10 +676,10 @@ def p_listaselect_salida(t):
     'listaselect      : valselect'
     t[0] = [t[1]]
 
-def p_valselect_10_2(t):
+'''def p_valselect_10_2(t):
     'valselect      : CASE case_state END'
-    gramatica = '<valselect> ::= CASE <case_state> END'
-    t[0] = t[2]
+    #gramatica = '<valselect> ::= CASE <case_state> END'
+    t[0] = t[2]'''
 
 def p_valselect_1(t):
     'valselect      : ID alias'
@@ -775,6 +804,11 @@ def p_lista_condicionwhere_salida(t):
     'condicioneswhere      : condicionwhere'
     t[1].gramatica = '<condicioneswhere> ::= <condicionwhere>\n' + t[1].gramatica
     t[0] = t[1]
+
+def p_lista_condicionwhere_salida1(t):
+    'condicioneswhere      : NOT PARIZQ condicioneswhere PARDER'
+    gramatica = '<condicioneswhere> ::= NOT <condicioneswhere>\n'
+    t[0] = Nodo('OPLOG', 'NOT', [t[3]], t.lexer.lineno, 0, gramatica)
 
 def p_condicionwhere(t):
     '''condicionwhere      : whereexists
@@ -972,6 +1006,16 @@ def p_lista_condicion(t):
     gramatica = '<condiciones> ::= <condiciones> \"'+ t[2]+'\" <condicion>'
     t[0] = Nodo('OPLOG', t[2], [t[1], t[3]], t.lexer.lineno, 0, gramatica)
 
+def p_lista_condicion_salida1(t):
+    'condiciones      : NOT PARIZQ condiciones PARDER'
+    gramatica = '<condiciones> ::= NOT <condiciones>\n'
+    t[0] = Nodo('OPLOG', 'NOT', [t[3]], t.lexer.lineno, 0, gramatica)
+
+def p_lista_condicion_salida2(t):
+    'condiciones      : NOT condiciones'
+    gramatica = '<condiciones> ::= NOT <condiciones>\n'
+    t[0] = Nodo('OPLOG', 'NOT', [t[2]], t.lexer.lineno, 0, gramatica)
+
 def p_lista_condicion_salida(t):
     'condiciones      : condicion'
     t[1].gramatica = '<condiciones> ::= <condicion>\n' + t[1].gramatica
@@ -987,6 +1031,10 @@ def p_condicion(t):
                       | expresion IGUAL expresion 
                       | expresion DIFERENTE expresion'''
     t[0] = getOpRelacional(t)
+
+def p_condicion1(t):
+    'condicion      : expresion'
+    t[0] = t[1]
 
 def p_expresion(t):
     '''expresion      : cualquiercadena
@@ -1411,15 +1459,505 @@ def p_nowinstr(t):
     t[0] = Nodo('NOW', '', [], t.lexer.lineno)
 
 
+# ####################################### index ##################################################
+
+def p_index0(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ ID PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ ID PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('COLUMN', t[7], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n3], t.lexer.lineno, gramatica)
+
+def p_index1(t):
+    'indexinstr   : CREATE INDEX ID ON ID USING HASH PARIZQ ID PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID USING HASH PARIZQ ID PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('USING HASH', '', [], t.lexer.lineno)
+    n4 = Nodo('COLUMN', t[9], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n3,n4], t.lexer.lineno, gramatica)
+
+def p_index2(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ ID COMA ID PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ ID PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('ID', t[7], [], t.lexer.lineno)
+    n4 = Nodo('ID', t[9], [], t.lexer.lineno)
+    n5 = Nodo('COLUMN', '', [n3, n4], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n5], t.lexer.lineno, gramatica)
+
+def p_index3(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ valororderby PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ <valororderby> PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1, n2, t[7]], t.lexer.lineno, gramatica)
+
+def p_index4(t):
+    'indexinstr   : CREATE UNIQUE INDEX ID ON ID PARIZQ columnas PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE UNIQUE INDEX ID ON ID PARIZQ <columnas> PARDER PTCOMA'
+    n1 = Nodo('INDEX UNIQUE NAME', t[4], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[6], [], t.lexer.lineno)
+    n3 = Nodo('COLUMNAS', '', t[8], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1, n2, n3], t.lexer.lineno, gramatica)
+
+def p_index5(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDER PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDER PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('LOWER', t[9], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1, n2, n3], t.lexer.lineno, gramatica)
+
+def p_index6(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ ID PARDER whereselect PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ ID PARDER <whereselect> PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('COLUMN', t[7], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n3,t[9]], t.lexer.lineno, gramatica)
+
+def p_index7(t):
+    'indexinstr   : CREATE INDEX ID ON ID PARIZQ ID ID PARDER PTCOMA'
+    gramatica = '<indexinstr>: CREATE INDEX ID ON ID PARIZQ ID PARDER PTCOMA'
+    n1 = Nodo('INDEX NAME', t[3], [], t.lexer.lineno)
+    n2 = Nodo('TABLA', t[5], [], t.lexer.lineno)
+    n3 = Nodo('COLUMN', t[7], [], t.lexer.lineno)
+    n4 = Nodo('OPCLASS', t[8], [], t.lexer.lineno)
+    t[0] = Nodo('CREATE INDEX', '', [n1,n2,n3, n4], t.lexer.lineno, gramatica)
+
+#---------------------------------------------------------------------------------------------------
+# A L T E R  I N D E X
+def p_alterindex_2(t):
+    'alterindex : ALTER INDEX IF EXISTS ID ID eoi PTCOMA'
+    g = '<alterindex> : \"ALTER\" \"INDEX\" \"IF\" \"EXISTS\" ID ID <eoi> PTCOMA'
+    n1 = Nodo('INDEX',t[5],[],t.lexer.lineno, 0, g)
+    n2 = Nodo('COLUM INDEX',t[6],[],t.lexer.lineno, 0, g)
+    t[0] = Nodo('ALTER INDEX','IF EXISTIS', [n1,n2,t[7]], t.lexer.lineno, 0, g)
+
+def p_alterindex_1(t):
+    'alterindex : ALTER INDEX ID ID eoi PTCOMA'
+    g = '<alterindex> : \"ALTER\" \"INDEX\" ID ID <eoi> PTCOMA'
+    n1 = Nodo('INDEX',t[3],[],t.lexer.lineno, 0, g)
+    n2 = Nodo('COLUM INDEX',t[4],[],t.lexer.lineno, 0, g)
+    t[0] = Nodo('ALTER INDEX','IF EXISTIS', [n1,n2,t[5]], t.lexer.lineno, 0, g)
+
+def p_enteroid_e(t):
+    '''eoi  : ENTERO'''
+    t[0] = Nodo('ENTERO',t[1],[],t.lexer.lineno, 0, '<eoi> : ENTERO')
+
+def p_enteroid_i(t):
+    '''eoi  : ID'''
+    t[0] = Nodo('ID',t[1],[],t.lexer.lineno, 0, '<eoi> : ID')
+
+#---------------------------------------------------------------------------------------------------
+# D R O P  I N D E X
+
+def p_dropindex(t):
+    'dropindex : DROP INDEX ID PTCOMA'
+    g = '<dropindex> : \"DROP\" \"INDEX\" ID PTCOMA'
+    t[0] = Nodo('DROP INDEX', t[3], [], t.lexer.lineno, 0, g)
+
+
+# ####################################### PL/psSQL ################################################
+
+# ----- llamadas a procedimientos y funciones 
+
+def p_llamasProcedimientos(t):
+    'llamadaprocedimiento  : EXECUTE ID PARIZQ PARDER PTCOMA'
+    g = '<llamadaprocedimiento>  : EXECUTE ID PARIZQ PARDER PTCOMA'
+    t[0] = Nodo('EXECUTE', t[2], [], t.lexer.lineno, 0, g)
+
+def p_llamasProcedimientos1(t):
+    'llamadaprocedimiento  : EXECUTE ID PARIZQ listaexpresiones PARDER PTCOMA'
+    g = '<llamadaprocedimiento>  : EXECUTE ID PARIZQ <listaexpresiones> PARDER PTCOMA'
+    t[0] = Nodo('EXECUTE', t[2], t[4], t.lexer.lineno, 0, g)
+
+def p_llamasFuncion(t):
+    'llamadafunciones   : SELECT ID PARIZQ PARDER PTCOMA'
+    g = '<llamadafunciones> : SELECT ID PARIZQ PARDER PTCOMA'
+    t[0] = Nodo('SELECT FUNC', t[2], [], t.lexer.lineno, 0, g)
+
+def p_llamasFuncion1(t):
+    'llamadafunciones   : SELECT ID PARIZQ listaexpresiones PARDER PTCOMA'
+    g = '<llamadafunciones> : SELECT ID PARIZQ <listaexpresiones> PARDER PTCOMA'
+    t[0] = Nodo('SELECT FUNC', t[2], t[4], t.lexer.lineno, 0, g)
+
+
+# ------- creacion de procedimientos y funciones 
+
+def p_funciones_procedimientos(t):
+    'plsql_instr   : CREATE procedfunct ID PARIZQ parametrosfunc PARDER tiporetorno cuerpofuncion'
+    t[0] = getfuncion_procedimiento(t)
+
+def p_procedurefunction(t):
+    '''procedfunct  : PROCEDURE 
+                    | FUNCTION'''
+    t[0] = t[1]
+
+def p_retornafuncion(t):
+    '''tiporetorno  : RETURNS type_column1 AS
+                    | LANGUAGE PLPGSQL AS
+                    | AS
+                    | empty'''
+    t[0] = getretornofuncion(t)
+
+def p_parametrosfunc(t):
+    '''parametrosfunc  : listaparametrosfunc
+                       | empty'''
+    t[0] = t[1]
+
+def p_listaparametrosfunc(t):
+    '''listaparametrosfunc : listaparametrosfunc COMA parfunc
+                            | parfunc'''
+    t[0] = getparametrosfunc(t)
+
+def p_parfunc(t):
+    '''parfunc    : OUT ID type_column1
+                  | INOUT ID type_column1
+                  | ID type_column1
+                  | type_column1'''
+    t[0] = getparfunc(t)
+
+def p_cuerpofuncion(t):
+    'cuerpofuncion  : CADDOLAR declaraciones cuerpo CADDOLAR LANGUAGE PLPGSQL PTCOMA'
+    t[0] = getCuerpoFuncion(t)
+
+def p_cuerpofuncion1(t):
+    'cuerpofuncion  : CADDOLAR declaraciones cuerpo CADDOLAR PTCOMA'
+    t[0] = getCuerpoFuncion(t)
+
+def p_declaraciones(t):
+    'declaraciones   : DECLARE listadeclaraciones'
+    g = '<declaraciones>  ::= DECLARE <listadeclaraciones>'
+
+    t[0] = Nodo('DECLARE', '', t[2], t.lexer.lineno, g)
+
+def p_declaraciones1(t):
+    'declaraciones   :  empty'
+    t[0] = None
+
+def p_listadeclaraciones(t):
+    '''listadeclaraciones : listadeclaraciones declaracion
+                          | declaracion'''
+    t[0] = getlistadeclaraciones(t)
+
+def p_declaracion(t):
+    '''declaracion : ID constantintr type_column1 notnullinst asignavalor PTCOMA'''
+    t[0] = getdeclaraciones(t)
+
+def p_declaracion1(t):
+    '''declaracion : ID ALIAS1 FOR DOLAR ENTERO PTCOMA
+                   | ID ALIAS1 FOR ID PTCOMA'''
+    t[0] = getdeclaraciones1(t)
+
+def p_declaracion2(t):
+    '''declaracion : ID cualquieridentificador MODULO TYPE PTCOMA'''
+    t[0] = getdeclaraciones2(t)
+
+def p_declaracion3(t):
+    '''declaracion : ID cualquieridentificador MODULO ROWTYPE PTCOMA'''
+    t[0] = getdeclaraciones2(t)
+
+def p_constantintr(t):
+    '''constantintr : CONSTANT
+                    | empty'''
+    t[0] = getconstant(t)
+
+def p_notnullinst(t):
+    '''notnullinst  : NOT NULL
+                    | empty'''
+    t[0] = getnotnull(t)
+
+def p_asignavalor(t):
+    '''asignavalor      : DEFAULT expresion
+                        | PTIGUAL expresion
+                        | IGUAL expresion
+                        | empty'''
+    t[0] = getasignavalor(t)
+
+def p_cuerpo(t):
+    'cuerpo     : BEGIN instrlistabloque END PTCOMA'
+    t[0] = getcuerpo(t)
+
+def p_insrtlistabloque(t):
+    '''instrlistabloque : listabloque
+                        | empty'''
+    t[0] = getinstlistabloque(t)
+
+def p_listabloque(t):
+    '''listabloque : listabloque bloque
+                   | bloque'''
+    t[0] = getlistabloque(t)
+
+def p_bloque(t):
+    '''bloque       : raisenotice
+                    | asignacionbloque
+                    | subbloque
+                    | returnbloque
+                    | instrexecute
+                    | getdiagnostic
+                    | instrnull
+                    | instrif
+                    | instrcase
+                    | commitinstr
+                    | rollbackinstr
+                    | insert_instr
+                    | update_instr
+                    | alter_instr PTCOMA
+                    | create_enum  
+                    | drop_table   
+                    | delete_instr
+                    | truncate_instr
+                    | select_instr'''
+    t[0] = t[1]
+
+def p_commit(t):
+    'commitinstr : COMMIT PTCOMA'
+    g = '<commitinstr> ::= COMMIT PTCOMA'
+    t[0] = Nodo('COMMIT', '', [], t.lexer.lineno, g)
+
+def p_rollback(t):
+    'rollbackinstr : ROLLBACK PTCOMA'
+    g = '<rollbackinstr> ::= ROLLBACK PTCOMA'
+    t[0] = Nodo('ROLLBACK', '', [], t.lexer.lineno, g)
+
+def p_raisenotice(t):
+    '''raisenotice   : RAISE NOTICE CADENASIMPLE COMA ID PTCOMA
+                     | RAISE NOTICE CADENASIMPLE PTCOMA'''
+    t[0] = getraisenotice(t)
+
+def p_asignacionbloque(t):
+    'asignacionbloque : ID IGUAL expresion PTCOMA'
+    t[0] = getasignacionbloque(t)
+
+def p_asignacionbloque1(t):
+    'asignacionbloque : ID PTIGUAL expresion PTCOMA'
+    t[0] = getasignacionbloque(t)
+
+def p_return(t):
+    'returnbloque : RETURN condicion PTCOMA'
+    g = '<returnbloque> ::= RETURN <condicion> PTCOMA'
+    t[0] = Nodo('RETURN', '', [t[2]], t.lexer.lineno, g)
+
+def p_return2(t):
+    'returnbloque : RETURN QUERY select_instr1 PTCOMA'
+    g = '<returnbloque> ::= RETURN QUERY <select_instr1> PTCOMA'
+    t[0] = Nodo('RETURN QUERY', '', [t[3]], t.lexer.lineno, g)
+
+def p_return3(t):
+    'returnbloque : RETURN QUERY instrexecute PTCOMA'
+    g = '<returnbloque> ::= RETURN QUERY <instrexecute> PTCOMA'
+  
+    t[0] = Nodo('RETURN QUERY', '', [t[3]], t.lexer.lineno, g)
+
+def p_return4(t):
+    'returnbloque : RETURN PTCOMA'
+    g = '<returnbloque> ::= RETURN PTCOMA'
+    t[0] = Nodo('RETURN', '', [], t.lexer.lineno, g)
+
+def p_subloque(t):
+    'subbloque : declaraciones cuerposub'
+    t[0] = getsubbloque(t)
+
+def p_cuerposub(t):
+    'cuerposub : BEGIN listasubbloque END PTCOMA'
+    t[0] = getcuerposubbloque(t)
+
+def p_cuerposub1(t):
+    'cuerposub : BEGIN empty END PTCOMA'
+    t[0] = getcuerposubbloque(t)
+
+def p_listasubbloque(t):
+    '''listasubbloque : listasubbloque subbloque1
+                      | subbloque1'''
+    t[0] = getlistasubbloque(t)
+
+def p_bloque1(t):
+    '''subbloque1   : raisenotice1
+                    | asignacionbloque'''
+    t[0] = t[1]
+
+def p_raisenotice1(t):
+    '''raisenotice1  : RAISE NOTICE CADENASIMPLE COMA ID PTCOMA
+                     | RAISE NOTICE CADENASIMPLE COMA OUTERBLOCK PUNTO ID PTCOMA
+                     | RAISE NOTICE CADENASIMPLE PTCOMA'''
+    t[0] = getraisenoticesubbloque(t)
+
+def p_type_column1(t):
+    '''type_column1   : SMALLINT
+                      | INTEGER
+                      | BIGINT
+                      | RDECIMAL
+                      | RDECIMAL PARIZQ ENTERO COMA ENTERO PARDER
+                      | NUMERIC
+                      | NUMERIC PARIZQ ENTERO PARDER
+                      | REAL
+                      | FLOAT
+                      | INT
+                      | DOUBLE
+                      | MONEY
+                      | VARCHAR
+                      | VARCHAR PARIZQ ENTERO PARDER
+                      | CHARACTER VARYING PARIZQ ENTERO PARDER
+                      | CHARACTER PARIZQ ENTERO PARDER
+                      | CHAR 
+                      | CHAR PARIZQ ENTERO PARDER
+                      | TEXT
+                      | TIMESTAMP 
+                      | TIMESTAMP PARIZQ ENTERO PARDER
+                      | DATE
+                      | TIME
+                      | BOOLEAN
+                      | ID
+                      | TIME PARIZQ ENTERO PARDER
+                      | RECORD
+                      | TABLE PARIZQ parametrosfunc PARDER'''
+    t[0] = gettypecolumn(t)
+
+# INSTRUCCION
+def p_instrexecute(t):
+    'instrexecute    : EXECUTE CSIMPLE select_instr1 CSIMPLE intotarget usingexpresion'
+    t[0] = getinstrexecute(t)
+
+def p_instrexecute1(t):
+    'instrexecute    : EXECUTE FORMAT PARIZQ CSIMPLE select_instr1 CSIMPLE PARDER intotarget usingexpresion'
+    t[0] = getinstrexecute1(t)
+
+def p_intotarget(t):
+    '''intotarget    : INTO ID
+                    | empty'''
+    t[0] = getintotarget(t)
+
+def p_usingexpresion(t):
+    '''usingexpresion  : USING listaexpresiones
+                       | empty'''
+    t[0] = getusingexpresion(t)
+
+def p_listaexpresiones(t):
+    '''listaexpresiones : listaexpresiones COMA expresion
+                        | expresion'''
+    t[0] = getlistexpresiones(t)
+
+# INSTRUCCION 
+def p_getdiagnostic(t):
+    'getdiagnostic : GET DIAGNOSTICS ID IGUAL ID'
+    g = '<getdiagnostic> ::= GET DIAGNOSTICS ID IGUAL ID'
+    n1 = Nodo('ID', t[3], [], t.lexer.lineno)
+    n2 = Nodo('ID', t[5], [], t.lexer.lineno)
+    t[0] = Nodo('GET DIAGNOSTICS', t[4], [n1, n2], t.lexer.lineno, g)
+
+def p_getdiagnostic1(t):
+    'getdiagnostic : GET DIAGNOSTICS ID PTIGUAL ID'
+    g = '<getdiagnostic> ::= GET DIAGNOSTICS ID PTIGUAL ID'
+    n1 = Nodo('ID', t[3], [], t.lexer.lineno)
+    n2 = Nodo('ID', t[5], [], t.lexer.lineno)
+    t[0] = Nodo('GET DIAGNOSTICS', t[4], [n1, n2], t.lexer.lineno, g)
+
+# INSTRUCCION 
+def p_instrnull(t):
+    'instrnull    : NULL PTCOMA'
+    g = '<instrnull    ::= NULL PTCOMA'
+    t[0] = Nodo('NULL', '', [], t.lexer.lineno, g)
+
+# INSTRUCCION 
+def p_instrif(t):
+    'instrif    : IF condiciones THEN instrlistabloque END IF PTCOMA'
+    t[0] = getinstrif(t)
+
+def p_instrif1(t):
+    'instrif    : IF condiciones THEN instrlistabloque ELSE instrlistabloque END IF PTCOMA'
+    t[0] = getinstrif1(t)
+
+def p_instrif2(t):
+    'instrif    : IF condiciones THEN instrlistabloque instrelseif END IF PTCOMA'
+    t[0] = getinstrif2(t)
+
+def p_instrif3(t):
+    'instrif    : IF condiciones THEN instrlistabloque instrelseif ELSE instrlistabloque END IF PTCOMA'
+    t[0] = getinstrif3(t)
+
+def p_elseif(t):
+    '''instrelseif : instrelseif in_elseif
+                    | in_elseif'''
+    t[0] = getinstrelseif(t)
+
+def p_inelseif(t):
+    'in_elseif : ELSIF condiciones THEN instrlistabloque'
+    g = '<in_elseif> ::= ELSIF <condiciones> THEN <instrlistabloque>'
+    childs = [Nodo('CONDICIONES', '', [t[2]], t.lexer.lineno)]
+    if t[4] != None:
+       childs.append(Nodo('THEN', '', t[4], t.lexer.lineno))
+    t[0] =  Nodo('ELSIF', '', childs, t.lexer.lineno, g)
+
+
+# INSTRUCCION 
+def p_instrcase(t):
+    'instrcase : CASE expresion listawhen1 elsecase END CASE PTCOMA'
+    t[0] = getinstrcase(t)
+
+def p_elsecase(t):
+    'elsecase : ELSE instrlistabloque'
+    g = '<elsecase> ::= ELSE <instrlistabloque>'
+    t[0] = Nodo('ELSE', '', t[2], t.lexer.lineno, g)
+
+def p_elsecase1(t):
+    'elsecase : empty'
+
+def p_listawhen1(t):
+    '''listawhen1  : listawhen1 when1
+                   | when1'''
+    t[0] = getlistawhen1(t)
+
+def p_when1(t):
+    'when1  : WHEN listaexpresiones THEN instrlistabloque'
+    t[0] = getwhen1(t)
+
+# INSTRUCCION 
+def p_instrcase2(t):
+    'instrcase : CASE listawhen2 elsecase END CASE PTCOMA'
+    t[0] = getinstrcase2(t)
+
+def p_listawhen2(t):
+    '''listawhen2  : listawhen2 when2
+                   | when2'''
+    t[0] = getlistawhen1(t)
+
+def p_when2(t):
+    'when2  : WHEN ID BETWEEN ENTERO AND ENTERO THEN instrlistabloque'
+    t[0] = getwhen21(t)
+
+def p_when3(t):
+    'when2  : WHEN condiciones THEN instrlistabloque'
+    t[0] = getwhen22(t)
+
+
 # Epsilon -------------------------------------------------------------------------------------
 def p_empty(t):
     'empty            : '
     pass
 
 def p_error(t):
-    print(t)
+    if not t:
+        print("Fin del Archivo!")
+        return
     print("Error sintáctico en '%s'" % t.value)
     Errores.append(Error('42601', EType.SINTACTICO, 'syntax_error',t.lexer.lineno))
+    while True:
+        
+        tok = parser.token()             # Get the next token
+        if not tok or tok.type == 'PTCOMA':
+            if not tok:
+                print("FIN DEL ARCHIVO")
+                return
+            else:
+                print("Se recupero con ;")
+                break
+    parser.restart()
+    print(t)
+
     #ast.errors.append(Error('42601', EType.SINTACTICO, 'syntax_error',t.lexer.lineno)
     #webbrowser.open("file:/Errores Lexicos.html", new=2, autoraise=True)
 
@@ -1427,48 +1965,17 @@ def p_error(t):
 parser = yacc.yacc()
 
 def parse(input) :
-    global output2
-    global errors2
+
     retorno = parser.parse(input)
-    graficarAST(retorno)
+    #graficarAST(retorno)
     # Se instancia un AST y se ejecutan las instruccion
-    ast = AST(retorno)
+    '''ast = AST(retorno)
     ast.executeAST()
     ast.printOutputs()
     ast.printErrors()
     ast.generateTSReport()
     ast.errors += Errores
-    ast.erroresHTML()
-    
+    ast.erroresHTML()'''
     # Se crear el reporte gramatical en formato BNF
-    crearReporte(retorno)
-    return ast
-
-
-# Funciones para generar el codigo DOT del AST---------------------------------------
-c = 0
-def recorrerNodos(nodo):
-    global c
-    c += 1
-    codigo = ""
-    padre = 'nodo'+str(c)
-    codigo = padre + '[label = \"' + nodo.etiqueta + '\\n' + nodo.valor + '\"];\n'
-    for hijo in nodo.hijos: 
-        codigo += padre + '->' + 'nodo' + str(c+1) + '\n'
-        codigo += recorrerNodos(hijo)
-    return codigo
-
-def graficarAST(raiz):
-
-    file = open("ast.dot", "w")
-    file.write(
-            'digraph G {\n'
-            + 'rankdir=TB; '
-            + 'node[fillcolor=\"darkturquoise:darkslategray2\", shape=record ,fontname = \"Berlin Sans FB\" ,style = filled]  \n'
-            + 'edge[arrowhead=none]; \n'
-        )
-    file.write(recorrerNodos(raiz))
-    file.write('}\n')
-    file.close()
-    render('dot','svg','ast.dot')
-
+    #crearReporte(retorno)
+    return retorno

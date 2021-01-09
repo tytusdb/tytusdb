@@ -14,7 +14,10 @@ from ui.Pantalla_Error import *
 import tkinter.messagebox
 
 # Parser SQL de la fase 1
-from analizer_pl import interpreter
+from analizer import interpreter as fase1
+
+# Parser SQL de la fase 1
+from analizer_pl import interpreter as fase2
 
 
 class Pantalla:
@@ -79,7 +82,47 @@ class Pantalla:
         self.window.mainloop()
 
     def traslate(self):
-        print("traducir")
+        self.refresh()
+        input = ""
+        input = self.txt_entrada.get(
+            "1.0", END
+        )  # variable de almacenamiento de la entrada
+        result = fase2.traducir(input)
+        self.lexicalErrors = result["lexical"]
+        self.syntacticErrors = result["syntax"]
+        self.semanticErrors = result["semantic"]
+        self.postgreSQL = result["postgres"]
+        self.ts = result["symbols"]
+        self.indexes = result["indexes"]
+        self.functions = result["functions"]
+        if (
+            len(self.lexicalErrors)
+            + len(self.syntacticErrors)
+            + len(self.semanticErrors)
+            + len(self.postgreSQL)
+            > 0
+        ):
+            tkinter.messagebox.showerror(
+                title="Error", message="La consulta contiene errores"
+            )
+            if len(self.postgreSQL) > 0:
+                i = 0
+                self.text_Consola.insert(INSERT, "-----------ERRORS----------" + "\n")
+                while i < len(self.postgreSQL):
+                    self.text_Consola.insert(INSERT, self.postgreSQL[i] + "\n")
+                    i += 1
+        else:
+            tkinter.messagebox.showinfo(
+                title="Info", message="Generacion de codigo 3 direcciones completada."
+            )
+        messages = result["messages"]
+        if len(messages) > 0:
+            i = 0
+            self.text_Consola.insert(INSERT, "-----------MESSAGES----------" + "\n")
+            while i < len(messages):
+                self.text_Consola.insert(INSERT, str(messages[i]) + "\n")
+                i += 1
+        self.tabControl.pack()
 
     def show_result(self, consults):
         if consults != None:
@@ -116,7 +159,7 @@ class Pantalla:
         input = self.txt_entrada.get(
             "1.0", END
         )  # variable de almacenamiento de la entrada
-        result = interpreter.parser(input)
+        result = fase1.parser(input)
         if len(result["lexical"]) + len(result["syntax"]) == 0:
             tkinter.messagebox.showerror(
                 title="Mensaje", message="La consulta no contiene errores"
@@ -134,7 +177,7 @@ class Pantalla:
         entrada = self.txt_entrada.get(
             "1.0", END
         )  # variable de almacenamiento de la entrada
-        result = interpreter.execution(entrada)
+        result = fase1.execution(entrada)
         self.lexicalErrors = result["lexical"]
         self.syntacticErrors = result["syntax"]
         self.semanticErrors = result["semantic"]
@@ -167,7 +210,6 @@ class Pantalla:
             while i < len(messages):
                 self.text_Consola.insert(INSERT, str(messages[i]) + "\n")
                 i += 1
-
         self.tabControl.pack()
 
     def refresh(self):

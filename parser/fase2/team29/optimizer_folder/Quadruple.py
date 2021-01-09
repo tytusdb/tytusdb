@@ -32,8 +32,11 @@ class Quadruple:
             "-": 10,
             "+": 11,
             "and": 12,
+            "AND": 12,
+            "OR": 13,
             "or": 13,
             "= not": 14,
+            "==": 15,
             "": -1,
         }
         self.tab = tab
@@ -88,6 +91,7 @@ class Quadruple:
             12: "and",
             13: "or",
             14: "= not",
+            15: "==",
             -1: "",
         }
 

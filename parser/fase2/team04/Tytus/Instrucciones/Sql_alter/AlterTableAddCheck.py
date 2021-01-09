@@ -46,6 +46,7 @@ class AlterTableAddCheck(Instruccion):
                 arbol.comprobacionCreate = False
                 arbol.columnaCheck = None
                 arbol.consola.append("Consulta devuelta correctamente.")
+                print("Constulta ALTER CHECK devuelta correctamente")
             else:
                 error = Excepcion('42P01',"Semántico","No existe la relación "+self.tabla,self.linea,self.columna)
                 arbol.excepciones.append(error)
@@ -58,7 +59,7 @@ class AlterTableAddCheck(Instruccion):
 
 
 
-    def getCodigo(self, tabla, arbol):  # SE DEBE CAMBIAR A OTRA FUNCION INTERMEDIA
+    def getCodigo(self, tabla, arbol): 
         
         expresion = self.condicion.toString()
 
@@ -79,11 +80,12 @@ class AlterTableAddCheck(Instruccion):
         codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo
 
 

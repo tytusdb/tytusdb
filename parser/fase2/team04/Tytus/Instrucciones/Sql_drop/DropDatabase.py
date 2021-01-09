@@ -26,12 +26,15 @@ class DropDatabase(Instruccion):
             arbol.eliminarBD(self.id)
         elif self.existe and not bandera:
             arbol.consola.append(f"La Base de datos: {self.id} no existe")
+            print(f"La Base de Datos: {self.id} no existe")
         elif not self.existe and bandera:
             arbol.consola.append(f"La Base de Datos: {self.id} ha sido eliminada")
+            print(f"La Base de Datos: {self.id} ha sido eliminada")
             dropDatabase(self.id)
             arbol.eliminarBD(self.id)
         elif not self.existe and not bandera:
             error = Exception("XX000", "Semantico", "Error Base de Datos no existe", self.linea, self.columna)
+            print(error)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
 
@@ -98,12 +101,13 @@ class DropDatabase(Instruccion):
         
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter_DropDataBase()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo
             
         
 '''

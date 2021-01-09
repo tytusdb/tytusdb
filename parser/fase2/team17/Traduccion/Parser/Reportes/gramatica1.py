@@ -1,10 +1,35 @@
 from Parser.Reportes.Nodo1 import Nodo
-
+from Interprete.Manejo_errores.ErroresSintacticos import ErroresSintacticos
+from Interprete.Manejo_errores.ErroresLexicos import ErroresLexicos
+from Main.erroresglobales import erroresglobales
 
 reservadas = {
 
+    # LOWER
+
+    'lower': 'LOWER',
+    'owned': 'OWNED',
+    'reset': 'RESET',
+    'nowait': 'NOWAIT',
+    'statistics': 'STATISTICS',
+    'extension': 'EXTENSION',
+    'depends': 'DEPENDS',
+    'partition': 'PARTITION',
+    'attach': 'ATTACH',
+    'tablespace': 'TABLESPACE',
+    'cascade': 'CASCADE',
+    'restrict': 'RESTRICT',
+    'concurrently': 'CONCURRENTLY',
+    # INDEXES
+    'index': 'INDEX',
+    'hash': 'HASH',
+
+    'raise': 'RAISE',
+    'notice': 'NOTICE',
+    'returning': 'RETURNING',
     'strict': 'STRICT',
     'perfom': 'PERFORM',
+
     # Boolean Type
     'boolean': 'BOOLEAN',
     'true': 'TRUE',
@@ -22,302 +47,319 @@ reservadas = {
     'owner': 'OWNER',
     'show': 'SHOW',
     'databases': 'DATABASES',
-    'map' : 'MAP',
-    'list' : 'LIST',
-    'mode' : 'MODE',
-    'use' : 'USE',
+    'map': 'MAP',
+    'list': 'LIST',
+    'mode': 'MODE',
+    'use': 'USE',
 
     # Inheritance
     'inherits': 'INHERITS',
 
     # ESTRUCTURAS DE CONSULTA Y DEFINICIONES
-    'select'  : 'SELECT',
-    'insert'  : 'INSERT',
-    'update'  : 'UPDATE',
-    'drop'  : 'DROP',
-    'delete'  : 'DELETE',
-    'alter'  : 'ALTER',
-    'constraint'  : 'CONSTRAINT',
-    'from' : 'FROM',
-    'group' : 'GROUP',
-    'by'  : 'BY',
-    'where'  : 'WHERE',
-    'having'   : 'HAVING',
-    'create' : 'CREATE',
-    'type' : 'TYPE',
-    'primary' : 'PRIMARY',
-    'foreign' : 'FOREIGN',
-    'add' : 'ADD',
-    'rename' : 'RENAME',
-    'set' : 'SET',
-    'key' : 'KEY',
-    'if' : 'IF',
-    'else' : 'ELSE',
-    'unique' : 'UNIQUE',
-    'references' : 'REFERENCES',
-    'check' : 'CHECK',
-    'column' : 'COLUMN',
-    'database' : 'DATABASE',
-    'table' : 'TABLE',
-    'text' : 'TEXT',
-    'float' : 'FLOAT',
-    'values' : 'VALUES',
-    'int' : 'INT',
-    'default' : 'DEFAULT',
-    'null' : 'NULL',
-    'now' : 'NOW',
-    'bytea' : 'BYTEA',
+    'select': 'SELECT',
+    'insert': 'INSERT',
+    'update': 'UPDATE',
+    'drop': 'DROP',
+    'delete': 'DELETE',
+    'alter': 'ALTER',
+    'constraint': 'CONSTRAINT',
+    'from': 'FROM',
+    'group': 'GROUP',
+    'by': 'BY',
+    'where': 'WHERE',
+    'having': 'HAVING',
+    'create': 'CREATE',
+    'type': 'TYPE',
+    'primary': 'PRIMARY',
+    'foreign': 'FOREIGN',
+    'add': 'ADD',
+    'rename': 'RENAME',
+    'set': 'SET',
+    'key': 'KEY',
+    'if': 'IF',
+    'elsif': 'ELSIF',
+    'else': 'ELSE',
+    'unique': 'UNIQUE',
+    'references': 'REFERENCES',
+    'check': 'CHECK',
+    'column': 'COLUMN',
+    'database': 'DATABASE',
+    'table': 'TABLE',
+    'text': 'TEXT',
+    'float': 'FLOAT',
+    'values': 'VALUES',
+    'int': 'INT',
+    'default': 'DEFAULT',
+    'null': 'NULL',
+    'now': 'NOW',
+    'bytea': 'BYTEA',
+    'begin': 'BEGIN',
+    'exception': 'EXCEPTION',
 
     # TIPOS NUMERICOS
-    'smallint' : 'SMALLINT',
-    'integer' : 'INTEGER',
-    'bigint' : 'BIGINT',
-    'decimal' : 'DECIMAL',
-    'numeric' : 'NUMERIC',
-    'real' : 'REAL',
-    'double' : 'DOUBLE',
-    'precision' : 'PRECISION',
-    'money' : 'MONEY',
-    'varying' : 'VARYING',
-    'varchar' : 'VARCHAR',
-    'character' : 'CHARACTER',
-    'char' : 'CHAR',
-    'clear' : 'CLEAR',
+    'smallint': 'SMALLINT',
+    'integer': 'INTEGER',
+    'bigint': 'BIGINT',
+    'decimal': 'DECIMAL',
+    'numeric': 'NUMERIC',
+    'real': 'REAL',
+    'double': 'DOUBLE',
+    'precision': 'PRECISION',
+    'money': 'MONEY',
+    'varying': 'VARYING',
+    'varchar': 'VARCHAR',
+    'character': 'CHARACTER',
+    'char': 'CHAR',
+    'clear': 'CLEAR',
+    'string': 'STRING',
 
     # TIPOS EN FECHAS
-    'timestamp' : 'TIMESTAMP',
-    'date' : 'DATE',
-    'time' : 'TIME',
-    'interval' : 'INTERVAL',
-    'year' : 'YEAR',
-    'day' : 'DAY',
-    'hour' : 'HOUR',
-    'minute' : 'MINUTE',
-    'second' : 'SECOND',
-    'to' : 'TO',
-    'current_date' : 'CURRENT_DATE',
-    'current_time' : 'CURRENT_TIME',
+    'timestamp': 'TIMESTAMP',
+    'date': 'DATE',
+    'time': 'TIME',
+    'interval': 'INTERVAL',
+    'year': 'YEAR',
+    'day': 'DAY',
+    'hour': 'HOUR',
+    'minute': 'MINUTE',
+    'second': 'SECOND',
+    'to': 'TO',
+    'current_date': 'CURRENT_DATE',
+    'current_time': 'CURRENT_TIME',
     'current_user': 'CURRENT_USER',
     'session_user': 'SESSION_USER',
-    'date_part' : 'DATE_PART',
-    'month' : 'MONTH',
-
+    'date_part': 'DATE_PART',
+    'month': 'MONTH',
+    'exit': 'EXIT',
 
     # ENUM
-    'enum'  : 'ENUM',
+    'enum': 'ENUM',
 
     # OPERADORES LOGICOS
-    'and' : 'AND',
-    'or'  : 'OR',
-    'not'   : 'NOT',
+    'and': 'AND',
+    'or': 'OR',
+    'not': 'NOT',
+    'return': 'RETURN',
 
     # PREDICADOS DE STRICT
-    'between'   : 'BETWEEN',
-    'unknown' : 'UNKNOWN',
-    'is'    : 'IS',
-    'distinct'  : 'DISTINCT',
+    'between': 'BETWEEN',
+    'unknown': 'UNKNOWN',
+    'is': 'IS',
+    'distinct': 'DISTINCT',
 
     # FUNCIONES MATEMATICAS
-    'abs' : 'ABS',
-    'cbrt' : 'CBRT',
-    'ceil' : 'CEIL',
-    'ceiling' : 'CEILING',
-    'degrees' : 'DEGREES',
-    'extract' : 'EXTRACT',
-    'div' : 'DIV',
-    'exp' : 'EXP',
-    'trunc' : 'TRUNC',
-    'factorial' : 'FACTORIAL',
-    'floor' : 'FLOOR',
-    'gcd' : 'GCD',
-    'lcm' : 'LCM',
-    'ln' : 'LN',
-    'log' : 'LOG',
-    'log10' : 'LOG10',
-    'min_scale' : 'MIN_SCALE',
-    'mod' : 'MOD',
-    'pi' : 'PI',
-    'power' : 'POWER',
-    'radians' : 'RADIANS',
-    'round' : 'ROUND',
-    'scale' : 'SCALE',
-    'sign' : 'SIGN',
-    'sqrt' : 'SQRT',
-    'trim_scale' : 'TRIM_SCALE',
-    'truc' : 'TRUC',
-    'width_bucker' : 'WIDTH_BUCKET',
-    'random' : 'RANDOM',
-    'setseed' : 'SETSEED',
-    'contains' : 'CONTAINS',
+    'abs': 'ABS',
+    'cbrt': 'CBRT',
+    'ceil': 'CEIL',
+    'ceiling': 'CEILING',
+    'degrees': 'DEGREES',
+    'extract': 'EXTRACT',
+    'div': 'DIV',
+    'exp': 'EXP',
+    'trunc': 'TRUNC',
+    'factorial': 'FACTORIAL',
+    'floor': 'FLOOR',
+    'gcd': 'GCD',
+    'lcm': 'LCM',
+    'ln': 'LN',
+    'log': 'LOG',
+    'log10': 'LOG10',
+    'min_scale': 'MIN_SCALE',
+    'mod': 'MOD',
+    'pi': 'PI',
+    'power': 'POWER',
+    'radians': 'RADIANS',
+    'round': 'ROUND',
+    'scale': 'SCALE',
+    'sign': 'SIGN',
+    'sqrt': 'SQRT',
+    'trim_scale': 'TRIM_SCALE',
+    'truc': 'TRUC',
+    'width_bucker': 'WIDTH_BUCKET',
+    'random': 'RANDOM',
+    'setseed': 'SETSEED',
+    'contains': 'CONTAINS',
     'remove': 'REMOVE',
+    'function': 'FUNCTION',
+    'procedure': 'PROCEDURE',
 
     # FUNCIONES DE AGREGACION
-    'count' : 'COUNT',
-    'sum' : 'SUM',
-    'avg' : 'AVG',
-    'max' : 'MAX',
-    'min' : 'MIN',
+    'count': 'COUNT',
+    'sum': 'SUM',
+    'avg': 'AVG',
+    'max': 'MAX',
+    'min': 'MIN',
 
     # FUNCIONES TRIGONOMETRICAS
-    'acos' : 'ACOS',
-    'acosd' : 'ACOSD',
-    'asin' : 'ASIN',
-    'asind' : 'ASIND',
-    'atan' : 'ATAN',
-    'atand' : 'ATAND',
-    'atan2' : 'ATAN2',
-    'atan2d' : 'ATAN2D',
-    'cos' : 'COS',
-    'cosd' : 'COSD',
-    'cot' : 'COT',
-    'cotd' : 'COTD',
-    'sin' : 'SIN',
-    'sind' : 'SIND',
-    'tan' : 'TAN',
-    'tand' : 'TAND',
-    'sinh' : 'SINH',
-    'cosh' : 'COSH',
-    'tanh' : 'TANH',
-    'asinh' : 'ASINH',
-    'acosh   ' : 'ACOSH',
-    'atanh' : 'ATANH',
-    'SIZE' : 'SIZE',
+    'acos': 'ACOS',
+    'acosd': 'ACOSD',
+    'asin': 'ASIN',
+    'asind': 'ASIND',
+    'constant': 'CONSTANT',
+    'atan': 'ATAN',
+    'atand': 'ATAND',
+    'atan2': 'ATAN2',
+    'atan2d': 'ATAN2D',
+    'cos': 'COS',
+    'cosd': 'COSD',
+    'cot': 'COT',
+    'cotd': 'COTD',
+    'sin': 'SIN',
+    'sind': 'SIND',
+    'tan': 'TAN',
+    'tand': 'TAND',
+    'sinh': 'SINH',
+    'cosh': 'COSH',
+    'tanh': 'TANH',
+    'asinh': 'ASINH',
+    'acosh   ': 'ACOSH',
+    'atanh': 'ATANH',
+    'SIZE': 'SIZE',
+    'next': 'NEXT',
+    'query': 'QUERY',
+    'execute': 'EXECUTE',
+    'using': 'USING',
+    'call': 'CALL',
 
     # FUNCIONES DE CADENA BINARIAS
-    'length' : 'LENGTH',
-    'substring' : 'SUBSTRING',
-    'trim' : 'TRIM',
-    'get_byte' : 'GET_BYTE',
-    'md5' : 'MD5',
-    'set_byte' : 'SET_BYTE',
-    'sha256' : 'SHA256',
-    'substr' : 'SUBSTR',
-    'convert' : 'CONVERT',
-    'encode' : 'ENCODE',
-    'decode' : 'DECODE',
+    'length': 'LENGTH',
+    'substring': 'SUBSTRING',
+    'trim': 'TRIM',
+    'get_byte': 'GET_BYTE',
+    'md5': 'MD5',
+    'set_byte': 'SET_BYTE',
+    'sha256': 'SHA256',
+    'substr': 'SUBSTR',
+    'convert': 'CONVERT',
+    'encode': 'ENCODE',
+    'decode': 'DECODE',
 
     # COINCidenCIA POR PATRON
-    'like' : 'LIKE',
-    'ilike' : 'ILIKE',
-    'similar' : 'SIMILAR',
-    'as' : 'AS',
-    'couter' : 'COUTER',
+    'like': 'LIKE',
+    'ilike': 'ILIKE',
+    'similar': 'SIMILAR',
+    'as': 'AS',
+    'couter': 'COUTER',
+    'collate': 'COLLATE',
 
     # SUBQUERYS
-    'in' : 'IN',
-    'exists' : 'EXISTS',
-    'any' : 'ANY',
-    'all' : 'ALL',
-    'some' : 'SOME',
+    'in': 'IN',
+    'exists': 'EXISTS',
+    'any': 'ANY',
+    'all': 'ALL',
+    'some': 'SOME',
 
     # JOINS
-    'join' : 'JOIN',
-    'inner' : 'INNER',
-    'left' : 'LEFT',
-    'right' : 'RIGHT',
-    'full' : 'FULL',
-    'outer' : 'OUTER',
-    'on' : 'ON',
+    'join': 'JOIN',
+    'inner': 'INNER',
+    'left': 'LEFT',
+    'right': 'RIGHT',
+    'full': 'FULL',
+    'outer': 'OUTER',
+    'on': 'ON',
+    'declare': 'DECLARE',
 
     # ORDENAMIENTO DE FILAS
-    'asc' : 'ASC',
-    'desc' : 'DESC',
-    'nulls' : 'NULLS',
-    'first' : 'FIRST',
-    'last' : 'LAST',
+    'asc': 'ASC',
+    'desc': 'DESC',
+    'nulls': 'NULLS',
+    'first': 'FIRST',
+    'last': 'LAST',
 
     # EXPRESIONES
-    'case' : 'CASE',
-    'when' : 'WHEN',
-    'then' : 'THEN',
-    'end' : 'END',
-    'greatest' : 'GREATEST',
-    'least' : 'LEAST',
+    'case': 'CASE',
+    'when': 'WHEN',
+    'then': 'THEN',
+    'end': 'END',
+    'greatest': 'GREATEST',
+    'least': 'LEAST',
 
     # LIMITE Y OFFSET
-    'limit' : 'LIMIT',
-    'offset' : 'OFFSET',
+    'limit': 'LIMIT',
+    'offset': 'OFFSET',
 
     # CONSULTAS DE COMBINACION
-    'union' : 'UNION',
-    'intersect' : 'INTERSECT',
-    'except' : 'EXCEPT',
-
-    'prueba' : 'PRUEBA'
+    'union': 'UNION',
+    'intersect': 'INTERSECT',
+    'except': 'EXCEPT',
+    'language': 'LANGUAGE',
+    'returns': 'RETURNS',
 
 }
 
-tokens  = [
-    'PT',
-    'DOBPTS',
-    'MAS',
-    'MENOS',
-    'MULTI',
-    'DIVISION',
-    'MODULO',
-    'IGUAL',
-    'PARIZQ',
-    'PARDER',
-    'PTCOMA',
-    'COMA',
-    'TKNOT',
-    'NOTBB',
-    'ANDBB',
-    'ORBB',
-    'ORBBDOBLE',
-    'NUMERAL',
-    'TKEXP',
-    'SHIFTIZQ',
-    'SHIFTDER',
-    'IGUALQUE',
-    'DISTINTO',
-    'MAYORIG',
-    'MENORIG',
-    'MAYORQUE',
-    'MENORQUE',
-    'CORIZQ',
-    'CORDER',
-    'DOSPTS',
-    'TKDECIMAL',
-    'ENTERO',
-    'CADENA',
-    'CADENADOBLE',
-    'ID'
-] + list(reservadas.values())
+tokens = [
+             'PT',
+             'DOBPTS',
+             'MAS',
+             'MENOS',
+             'MULTI',
+             'DIVISION',
+             'MODULO',
+             'IGUAL',
+             'PARIZQ',
+             'PARDER',
+             'PTCOMA',
+             'COMA',
+             'TKNOT',
+             'NOTBB',
+             'ANDBB',
+             'ORBB',
+             'ORBBDOBLE',
+             'NUMERAL',
+             'TKEXP',
+             'SHIFTIZQ',
+             'SHIFTDER',
+             'IGUALQUE',
+             'DISTINTO',
+             'MAYORIG',
+             'MENORIG',
+             'MAYORQUE',
+             'MENORQUE',
+             'CORIZQ',
+             'CORDER',
+             'DOSPTS',
+             'TKDECIMAL',
+             'ENTERO',
+             'CADENA',
+             'CADENADOBLE',
+             'ID',
+             'DOLAR'
+         ] + list(reservadas.values())
 
 # Tokens
-t_PT        = r'\.'
-t_DOBPTS    = r'::'
-t_CORIZQ      = r'\['
-t_CORDER      = r']'
+t_PT = r'\.'
+t_DOBPTS = r'::'
+t_CORIZQ = r'\['
+t_CORDER = r']'
+t_DOLAR = r'\$'
+t_MAS = r'\+'
+t_MENOS = r'-'
+t_TKEXP = r'\^'
+t_MULTI = r'\*'
+t_DIVISION = r'/'
+t_MODULO = r'%'
+t_IGUAL = r'='
+t_PARIZQ = r'\('
+t_PARDER = r'\)'
+t_PTCOMA = r';'
+t_COMA = r','
+t_TKNOT = r'!'
+t_NOTBB = r'~'
+t_ANDBB = r'&'
+t_ORBB = r'\|'
+t_ORBBDOBLE = r'\|\|'
+t_NUMERAL = r'\#'
 
-t_MAS       = r'\+'
-t_MENOS     = r'-'
-t_TKEXP     = r'\^'
-t_MULTI     = r'\*'
-t_DIVISION  = r'/'
-t_MODULO   = r'%'
-t_IGUAL     = r'='
-t_PARIZQ    = r'\('
-t_PARDER    = r'\)'
-t_PTCOMA    = r';'
-t_COMA      = r','
-t_TKNOT       = r'!'
-t_NOTBB     = r'~'
-t_ANDBB     = r'&'
-t_ORBB      = r'\|'
-t_ORBBDOBLE      = r'\|\|'
-t_NUMERAL   = r'\#'
+t_SHIFTIZQ = r'<<'
+t_SHIFTDER = r'>>'
+t_IGUALQUE = r'=='
+t_DISTINTO = r'!='
+t_MAYORIG = r'>='
+t_MENORIG = r'<='
+t_MAYORQUE = r'>'
+t_MENORQUE = r'<'
+t_DOSPTS = r':'
 
-t_SHIFTIZQ  = r'<<'
-t_SHIFTDER  = r'>>'
-t_IGUALQUE  = r'=='
-t_DISTINTO  = r'!='
-t_MAYORIG   = r'>='
-t_MENORIG   = r'<='
-t_MAYORQUE  = r'>'
-t_MENORQUE  = r'<'
-t_DOSPTS    = r':'
 
 def t_TKDECIMAL(t):
     r'\d+\.\d+'
@@ -327,6 +369,7 @@ def t_TKDECIMAL(t):
         print("Float value too large %d", t.value)
         t.value = 0
     return t
+
 
 def t_ENTERO(t):
     r'\d+'
@@ -343,34 +386,44 @@ def t_CADENA(t):
     t.value = t.value[1:-1]
     return t
 
+
 def t_CADENADOBLE(t):
     r'\".*?\"'
     t.value = t.value[1:-1]
     return t
 
+
 def t_ID(t):
-     r'[a-zA-Z_][a-zA-Z_0-9]*'
-     t.type = reservadas.get(t.value.lower(),'ID')
-     return t
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reservadas.get(t.value.lower(), 'ID')
+    return t
+
 
 t_ignore = " \t"
 
+
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += len(t.value) # t.value.count("\n")
+    t.lexer.lineno += len(t.value)  # t.value.count("\n")
+
 
 def t_COMENTARIO_SIMPLE(t):
     r'\--.*\n'
     t.lexer.lineno += 1
 
+
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
+
 
 def t_error(t):
     print("Caracter NO Valido: '%s'" % t.value[0])
     t.lexer.skip(1)
     print(t.value[0])
+    descripncion = "Caracter ilegal " + str(t.value[0])
+    error_l: ErroresLexicos = ErroresLexicos(descripncion, int(t.lexer.lineno), int(t.lexer.lineno), 'Lexico')
+    erroresglobales.errores_lexicos.append(error_l)
 
 
 # -----------------------------------------------------------------------------------
@@ -378,212 +431,1159 @@ def t_error(t):
 # -----------------------------------------------------------------------------------
 
 
-#-----------------------
+# -----------------------
 import ply.lex as lex
-lexer2 = lex.lex()
-#-----------------------
+
+lexerreporte = lex.lex()
+# -----------------------
 precedence = (
-    #('left','CONCAT'),
-    #('left','MENOR','MAYOR','IGUAL','MENORIGUAL','MAYORIGUAL','DIFERENTE'),
-    ('left','IGUAL','DISTINTO'),
-    ('left','MENORQUE','MAYORQUE','MENORIG','MAYORIG'),
-    ('left','MAS','MENOS'),
-    ('left','MULTI','DIVISION','MODULO'),
-    ('left','TKEXP'),
-    #('right','UMENOS'),
+    # ('left','CONCAT'),
+    # ('left','MENOR','MAYOR','IGUAL','MENORIGUAL','MAYORIGUAL','DIFERENTE'),
+    ('left', 'IGUAL', 'DISTINTO'),
+    ('left', 'MENORQUE', 'MAYORQUE', 'MENORIG', 'MAYORIG'),
+    ('left', 'MAS', 'MENOS'),
+    ('left', 'MULTI', 'DIVISION', 'MODULO'),
+    ('left', 'TKEXP'),
+    # ('right','UMENOS'),
 )
 
 
 def p_init(t):
-    'init : sentences'
+    'init : inter'
     t[0] = Nodo("init")
-    addSimple(t,0,1)
+    addSimple(t, 0, 1)
 
-def p_sentences(t):
+def p_inter(t):
+    'inter : definitions'
+    t[0] = Nodo("inter")
+    addSimple(t, 0, 1)
+
+
+def p_definitions(t):
     '''
-        sentences   : sentences setInstruccions
-                    | setInstruccions
+        definitions   : definitions definition
+                      | definition
     '''
     if len(t) == 3:
         t[1].add(t[2])
         t[0] = t[1]
     else:
-        t[0] = Nodo("sentences")
+        t[0] = Nodo("definitions")
         t[0].add(t[1])
 
-def p_setInstruccions(t):
+
+def p_definition(t):
     '''
-        setInstruccions   : sentence PTCOMA
+        definition   : instruction PTCOMA
     '''
-    t[0] = Nodo("setInstruccions")
-    addSimple(t,0,1)
-    add(t,0,node(t,2,2))
+    t[0] = Nodo("definition")
+    addSimple(t, 0, 1)
+    add(t, 0, node(t, 2, 2))
 
 
-def p_sentence(t):
+def p_instruction(t):
     '''
-        sentence     : ddl
+        instruction     : DataManipulationLenguage
+                        |  plpgsql
+                        |  statements
+                        |  index
     '''
-    t[0] = Nodo("sentence")
-    addSimple(t,0,1)
+    t[0] = Nodo("instruccion")
+    addSimple(t, 0, 1)
+
 
 # --------------------------------------------------------------------------------------
-# ------------------------------------ DDL ---------------------------------------------
+# ------------------------------- PL/PGSQL ---------------------------------------------
 # --------------------------------------------------------------------------------------
 
-def p_ddl_select(t):
+def p_cierreplpgsql(t):
     '''
-        ddl  : select
+        statements : DOLAR DOLAR LANGUAGE ID
     '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
+    t[0] = Nodo("statements")
+    add(t, 0, node(t,1, 4))
 
-def p_ddl_use(t):
+def p_plpgsql(t):
     '''
-        ddl  : use_database
+        plpgsql : function_or_procedure definitions BEGIN definitions plpgsql_ending
+                | function_or_procedure label definitions BEGIN definitions plpgsql_ending
+                | function_or_procedure BEGIN definitions plpgsql_ending
     '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
+    t[0] = Nodo("plpgsql")
+    if len(t) == 6:
+        #function_or_procedure definitions BEGIN definitions plpgsql_ending
+        addList(t, 0, 1,2)
+        add(t, 0, node(t, 3))
+        addList(t, 0, 4, 5)
+
+    elif len(t) == 7:
+        #function_or_procedure label definitions BEGIN definitions plpgsql_ending
+        addList(t, 0, 1,3)
+        add(t, 0, node(t, 4))
+        addList(t, 0, 5,6)
+
+    elif len(t) == 5:
+        #function_or_procedure BEGIN definitions plpgsql_ending
+        addList(t, 0, 1)
+        add(t, 0, node(t, 2))
+        addList(t, 0,3,4)
+
+
+# -------------------------------Pablo PL/PGSQL ---------------------------------------------
+
+def p_functions_or_procedures(t):
+    '''
+        functions_or_procedures : functions_or_procedures function_or_procedure
+                                | function_or_procedure
+    '''
+    if len(t) == 3:
+        t[1].add(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = Nodo("functions_or_procedures")
+        t[0].add(t[1])
+
+
+def p_function_or_procedure(t):
+    '''
+        function_or_procedure : function
+                              | procedure
+    '''
+    t[0] = Nodo("function_or_procedure")
+    addList(t, 0, 1)
+
+
+def p_procedure(t):
+    '''
+        procedure : CREATE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR
+                  | CREATE OR REPLACE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR
+                  | CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
+                  | CREATE OR REPLACE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
+    '''
+    t[0] = Nodo("procedure")
+    if len(t) == 12:
+        #CREATE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR
+        add(t, 0, node(t, 1, 3))
+        addList(t, 0, 5)
+        add(t, 0, node(t, 7, 8))
+    elif len(t) == 14:
+        # CREATE OR REPLACE PROCEDURE ID PARIZQ arguments PARDER LANGUAGE ID AS DOLAR DOLAR
+        add(t, 0, node(t, 1, 5))
+        addList(t, 0, 7)
+        add(t, 0, node(t, 9, 10))
+    elif len(t) == 11:
+        # CREATE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
+        add(t, 0, node(t, 1, 3))
+        add(t, 0, node(t, 6, 7))
+    elif len(t) == 13:
+        # CREATE OR REPLACE PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS DOLAR DOLAR
+        add(t, 0, node(t, 1, 5))
+        add(t, 0, node(t, 8, 9))
+
+
+# ================= EXCEPTION =================
+
+
+def p_plpgsql_ending(t):
+    '''
+        plpgsql_ending : exception END
+                       | END
+    '''
+    t[0] = Nodo("plpgsql_ending")
+    if len(t) == 3:
+        addList(t, 0, 1)
+        add(t, 0, node(t, 2))
+    else:
+        add(t, 0, node(t, 1))
+
+
+def p_exception(t):
+    '''
+        exception : EXCEPTION exception_whens
+    '''
+    t[0] = Nodo("exception")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+
+
+def p_end(t):
+    '''
+        end : END ID
+            | END
+    '''
+    t[0] = Nodo("end")
+
+    if len(t) == 3:
+        add(t, 0, node(t, 1, 2))
+    else:
+        add(t, 0, node(t, 1))
+
+
+def p_exception_whens(t):
+    '''
+        exception_whens : exception_whens exception_when
+                        | exception_when
+    '''
+    if len(t) == 3:
+        t[1].add(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = Nodo("exception_whens")
+        t[0].add(t[1])
+
+
+def p_exception_when(t):
+    '''
+        exception_when : WHEN exp THEN stmts
+    '''
+    t[0] = Nodo("exception_when")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+    add(t, 0, node(t, 3))
+    addList(t, 0, 4)
+
+
+# ================= FUNCTION =================
+
+
+def p_function(t):
+    '''
+        function : CREATE FUNCTION ID PARIZQ arguments function_ending
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+                 | CREATE FUNCTION ID PARIZQ function_ending
+                 | CREATE OR REPLACE FUNCTION ID PARIZQ function_ending
+    '''
+    t[0] = Nodo("function")
+    if len(t) == 7:
+        # CREATE FUNCTION ID PARIZQ arguments function_ending
+        add(t, 0, node(t, 1, 3))
+        addList(t, 0, 5, 6)
+    elif len(t) == 9:
+        # CREATE OR REPLACE FUNCTION ID PARIZQ arguments function_ending
+        add(t, 0, node(t, 1, 5))
+        addList(t, 0, 7, 8)
+    elif len(t) == 6:
+        # CREATE FUNCTION ID PARIZQ function_ending
+        add(t, 0, node(t, 1, 3))
+        addList(t, 0, 7, 5)
+
+    elif len(t) == 8:
+        # CREATE OR REPLACE FUNCTION ID PARIZQ function_ending
+        add(t, 0, node(t, 1, 5))
+        addList(t, 0, 7)
+
+
+def p_function_ending(t):
+    '''
+        function_ending : PARDER RETURNS types
+                        | PARDER RETURNS types AS DOLAR DOLAR
+                        | PARDER
+    '''
+    t[0] = Nodo("function_ending")
+    if len(t) == 4:
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 3)
+
+    elif len(t) == 7:
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 3)
+        add(t, 0, node(t, 4, 6))
+
+    elif len(t) == 2:
+        add(t, 0, node(t, 1))
+
+
+def p_arguments(t):
+    '''
+        arguments : arguments COMA argument
+                  | argument
+    '''
+    if len(t) == 4:
+        t[1].add(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = Nodo("arguments")
+        t[0].add(t[1])
+
+
+def p_argument(t):
+    '''
+      argument : ID types
+    '''
+    t[0] = Nodo("argument")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+
+
+def p_label(t):
+    '''
+        label : SHIFTIZQ ID SHIFTDER
+    '''
+    t[0] = Nodo("label")
+    add(t, 0, node(t, 1, 3))
+
+
+def p_stmts(t):
+    '''
+        stmts : stmts stmt
+              | stmt
+    '''
+    if len(t) == 3:
+        t[1].add(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = Nodo("stmts")
+        t[0].add(t[1])
+
+
+def p_stmt(t):
+    '''
+        stmt : DataManipulationLenguage PTCOMA
+             | statements PTCOMA
+    '''
+    t[0] = Nodo("stmt")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2))
+
+
+def p_statements_conditionals(t):
+    '''
+        statements : conditionals
+                   | return
+                   | execute_procedure
+                   | PRAISE
+                   | callfunction
+                   | exit
+                   | asignacionvar
+                   | declarer
+                   | drop_function
+                   | drop_procedure
+    '''
+    t[0] = Nodo("statements")
+    addList(t, 0, 1)
+
+
+def p_exit(t):
+    '''
+        exit : EXIT
+             | EXIT ID
+             | EXIT WHEN exp
+             | EXIT ID WHEN exp
+    '''
+    t[0] = Nodo("plpgsql")
+    if len(t) == 2:  # EXIT
+        add(t, 0, node(t, 1))
+
+    elif len(t) == 3:  # EXIT ID
+        add(t, 0, node(t, 1, 2))
+
+    elif len(t) == 4:  # EXIT WHEN exp
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 3)
+
+    elif len(t) == 5:  # EXIT ID WHEN exp
+        add(t, 0, node(t, 1, 3))
+        addList(t, 0, 4)
+
+
+def p_execute_procedure(t):
+    '''
+        execute_procedure : EXECUTE ID PARIZQ exp_list PARDER
+                          | EXECUTE ID PARIZQ PARDER
+    '''
+    t[0] = Nodo("execute_procedure")
+    if len(t) == 6:
+        # EXECUTE ID PARIZQ exp_list PARDER
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0,4)
+
+    else:
+        # EXECUTE ID PARIZQ PARDER
+        add(t, 0, node(t, 1, 4))
+
+
+# ================= RETURN =================
+
+def p_statements_return(t):
+    '''
+        return : RETURN exp
+               | RETURN NEXT exp
+               | RETURN QUERY select
+               | RETURN QUERY EXECUTE exp
+               | RETURN QUERY EXECUTE exp USING exp_list
+               | RETURN
+    '''
+    t[0] = Nodo("return")
+    if len(t) == 3:
+        # RETURN exp
+        add(t, 0, node(t, 1))
+        addList(t, 0, 2)
+
+    elif len(t) == 4:
+        # RETURN NEXT  exp | RETURN QUERY select
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 3)
+
+    elif len(t) == 5:
+        # RETURN QUERY EXECUTE exp
+        add(t, 0, node(t, 1, 3))
+        addList(t, 0, 4)
+
+    elif len(t) == 7:
+        # RETURN QUERY EXECUTE exp USING exp_list
+        add(t, 0, node(t, 1, 3))
+        addList(t, 0, 4)
+        add(t, 0, node(t, 5))
+        addList(t, 0, 6)
+
+
+def p_conditionals(t):
+    '''
+        conditionals : ifheader
+                     | caseheader
+    '''
+    t[0] = Nodo("conditionals")
+    addList(t, 0, 1)
+
+
+# ================= IF =================
+
+def p_ifheader(t):
+    '''
+        ifheader : IF if END IF
+    '''
+    t[0] = Nodo("ifheader")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+    add(t, 0, node(t, 3,4))
+
+
+def p_if(t):
+    '''
+        if : exp THEN definitions
+           | exp THEN definitions ELSE stmts
+           | exp THEN definitions ELSIF if
+    '''
+    t[0] = Nodo("if")
+
+    if len(t) == 4:
+        addList(t, 0, 1)
+        add(t, 0, node(t, 2))
+        addList(t, 0, 3)
+    elif len(t) == 6:
+        addList(t, 0, 1)
+        add(t, 0, node(t, 2))
+        addList(t, 0, 3)
+        add(t, 0, node(t, 4))
+        addList(t, 0, 5)
+
+
+# ================= CASE =================
+
+def p_caseheader(t):
+    '''
+        caseheader : CASE exp case END CASE
+                   | CASE case END CASE
+    '''
+    t[0] = Nodo("caseheader")
+    if len(t) == 6:
+        add(t, 0, node(t, 1))
+        addList(t, 0, 2, 3)
+        add(t, 0, node(t, 4, 5))
+    else:
+        add(t, 0, node(t, 1))
+        addList(t, 0, 2)
+        add(t, 0, node(t, 3, 4))
+
+
+def p_case(t):
+    '''
+        case : WHEN exp THEN stmts ELSE stmts
+             | WHEN exp THEN stmts case
+             | WHEN exp THEN stmts
+    '''
+    t[0] = Nodo("plpgsql")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+    add(t, 0, node(t, 3))
+    addList(t, 0, 4)
+
+    if len(t) == 7:
+        add(t, 0, node(t, 5))
+        addList(t, 0, 6)
+
+    elif len(t) == 6:
+        add(t, 0, node(t, 5))
+
+
+# ================= DROP FUNCTION Y PROCEDURE =================
+
+def p_drop_function(t):
+    '''
+        drop_function : DROP FUNCTION ID
+                      | DROP FUNCTION IF EXISTS ID
+    '''
+    t[0] = Nodo("drop_function")
+    add(t, 0, node(t, 1, 3))
+
+
+def p_drop_procedure(t):
+    '''
+        drop_procedure : DROP PROCEDURE IF EXISTS ID
+                       | DROP PROCEDURE ID
+    '''
+    t[0] = Nodo("drop_procedure")
+    add(t, 0, node(t, 1, 3))
+
+
+# -------------------------------Pablo PL/PGSQL ---------------------------------------------
+
+# ================= RAISE ================= its Nery bitch
+
+def p_Raise_simple(t):
+    '''
+        PRAISE : RAISE NOTICE exp
+    '''
+    t[0] = Nodo("praise")
+    add(t, 0, node(t, 1, 2))
+    addList(t, 0, 3)
+
+
+def p_Raise_complex(t):
+    '''
+        PRAISE : RAISE NOTICE exp COMA ID
+    '''
+    t[0] = Nodo("praise")
+    add(t, 0, node(t, 1, 2))
+    addList(t, 0, 3)
+    add(t, 0, node(t, 5))
+
+
+# ================= RAISE ================= its Nery bitch
+
+
+# -------------------------------Cristopher PL/PGSQL ---------------------------------------------
+
+def p_declarevarheader(t):
+    '''
+         declarer   : declarerdeep
+                    | DECLARE declarerdeep
+    '''
+    if len(t) == 2:
+        t[0] = Nodo("declarer")
+        addList(t, 0, 1)
+
+    else:
+        t[0] = Nodo("declarer")
+        add(t, 0, node(t, 1))
+        addList(t, 0, 2)
+
+
+def p_declarevar(t):
+    '''
+         declarerdeep : ID types NOTNULL DOSPTS IGUAL exp
+                      | ID types NOTNULL IGUAL exp
+                      | ID types DOSPTS  IGUAL exp
+                      | ID types IGUAL exp
+                      | ID types
+    '''
+    t[0] = Nodo("declarerdeep")
+    if len(t) == 7:
+        # ID types NOTNULL DOSPTS IGUAL exp
+        add(t, 0, node(t, 1))
+        addList(t, 0, 2)
+        add(t, 0, node(t, 3, 5))
+        addList(t, 0, 6)
+
+    elif len(t) == 6:
+        # ID types NOTNULL IGUAL exp
+        # ID types DOSPTS IGUAL exp
+        add(t, 0, node(t, 1))
+        addList(t, 0, 2)
+        add(t, 0, node(t, 3, 4))
+        addList(t, 0, 5)
+
+    elif len(t) == 5:
+        # ID types IGUAL exp
+        add(t, 0, node(t, 1))
+        addList(t, 0, 2)
+        add(t, 0, node(t, 3))
+        addList(t, 0, 4)
+
+    else:
+        # ID types
+        add(t, 0, node(t, 1))
+        addList(t, 0, 2)
+
+
+# -------------------------------Cristopher PL/PGSQL ---------------------------------------------
+
+
+# -------------------------------Jonathan PL/PGSQL ---------------------------------------------
+
+# ================= assign =================
+def p_statements_assign(t):
+    '''
+        asignacionvar   : ID  DOSPTS IGUAL exp
+                        | ID  IGUAL exp
+    '''
+    t[0] = Nodo("asignacionvar")
+    if len(t) == 5:
+        add(t, 0, node(t, 1, 3))
+        addList(t, 0, 4)
+
+    else:
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 3)
+
+
+# ================= perform =================
+def p_statements_perfom(t):
+    '''
+        statements : PERFORM select
+    '''
+    t[0] = Nodo("statements")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+
+
+
+# -------------------------------Jonathan PL/PGSQL ---------------------------------------------
+# callfunction
+
+def p_callfunction(t):
+    '''
+        callfunction : SELECT ID PARIZQ exp_list PARDER
+                     | SELECT ID PARIZQ PARDER
+    '''
+    if len(t)==6:
+        t[0] = Nodo("callfunction")
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 4)
+
+    elif len(t)==5:
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 4)
+
+
+def p_callfunction_lappel(t):
+    '''
+        callfunction : ID PARIZQ exp_list PARDER
+                     | ID PARIZQ PARDER
+    '''
+    t[0] = Nodo("callfunction")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 3)
+
+
+# =================  INDEX =================
+def p_index(t):
+    '''
+        index : create_index
+              | drop_index
+              | alter_index
+    '''
+    t[0] = Nodo("index")
+    addList(t, 0, 1)
+
+
+# ================= CREATE INDEX =================
+
+def p_create_index1(t):
+    '''
+       create_index : CREATE        index_id_on_id             PARIZQ index_params PARDER
+    '''
+    t[0] = Nodo("create_index")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+    addList(t, 0, 4)
+
+
+def p_create_index2(t):
+    '''
+        create_index : CREATE        index_id_on_id             PARIZQ index_params PARDER conditions
+    '''
+    t[0] = Nodo("create_index")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+    addList(t, 0, 4)
+    addList(t, 0, 6)
+
+
+def p_create_index3(t):
+    '''
+        create_index : CREATE UNIQUE index_id_on_id             PARIZQ index_params PARDER conditions
+    '''
+    t[0] = Nodo("create_index")
+    add(t, 0, node(t, 1, 2))
+    addList(t, 0, 3)
+    addList(t, 0, 5)
+    addList(t, 0, 7)
+
+
+def p_create_index4(t):
+    '''
+        create_index : CREATE UNIQUE index_id_on_id             PARIZQ index_params PARDER
+    '''
+    t[0] = Nodo("create_index")
+    add(t, 0, node(t, 1, 2))
+    addList(t, 0, 3)
+    addList(t, 0, 5)
+
+
+def p_create_index5(t):
+    '''
+        create_index : CREATE        index_id_on_id USING HASH  PARIZQ index_params PARDER
+    '''
+    t[0] = Nodo("create_index")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+    add(t, 0, node(t, 3, 4))
+    addList(t, 0, 6)
+
+
+def p_create_index(t):
+    '''
+        create_index : CREATE        index_id_on_id USING HASH  PARIZQ index_params PARDER conditions
+    '''
+    t[0] = Nodo("create_index")
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+    add(t, 0, node(t, 3, 4))
+    addList(t, 0, 6)
+    addList(t, 0, 8)
+
+
+# ================= INDEX_PARAMS =================
+
+def p_index_id_on_id(t):
+    '''
+        index_id_on_id : INDEX ID ON ID
+                       | INDEX    ON ID
+    '''
+    t[0] = Nodo("index_id_on_id")
+    if len(t) == 5:
+        add(t, 0, node(t, 1, 4))
+    if len(t) == 4:
+        add(t, 0, node(t, 1, 3))
+
+
+def p_index_params(t):
+    '''
+        index_params    : index_params COMA index_param
+                        | index_param
+    '''
+    if len(t) == 4:
+        t[1].add(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = Nodo("index_params")
+        t[0].add(t[1])
+
+
+def p_index_param1(t):
+    '''
+        index_param     :  ID options
+                        |  ID
+    '''
+    t[0] = Nodo("index_param")
+    if len(t) == 3:
+        add(t, 0, node(t, 1))
+        addList(t, 0, 2)
+    else:
+        add(t, 0, node(t, 1))
+
+
+def p_index_param(t):
+    '''
+        index_param     :  exp
+                        |  exp options
+    '''
+    t[0] = Nodo("index_param")
+    if len(t) == 3:
+        addList(t, 0, 1, 2)
+    else:
+        addList(t, 0, 1)
+
+
+def p_options(t):
+    '''
+        options    : options option
+                   | option
+    '''
+    if len(t) == 3:
+        t[1].add(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = Nodo("options")
+        t[0].add(t[1])
+
+
+def p_option(t):
+    '''
+        option    : COLLATE
+                  | ASC
+                  | DESC
+                  | NULLS
+                  | FIRST
+                  | LAST
+    '''
+    t[0] = Nodo("option")
+    add(t, 0, node(t, 1))
+
+
+# ================= drop index =================
+
+def p_drop_index1(t):
+    '''
+        drop_index    : DROP INDEX CONCURRENTLY IF EXISTS list_cascade
+    '''
+    t[0] = Nodo("drop_index")
+    add(t, 0, node(t, 1, 5))
+    addList(t, 0, 6)
+
+
+def p_drop_index2(t):
+    '''
+        drop_index    : DROP INDEX CONCURRENTLY           list_cascade
+    '''
+    t[0] = Nodo("drop_index")
+    add(t, 0, node(t, 1, 3))
+    addList(t, 0, 4)
+
+
+def p_drop_index3(t):
+    '''
+        drop_index    : DROP INDEX  IF EXISTS list_cascade
+    '''
+    t[0] = Nodo("drop_index")
+    add(t, 0, node(t, 1, 4))
+    addList(t, 0, 5)
+
+
+def p_drop_index4(t):
+    '''
+        drop_index    : DROP INDEX            list_cascade
+    '''
+    t[0] = Nodo("drop_index")
+    add(t, 0, node(t, 1, 2))
+    addList(t, 0, 3)
+
+
+def p_list_cascade(t):
+    '''
+        list_cascade    : idlist cascade_strict
+                        | idlist
+    '''
+    t[0] = Nodo("list_cascade")
+    if len(t) == 3:
+        addList(t, 0, 1, 2)
+    else:
+        addList(t, 0, 1)
+
+
+def p_drop_cascade_strict(t):
+    '''
+        cascade_strict  : CASCADE
+                        | RESTRICT
+    '''
+    t[0] = Nodo("cascade_strict")
+    add(t, 0, node(t, 1))
+
+
+# ================= alter index =================
+
+def p_alter_index1(t):
+    '''
+        alter_index  : sub_alter  ID RENAME TO ID
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2, 5))
+
+
+def p_alter_index9(t):
+    '''
+        alter_index  : sub_alter ID SET TABLESPACE ID
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2, 5))
+
+
+def p_alter_index2(t):
+    '''
+        alter_index  : sub_alter ID ATTACH PARTITION TO ID
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2, 6))
+
+
+def p_alter_index3(t):
+    '''
+        alter_index  : sub_alter ID DEPENDS ON EXTENSION TO ID
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2, 7))
+
+
+def p_alter_index4(t):
+    '''
+        alter_index  : sub_alter ID ALTER COLUMN ENTERO SET STATISTICS ENTERO
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2, 8))
+
+
+def p_alter_index5(t):
+    '''
+        alter_index  : sub_alter ID ALTER        ENTERO SET STATISTICS ENTERO
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2, 7))
+
+
+def p_alter_index6(t):
+    '''
+        alter_index  : sub_alter ID SET PARIZQ exp_list PARDER
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2, 3))
+    addList(t, 0, 5)
+
+
+def p_alter_index7(t):
+    '''
+        alter_index  : sub_alter ID RESET PARIZQ exp_list PARDER
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2, 3))
+    addList(t, 0, 5)
+
+
+def p_alter_index8(t):
+    '''
+        alter_index  : sub_alter ALL IN TABLESPACE ID OWNED BY idlist SET TABLESPACE ID NOWAIT
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2, 7))
+    addList(t, 0, 8)
+    add(t, 0, node(t, 9, 12))
+
+
+def p_alter_index(t):
+    '''
+        alter_index  : sub_alter ID ALTER COLUMN ID ID
+    '''
+    t[0] = Nodo("alter_index")
+    addList(t, 0, 1)
+    add(t, 0, node(t, 2))
+    add(t, 0, node(t, 3, 4))
+    add(t, 0, node(t, 5))
+    add(t, 0, node(t, 6))
+
+
+def p_sub_alter(t):
+    '''
+        sub_alter : ALTER INDEX IF EXISTS
+                  | ALTER INDEX
+    '''
+    t[0] = Nodo("sub_alter")
+    if len(t) == 5:
+        add(t, 0, node(t, 1, 4))
+    else:
+        add(t, 0, node(t, 1, 2))
+
+
+# ------------------------------------------------------------------------------------------
+
+# --------------------------------Fin PL/PGSQL ---------------------------------------------
+# ------------------------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------------------------------------
+# ------------------------------------ DataManipulationLenguage ---------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
+
+def p_DataManipulationLenguage_select(t):
+    '''
+        DataManipulationLenguage  : select
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    addList(t, 0, 1)
+
+
+def p_DataManipulationLenguage_use(t):
+    '''
+        DataManipulationLenguage  : use_database
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    addList(t, 0, 1)
+
+
+def p_DataManipulationLenguage_show_databases(t):
+    '''
+        DataManipulationLenguage  : SHOW DATABASES
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    add(t, 0, node(t, 1, 2))
+
 
 def p_use_database(t):
     '''
         use_database : USE ID
     '''
     t[0] = Nodo("use_database")
-    add(t,0,node(t,1,2))
+    add(t, 0, node(t, 1, 2))
 
-def p_ddl_table_create(t):
+
+def p_DataManipulationLenguage_createTB(t):
     '''
-        ddl  : table_create
+        DataManipulationLenguage  : createTB
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
+
+
+def p_DataManipulationLenguage_insert(t):
+    '''
+        DataManipulationLenguage  : insert
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
+
+
+def p_DataManipulationLenguage_update(t):
+    '''
+        DataManipulationLenguage  : update
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
+
+
+def p_DataManipulationLenguage_deletetable(t):
+    '''
+        DataManipulationLenguage  : deletetable
     '''
     t[0] = Nodo("ddl")
-    addSimple(t,0,1)
+    addSimple(t, 0, 1)
 
-def p_ddl_insert(t):
+
+def p_DataManipulationLenguage_droptable(t):
     '''
-        ddl  : insert
+        DataManipulationLenguage  : drop_table
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
+
+
+def p_DataManipulationLenguage_create_db(t):
+    '''
+        DataManipulationLenguage  : create_db
     '''
     t[0] = Nodo("ddl")
-    addSimple(t,0,1)
+    addSimple(t, 0, 1)
 
-def p_ddl_update(t):
-    '''
-        ddl  : update
-    '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
 
-def p_ddl_deletetable(t):
+def p_DataManipulationLenguage_alter_table(t):
     '''
-        ddl  : deletetable
+        DataManipulationLenguage  : alter_table
     '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
 
-def p_ddl_droptable(t):
-    '''
-        ddl  : drop_table
-    '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
 
-def p_ddl_create_db(t):
+def p_DataManipulationLenguage_create_type(t):
     '''
-        ddl  : create_db
+        DataManipulationLenguage  : create_type
     '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
 
-def p_ddl_alter_table(t):
-    '''
-        ddl  : alter_table
-    '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
 
-def p_ddl_create_type(t):
+def p_DataManipulationLenguage_alter_database(t):
     '''
-        ddl  : create_type
+        DataManipulationLenguage  : alter_database
     '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
 
-def p_ddl_alter_database(t):
-    '''
-        ddl  : alter_database
-    '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
 
-def p_ddl_drop_database(t):
+def p_DataManipulationLenguage_drop_database(t):
     '''
-        ddl  : drop_database
+        DataManipulationLenguage  : drop_database
     '''
-    t[0] = Nodo("ddl")
-    addSimple(t,0,1)
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
+
+
+def p_DataManipulationLenguage_UNION(t):
+    '''
+        DataManipulationLenguage  : select UNION select
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
+    add(t, 0, node(t, 2))
+    addSimple(t, 0, 3)
+
+
+def p_DataManipulationLenguage_INTERSECT(t):
+    '''
+        DataManipulationLenguage  : select INTERSECT select
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
+    add(t, 0, node(t, 2))
+    addSimple(t, 0, 3)
+
+
+def p_DataManipulationLenguage_except(t):
+    '''
+        DataManipulationLenguage  : select EXCEPT select
+    '''
+    t[0] = Nodo("DataManipulationLenguage")
+    addSimple(t, 0, 1)
+    add(t, 0, node(t, 2))
+    addSimple(t, 0, 3)
+
 
 def p_select(t):
     '''
-        select  : SELECT listavalores FROM listavalores listawhere
-                | SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
-                | SELECT DATE_PART PARIZQ CADENA COMA INTERVAL CADENA PARDER
-                | SELECT NOW PARIZQ PARDER
-                | SELECT CURRENT_DATE
-                | SELECT CURRENT_TIME
-                | SELECT TIMESTAMP CADENA
+        select  : SELECT exp_list FROM exp_list conditions
     '''
     t[0] = Nodo("select")
-    if len(t) == 6:
-        # SELECT listavalores FROM listavalores listawhere
-        add(t, 0,node(t,1,1))
-        addSimple(t, 0, 2)
-        add(t, 0,node(t,3,3))
-        addSimple(t, 0, 4)
-        addSimple(t, 0, 5)
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+    add(t, 0, node(t, 3))
+    addList(t, 0, 4, 5)
 
-    elif t[2].lower() == "extract":
-        # SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
-        add(t, 0,node(t,1,2))
-        addSimple(t, 0, 4)
-        add(t, 0,node(t,5,7))
-
-    elif t[2].lower() == "date_part":
-        # SELECT DATE_PART PARIZQ CADENA COMA INTERVAL CADENA PARDER
-        add(t, 0,node(t,1,2))
-        add(t, 0,node(t,4,4))
-        add(t, 0,node(t,6,6))
-        add(t, 0,node(t,7,7))
-    elif t[2].lower() == "now":
-        # SELECT NOW PARIZQ PARDER
-        add(t, 0,node(t,1,2))
-    elif t[2].lower() == "current_date":
-        # SELECT CURRENT_DATE
-        add(t, 0,node(t,1,2))
-    elif t[2].lower() == "current_time":
-        # SELECT CURRENT_TIME
-        add(t, 0,node(t,1,2))
-    elif t[2].lower() == "timestamp":
-        # SELECT TIMESTAMP CADENA
-        add(t, 0,node(t,1,3))
 
 def p_select_simple(t):
     '''
-        select : SELECT listavalores FROM listavalores
+        select : SELECT exp_list FROM exp_list
     '''
     t[0] = Nodo("select")
-    add(t, 0, node(t, 1, 1))
-    addSimple(t, 0, 2)
-    add(t, 0, node(t, 3, 3))
-    addSimple(t, 0, 4)
+    add(t, 0, node(t, 1))
+    addList(t, 0, 2)
+    add(t, 0, node(t, 3))
+    addList(t, 0, 4)
 
 
 def p_select_simple_simple(t):
     '''
-        select : SELECT listavalores
+        select : SELECT exp_list
     '''
     t[0] = Nodo("select")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 2)
+
 
 def p_time(t):
     '''
@@ -597,31 +1597,33 @@ def p_time(t):
     t[0] = Nodo("time")
     add(t, 0, node(t, 1, 1))
 
-def p_listawhere(t):
+
+def p_conditions(t):
     '''
-        listawhere  : listawhere atributoselect
-                    | atributoselect
+        conditions  : conditions condition
+                    | condition
     '''
     if len(t) == 3:
         t[1].add(t[3])
         t[0] = t[1]
     else:
-        t[0] = Nodo("listawhere")
+        t[0] = Nodo("conditions")
         t[0].add(t[1])
 
-def p_atributoselecit(t):
+
+def p_condition(t):
     '''
-        atributoselect  : WHERE exp
-                        | ORDER BY exp ordenamiento
-                        | GROUP BY listavalores
+        condition       : WHERE exp
+                        | ORDER BY exp setOrder
+                        | GROUP BY exp_list
                         | LIMIT exp
                         | HAVING exp
     '''
-    t[0] = Nodo("atributoselect")
+    t[0] = Nodo("condition")
 
     if t[1].lower() == "where":
         add(t, 0, node(t, 1, 1))
-        addSimple(t,0,2)
+        addSimple(t, 0, 2)
     elif t[1].lower() == "order":
         # ORDER BY listavalores ordenamiento
         add(t, 0, node(t, 1, 2))
@@ -643,36 +1645,52 @@ def p_atributoselecit(t):
         add(t, 0, node(t, 1, 1))
         addSimple(t, 0, 2)
 
+
 def p_atributoselecit_subquery(t):
     '''
-        atributoselect : subquery
+        condition : subquery
     '''
     t[0] = Nodo("atributoselect")
     addSimple(t, 0, 1)
 
-def p_ordenamiento(t):
+
+def p_setOrder(t):
     '''
-        ordenamiento   : ASC
+        setOrder   : ASC
                        | DESC
     '''
     t[0] = Nodo("ordenamiento")
     addSimple(t, 0, 1)
 
-def p_listavalores(t):
+
+def p_exp_list(t):
     '''
-        listavalores   : listavalores COMA exp
+        exp_list   : exp_list COMA exp
                        | exp
     '''
     if len(t) == 4:
         t[1].add(t[3])
         t[0] = t[1]
     else:
-        t[0] = Nodo("listavalores")
+        t[0] = Nodo("exp_list")
         t[0].add(t[1])
 
-# ---------------------------------------------------------------------------------------------
+
+# --------------------------------------------------------------------------------------
 # ------------------------------------ EXPRESSION  --------------------------------------------
-# ---------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------
+def p_exp_call(t):
+    '''
+        exp   : LOWER PARIZQ exp PARDER
+              |       PARIZQ exp PARDER
+    '''
+    t[0] = Nodo("exp")
+    if len(t) == 4:
+        addList(t, 0, 2)
+    else:
+        add(t, 0, node(t, 1))
+        addList(t, 0, 3)
+
 
 def p_exp_count(t):
     '''
@@ -680,14 +1698,10 @@ def p_exp_count(t):
               | COUNT PARIZQ MULTI PARDER
     '''
     t[0] = Nodo("exp")
-    if t[3]=='*':
-        #COUNT PARIZQ MULTI PARDER
-        add(t, 0, node(t, 1, 4))
-    else:
-        #COUNT PARIZQ exp PARDER
-        add(t, 0, node(t, 1, 2))
-        addSimple(t, 0, 3)
-        add(t, 0, node(t, 4, 4))
+    add(t, 0, node(t, 1, 2))
+    addSimple(t, 0, 3)
+    add(t, 0, node(t, 4, 4))
+
 
 def p_exp_sum(t):
     '''
@@ -697,6 +1711,7 @@ def p_exp_sum(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_avg(t):
     '''
         exp   : AVG PARIZQ exp PARDER
@@ -705,21 +1720,24 @@ def p_exp_avg(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_greatest(t):
     '''
-        exp   : GREATEST PARIZQ listavalores PARDER
+        exp   : GREATEST PARIZQ exp_list PARDER
     '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_least(t):
     '''
-        exp   : LEAST PARIZQ listavalores PARDER
+        exp   : LEAST PARIZQ exp_list PARDER
     '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_max(t):
     '''
@@ -729,6 +1747,7 @@ def p_exp_max(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_min(t):
     '''
         exp   : MIN PARIZQ exp PARDER
@@ -736,6 +1755,7 @@ def p_exp_min(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_abs(t):
     '''
@@ -745,6 +1765,7 @@ def p_exp_abs(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_cbrt(t):
     '''
         exp   : CBRT PARIZQ exp PARDER
@@ -752,6 +1773,7 @@ def p_exp_cbrt(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_ceil(t):
     '''
@@ -761,6 +1783,7 @@ def p_exp_ceil(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_ceiling(t):
     '''
         exp   : CEILING PARIZQ exp PARDER
@@ -768,6 +1791,7 @@ def p_exp_ceiling(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_degrees(t):
     '''
@@ -777,21 +1801,24 @@ def p_exp_degrees(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_div(t):
     '''
-        exp   : DIV PARIZQ listavalores PARDER
+        exp   : DIV PARIZQ exp_list PARDER
     '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_tkexp(t):
     '''
-        exp   : EXP PARIZQ exp PARDER
+        exp   : TKEXP PARIZQ exp PARDER
     '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_factorial(t):
     '''
@@ -801,6 +1828,7 @@ def p_exp_factorial(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_floor(t):
     '''
         exp   : FLOOR PARIZQ exp PARDER
@@ -809,9 +1837,10 @@ def p_exp_floor(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_gcd(t):
     '''
-        exp   : GCD PARIZQ listavalores PARDER
+        exp   : GCD PARIZQ exp_list PARDER
     '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
@@ -826,21 +1855,24 @@ def p_exp_ln(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_log(t):
     '''
         exp   : LOG PARIZQ exp PARDER
     '''
     t[0] = Nodo("exp")
-    add(t, 0, node(t,1,1))
-    addSimple(t,0,3)
+    add(t, 0, node(t, 1, 1))
+    addSimple(t, 0, 3)
+
 
 def p_exp_mod(t):
     '''
-        exp   : MOD PARIZQ listavalores PARDER
+        exp   : MOD PARIZQ exp_list PARDER
    '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_pi(t):
     '''
@@ -848,6 +1880,7 @@ def p_exp_pi(t):
     '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
+
 
 def p_exp_now(t):
     '''
@@ -859,11 +1892,12 @@ def p_exp_now(t):
 
 def p_exp_power(t):
     '''
-        exp   : POWER PARIZQ listavalores PARDER
+        exp   : POWER PARIZQ exp_list PARDER
     '''
     t[0] = Nodo("exp")
-    add(t, 0, node(t,1,1))
+    add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_radians(t):
     '''
@@ -873,6 +1907,7 @@ def p_exp_radians(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_round(t):
     '''
         exp   : ROUND PARIZQ exp PARDER
@@ -880,6 +1915,7 @@ def p_exp_round(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_sign(t):
     '''
@@ -897,6 +1933,7 @@ def p_exp_sqrt(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_width(t):
     '''
@@ -926,9 +1963,10 @@ def p_exp_random(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 3))
 
-#==================================================================================
-#================================Ini Funciones Trigonometricas  ===================
-#==================================================================================
+
+# ==================================================================================
+# ================================Fin Funciones Trigonometricas  ===================
+# ==================================================================================
 
 def p_exp_acos(t):
     '''
@@ -936,7 +1974,8 @@ def p_exp_acos(t):
     '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
-    addSimple(t,0,3)
+    addSimple(t, 0, 3)
+
 
 def p_exp_acosd(t):
     '''
@@ -955,6 +1994,7 @@ def p_exp_asin(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_asind(t):
     '''
         exp   : ASIND PARIZQ exp PARDER
@@ -962,6 +2002,7 @@ def p_exp_asind(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_atan(t):
     '''
@@ -971,6 +2012,7 @@ def p_exp_atan(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_atand(t):
     '''
         exp   : ATAND PARIZQ exp PARDER
@@ -978,6 +2020,7 @@ def p_exp_atand(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_atan2(t):
     '''
@@ -1025,6 +2068,7 @@ def p_exp_cot(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_cotd(t):
     '''
         exp   : COTD PARIZQ exp PARDER
@@ -1033,6 +2077,7 @@ def p_exp_cotd(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_sin(t):
     '''
         exp   : SIN PARIZQ exp PARDER
@@ -1040,6 +2085,7 @@ def p_exp_sin(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_sind(t):
     '''
@@ -1058,6 +2104,7 @@ def p_exp_tan(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_tand(t):
     '''
         exp   : TAND PARIZQ exp PARDER
@@ -1066,6 +2113,7 @@ def p_exp_tand(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_sinh(t):
     '''
         exp   : SINH PARIZQ exp PARDER
@@ -1073,6 +2121,7 @@ def p_exp_sinh(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_cosh(t):
     '''
@@ -1091,6 +2140,7 @@ def p_exp_tanh(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_asinh(t):
     '''
         exp   : ASINH PARIZQ exp PARDER
@@ -1108,6 +2158,7 @@ def p_exp_acosh(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_exp_atanh(t):
     '''
         exp   : ATANH PARIZQ exp PARDER
@@ -1116,9 +2167,10 @@ def p_exp_atanh(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
-#==================================================================================
-#================================Fin Funciones Trigonometricas  ===================
-#==================================================================================
+
+# ==================================================================================
+# ================================Fin Funciones Trigonometricas  ===================
+# ==================================================================================
 
 def p_exp_length(t):
     '''
@@ -1127,6 +2179,7 @@ def p_exp_length(t):
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_exp_substring(t):
     '''
@@ -1174,6 +2227,7 @@ def p_exp_substr(t):
     addSimple(t, 0, 5)
     addSimple(t, 0, 7)
 
+
 def p_exp_getbyte(t):
     '''
         exp   : GET_BYTE PARIZQ exp COMA exp PARDER
@@ -1197,7 +2251,7 @@ def p_exp_setbyte(t):
 
 def p_exp_convert(t):
     '''
-        exp   : CONVERT PARIZQ exp AS tipo PARDER
+        exp   : CONVERT PARIZQ exp AS types PARDER
     '''
     t[0] = Nodo("exp")
     add(t, 0, node(t, 1, 1))
@@ -1214,6 +2268,7 @@ def p_exp_encode(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
     addSimple(t, 0, 5)
+
 
 def p_exp_decode(t):
     '''
@@ -1240,6 +2295,7 @@ def p_exp_opunary(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 2)
 
+
 def p_exp_case(t):
     '''
         exp : case
@@ -1247,16 +2303,15 @@ def p_exp_case(t):
     t[0] = Nodo("exp")
     addSimple(t, 0, 1)
 
+
 def p_exp_between(t):
     '''
-        exp : exp BETWEEN exp AND exp
+        exp : exp BETWEEN exp
     '''
     t[0] = Nodo("exp")
     addSimple(t, 0, 1)
     add(t, 0, node(t, 2, 2))
     addSimple(t, 0, 3)
-    add(t, 0, node(t, 4, 4))
-    addSimple(t, 0, 5)
 
 
 def p_exp_distinct(t):
@@ -1268,6 +2323,7 @@ def p_exp_distinct(t):
     add(t, 0, node(t, 2, 4))
     addSimple(t, 0, 5)
 
+
 def p_exp_notdistinct(t):
     '''
          exp  : exp IS NOT DISTINCT FROM exp
@@ -1276,6 +2332,7 @@ def p_exp_notdistinct(t):
     addSimple(t, 0, 1)
     add(t, 0, node(t, 2, 5))
     addSimple(t, 0, 6)
+
 
 def p_exp(t):
     '''
@@ -1295,6 +2352,7 @@ def p_exp(t):
               | exp SIMILAR     exp
               | exp NOT         exp
               | exp IN          exp
+              | exp IGUALQUE    exp
               | exp IGUAL       exp
               | exp MAYORQUE    exp
               | exp MENORQUE    exp
@@ -1306,6 +2364,8 @@ def p_exp(t):
               | exp AND         exp
               | exp OR          exp
               | expSimple
+              | dateFunction
+              | callfunction
               | exp NOT IN exp
     '''
     t[0] = Nodo("exp")
@@ -1314,15 +2374,11 @@ def p_exp(t):
         add(t, 0, node(t, 2, 2))
         addSimple(t, 0, 3)
 
-    elif len(t) == 5:
-        #exp NOT IN exp
-        addSimple(t, 0, 1)
-        add(t, 0, node(t, 2, 3))
-        addSimple(t, 0, 4)
 
     elif len(t) == 2:
-        #expSimple
+        # expSimple
         addSimple(t, 0, 1)
+
 
 # --------------------------------------------------------------------------------------
 # ------------------------------------ EXP SIMPLE --------------------------------------
@@ -1335,6 +2391,7 @@ def p_expSimples_distinct(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 2)
 
+
 def p_expSimples_subquery(t):
     '''
         expSimple   : subquery
@@ -1342,21 +2399,62 @@ def p_expSimples_subquery(t):
     t[0] = Nodo("expSimple")
     addSimple(t, 0, 1)
 
+
 def p_expSimples(t):
     '''
         expSimple   : NULL
     '''
-    t[0] = Nodo("expSimple")
-    add(t, 0, node(t, 1, 1))
+    t[0] = t[1]
+
+
+def p_dateFunction(t):
+    '''
+        dateFunction : EXTRACT PARIZQ time FROM TIMESTAMP exp PARDER
+                     | DATE_PART PARIZQ CADENA COMA INTERVAL exp PARDER
+                     | NOW PARIZQ PARDER
+                     | CURRENT_DATE
+                     | CURRENT_TIME
+                     | TIMESTAMP CADENA
+    '''
+    t[0] = Nodo("dateFunction")
+    if t[1].lower() == "extract":
+        # SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
+        add(t, 0, node(t, 1, 2))
+        addList(t, 0, 4)
+        add(t, 0, node(t, 5, 8))
+
+    elif t[1].lower() == "date_part":
+        # SELECT DATE_PART PARIZQ CADENA COMA INTERVAL exp PARDER
+        add(t, 0, node(t, 1, 2))
+        add(t, 0, node(t, 1, 4))
+        add(t, 0, node(t, 1, 6))
+        addList(t, 0, 7)
+
+    elif t[1].lower() == "now":
+        # SELECT NOW PARIZQ PARDER
+        add(t, 0, node(t, 1, 4))
+
+    elif t[1].lower() == "current_date":
+        # SELECT CURRENT_DATE
+        add(t, 0, node(t, 1, 3))
+
+    elif t[1].lower() == "current_time":
+        # SELECT CURRENT_TIME
+        add(t, 0, node(t, 1, 2))
+
+    elif t[1].lower() == "timestamp":
+        # SELECT TIMESTAMP CADENA
+        add(t, 0, node(t, 1, 3))
 
 
 def p_expSimples_ACCESO_TYPE(t):
     '''
-        expSimple : ID PARIZQ exp PARDER
+        expSimple : ID CORIZQ exp CORDER
     '''
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
+
 
 def p_expSimples_ALIAS_MULTI(t):
     '''
@@ -1365,12 +2463,14 @@ def p_expSimples_ALIAS_MULTI(t):
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 3))
 
+
 def p_expSimples_MULTI(t):
     '''
         expSimple : MULTI
     '''
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 1))
+
 
 def p_expSimples_ID(t):
     '''
@@ -1379,12 +2479,14 @@ def p_expSimples_ID(t):
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 1))
 
+
 def p_expSimples_ID_PT_ID(t):
     '''
         expSimple : ID PT ID
     '''
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 3))
+
 
 def p_expSimples_ID_ID(t):
     '''
@@ -1401,8 +2503,8 @@ def p_expSimples_ID_AS_ID(t):
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 3))
 
-def p_expSimples_exp_AS_ID(t):
 
+def p_expSimples_exp_AS_ID(t):
     '''
         expSimple : exp AS CADENA
                   | exp AS ID
@@ -1411,6 +2513,7 @@ def p_expSimples_exp_AS_ID(t):
     t[0] = Nodo("expSimple")
     addSimple(t, 0, 1)
     add(t, 0, node(t, 2, 3))
+
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- SUBQUERY --------------------------------------
@@ -1423,96 +2526,18 @@ def p_subquery(t):
     '''
     t[0] = Nodo("subquery")
     if len(t) == 4:
-        #PARIZQ select PARDER
+        # PARIZQ select PARDER
         addSimple(t, 0, 2)
 
     elif len(t) == 5:
-        #PARIZQ select PARDER ID
+        # PARIZQ select PARDER ID
         addSimple(t, 0, 2)
         addSimple(t, 0, 4)
 
     elif len(t) == 6:
-        #PARIZQ select PARDER AS ID
-        addSimple(t, 0, 2)
-        add(t,0,node(t,4,5))
+        # PARIZQ select PARDER AS ID
+        pass
 
-
-# ---------------CASE---------------
-def p_case1(t):
-    '''
-     case : CASE WHEN exp THEN exp lista_when ELSE exp END
-    '''
-    t[0] = Nodo("case")
-    add(t, 0, node(t, 1, 2))
-    addSimple(t, 0, 3)
-    add(t, 0, node(t, 4, 4))
-    addSimple(t, 0, 5)
-    addSimple(t, 0, 6)
-    add(t,0,node(t,7,7))
-    addSimple(t, 0, 8)
-    add(t,0,node(t,9,9))
-
-
-def p_case2(t):
-    '''
-     case : CASE WHEN exp THEN exp lista_when END
-    '''
-    t[0] = Nodo("case")
-    add(t, 0, node(t, 1, 2))
-    addSimple(t, 0, 3)
-    add(t, 0, node(t, 4, 4))
-    addSimple(t, 0, 5)
-    addSimple(t, 0, 6)
-    add(t,0,node(t,7,7))
-
-
-def p_case3(t):
-    '''
-     case : CASE WHEN exp THEN exp ELSE exp END
-    '''
-    t[0] = Nodo("case")
-    add(t, 0, node(t, 1, 2))
-    addSimple(t, 0, 3)
-    add(t, 0, node(t, 4, 4))
-    addSimple(t, 0, 5)
-    add(t, 0, node(t, 6, 6))
-    addSimple(t, 0, 7)
-    add(t, 0, node(t, 8, 8))
-
-
-def p_case(t):
-    '''
-     case : CASE WHEN exp THEN exp END
-    '''
-    t[0] = Nodo("case")
-    add(t,0,node(t,1,2))
-    addSimple(t, 0, 3)
-    add(t,0,node(t,4,4))
-    addSimple(t, 0, 5)
-    add(t,0,node(t,6,6))
-
-
-def p_lista_when(t):
-    '''
-        lista_when : lista_when when_else
-                   | when_else
-    '''
-    if len(t) == 3:
-        t[1].add(t[2])
-        t[0] = t[1]
-    else:
-        t[0] = Nodo("list_when")
-        t[0].add(t[1])
-
-def p_when_else(t):
-    '''
-        when_else : WHEN exp THEN exp
-    '''
-    t[0] = Nodo("when_else")
-    add(t, 0, node(t, 1, 1))
-    addSimple(t, 0, 2)
-    add(t, 0, node(t, 3, 3))
-    addSimple(t, 0, 4)
 
 def p_expSimples_entero(t):
     '''
@@ -1521,12 +2546,14 @@ def p_expSimples_entero(t):
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 1))
 
+
 def p_expSimples_decimal(t):
     '''
-        expSimple   :   TKDECIMAL
+        expSimple   :  TKDECIMAL
     '''
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 1))
+
 
 def p_expSimples_cadenas(t):
     '''
@@ -1535,12 +2562,14 @@ def p_expSimples_cadenas(t):
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 1))
 
+
 def p_expSimples_cadenadoble(t):
     '''
         expSimple   :   CADENADOBLE
     '''
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 1))
+
 
 def p_expSimples_true(t):
     '''
@@ -1549,6 +2578,7 @@ def p_expSimples_true(t):
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 1))
 
+
 def p_expSimples_false(t):
     '''
         expSimple  :   FALSE
@@ -1556,53 +2586,42 @@ def p_expSimples_false(t):
     t[0] = Nodo("expSimple")
     add(t, 0, node(t, 1, 1))
 
+
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- TABLE CREATE --------------------------------------
 # --------------------------------------------------------------------------------------
-def p_table_create1(t):
+def p_createTB(t):
     '''
-        table_create : CREATE TABLE ID PARIZQ lista_table COMA listadolprimary inherits
+        createTB     : CREATE TABLE ID PARIZQ atributesTable COMA especs inherits
+                     | CREATE TABLE ID PARIZQ atributesTable inherits
+                     | CREATE TABLE IF NOT EXISTS ID PARIZQ atributesTable COMA especs inherits
+                     | CREATE TABLE IF NOT EXISTS ID PARIZQ atributesTable inherits
     '''
-    t[0] = Nodo("table_create")
-    add(t, 0, node(t, 1, 3))
-    addSimple(t, 0, 5)
-    addSimple(t, 0, 7)
-    addSimple(t, 0, 8)
+    t[0] = Nodo("plpgsql")
+    if len(t) == 9:
+        # CREATE TABLE ID PARIZQ atributesTable COMA especs inherits
+        add(t, 0, node(t, 1, 3))
+        addList(t, 0, 5)
+        addList(t, 0, 7, 8)
+
+    if len(t) == 7:
+        # CREATE TABLE ID PARIZQ atributesTable inherits
+        add(t, 0, node(t, 1, 3))
+        addList(t, 0, 5,6)
+
+    if len(t) == 12:
+        # CREATE TABLE IF NOT EXISTS ID PARIZQ atributesTable COMA especs inherits
+        add(t, 0, node(t, 1, 6))
+        addList(t, 0, 8)
+        addList(t, 0, 10, 11)
+
+    if len(t) == 10:
+        # CREATE TABLE IF NOT EXISTS ID PARIZQ atributesTable inherits
+        add(t, 0, node(t, 1, 6))
+        addList(t, 0, 8,9)
 
 
-def p_table_create2(t):
-    '''
-        table_create : CREATE TABLE ID PARIZQ lista_table inherits
-    '''
-    t[0] = Nodo("table_create")
-    add(t, 0, node(t, 1, 3))
-    addSimple(t, 0, 5)
-    addSimple(t, 0, 6)
-
-
-
-def p_table_create3(t):
-    '''
-        table_create : CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary inherits
-    '''
-    t[0] = Nodo("table_create")
-    add(t, 0, node(t, 1, 6))
-    addSimple(t, 0, 8)
-    addSimple(t, 0, 10)
-    addSimple(t, 0, 11)
-
-
-def p_table_create(t):
-    '''
-        table_create : CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table inherits
-    '''
-    t[0] = Nodo("table_create")
-    add(t, 0, node(t, 1, 6))
-    addSimple(t, 0, 8)
-    addSimple(t, 0, 9)
-
-
-#todo:no se que hacer con PARDER FALTA ? O SOLO ASI ES ?
+# todo:no se que hacer con PARDER FALTA ? O SOLO ASI ES ?
 def p_inherits(t):
     '''
         inherits : PARDER INHERITS PARIZQ ID PARDER
@@ -1610,6 +2629,7 @@ def p_inherits(t):
     t[0] = Nodo("inherits")
     add(t, 0, node(t, 1, 2))
     add(t, 0, node(t, 4, 4))
+
 
 def p_inherits_parder(t):
     '''
@@ -1619,76 +2639,74 @@ def p_inherits_parder(t):
     add(t, 0, node(t, 1, 1))
 
 
-def p_lista_table(t):
+def p_atributesTable(t):
     '''
-        lista_table  : lista_table COMA atributo_table
-                     | atributo_table
-    '''
-    if len(t) == 4:
-        t[1].add(t[3])
-        t[0] = t[1]
-    else:
-        t[0] = Nodo("lista_table")
-        t[0].add(t[1])
-
-def p_listadolprimary(t):
-    '''
-        listadolprimary  : listadolprimary COMA lista_primary
-                         | lista_primary
+        atributesTable  : atributesTable COMA atributeTable
+                     | atributeTable
     '''
     if len(t) == 4:
         t[1].add(t[3])
         t[0] = t[1]
     else:
-        t[0] = Nodo("listadolprimary")
+        t[0] = Nodo("atributesTable")
         t[0].add(t[1])
 
 
-def p_lista_primary(t):
+def p_especs(t):
     '''
-        lista_primary : PRIMARY KEY PARIZQ listaids PARDER
-                      | FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
+        especs  : especs COMA nextespec
+                         | nextespec
+    '''
+    if len(t) == 4:
+        t[1].add(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = Nodo("especs")
+        t[0].add(t[1])
+
+
+def p_nextespec(t):
+    '''
+        nextespec     : PRIMARY KEY PARIZQ idlist PARDER
+                      | FOREIGN KEY PARIZQ idlist PARDER REFERENCES ID PARIZQ idlist PARDER
                       | CONSTRAINT ID CHECK PARIZQ exp PARDER
                       | CHECK PARIZQ exp PARDER
-                      | UNIQUE PARIZQ listaids PARDER
+                      | UNIQUE PARIZQ idlist PARDER
     '''
-    t[0] = Nodo("lista_primary")
-
-    if len(t)==6:#PRIMARY KEY PARIZQ listaids PARDER
+    if len(t) == 6:  # PRIMARY KEY PARIZQ idlist PARDER
         add(t, 0, node(t, 1, 2))
         addSimple(t, 0, 4)
-
-    elif len(t)==11:#FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
+    elif len(t) == 11:  # FOREIGN KEY PARIZQ idlist PARDER REFERENCES ID PARIZQ idlist PARDER
         add(t, 0, node(t, 1, 2))
         addSimple(t, 0, 4)
         add(t, 0, node(t, 6, 7))
         addSimple(t, 0, 9)
 
-    elif len(t)==7:#CONSTRAINT ID CHECK PARIZQ exp PARDER
+    elif len(t) == 7:  # CONSTRAINT ID CHECK PARIZQ exp PARDER
         add(t, 0, node(t, 1, 3))
         addSimple(t, 0, 5)
 
     else:
-      # CHECK PARIZQ exp PARDER
-      # UNIQUE PARIZQ listaids PARDER
-      add(t, 0, node(t, 1, 2))
-      addSimple(t, 0, 3)
+        # CHECK PARIZQ exp PARDER
+        # UNIQUE PARIZQ listaids PARDER
+        add(t, 0, node(t, 1, 2))
+        addSimple(t, 0, 3)
 
 
-
-def p_atributo_table(t):
+def p_atributeTable(t):
     '''
-        atributo_table : ID  tipocql listaespecificaciones
-                       | ID  tipocql
+        atributeTable : ID  definitionTypes listaespecificaciones
+                       | ID definitionTypes
     '''
-    t[0] = Nodo("atributo_table")
-    if len(t)==4:
+    t[0] = Nodo("atributeTable")
+    if len(t) == 4:
         add(t, 0, node(t, 1, 1))
         addSimple(t, 0, 2)
         addSimple(t, 0, 3)
-    elif len(t)==3:
+    elif len(t) == 3:
         add(t, 0, node(t, 1, 1))
         addSimple(t, 0, 2)
+
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- ESPECIFICACIONES--------------------------------------
@@ -1714,12 +2732,14 @@ def p_especificaciones_default(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 2)
 
+
 def p_especificaciones_primary_key(t):
     '''
         especificaciones : PRIMARY KEY
     '''
     t[0] = Nodo("especificaciones")
     add(t, 0, node(t, 1, 2))
+
 
 def p_especificaciones_references_id(t):
     '''
@@ -1728,12 +2748,14 @@ def p_especificaciones_references_id(t):
     t[0] = Nodo("especificaciones")
     add(t, 0, node(t, 1, 2))
 
+
 def p_especificaciones_contraint_id_unique(t):
     '''
         especificaciones : CONSTRAINT ID UNIQUE
     '''
     t[0] = Nodo("especificaciones")
     add(t, 0, node(t, 1, 3))
+
 
 def p_especificaciones_constraint(t):
     '''
@@ -1743,6 +2765,7 @@ def p_especificaciones_constraint(t):
     add(t, 0, node(t, 1, 3))
     addSimple(t, 0, 5)
 
+
 def p_especificaciones_check(t):
     '''
         especificaciones : CHECK PARIZQ exp PARDER
@@ -1751,12 +2774,14 @@ def p_especificaciones_check(t):
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
+
 def p_especificaciones_not_null(t):
     '''
         especificaciones : NOT NULL
     '''
     t[0] = Nodo("especificaciones")
     add(t, 0, node(t, 1, 2))
+
 
 def p_especificaciones(t):
     '''
@@ -1768,61 +2793,106 @@ def p_especificaciones(t):
 
 
 # --------------------------------------------------------------------------------------
-# -----------------------------------------TIPO--------------------------------------
+# -----------------------------------------types--------------------------------------
 # --------------------------------------------------------------------------------------
-def p_tipocql(t):
+def p_definitionTypes(t):
     '''
-        tipocql : tipo
+        definitionTypes : f2types
     '''
     t[0] = Nodo("tipocql")
     addSimple(t, 0, 1)
 
-def p_tipocql_id(t):
+
+def p_definitionTypes_id(t):
     '''
-        tipocql : ID
+        definitionTypes : ID
     '''
-    t[0] = Nodo("tipocql")
-    add(t, 0, node(t, 1, 1))
+    t[0] = t[1]
 
 
-def p_tipo(t):
+def p_f2types(t):
     '''
-         tipo : SMALLINT
+        f2types : SMALLINT
+                | INTEGER
+                | BIGINT
+                | NUMERIC
+                | REAL
+                | MONEY
+                | TEXT
+                | FLOAT
+                | TIME
+                | DATE
+                | TIMESTAMP
+                | INTERVAL
+                | BOOLEAN
+                | DOUBLE    PRECISION
+                | DECIMAL   PARIZQ      ENTERO COMA   ENTERO PARDER
+                | CHARACTER VARYING     PARIZQ ENTERO PARDER
+                | VARCHAR   PARIZQ      ENTERO PARDER
+                | CHAR      PARIZQ      ENTERO PARDER
+                | STRING
+    '''
+    t[0] = Nodo("f2types")
+    if len(t) == 2:
+        add(t, 0, node(t, 1))
+
+    elif len(t) == 3:
+        add(t, 0, node(t, 1,2))
+
+    elif len(t) == 7:
+        add(t, 0, node(t, 1,6))
+
+    elif len(t) == 6:
+        add(t, 0, node(t, 1,5))
+
+    elif len(t) == 5:
+        add(t, 0, node(t, 1,4))
+
+
+def p_types(t):
+    '''
+         types : SMALLINT
               | INTEGER
               | BIGINT
-              | DECIMAL
+              | DECIMAL PARIZQ exp COMA exp PARDER
               | NUMERIC
               | REAL
               | MONEY
               | TEXT
+              | FLOAT
               | TIME
               | DATE
               | TIMESTAMP
               | INTERVAL
               | BOOLEAN
-              | DOUBLE      PRECISION
-              | VARCHAR     PARIZQ  exp    PARDER
-              | CHAR        PARIZQ  exp    PARDER
-              | CHARACTER   VARYING PARIZQ exp      PARDER
+              | DOUBLE PRECISION
+              | CHARACTER VARYING PARIZQ exp PARDER
+              | VARCHAR PARIZQ exp PARDER
+              | CHAR PARIZQ exp PARDER
+              | STRING
     '''
-    t[0] = Nodo("tipo")
-    if len(t)==2:
-        add(t, 0, node(t, 1, 1))
-    elif len(t)==3:
+    t[0] = Nodo("types")
+    if len(t) == 2:
+        add(t, 0, node(t, 1))
+    elif len(t) == 3:
         add(t, 0, node(t, 1, 2))
-    elif len(t)==5:
+    elif len(t) == 5:
         add(t, 0, node(t, 1, 1))
         addSimple(t, 0, 3)
-    elif len(t)==6:
+    elif len(t) == 6:
         add(t, 0, node(t, 1, 2))
         addSimple(t, 0, 4)
+    elif len(t) == 7:
+        add(t, 0, node(t, 1))
+        addSimple(t, 0, 3)
+        addSimple(t, 0, 5)
 
 
-def p_tipo_character_varying(t):
+def p_types_character_varying(t):
     '''
-        tipo : CHARACTER PARIZQ exp PARDER
+        types : CHARACTER PARIZQ exp PARDER
     '''
-    t[0] = Nodo("tipo")
+    t[0] = Nodo("types")
     add(t, 0, node(t, 1, 1))
     addSimple(t, 0, 3)
 
@@ -1832,113 +2902,120 @@ def p_tipo_character_varying(t):
 # --------------------------------------------------------------------------------------
 def p_insert(t):
     '''
-        insert : INSERT INTO ID                        VALUES PARIZQ listavalores PARDER
-               | INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
+        insert : INSERT INTO ID                        VALUES PARIZQ exp_list PARDER
+               | INSERT INTO ID PARIZQ idlist PARDER VALUES PARIZQ exp_list PARDER
     '''
     t[0] = Nodo("insert")
-    if len(t)==8:
-        #INSERT INTO ID VALUES PARIZQ listavalores PARDER
+    if len(t) == 8:
+        # INSERT INTO ID VALUES PARIZQ listavalores PARDER
         add(t, 0, node(t, 1, 3))
         addSimple(t, 0, 6)
-    elif len(t)==11:
-        #INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
+    elif len(t) == 11:
+        # INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
         add(t, 0, node(t, 1, 3))
         addSimple(t, 0, 5)
         add(t, 0, node(t, 7, 7))
         addSimple(t, 0, 9)
 
-def p_listaids(t):
+
+def p_idlist(t):
     '''
-        listaids : listaids COMA ID
+        idlist   : idlist COMA ID
                  | ID
     '''
-    if len(t) == 4:#listaids COMA ID
-        t[1].add(Nodo(t[3]))
+    if len(t) == 4:
+        t[1].add(node(t,3))
         t[0] = t[1]
-    else:#ID
-        t[0] = Nodo("listaids")
-        t[0].add(Nodo(t[1]))
+    else:
+        t[0] = Nodo("idlist")
+        t[0].add(node(t,1))
+
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- UPDATE--------------------------------------
 # --------------------------------------------------------------------------------------
 def p_update(t):
     '''
-        update : UPDATE ID SET listaupdate WHERE exp
-               | UPDATE ID SET listaupdate
+        update : UPDATE ID SET exp_list WHERE exp
+               | UPDATE ID SET exp_list
     '''
     t[0] = Nodo("update")
-    if len(t)==7:
-        #UPDATE ID SET listaupdate WHERE exp
+    if len(t) == 7:
+        # UPDATE ID SET listaupdate WHERE exp
         add(t, 0, node(t, 1, 3))
         addSimple(t, 0, 4)
         add(t, 0, node(t, 5, 5))
         addSimple(t, 0, 6)
-    elif len(t)==5:
-        #UPDATE ID SET listaupdate
+    elif len(t) == 5:
+        # UPDATE ID SET listaupdate
         add(t, 0, node(t, 1, 3))
         addSimple(t, 0, 4)
 
-def p_listaupdate(t):
+
+def p_setcolumns(t):
     '''
-        listaupdate : listaupdate COMA asignacionupdate
-                   | asignacionupdate
+        setcolumns : setcolumns COMA updateAsign
+                   | updateAsign
     '''
-    if len(t) == 4:#listaupdate COMA asignacionupdate
+    if len(t) == 4:  # listaupdate COMA asignacionupdate
         t[1].add(t[3])
         t[0] = t[1]
-    else:#asignacionupdate
-        t[0] = Nodo("listupdate")
+    else:  # asignacionupdate
+        t[0] = Nodo("setcolumns")
         t[0].add(t[1])
 
-def p_asignacionupdate(t):
+
+def p_updateAsign(t):
     '''
-        asignacionupdate : ID IGUAL exp
+        updateAsign : ID IGUAL exp
     '''
-    t[0] = Nodo("asignacionupdate")
+    t[0] = Nodo("updateAsign")
     add(t, 0, node(t, 1, 2))
-    addSimple(t,0,3)
+    addSimple(t, 0, 3)
+
 
 # --------------------------------------------------------------------------------------
-# ------------------------------ ACCESO--------------------------------------
+# ------------------------------ defAcces--------------------------------------
 # --------------------------------------------------------------------------------------
 # TODO: Segun la gramatica, hace falta la produccion 'Variable' cuya exp. reg. es: "@[A-Za-z][_A-Za-z0-9]*"
 def p_acceso(t):
     '''
-        acceso : acceso PT funcioncollection
-               | acceso  CORIZQ exp CORDER
+        defAcces : defAcces PT newInstructions
+               | defAcces  CORIZQ exp CORDER
                | ID
     '''
-    t[0] = Nodo("acceso")
-    if len(t)==4:
-      #acceso PT funcioncollection
-      addSimple(t, 0, 1)
-      add(t,0,node(t, 2, 2))
-      addSimple(t,0,3)
+    t[0] = Nodo("defAcces")
+    if len(t) == 4:
+        # acceso PT funcioncollection
+        addSimple(t, 0, 1)
+        add(t, 0, node(t, 2, 2))
+        addSimple(t, 0, 3)
 
-    elif len(t)==5:
-        #acceso  CORIZQ exp CORDER
-        addSimple(t,0,1)
-        addSimple(t,0,3)
+    elif len(t) == 5:
+        # acceso  CORIZQ exp CORDER
+        addSimple(t, 0, 1)
+        addSimple(t, 0, 3)
 
-    elif len(t)==2:
-        #ID
-        add(t,0,node(t,1,1))
+    elif len(t) == 2:
+        # ID
+        add(t, 0, node(t, 1, 1))
+
 
 def p_acceso_ID(t):
     '''
-        acceso : acceso PT ID
+        defAcces : defAcces PT ID
     '''
-    t[0] = Nodo("acceso")
+    t[0] = Nodo("defAcces")
     addSimple(t, 0, 1)
     add(t, 0, node(t, 2, 3))
 
+
 # --------------------------------------------------------------------------------------
-# ------------------------------FUNCION COLLECTION--------------------------------------
+# ------------------------------NEW INSTRUCTIONS--------------------------------------
 # --------------------------------------------------------------------------------------
-def p_funcioncollection(t):
+def p_newInstructions(t):
     '''
-        funcioncollection   : INSERT PARIZQ exp COMA exp PARDER
+        newInstructions   : INSERT PARIZQ exp COMA exp PARDER
                             | INSERT PARIZQ exp PARDER
                             | SET PARIZQ exp COMA exp PARDER
                             | REMOVE PARIZQ exp PARDER
@@ -1951,42 +3028,43 @@ def p_funcioncollection(t):
     t[0] = Nodo("funcioncollection")
 
     if t[1].lower() == 'insert':
-        if len(t)==7:
-            #INSERT PARIZQ exp COMA exp PARDER
+        if len(t) == 7:
+            # INSERT PARIZQ exp COMA exp PARDER
             add(t, 0, node(t, 1, 1))
             addSimple(t, 0, 3)
             addSimple(t, 0, 4)
-        elif len(t)==5:
-            #INSERT PARIZQ exp PARDER
+        elif len(t) == 5:
+            # INSERT PARIZQ exp PARDER
             add(t, 0, node(t, 1, 1))
             addSimple(t, 0, 3)
     elif t[1].lower() == 'set':
-        #SET PARIZQ exp COMA exp PARDER
+        # SET PARIZQ exp COMA exp PARDER
         add(t, 0, node(t, 1, 1))
         addSimple(t, 0, 3)
         addSimple(t, 0, 5)
     elif t[1].lower() == 'remove':
-        #REMOVE PARIZQ exp PARDER
+        # REMOVE PARIZQ exp PARDER
         add(t, 0, node(t, 1, 1))
         addSimple(t, 0, 3)
     elif t[1].lower() == 'size':
-        #SIZE PARIZQ PARDER
+        # SIZE PARIZQ PARDER
         add(t, 0, node(t, 1, 3))
     elif t[1].lower() == 'clear':
-        #CLEAR PARIZQ PARDER
+        # CLEAR PARIZQ PARDER
         add(t, 0, node(t, 1, 3))
     elif t[1].lower() == 'contains':
-        #CONTAINS PARIZQ exp PARDER
+        # CONTAINS PARIZQ exp PARDER
         add(t, 0, node(t, 1, 1))
         addSimple(t, 0, 3)
     elif t[1].lower() == 'length':
-        #LENGTH PARIZQ PARDER
+        # LENGTH PARIZQ PARDER
         add(t, 0, node(t, 1, 3))
     elif t[1].lower() == 'substring':
-        #SUBSTRING PARIZQ exp COMA exp PARDER
+        # SUBSTRING PARIZQ exp COMA exp PARDER
         add(t, 0, node(t, 1, 1))
         addSimple(t, 0, 3)
         addSimple(t, 0, 5)
+
 
 # --------------------------------------------------------------------------------------
 # --------------------------------- DELETE TABLE--------------------------------------
@@ -1995,44 +3073,46 @@ def p_deletetable(t):
     '''
         deletetable : DELETE FROM ID WHERE exp
                     | DELETE FROM ID
-                    | DELETE listaatributos FROM ID WHERE exp
-                    | DELETE listaatributos FROM ID
+                    | DELETE groupatributes FROM ID WHERE exp
+                    | DELETE groupatributes FROM ID
     '''
     t[0] = Nodo("deletetable")
-    if len(t)==6:
-        #DELETE FROM ID WHERE exp
+    if len(t) == 6:
+        # DELETE FROM ID WHERE exp
         add(t, 0, node(t, 1, 4))
-        addSimple(t,0,5)
+        addSimple(t, 0, 5)
     elif len(t) == 4:
-        #DELETE FROM ID
+        # DELETE FROM ID
         add(t, 0, node(t, 1, 3))
     elif len(t) == 7:
-        #DELETE listaatributos FROM ID WHERE exp
+        # DELETE listaatributos FROM ID WHERE exp
         add(t, 0, node(t, 1, 1))
-        addSimple(t,0,2)
+        addSimple(t, 0, 2)
         add(t, 0, node(t, 3, 5))
-        addSimple(t,0,6)
+        addSimple(t, 0, 6)
         pass
     elif len(t) == 5:
         # DELETE listaatributos FROM ID
         add(t, 0, node(t, 1, 1))
-        addSimple(t,0,2)
+        addSimple(t, 0, 2)
         add(t, 0, node(t, 3, 4))
 
+
 # --------------------------------------------------------------------------------------
-# --------------------------------- LISTAATRIBUTOS--------------------------------------
+# --------------------------------- groupatributes--------------------------------------
 # --------------------------------------------------------------------------------------
-def p_listaatributos(t):
+def p_groupatributes(t):
     '''
-        listaatributos : listaatributos COMA acceso
-                       | acceso
+        groupatributes : groupatributes COMA defAcces
+                       | defAcces
     '''
-    if len(t) == 4:#listaatributos COMA acceso
+    if len(t) == 4:  # listaatributos COMA acceso
         t[1].add(t[3])
         t[0] = t[1]
-    else:#acceso
-        t[0] = Nodo("listaatributos")
+    else:  # acceso
+        t[0] = Nodo("groupatributes")
         t[0].add(t[1])
+
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------CREATE DB--------------------------------------
@@ -2044,24 +3124,25 @@ def p_create_db(t):
                   | CREATE DATABASE IF NOT EXISTS createdb_extra
                   | CREATE DATABASE createdb_extra
     '''
-    t[0] = Nodo("createdb_extra")
+    t[0] = Nodo("create_db")
 
-    if len(t)==9:
-        #CREATE OR REPLACE DATABASE IF NOT EXISTS createdb_extra
+    if len(t) == 9:
+        # CREATE OR REPLACE DATABASE IF NOT EXISTS createdb_extra
         add(t, 0, node(t, 1, 7))
-        addSimple(t,0,8)
-    elif len(t)==6:
-        #CREATE OR REPLACE DATABASE createdb_extra
-        add(t, 0, node(t,1, 4))
-        addSimple(t,0,5)
-    elif len(t)==7:
-        #CREATE DATABASE IF NOT EXISTS createdb_extra
+        addSimple(t, 0, 8)
+    elif len(t) == 6:
+        # CREATE OR REPLACE DATABASE createdb_extra
+        add(t, 0, node(t, 1, 4))
+        addSimple(t, 0, 5)
+    elif len(t) == 7:
+        # CREATE DATABASE IF NOT EXISTS createdb_extra
         add(t, 0, node(t, 1, 5))
-        addSimple(t,0,6)
-    elif len(t)==4:
-        #CREATE DATABASE createdb_extra
+        addSimple(t, 0, 6)
+    elif len(t) == 4:
+        # CREATE DATABASE createdb_extra
         add(t, 0, node(t, 1, 2))
-        addSimple(t,0,3)
+        addSimple(t, 0, 3)
+
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------CREATEDB EXTRA--------------------------------------
@@ -2080,18 +3161,19 @@ def p_createdb_extra(t):
                        | ID
     '''
     t[0] = Nodo("createdb_extra")
-    if len(t)==2:#ID
+    if len(t) == 2:  # ID
         add(t, 0, node(t, 1, 1))
-    elif len(t)==4:#ID MODE   exp
+    elif len(t) == 4:  # ID MODE   exp
         add(t, 0, node(t, 1, 3))
-    elif len(t)==5:# ID MODE IGUAL exp
+    elif len(t) == 5:  # ID MODE IGUAL exp
         add(t, 0, node(t, 1, 4))
-    elif len(t)==6:# ID OWNER exp MODE exp
+    elif len(t) == 6:  # ID OWNER exp MODE exp
         add(t, 0, node(t, 1, 5))
-    elif len(t)==7:#ID OWNER exp  MODE IGUAL exp
+    elif len(t) == 7:  # ID OWNER exp  MODE IGUAL exp
         add(t, 0, node(t, 1, 6))
-    elif len(t)==8:#ID OWNER IGUAL exp MODE IGUAL exp
+    elif len(t) == 8:  # ID OWNER IGUAL exp MODE IGUAL exp
         add(t, 0, node(t, 1, 7))
+
 
 # -------------------------------------------------------------------------------------
 # --------------------------------- DROP TABLE--------------------------------------
@@ -2102,50 +3184,53 @@ def p_drop_table(t):
                    | DROP TABLE ID
     '''
     t[0] = Nodo("drop_table")
-    if len(t)==6:
-        #DROP TABLE IF EXISTS ID
+    if len(t) == 6:
+        # DROP TABLE IF EXISTS ID
         add(t, 0, node(t, 1, 5))
-    elif len(t)==4:
-        #DROP TABLE ID
+    elif len(t) == 4:
+        # DROP TABLE ID
         add(t, 0, node(t, 1, 3))
+
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------ALTER TABLE--------------------------------------
 # -------------------------------------------------------------------------------------
 def p_alter_table(t):
     '''
-        alter_table : ALTER TABLE ID ADD   listaespecificaciones
-                    | ALTER TABLE ID DROP  listaespecificaciones
-                    | ALTER TABLE ID       listacolumn
+        alter_table : ALTER TABLE ID ADD listaespecificaciones
+                    | ALTER TABLE ID DROP listaespecificaciones
+                    | ALTER TABLE ID groupcolumns
     '''
     t[0] = Nodo("alter_table")
-    if len(t)==6:
-        #ALTER TABLE ID ADD listaespecificaciones
-        #ALTER TABLE ID DROP listaespecificaciones
+    if len(t) == 6:
+        # ALTER TABLE ID ADD listaespecificaciones
+        # ALTER TABLE ID DROP listaespecificaciones
         add(t, 0, node(t, 1, 4))
         addSimple(t, 0, 5)
 
-    elif len(t)==5:
-        #ALTER TABLE ID listacolumn
-            add(t, 0, node(t, 1, 3))
-            addSimple(t, 0, 4)
+    elif len(t) == 5:
+        # ALTER TABLE ID listacolumn
+        add(t, 0, node(t, 1, 3))
+        addSimple(t, 0, 4)
+
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------LISTA COLUMN--------------------------------------
 # -------------------------------------------------------------------------------------
-def p_listacolumn(t):
+def p_groupcolumns(t):
     '''
-        listacolumn : listacolumn COMA column
+        groupcolumns : groupcolumns COMA column
                     | column
     '''
     if len(t) == 4:
-        #listacolumn COMA column
+        # listacolumn COMA column
         t[1].add(t[3])
         t[0] = t[1]
     else:
-        #column
+        # column
         t[0] = Nodo("listacolumn")
         t[0].add(t[1])
+
 
 # ------------------------------------------------------------------------------------
 # ---------------------------------COLUMN--------------------------------------
@@ -2153,35 +3238,37 @@ def p_listacolumn(t):
 def p_column(t):
     '''
         column : ALTER COLUMN ID listaespecificaciones
-               | ADD   COLUMN ID tipo
-               | DROP  COLUMN ID
+               | ADD COLUMN ID types
+               | DROP COLUMN ID
     '''
     t[0] = Nodo("column")
-    if t[1].lower()=='alter':
-        #ALTER COLUMN ID listaespecificaciones
+    if t[1].lower() == 'alter':
+        # ALTER COLUMN ID listaespecificaciones
         add(t, 0, node(t, 1, 3))
         addSimple(t, 0, 4)
 
     elif t[1].lower() == 'add':
-        #ADD COLUMN ID tipo
+        # ADD COLUMN ID tipo
         add(t, 0, node(t, 1, 3))
         addSimple(t, 0, 4)
 
 
     elif t[1].lower() == 'drop':
-        #DROP COLUMN ID
+        # DROP COLUMN ID
         add(t, 0, node(t, 1, 3))
+
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------CREATE TYPE--------------------------------------
 # -------------------------------------------------------------------------------------
 def p_create_type(t):
     '''
-        create_type : CREATE TYPE ID AS ENUM PARIZQ listavalores PARDER
+        create_type : CREATE TYPE ID AS ENUM PARIZQ exp_list PARDER
     '''
     t[0] = Nodo("create_type")
-    add(t,0,node(t,1,5))
-    addSimple(t,0,7)
+    add(t, 0, node(t, 1, 5))
+    addSimple(t, 0, 7)
+
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------ALTER DATABASE--------------------------------------
@@ -2194,7 +3281,8 @@ def p_alter_database(t):
                        | ALTER DATABASE ID OWNER  TO SESSION_USER
     '''
     t[0] = Nodo("alter_database")
-    add(t,0,node(t,1,6))
+    add(t, 0, node(t, 1, 6))
+
 
 # ------------------------------------------------------------------------------------
 # ---------------------------------DROP DATABASE--------------------------------------
@@ -2206,42 +3294,61 @@ def p_drop_database(t):
     '''
     t[0] = Nodo("drop_database")
 
-    if len(t)==6:
-        #DROP DATABASE IF EXISTS ID
-        add(t,0,node(t,1,4))
-        add(t,0,node(t,5,5))
+    if len(t) == 6:
+        # DROP DATABASE IF EXISTS ID
+        add(t, 0, node(t, 1, 4))
+        add(t, 0, node(t, 5, 5))
 
     elif len(t) == 4:
-        #DROP DATABASE ID
-        add(t,0,node(t,1,3))
+        # DROP DATABASE ID
+        add(t, 0, node(t, 1, 3))
 
-#--------------- concat Nodo ---------------
 
-def node(t,inicio:int,fin:int) -> Nodo:
+# --------------- concat Nodo ---------------
+
+def node(t, inicio: int, fin: int = -1) -> Nodo:
+    if fin == -1:
+        fin = inicio
+
     value = ''
-    for i in range(inicio,fin+1):
-        value += str(t[i])+' '
+    for i in range(inicio, fin + 1):
+        value += str(t[i]).replace('"',"'") + ' '
     result = Nodo(value)
     return result
 
-#--------------- add Nodo ---------------
-def add(t,destino:int,Nodoorigen:Nodo):
+
+# --------------- add Nodo ---------------
+def add(t, destino: int, Nodoorigen: Nodo):
     t[destino].add(Nodoorigen)
 
-def addSimple(t,destino:int,origen:int):
+
+def addSimple(t, destino: int, origen: int):
     t[destino].add(t[origen])
 
-#---------------ERROR SINTACTICO---------------
+
+def addList(t, destino: int, inicio: int, fin: int = -1):
+    if fin == -1:
+        fin = inicio
+
+    for i in range(inicio, fin + 1):
+        t[destino].add(t[i])
+
+
+# ---------------ERROR SINTACTICO---------------
 def p_error(t):
-    print(t)
-    print("Error sintáctico en '%s'" % t.value)
+    print('error',t)
+    #print("Error sintáctico en '%s'" % t.value)
+
 
 import ply.yacc as yacc
+
 parser = yacc.yacc()
-def parse(input) :
-    global cadena,lisErr, dot
-    #parser = yacc.yacc()
-    lexer2.lineno=1
-    #par= parser.parse("ADD")
-    #print(par)
+
+
+def parseo(input):
+    global cadena, lisErr, dot
+    # parser = yacc.yacc()
+    lexerreporte.lineno = 1
+    # par= parser.parse("ADD")
+    # print(par)
     return parser.parse(input)

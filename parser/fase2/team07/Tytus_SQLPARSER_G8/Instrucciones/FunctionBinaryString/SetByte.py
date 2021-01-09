@@ -3,10 +3,11 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 from Instrucciones.Expresiones.Primitivo import Primitivo
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Excepcion import *
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 
 class SetByte(Instruccion):
-    def __init__(self, valor, tipo, indice, caracter, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, tipo, indice, caracter, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
         self.tipo = tipo
         self.indice = indice
@@ -31,7 +32,7 @@ class SetByte(Instruccion):
                     cadena += letra
                     cont +=1
                 resultado= cadena
-                self.tipo = Tipo(Tipo_Dato.TEXT)
+                self.tipo = Tipo("",Tipo_Dato.TEXT)
                 return resultado
         else:
             error = Excepcion('2202E',"Semántico",f"El índice {self.indice} esta fuera de rango [0..{len(self.valor.valor)}]",self.linea,self.columna)
@@ -44,3 +45,13 @@ class SetByte(Instruccion):
         arbol.consola.append("HINT: Ninguna función coincide en el nombre y tipos de argumentos. Puede ser necesario agregar conversión explícita de tipos.")
         arbol.consola.append(error.toString())
         return error
+    
+    def traducir(self, tabla, arbol, cadenaTraducida):
+        resultado = self.ejecutar(tabla, arbol)
+        if isinstance(resultado,Excepcion):
+            return resultado        
+        codigo = ""
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = " + str(resultado) + "\n"
+        nuevo = Simbolo3d(self.tipo, temporal, codigo, None, None)
+        return nuevo

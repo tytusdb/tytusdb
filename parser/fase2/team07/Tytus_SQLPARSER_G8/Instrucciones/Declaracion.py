@@ -21,29 +21,29 @@ class Declaracion(Instruccion):
         prim = None
         strGram = ""
         if self.tipo.tipo == Tipo_Dato.SMALLINT:
-            prim = Primitivo(0, Tipo(Tipo_Dato.SMALLINT), strGram,0,0)
+            prim = Primitivo(0, Tipo("",Tipo_Dato.SMALLINT), strGram,0,0)
         elif self.tipo.tipo == Tipo_Dato.INTEGER:
-            prim = Primitivo(0, Tipo(Tipo_Dato.INTEGER), strGram,0,0)
+            prim = Primitivo(0, Tipo("",Tipo_Dato.INTEGER), strGram,0,0)
         elif self.tipo.tipo == Tipo_Dato.BIGINT:
-            prim = Primitivo(0, Tipo(Tipo_Dato.BIGINT), strGram, 0,0)
+            prim = Primitivo(0, Tipo("",Tipo_Dato.BIGINT), strGram, 0,0)
         elif self.tipo.tipo == Tipo_Dato.DECIMAL:
-            prim = Primitivo(0, Tipo(Tipo_Dato.DECIMAL),strGram, 0,0)
+            prim = Primitivo(0, Tipo("",Tipo_Dato.DECIMAL),strGram, 0,0)
         elif self.tipo.tipo == Tipo_Dato.NUMERIC:
-            prim = Primitivo(0, Tipo(Tipo_Dato.NUMERIC), strGram,0,0)
+            prim = Primitivo(0, Tipo("",Tipo_Dato.NUMERIC), strGram,0,0)
         elif self.tipo.tipo == Tipo_Dato.REAL:
-            prim = Primitivo(0, Tipo(Tipo_Dato.REAL), strGram,0,0)
+            prim = Primitivo(0, Tipo("",Tipo_Dato.REAL), strGram,0,0)
         elif self.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION:
-            prim = Primitivo(0, Tipo(Tipo_Dato.DOUBLE_PRECISION),strGram, 0,0)
+            prim = Primitivo(0, Tipo("",Tipo_Dato.DOUBLE_PRECISION),strGram, 0,0)
         elif self.tipo.tipo == Tipo_Dato.MONEY:
-            prim = Primitivo(0, Tipo(Tipo_Dato.MONEY),strGram, 0,0)
+            prim = Primitivo(0, Tipo("",Tipo_Dato.MONEY),strGram, 0,0)
         elif self.tipo.tipo == Tipo_Dato.DATE:
-            prim = Primitivo('1900-01-01', Tipo(Tipo_Dato.DATE),strGram, 0,0)
+            prim = Primitivo('1900-01-01', Tipo("",Tipo_Dato.DATE),strGram, 0,0)
         elif self.tipo.tipo == Tipo_Dato.TIMESTAMP:
-            prim = Primitivo('1900-01-01', Tipo(Tipo_Dato.TIMESTAMP),strGram, 0,0)
+            prim = Primitivo('1900-01-01', Tipo("",Tipo_Dato.TIMESTAMP),strGram, 0,0)
         elif self.tipo.tipo == Tipo_Dato.TIME:
-            prim = Primitivo('1900-01-01', Tipo(Tipo_Dato.DATE),strGram, 0,0)
+            prim = Primitivo('1900-01-01', Tipo("",Tipo_Dato.DATE),strGram, 0,0)
         elif self.tipo.tipo == Tipo_Dato.BOOLEAN:
-            prim = Primitivo(True, Tipo(Tipo_Dato.BOOLEAN),strGram, 0,0)
+            prim = Primitivo(True, Tipo("",Tipo_Dato.BOOLEAN),strGram, 0,0)
 
         variable = Simbolo(self.nombre,self.tipo,prim.valor,0,0)
         resultadoInsertar = tabla.setVariable(variable)

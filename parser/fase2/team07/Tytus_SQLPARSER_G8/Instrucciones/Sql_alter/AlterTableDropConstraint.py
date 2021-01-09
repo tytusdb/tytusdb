@@ -3,8 +3,8 @@ from Instrucciones.Excepcion import Excepcion
 from storageManager.jsonMode import *
 
 class AlterTableDropConstraint(Instruccion):
-    def __init__(self, tabla, col, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, tabla, col, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.tabla = tabla
         self.col = col
 
@@ -69,3 +69,9 @@ class AlterTableDropConstraint(Instruccion):
             return error
         arbol.consola.append("Consulta devuelta correctamente.")
         '''
+        
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo

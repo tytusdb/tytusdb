@@ -35,6 +35,7 @@ class Funcion(Instruction):
         self.environment = None
         self.line = line
         self.column = column
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -47,17 +48,17 @@ class Funcion(Instruction):
         temporal = None
         if self.isNew:
             self.environment = environment  # TODO verificar
-            if Procedures().saveProcedure(self.id, self, self.line, self.column):
+            if Procedures().saveProcedure(self.id, self, self.val_return, self.line, self.column):
                 var_array = self.print(environment)
                 temporal = self.setVariables(var_array, environment)
         else:
             var_array = Procedures().getProcedure(self.id, params, self.line, self.column)
             if var_array:
                 temporal = self.setVariables(var_array, environment)
-
-            fun = ThreeAddressCode().searchFunction(self.id)
-            if fun:
-                temporal = self.setVariables(fun['variables'], environment)
+            else:
+                fun = ThreeAddressCode().searchFunction(self.id)
+                if fun:
+                    temporal = self.setVariables(fun['variables'], environment)
         
         return temporal
                 #temp = ThreeAddressCode().newTemp()
@@ -100,8 +101,11 @@ class Funcion(Instruction):
 
                 if isinstance(value, PrimitiveData):
                     if value.data_type == DATA_TYPE.STRING:
-                        value.value = f"\'{value.value}\'"
-
+                        if value.value[0]  == "'" or value.value[0]  == "\"":
+                            value.value = f"\"{value.value}\""
+                        else:
+                            value.value = f"\"\'{value.value}\'\""
+                            
                 ThreeAddressCode().addCode(f"Stack[{var.position}] = {value.value}")
 
             temp = ThreeAddressCode().newTemp()
@@ -144,7 +148,7 @@ class ProcedimientoAlmacenado(Instruction):
         params = len(self.params)
         if self.isNew:
             self.environment = environment  # TODO verificar
-            if Procedures().saveProcedure(self.id, self, self.line, self.column):
+            if Procedures().saveProcedure(self.id, self, None, self.line, self.column):
                 var_array = self.print(environment)
                 self.setVariables(var_array, environment)
         else:
@@ -183,7 +187,7 @@ class ProcedimientoAlmacenado(Instruction):
         # Agregando etiqueta de salida
         ThreeAddressCode().addCode(f"label .{lbl_exit}")  
         # Imprime primera variable declarada, NO parametro
-        ThreeAddressCode().addCode(f"print(Stack[{pos}])")
+        # ThreeAddressCode().addCode(f"print(Stack[{pos}])")
 
         ThreeAddressCode().createFunction(self.id, self.params, var_array)
         return var_array

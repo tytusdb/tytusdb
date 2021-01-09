@@ -74,12 +74,17 @@ class AlterTableAddColumn(Instruccion):
         pass
     
     def traducir(self, tabla, arbol):
-        cadena = "\"set "
-        if(self.valor):
-            cadena += self.valor.traducir(tabla,arbol)
-        cadena += " = "
-        if(self.id2):
-            cadena += self.id2.traducir(tabla,arbol)
+        cadena = "\"alter table "
+        if(self.tabla):
+            cadena += self.tabla
+        cadena += " add column "
+        if(self.lista_col):
+            for x in range(0,len(self.lista_col)):
+                cadena += self.lista_col[x].traducir(tabla,arbol)
+                valor = self.lista_col[x].getTipo()
+                x = valor.name
+                y = x.lower()
+                cadena += " " + y
         cadena += ";\""
 
         arbol.addComen("Asignar cadena")

@@ -51,21 +51,6 @@ class DropFunction(Instruccion):
 
         self.crear_tabla(arbol)
         
-
-    def generar3D(self, tabla, arbol):  
-        super().generar3D(tabla,arbol)
-        code = []
-        t0 = c3d.getTemporal()
-        # code.append(c3d.asignacionString(t0, "CREATE INDEX " + self.ID))
-        code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
-        #CREATE INDEX test2_mm_idx ON tabla(id);
-
-        # code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
-        code.append(c3d.asignacionTemporalStack(t0))
-        code.append(c3d.aumentarP())
-
-        return code
-
     
     def crear_tabla(self, arbol):
         filename = "TablaFunciones.html"
@@ -146,13 +131,15 @@ class DropFunction(Instruccion):
     def generar3D(self, tabla, arbol):  
         super().generar3D(tabla,arbol)
         code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
         t0 = c3d.getTemporal()
         # code.append(c3d.asignacionString(t0, "CREATE INDEX " + self.ID))
-        code.append(c3d.asignacionString(t0, "CREATE INDEX test2_mm_idx ON tabla(id);"))
+        code.append(c3d.asignacionString(t0, "CREATE FUNCTION " + str(self.id) + ";"))
         #CREATE INDEX test2_mm_idx ON tabla(id);
 
         # code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
         code.append(c3d.asignacionTemporalStack(t0))
-        code.append(c3d.aumentarP())
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
 
         return code

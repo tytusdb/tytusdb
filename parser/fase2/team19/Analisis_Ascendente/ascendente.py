@@ -455,6 +455,7 @@ from Analisis_Ascendente.Instrucciones.PLPGSQL.CasePL import CasePL
 from Analisis_Ascendente.Instrucciones.PLPGSQL.plCall import plCall
 from Analisis_Ascendente.Instrucciones.PLPGSQL.dropFunction import DropFunction
 from Analisis_Ascendente.Instrucciones.PLPGSQL.plasignacion import Plasignacion
+from Analisis_Ascendente.Instrucciones.PLPGSQL.SelectCount import SelectCount
 
 precedence = (
     ('left', 'OR'),
@@ -758,6 +759,11 @@ def p_listaID2(t):
     varGramatical.append('listaID :: = var')
     varSemantico.append('listaID = var')
 
+def p_listaID222(t):
+    'listaID            : LOWER PARIZQ ID PARDR'
+    t[0] = [t[3]]
+    varGramatical.append('listaID :: = var')
+    varSemantico.append('listaID = var')
 
 # quitar values
 def p_values(t):
@@ -1121,6 +1127,21 @@ def p_callfunction1(t):
     varSemantico.append('E = Funcion(ID,listaExpresiones)')
 
 #*******************************************************************
+#Para el select Count***********************************************
+def p_selectCount(t):
+    '''E : SELECT COUNT PARIZQ MULT PARDR FROM ID'''
+    global columna
+    t[0] = SelectCount(t[7])
+    varGramatical.append('E ::= SELECT COUNT PARIZQ MULT PARDR FROM ID')
+    varSemantico.append('E = SelectCount(ID)')
+
+#*******************************************************************
+#Para aceptar Select en expresion paraun asignacion*****************
+def p_selectInstruccion(t):
+    '''E : instruccion'''
+    t[0] = t[1]
+    varGramatical.append('E ::= instruccion')
+    varSemantico.append('E = instruccion')
 
 def p_E(t):
     '''E                : operando
@@ -1992,6 +2013,7 @@ def p_prim(t):
                 | trig
                 | bina
                 | Time
+                | E
                 '''
     t[0] = t[1]
     varGramatical.append('prim ::=  var')
@@ -2080,14 +2102,13 @@ def p_math2(t):
     varGramatical.append('math ::= ' + str(t[1]) + ' ' + str(t[2]) + ' E ' + str(t[4]))
     varSemantico.append('math = Math_(' + str(t[1].upper() + '), E, None) '))
 
-def p_mathnotocar(t):
-    'math : COUNT PARIZQ MULT PARDR'
-    global columna
-
-    t[0] = Math_(t[1].upper(), Id(str(t[3]),lexer.lineno,columna), None, lexer.lineno, columna)
-
-    varGramatical.append('math ::= ' + str(t[1]) + ' ' + str(t[2]) + ' E ' + str(t[4]))
-    varSemantico.append('math = Math_(' + str(t[1].upper() + '), E, None) '))
+#def p_mathnotocar(t):
+#    'math : COUNT PARIZQ MULT PARDR'
+#    global columna
+#
+#    t[0] = Math_(t[1].upper(), Id(str(t[3]),lexer.lineno,columna), None, lexer.lineno, columna)
+#    varGramatical.append('math ::= ' + str(t[1]) + ' ' + str(t[2]) + ' E ' + str(t[4]))
+#    varSemantico.append('math = Math_(' + str(t[1].upper() + '), E, None) '))
 
 
 def p_math3(t):
@@ -2881,6 +2902,13 @@ def p_IndiceLower1(t):
     varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDR PARDR PTCOMA')
     varSemantico.append('instruccion = Index(5, str(t[3]), str(t[5]), t[9], None, lexer.lineno, columna) ')
 
+def p_IndiceLower2(t):
+    'instruccion : CREATE INDEX ID ON ID PARIZQ listaID PARDR PTCOMA'
+    global columna
+    t[0] = Index(5, str(t[3]), str(t[5]), t[7], None, None, lexer.lineno, columna)
+    varGramatical.append('instruccion ::= CREATE INDEX ID ON ID PARIZQ LOWER PARIZQ ID PARDR PARDR PTCOMA')
+    varSemantico.append('instruccion = Index(5, str(t[3]), str(t[5]), t[9], None, lexer.lineno, columna) ')
+
 def p_IndiceWhere2(t):
     'whereIndice : PTCOMA'
     t[0] = None
@@ -2911,14 +2939,14 @@ def p_DropIndice(t):
     varSemantico.append('instruccion =  DropIndex(t[2],lexer.lineno, columna) ')
 
 def p_AlterIndice111(t):
-    'instruccion : ALTER INDEX ifIndice ID ALTER ID ID PTCOMA'
+    'instruccion : ALTER INDEX ifIndice ID ALTER COLUMN ID ID PTCOMA'
     global columna
     t[0] = AlterIndex(1,t[3],t[4],t[6],t[7],lexer.lineno,columna)
     varGramatical.append('instruccion ::= ALTER INDEX ifIndice name ALTER ID ENTERO PTCOMA ')
     varSemantico.append('instruccion =  ')
 
 def p_AlterIndice(t):
-    'instruccion : ALTER INDEX ifIndice ID ALTER ID ENTERO PTCOMA'
+    'instruccion : ALTER INDEX ifIndice ID ALTER COLUMN ID ENTERO PTCOMA'
     global columna
     t[0] = AlterIndex(2,t[3],t[4],t[6],t[7],lexer.lineno,columna)
     varGramatical.append('instruccion ::= ALTER INDEX ifIndice name ALTER ID ENTERO PTCOMA ')
@@ -3045,19 +3073,14 @@ def procesar_instrucciones(instrucciones, ts):
             Use.ejecutar(instr, ts, consola, exceptions)
         elif isinstance(instr, InsertInto):
             InsertInto.ejecutar(instr,ts,consola,exceptions)
-            #print("Ejecute un insert")
         elif isinstance(instr, Drop):
             Drop.ejecutar(instr, ts, consola, exceptions)
-            #print("Ejecute drop")
         elif isinstance(instr, AlterDatabase):
             AlterDatabase.ejecutar(instr, ts, consola, exceptions)
-            #print("Ejecute alter database")
         elif isinstance(instr, AlterTable):
             AlterTable.ejecutar(instr, ts, consola, exceptions)
-            #print("Ejecute alter table")
         elif isinstance(instr, Delete):
             Delete.ejecutar(instr, ts, consola, exceptions)
-            #print("Ejecute delete")
         elif isinstance(instr, Update):
             Update.ejecutar(instr, ts, consola, exceptions)
         elif isinstance(instr,CreateType):
@@ -3066,7 +3089,6 @@ def procesar_instrucciones(instrucciones, ts):
             Show.ejecutar(instr,ts,consola,exceptions)
         elif isinstance(instr, Index):
             Index.ejecutar(instr, ts, consola, exceptions)
-            #print("Ejecute Index")
         elif isinstance(instr,CreateFunction):
             CreateFunction.ejecutar(instr,ts,consola,exceptions)
         elif isinstance(instr,DropFunction):
@@ -3094,18 +3116,18 @@ def generar_Codigo3D(instrucciones, ts, codigo_3d_generado):
             if isinstance(instruccion, Select):
                 if instruccion.caso == 1:
                     consola.append('caso 1')
-                    codigo_3d_generado += selectTime.getC3D(instruccion, ts)
+                    codigo_3d_generado += selectTime.getC3D(instruccion, ts, lista_optimizaciones_C3D)
                 elif instruccion.caso == 2:
                     consola.append('caso 2')
-                    # variable = SelectDist.Select_Dist()
-                    # SelectDist.Select_Dist.ejecutar(variable, inst, ts, consola, exceptions)
+                    variable = SelectDist.Select_Dist()
+                    SelectDist.Select_Dist.ejecutar(variable, instruccion, ts, lista_optimizaciones_C3D)
                 elif instruccion.caso == 3:
                     variable = selectInst.Select_inst()
-                    codigo_3d_generado += selectInst.Select_inst.get3D(variable, instruccion, ts)
+                    codigo_3d_generado += selectInst.Select_inst.get3D(variable, instruccion, ts, lista_optimizaciones_C3D)
                 elif instruccion.caso == 4:
-                    codigo_3d_generado += Selectp3.get3D(instruccion, ts)
+                    codigo_3d_generado += Selectp3.get3D(instruccion, ts, lista_optimizaciones_C3D)
                 elif instruccion.caso == 5:
-                    codigo_3d_generado += Selectp4.getC3D(instruccion, ts)
+                    codigo_3d_generado += Selectp4.getC3D(instruccion, ts, lista_optimizaciones_C3D)
                 elif instruccion.caso == 6:
                     consola.append('caso 6')
             else:

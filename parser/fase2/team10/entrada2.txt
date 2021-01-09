@@ -1,0 +1,11 @@
+					 
+EXECUTE sp_validainsert();
+EXECUTE sp_insertaproducto(9,'Bocina Inalambrica','2021-01-06');
+EXECUTE sp_insertaproducto(10,'Audifonos con Microfono USB','2021-01-06');
+EXECUTE sp_insertaproducto(11,'Bocina Inalambrica','2021-01-06');
+EXECUTE sp_insertaproducto(12,'Monitor de 17"','2021-01-06');
+
+EXECUTE sp_insertaproducto(13,'Bocina Inalambrica Sony','2021-01-06');
+EXECUTE sp_insertaproducto(14,'Audifonos con Microfono USB Lenovo','2021-01-06');
+EXECUTE sp_insertaproducto(15,'Monitor de 21"','2021-01-06');
+EXECUTE sp_insertaproducto(16,'Monitor de 17" Lenovo','2021-01-06');

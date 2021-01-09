@@ -5,138 +5,110 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 
 class CreateIndex(Instruccion):
-    def __init__(self,num,nombre,tipo,col,orden,linea,columna):
-        Instruccion.__init__(self,tipo,nombre,linea,columna)
-        self.num = num
-        self.nombre = nombre
-        self.tipo = tipo
-        self.col = col
-        self.orden = orden
-        self.linea = linea 
-        self.columna = columna
-
+    def __init__(self,tipo,nombre,tabla,col,linea,columna,strGram):
+        Instruccion.__init__(self,tipo,linea,columna,strGram)
+        self.tipo    = tipo
+        self.nombre  = nombre
+        self.tabla   = tabla
+        self.col     = col
+       
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        if(self.num == 1):
-           # arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: "+ str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-                if(orden != 'asc'):
-                   arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-                   break       
+        columnas = []
+        restrict = []
+        colNotExists = []
+        orden = None
+        bandera = 0
+        
+        db = arbol.getBaseDatos()
+        if db != None:
+            existe = arbol.getExists(self.nombre)
+            if(existe == 0):
+                resultado =  arbol.devolviendoTablaDeBase(self.tabla)
+                if(resultado != 0):
+                    for item in self.col: 
+                        for val in item:
+                            if val.lower() == 'nulls': 
+                                restrict.append(val)
+                            elif val.lower() == 'first':  
+                                restrict.append(val)
+                            elif val.lower() == 'last':
+                                restrict.append(val)
+                            elif val.lower() == 'lower':  
+                                restrict.append(val)
+                            elif val.lower() == 'asc': 
+                                orden = val
+                            elif val.lower() =='desc':
+                                orden = val
+                            else:
+                                columnas.append(val)
+                    
+                    for fs in columnas :
+                        for tbcol in resultado.lista_de_campos:  
+                            if tbcol.nombre == fs:
+                                bandera +=1
 
-        if(self.num == 2):
-            #arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: "+ str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-                if(orden != 'asc'):        
-                    arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-                    break     
-        if(self.num == 3):
-            arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: " + str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-                arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-                break     
-        if(self.num == 4):
-           # arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: " + str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-                arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-                break     
-        if(self.num == 5):            
-            #arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: " + str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-                        
-            arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-               
+                    if bandera == len(columnas):             
+                        arbol.setIndex([{'Base':db,'Tipo':self.tipo,'Nombre': self.nombre,'Tabla':self.tabla,'Orden':orden, 'Columna':columnas, 'Restrict':restrict}]) 
+                        print(f"CREATE INDEX : {self.nombre} SE CREO CORRECTAMENTE")
+                    else:
+                        print(f"ERROR  INDEX: NOMBRE DE COLUMNAS NO EXISTE")     
+                else:
+                    print(f"ERROR  INDEX : TABLA '{self.tabla}' NO EXISTE")
+            else:
+                print(f"ERROR  INDEX : NOMBRE DE INDEX '{self.nombre}' YA EXISTE")
+        
+        else: 
+            print(f"ERROR : BASE DE DATOS NO SELECCIONADA")
         
     def getCodigo(self, tabla, arbol):
-        if(self.num == 1):
-            #arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: "+ str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-                if(orden != 'asc'):
-                   arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-                   break       
+        columnas = []
+        restrict = []
+        colNotExists = []
+        orden = None
+        bandera = 0
+        
+        db = arbol.getBaseDatos()
+        if db != None:
+            existe = arbol.getExists(self.nombre)
+            if(existe == 0):
+                resultado =  arbol.devolviendoTablaDeBase(self.tabla)
+                if(resultado != 0):
+                    for item in self.col: 
+                        for val in item:
+                            if val.lower() == 'nulls': 
+                                restrict.append(val)
+                            elif val.lower() == 'first':  
+                                restrict.append(val)
+                            elif val.lower() == 'last':
+                                restrict.append(val)
+                            elif val.lower() == 'lower':  
+                                restrict.append(val)
+                            elif val.lower() == 'asc': 
+                                orden = val
+                            elif val.lower() =='desc':
+                                orden = val
+                            else:
+                                columnas.append(val)
+                    
+                    for fs in columnas :
+                        for tbcol in resultado.lista_de_campos:  
+                            if tbcol.nombre == fs:
+                                bandera +=1
 
-        if(self.num == 2):
-            #arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: "+ str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-                if(orden != 'asc'):        
-                    arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-                    break     
-        if(self.num == 3):
-            #arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: " + str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-                arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-                break     
-        if(self.num == 4):
-            #arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: " + str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-                arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-                break     
-        if(self.num == 5):            
-            #arbol.consola.append("SE EJECUTO CREATE INDEX TIPO: " + str(self.tipo))
-            orden = "desc"
-            for item in self.orden: 
-                for i in item:
-                       if i.lower() == 'asc':
-                           orden = 'asc'
-                           arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea])
-                           break
-            arbol.setIndex([self.nombre,self.tipo,self.col,orden,item,self.linea]) 
-               
+                    if bandera == len(columnas):             
+                        arbol.setIndex([{'Base':db,'Tipo':self.tipo,'Nombre': self.nombre,'Tabla':self.tabla,'Orden':orden, 'Columna':columnas, 'Restrict':restrict}]) 
+                        print(f"CREATE INDEX : {self.nombre} SE CREO CORRECTAMENTE")
+                    else:
+                        print(f"ERROR  INDEX: NOMBRE DE COLUMNAS NO EXISTE")     
+                else:
+                    print(f"ERROR  INDEX : TABLA '{self.tabla}' NO EXISTE")
+            else:
+                print(f"ERROR  INDEX : NOMBRE DE INDEX '{self.nombre}' YA EXISTE")
         
-        
-          
+        else: 
+            print(f"ERROR : BASE DE DATOS NO SELECCIONADA")
+        return ""
+            
+
         

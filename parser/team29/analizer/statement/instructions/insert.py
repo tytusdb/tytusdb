@@ -20,6 +20,7 @@ class InsertInto(instruction.Instruction):
 
     def execute(self, environment):
         try:
+            Struct.load()
             lista = []
             params = []
             tab = self.tabla

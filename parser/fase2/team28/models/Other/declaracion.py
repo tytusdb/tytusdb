@@ -18,17 +18,23 @@ class DeclaracionID(Expression):
         return str(vars(self))
 
     def compile(self, environment):
-        val = self.value.compile(environment)
+        val = None
+        if self.value is not None:
+            val = self.value.compile(environment)
         if isinstance(val, PrimitiveData):
             if val.data_type == DATA_TYPE.STRING:
                 val.value = f"'{val.value}'"
         pos = ThreeAddressCode().stackCounter
-        environment.addVar(self.id, self.data_type, val.value, pos, self.line, self.column)
-        temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = {val.value}")
-        ThreeAddressCode().addStack(temp)
+        if val is not None:
+            environment.addVar(self.id, self.data_type, val.value, pos, self.line, self.column)
+            temp = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temp} = {val.value}")
+            ThreeAddressCode().addStack(temp)
+        else:
+            environment.addVar(self.id, self.data_type, None, pos, self.line, self.column)
+
         # ThreeAddressCode().addCode(f"print(Stack)")
-        print("ANDO POR AQUI")
+        # print("ANDO POR AQUI")
 
 class AsignacionID(Expression):
     

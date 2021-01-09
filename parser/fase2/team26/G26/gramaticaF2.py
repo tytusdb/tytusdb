@@ -1,5 +1,5 @@
 from error import error
-import optimizar as opt 
+import optimizar as opt
 errores = list()
 errorrr = False
 reservadas = {
@@ -392,7 +392,7 @@ def p_instrucciones_lista(t) :
     if 'valSelectPrint' in t[2]:
         texto += '    valSelectPrint = 1\n'
 
-    text = t[1]['text'] + "\n" + texto 
+    text = t[1]['text'] + "\n" + texto
     if t[2]['text'] == ";":
         ''
     else:
@@ -404,8 +404,8 @@ def p_instrucciones_lista(t) :
     grafo.newnode('INSTRUCCIONES')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
-    reporte = '<instrucciones> ::= <instrucciones> <instruccion>\n' + t[1]['reporte'] + t[2]['reporte']    
-    
+    reporte = '<instrucciones> ::= <instrucciones> <instruccion>\n' + t[1]['reporte'] + t[2]['reporte']
+
     t[0] =  {'text': text, 'c3d' : '', 'printList': printList,'graph' : grafo.index, 'reporte': reporte}
 
 
@@ -424,7 +424,7 @@ def p_instruciones(t):
     grafo.newnode('INSTRUCCIONES')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = '<instrucciones> ::= <instruccion>\n' + t[1]['reporte']
-    
+
     if t[1]['text'] == ";":
         text = ""
     t[0] =  {'text': text, 'c3d' : '', 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
@@ -440,6 +440,10 @@ def p_instruccion(t) :
                         | INSERT insert
                         | UPDATE update
                         | ALTER alter'''
+    printList = ''
+    if 'printList' in t[2]:
+        printList = t[2]['printList']
+
     if t[2]['text'] == '':
         text = ''
     else:
@@ -466,9 +470,9 @@ def p_instruccion(t) :
         reporte += 'UPDATE <update>\n' + t[2]['reporte']
     elif t[1].lower() == 'alter':
         reporte += 'ALTER <alter>\n' + t[2]['reporte']
-    
 
-    t[0] = {'text' : text, 'c3d': '', 'printList': '','graph' : grafo.index, 'reporte': reporte}
+
+    t[0] = {'text' : text, 'c3d': '', 'printList': printList,'graph' : grafo.index, 'reporte': reporte}
 
 #----------------testing condiciones--------------------
 #def p_instrcond(t):
@@ -506,6 +510,7 @@ def p_instruccion_ccreateindpr(t):
     reporte = '<instruccion> ::= CREATE <createprocedure>\n' + t[2]['reporte']
     t[0] = {'text' : '', 'c3d': '', 'printList': t[2]['printList'], 'graph' : grafo.index, 'reporte': reporte}
 
+selectError = False
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
     global errorrr
@@ -513,14 +518,20 @@ def p_instruccionSelect(t):
         t[0] = {'text': '', 'c3d' : '', 'printList':'', 'valSelectPrint': 0, 'graph' : grafo.index, 'reporte': ''}
         errorrr = False
     else:
-        text = t[1]['c3d']
-        text += '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
-        text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
-        text += '    ' + tempos.getcurrent()+ ' = mediador(' + 'valSelectPrint' + ')\n'
+        global selectError
+        if selectError:
+            text = t[1]['text']
+            selectError = False
+        else:
+            text = t[1]['c3d']
+            text += '    ' + tempos.newTemp() + ' = \'' + t[1]['text'] + '; \'\n'
+            text += '    ' + 'heap.append('+"t"+str(tempos.index)+')\n'
+            text += '    ' + tempos.getcurrent()+ ' = mediador(' + 'valSelectPrint' + ')\n'
+
         grafo.newnode('INSTRUCCION')
         grafo.newchildrenF(grafo.index, t[1]['graph'])
         reporte = '<instruccion> ::=  <select>\n' + t[1]['reporte']+ 'PTCOMA\n'
-        t[0] =  {'text': text, 'c3d' : '', 'printList':'', 'valSelectPrint': 0, 'graph' : grafo.index, 'reporte': reporte}
+        t[0] =  {'text': text, 'c3d' : '', 'printList':'', 'valSelectPrint': 0, 'graph' : grafo.index, 'reporte': reporte, 'valSelectPrint': 0}
 
 def p_instruccionQuerys(t):
     'instruccion  : querys PTCOMA'
@@ -760,7 +771,11 @@ def p_all_opcional_null(t):
 #---------------------------------------SELECT
 def p_select(t):
     'select : SELECT parametrosselect fromopcional'
-    text = "SELECT " + t[2]['text'] + t[3]['text']
+    global selectError
+    if selectError:
+        text = t[2]['text']
+    else:
+        text = "SELECT " + t[2]['text'] + t[3]['text']
     c3d = t[2]['c3d'] + t[3]['c3d']
     grafo.newnode('SELECT')
     grafo.newchildrenF(grafo.index,t[2]['graph'])
@@ -1025,7 +1040,7 @@ def p_lista_de_seleccionados_noterminal(t):
                          |<funcionesmatematicas
                          |<funcionesdefechas>
                          |<funcionesbinarias>
-                         |<operadoresselect>\n''' + t[1]['reporte'] 
+                         |<operadoresselect>\n''' + t[1]['reporte']
     t[0]=t[1]
     t[0]['reporte']=reporte
     t[0]['graph']= grafo.index
@@ -1069,20 +1084,33 @@ def p_lista_de_seleccionados_funcion_params(t):
 
     text = ''
 
+    notFound = True
     l.readData(datos)
     if 'funciones_' in datos.tablaSimbolos:
         for nombres in datos.tablaSimbolos['funciones_']:
-            if nombres['name'] == t[1]:
+            if nombres['name'] == t[1] and nombres['drop'] == 1:
+                notFound = False
                 if nombres['tipo'] == 'Procedimiento':
                     ''
                 else:
                     temporal = tempos.newTemp()
                     c3d += '    ' + temporal + ' = heap.pop()\n'
 
-                    if nombres['return'] == 'varchar' or nombres['return'] == 'text' or nombres['return'] == 'char' or nombres['return'] == 'character':
+                    if nombres['return'] == 'varchar' or nombres['return'] == 'text' or nombres['return'] == 'char' or nombres['return'] == 'character' or nombres['return'] == 'date' or nombres['return'] == 'time':
                         text = '\\\'\' + str(' + temporal + ') + \'\\\''
-                    else:
+                    elif nombres['return'] == 'integer' or nombres['return'] == 'smallint' or nombres['return'] == 'bigint' or nombres['return'] == 'numeric' or nombres['return'] == 'money' or nombres['return'] == 'decimal' or nombres['return'] == 'real' or nombres['return'] == 'double':
                         text = '\' + str(' + temporal + ') + \''
+                    else:
+                        text = '\\\'\' + str(' + temporal + ') + \'\\\''
+    global selectError
+    if notFound:
+        selectError = True
+        text = '    ' + 'print(\'La funcion/procedimiento '+t[1]+' no fue encontrada.\')\n'
+        c3d = '    #' + t[1] + '()\n'
+        c3d += '    ' + 'print(\'La funcion/procedimiento '+t[1]+' no fue encontrada.\')\n'
+        mistake = error("Semantico", 'La funcion/procedimiento ' + t[1] + ' no fue encontrada.', 0)
+        errores.append(mistake)
+        print('La funcion/procedimiento ' + t[1] + ' no fue encontrada.')
 
     t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte}
 
@@ -1093,19 +1121,37 @@ def p_lista_de_seleccionados_funcion(t):
     text = ''
     grafo.newnode('F_LLAMADA')
     grafo.newchildrenE(t[1].upper())
-    reporte = "<funcionesLlamada> ::= ID PARENIZQ PARENDER\n" 
+    reporte = "<funcionesLlamada> ::= ID PARENIZQ PARENDER\n"
     l.readData(datos)
+    notFound = True
     if 'funciones_' in datos.tablaSimbolos:
         for nombres in datos.tablaSimbolos['funciones_']:
-            if nombres['name'] == t[1]:
-                if nombres['tipo'] == 'Procedimiento':
-                    ''
-                else:
-                    if nombres['return'] == 'varchar' or nombres['return'] == 'text' or nombres['return'] == 'char' or nombres['return'] == 'character':
-                        text = '\\\'\' + str(' + val + ') + \'\\\''
+            if nombres['name'] == t[1] and nombres['drop'] == 1:
+                    notFound = False
+                    if nombres['tipo'] == 'Procedimiento':
+                        ''
                     else:
-                        text = '\' + str(' + val + ') + \''
-                    c3d += '    ' + val + ' = heap.pop()\n'
+                        if nombres['return'] == 'varchar' or nombres['return'] == 'text' or nombres['return'] == 'char' or nombres['return'] == 'character' or nombres['return'] == 'date' or nombres['return'] == 'time':
+                            text = '\\\'\' + str(' + val + ') + \'\\\''
+                        elif nombres['return'] == 'integer' or nombres['return'] == 'smallint' or nombres['return'] == 'bigint' or nombres['return'] == 'numeric' or nombres['return'] == 'money' or nombres['return'] == 'decimal' or nombres['return'] == 'real' or nombres['return'] == 'double':
+                            text = '\' + str(' + val + ') + \''
+                        else:
+                            text = '\\\'\' + str(' + val + ') + \'\\\''
+
+                        c3d += '    ' + val + ' = heap.pop()\n'
+            else:
+                ''
+
+    global selectError
+    if notFound:
+        selectError = True
+        text = '    ' + 'print(\'La funcion/procedimiento '+t[1]+' no fue encontrada.\')\n'
+        c3d = '    #' + t[1] + '()\n'
+        c3d += '    ' + 'print(\'La funcion/procedimiento '+t[1]+' no fue encontrada.\')\n'
+
+        mistake = error("Semantico", 'La funcion/procedimiento ' + t[1] + ' no fue encontrada.', 0)
+        errores.append(mistake)
+        print('La funcion/procedimiento ' + t[1] + ' no fue encontrada.')
 
     t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
 
@@ -1125,7 +1171,7 @@ def p_params_F(t):
     'params : param'
     grafo.newnode('PARAMS')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    reporte = "<params> ::= <param>\n" + t[1]['reporte'] 
+    reporte = "<params> ::= <param>\n" + t[1]['reporte']
     if t[1]['c3d'] == '':
         t[0] = {'text' : t[1]['text'], 'c3d' : [t[1]['text']], 'extra': [''], 'tflag': [t[1]['tflag']], 'graph' : grafo.index, 'reporte': reporte}
     else:
@@ -1135,7 +1181,7 @@ def p_param_F(t):
     '''param : condiciones
              | argument'''
     reporte =   "<params> ::= <condiciones>\n"
-    reporte +=  "            |<argument>\n" + t[1]['reporte'] 
+    reporte +=  "            |<argument>\n" + t[1]['reporte']
     grafo.newnode('PARAM')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     t[0] =  t[1]
@@ -1338,7 +1384,7 @@ def p_funciones_matematicas_simples(t):
         reporte += "AVG PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
         text = "AVG (" + t[3]['text'] + ")"
     elif t[1].lower() == "min":
-        reporte += "MIN PARENIZQ <argument> PARENDER\n" + t[3]['reporte']        
+        reporte += "MIN PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
         text = "MIN (" + t[3]['text'] + ")"
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
@@ -1444,11 +1490,22 @@ def p_funciones_matematicas_1 (t):
                             | SIGN PARENIZQ  argument   PARENDER
                             | SQRT PARENIZQ  argument   PARENDER
                             | TRUNC PARENIZQ  argument   PARENDER'''
-    text = ""
     grafo.newnode('F_MATH')
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     reporte = "<funcionesmatematicas> ::= "
+
+    text = ""
+    select = ''
+    selectID = False
+    c3d = ''
+    if 'selectID' in t[3]:
+        selectID = t[3]['selectID']
+        if selectID:
+            #print(t[3])
+            c3d = t[3]['c3d']
+            select = t[1].upper() + '(\' + str('+t[3]['tflag']+') + \')'
+
     if t[1].lower() == "abs":
         reporte += "ABS PARENIZQ <argument> PARENDER\n" + t[3]['reporte']
         text = " ABS(" + t[3]['text'] + ")"
@@ -1491,7 +1548,7 @@ def p_funciones_matematicas_1 (t):
     elif t[1].lower() == "trunc":
         reporte += "TRUNC PARENIZQ <argument> PARENDER\n"  + t[3]['reporte']
         text = " TRUNC(" + t[3]['text'] + ")"
-    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
+    t[0] =  {'text': text, 'c3d' : c3d, 'select': select, 'selectID':selectID, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_funciones_matematicas_2 (t):
     '''funcionesmatematicas : DIV PARENIZQ  argument  COMA  argument  PARENDER
@@ -1514,7 +1571,7 @@ def p_funciones_matematicas_2 (t):
         reporte += "MOD PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']
         text  = " MOD( " + t[3]['text'] + ", " + t[5]['text'] + ")"
     elif t[1].lower() == "power":
-        reporte += "POWER PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']    
+        reporte += "POWER PARENIZQ <argument> COMA <argument> PARENDER\n" + t[3]['reporte'] + t[5]['reporte']
         text  = " POWER( " + t[3]['text'] + ", " + t[5]['text'] + ")"
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
@@ -1787,11 +1844,27 @@ def p_argument_noterminal(t):
                 | funcionesmatematicas
                 | funcionesdefechas
                 | funcionesbinarias'''
-    text = t[1]['text']
-    tempo = tempos.newTemp()
-    c3d = "    "+tempo+ " = '"+ t[1]['text']+"'\n"
-    c3d += "    "+"heap.append("+tempo+")\n"
-    c3d += "    "+tempo + " = mediador(0)\n"
+    text = ''
+    select = ''
+    if 'selectID' in t[1]:
+        if t[1]['selectID']:
+            tempo = tempos.newTemp()
+            c3d = t[1]['c3d']
+            c3d += "    "+tempo+ " = '"+ t[1]['select']+"'\n"
+            c3d += "    "+"heap.append("+tempo+")\n"
+            c3d += "    "+tempo + " = mediador(0)\n"
+        else:
+            text = t[1]['text']
+            tempo = tempos.newTemp()
+            c3d = "    "+tempo+ " = '"+ t[1]['text']+"'\n"
+            c3d += "    "+"heap.append("+tempo+")\n"
+            c3d += "    "+tempo + " = mediador(0)\n"
+    else:
+        text = t[1]['text']
+        tempo = tempos.newTemp()
+        c3d = "    "+tempo+ " = '"+ t[1]['text']+"'\n"
+        c3d += "    "+"heap.append("+tempo+")\n"
+        c3d += "    "+tempo + " = mediador(0)\n"
     #print(text)
     grafo.newnode('ARGUMENT')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
@@ -1800,13 +1873,17 @@ def p_argument_noterminal(t):
                                 |<funcionesmatematicas>
                                 |<funcionesdefechas>
                                 |<funcionesbinarias>\n''' + t[1]['reporte'] #mm
-    
-    t[0] =  {'text': text, 'c3d' : c3d, 'tflag': tempo, 'graph' : grafo.index, 'reporte': reporte}
+
+    t[0] =  {'text': text, 'c3d' : c3d, 'tflag': tempo, 'select': select, 'graph' : grafo.index, 'reporte': reporte}
 
 
 #------------------------------------------------------CONDICIONES-----------------------------------------
 def p_condiciones_recursivo(t):
     'condiciones    : condiciones comparacionlogica condicion'
+    selectID = False
+    if 'selectID' in t[1] or 'selectID' in t[3]:
+        selectID = True
+
     text = t[1]['text'] + ' ' + t[2] + ' ' + t[3]['text']
 
     c3 = t[1]['c3d']
@@ -1841,6 +1918,10 @@ def p_comparacionlogica(t):
 
 def p_condicion(t):
     '''condicion    : NOT condicion'''
+    selectID = False
+    if 'selectID' in t[2]:
+        selectID = True
+
     text = " NOT " + t[2]['text']
 
     c3 = t[2]['c3d']
@@ -1850,7 +1931,7 @@ def p_condicion(t):
     grafo.newchildrenE('NOT')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<condicion> ::= NOT <condicion>\n" + t[2]['reporte']
-    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': select, 'graph' : grafo.index, 'reporte': reporte}
+    t[0] =  {'text': text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select': select, 'selectID': selectID, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_condicionPs(t):
     '''condicion    : condicions'''
@@ -1881,12 +1962,22 @@ def p_condicions(t):
     text = ''
     c3 = ''
     select = ''
+    selectID = False
     grafo.newnode('CONDICION')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     if t[2] == '<'    :
         grafo.newchildrenE('"'+t[2]+'"')
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<condicions> ::= <argument> MENORQUE <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+
+        selectID1 = False
+        selectID2 = False
+        if 'selectID' in t[1]:
+            selectID1 = t[1]['selectID']
+        if 'selectID' in t[3]:
+            selectID2 = t[3]['selectID']
+
+        selectID = selectID1 or selectID2
         text = str(t[1]['text'])  + " < " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1907,6 +1998,16 @@ def p_condicions(t):
         grafo.newchildrenE('"'+t[2]+'"')
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<condicions> ::= <argument> MAYORQUE <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+
+        selectID1 = False
+        selectID2 = False
+        if 'selectID' in t[1]:
+            selectID1 = t[1]['selectID']
+        if 'selectID' in t[3]:
+            selectID2 = t[3]['selectID']
+
+        selectID = selectID1 or selectID2
+
         text = str(t[1]['text'])  + " > " +str( t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1927,6 +2028,16 @@ def p_condicions(t):
         grafo.newchildrenE('"'+t[2]+'"')
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<condicions> ::= <argument> IGUAL <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+
+        selectID1 = False
+        selectID2 = False
+        if 'selectID' in t[1]:
+            selectID1 = t[1]['selectID']
+        if 'selectID' in t[3]:
+            selectID2 = t[3]['selectID']
+
+        selectID = selectID1 or selectID2
+
         text = str(t[1]['text'])  + " = " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1947,6 +2058,16 @@ def p_condicions(t):
         grafo.newchildrenE('"'+t[2]+'"')
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<condicions> ::= <argument> MENORIGUALQUE <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+
+        selectID1 = False
+        selectID2 = False
+        if 'selectID' in t[1]:
+            selectID1 = t[1]['selectID']
+        if 'selectID' in t[3]:
+            selectID2 = t[3]['selectID']
+
+        selectID = selectID1 or selectID2
+
         text = str(t[1]['text'])  + " <= " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1967,6 +2088,16 @@ def p_condicions(t):
         grafo.newchildrenE('"'+t[2]+'"')
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<condicions> ::= <argument> MAYORIGUALQUE <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+
+        selectID1 = False
+        selectID2 = False
+        if 'selectID' in t[1]:
+            selectID1 = t[1]['selectID']
+        if 'selectID' in t[3]:
+            selectID2 = t[3]['selectID']
+
+        selectID = selectID1 or selectID2
+
         text = str(t[1]['text'])  + " >= " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -1987,6 +2118,16 @@ def p_condicions(t):
         grafo.newchildrenE('"'+t[2]+'"')
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<condicions> ::= <argument> DIFERENTEELL <argument>\n" + t[1]['reporte'] + t[3]['reporte']
+
+        selectID1 = False
+        selectID2 = False
+        if 'selectID' in t[1]:
+            selectID1 = t[1]['selectID']
+        if 'selectID' in t[3]:
+            selectID2 = t[3]['selectID']
+
+        selectID = selectID1 or selectID2
+
         text = str(t[1]['text'])  + " <> " + str(t[3]['text'])
 
         c3 = t[1]['c3d']
@@ -2007,6 +2148,16 @@ def p_condicions(t):
         grafo.newchildrenE('BETWEEN')
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         reporte = "<condicions> ::=  <argument> BETWEEN <betweenopcion>\n"+ t[1]['reporte'] + t[3]['reporte']
+
+        selectID1 = False
+        selectID2 = False
+        if 'selectID' in t[1]:
+            selectID1 = t[1]['selectID']
+        if 'selectID' in t[3]:
+            selectID2 = t[3]['selectID']
+
+        selectID = selectID1 or selectID2
+
         text = str(t[1]['text'])  + " BETWEEN " + str(t[3]['text'])
         tp = tempos.newTemp()
         try:
@@ -2024,6 +2175,16 @@ def p_condicions(t):
             grafo.newchildrenE('NOT BETWEEN')
             grafo.newchildrenF(grafo.index, t[4]['graph'])
             reporte = "<condicions> ::= <argument> NOT BETWEEN <betweenopcion>" + t[1]['reporte']  + t[4]['reporte']
+
+            selectID1 = False
+            selectID2 = False
+            if 'selectID' in t[1]:
+                selectID1 = t[1]['selectID']
+            if 'selectID' in t[4]:
+                selectID2 = t[4]['selectID']
+
+            selectID = selectID1 or selectID2
+
             text = str(t[1]['text'])  + " NOT BETWEEN" + str(t[4]['text'])
 
             tp = tempos.newTemp()
@@ -2103,7 +2264,13 @@ def p_betweenopcion(t):
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     grafo.newchildrenF(grafo.index, t[4]['graph'])
     reporte = "<betweenopcion> ::= <symm> <argument> AND <argument>\n" + t[1]['reporte'] + t[2]['reporte'] + t[4]['reporte']
-        
+
+    selectID = False
+    if 'selectID' in t[1] or 'selectID' in t[3]:
+        selectID = True
+
+
+    select = ''
     try:
         select += t[1]['select']
     except:
@@ -2114,7 +2281,7 @@ def p_betweenopcion(t):
         ''
     text = t[1]['text']  + " AND " + t[3]['text']
 
-    t[0] = {'text' : text, 'c3d' : t[1]['tflag'], 'tflag' : t[3]['tflag'], 'select':select, 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'text' : text, 'c3d' : t[1]['tflag'], 'tflag' : t[3]['tflag'], 'select':select, 'selectID': selectID, 'graph' : grafo.index, 'reporte': reporte}
 
 
 def p_betweenopcionP(t):
@@ -2124,7 +2291,12 @@ def p_betweenopcionP(t):
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     reporte = "<betweenopcion> ::= <argument> AND <argument>\n" + t[1]['reporte'] + t[3]['reporte']
-        
+
+    selectID = False
+    if 'selectID' in t[2] or 'selectID' in t[4]:
+        selectID = True
+
+    select = ''
     try:
         select += t[2]['select']
     except:
@@ -2135,7 +2307,7 @@ def p_betweenopcionP(t):
         ''
 
     text = t[1] + ' '  + t[2]['text'] + " AND " + t[4]['text']
-    t[0] = {'text' : text, 'c3d' : t[2]['tflag'], 'tflag' : t[4]['tflag'], 'select': select, 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'text' : text, 'c3d' : t[2]['tflag'], 'tflag' : t[4]['tflag'], 'select': select, 'selectID':selectID, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_symmetric(t):
     'symm   : SYMMETRIC'
@@ -2248,7 +2420,16 @@ def p_argument_binary(t):
     grafo.newchildrenE(t[2])
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     reporte = "<argument> ::= <argument> "+str(t[2])+"<argument>\n" + t[1]['reporte'] + t[3]['reporte']
-        
+
+    selectID1 = False
+    selectID2 = False
+    if 'selectID' in t[1]:
+        selectID1 = t[1]['selectID']
+    if 'selectID' in t[3]:
+        selectID2 = t[3]['selectID']
+
+    selectID = selectID1 or selectID2
+
     text = t[1]['text']  + ' ' + t[2] + ' '+ t[3]['text']
 
     c3 = t[1]['c3d']
@@ -2265,12 +2446,12 @@ def p_argument_binary(t):
     except:
         ''
 
-    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select':select, 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'text' : text, 'c3d' : c3, 'tflag' : 't'+str(tempos.index), 'select':select, 'selectID': selectID, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_bolano(t):
     'argument : boleano'
     grafo.newnode('ARGUMENT')
-    grafo.newchildrenF(grafo.index, t[1]['graph']) 
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<argument> ::= <boleano>\n" + t[1]['reporte']
     t[0] = t[1]
     t[0]['reporte']=reporte
@@ -2291,7 +2472,7 @@ def p_argument_unary(t): #aquiiiiiiiiiiii
 def p_argument_agrupacion(t):
     '''argument : PARENIZQ argument PARENDER'''
     grafo.newnode('ARGUMENT')
-    grafo.newchildrenF(grafo.index, t[2]['graph']) 
+    grafo.newchildrenF(grafo.index, t[2]['graph'])
     reporte = "<argument> ::=  PARENIZQ <argument> PARENDER\n" + t[2]['reporte']
     text = " (" + t[2]['text'] + ") "
     t[0] =  {'text': text, 'c3d' : t[2]['c3d'], 'tflag' : t[2]['tflag'], 'graph' : grafo.index, 'reporte': reporte}
@@ -2322,7 +2503,7 @@ def p_argument_id(t):
     grafo.newnode('ARGUMENT')
     grafo.newchildrenE(t[1])
     reporte = "<argument> ::= " +  t[1].upper() +"\n"
-    t[0] = {'text' : t[1], 'c3d' : '', 'tflag' : str(t[1]), 'graph' : grafo.index, 'reporte': reporte}
+    t[0] = {'text' : t[1], 'c3d' : '', 'tflag' : str(t[1]), 'selectID': True, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_argument_idpid(t):
     '''argument : ID PUNTO ID'''
@@ -2352,7 +2533,7 @@ def p_boleano(t):
 def p_argument_funcion(t):
     'argument : funcionesLlamada'
     grafo.newnode('ARGUMENT')
-    grafo.newchildrenF(grafo.index, t[1]['graph']) 
+    grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<argument> ::=   <funcionesLlamada> \n" + t[1]['reporte']
     t[0] = {'text' : t[1]['text'], 'c3d' : t[1]['c3d'], 'tflag':str(tempos.getcurrent()), 'select': t[1]['c3d'], 'graph' : grafo.index, 'reporte': reporte}
 
@@ -2962,13 +3143,9 @@ def p_likeopcional(t):
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 #----------------------------------------------DROP--------------------------------------------------------
-
-
 def p_drop(t):
     '''drop :   DATABASE dropdb PTCOMA
             |   TABLE ID PTCOMA
-            |   FUNCTION ID PTCOMA
-            |   PROCEDURE ID PTCOMA
             |   INDEX ID PTCOMA'''
     text =""
     grafo.newnode('DROP')
@@ -2983,6 +3160,55 @@ def p_drop(t):
         reporte += str(t[1])+" " + str(t[2].upper()) + " PTCOMA\n"
         text = t[1] + ' ' + t[2]+ ";"
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
+
+def p_drop_func_proc(t):
+    '''drop : FUNCTION ID PTCOMA
+            | PROCEDURE ID PTCOMA'''
+    grafo.newnode('DROP')
+    grafo.newchildrenE(t[1])
+    grafo.newchildrenE(t[2])
+    reporte = "<drop> ::= "
+    reporte += str(t[1])+" " + str(t[2].upper()) + " PTCOMA\n"
+
+    l.readData(datos)
+    if t[1].lower() == 'function':
+        if not 'funciones_' in datos.tablaSimbolos :
+            printList = 'función no encontrada\n'
+        i = 0
+        for func in datos.tablaSimbolos['funciones_'] :
+            if t[2] == func['name'] :
+
+                if not func['tipo'] == 'Funcion' :
+                   continue
+
+                'eliminar funcion'
+                datos.tablaSimbolos['funciones_'][i]['drop'] = 0
+                #datos.tablaSimbolos['funciones_'].pop(i)
+                #os.remove('../G26/Funciones/' + t[2] +'.py')
+                printList = 'función eliminada\n'
+            i += 1
+        printList = 'función no encontrada\n'
+    else:
+        if not 'funciones_' in datos.tablaSimbolos :
+            printList = 'procedimiento no encontrado\n'
+        i = 0
+        for proc in datos.tablaSimbolos['funciones_'] :
+            if t[2] == proc['name'] :
+
+                if not proc['tipo'] == 'Procedimiento' :
+                   continue
+
+                'eliminar procedure'
+                datos.tablaSimbolos['funciones_'][i]['drop'] = 0
+                #datos.tablaSimbolos['funciones_'].pop(i)
+                #os.remove('../G26/Funciones/' + t[2] +'.py')
+                printList = 'procedimiento eliminado\n'
+            i += 1
+        printList = 'procedimiento no encontrado\n'
+    l.writeData(datos)
+    #t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte, 'printList': printList}
+    t[0] =  {'text': '', 'c3d' : '', 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
+
 
 def p_drop_e(t):
     '''drop : problem'''
@@ -3043,7 +3269,7 @@ def p_alterpiN(t):
     grafo.newchildrenE(t[5])
     grafo.newchildrenE(t[6])
     reporte = "<alter> ::= INDEX ID ALTER ID ENTERO PTCOMA\n"
-    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}  
+    t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_alterpiiexi(t):
     '''iexi    : IF EXISTS'''
@@ -3061,7 +3287,7 @@ def p_alterpiiexi_null(t):
     t[0] = ''
     t[0]['reporte']=reporte
     t[0]['graph']= grafo.index
-    
+
 def p_alterpicoluem(t):
     '''coluem   : ID
                 | '''
@@ -3386,6 +3612,15 @@ def p_value(t):
 
     t[0] =  {'text': t[1], 'c3d' : str(t[1]), 'graph' : grafo.index, 'reporte': reporte}
 
+def p_value_id(t):
+    '''value   : ID'''
+    grafo.newnode('VALUE')
+    grafo.newchildrenE(t[1])
+    reporte = "<value> ::= ID\n"
+    text = '\' + str(' + t[1] + ') +\''
+    c3d = '\' + str(' + t[1] + ') +\''
+    t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte}
+
 def p_valuef(t):
     '''value   : DECIMAL'''
     grafo.newnode('VALUE')
@@ -3496,7 +3731,7 @@ def p_asignaciones_rec(t):
     grafo.newchildrenF(grafo.index, t[5]['graph'])
     t[1]['ast'].append(update.AsignacionUpdate(ident.Identificador(None, t[3]), t[5]['ast']))
     reporte = "<asignacioens> ::= <asignaciones> COMA " + t[3].upper() + " IGUAL <argument>\n" + t[1]['reporte'] + t[5]['reporte']
-    
+
     text =t[1]['text']+" , "+ t[3]+" = "+ t[5]['text']
     t[0] =  {'text': text, 'c3d' : t[5]['select'], 'graph' : grafo.index, 'reporte': reporte}
 
@@ -3544,10 +3779,30 @@ def p_createprocedure(t):
     reporte += t[5]['reporte'] + t[11]['reporte']
     ftext = '@with_goto\n' + 'def ' + t[3] + '():\n'
     ftext += t[5]['text']
-    ftext += t[11]['text']
+    texxto = t[11]['text']
+    texxto = opt.optimizar(texxto)
+    ftext += texxto
     printList = ''
     try:
         if t[1].lower() == 'or' :
+            if not 'funciones_' in datos.tablaSimbolos:
+                datos.tablaSimbolos['funciones_'] = []
+            found = False
+            for func in datos.tablaSimbolos['funciones_'] :
+                if func['name'] == t[3] and func['tipo'] == 'Procedimiento':
+                    found = True
+                    if func['drop'] == 0:
+                        func['drop'] = 1
+                    break
+
+            if not found :
+                datos.tablaSimbolos['funciones_'].append({'name' : t[3], 'return' : None, 'tipo': 'Procedimiento', 'drop':1})
+                #-----Creando archivo de función
+                f = open('./Funciones/'+t[3]+'.py', "w")
+                f.write(ftext)
+                f.close()
+                #-------------------------------
+
             f = open('./Funciones/'+t[2]+'.py', "w")
             f.write(ftext)
             f.close()
@@ -3556,12 +3811,18 @@ def p_createprocedure(t):
         if not 'funciones_' in datos.tablaSimbolos:
             datos.tablaSimbolos['funciones_'] = []
         found = False
+        cont  = 0
         for func in datos.tablaSimbolos['funciones_'] :
             if func['name'] == t[3] and func['tipo'] == 'Procedimiento':
                 found = True
+                if func['drop'] == 0:
+                    datos.tablaSimbolos['funciones_'].pop(cont)
+                    found = False
                 break
+            cont = cont + 1
+
         if not found :
-            datos.tablaSimbolos['funciones_'].append({'name' : t[3], 'return' : None, 'tipo': 'Procedimiento'})
+            datos.tablaSimbolos['funciones_'].append({'name' : t[3], 'return' : None, 'tipo': 'Procedimiento', 'drop':1})
             #-----Creando archivo de función
             f = open('./Funciones/'+t[3]+'.py', "w")
             f.write(ftext)
@@ -3569,7 +3830,9 @@ def p_createprocedure(t):
             #-------------------------------
         else :
             printList = 'La funcion ' + t[3] + ' ya esta creada.\n'
-        print(datos)
+            mistake = error("Semantico", 'La funcion ' + t[3] + ' ya esta creada.', 0)
+            errores.append(mistake)
+
         l.writeData(datos)
     t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
 
@@ -3709,12 +3972,17 @@ def p_createfunction(t):
     if not 'funciones_' in datos.tablaSimbolos:
         datos.tablaSimbolos['funciones_'] = []
     found = False
+    cont = 0
     for func in datos.tablaSimbolos['funciones_'] :
         if func['name'] == t[2] and func['tipo'] == 'Funcion':
             found = True
+            if func['drop'] == 0:
+                datos.tablaSimbolos['funciones_'].pop(cont)
+                found = False
             break
+        cont = cont + 1
     if not found :
-        datos.tablaSimbolos['funciones_'].append({'name' : t[2], 'return' : t[7]['text'], 'tipo': 'Funcion'})
+        datos.tablaSimbolos['funciones_'].append({'name' : t[2], 'return' : t[7]['text'], 'tipo': 'Funcion', 'drop':1})
         #-----Creando archivo de función
         f = open('./Funciones/'+t[2]+'.py', "w")
         f.write(ftext)
@@ -3722,6 +3990,8 @@ def p_createfunction(t):
         #-------------------------------
     else :
         printList = 'La funcion ' + t[2] + ' ya esta creada.\n'
+        mistake = error("Semantico", 'La funcion ' + t[2] + ' ya esta creada.', 0)
+        errores.append(mistake)
 
     l.writeData(datos)
     t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
@@ -3801,7 +4071,7 @@ def p_body_strcB(t):
 
 def p_createfunp(t):
     'bodystrc : problem'
-    t[0] =  {'text':'' , '' : '',  'graph' : grafo.index, 'reporte': ''}
+    t[0] =  {'text':'' , 'c3d' : '',  'graph' : grafo.index, 'reporte': ''}
 
 def p_cuerpodeclare(t):
     'cuerpodeclare : DECLARE declarations'
@@ -3848,7 +4118,7 @@ def p_declartion_cf(t):
 def p_createfunp(t):
     'declaration : problem'
     t[0] =  {'text':'' , '' : '',  'graph' : grafo.index, 'reporte': ''}
-    
+
 def p_declarationc_a(t):
     '''declarationc :   defaultop PTCOMA'''
     grafo.newnode('DECLARATIONC')
@@ -3882,7 +4152,7 @@ def p_default_argocond(t):
     grafo.newnode('ARGOCOND')
     grafo.newchildrenE(t[1])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
-    reporte = "<argocond> ::=  <argument>\n" 
+    reporte = "<argocond> ::=  <argument>\n"
     reporte +="               | <condiciones> \n" +t[1]['reporte']
     t[0] =  {'text': text, 'c3d' : t[1]['c3d'] , 'graph' : grafo.index, 'reporte': reporte}
 
@@ -3893,7 +4163,7 @@ def p_statements_cf(t):
     grafo.newnode('STATEMENTS')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
-    reporte = "<statements> ::=  <statements>  <statement>\n" 
+    reporte = "<statements> ::=  <statements>  <statement>\n"
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_statements_cf_a(t):
@@ -3901,7 +4171,7 @@ def p_statements_cf_a(t):
     text = t[1]['text']  + '\n'
     grafo.newnode('STATEMENTS')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    reporte = "<statements> ::=  <statement> \n" 
+    reporte = "<statements> ::=  <statement> \n"
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_stament_cf(t):
@@ -3946,7 +4216,7 @@ def p_stament_casf(t):
     '''statement : '''
     text = ""
     grafo.newnode('STATEMENT')
-    reporte = "<statement> ::= NULL \n" 
+    reporte = "<statement> ::= NULL \n"
     t[0] =  {'text': text, 'c3d' : '' , 'graph' : grafo.index, 'reporte': reporte}
 
 def p_statement_b(t):
@@ -4005,7 +4275,7 @@ def p_finasigment_args(t):
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     reporte = "<fasign> ::= <argument> PTCOMA \n" + t[1]['reporte']
     t[0] =  {'text': text, 'c3d' : t[1]['c3d'],'flag': t[1]['text'] , 'graph' : grafo.index, 'reporte': reporte}
-    
+
 def p_finasigment_inst(t):
     '''fasign   : instruccion'''
     grafo.newnode('FASIGN')
@@ -4074,7 +4344,7 @@ def p_if_end(t):
     c3d = ""
     tflagif = ""
     if t[1].lower() == 'end':
-        reporte = "<ifend> ::=  END IF\n" 
+        reporte = "<ifend> ::=  END IF\n"
         tflagif = tempos.newTempif()
         c3d = ""
     elif t[1].lower() == 'else':
@@ -4156,7 +4426,7 @@ def p_elsecase(t):
     else:
         code = ""
         grafo.newnode('END CASE')
-        reporte = "<elsecase> ::= END CASE  \n" 
+        reporte = "<elsecase> ::= END CASE  \n"
     t[0] = {'text': text, 'c3d': code, 'graph' : grafo.index, 'reporte': reporte}
 
 def p_expresionlist(t):

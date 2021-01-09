@@ -17,7 +17,44 @@ class Select_Dist(Instruccion):
     def __init__(self):
         vairable = 4
 
-
+    def get3D(self, Select, ts, lista_optimizaciones_C3D):
+        etiqueta = GeneradorTemporales.nuevo_temporal()
+        code3d = '\n     # ---------SELECT----------- \n'
+        code3d += '    top_stack = top_stack + 1 \n'
+        code3d += '    %s = \"select ' % etiqueta
+        bdactual = ts.buscar_sim("usedatabase1234")
+        if  bdactual is not None:
+            BD = ts.buscar_sim(bdactual.valor)
+            entornoBD = BD.Entorno
+            listaTablas = entornoBD.simbolos
+        if Select.columnas == '*':
+            code3d += '* from '
+        else:
+            columnitas = ''
+            for col in Select.columnas:
+                if isinstance(col, IdAsId):
+                    columnitas += col.id1.id + ' as ' + col.id2.id + ','
+                elif isinstance(col, IdId):
+                    columnitas += col.id1.id + '.' + col.id2.id + ','
+                else:
+                    columnitas += str(col.id) + ','
+            columnitas2 = list(columnitas)
+            size = len(columnitas2) - 1
+            del(columnitas2[size])
+            s = "".join(columnitas2)
+            code3d += s + ' from '
+        tablas = ''
+        for tables in Select.inner:
+            tablas += str(tables.id) + ','
+        tablitas = list(tablas)
+        siz = len(tablitas) - 1
+        del (tablitas[siz])
+        t = "".join(tablitas)
+        code3d += t
+        code3d += ';\" \n'
+        code3d += '    stack[top_stack] = %s \n' % etiqueta
+        return code3d
+    
     def ejecutar(y,Select,ts,consola,exceptions):
 
 

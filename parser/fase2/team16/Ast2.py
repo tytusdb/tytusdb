@@ -951,12 +951,15 @@ class Ast2:
                 self.GrafoExpresionCase(j.Reservada, j.ListaExpresiones, padre)
             # elif isinstance(j, Campo_Accedido):
             #     self.GrafoCampo_Accedido(j.NombreT, j.Columna, j.Lista_Alias, padre)
+            elif isinstance(j,ProcesoCount):
+                self.Grafo_Count(j, padre)
             else:
                 print("No Ningun Tipo  vos ")
 
+
+
     # Recorrido de la lista de Nombres de Tablas
     # ----------------------------------------------------------------------------------------------------------
-
     def RecorrerListadeNombres(self, Nombres, padre):
         for i in Nombres:
 
@@ -3093,7 +3096,7 @@ class Ast2:
             for ele in Parametros:
                 if(isinstance(ele,Parametros_)):
                     self.inc()
-                    dot.node('Node' + str(self.i), ele.Tipo + " " +  ele.Nombre + " "+ ele.Valor)
+                    dot.node('Node' + str(self.i), str(ele.Tipo) + " " +  str(ele.Nombre) + " "+ str(ele.Valor))
                     dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
 
 
@@ -3550,3 +3553,16 @@ class Ast2:
         self.inc()
         dot.node('Node' + str(self.i), ob.id_indice + " ;  ")
         dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def Grafo_Count(self, objeto, padre):
+            global dot
+            ob: ProcesoCount = objeto
+
+            self.inc()
+            nuevoPadre = self.i
+            dot.node('Node' + str(self.i), "COUNT")
+            dot.edge(padre, 'Node' + str(self.i))
+
+            self.inc()
+            dot.node('Node' + str(self.i), "COUNT ("+ ob.Columna + ")")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))

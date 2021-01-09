@@ -264,7 +264,7 @@ def p_column(p):
     if len(p) == 4:
         p[0] = CreateCol(p[1], p[2], p[3])
         for index, var in enumerate(p[3]):
-                if index > 0: string += f', {var["_tac"]}'
+                if index > 0: string += f' {var["_tac"]} '
                 else: string += f'{var["_tac"]}'
         p[0]._tac = f'{p[1]} {p[2]._tac} {string}'
 
@@ -734,14 +734,25 @@ def p_call_functions_or_procedure(p):
     if p.slice[1].type == 'EXECUTE':
         if len(p) == 5: #Tercera produccion
             p[0] = Funcion(p[2], [], [], None, False, True, noLine, noColumn)
+            p[0]._tac = f"{p[2]}()"
         else:           #Cuarta produccion
             p[0] = Funcion(p[2], p[4], [], None, False, True, noLine, noColumn)
+            string = ''
+            for index, var in enumerate(p[4]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
+            p[0]._tac = f"{p[2]}({string})"   
     else:
         if len(p) == 5: #Primera produccion
             p[0] = Funcion(p[1], p[3], [], None, False, True, noLine, noColumn)
+            string = ''
+            for index, var in enumerate(p[4]):
+                if index > 0: string += f', {var}'
+                else: string += f'{var}'
+            p[0]._tac = f"{p[1]}({string})" 
         else:           #Segunda produccion
             p[0] = Funcion(p[1], [], [], None, False, True, noLine, noColumn)
-
+            p[0]._tac = f"{p[1]}()"
 
 def p_option_col(p):  # TODO verificar
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
@@ -1037,38 +1048,36 @@ def p_sql_functions_drop_inst(p):
                         | DROP FUNCTION DETAIL_FUNC_DROP SEMICOLON
     '''
     string = ''
-    print('TE AVS A DROPEAR LAS :')
     if len(p) == 7:
         for index, var in enumerate(p[5]):
             if index > 0: string += f', {var["_tac"]}'
             else: string += f'{var["_tac"]}'
-        p[0] = DeleteFunction(p[5], p.lineno(1), find_column(p.slice[1]))
+        p[0] = DeleteFunction(p[5], True, p.lineno(1), find_column(p.slice[1]))
         p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {string};'
     else:
         for index, var in enumerate(p[3]):
             if index > 0: string += f', {var["_tac"]}'
             else: string += f'{var["_tac"]}'
-        p[0] = DeleteFunction(p[3], p.lineno(1), find_column(p.slice[1]))
+        p[0] = DeleteFunction(p[3], False, p.lineno(1), find_column(p.slice[1]))
         p[0]._tac = f'{p[1]} {p[2]} {string};'
 
 def p_sql_procedures_drop_inst(p):
     '''SQL_DROP_PROCEDURE : DROP PROCEDURE IF EXISTS DETAIL_FUNC_DROP SEMICOLON
                           | DROP PROCEDURE DETAIL_FUNC_DROP SEMICOLON
     '''
-    print('TE AVS A DROPEAR LAS :')
     string = ''
     if len(p) == 7:
         for index, var in enumerate(p[5]):
             if index > 0: string += f', {var["_tac"]}'
             else: string += f'{var["_tac"]}'
 
-        p[0] = DeleteFunction(p[5], p.lineno(1), find_column(p.slice[1]))
+        p[0] = DeleteFunction(p[5], True, p.lineno(1), find_column(p.slice[1]))
         p[0]._tac = f'{p[1]} {p[2]} {p[3]} {p[4]} {string};'
     else:
         for index, var in enumerate(p[3]):
             if index > 0: string += f', {var["_tac"]}'
             else: string += f'{var["_tac"]}'
-        p[0] = DeleteFunction(p[3], p.lineno(1), find_column(p.slice[1]))
+        p[0] = DeleteFunction(p[3], False, p.lineno(1), find_column(p.slice[1]))
         p[0]._tac = f'{p[1]} {p[2]} {string};'
 
 def p_sql_detail_func_drop(p):
@@ -1120,6 +1129,7 @@ def p_returns_type_func(p):
                    | VOID
                    | TABLE LEFT_PARENTHESIS LIST_ARGUMENT RIGHT_PARENTHESIS
     '''
+    p[0] = p[1]
 
 def p_list_argument(p):
     '''LIST_ARGUMENT : LIST_ARGUMENT COMMA param
@@ -1212,6 +1222,8 @@ def p_sql_var_declarations(p):
     '''
     if len(p) == 5:
         p[0] = DeclaracionID(p[1], p[2], p[3],find_column(p.slice[1]), p.slice[1].lineno)
+    elif len(p) == 4:
+        p[0] = DeclaracionID(p[1], p[2], None,find_column(p.slice[1]), p.slice[1].lineno)
 
 def p_type_param(p):
     '''typeDeclare : typecol
@@ -1795,13 +1807,13 @@ def p_select_without_order(p):
         lista_union.append(p[4])
         p[0] = TypeQuerySelect(lista_union, p.lineno(3),
                                find_column(p.slice[3]))
-        p[0]._tac = f'{p[1]._tac} {p[2]} {p[3]} {p[4]._tac}'
+        p[0]._tac = f'({p[1]._tac}) {p[2]} {p[3]} ({p[4]._tac})'
     elif len(p) == 4:
         lista_union.append(p[1])
         lista_union.append(p[2])
         lista_union.append(p[3])
         p[0] = TypeQuerySelect(lista_union, 0, 0)
-        p[0]._tac = f'{p[1]._tac} {p[2]} {p[3]._tac}'
+        p[0]._tac = f'({p[1]._tac}) {p[2]} ({p[3]._tac})'
 
 def p_select_set(p):
     '''SELECTSET : SELECTQ 
@@ -2471,15 +2483,15 @@ def p_mathematical_functions(p):
 
 
 def p_binary_string_functions(p):
-    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
-                               | TRIM LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | MD5 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | SHA256 LEFT_PARENTHESIS SQLNAME RIGHT_PARENTHESIS
-                               | SUBSTR LEFT_PARENTHESIS SQLNAME COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
-                               | DECODE LEFT_PARENTHESIS SQLNAME COMMA SQLNAME  RIGHT_PARENTHESIS'''
+    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SUBSTRING LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | TRIM LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | MD5 LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SHA256 LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SUBSTR LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION AS DATE RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION AS INTEGER RIGHT_PARENTHESIS
+                               | DECODE LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION  RIGHT_PARENTHESIS'''
     if p.slice[1].type == "LENGTH":
         p[0] = Length(p[3], p.lineno(1), find_column(p.slice[1]))
     elif p.slice[1].type == "SUBSTRING":

@@ -12,6 +12,7 @@ class Call(Instruccion):
         pass
         
     def getCodigo(self, tabla, arbol):
+        codigo = f""
         if self.expressions:
             temp_tam_func = arbol.getTemporal()
             
@@ -38,7 +39,8 @@ class Call(Instruccion):
         codigo += f"\t{temp_return_index} = pointer + 0\n"
         codigo += f"\t{temp_return} = stack[{temp_return_index}]\n"
         codigo += f"\tpointer = pointer - {len(self.expressions)}\n"
+        codigo += f"\tprint({temp_return})\n"
         
         arbol.consola.append(codigo)
             
-        return codigo
+        return {'codigo' : codigo, 'dir': temp_return}

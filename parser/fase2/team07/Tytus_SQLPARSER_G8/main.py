@@ -20,10 +20,20 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 
 from storageManager.jsonMode import *
 
+from Codigo_3D import FuncionesPara3D
+from Codigo_3D import Optimizacion
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
+
+
 import sintactico
+import graficarArbol
+import sintacticoGraph
 
 global arbol
 arbol = None
+global tablaSym
+tablaSym = None
+
 '''
 instruccion = CreateDatabase("bd1",None,"TRUE",None,None,None,None, 1,2)
 instruccion.ejecutar(None,None)
@@ -32,8 +42,8 @@ instruccion.ejecutar(None,None)
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Expresiones import Primitivo, Logica
 
-p1 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
-p2 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
+p1 = Primitivo.Primitivo(True,Tipo("",Tipo_Dato.BOOLEAN),1,1)
+p2 = Primitivo.Primitivo(True,Tipo("",Tipo_Dato.BOOLEAN),1,1)
 a = Arbol([])
 op = Logica.Logica(p1,p2,'AND',1,2)
 print('Resultado logica: ' + str(suma.ejecutar(None,a)))
@@ -42,8 +52,8 @@ print('Resultado logica: ' + str(suma.ejecutar(None,a)))
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Expresiones import Primitivo, Aritmetica
 
-p1 = Primitivo.Primitivo(1,Tipo(Tipo_Dato.BOOLEAN),1,1)
-p2 = Primitivo.Primitivo(2,Tipo(Tipo_Dato.INTEGER),1,1)
+p1 = Primitivo.Primitivo(1,Tipo("",Tipo_Dato.BOOLEAN),1,1)
+p2 = Primitivo.Primitivo(2,Tipo("",Tipo_Dato.INTEGER),1,1)
 a = Arbol([])
 suma = Aritmetica.Aritmetica(p1,p2,'+',1,2)
 suma.ejecutar(None,a)
@@ -60,7 +70,7 @@ class interfaz():
         #img = PhotoImage(file='img/icons/Postgresql.ico')
         #self.window.tk.call('wm', 'iconphoto', self.window._w, img)
         self.window.configure(background="#6a8d92")
-        self.window.title("Query Tool - Grupo 8")
+        self.window.title("Query Tool - Grupo 7")
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
         w, h = 1370,670
         self.window.geometry("%dx%d+0+0" % (w, h))
@@ -80,6 +90,11 @@ class interfaz():
         mnreportes.add_command(label='AST', command=self.ast_click)
         mnreportes.add_command(label='Reporte Gramatical', command=self.repDin_click)
         menu.add_cascade(label='Reportes', menu=mnreportes)
+        menu3d = Menu(menu,tearoff=0)
+        menu3d.add_command(label='Traducir C3D', command=self.traducirc3d_click)
+        menu3d.add_command(label='Ejecutar C3D', command=self.ejecutarc3d_click)
+        menu3d.add_command(label='Optimizar C3D', command=self.optimizarc3d_click)
+        menu.add_cascade(label='3 Direcciones', menu=menu3d)
         self.window.config(menu=menu)
 
         ##############################################BOTONES####################################
@@ -100,7 +115,7 @@ class interfaz():
         self.txtsalida =[]
         self.crear_tab("","Nuevo.sql")
         
-        lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=15,bg='#80b192')
+        lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=17,bg='#80b192')
         lblentrada.place(x=20,y=80)
         lblsalida= Label(self.window,text="Consola de Salida:",height=1, width=15,bg='#80b192')
         lblsalida.place(x=20,y=350)
@@ -112,7 +127,7 @@ class interfaz():
         self.file=""
 
         self.window.mainloop()
-
+    
 
     def ejecutar(self):
         print("Hello World!")
@@ -131,6 +146,61 @@ class interfaz():
         print(event.width,event.height)
 
     ##############################################EVENTOS DE LOS BOTONES DEL MENU####################################
+    def traducirc3d_click(self):
+        global arbol
+        arbol = None
+        global tablaSym
+        dropAll()
+        os.system ("cls")
+        #Elimina el Contenido de txtsalida
+        self.txtsalida[self.tab.index("current")].delete(1.0,END)
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
+
+        tablaGlobal = Tabla(None)
+        inst = sintactico.ejecutar_analisis(input)
+        arbol = Arbol(inst)
+        resultado = ""
+        for i in arbol.instrucciones:
+            res = i.traducir(tablaGlobal,arbol,"")
+            if isinstance(res, Simbolo3d):
+                resultado += res.codigo
+            else:
+                resultado += res
+
+        FuncionesPara3D.FuncionesPara3D.GenerarArchivo(resultado)
+        tablaSym = tablaGlobal
+        print("Archivo Traducido")
+        pass
+
+    def ejecutarc3d_click(self):
+        dropAll()
+        '''
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("CREATE DATABASE IF NOT EXISTS test\
+                                                            OWNER = 'root'\
+                                                            MODE = 1;")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("USE test;")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("CREATE TABLE persona (\
+                                                            idpersona integer NOT NULL primary key,\
+                                                            nombre varchar(15));")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(1,\"Carlos\");")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(2,\"Maria\");")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("insert into persona values(3,\"David\");")
+        FuncionesPara3D.FuncionesPara3D.ejecutarsentecia("SELECT * FROM persona;")'''
+
+        from Codigo_3D import Codigo3D
+        #c3d.ejecutar()
+        mensaje = ""
+        for m in FuncionesPara3D.arbol.consola:
+            mensaje += m + '\n'
+        self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+        pass
+
+    def optimizarc3d_click(self):
+        op = Optimizacion.Optimizacion()
+        op.Optimizar()
+        op.GenerarReporte()
+        pass
+
     def abrir_click(self):
         try:
             self.file = filedialog.askopenfilename(initialdir= os.path.dirname(__file__))
@@ -169,10 +239,21 @@ class interfaz():
     def tblsimbolos_click(self):
         # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
         global arbol
-        rs.crear_tabla(arbol)  
+        global tablaSym
+        if arbol is not None:
+            rs.crear_tabla(arbol, tablaSym)
+        else:
+            rs.crear_tabla(FuncionesPara3D.arbol, FuncionesPara3D.tablaGlobal)  
         arbol = None         
 
     def ast_click(self):
+        input=self.txtentrada[self.tab.index("current")].get(1.0,END)
+        inst = sintacticoGraph.ejecutar_analisis(input)
+        if len(sintactico.lista_lexicos)>0:
+            messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico.lista_lexicos)
+        grafica = graficarArbol.GraphArbol(inst)
+        grafica.crearArbol()
         print("ast")   
     
     def repDin_click(self):
@@ -184,6 +265,7 @@ class interfaz():
     def btnanalizar_click(self):
         global arbol
         arbol = None
+        global tablaSym
         dropAll()
         os.system ("cls")
         #Elimina el Contenido de txtsalida
@@ -212,6 +294,7 @@ class interfaz():
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
         # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
+        tablaSym = tablaGlobal
         mensaje = ''
         for m in arbol.consola:
             mensaje += m + '\n'

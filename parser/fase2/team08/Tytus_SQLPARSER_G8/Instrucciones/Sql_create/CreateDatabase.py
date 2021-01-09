@@ -44,7 +44,8 @@ class CreateDatabase(Instruccion):
             arbol.setListaBd(nueva)
 
     def analizar(self, tabla, arbol):
-        print("hola")
+        #print("hola")
+        pass
 
     def traducir(self, tabla, arbol):
         # valor -----> nombre de la tabla

@@ -49,6 +49,12 @@ Adicionalmente a los requerimiento para el desarrollo se debe tener acceso a las
  - [jsonMode.py](https://github.com/tytusdb/tytus/blob/main/storage/storageManager/jsonMode.py)
 - [numpy](https://pypi.org/project/numpy/)
 - [tabulate](https://pypi.org/project/tabulate/)
+
+Numpy y tabulate pueden ser instalados con los siguientes comandos respectivamente:
+```python 
+  pip install numpy && pip install tabulate
+```
+
  
 
 ## :computer: Flujo del proyecto
@@ -76,7 +82,7 @@ De manera general diremos que se ha implementado un patron de programación deno
 
 De una forma muy general podemos destacar las siguientes carpetas y clases. 
 
-* :page_facing_up: [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/parse/ast_node.py): Es la clase abstracta base para nuestro patrón intérprete. 
+* :page_facing_up: [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/ast_node.py): Es la clase abstracta base para nuestro patrón intérprete. 
 
     Representa los nodos para nuestro árbol de sintaxis abstracta [AST](https://en.wikipedia.org/wiki/Abstract_syntax_tree).
 
@@ -87,41 +93,55 @@ De una forma muy general podemos destacar las siguientes carpetas y clases.
         * line : guarda el número de línea
         * column: guarda el número de columna
         * additioal_args: en caso de ser necesario acarrear algún argumento.
-    * Método *execute*: Este método se implementa/ejecuta en cada instrucción.
+    * Método *execute*: Este método se implementa/ejecuta en cada instrucción y contiene las instrucciones
+      para la ejecución del nodo de la gramática que representa.
+    * Método *generate*: Este método se implementa/ejecuta en cada instrucción y contiene las instrucciones
+      para la generación de código de 3 direcciones para la gramática que representa.
 
     
-* :page_facing_up: [errors.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/parse/errors.py) : Clase que permite instanciar errores de tipo lexico, sintáctico, semántico y en tiempo de ejecución.
+* :page_facing_up: [errors.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/errors.py) : Clase que permite instanciar errores de tipo lexico, sintáctico, semántico y en tiempo de ejecución.
 
-* :page_facing_up: [symbol_table.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/parse/symbol_table.py): Clase basada en una lista que permite la administración de los símbolos cargados por el sistema. Su unico atributo es *symbol*
+* :page_facing_up: [symbol_table.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/symbol_table.py): Clase basada en una lista que permite la administración de los símbolos cargados por el sistema. Su unico atributo es *symbol*
 
     Los tipos de **symbol** que permite son: 
     * Database
     * Table
     * Field
-    * Type 
+    * Type
+    * Index
 
     Esta clase provee de varios métodos para poder ingresar, eliminar o modificar los símbolos en tiempo de ejecución de la tabla símbolos.
 
-* :page_facing_up: [treeGraph.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/treeGraph.py):Clase que permite la generación de la gráfica del AST y del reporte gramatical que muestra la *definición dirigida por la sintaxis-DDS* en formato BNF.
+* :page_facing_up: [treeGraph.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/treeGraph.py):Clase que permite la generación de la gráfica del AST y del reporte gramatical que muestra la *definición dirigida por la sintaxis-DDS* en formato BNF.
 
     Hace uso de [Graphviz](https://graphviz.org/), el caul ya debe de estar instalado en la máquina para poder generar los reportes antes mencionados.
 
 
-* :page_facing_up: [query_tool.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/query_tool.py) : 
+* :page_facing_up: [query_tool.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/query_tool.py) : 
     Genera la intefaz para el usuario. Auxiliada por el módulo [tkinter](https://docs.python.org/3/library/tkinter.html) de Python, es la interfaz estándar de Python para el kit de herramientas Tk GUI.
 
-* :page_facing_up: [grammarReview.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/grammarReview.py): Analizador léxico y sintáctico basado en [PLY](https://www.dabeaz.com/ply/)
-* :file_folder: [Carpeta parse](https://github.com/tytusdb/tytus/tree/main/parser/team03/parse): Proporciona las clases necesarias para el análisis sintáctico
-    * :file_folder: [expressions](https://github.com/tytusdb/tytus/tree/main/parser/team03/parse/expressions): Conjunto de clases abastractas que herada de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/parse/ast_node.py) para la ejecución de las expresiones enums, basicas de la gramática, funciones matemáticas y funciones trigonométricas
+* :page_facing_up: [grammarReview.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/grammarReview.py): Analizador léxico y sintáctico basado en [PLY](https://www.dabeaz.com/ply/)
+* :file_folder: [Carpeta parse](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/parse): Proporciona las clases necesarias para el análisis sintáctico
+    * :file_folder: [expressions](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/parse/expressions): Conjunto de clases abastractas que herada de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/ast_node.py) para la ejecución de las expresiones enums, basicas de la gramática, funciones matemáticas y funciones trigonométricas
 
-    * :file_folder: [functions](https://github.com/tytusdb/tytus/tree/main/parser/team03/parse/functions): Conjunto de clases abastractas que heredan de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/parse/ast_node.py) para la ejecución de funciones agregadas, funciones de control y funciones para strings
+    * :file_folder: [functions](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/parse/functions): Conjunto de clases abastractas que heredan de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/ast_node.py) para la ejecución de funciones agregadas, funciones de control y funciones para strings
 
-    * :file_folder: [sql_common](https://github.com/tytusdb/tytus/blob/main/parser/team03/parse/sql_common/sql_general.py): Conjunto de clases abstractas que heredan de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/parse/ast_node.py) para la ejecución de consultas básicas para SQL.
+    * :file_folder: [sql_common](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/sql_common/sql_general.py): Conjunto de clases abstractas que heredan de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/ast_node.py) para la ejecución de consultas básicas para SQL.
     
-    * :file_folder: [sql_ddl](https://github.com/tytusdb/tytus/tree/main/parser/team03/parse/sql_ddl) : Conjunto de clases abstractas que heredan de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/parse/ast_node.py) para la ejecución de sentencias DDL de SQL
+    * :file_folder: [sql_ddl](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/parse/sql_ddl) : Conjunto de clases abstractas que heredan de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/ast_node.py) para la ejecución de sentencias DDL de SQL
 
-    * :file_folder: [sql_dml](https://github.com/tytusdb/tytus/tree/main/parser/team03/parse/sql_dml):  Conjunto de clases abstractas que heredan de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/team03/parse/ast_node.py) para la ejecución de sentencias DML de SQL
+    * :file_folder: [sql_dml](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/parse/sql_dml):  Conjunto de clases abstractas que heredan de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/ast_node.py) para la ejecución de sentencias DML de SQL
+    
+    * :file_folder: [plpgsql](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/parse/sql_dml):  Conjunto de clases abstractas que heredan de [ast_node.py](https://github.com/tytusdb/tytus/blob/main/parser/fase2/team03/parse/ast_node.py) para la ejecución de PL/pgSQL
 
-
-
-
+* :file_folder: [Carpeta TAC](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/TAC): Contiene el código necesario para optimización y escritura de código de 3 direcciones
+    
+    * :page_facing_up: [quadruple.py](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/TAC/quadruple.py):  
+      Conjunto de métodos que manejan código generado a modo de Cuadruple, además de reglas de optimización ejecutadas 
+    
+* :page_facing_up: [c3d_output.py](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/c3d_output.py):  
+Archivo generado con el código de 3 direcciones resultante
+* :page_facing_up: [wrapper.py](https://github.com/tytusdb/tytus/tree/main/parser/fase2/team03/wrapper.py):  
+Archivo que empaqueta la funcionalidad del parser para ejecución de 3 direcciones, de modo que el archivo c3d_output.py
+  debe estar en este mismo directorio para funcionar correctamente.
+        

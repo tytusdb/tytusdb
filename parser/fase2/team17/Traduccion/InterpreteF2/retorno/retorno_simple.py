@@ -4,6 +4,7 @@ from InterpreteF2.Arbol import Arbol
 from InterpreteF2.Valor.Valor import Valor
 from InterpreteF2.Primitivos.TIPO import TIPO
 from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
+from InterpreteF2.Reporteria.ErroresSemanticos import ErroresSemanticos
 
 
 class retorno_simple(NodoArbol):
@@ -20,10 +21,19 @@ class retorno_simple(NodoArbol):
             if self.exp == None:
                 arbol.addC3D("return")
             else:
-                tmp = self.exp.traducir(entorno, arbol)
-                arbol.addC3D("return " + str(tmp) + "")
+                try:
+                    tmp = self.exp.traducir(entorno, arbol)
+                    arbol.addC3D("return " + str(tmp) + "")
+                except:
+                    arbol.addC3D("return")
+                    descripcion = 'Expresion invalida para el retorn'
+                    reportero = ErroresSemanticos(descripcion, str(self.linea), str(self.columna), 'retorn')
+                    arbol.ErroresSemanticos.append(reportero)
         except:
             arbol.addC3D("return")
+            descripcion = 'Expresion invalida para el retorn'
+            reportero = ErroresSemanticos(descripcion, str(self.linea), str(self.columna), 'retorn')
+            arbol.ErroresSemanticos.append(reportero)
         return
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):

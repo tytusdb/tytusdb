@@ -22,6 +22,11 @@ class AlterTable(Instruccion):
         else:
             Excepcion(3,"Semántico","No se encuentra la base de datos",self.linea,self.columna)
 
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 '''
 instruccion = AlterDatabase("hola mundo",None, 1,2)
 

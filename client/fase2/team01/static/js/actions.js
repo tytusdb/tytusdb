@@ -3,9 +3,21 @@
 $(document).ready(function () {
 
 
-  const div = document.getElementById("contenido");
-
-  div.innerHTML = `
+  //const div = document.getElementById("contenido");
+  const pest = document.getElementById("contenido");
+  pest.innerHTML = `
+    <nav>
+      <div class="nav nav-tabs" id="my-tab" role="tablist">
+      <a class="nav-item nav-link active" id="nav-txt1-tab" data-toggle="tab" href="#nav-txt1" role="tab" aria-controls="nav-txt1" aria-selected="true">Pestaña1</a>
+      </div>
+      <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-txt1" role="tabpanel" aria-labelledby="nav-home-tab">
+        <textarea placeholder="Escribir Query Aqui" name="content" id="pestanaContenidoTextArea1" value="{{ request.form.content }}" style="height: 80%"></textarea>
+        </div>
+      </div>
+    </nav>
+  `;
+ /* div.innerHTML = `
   <ul class="nav nav-tabs">
     <li id="ePestana1" class="active" name="pestana"><a data-toggle="tab" href="#Archivo1">Archivo1</a></li>
     <li style="display:none;" id="ePestana2" name="pestana"><a data-toggle="tab" href="#Archivo2">Archivo2</a></li>
@@ -36,7 +48,7 @@ $(document).ready(function () {
       value="{{ request.form.content }}" style="height: 80%"></textarea>
     </div>
   </div>
-  `;
+  `; */
 
   addCodeMirror2();
 });

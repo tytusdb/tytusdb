@@ -21,6 +21,9 @@ class Arbol():
         self.cadena = ""
         self.relacionales = False
         self.contador = 0
+        self.expre_query = False
+        self.tamanio_actual = None
+        self.etiqueta_fin = ''
 
     def setEnum(self, nuevo):
         self.lEnum.append(nuevo)
@@ -68,7 +71,7 @@ class Arbol():
     def renombrarBd(self, nombre1, nombre2):
         for x in range(0,len(self.listaBd)):
             if(self.listaBd[x].nombreTabla == nombre2):
-                print(self.listaBd[x])
+                #print(self.listaBd[x])
                 return self.listaBd[x]
 
     def eliminarTabla(self, nombreT):
@@ -99,10 +102,10 @@ class Arbol():
 
 
     def devolverColumnasTabla(self,nombreTabla):
-        print(nombreTabla)
+        #print(nombreTabla)
         tabla = self.devolviendoTablaDeBase(nombreTabla)
         if(tabla == 0) or (tabla == None):    
-            #print("No se encontro la tabla")
+            print("No se encontro la tabla")
             return 0
         else:
             return tabla.devolverTodasLasColumnas()
@@ -234,3 +237,8 @@ class Arbol():
 
     def getRelacionales(self):
         return self.relacionales
+
+    def devolverTablas(self):
+        for db in self.listaBd:
+            if db.nombreTabla == self.bdUsar:
+                return db.tablas

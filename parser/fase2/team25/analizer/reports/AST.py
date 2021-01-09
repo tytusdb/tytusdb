@@ -27,9 +27,9 @@ class AST:
 
     def drawGraph(self):
         global dot
-        dot.render("test-output/round-table.gv", view=False)
-        "test-output/round-table.gv.jpg"
+        dot.render("./test-output/round-table.gv", view=False)
+        "./test-output/round-table.gv.jpg"
         dot.format = "svg"
-        dot.render("test-output/round-table.gv", view=False)
-        "test-output/round-table.gv.svg"
+        dot.render("./test-output/round-table.gv", view=False)
+        "./test-output/round-table.gv.svg"
         dot = Digraph(comment="AST")

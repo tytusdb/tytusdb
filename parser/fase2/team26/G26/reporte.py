@@ -1,4 +1,6 @@
-import os   
+import os
+from Utils.fila import fila
+
 def reporteTabla( datos):
     f = open("./Reportes/Reporte_TablaSimbolos.html", "w")
     f.write("<!DOCTYPE html>\n")
@@ -13,8 +15,29 @@ def reporteTabla( datos):
     f.write("       <p><b>Reporte Tabla de Simbolos<b></p>\n")
     f.write("       <div>\n")
     for a in datos.tablaSimbolos:
+        if a == 'funciones_':
+            f.write("<div>\n")
+            f.write("<p class='base'>Funciones/Procedimientos</p>")
+            f.write("<center>\n")
+            f.write("<table>\n")
+            f.write("<tr class='titulo'>   <td><b>Nombre</b></td>   <td><b>Return</b></td>   <td><b>Tipo</b></td></tr>\n")
+            for func in datos.tablaSimbolos['funciones_']:
+                if func['drop'] == 1:
+                    f.write("               <tr><td>")
+                    f.write(func['name'])
+                    f.write("</td><td>")
+                    if func['return'] == None or func['return'] == '':
+                        f.write("None")
+                    else:
+                        f.write(func['return'])
+                    f.write("</td><td>")
+                    f.write(func['tipo'])
+            f.write("</td></tr>\n")
+            f.write("</table>\n")
+            f.write("</center>\n")
+            continue
         f.write("           <div>\n")
-        f.write("               <p class='base'>BASE DE DATOS: ")
+        f.write("<p>BASE DE DATOS: ")
         f.write(a)
         f.write("</p>\n")
         owner = datos.tablaSimbolos[a]['owner']
@@ -54,11 +77,19 @@ def reporteTabla( datos):
 
                     gg = ""
                     try:
-                        gg = column['fk']
+                        for fkAS in column['fk']:
+                            if fkAS == None:
+                                gg = False
+                            else:
+                                gg = True
                     except:
-                        gg = column.fk
-                    if gg != None:
-                        c.setFK()
+                        for fkAS in column.fk:
+                            if fkAS == None:
+                                gg = False
+                            else:
+                                gg = True
+                    c.setFK()
+                    c.FK = gg
 
                     aa = ""
                     try:
@@ -81,6 +112,7 @@ def reporteTabla( datos):
                 f.write("<p class='tabla'>Tabla: ")
                 f.write(table)
                 f.write("</p>")
+                f.write("<center>")
                 f.write("               <table>\n")
                 f.write("                   <tr class='titulo'>   <td><b>Nombre</b></td>   <td><b>Tipo</b></td>   <td><b>Size</b></td>   <td><b>PK</b></td>  <td><b>FK</b></td> <td><b>Unique</b></td>  <td><b>Default</b></td> </tr>\n")
                 for col in columnas:
@@ -109,34 +141,47 @@ def reporteTabla( datos):
                     f.write(col.default)
                 f.write("</td></tr>\n")
                 f.write("               </table>\n")
-                for column in datos.tablaSimbolos[a]['tablas'][table]['index']:
-                    f.write("<p class='i'>Indice :")
-                    f.write(column.name)
-                    f.write("</p>\n")
-                    f.write("<li>")
-                    f.write("<ol>Nombre: ")
-                    f.write(column.name)
-                    f.write("</ol></li><li>Columnas: ")
-                    for h in column.columns:
-                        f.write("<ul>")
-                        f.write("Tabla ->")
-                        if h.table != None:
-                            f.write(h.table)
-                        else:
-                            f.write("None")
-                        f.write("Columna ->")
-                        f.write(h.column)
-                        f.write("</ul>\n")
-                    f.write("</li><li>Condiciones: ")
-                    if column.conditions != None:
-                        for h in column.conditions:
-                            f.write("<ul>")
-                            f.write(h)
-                            f.write("</ul>")
+                f.write("</center>\n")
+                f.write("</div>")
+        if 'index' in datos.tablaSimbolos[a]:
+            f.write("<div>")
+            f.write("<center>\n")
+            for column in datos.tablaSimbolos[a]['index']:
+                f.write("<p class='i'>Indice :")
+                f.write(column.name)
+                f.write("<li>")
+                f.write("<ol>Nombre: ")
+                f.write(column.name)
+                f.write("</ol></li><li>Columnas: ")
+                try:
+                    tc = ("<ul>")
+                    tc += ("Tabla ->")
+                    tc += (column.table)
+                    tc += (" Columna ->")
+                    tc += (column.columns.id)
+                    tc += (" Tipo ->")
+                    if column.columns.option:
+                        tc += ('Hash')
                     else:
-                        f.write("<ul>SIN CONDICIONES</ul>\n</li>")
-                f.write("           </div>\n")
-                f.write("         </div>\n")
+                        tc += ('lower')
+                    tc += ("</ul>\n")
+                    f.write(tc)
+                except:
+                    for h in column.columns:
+                        tc = ("<ul>")
+                        tc += ("Tabla ->")
+                        tc += (column.table)
+                        tc += (" Columna ->")
+                        tc += (h.column)
+                        tc += ("</ul>\n")
+                        f.write(tc)
+
+                f.write("</li><li>Orden: ")
+                f.write(column.order)
+                f.write("</p>\n")
+            f.write("/<center>\n")
+            f.write("           </div>\n")
+            f.write("         </div>\n")
     f.write("   </body>\n")
     f.write("</html>\n")
     f.close()
@@ -169,13 +214,15 @@ def Rerrores(errores, semanticos, nombre):
     f.write("   <body>\n")
     f.write("       <p><b>Reporte de Errores<b></p>")
     f.write("       <div>")
+    f.write("       <center>")
     f.write("       <table>\n")
     f.write("           <tr class='titulo'>   <td><b>Tipo</b></td>   <td><b>Descripcion</b></td>   <td><b>Linea</b></td> </tr>\n")
     for error in errores:
-        f.write("           <tr> <td>" + error.getTipo() + "</td> <td>" + error.getDescripcion() + "</td> <td>"+ error.getLinea()  + "</td> </tr>\n")
+        f.write("           <tr> <td>" + error.getTipo() + "</td> <td>" + error.getDescripcion() + "</td> <td>"+ str(error.getLinea())  + "</td> </tr>\n")
     for semantico in semanticos:
         f.write("           <tr> <td>Semantico"  + "</td> <td>" + semantico.desc + "</td> <td>" + str(semantico.line) + "</td> </tr>\n")
     f.write("       </table>\n")
+    f.write("       </center>")
     f.write("         </div>")
     f.write("   </body>\n")
     f.write("</html>\n")

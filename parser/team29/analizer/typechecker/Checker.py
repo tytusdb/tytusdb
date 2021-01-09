@@ -47,7 +47,7 @@ def numeric(col, val):
         N.validateMoney(val)
     else:
         print("Invalidate type")
-        syntaxPostgreErrors(
+        syntaxPostgreErrors.append(
             "Error: 42P18: discrepancia de datos  \n  Type " + col["type"] + " invalido"
         )
     addError(N.Error)
@@ -67,7 +67,7 @@ def character(col, val):
             e = C.validateVarchar(col["size"], val)
     except:
         e = "Error: CHARACTER"
-        syntaxPostgreErrors(
+        syntaxPostgreErrors.append(
             "Error: 42P18: discrepancia de datos  \n  Type " + col["type"] + " invalido"
         )
     addError(e)
@@ -102,7 +102,7 @@ def types(col, value):
             return True
         else:
             e = "El valor " + str(value) + " no pertenece a " + col["type"]
-            syntaxPostgreErrors(
+            syntaxPostgreErrors.append(
                 "Error: 42804: discrepancia de datos  \n "
                 + str(value)
                 + " no es del tipo : "
@@ -110,7 +110,7 @@ def types(col, value):
             )
     else:
         e = " Type " + col["type"] + " no encontrado"
-        syntaxPostgreErrors(
+        syntaxPostgreErrors.append(
             "Error: 42P18: discrepancia de datos  \n  Type "
             + col["type"]
             + " no encontrado"
@@ -137,7 +137,7 @@ def select(col, val):
         numeric(col, val.value)
     else:
         addError(str(val.value) + " no es del tipo : " + col["type"])
-        syntaxPostgreErrors(
+        syntaxPostgreErrors.append(
             "Error: 42804: discrepancia de datos  \n "
             + str(val.value)
             + " no es del tipo : "
@@ -263,7 +263,7 @@ def validateUnique(database, table, value, index):
     for record in records:
         if value == record[index]:
             lstErr.append("El Valor " + str(value) + " ya existe dentro de la tabla")
-            syntaxPostgreErrors(
+            syntaxPostgreErrors.append(
                 "Error: 23505: El valor " + str(value) + " ya existe dentro de la tabla"
             )
             break
@@ -281,7 +281,7 @@ def validatePrimary(database, table, values, index):
             lst2.append(values[j].value)
         if lst1 == lst2:
             lstErr.append("Llaves primarias existentes dentro de la tabla")
-            syntaxPostgreErrors("Error: 23505: llaves primarias duplicadas ")
+            syntaxPostgreErrors.append("Error: 23505: llaves primarias duplicadas ")
             break
 
 
@@ -291,7 +291,7 @@ def validateForeign(database, values, value):
     column = values[1]
     records = jsonMode.extractTable(database, references)
     if records == []:
-        syntaxPostgreErrors(
+        syntaxPostgreErrors.append(
             "Error: 23503: El valor " + str(value) + " no es una llave foranea "
         )
         lstErr.append("El Valor " + str(value) + " no es una llave foranea")
@@ -301,7 +301,7 @@ def validateForeign(database, values, value):
         if value == record[index]:
             return
     lstErr.append("El Valor " + str(value) + " no es una llave primaria")
-    syntaxPostgreErrors(
+    syntaxPostgreErrors.append(
         "Error: 23505: El valor " + str(value) + " no es una llave primaria "
     )
 
@@ -334,7 +334,7 @@ def validateConstraint(values, record, database, table, type_):
     try:
         if not insert:
             lstErr.append("El registro no cumple con la restriccion: ", name)
-            syntaxPostgreErrors(
+            syntaxPostgreErrors.append(
                 "Error: 23000: El registro no cumple con la restriccion " + str(name)
             )
         elif insert:

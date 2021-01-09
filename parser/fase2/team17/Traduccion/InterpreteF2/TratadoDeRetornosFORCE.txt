@@ -1,0 +1,6 @@
+
+Retorno de conrtencion:
+
+Traducir(entorno, arbol):
+    - OperaRElacional -> 'False'
+    - Artimeticas -> '0'

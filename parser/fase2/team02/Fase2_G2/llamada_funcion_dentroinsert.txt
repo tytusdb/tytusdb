@@ -1,0 +1,26 @@
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+retorna = 1002;
+
+	if tabla = 'house' then
+	   
+			retorna = 1007;
+		
+	end if;
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TABLE tbCalificacion (idcalifica integer not null primary key,
+							 item varchar(100) not null,
+							 punteo integer not null);
+
+
+
+insert into tbCalificacion values('Update',ValidaRegistros('house',9) );
+
+select*from tbCalificacion ;
+

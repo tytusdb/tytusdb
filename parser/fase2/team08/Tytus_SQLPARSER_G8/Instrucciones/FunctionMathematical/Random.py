@@ -13,10 +13,10 @@ class Random(Instruccion):
         return random.random()
 
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        
+        super().traducir(tabla, arbol)
         return f"RANDOM()"
 '''
 instruccion = Random("hola mundo",None, 1,2)

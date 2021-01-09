@@ -62,6 +62,7 @@ class declaration(pl):
         if self.tipo == 'SMALLINT':
                 
             c3d += '\tambitoFuncion =  ts.buscarIDF()\n'
+            
             c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.SMALLINT,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
@@ -121,6 +122,7 @@ class declaration(pl):
             c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.TIMESTAMP,ambitoFuncion,None, None, None, None, None, None, None ,None,None,'+valor+', '+col+','+str(self.notnull)+','+str(self.constant)+')\n'
             c3d += '\tts.agregar(NuevoSimbolo)\n'
             c3d += '\tcont+=1\n'
+        objopt.append(c3d)
         return c3d
 
 
@@ -332,13 +334,14 @@ class llamadaP(pl):
             
             trad = expresion.traducir()
             c3d += trad[0] +'\n'
-            c3d += 'pila['+contadorP+'] = '+trad[1]
+            c3d += 'pila['+str(contadorP)+'] = '+str(trad[1])
+            objopt.append('pila['+str(contadorP)+'] = '+str(trad[1]))
             contadorP +=1
 
 
 
-        c3d += '\t'+self.id+'()\n'
-
+        c3d += ''+str(self.id)+'()\n'
+        objopt.append('\t'+str(self.id)+'()\n')
         return c3d
     
     def c3d(self):
@@ -367,13 +370,16 @@ class llamadaF(pl):
             c3d += trad[0] +'\n'
             
             c3d += 'pila['+str(contadorP)+'] = ' + str(trad[1]) + '\n'
+            objopt.append('pila['+str(contadorP)+'] = ' + str(trad[1]) + '\n')
             contadorP +=1
 
 
         tmp = getTemp()
-        c3d += self.id+'()'
+        c3d += str(self.id)+'()'
+        objopt.append(str(self.id)+'()')
         c3d += '\n'
         c3d += tmp +' = pila[10]\n'
+        objopt.append(tmp +' = pila[10]\n')
         return c3d,tmp,0
     
     def c3d():
@@ -392,7 +398,8 @@ class dropfunc(pl):
         self.ejecutar()
         for identificador in self.ids:
             
-            c3d += '\tts.deleteFP(str(\''+identificador+'\'))\n'
+            c3d += '\tts.deleteFP(str(\''+str(identificador)+'\'))\n'
+            objopt.append('\tts.deleteFP(str(\''+str(identificador)+'\'))\n')
             if  not ts.existeF(str(identificador)):    
                 e = errores.CError(0,0,"Error drop funcion, "+str(identificador)+" no existe como funcion",'Semantico') 
                 errores.insert_error(e)
@@ -423,14 +430,17 @@ class createfunc(pl):
         global cont
         if  ts.existeF(str(self.id)):
             print('Funcion '+str(self.id) +' ya existe')
+
             e = errores.CError(0,0,"Error en llamada creacion de funcion/proceso, ya existe",'Semantico') 
             errores.insert_error(e)
+            objopt.append('\tprint( \'Funcion '+ str(self.id) + ' ya existe\')\n')
             return '\tprint( \'Funcion '+ str(self.id) + ' ya existe\')\n'
         c3d = ''
         c3d += '\tn_db = ts.buscarIDTB(NombreDB)\n'
         c3d += '\tNuevoSimbolo = TAS.Simbolo(cont,\''+self.id+'\',TAS.TIPO.FUNCTION,n_db)\n'
         c3d += '\tts.agregar(NuevoSimbolo)\n'
         c3d += '\tcont+=1\n'
+        objopt.append(c3d)
         ambito = ts.buscarIDTB(NombreDB)
         NuevoSimbolo = TAS.Simbolo(cont,self.id,TAS.TIPO.FUNCTION,ambito,None, None, None, None, None, None, None ,None,None,None, None,None) 
         ts.agregar(NuevoSimbolo)
@@ -442,8 +452,8 @@ class createfunc(pl):
         if self.block.declare != None:
             for decla in self.block.declare:
                 decla.ejecutar()
-                c3d += decla.c3d()+'\n' 
-                funcion += '\t'+decla.traducir()+'\n' 
+                c3d += str(decla.c3d())+'\n' 
+                funcion += '\t'+str(decla.traducir())+'\n' 
 
         pcont = 0
 
@@ -453,11 +463,14 @@ class createfunc(pl):
                 #Mira como jalas de las declaraciones
                 for declara in self.block.declare:
                     if pcont == declara.tipo:
-                        funcion += '\t'+declara.id+' = pila['+str(pcont)+']\n'         
+                        funcion += '\t'+str(declara.id)+' = pila['+str(pcont)+']\n'    
+                        objopt.append('\t'+str(declara.id)+' = pila['+str(pcont)+']\n')     
 
             else:
                 #Solo es para.alias = pilas en el numero 
-                funcion += '\t'+param.alias+' = pila['+str(pcont)+']\n'
+                funcion += '\t'+str(param.alias)+' = pila['+str(pcont)+']\n'
+                objopt.append('\t'+str(param.alias)+' = pila['+str(pcont)+']\n')
+
                 param.ejecutar()
 
 
@@ -481,11 +494,13 @@ class createfunc(pl):
     def ejecutar1(self):
         c3d = ''
         c3d += '\tbuscarIDF = buscarIDTB(NombreDB)\n'
-        c3d += '\tNuevoSimbolo = Simbolo(cont,\''+self.id+'\',TAS.TIPO.FUNCTION,buscarIDF)\n'
+        c3d += '\tNuevoSimbolo = Simbolo(cont,\''+str(self.id)+'\',TAS.TIPO.FUNCTION,buscarIDF)\n'
         c3d += '\tcont+=1\n'
+        objopt.append(c3d)
         
         funcion = ''
-        funcion += 'def '+self.id+'():\n' 
+        funcion += 'def '+str(self.id)+'():\n' 
+        objopt.append(funcion)
         #variables a usar, guardando en ts y declarando
         for decla in self.block.declare:
 
@@ -597,13 +612,27 @@ class block(pl):
         self.declare = declare
     
     def traducir(self):
-        return '\n'
+        funcion = ''
+        for inst in self.instrucciones:
+            
+            funcion += '\t'+str(inst.traducir()).replace('\n','\n\t')+'\n'
+
+        return funcion
+            
 
     def c3d(self):
-        return '\n'
+        c3d = ''
+        for inst in self.instrucciones:
+            
+            
+            c3d += '\t'+inst.c3d()
+        return c3d
+        
     
     def ejecutar(self):
-        pass
+        for inst in self.instrucciones:
+            
+            inst.ejecutar()
 
 class instruccion():
     'clase abstracta'
@@ -617,9 +646,11 @@ class raisenotice(instruccion):
         c3d = ''
         if self.variable == None:
             c3d += 'print(\''+self.texto+'\')'
+            objopt.append(c3d)
         else:
             c3d += str(self.variable.exp.traducir()[0])
             c3d += 'print(f\''+str(self.texto).replace('%','{'+self.variable.exp.traducir()[1]+'}')+'\')'
+            objopt.append(c3d)
 
     def c3d(self):
         return '\n'
@@ -649,6 +680,7 @@ class asignacion(instruccion):
         else:
             valor = str(self.traduccion[2])
         c3d += '\tts.modificar_valor(\''+ str(self.id) + '\', ' + valor +')\n'
+        objopt.append('\tts.modificar_valor(\''+ str(self.id) + '\', ' + valor +')\n')
         return c3d   
 
     def traducir(self):
@@ -834,6 +866,7 @@ def getTemp():
     global tempcont
     tempcont += 1
     return 't'+str(tempcont-1)
+
 import OptimizarObjetos as oo
 
 class exp_boolp(expresion):
@@ -848,7 +881,7 @@ class exp_boolp(expresion):
         codigo = tmp + f' = {self.val}'
         valor = tmp
         res = self.val
-        obj = oo.Asignacion(tmp,self.val,None,None)
+        obj = oo.Temporal(tmp,self.val)
         objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
@@ -870,7 +903,7 @@ class exp_textp(expresion):
         codigo = tmp + f' = \'{self.val}\''
         valor = tmp
         res = self.val
-        obj = oo.Asignacion(tmp,self.val,None,None)
+        obj = oo.Temporal(tmp,self.val,True)
         objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res
@@ -889,7 +922,7 @@ class exp_nump(expresion):
         codigo = tmp + f' = {self.val}'
         valor = tmp
         res = float(self.val)
-        obj = oo.Asignacion(tmp,self.val,None,None)
+        obj = oo.Temporal(tmp,self.val)
         objopt.append(obj)
         #print(codigo,valor)
         return codigo,valor,res

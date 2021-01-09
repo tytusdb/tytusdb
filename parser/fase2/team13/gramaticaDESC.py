@@ -415,8 +415,6 @@ def t_error(t):
 import ply.lex as lex
 import re
 
-lexer = lex.lex()
-lex.lex(reflags=re.IGNORECASE)
 
 # DEFINIENDO LA PRECEDENCIA DE LOS OPERADORES
 # ---------Modificado Edi---------
@@ -1376,10 +1374,12 @@ def p_error(t):
 
 
 import ply.yacc as yacc
-parser = yacc.yacc()
 
 
 def analizadordesc(input):
+    lexer = lex.lex()
+    lex.lex(reflags=re.IGNORECASE)
+    parser = yacc.yacc()
     analizador=parser.parse(input)
     return analizador 
 

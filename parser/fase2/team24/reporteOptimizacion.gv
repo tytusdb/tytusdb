@@ -1,0 +1,5 @@
+digraph structs {
+	node [shape=plaintext]
+lista [label =  <<TABLE> 
+ <TR><TD>Regla</TD><TD>Orignal</TD><TD>Optimizado</TD></TR> </TABLE>>, ];
+}

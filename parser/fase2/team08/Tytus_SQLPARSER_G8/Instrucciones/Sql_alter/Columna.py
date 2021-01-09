@@ -19,5 +19,8 @@ class Columna(Instruccion):
             cadena += " drop column "
         cadena += self.id
         return cadena
-        #super().ejecutar(tabla,arbol)
+    
+    def getTipo(self):
+        print("holis")
+        return self.tipo.tipo
         

@@ -18,6 +18,7 @@ import re
 import os
 import glob
 ruta = ""  # La utilizaremos para almacenar la ruta del fichero
+from optimizacion import Optimizacion
 
 # esto es para la interfaz--------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -35,6 +36,16 @@ def borrar():
     texto3d.delete("1.0","end")
     textoopt.delete("1.0","end")
     texto.delete("1.0","end")
+
+def opt():
+    contenido = []
+    # Optimizacion(Funciones2.hola, contenido)
+    # contenido = Optimizacion.optimizando(Funciones2.hola)
+    # print(contenido)
+    # for inst in contenido:
+    #     textoopt.insert('insert', inst)
+    #     print("->", inst)
+ 
         
 def nuevo():
     global ruta
@@ -109,6 +120,11 @@ def abrirTS():
 def abritSVG():
     svg_path = "ast.dot.svg"
     webbrowser.open(svg_path)
+
+def abrirOpt():
+    opt_path = "reporteOptimizacion.html"
+    webbrowser.open(opt_path)
+
 
 root = Tk()
 root.title("TytusDB")
@@ -227,15 +243,16 @@ funcion = Funciones2()
 fname2 = "./img/run.png"
 img = PhotoImage(file=fname2)
 
-btn = Button(frame1, image=img, bg="gray93", command=lambda : funcion.traducir(texto,consola_text,output_text, errores_text, texto3d)).place(x=1025, y=100)
+btn = Button(frame1, image=img, bg="gray93", command=lambda : funcion.traducir(texto,consola_text,output_text, errores_text, texto3d, areaTexto)).place(x=1025, y=100)
 
 fname3 = "./img/optimizar.png"
 img2 = PhotoImage(file=fname3)
-btn2 = Button(frame1, image=img2, bg="gray93", command = borrar).place(x=1025, y=190)
+btn2 = Button(frame1, image=img2, bg="gray93", command = lambda : funcion.opt(textoopt, areaTexto)).place(x=1025, y=190)
 
 
 fname8 = "./img/borrar.png"
 img8 = PhotoImage(file=fname8)
+
 btn8 = Button(frame1, image=img8, bg="gray93", command = borrar).place(x=1025, y=280)
 
 fname4 = "./img/error.png"
@@ -255,7 +272,7 @@ btn5 = Button(frame1, bg="gray93", command = abritSVG,image=img5, text="AST", he
 
 fname7 = "./img/reporte.png"
 img6 = PhotoImage(file=fname7)
-btn6 = Button(frame1, bg="gray93",image=img6, text="Optimizar", height=70,
+btn6 = Button(frame1, bg="gray93",command = abrirOpt, image=img6, text="Optimizar", height=70,
               width=100, font=("Berlin Sans FB", 15)).place(x=70, y=370)
 
 

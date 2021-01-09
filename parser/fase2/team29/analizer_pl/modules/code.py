@@ -12,6 +12,7 @@ from analizer_pl.C3D.operations import func_call
 from analizer_pl.C3D.operations import execute_
 from analizer_pl.C3D.operations import drop_func
 from analizer_pl.C3D.operations import datatype
+from analizer_pl.C3D.operations import relational
 from analizer_pl.sql_statement.create import create_database
 from analizer_pl.sql_statement.create import create_index
 from analizer_pl.sql_statement.create import create_table
@@ -24,10 +25,13 @@ from analizer_pl.sql_statement.drop import drop_table
 from analizer_pl.sql_statement.drop import drop_index
 from analizer_pl.sql_statement.select import select
 from analizer_pl.sql_statement.select import union
+from analizer_pl.sql_statement.select import select_first
 from analizer_pl.sql_statement import use_
 from analizer_pl.sql_statement import show_
 from analizer_pl.sql_statement import truncate_
 from analizer_pl.sql_statement import insert_
+from analizer_pl.sql_statement import delete_
+from analizer_pl.sql_statement import update_
 
 
 def TernaryOperation(temp, exp1, exp2, exp3, operator, row, column):
@@ -138,8 +142,8 @@ def DropFunction(id, row, column):
     return drop_func.DropFunction(id, row, column)
 
 
-def Identifier(id, isBlock, row, column):
-    return datatype.Identifier(id, isBlock, row, column)
+def Identifier(id, isBlock, tempS, row, column):
+    return datatype.Identifier(id, isBlock, tempS, row, column)
 
 
 def BinaryExpression(temp, exp1, exp2, operator, isBlock, row, column):
@@ -178,7 +182,7 @@ def SelectOnlyParams(params, row, column):
     return select.SelectOnlyParams(params, row, column)
 
 
-def SelecctParam(exp, alias, row, column):
+def SelectParam(exp, alias, row, column):
     return select.SelectParam(exp, alias, row, column)
 
 
@@ -190,3 +194,27 @@ def TernaryExpression(temp, exp1, exp2, exp3, operator, isBlock, row, column):
 
 def Aggrupation(exp, isBlock, row, column):
     return datatype.Aggrupation(exp, isBlock, row, column)
+
+
+def Delete(fromcl, wherecl, row, column):
+    return delete_.Delete(fromcl, wherecl, row, column)
+
+
+def Update(fromcl, values, wherecl, row, column):
+    return update_.Update(fromcl, values, wherecl, row, column)
+
+
+def SelectFirstValue(temp, select):
+    return select_first.SelectFirstValue(temp, select)
+
+
+def SelectOnlyParamsFirst(temp, select):
+    return select_first.SelectOnlyParamsFirst(temp, select)
+
+
+def ExistsRelationalOperation(temp, select):
+    return relational.ExistsRelationalOperation(temp, select)
+
+
+def inRelationalOperation(temp, colData, optNot, select):
+    return relational.inRelationalOperation(temp, colData, optNot, select)
