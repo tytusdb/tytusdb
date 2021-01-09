@@ -1,19 +1,23 @@
-import hashlib, os, json, datetime, base64
-import switchMode as switch
+# File:     mainMode
+# License:  Released under MIT License
+# Notice:   Copyright (c) 2020 TytusDB Team
+
+import hashlib, zlib, os, json, datetime, base64
 from graphviz import Digraph
 from storage.Block import Block as BC
+from storage import switchMode as switch
 from cryptography.fernet import Fernet
 
 class main():
     def __init__(self):
-        #self.godGuide2 = {}
         self.godGuide = {'avl': {}, 'b': {}, 'bplus': {}, 'dict': {}, 'isam': {}, 'json': {}, 'hash': {}}
         self.guiaModos = {}
+        self.listMode = ['avl', 'hash', 'b', 'bplus', 'dict', 'isam', 'json']
+        # self.listMode = ['hash', 'b']
+        self.listEncoding = ['ascii', 'iso-8859-1', 'utf8', 'utf-8']
         self.fk = {}
         self.Betzy = {}
         self.index = {}
-        self.listMode = ['avl', 'hash', 'b', 'bplus', 'dict', 'isam', 'json']
-        self.listEncoding = ['ascii', 'iso-8859-1', 'utf8']
         self.dataBlockChain = {}
         self.blockChain = [BC.iniBlock()]
         self.grafBC = Digraph(
@@ -56,11 +60,12 @@ class main():
                                     for i in self.listMode:
                                         if database in self.godGuide[i].keys():
                                             if table in self.godGuide[i][database][0].keys():
-                                                lis = self.godGuide[i][database][0].pop(table)
-                                    self.godGuide[mode][database][0][table] = lis
+                                                lis = self.godGuide[i][database][0][table]
                                     tabla = self.extTB(database, table)
-                                    self.delTB(database, table)
+                                    self.dropTable(database, table)
+                                    self.godGuide[mode][database][0][table] = lis
                                     switch.switchMode(mode).createTable(database, table, lis[0])
+                                    switch.switchMode(mode).alterAddPK(database, table, lis[1])
                                     for i in tabla:
                                         switch.switchMode(mode).insert(database, table, i)
                                 else:
@@ -70,15 +75,14 @@ class main():
                                     if database in self.godGuide[i].keys():
                                         if table in self.godGuide[i][database][0].keys():
                                             encoding = self.godGuide[i][database][1]
-                                            lis = self.godGuide[i][database][0].pop(table)
-                                self.godGuide[mode][database] = [{}, encoding]
-                                self.godGuide[mode][database][0][table] = lis
-
-                                #self.createDatabase(database, mode, encoding)
+                                            lis = self.godGuide[i][database][0][table]
                                 switch.switchMode(mode).createDatabase(database)
                                 tabla = self.extTB(database, table)
-                                self.delTB(database, table)
+                                self.dropTable(database, table)
+                                self.godGuide[mode][database] = [{}, encoding]
+                                self.godGuide[mode][database][0][table] = lis
                                 switch.switchMode(mode).createTable(database, table, lis[0])
+                                switch.switchMode(mode).alterAddPK(database, table, lis[1])
                                 for i in tabla:
                                     switch.switchMode(mode).insert(database, table, i)
                             return 0
@@ -107,10 +111,14 @@ class main():
                                         #self.createDatabase(database, mode, lis[1])
                                         switch.switchMode(mode).createDatabase(database)
                                     else:
+                                        lista = list(switch.switchMode(i).showTables(database))
                                         modoA = i
                                         self.guiaModos[database] = mode
-                                        for j in switch.switchMode(i).showTables(database):
+                                        for j in lista:
+                                            # if lista[0]:
+                                            # print(switch.switchMode("isam").showDatabases())
                                             self.alterTableMode(database, j, mode)
+                                            # print(switch.switchMode("isam").showDatabases())
                                         self.godGuide[modoA].pop(database)
                                         #self.godGuide[mode][database] = lis
                                     switch.switchMode(i).dropDatabase(database)
@@ -359,7 +367,7 @@ class main():
             elif mode == 'SHA256':
                 hash = hashlib.sha256(tmp.encode(encoding))
             hash = hash.hexdigest()
-            print(tmp)
+            #print(tmp)
             return hash
         except:
             return None
@@ -385,13 +393,13 @@ class main():
             elif mode == 'SHA256':
                 hash = hashlib.sha256(tmp.encode(encoding))
             hash = hash.hexdigest()
-            print(tmp)
+            #print(tmp)
             return hash
         except:
             return None
 
     # ---------------------FUNCIONES DE COMPRESION DE DATOS----------------------#
-    
+
     def alterDatabaseCompress(self, database, level):
         if self.identify(str(database)):
             if self.searchDB2(database):
@@ -499,7 +507,7 @@ class main():
                 return 4
             return 2
         return 1
-   
+
     # ---------------------FUNCIONES DE SEGURIDAD----------------------#
 
     # ENCRIPTAR CADENA
@@ -559,6 +567,119 @@ class main():
             return 1
 
     # ---------------------FUNCIONES DE GRAFOS----------------------#
+
+    # GRAFICA LA RELACION DE LAS TABLAS Y SUS LLAVES FORANEAS
+
+    def graphDSD(self, database):
+        try:
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database, i):
+                    tables = self.showTables(database)
+                    if len(tables) != 0:
+                        clave = True
+                        break
+                    else:
+                        return None
+            if clave:
+                f = open('relacionesBD.dot', 'w', encoding='utf-8')
+                f.write("digraph dibujo {\n")
+                f.write('node [shape=record];\n')
+                f.write('graph [ranksep = 2, nodesep = 1.5 ,rankdir=TB]\n')
+                f.write("subgraph clusterA {\n")
+                f = self._graphDSC(f, database, tables)
+                f.write('label = "' + database + '";\n color="red"')
+                f.write('}')
+                f.write('}')
+                f.close()
+                os.system('dot -Tsvg relacionesBD.dot -o relacionesBD.svg')
+                os.system("relacionesBD.svg")
+                return f
+            else:
+                return None
+        except:
+            return None
+
+    # GRAFICA LAS RELACIONES EXISTENTES ENTRE UNA TABLE Y SUS IDENTIFICADORES UNICOS
+
+    def _graphDSC(self, f, database, tables):
+        if database in self.fk.keys():
+            for z in tables:
+                nombre = "Table_" + z
+                f.write(nombre + ' [ label = "' + str(z) + '",fillcolor = "#ff9d3f", style = filled];\n')
+            for a in self.fk[database].keys():
+                for b in self.fk[database][a]:
+                    f.write("Table_" + str(a) + '->' + "Table_" + self.fk[database][a][b][2] + ' [label="' + b + '"];\n')
+        else:
+            for z in tables:
+                nombre = "Table_" + z
+                f.write(nombre + ' [ label = "' + str(z) + '",fillcolor = "#ff9d3f", style = filled];\n')
+        return f
+
+    # GRAFICA LAS RELACIONES EXISTENTES ENTRE UNA TABLE Y SUS IDENTIFICADORES UNICOS
+
+    def graphDF(self, database, table):
+        try:
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database, i):
+                    if self.searchTB(database, table):
+                        clave = True
+                        break
+            if clave:
+                f = open('relacionesTB.dot', 'w', encoding='utf-8')
+                f.write("digraph dibujo {\n")
+                f.write('node [shape=record];\n')
+                f.write('graph [ranksep = 5, nodesep = 0.5 ,rankdir=LR]\n')
+                f.write("subgraph clusterA {\n")
+                f = self._graphDF(f, database, table)
+                f.write('label = "' + database + ": " + table + '";\n color="blue"')
+                f.write('}')
+                f.write('}')
+                f.close()
+                os.system('dot -Tsvg relacionesTB.dot -o relacionesTB.svg')
+                os.system("relacionesTB.svg")
+                return f
+            else:
+                return None
+        except:
+            return None
+
+    def _graphDF(self, f, database, table):
+        pk = self.getPK(database, table)
+        c = self.getNumColumns(database, table)
+        u = {}
+        t = list()
+        aux = list()
+        if database in self.Betzy.keys():
+            if table in self.Betzy[database].keys():
+                for indexName in self.Betzy[database][table].keys():
+                    u[indexName] = self.Betzy[database][table][indexName][0]
+                    t.append(self.Betzy[database][table][indexName][0])
+        for h in t:
+            for z in h:
+                aux.append(z)
+        for i in range(c + 1):
+            clave = True
+            for index in u.keys():
+                if i in u[index]:
+                    f.write("Nodo_U_" + str(i) + ' [ label = "<f0>' + str(index) + ' |<f1>' + str(i) + '", fillcolor = "#b2dfdb", style = filled];\n')
+                    clave = False
+                    break
+            if i in pk:
+                f.write("Nodo_PK_" + str(i) + ' [ label = "<f0> PK |<f1>' + str(i) + '", fillcolor = "#82ada9", style = filled];\n')
+                clave = False
+            if clave:
+                f.write("Nodo_" + str(i) + ' [ label = "<f0>' + str(i) + '", fillcolor = "#e5ffff", style = filled];\n')
+        for j in pk:
+            for k in range(c + 1):
+                if k not in aux and k not in pk:
+                    f.write("Nodo_PK_" + str(j) + ':f0 ->' + "Nodo_" + str(k) + ':f0; \n')
+        for d in aux:
+            for e in range(c + 1):
+                if e not in pk and e not in aux:
+                    f.write("Nodo_U_" + str(d) + ':f0 ->' + "Nodo_" + str(e) + ':f0; \n')
+        return f
 
     #---------------------FUNCIONES BASES DE DATOS (ANTERIORES)----------------------#
 
@@ -631,7 +752,12 @@ class main():
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
-                    re = re + switch.switchMode(i).extractTable(database, table)
+                    if not self.godGuide[i][database][0][table][3]:
+                        re = re + switch.switchMode(i).extractTable(database, table)
+                    else:
+                        self.alterTableDecompress(database, table)
+                        re = re + switch.switchMode(i).extractTable(database, table)
+                        self.alterTableCompress(database, table, 9)
         return re
 
     #LISTA REGISTROS EN UN RANGO DE UNA TABLA
@@ -641,7 +767,12 @@ class main():
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
-                    re = re + switch.switchMode(i).extractRangeTable(database, table, columnNumber, lower, upper)
+                    if not self.godGuide[i][database][0][table][3]:
+                        re = re + switch.switchMode(i).extractRangeTable(database, table, columnNumber, lower, upper)
+                    else:
+                        self.alterTableDecompress(database, table)
+                        re = re + switch.switchMode(i).extractRangeTable(database, table, columnNumber, lower, upper)
+                        self.alterTableCompress(database, table, 9)
         return re
 
     # AGREGAR LISTA DE LLAVES PRIMARIAS A UNA TABLA
@@ -693,7 +824,12 @@ class main():
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
-                    re = switch.switchMode(i).alterAddColumn(database, table, default)
+                    if not self.godGuide[i][database][0][table][3]:
+                        re = switch.switchMode(i).alterAddColumn(database, table, default)
+                    else:
+                        self.alterTableDecompress(database, table)
+                        re = switch.switchMode(i).alterAddColumn(database, table, default)
+                        self.alterTableCompress(database, table, 9)
         if re == 0:
             for i in self.listMode:
                 for j in self.godGuide[i].keys():
@@ -707,7 +843,12 @@ class main():
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
-                    re = switch.switchMode(i).alterDropColumn(database, table, columnNumber)
+                    if not self.godGuide[i][database][0][table][3]:
+                        re = switch.switchMode(i).alterDropColumn(database, table, columnNumber)
+                    else:
+                        self.alterTableDecompress(database, table)
+                        re = switch.switchMode(i).alterDropColumn(database, table, columnNumber)
+                        self.alterTableCompress(database, table, 9)
         if re == 0:
             for i in self.listMode:
                 for j in self.godGuide[i].keys():
@@ -718,6 +859,7 @@ class main():
     # ELIMINAR UNA TABLA DE LA BASE DE DATOS
 
     def dropTable(self, database, table):
+        re = 1
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
@@ -754,6 +896,12 @@ class main():
                             else:
                                 self.addBlockChain(database, table, str(register), '#82ada9')
                         return var
+    
+    def insert2(self, database, table, register):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    return switch.switchMode(i).insert(database, table, register)
 
     # CARGA DE REGISTROS MEDIANTE UN CSV
 
@@ -769,7 +917,13 @@ class main():
         for i in self.listMode:
             if self.searchDB(database, i):
                 if table in switch.switchMode(i).showTables(database):
-                    return switch.switchMode(i).extractRow(database, table, columns)
+                    if not self.godGuide[i][database][0][table][3]:
+                        return switch.switchMode(i).extractRow(database, table, columns)
+                    else:
+                        self.alterTableDecompress(database, table)
+                        var = switch.switchMode(i).extractRow(database, table, columns)
+                        self.alterTableCompress(database, table, 9)
+                        return var
 
     # MODIFICA UN REGISTRO EN ESPECIFICO
 
@@ -810,6 +964,12 @@ class main():
                             self.addBlockChain(database, table, str(columns) + ' me eliminaron', 'hotpink')
                             self.godGuide[i][database][0][table][5] = True
                         return var
+    
+    def delete2(self, database, table, columns):
+        for i in self.listMode:
+            if self.searchDB(database, i):
+                if table in switch.switchMode(i).showTables(database):
+                    return switch.switchMode(i).delete(database, table, columns)
 
     # ELIMINA TODOS LOS REGISTROS DE UNA TABLA
 
@@ -858,14 +1018,23 @@ class main():
         for i in self.listMode:
             for j in switch.switchMode(i).showDatabases():
                 if table in switch.switchMode(i).showTables(j):
+                    if database == j:
                         return True
         return False
+    
+    def searchTBMode(self, database, table):
+        for i in self.listMode:
+            for j in switch.switchMode(i).showDatabases():
+                if table in switch.switchMode(i).showTables(j):
+                    if database == j:
+                        return i
 
     def extTB(self, database, table):
         for i in self.listMode:
             for j in switch.switchMode(i).showDatabases():
                 if table in switch.switchMode(i).showTables(j):
                         return switch.switchMode(i).extractTable(j, table)
+
     def getNumColumns(self,database,table):
         for i in self.listMode:
             for j in self.godGuide[i].keys():
@@ -881,13 +1050,6 @@ class main():
             for j in self.godGuide[i].keys():
                 if table in self.godGuide[i][j][0].keys() and j == database:
                     return self.godGuide[i][j][0][table][0]
-                      
-    def delTB(self, database, table):
-        for i in self.listMode:
-            for j in switch.switchMode(i).showDatabases():
-                if table in switch.switchMode(i).showTables(j):
-                    switch.switchMode(i).dropTable(j, table)
-                    return None
 
     def genLePass(self, password):
         salt = "leSalt"
@@ -916,4 +1078,3 @@ class main():
                             dat = json.load(f)
                             self.grafBC.view()
                             return dat
-

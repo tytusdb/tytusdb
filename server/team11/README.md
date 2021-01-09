@@ -142,11 +142,6 @@ Los componentes principales de TytysDB web son:
 - **Area de edicion:** Es donde se escribirán las sentncias SQL para la creacion y administracion de las bases de datos.
 - **Area de errores:** Mostrará los distintos errores en caso existan.
 
-# Estadisticas
-![Estadisitcas](https://imgur.com/0g0cnBi.png)
-
-En esta pestaña se visualizaran las estadisticas concernientes a las bases de datos.
-
 # Menu
 ![manejo](https://imgur.com/79HixpY.png)
 
@@ -155,6 +150,24 @@ Cuenta con distintas opciones que ayudan a tener una mejor administracion de las
 - **Tools:** Herramientas necesarias para la administracion
 - **Help:** Brinda soporte para la administracion
 
+# Update
+![update](https://imgur.com/lgVXh2E.png)
+
+En este apartado se pueden observar el servidor al cual se esta conectado, las bases de datos creadas y tablas.
+
+# SQL
+![SQL](https://imgur.com/7v1mmYY.png)
+En la pestaña SQL se observa el area de edicion con codigo en SQL para crear y administrar bases de datos dentro del sistema TytusDB.
+
+# Resultados
+![Resultados](https://imgur.com/bQh8SwB.png)
+
+En la pestña de Resultados se observan los resultados a las consultas realizadas por medio del lenguaje SQL a las bases de datos creadas.
+
+# Estadisticas
+![Estadisitcas](https://imgur.com/0g0cnBi.png)
+
+En esta pestaña se visualizaran las estadisticas concernientes a las bases de datos.
  ___
  # Glosario
  - **Aplicacion web:** Herramienta que los usuarios pueden acceder por medio de un servidor web.
