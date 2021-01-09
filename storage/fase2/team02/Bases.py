@@ -12,4 +12,18 @@ currentMode,avlList,bList,bplusList,dictList,jsonList,isamList,hashList = [],[],
 comp = []
 compT,decompT = [],[]
 decomp = []
+
+# ----------Bases de datos------------------
+def createDatabase(database, mode, encoding):
+    try:
+        if not isValidMode(mode):
+            return 3
+        elif not isValidEncoding(encoding):
+            return 4
+        else:    
+            currentMode.append(mode)
+            #llamar encoding
+            return chooseMode(mode,database)
+    except:
+        return 1
     
