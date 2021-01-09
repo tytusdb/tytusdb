@@ -13,6 +13,8 @@ currentMode,avlList,bList,bplusList,dictList,jsonList,isamList,hashList = [],[],
 comp = []
 compT,decompT = [],[]
 decomp = []
+listMode = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
+listEncoding = ['ascii', 'iso-8859-1', 'utf8']
 
 global lista
 lista = list()
