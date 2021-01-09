@@ -12,6 +12,12 @@ import jsonMode as JSON_INGE
 import jsonMode as json
 import Instruccion as INST'''
 
+#modificar
+import sys
+sys.path.append('../../../../parser/team16')
+import interprete as Inter
+import Ast2 as ast
+from Instruccion import *
 
 app = Flask(__name__)
 CORS(app)
@@ -33,7 +39,14 @@ def transaccionar():
     query = request.json['query']
     print(query)
     #  codigo de parser para analizar
-
+    try:
+        nueva = str(query).upper()
+        print(nueva)
+        Inter.inicializarEjecucionAscendente(query)
+        if len(Lista) >0:
+            return jsonify({"msj":Lista[0]})
+        else:
+            return jsonify({"msj":"Query procesado"})
     
     #retornar hacia el cliente los resultados
     return jsonify({"msj":"Query procesado"}) # cambiar ese msj por los resultados
