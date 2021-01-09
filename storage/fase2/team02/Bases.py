@@ -4,12 +4,14 @@ from storage.bplus import BPlusMode as bplus
 from storage.DictMode import DictMode as DM
 from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as j
-#from storage.Hash import HashMode as Hash
+from storage.Hash import HashMode as Hash
 import zlib
 import hashlib
 import os
-from storage.HashWindows import HashMode as Hash
-
+# from storage.HashWindows import HashMode as Hash
+import Encriptado as E
+import BlockChain as Block #IMPOR BASES
+saveModo_bandera = True
 currentMode,avlList,bList,bplusList,dictList,jsonList,isamList,hashList = [],[],[],[],[],[],[],[]
 comp = []
 compT,decompT = [],[]
@@ -482,6 +484,9 @@ def alterDropPK(database, table):
         return 2
 
 def insert(database, table, register):
+    if saveModo_bandera is False:
+        Block.activar_SaveModo(register)
+        #print("validacion correcta")
     if searchInMode(database) != None:
         currentMode = searchInMode(database)
         if currentMode == 'avl':
@@ -1090,4 +1095,183 @@ def GDF(tabla, lista: list) :
         os.system("dot -Tjpg GrafoT.dot -o GrafoT.png")
         return 0
     except:
-        return None  
+        return None
+
+def safeModeOn(database, table):
+    global saveModo_bandera
+                
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            if avl.verificar_avl(database,table) == 0:
+                saveModo_bandera = not saveModo_bandera
+                return 0
+            elif avl.verificar_avl(database,table) == 2:
+                return 2
+            elif avl.verificar_avl(database,table) == 1:
+                return 1   
+            return 1  
+        elif currentMode == 'b':
+            if b.verificar_B(database,table) == 0:
+                saveModo_bandera = not saveModo_bandera
+                return 0
+            elif b.verificar_B(database,table) == 1:
+                return 1
+            return 1
+        elif currentMode == 'bplus':
+            if bplus.verificar_Bplus(database,table) == 0:
+                saveModo_bandera = not saveModo_bandera
+                return 0
+            elif bplus.verificar_Bplus(database,table) == 1:
+                return 1
+            elif bplus.verificar_Bplus(database,table) == 2:
+                return 2
+            elif bplus.verificar_Bplus(database,table) == 3:
+                return 3
+            return 1
+        elif currentMode == 'dict':
+            if DM.verificar_DictMode(database,table) == 0:
+                saveModo_bandera = not saveModo_bandera
+                return 0
+            elif DM.verificar_DictMode(database,table) == 1:
+                return 1
+            elif DM.verificar_DictMode(database,table) == 2:
+                return 2
+            elif DM.verificar_DictMode(database,table) == 3:
+                return 3
+        elif currentMode == 'isam':
+            if isam.verificar_Isam(database,table)== 0:
+                saveModo_bandera = not saveModo_bandera
+                return 0
+            elif isam.verificar_Isam(database,table) == 1:
+                return 1
+            elif isam.verificar_Isam(database,table) == 2:
+                return 2
+            elif isam.verificar_Isam(database,table) == 3:
+                return 3
+            return 1
+        elif currentMode == 'json':
+            if j.verificar_Json(database,table) == 0:
+                saveModo_bandera = not saveModo_bandera
+                return 0
+            elif j.verificar_Json(database,table) == 1:
+                return 1
+            elif j.verificar_Json(database,table) == 2:
+                return 2
+            elif j.verificar_Json(database,table) == 3:
+                return 3
+            return 1
+        elif currentMode == 'hash':
+            if Hash.verificar_Hash(database,table) == 0:
+                saveModo_bandera = not saveModo_bandera
+                return 0
+            elif Hash.verificar_Hash(database,table) == 1:
+                return 1
+            elif Hash.verificar_Hash(database,table) == 2:
+                return 2
+            elif Hash.verificar_Hash(database,table) == 3:
+                return 3
+            return 1
+    else:
+        return 2
+
+
+def safeModeOff(database, table):
+    global saveModo_bandera
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            if avl.verificar_avl(database,table) == 0:
+                
+                saveModo_bandera = True
+                return 0
+            elif avl.verificar_avl(database,table) == 2:
+                return 2
+            elif avl.verificar_avl(database,table) == 1:
+                return 1   
+            return 1  
+        elif currentMode == 'b':
+            if b.verificar_B(database,table) == 0:
+                saveModo_bandera = True
+                return 0
+            elif b.verificar_B(database,table) == 1:
+                return 1
+            return 1
+        elif currentMode == 'bplus':
+            if bplus.verificar_Bplus(database,table) == 0:
+                saveModo_bandera = True
+                return 0
+            elif bplus.verificar_Bplus(database,table) == 1:
+                return 1
+            elif bplus.verificar_Bplus(database,table) == 2:
+                return 2
+            elif bplus.verificar_Bplus(database,table) == 3:
+                return 3
+            return 1
+        elif currentMode == 'dict':
+            if DM.verificar_DictMode(database,table) == 0:
+                saveModo_bandera = True
+                return 0
+            elif DM.verificar_DictMode(database,table) == 1:
+                return 1
+            elif DM.verificar_DictMode(database,table) == 2:
+                return 2
+            elif DM.verificar_DictMode(database,table) == 3:
+                return 3
+        elif currentMode == 'isam':
+            if isam.verificar_Isam(database,table)== 0:
+                saveModo_bandera = True
+                return 0
+            elif isam.verificar_Isam(database,table) == 1:
+                return 1
+            elif isam.verificar_Isam(database,table) == 2:
+                return 2
+            elif isam.verificar_Isam(database,table) == 3:
+                return 3
+            return 1
+        elif currentMode == 'json':
+            if j.verificar_Json(database,table) == 0:
+                saveModo_bandera = True
+                return 0
+            elif j.verificar_Json(database,table) == 1:
+                return 1
+            elif j.verificar_Json(database,table) == 2:
+                return 2
+            elif j.verificar_Json(database,table) == 3:
+                return 3
+            return 1
+        elif currentMode == 'hash':
+            if Hash.verificar_Hash(database,table) == 0:
+                saveModo_bandera = True
+                return 0
+            elif Hash.verificar_Hash(database,table) == 1:
+                return 1
+            elif Hash.verificar_Hash(database,table) == 2:
+                return 2
+            elif Hash.verificar_Hash(database,table) == 3:
+                return 3
+            return 1
+    else:
+        return 2
+
+def abrir_archivoImage():
+    Block.abrir()
+
+def modificarBloque(indice, registro):
+    Block.modificar_cadena(indice,registro)
+
+#---------metodo para validar saveModo---------------------
+def validarSaveModo(database,table):
+    global saveModo_bandera
+    saveModo_bandera = not saveModo_bandera
+    return saveModo_bandera
+
+#----------------SEGURIDAD------------------------------------------------
+#----------------CIFRADO--------------------------------------------------
+def encrypt(backup: str, password: str) -> str:
+    res_1 = E.encriptar_Backup(backup, password)
+    return res_1
+
+def decrypt(cipherBackup: str, password: str) -> str:
+    res_2 = E.desencriptar_Backup(cipherBackup, password)
+    return res_2

@@ -102,3 +102,11 @@ def extractRow(database: str, table: str, columns: list):
     except:
         return []
     
+#----------verificar base y tabla dict mode---------
+def verificar_dict(database: str, table: str):
+    try:
+        if not existDB(database): return 2
+        if not existTable(database, table): return 3
+        return 0
+    except:
+        return 1

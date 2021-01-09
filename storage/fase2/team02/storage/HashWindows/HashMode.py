@@ -697,3 +697,18 @@ def truncate(database: str, table: str) -> int:
             
     except:
         return 1
+
+#--------------verificar base y tablas ---------------------------
+def verificar_Hash(database: str, table: str):
+    try:
+        temp = _storage.Buscar(database)
+        if temp:
+            b = temp.Buscar(table)            
+            if b[0]:
+                return 0
+            else:
+                return 3
+        else:
+            return 2      
+    except:
+        return 1
