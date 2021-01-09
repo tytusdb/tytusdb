@@ -316,43 +316,45 @@ def loadCSV(fileCSV, db, table):
 
 def update(database, table, register, columns):
     for item in structs:
-        value = item.update(database, table, register, columns)
+        codificacion = codificationValidation(getCodificationMode(database),register)
+        if codificacion == True:
+            value = item.update(database, table, register, columns)
         # START BlockChain
-        i = 0
-        while i<len(listBlockChain):
-            if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
-                j = 0
-                tuplesBlockChain = listBlockChain[i].getListValues()
-                tuples = extractTable("ventas", "producto")
-                while j < len(tuplesBlockChain):
-                    k = 0
-                    newValue = ""
-                    while k < len(tuples):
-                        if tuples[k] not in tuplesBlockChain:
-                            newValue = tuples[k]
-                        k += 1
-                    if tuplesBlockChain[j] not in tuples:#.getValue()
-                        listBlockChain[i].alterValueNode(newValue, j)
-                        listBlockChain[i].generateJsonSafeMode()
-                    j += 1
-                break    
-            i += 1
+            i = 0
+            while i<len(listBlockChain):
+                if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
+                    j = 0
+                    tuplesBlockChain = listBlockChain[i].getListValues()
+                    tuples = extractTable("ventas", "producto")
+                    while j < len(tuplesBlockChain):
+                        k = 0
+                        newValue = ""
+                        while k < len(tuples):
+                            if tuples[k] not in tuplesBlockChain:
+                                newValue = tuples[k]
+                            k += 1
+                        if tuplesBlockChain[j] not in tuples:#.getValue()
+                            listBlockChain[i].alterValueNode(newValue, j)
+                            listBlockChain[i].generateJsonSafeMode()
+                        j += 1
+                    break    
+                i += 1
         # END BlockChain
-        if value != 2:
-            if value != 0:
-                return value
-            for i in databases:
-                if database == i["name"]:
-                    for t in i["tables"]:
-                        if table == t["name"]:
-                            for tup in t["tuples"]:
-                                if tup["register"][0] == columns[0]:
-                                    index = 0
-                                    for key in register:
-                                        index = key
-                                    tup["register"][index] = register[index]
-                        persistence(databases)
-                        return value
+            if value != 2:
+                if value != 0:
+                    return value
+                for i in databases:
+                    if database == i["name"]:
+                        for t in i["tables"]:
+                            if table == t["name"]:
+                                for tup in t["tuples"]:
+                                    if tup["register"][0] == columns[0]:
+                                        index = 0
+                                        for key in register:
+                                            index = key
+                                        tup["register"][index] = register[index]
+                            persistence(databases)
+                            return value
     return 2
 
 def delete(database, table, columns):
