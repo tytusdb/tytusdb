@@ -1,0 +1,16 @@
+.example-input-label,
+.example-add-tab-button,
+.example-delete-tab-button {
+  margin: 8px;
+}
+
+
+
+::ng-deep .mat-tab-list .mat-tab-labels  {
+  color: red;
+  background-color: #212529;
+}
+::ng-deep .mat-tab-list .mat-tab-labels .mat-tab-label-active {
+  color: white;
+  background-color: rgb(17, 228, 17);
+}
