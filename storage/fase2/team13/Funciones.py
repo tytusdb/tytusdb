@@ -222,6 +222,97 @@ def alterTableDropIndex(database, table, indexName):
     except:
         return 1
 
+# ALTER ENCODING
+def alterDatabaseEncoding(database, encoding):
+    try:
+        if dict_encoding.get(encoding) is not None:
+            db = load('metadata')
+            if db.get(database) is not None:
+                j = checkMode(db[database][0])
+                tables = j.showTables(database)
+                DB = {}
+                for t in tables:
+                    registers = j.extractTable(database, t)
+                    newRegisters = []
+                    for r in registers:
+                        newRegister = []
+                        for c in r:
+                            if isinstance(c, bytes):
+                                aux = c.decode(db[database][1]).encode(encoding, 'replace')
+                                if '?' in str(aux):
+                                    return 1
+                                newRegister.append(aux)
+                            else:
+                                newRegister.append(c)
+                        newRegisters.append(newRegister)
+                    DB.update({t: newRegisters})
+                for key in DB:
+                    j.truncate(database, key)
+                    registers = DB[key]
+                    for r in registers:
+                        j.insert(database, key, r)
+                db[database][1] = encoding
+                save(db, 'metadata')
+                return 0
+            return 2
+        return 3
+    except:
+        return 1
+
+# CHECKSUM DATABASE
+def checksumDatabase(database, mode):
+    try:
+        if os.path.isfile(os.getcwd() + "\\Data\\checksum.bin"):
+            CHCK = load('checksum')
+        else:
+            CHCK = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            j = checkMode(db[database][0])
+            tables = j.showTables(database)
+            if mode.upper() in algoritms:
+                content = None
+                if mode.upper() == 'MD5':
+                    content = hashlib.md5()
+                elif mode.upper() == 'SHA256':
+                    content = hashlib.sha256()
+                for t in tables:
+                    file = open(getRouteTable(db[database][0], database, t), 'rb')
+                    content.update(file.read())
+                    file.close()
+                    CHCK.update({database: content.hexdigest()})
+                    save(CHCK, 'checksum')
+                    return CHCK[database]
+            return None
+        return None
+    except:
+        return None
+
+# CHECKSUM TABLE
+def checksumTable(database, table, mode):
+    try:
+        if os.path.isfile(os.getcwd() + "\\Data\\checksum.bin"):
+            CHCK = load('checksum')
+        else:
+            CHCK = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            if mode.upper() in algoritms:
+                content = None
+                if mode.upper() == 'MD5':
+                    content = hashlib.md5()
+                elif mode.upper() == 'SHA256':
+                    content = hashlib.sha256()
+                file = open(getRouteTable(db[database][0], database, table), 'rb')
+                content.update(file.read())
+                file.close()
+                CHCK.update({table: content.hexdigest()})
+                save(CHCK, 'checksum')
+                return CHCK[table]
+            return None
+        return None
+    except:
+        return None
     
 # Blockchain
 def safeModeOn(database, table):
