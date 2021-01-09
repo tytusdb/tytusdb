@@ -498,14 +498,22 @@ def extractRangeTable(database: str, table: str, columnNumber: int,
                     res = json.extractRangeTable(database, table, lower, upper)
                 elif tab[1] == 'hash':
                     res = hash.extractRangeTable(database, table, columnNumber, lower, upper)
-                if len(res) and tab[4]!=-2:
+                ret = []
+                if len(res):
+                    if tab[4]!=-2:
                         import zlib
                         for tupla in res:
+                            rr=[]
                             for x in tupla:
                                 if type(x) == str:
-                                    index = tupla.index(x)
-                                    tupla[index] = zlib.decompress(bytes.fromhex(x)).decode()
-                return res
+                                    rr.append(zlib.decompress(bytes.fromhex(x)).decode())
+                                else:
+                                    rr.append(x)
+                            ret.append(rr)
+                if len(ret):
+                    return ret
+                else:
+                    return res
             return 3
         else:
             return 2
@@ -759,6 +767,7 @@ def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
                 if not buscarcreateRefTables(database, 'TABLE_REF_INDEXU_'+table, db[1][0], indexName):
                     return 4
                 res = dropRefTAbles(database, 'TABLE_REF_INDEXU_'+table, db[1][0], indexName)
+                
                 return res
             return 3
         else:
@@ -871,6 +880,7 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
                     if type(default) == str:
                         import zlib
                         default = zlib.compress(default.encode(), tab[4]).hex()
+                rows1 = extractTable(database, table)
                 if tab[1] == 'avl':
                     res = avl.alterAddColumn(database, table, default)
                 elif tab[1] == 'b':
@@ -887,8 +897,14 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
                     res = hash.alterAddColumn(database, table, default)
                 if not res:
                     tab[2]+=1
+                    rows2 = extractTable(database, table)
                     dataTable[database.upper()+"_"+table.upper()] = tab
                     Serializable.update('./Data', 'DataTables', dataTable)
+                    if os.path.isfile('./Data/security/'+database+"_"+table+".json"):
+                            for row in rows1:
+                                index = rows1.index(row)
+                                row2 = rows2[index]
+                                block.blockchain().dropAddColumn(row, row2, database, table)
                 return res
             else:
                 return 3
@@ -908,6 +924,7 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
             if tab:
                 database = db[0]
                 table = tab[0]
+                rows1 = extractTable(database, table)
                 if tab[1] == 'avl':
                     res = avl.alterDropColumn(database, table, columnNumber)
                 elif tab[1] == 'b':
@@ -923,9 +940,15 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
                 elif tab[1] == 'hash':
                     res = hash.alterDropColumn(database, table, columnNumber)
                 if not res:
+                        rows2 = extractTable(database, table)
                         tab[2]-=1
                         dataTable[database.upper()+"_"+table.upper()] = tab
                         Serializable.update('./Data', 'DataTables', dataTable)
+                        if os.path.isfile('./Data/security/'+database+"_"+table+".json"):
+                            for row in rows1:
+                                index = rows1.index(row)
+                                row2 = rows2[index]
+                                block.blockchain().dropAddColumn(row, row2, database, table)
                 return res
             else:
                 return 3
@@ -1268,6 +1291,8 @@ def extractRow(database: str, table: str, columns: list) -> list:
                     for x in res:
                         if type(x) == str:
                             ret.append(zlib.decompress(bytes.fromhex(x)).decode())
+                        else:
+                            ret.append(x)
                 if len(ret):
                     return ret
                 else:
