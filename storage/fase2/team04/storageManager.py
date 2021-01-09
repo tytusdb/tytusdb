@@ -1235,3 +1235,64 @@ def decrypt(cipherBackup: str, password: str):
 
 	except:
 		return None #error
+# Descripcion:
+# 	Asociada una codificación a una base de datos por completo. (UPDATE)
+# Parámetro database: 
+#	es el nombre de la base de datos a utilizar. Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.
+# Valor de retorno: 
+#	0 operación exitosa,
+#	1 error en la operación, 
+#	2 database no existente, 
+#	3 nombre de modo no existente.
+def checksumDatabase(database: str, mode: str):
+	try:
+		list_routes = get_routes(database)
+		#falta: if para ver si la db existe, abenido del get_routes
+		if list_routes != []:
+			#verifico existe modo
+			if(mode.upper() == 'MD5'):
+				m = hashlib.md5()
+				print(mode)#quitar
+			elif(mode.upper() == 'SHA256'):
+				m = hashlib.sha256()
+				print(mode)#quitar
+			else:
+				return 3 #nombre del modo no existe
+
+			for direcc in list_routes:
+				file = open(direcc,'rb')
+				tabla = file.read() #en tipo binario
+				file.close()
+				m.update(tabla)
+			return m.hexdigest()
+		else:
+			return 1 #error: la db no tiene tablas
+	except:
+		return 1 #error en la operacion
+
+
+def checksumTable(database: str, table:str, mode: str):
+	try:
+		list_routes = get_route_table(database,table)
+		#falta: if para ver si la db existe, obenido del get_routes
+		if list_routes != None:
+			#verifico existe modo
+			if(mode.upper() == 'MD5'):
+				m = hashlib.md5()
+				print(mode)#quitar
+			elif(mode.upper() == 'SHA256'):
+				m = hashlib.sha256()
+				print(mode)#quitar
+			else:
+				return 3 #nombre del modo no existe
+
+				direcc = list_routes
+				file = open(direcc,'rb')
+				tabla = file.read() #en tipo binario
+				file.close()
+				m.update(tabla)
+			return m.hexdigest()
+		else:
+			return 1 #error: la db no tiene tablas
+	except:
+		return 1 #error en la operacion
