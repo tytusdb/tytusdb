@@ -33,6 +33,8 @@ class GUI(Frame):
             self.funciones()
         elif self.val == 3:
             self.reportes()
+        elif self.val == 4:
+            self.blockchain()
 
     def centrar(self):
         if self.val == 1:
@@ -68,6 +70,14 @@ class GUI(Frame):
         v3.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(v3, self.master))
         app3 = GUI(master=v3, val=3)
         app3.mainloop()
+    
+    def ventanaBlockhchain(self):
+        v4 = Toplevel()
+        self.master.iconify()
+        v4['bg'] = "#0f1319"
+        v4.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(v4, self.master))
+        app4 = GUI(master=v4, val=4)
+        app4.mainloop()
 
     @staticmethod
     def on_closing(win, root):
@@ -85,16 +95,20 @@ class GUI(Frame):
     def main(self):
         btnF = Button(text="FUNCIONES", bg="#33868a", bd=0, activebackground="#225b5e",
                       font="Arial 18", pady=12, width=14, command=lambda: self.ventanaFunciones())
-        btnF.pack(side=TOP, pady=(150, 25))
+        btnF.pack(side=TOP, pady=(135, 25))
 
         btnR = Button(text="REPORTES", bg="#33868a", bd=0, activebackground="#225b5e",
                       font="Arial 18", pady=12, width=14, command=lambda: self.ventanaReporte())
         btnR.pack(side=TOP, pady=(0, 25))
 
-        btnS = Button(text="SALIR", bg="#bf4040", bd=0, activebackground="#924040",
-                      font="Arial 18", pady=0, width=14, command=lambda: exit())
-        btnS.pack(side=TOP, pady=(0, 25))
+        btnB = Button(text="BLOCKCHAIN", bg="#33868a", bd=0, activebackground="#225b5e",
+                      font="Arial 18", pady=12, width=14, command=lambda: self.ventanaBlockhchain())
+        btnB.pack(side=TOP, pady=(0, 25))
 
+        btnS = Button(text="SALIR", bg="#bf4040", bd=0, activebackground="#924040",
+                      font="Arial 18", pady=0, width=14, command=lambda: self.master.destroy())
+        btnS.pack(side=TOP, pady=(0, 25))
+        
     # endregion
 
     # region Ventana de funciones
@@ -116,33 +130,40 @@ class GUI(Frame):
                              command=lambda: self.simpleDialog(["database", "mode", "encoding"], self.actions[1]))
         btnCreateDB.grid(row=2, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
 
+        btnAlterMode = Button(self.master,
+                             text=self.actions[24],
+                             bg="#abb2b9", font=("Courier New", 14),
+                             borderwidth=0.5, pady=6, width=16,
+                             command=lambda: self.simpleDialog(["database", "mode"], self.actions[24]))
+        btnAlterMode.grid(row=3, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
+
         btnshowDBS = Button(self.master,
                             text=self.actions[2],
                             bg="#abb2b9", font=("Courier New", 14),
                             borderwidth=0.5, pady=6, width=16,
                             command=lambda: self.controller.execute(None, self.actions[2]))
-        btnshowDBS.grid(row=3, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
+        btnshowDBS.grid(row=4, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
 
         btnAlterDB = Button(self.master,
                             text=self.actions[3],
                             bg="#abb2b9", font=("Courier New", 14),
                             borderwidth=0.5, pady=6, width=16,
                             command=lambda: self.simpleDialog(["databaseOld", "databaseNew"], self.actions[3]))
-        btnAlterDB.grid(row=4, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
+        btnAlterDB.grid(row=5, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
 
         btnDropDB = Button(self.master,
                            text=self.actions[4],
                            bg="#abb2b9", font=("Courier New", 14),
                            borderwidth=0.5, pady=6, width=16,
                            command=lambda: self.simpleDialog(["database"], self.actions[4]))
-        btnDropDB.grid(row=5, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
+        btnDropDB.grid(row=6, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
 
         btnFormat = Button(self.master,
                            text=self.actions[23],
                            bg="#abb2b9", font=("Courier New", 14),
                            borderwidth=0.5, pady=6, width=16,
                            command=lambda: self.controller.execute(None, self.actions[23]))
-        btnFormat.grid(row=6, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
+        btnFormat.grid(row=7, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
         # endregion
 
         # region Tablas
@@ -182,6 +203,20 @@ class GUI(Frame):
                             command=lambda: self.simpleDialog(["database", "tableOld", "tableNew"], self.actions[13]))
         btnAlterTb.grid(row=6, column=1, sticky=W, padx=(10, 0), pady=(0, 25))
 
+        btnAlterTBMode = Button(self.master,
+                             text=self.actions[25],
+                             bg="#abb2b9", font=("Courier New", 14),
+                             borderwidth=0.5, pady=6, width=15,
+                             command=lambda: self.simpleDialog(["database", "table", "mode"], self.actions[25]))
+        btnAlterTBMode.grid(row=6, column=1, sticky=W, padx=(10, 0), pady=(0, 25))
+
+        btnTBCompress = Button(self.master,
+                             text=self.actions[26],
+                             bg="#abb2b9", font=("Courier New", 14),
+                             borderwidth=0.5, pady=6, width=15,
+                             command=lambda: self.simpleDialog(["database", "table", "level"], self.actions[26]))
+        btnTBCompress.grid(row=7, column=1, sticky=W, padx=(10, 0), pady=(0, 25))
+
         btnDropTb = Button(self.master,
                            text=self.actions[16],
                            bg="#abb2b9", font=("Courier New", 14),
@@ -219,6 +254,14 @@ class GUI(Frame):
                                    command=lambda: self.simpleDialog(["database", "table", "column", "lower", "upper"],
                                                                      self.actions[8]))
         btnExtractRangeTb.grid(row=6, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
+
+        btnDecompressTb = Button(self.master,
+                                   text=self.actions[27],
+                                   bg="#abb2b9", font=("Courier New", 14),
+                                   borderwidth=0.5, pady=6, width=15,
+                                   command=lambda: self.simpleDialog(["database", "table"],
+                                                                     self.actions[27]))
+        btnDecompressTb.grid(row=7, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
         # endregion
 
         # region Tuplas:
@@ -310,14 +353,15 @@ class GUI(Frame):
     def desplegarDB(self):
         try:
             dblist = self.controller.execute(None, self.actions[2])
-            for db in dblist:
-                self.listbox.insert(END, str(db))
-            png = self.controller.reportDB()
-            bg_DB = ImageTk.PhotoImage(Image.open(png))
-            self.image_on_canvas = self.canvas.create_image(370, 207, anchor=CENTER, image=bg_DB)
-            # self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
-            # self.canvas.config(scrollregion=self.canvas.bbox(ALL))
-            self.master.mainloop()
+            if dblist:
+                for db in dblist:
+                    self.listbox.insert(END, str(db))
+                png = self.controller.reportDB()
+                bg_DB = ImageTk.PhotoImage(Image.open(png))
+                self.image_on_canvas = self.canvas.create_image(370, 207, anchor=CENTER, image=bg_DB)
+                self.master.mainloop()
+            else:
+                messagebox.showwarning('Operación imposible','No se encuentran bases de datos\ndisponibles para desplegar el reporte.')
         except:
             None
 
@@ -437,6 +481,76 @@ class GUI(Frame):
                                         "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
         dialog.destroy()
 
+    # Blockchain
+    def blockchain(self):
+        self.titulo4 = Label(self.master, text="Blockchain", bg="#0f1319", fg="#45c2c5",
+                             font=("Century Gothic", 42), pady=12)
+        self.titulo4.pack(fill=X)
+
+        self.scrollbarY = Scrollbar(self.master)
+        self.scrollbarY.pack(side=RIGHT, fill=Y)
+
+        self.scrollbarX = Scrollbar(self.master, orient='horizontal')
+        self.scrollbarX.pack(side=BOTTOM, fill=X)
+
+        self.dblst = Combobox(self.master, state="readonly", width=35, font=("Century Gothic", 15))
+        self.dblst.place(x=120, y=135)
+        self.dblst.set('Seleccione base de datos...')
+        self.dblst.bind("<<ComboboxSelected>>", self.displayTableList)
+
+        self.tablelst = Combobox(self.master, state="readonly", width=35, font=("Century Gothic", 15))
+        self.tablelst.place(x=620, y=135)
+        self.tablelst.set('Seleccione tabla...')
+        self.tablelst.bind("<<ComboboxSelected>>", self.displayBlockchain)
+
+        self.canvas = Canvas(self.master, width=1000, height=300, bg="#0f1319", highlightthickness=0)
+        self.canvas.place(x=72, y=200)
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+        self.scrollbarY.config(command=self.canvas.yview)
+        self.scrollbarX.config(command=self.canvas.xview)
+
+        self.display_availableDBS()
+    
+    # Mostrar lista de base de datos con tablas seguras
+    def display_availableDBS(self):
+        try:
+            dblist = self.controller.getDBS_Security()
+            if dblist:
+                self.dblst["values"] = dblist
+            else:
+                messagebox.showwarning('Operación imposible','Debe existir al menos una tabla en modo\nseguro para generar el Blockchain.')
+        except:
+            None
+    
+    # Mostrar valores en lista de tablas
+    def displayTableList(self, event):
+        try:
+            self.tablelst.set('Seleccione tabla...')
+            tblist = self.controller.getTBS_Security(self.dblst.get())
+            self.tablelst["values"] = tblist
+            if self.canvas.find_all():
+                self.canvas.delete(self.image_on_canvas)
+            self.master.mainloop()
+        except:
+            None
+    
+    # Mostrar grafica
+    def displayBlockchain(self, event):
+        try:
+            database = str(self.dblst.get())
+            table = str(self.tablelst.get())
+            png = self.controller.graphBlockchain(database, table)
+            bg = ImageTk.PhotoImage(Image.open(png))
+            if self.canvas.find_all():
+                self.canvas.itemconfig(self.image_on_canvas, image=bg)
+            else:
+                self.image_on_canvas = self.canvas.create_image(370, 170, anchor=W, image=bg)
+            self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+            self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+            self.master.mainloop()
+        except:
+            None
 
 def run():
     v1 = Tk()

@@ -349,3 +349,12 @@ class DatabaseModule:
                 tmp = db
                 break
         return tmp, index
+    
+    def DBS_Safe(self) -> list:
+        db_tmp = []
+        self.dbs = self.handler.rootinstance()
+        for db in self.dbs:
+            tmp = [db.name for x in db.tables if x.security]
+            if tmp:
+                db_tmp.append(tmp[0])
+        return db_tmp

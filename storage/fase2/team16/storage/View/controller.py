@@ -86,11 +86,27 @@ class Controller:
                 return s.truncate(args[0], args[1])
             elif action == actions[23]:
                 s.dropAll()
+            elif action == action[24]:
+                return s.alterDatabaseMode(args[0],args[1])
+            elif action == action[25]:
+                return s.alterTableMode(args[0],args[1],args[2])
+            elif action == action[26]:
+                return s.alterTableCompress(args[0],args[1],int(args[2]))
+            elif action == action[27]:
+                return s.alterTableDecompress(args[0],args[1])
             # endregion
             else:
                 return 6
         except:
             return 7
+    
+    @staticmethod
+    def getDBS_Security() -> list:
+        return s.DBS_Safe()
+    
+    @staticmethod
+    def getTBS_Security(database: str) -> list:
+        return s.TBL_Safe(database)
 
     @staticmethod
     def reportDB():
@@ -112,6 +128,11 @@ class Controller:
     @staticmethod
     def getIndexes(database: str, table: str):
         return s.extractTable(database, table)
+    
+    @staticmethod
+    def graphBlockchain(database: str, table: str):
+        return reports.graphBlockchain(database, table)
+
 
 
 class Enums:
@@ -138,5 +159,9 @@ class Enums:
         20: "Update",
         21: "Delete",
         22: "Truncate",
-        23: "Format DMS"
+        23: "Format DMS",
+        24: "Alter DB mode",
+        25: "Alter TBL mode",
+        26: "Alt compress",
+        27: "Alt decompress"
     }

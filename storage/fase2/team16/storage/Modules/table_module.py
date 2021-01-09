@@ -464,3 +464,13 @@ class TableModule:
                 tmp = db
                 break
         return tmp, index
+
+    def TBL_Safe(self, database: str) -> list:
+        tbl_tmp = []
+        self.dbs = self.handler.rootinstance()
+        for db in self.dbs:
+            if db.name.upper() == database.upper():
+                for tbl in db.tables:
+                    if tbl.security:
+                        tbl_tmp.append(tbl.name)
+        return tbl_tmp

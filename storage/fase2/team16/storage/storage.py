@@ -51,6 +51,9 @@ def alterDatabaseCompress(database: str, level: int) -> int:
 def alterDatabaseDecompress(database: str) -> int:
     return DB.alterDatabaseDecompress(database)
 
+def DBS_Safe() -> list:
+    return DB.DBS_Safe()
+
 
 #  endregion
 
@@ -133,6 +136,9 @@ def safeModeOn(database: str, table: str) -> int:
 
 def safeModeOff(database: str, table: str) -> int:
     return TBL.safeModeOff(database, table)
+
+def TBL_Safe(database: str) -> list:
+    return TBL.TBL_Safe(database)
 
 
 # endregion
