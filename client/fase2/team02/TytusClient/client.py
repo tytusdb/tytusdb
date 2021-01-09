@@ -143,7 +143,7 @@ class Example(Frame):
                     return True
                 else:
                     messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
-                    root.destroy()
+                    
                     return False
             cadena = active_object.area.get("sel.first", "sel.last")
             messagebox.showinfo("Tytus", active_object.area.get("sel.first", "sel.last"))
@@ -162,7 +162,7 @@ class Example(Frame):
                     return True
                 else:
                     messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
-                    root.destroy()
+
                     return False 
             cadena2 = messagebox.showinfo("TytusDB", "Escriba un query para procesarlo.")
             nuevaV = str(cadena2).upper()
