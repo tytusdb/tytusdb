@@ -1,15 +1,20 @@
-# Manual Tecnico
+# Manual Tecnico (FASE II)
 
 ## Librerias
 
 ```python
 import socket
 import tkinter as tk
+import json
+import webbrowser
+import platform
 
 ```
 + socket: Los sockets y el socket API se utilizan para enviar mensajes a través de una red. Proporcionan una forma de comunicación entre procesos (IPC).
 
 + tkinter: El paquete tkinter ("interfaz Tk") es la interfaz estándar de Python para el conjunto de herramientas de la interfaz gráfica Tk.
+
++ json: El paquete json permite leer el archivo json
 
 ## Conexion
 
@@ -42,7 +47,79 @@ def f_query_tool(self):
 
 ```
 
+
 + Método que habilita e inhabilita un Frame, el .pack() habilita el Frame, mientras que él .pack_forget() inhabilita un Frame
+
+
+```python
+  def send_scritp(self,texto):
+        # Mandamos el script
+        serv.sendall(texto.encode('utf-8'))
+        recibido = 0
+        esperado = len(texto)
+        #Recibiendo JSON
+        data = serv.recv(1500500)     
+        data_json = json.loads(data.decode())
+        recibido += len(data)
+        #imprimiendo todo el json
+        #print(data_json)
+        #Leyendo los hijos del padre mensaje
+        self.obj = data_json['obj']    
+        self.databases = data_json['databases']
+
+        # Imprimimos los Mensajes
+        for msg in self.obj['messages']:
+            self.f_set_console_message(msg)
+        
+        # Imprimimos los Errores
+        for err in self.obj['postgres']:
+            self.f_set_console_message(err)
+
+        # Actualizamos el treeview
+        self.f_charge_treeview()
+
+        # Actualizamos la tabla de query
+        self.f_set_console_tables()
+
+        #print(data_json['databases'])
+
+
+```
+
++ Método que permite mandar el script sql al server y recibe el json con la respuesta
+
+```python
+      def f_crear_db(self):
+        dll_db = simpledialog.askstring("Create DB", "Ingresar nombre")
+        query = "create database "+dll_db+";"
+        #print(query)
+        self.send_scritp(query)
+        databases.load()
+        self.f_charge_treeview()
+```
+
++ Método que permite crear la base de datos
+
+```python
+ def f_elimnar_db(self):
+        dll_db = simpledialog.askstring("Delete DB", "Ingresar nombre")
+        query = "drop database "+dll_db+";"
+        #print(query)
+        self.send_scritp(query)
+        databases.load()
+        self.f_charge_treeview()
+```
+
++ Método que permite eliminar la base de datos
+
+```python
+ def f_set_console_message(self, text):
+        self.outputText.config(state='normal')
+        self.outputText.insert(END, text+'\n')
+        self.outputText.config(state='disabled')
+```
+
++ Método que permite mostrar los errores
 
 # Manual Usuario
 
