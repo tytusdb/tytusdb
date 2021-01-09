@@ -124,6 +124,7 @@ function base(tipo){
     break;
     case "drop":
       var contenido = "drop database " + document.getElementById("nameBaseDrop").value + ";"
+      contenido +=  " rename to " + document.getElementById("nameBaseNuevo").value + ";"
       console.log(contenido)
       peticionQuery(contenido)
       document.getElementById("myModal2").style.display = "none";
@@ -208,11 +209,12 @@ function modelTable(nombre,close){
 function Table(opcion){
   switch(opcion){
     case "create":
-      var contenido = "create table " + document.getElementById("nameTableCreate").value + ";"
+      var contenido = "create table " + document.getElementById("nameTableCreate").value + " ( " + document.getElementById("atributosTabla").value + ");"
       console.log(contenido)
       peticionQuery(contenido)
       document.getElementById("myModalT1").style.display = "none";
       document.getElementById("nameTableCreate").value = "";
+      document.getElementById("atributosTabla").value = "";
     break;
 
     case "show":
@@ -221,7 +223,7 @@ function Table(opcion){
     break;
 
     case "extract":
-      var contenido = "extract table " + document.getElementById("nameTableExtract").value + ";"
+      var contenido = "select * from " + document.getElementById("nameTableExtract").value + ";"
       console.log(contenido)
       peticionQuery(contenido)
       document.getElementById("myModalT2").style.display = "none";
@@ -334,8 +336,8 @@ function Table(opcion){
       document.getElementById("nameupdate1").value = "";
     break;
 
-    case "delete":
-      var contenido = "delete " + document.getElementById("namedelete1").value + 
+    case "drop":
+      var contenido = "drop table " + document.getElementById("namedelete1").value + 
       " values("+document.getElementById("namedelete2").value+");"
       console.log(contenido)
       peticionQuery(contenido)
@@ -356,6 +358,7 @@ function Table(opcion){
 
 
 function mostrarSalida(data){
+  console.log(data.mensaje)
   document.getElementById("textoSalida").value = data
 }
 
@@ -371,5 +374,5 @@ function peticionQuery(contenido){
   })
   .then(response => response.json())
   .catch(error=> cosole.log('Error:',error))
-  .then(data => mostrarSalida(data));
+  .then(data => mostrarSalida(data.mensaje));
 }
