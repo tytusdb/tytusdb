@@ -1816,7 +1816,6 @@ def graphDSD(database: str) -> str:
 def graphDF(database: str, table: str) -> str:
     checkData()
     try:
-        nodos = []
         data = Serializable.Read('./Data/',"Data")
         db = data.get(database.upper())
         if db:
@@ -1827,33 +1826,39 @@ def graphDF(database: str, table: str) -> str:
                 table = tab[0]
                 if not os.path.isdir("./Data/Grafos/"):
                     os.mkdir("./Data/Grafos/")
-                f= open('./Data/Grafos/'+database+'.dot', 'w',encoding='utf-8')
+                f= open('./Data/Grafos/'+database+"_"+table+'_DF.dot', 'w',encoding='utf-8')
                 f.write("digraph dibujo{\n")
-                f.write('graph [ordering="out"];')
+                f.write('graph [ordering="out", ranksep = 5, nodesep = 0.5];')
                 f.write('rankdir=TB;\n')
-                f.write('node [shape = box];\n')
+                f.write('node [shape = record];\n')
                 mode = ExtractModeDatabase(db)
-                rows = mode.extractTable(database,"TABLE_REF_INDEXU_"+tab)
+                rows = mode.extractTable(database,"TABLE_REF_INDEXU_"+table)
                 primarias = tab[3]
                 unicas = []
-                nodos = []
                 normales = []
                 for x in primarias:
-                    f.write(str(x)+' [label = '+str(x)+',  fontsize="30", shape = box ];\n')
+                    f.write(str(x)+' [label = "Primary|'+str(x)+'",  fontsize="30", fillcolor = white, style = filled];\n')
                 if len(rows):
                     for row in rows:
                         for x in row[3]:
                             if x not in unicas and x not in primarias:
-                                f.write(str(x)+' [label = '+str(x)+',  fontsize="30", shape = box ];\n')
+                                f.write(str(x)+' [label = "Unique|'+str(x)+'",  fontsize="30", fillcolor = white, style = filled];\n')
                                 unicas.append(x) 
                 for y in range(tab[2]):
                     if y not in unicas and y not in primarias:
+                        f.write(str(y)+' [label = '+str(y)+',  fontsize="30", shape = box ];\n')
                         normales.append(y)
-                f.write(row[4]+'->'+ row[2]+';\n')
+                for p in primarias:
+                    for n in normales:
+                        f.write(str(p)+'->'+ str(n)+';\n')
+                
+                for p in unicas:
+                    for n in normales:
+                        f.write(str(p)+'->'+ str(n)+';\n')
                 f.write('}')
                 f.close()
-                os.system('dot -Tpng ./Data/Grafos/'+database+'.dot -o '+database+'_'+table+'.png')
-                return os.getcwd()+"\\Data\\Grafos\\"+database+"_"+table+".dot"
+                os.system('dot -Tpng ./Data/Grafos/'+database+"_"+table+'_DF.dot -o '+database+'_'+table+'_DF.png')
+                return os.getcwd()+"\\Data\\Grafos\\"+database+"_"+table+"_DF.dot"
         return None
     except:
         return None
