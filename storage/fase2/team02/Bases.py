@@ -6,12 +6,35 @@ from storage.isam import ISAMMode as isam
 from storage.json import jsonMode as j
 from storage.Hash import HashMode as Hash
 import zlib
+import hashlib
 # from storage.HashWindows import HashMode as Hash
 
 currentMode,avlList,bList,bplusList,dictList,jsonList,isamList,hashList = [],[],[],[],[],[],[],[]
 comp = []
 compT,decompT = [],[]
 decomp = []
+
+global lista
+lista = list()
+
+global listados
+listados = list()
+
+class controlFK:
+    def __init__(self, database, table, indexName, columns, tableRef, columnsRef):
+        self.database = database
+        self.table = table
+        self.indexName = indexName
+        self.columns = columns
+        self.tableRef = tableRef
+        self.columnsRef = columnsRef
+
+class controlUnique:
+    def __init__(self, database, table, indexName, columns):
+        self.database = database
+        self.table = table
+        self.indexName = indexName
+        self.columns = columns      
 
 # ----------Bases de datos------------------
 def createDatabase(database, mode, encoding):
@@ -136,6 +159,104 @@ def dropDatabase(database):
             return Hash.dropDatabase(database)
     else:
         return 2
+
+def alterTableAddFK(database, table, indexName, columns,  tableRef, columnsRef):  
+    Temporal = showTables(database)
+    bandera = False
+    contador = 0
+
+    if Temporal == 2:
+        return 2
+
+    try: 
+        for i in Temporal:
+            if table == i:
+                contador += 1
+                if contador >= 1:
+                    bandera = True
+                
+
+        if len(columns) <= 0 or len(columnsRef) <=0 or len(columns) != len(columnsRef):
+            return 4
+
+        elif bandera == False:
+            return 3
+
+        else:
+            lista.append(controlFK(database,table,indexName,columns,tableRef,columnsRef))
+            return 0
+    except:
+        return 1
+
+def alterTableDropFK(database, table, indexName):
+    try:
+        for j in range(len(lista)):
+            if database == lista[j].database:
+                for k in range(len(lista)):
+                    if table == lista[k].table:
+                        for i in range(len(lista)):
+                            if indexName == lista[i].indexName:
+                                lista.pop(i)
+                                return 0
+                            else:
+                                return 4
+                    else:
+                        return 3
+            else:
+                return 2
+    except:
+        return 1
+
+def alterTableAddUnique(database, table, indexName, columns):    
+    Temporal = showTables(database)
+    bandera = False
+    bandera2 = False
+    contador = 0
+
+    if Temporal == 2:
+        return 2
+
+    try:
+        for i in Temporal:
+            if table == i:
+                contador += 1
+                if contador >= 1:
+                    bandera = True
+                
+        for j in range(len(listados)):
+            if indexName == listados[j].indexName:
+                bandera2 = True
+            
+
+        if bandera == False:
+            return 3
+        elif bandera2 == True:
+            return 5
+        else:
+            listados.append(controlUnique(database,table,indexName,columns))
+            return 0
+    except:
+        return 1
+
+
+def alterTableDropUnique(database, table, indexName):
+    try:
+        for j in range(len(listados)):
+            if database == listados[j].database:
+                for k in range(len(listados)):
+                    if table == listados[k].table:
+                        for i in range(len(listados)):
+                            if indexName == listados[i].indexName:
+                                listados.pop(i)
+                                return 0
+                            else:
+                                return 4
+                    else:
+                        return 3
+            else:
+                return 2
+    except:
+        return 1
 
 #-------------TABLAS-------------------
 def createTable(database, table, numbercolumns):
@@ -810,3 +931,58 @@ def alterTableDecompress(database: str, table: str):
             return 2       
     except:
         return 1
+
+def checksumDatabase(database, mode):
+    MegaCadena = ""
+
+    try:
+        lista = showTables(database)
+        MegaCadena = MegaCadena + database
+
+        for i in lista:
+            MegaCadena = MegaCadena + i
+
+            for j in extractTable(database, i):
+                MegaCadena = MegaCadena + str(j)
+        if mode == "MD5":
+            return CodMD5(MegaCadena)
+        else:
+            return CodSHA256(MegaCadena)
+    
+    except:
+        return None
+
+def checksumTable(database, table, mode):
+    MegaCadena = ""
+
+    try:
+        lista = showTables(database)
+
+        for i in lista:
+            if i == table:
+                MegaCadena = MegaCadena + i
+            
+            for j in extractTable(database, i):
+                if i == table:
+                    MegaCadena = MegaCadena + str(j)
+
+        
+        if mode == "MD5":
+            return CodMD5(MegaCadena)
+        else:
+            return CodSHA256(MegaCadena)
+
+    except:
+        return None
+
+def CodMD5(Entrada):
+    MD5Codigo = hashlib.md5()
+    MD5Codigo.update(Entrada.encode('utf8'))
+    Proceso = MD5Codigo.hexdigest()
+    return Proceso
+
+def CodSHA256(Entrada):
+    SHACodigo = hashlib.sha256()
+    SHACodigo.update(Entrada.encode('utf8'))
+    Proceso = SHACodigo.hexdigest()
+    return Proceso
