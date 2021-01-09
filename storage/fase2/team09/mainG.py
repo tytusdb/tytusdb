@@ -705,6 +705,7 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list, ta
                             mo = d.modo
                             retorno = indices.alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef,mo,co)
                             if retorno == 0:
+                                d.fk=columns
                                 Actualizar(list_table, "tablasG")
                             return retorno
                 else:
@@ -726,6 +727,7 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
                     if d.base == database and d.tabla == table:
                         retorno = indices.alterTableDropFK(database, table, indexName, d.mode)
                         if retorno == 0:
+                            d.fk=None
                             Actualizar(list_table, "tablasG")
                         return retorno
             else:
@@ -748,6 +750,7 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
                         mo = d.modo
                         retorno = indices.alterTableAddUnique(database, table, indexName, columns,mo,co)
                         if retorno == 0:
+                            d.fk=columns
                             Actualizar(list_table, "tablasG")
                         return retorno
             else:
@@ -767,6 +770,7 @@ def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
                     if d.base == database and d.tabla == table:
                         retorno = indices.alterTableDropUnique(database, table, indexName, d.mode)
                         if retorno == 0:
+                            d.fk=None
                             Actualizar(list_table, "tablasG")
                         return retorno
             else:
@@ -789,6 +793,7 @@ def alterTableAddIndex(database: str, table: str, indexName: str, columns: list)
                         mo = d.modo
                         retorno = indices.alterTableAddIndex(database, table, indexName, columns,mo,co)
                         if retorno == 0:
+                            d.fk=columns
                             Actualizar(list_table, "tablasG")
                         return retorno
             else:
@@ -808,6 +813,7 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
                     if d.base == database and d.tabla == table:
                         retorno = indices.alterTableDropIndex(database, table, indexName, d.mode)
                         if retorno == 0:
+                            d.fk=None
                             Actualizar(list_table, "tablasG")
                         return retorno
             else:
