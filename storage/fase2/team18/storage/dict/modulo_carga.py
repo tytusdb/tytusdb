@@ -7,7 +7,7 @@ def loadCSV(filepath: str, database: str, table: str, tipado):
     try:
         res = []
         import csv
-        with open(filepath, 'r') as file:
+        with open(filepath, 'r', encoding='utf-8-sig') as file:
             reader = csv.reader(file, delimiter = ',')
             j = 0
             for row in reader:

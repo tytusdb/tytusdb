@@ -5,9 +5,9 @@ from tkinter import ttk
 import json
 import Table
 from tkinter import filedialog
-from . import ISAMMode as Storage
-from .DataBase import DataBase
-from .Table import Table
+import ISAMMode as Storage
+from DataBase import DataBase
+from Table import Table
 import os
 import pickle
 #--------------------------------------------------opciones de las bases de datos-------------------------------------------------
