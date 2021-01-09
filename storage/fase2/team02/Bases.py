@@ -136,3 +136,87 @@ def dropDatabase(database):
             return Hash.dropDatabase(database)
     else:
         return 2
+
+#-------------TABLAS-------------------
+def createTable(database, table, numbercolumns):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            avlList.append(table)
+            return avl.createTable(database, table, numbercolumns)
+        elif currentMode == 'b':
+            bList.append(table)
+            return b.createTable(database, table, numbercolumns)
+        elif currentMode == 'bplus':
+            bplusList.append(table)
+            return bplus.createTable(database, table, numbercolumns)
+        elif currentMode == 'dict':
+            dictList.append(table)
+            return DM.createTable(database, table, numbercolumns)
+        elif currentMode == 'isam':
+            isamList.append(table)
+            return isam.createTable(database, table, numbercolumns)
+        elif currentMode == 'json':
+            jsonList.append(table)
+            return j.createTable(database, table, numbercolumns)
+        elif currentMode == 'hash':
+            hashList.append(table)
+            return Hash.createTable(database, table, numbercolumns)
+    else:
+        return 2
+
+def alterTableMode(database, table, mode):
+    try:
+        M = searchInMode(database)
+        T = searchInMode(database)
+        if  M != None:
+            if T != None:
+                if not isValidMode(mode):
+                    return 4
+                oldReg = []
+                oldTables = showTables(database)
+                valCol = len(extractTable(database,table)[0])
+                # for table in oldTables:
+                #     oldReg.append(extractTable(database,table))
+                #     valCol = len(extractTable(database,table)[0])
+                dropDatabase(table)
+                if T == 'avl':
+                    avlList.remove(table)
+                elif T == 'b':
+                    bList.remove(table)
+                elif T == 'dict':
+                    dictList.remove(table)
+                elif T == 'bplus':
+                    dictList.remove(table)
+                elif T == 'isam':
+                    isamList.remove(table)
+                elif T == 'json':
+                    jsontList.remove(table)
+                elif T == 'hash':
+                    hashList.remove(table)
+                newBase = createDatabase(database,mode,'ascii')
+                # if newBase == 0:
+                #     # oldTables = showTables(database)
+                    
+                #     for table in oldTables:
+                        # valCol = len(extractTable(database,table)[0])
+                        # oldReg = extractTable(database,table)
+                        # newTable = createTable(database,table,valCol)
+                createTable(database,table,valCol)
+                if newTable == 0:
+                    # for i in range(len(oldTables)):
+                    #     for j in range(len(oldReg[i])):
+                    #         insert(database,oldTables[i],oldReg[i][j])
+                    for reg in oldReg:
+                        for newReg in reg:
+                            insert(database,table,newReg)
+                    return 0
+                else:
+                    return newTable
+                
+            else:
+                return 3
+        else:
+            return 2        
+    except:
+        return 1
