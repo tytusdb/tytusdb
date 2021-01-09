@@ -36,6 +36,11 @@ response = myConnection.getresponse()
 
 > Se envia una peticion y "responde" obtiene la respuesta del servidor.
 ## Librerias
+### Http Client
+Libreria que nos permite la comunicacion con el servidor y realizar peticiones web
+```python
+import http.client
+```
 ### Tkinter
 Es un binding de la biblioteca gráfica Tcl/Tk para el lenguaje de programación Python. Se considera un estándar para la interfaz gráfica de usuario (GUI) para Python, para lo que se instaló:
 **versión utilizada para Python 3.8.5**
