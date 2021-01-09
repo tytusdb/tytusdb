@@ -49,6 +49,29 @@ def myGET():
         consola.config(state=DISABLED)
     myConnection.close()
 
+def Get_User():#metodo para extraer usuarios internos
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+    headers = {
+        "Content-type": "application/json"
+    }
+
+    myConnection.request("GET", "/getUsuario", "", headers)
+    response = myConnection.getresponse()
+    print(response)
+    global consola
+    print("GET: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()   
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\n" + data.decode("utf-8"))
+        consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
+    myConnection.close()
+
 def DataQuery():
     global notebook
     global listas
@@ -74,7 +97,7 @@ def DataQuery():
         result = data.decode("utf-8")
         dividir= result.replace("{\"consola\": \"","")
         dividir1=dividir.replace("\"}","")
-        dividir2=str(str(dividir1).replace("\\n","\n")).replace(".",".\n")
+        dividir2=str(str(dividir1).replace("\\n","\n")).replace("a.","a.\n")
         print(dividir2)
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\n\n"+dividir2)
@@ -234,15 +257,17 @@ def CrearMenu(masterRoot):
     tools.add_command(label="Limpiar consola", command = LimpiarConsola)
     #Temporary tools to test client-server connection
     tools.add_command(label="GET USERS", command = myGET)
+    tools.add_command(label="GET USERS INTERN", command = Get_User)
     tools.add_command(label="CREATE USER", command = crearUsuario)
+    tools.add_command(label="REFRESH", command = refresh)
     #Log In sera parte de la barra de herramientas
     tools.add_command(label="LOGIN", command = LogIn)
 
     #se agrega ayuda
     ayuda=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
     #lista de ayuda
-    ayuda.add_command(label="Documentación de TytuSQL")
-    ayuda.add_command(label="Acerca de TytuSQL")
+    ayuda.add_command(label="Documentación de TytuDB")
+    ayuda.add_command(label="Acerca de TytuDB", command=info)
 
     #Se agrgan los menús a la barra
     barraDeMenu.add_cascade(label="Archivo",menu=archivo)
@@ -251,6 +276,8 @@ def CrearMenu(masterRoot):
     barraDeMenu.add_cascade(label="Ayuda",menu=ayuda)
     #Se indica que la barra de menú debe estar en la ventana
     return barraDeMenu
+def info():
+    messagebox.showinfo(message="BASE DE DATOS 1\nGRUPO 8\nCinthya Andrea Palomo Galvez 201700670\nKarla Julissa Ajtún Velásquez 201700565\nJavier Alejandro Monterroso Lopez 201700831\nByron Antonio Orellana Alburez 201700733", title="TytusDB")
 
 def abrir():
     global archivo
@@ -368,6 +395,12 @@ def cerrarVentana():
     global raiz
     messagebox.showinfo(message="Gracias por utilizar este programa! :v", title="TytusDB")
     raiz.destroy()
+
+def refresh():
+    global raiz
+    raiz.destroy()
+    main()
+
 
 def main():
     CrearVentana()

@@ -75,6 +75,8 @@ class Grafo:
                 for j in i.conexiones.keys():
                     if j not in nodosvisitados:
                         f.edge_attr["arrowhead"] ='vee'
+                        f.edge_attr["arrowtail"] ='vee'
+                        f.edge_attr["dir"] ='both'
                         f.edge(i.valor, j, label= str(i.conexiones[j]) )
                 
         f.view()
@@ -104,3 +106,80 @@ class Grafo:
                     nodosXvisitar.append(self.nodosAgregados[nodos.index(k)])
                     position +=1
         tree.GenGraph()
+
+"""
+gr = Grafo()
+
+gr.insertar("A", "referencia" , "B" )
+gr.insertar("A", 5 , "C" )
+gr.insertar("C", 6 , "B" )
+gr.insertar("B", 3 , "D" )
+gr.insertar("D", 1 , "A" )
+gr.insertar("C", 5 , "F" )   
+gr.insertar("C", 5 , "G" )  
+gr.insertar("G", 5 , "A" )  
+gr.insertar("G", 5 , "B" )  
+gr.insertar("F", 5 , "X" )  
+gr.insertar("X", 5 , "A" )  
+gr.insertar("V", 5 , "F" )  
+gr.insertar("V", 5 , "K" )  
+gr.insertar("D", 5 , "K" )  
+
+gr.retornaGrafo()
+gr.ArbolGenerador("B")
+gr.graficar()
+"""
+
+"""
+def graphDF(database, table):
+    try: 
+        grafo = Grafo()
+        tam_tabla = 0
+        lista_columna = []
+        pk = []
+        for db in databases: 
+            if database == db["name"]:
+                for t in db["tables"]: 
+                    if t["name"] == table: 
+                        pk = t["pk"].copy()
+                        tam_tabla = int(t["nCols"])
+                        lista_columna = [x for x in range(tam_tabla)]
+        
+        try:
+            tablas = fkIndex[database]
+            indice_foraneo = ""
+            indices_foraneos =[]
+            for i in list(tablas.keys()):
+                if table == i[0]:
+                    indices =table[i]
+                    indice_foraneo = indices[0]   
+                    indices_foraneos = indices[1]
+            tabla_unicos = uIndex[database]
+            indices_unicos = tabla_unicos[database]
+            indice_unico = table+indices_unicos[0]
+            listaIndices = indices_unicos[1]
+            for i in lista_columna:
+                grafo.insertar(str(pk)," " ,i )
+            grafo.insertar(str(pk) , " " , indice_foraneo)
+            grafo.insertar(str(pk) , " " , indice_foraneo)
+
+            for i in indices_foraneos: 
+                grafo.insertar(indice_foraneo," ",i )
+            for i in lista_columna:
+                grafo.insertar(indice_unico, " ",i )
+
+            grafo.ArbolGenerador(pk)
+            grafo.ArbolGenerador(indice_foraneo)
+            grafo.ArbolGenerador(indice_unico)
+
+        except: 
+            for i in list(tablas.keys()):
+                if table == i[0]:
+                    indices =table[i]
+                    indice_foraneo = indices[0]   
+                    indices_foraneos = indices[1]
+
+    except:
+        None
+
+"""

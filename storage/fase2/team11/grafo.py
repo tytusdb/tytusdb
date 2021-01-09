@@ -85,7 +85,7 @@ class Graph:
                                      f"=\"{temp.get__adjacency_list()[x].get_data()}\" ]\n "
 
         self.__string += "}\n"
-        print(self.__string)
+        #print(self.__string)
         return self.__string
 
     def graficar2(self):
@@ -106,7 +106,7 @@ class Graph:
                                      f"=\"{temp.get__adjacency_list()[x].get_data()}\" ]\n "
 
         self.__string += "}\n"
-        print(self.__string)
+        #print(self.__string)
         return self.__string
 
 

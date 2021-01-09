@@ -13,6 +13,8 @@ currentMode,avlList,bList,bplusList,dictList,jsonList,isamList,hashList = [],[],
 comp = []
 compT,decompT = [],[]
 decomp = []
+listMode = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
+listEncoding = ['ascii', 'iso-8859-1', 'utf8']
 
 global lista
 lista = list()
@@ -827,6 +829,44 @@ def searchInMode(value):
     else:
         return None
 
+def alterDataBaseEncoding(database, codificacion):
+    try:
+        if codificacion == '' or codificacion == None:
+            codificacion ='ascii'
+        key = []
+        #vamos a recorrer las bases, empezando por ver si existe la base 
+        for i in listMode:
+            if searchInMode(database)!= None :  #Buscamos la base 
+                if  listEncoding(codificacion):
+                   # tabla = showTables(database, i) #Verificamos si hay tablas en la BD
+                    if showTables(database, i):#tabla != []:
+                        for j in showTables : #La codificaci[on de las tablas] \
+                            tupla = extractTable(database, j)   
+                            if tupla !=[]:
+                                llave = currentMode[i][database][0][j][1]
+                                for n in range (0,len(tupla)):
+                                    Tup = []
+                                    for l in tupla[n]:
+                                        if type(l) is bytes: 
+                                            var1 = l.decode(currentMode[i][database][0][j][2])
+                                            Tup += [str(var1).encode(encoding = codificacion ,errors= 'backslashreplace' )]
+                                        else: 
+                                            Tup += [str(l).encode(encoding = codificacion ,errors= 'backslashreplace' )]
+                                    for x in llave:
+                                            key.append(tupla[n][x])
+                                            tuplaNew = {}
+                                    for f in range(0,len(Tup)):
+                                            tuplaNew[f] = Tup[f]
+                                    update(database,j,tuplaNew,key)
+                                    key = []
+                        currentMode[i][dataBase][0][j][2] = codificacion
+            return 0 
+                    
+            return 3
+        return 2
+    except:
+        return 1         
+
 def alterDatabaseCompress(database: str, level: int) :
     try:
         baseexist = searchInMode(database)
@@ -986,3 +1026,4 @@ def CodSHA256(Entrada):
     SHACodigo.update(Entrada.encode('utf8'))
     Proceso = SHACodigo.hexdigest()
     return Proceso
+
