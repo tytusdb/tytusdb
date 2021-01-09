@@ -1982,26 +1982,3 @@ def alterTableDecompress(database, table):
                 return 3
         except:
             return 1
-
-#------------------------------------------- Inciso 8 ---------------------------------------------------
-def graphDSD(database):
-    global Bases
-    try:
-        # Leemos el archivo binario de los registros de bases de datos
-        fichero_lectura = open("BD_register", "rb")
-        Bases = pickle.load(fichero_lectura)
-        Base = Bases[database]["FK"]
-        grafo = "digraph grafico1 {\n"
-        grafo += "rankdir = LR\n"
-        for clave in Base:
-            valor = Base[clave]
-            grafo+="\t"+str(valor[0]).replace(" ","")+'[label="'+str(valor[0])+'"shape=box]\n'
-            grafo += "\t"+str(valor[1]).replace(" ", "") + '[label="' + str(valor[1]) + '"shape=box]\n'
-            grafo+="\t"+str(valor[0]).replace(" ", "")+"->"+str(valor[1]).replace(" ", "")+"\n"
-        grafo+="}"
-        return grafo
-    except:
-        return None
-
-def graphDF(database, table):
-    print("")
