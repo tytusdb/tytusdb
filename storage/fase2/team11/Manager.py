@@ -782,3 +782,52 @@ def alterTableDropindex(database: str, table: str, indexName: str):
         else: return 3
     else: return 2
 
+    
+def showMetadata():
+    # db: Database
+    # table: Table
+    print("----------------------- --> MetaData <-- ----------------------------------")
+    for db in metadata_db_list:
+        print(f"DataBase:{db.get_name_database()}")
+        print(f"Mode:{db.get_mode()}")
+        print(f"Encoding:{db.get_encondig()}")
+        table_dicc: dict = db.get_tab()
+        if len(table_dicc) != 0:
+            for key, table in table_dicc.items():
+                print("--")
+                print(f"\tTable:{table.get_name_table()}")
+                print(f"\tNo. Columns:{table.get_nums_colums()}")
+                print(f"\tCompress:{table.get_compress()}")
+                print(f"\tFK:{table.fk.table}")
+                print(f"\t\t{table.fk.extractForeign()}")
+
+        print("")
+        print("")
+
+
+def graphDSD(database: str):
+    metadata_db, index = get_metadata_db(database)
+    list_aux = list()
+    if metadata_db:
+        table_dic: dict = metadata_db.get_tab()
+        if len(table_dic) != 0:
+            grafo = Graph()
+            for key, table in table_dic.items():
+                list_fk: list = table.fk.extractForeign()
+                if len(list_fk) != 0:
+                    for data in list_fk:
+                        table_1 = data[1]
+                        table_2 = data[3]
+                        if table_1 not in list_aux:
+                            grafo.add_vertex(str(table_1))
+                        if table_2 not in list_aux:
+                            grafo.add_vertex(str(table_2))
+
+                        grafo.join(str(table_1), str(table_2))
+                        # print(f"{str(table_1)},{str(table_2)}")
+            grafo.graficar()
+        else:
+            return "Tables empty"
+    else:
+        return 1
+
