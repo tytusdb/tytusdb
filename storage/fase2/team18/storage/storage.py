@@ -137,6 +137,8 @@ def alterDatabase(databaseOld, databaseNew) -> int:
                         else:
                             dataTableRef[x.upper()+"_"+databaseNew.upper()] = dataTableRef.get(x.upper()+"_"+databaseOld.upper())
                             del dataTableRef[x.upper()+"_"+databaseOld.upper()]
+                        if os.path.isfile("./Data/security/"+databaseOld+"_"+x+".json"):
+                            os.rename("./Data/security/"+databaseOld+"_"+x+".json","./Data/security/"+databaseNew+"_"+x+".json")
                     Serializable.update('./Data', 'DataTables', dataTable)
                     Serializable.update('./Data', 'DataTablesRef', dataTableRef)
                     Serializable.update('./Data', 'Data', data)
@@ -854,6 +856,8 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
                     tab[0]=tableNew
                     dataTable[database.upper()+"_"+tableNew.upper()] = tab
                     del dataTable[database.upper()+"_"+tableOld.upper()]
+                    if os.path.isfile("./Data/security/"+database+"_"+tableOld+".json"):
+                        os.rename("./Data/security/"+database+"_"+tableOld+".json","./Data/security/"+database+"_"+tableNew+".json")
                     Serializable.update('./Data', 'DataTables', dataTable)
                 return res
             else:
