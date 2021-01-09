@@ -943,3 +943,116 @@ def truncate(database: str, table: str) -> int:
         return res       
     except:
         return 1
+
+def graphDSD(database: str) -> int:
+    """Graphs a database ERD
+
+        Pararameters:\n
+            database (str): name of the database
+
+        Returns:\n
+            0: successful operation
+            None: non-existent database, an error ocurred
+    """
+    try:
+
+        if not database.isidentifier():
+            raise Exception()
+
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return None
+
+        archivo = open('archivo.dot', 'w', encoding='utf-8')
+        archivo.write('digraph structs {\n')
+        archivo.write('rankdir=LR;\n')
+        #archivo.write('node [shape=record];\n')
+
+        # nodo [label="nodo"];
+        print('encabezado')
+        for tb in baseDatos["tables"]:
+            archivo.write( '{0} [label="{0}"];\n'.format(tb["nameTb"]))
+
+        # enlaces tabla2 -> tabla1
+        print('enlaces')
+        tabla1 = ''
+        tabla2 = ''
+        for tb in baseDatos["tables"]:
+            tabla1 = tb["nameTb"]                                    
+            for lista in tb["foreign_keys"].extractTable():
+                tabla2 = lista[2]
+                archivo.write( '{0} -> {1};\n'.format(tabla2, tabla1) )
+        archivo.write("}\n")
+        archivo.close()
+        os.system('dot -Tpng archivo.dot -o graphDSD.png')
+        os.system('graphDSD.png')
+        return 0
+    except:
+        return None
+
+
+def graphDF(database: str, table: str) -> int:
+    """Graphs a table s functional dependencies
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table
+
+        Returns:\n
+            0: successful operation
+            None: non-existent database, an error ocurred
+    """
+    try:
+        if not database.isidentifier() or not table.isidentifier():
+            raise Exception()
+
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return None
+        
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return None
+
+        archivo = open('archivo.dot', 'w', encoding='utf-8')
+        archivo.write('digraph structs {\n')
+        archivo.write('rankdir=LR;')
+        archivo.write('node [shape=record];\n')
+
+        list_key = []
+        list_reg = []
+
+        for lista in tabla["unique_index"].extractTable():
+            list_key.append('unique_'+str(lista[0]))
+        
+        primaria = 'primary'
+        for pk in tabla["pk"]: 
+            primaria += '_'+ str(pk)
+        list_key.append(primaria)
+                            # 7             -       4
+        for x in range(int(tabla["columns"] - len(list_key))):
+            list_reg.append("reg_"+str(x+1)) #reg_1, reg_2, reg_3
+
+        #list_key = [primary_1, primary_2, unique_1, unique_2]
+        #list_reg = [reg_1, reg_2, reg_3]
+        # nodo[label=""];
+        
+        for x in list_key:
+            archivo.write('{0} [label="{0}"];\n'.format(x))
+            
+        for x in list_reg:
+            archivo.write('{0} [label="{0}"];\n'.format(x))
+        
+        # enlaces
+        # pk -> reg;
+        
+        for x in list_key:
+            for y in list_reg:
+                archivo.write('{0} -> {1};\n'.format(x, y))
+        archivo.write("}\n")
+        archivo.close()
+        os.system('dot -Tpng archivo.dot -o graphDF.png')
+        os.system('graphDF.png')
+        return 0
+    except:
+        return None
