@@ -25,6 +25,7 @@ import crypto
 import blockchain
 import pathlib
 import indices
+import zlib
 
 blokFlag = False
 
@@ -891,3 +892,28 @@ def alterDatabaseDecompress(database: str) -> int:
             return 3  # Sin compresion
     else:
         return 2  # Database no existe
+
+def alterTableDecompress(database: str, table: str) -> int:
+    if (comprimidoTabla(database, table)):
+        if (buscarbase(database)):
+            if (buscartabla(database, table)):
+                try:
+                    for d in list_table:
+                        if d.base == database and d.tabla == table:
+                            arregloTupla = d.codificado
+                            d.codificado = []
+                            for i in arregloTupla:
+                                if isinstance(i, str):
+                                    NuevoValor = zlib.decompress(i)
+                                    d.codificado.append(NuevoValor)
+                            d.compreso = False
+                    Actualizar(list_table, "tablasG")
+                    return 0  # operación exitosa
+                except:
+                    return 1  # Error en la operación
+            else:
+                return 3  # Table no existe
+        else:
+            return 2  # Database no existe
+    else:
+        return 4  # Sin compresion
