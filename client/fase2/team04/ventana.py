@@ -275,6 +275,7 @@ def CrearMenu(masterRoot):
     tools.add_command(label="CREATE USER", command = crearUsuario)
     #Log In sera parte de la barra de herramientas
     tools.add_command(label="LOGIN", command = LogIn)
+    tools.add_command(label="Actualizar", command = actualizar)
 
     #se agrega ayuda
     ayuda=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
@@ -289,6 +290,11 @@ def CrearMenu(masterRoot):
     barraDeMenu.add_cascade(label="Ayuda",menu=ayuda)
     #Se indica que la barra de menú debe estar en la ventana
     return barraDeMenu
+
+def actualizar():
+    global bases
+    getDatabases()
+    bases.entregado(jsonDB)
 
 def abrir():
     global archivo
