@@ -2,7 +2,7 @@ from analizer.symbol.environment import Environment
 from analizer.reports import Nodo
 from analizer.abstract import instruction
 from analizer.statement.expressions.tablle_all import TableAll
-
+from analizer.statement.functions.call import FunctionCall
 import pandas as pd
 
 
@@ -173,6 +173,11 @@ class Select(instruction.Instruction):
             new.addNode(self.orderByCl.dot())
 
         return new
+    
+    def validaFuncionesFase2(self):
+        for parametro in self.params:
+            if isinstance( parametro , FunctionCall):
+                parametro.validaFuncionesFase2()
 
 
 class SelectOnlyParams(Select):
@@ -209,3 +214,14 @@ class SelectOnlyParams(Select):
             for p in self.params:
                 paramNode.addNode(p.dot())
         return new
+
+
+    def generate3d(self, environment, instanciaAux):
+        pass
+    
+    
+    def validaFuncionesFase2(self):
+        for parametro in self.params:
+            if isinstance( parametro , FunctionCall):
+                parametro.validaFuncionesFase2()
+        

@@ -2,12 +2,13 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 from Instrucciones.Sql_select.SelectLista import Alias
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 import time
 import numpy as np
 
 class Relacional(Instruccion):
-    def __init__(self, opIzq, opDer, operador, strGram,linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.BOOLEAN),linea,columna,strGram)
+    def __init__(self, opIzq, opDer, operador, strGram,linea, columna, strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.BOOLEAN),linea,columna,strGram, strSent)
         self.opIzq = opIzq
         self.opDer = opDer
         self.operador = operador
@@ -389,7 +390,7 @@ class Relacional(Instruccion):
                 #aqui va un comparador para update como en update el igual es para asignacion
                 if(self.opIzq.tipo.tipo == Tipo_Dato.ID and (not self.opDer.tipo.tipo == Tipo_Dato.ID)):
                     # aqui va el procedimiento para devolver un id con su valor
-                    a = Alias(resultadoIzq, resultadoDer)
+                    a = Alias(resultadoIzq, resultadoDer, "")
                     a.tipo = self.opDer.tipo
                     return a
                 else:
@@ -771,6 +772,314 @@ class Relacional(Instruccion):
                 return tablaRes
             else:
                 print("ENTRO A ESTE ELSE")
+                
+        else:
+            error = Excepcion('42804',"Semántico","Operador desconocido.",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
+
+    # **********************************************************************************************
+    # ************************************ TRADUCCIÓN **********************************************
+    # **********************************************************************************************
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        super().ejecutar(tabla,arbol)
+        # Si existe algún error en el operador izquierdo, retorno el error.
+        #Aqui vamos a verificar si hay un alias
+        if isinstance(self.opIzq, Alias):
+            error = Excepcion('42883',"Semántico","No se pueden traducir expresiones con referencias a columnas",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
+        else:
+            resultadoIzq = self.opIzq.traducir(tabla, arbol,cadenaTraducida)
+            
+
+        if isinstance(resultadoIzq, Excepcion):
+            return resultadoIzq
+
+        # Si existe algún error en el operador derecho, retorno el error.
+        if isinstance(self.opDer, Alias):
+            error = Excepcion('42883',"Semántico","No se pueden traducir expresiones con referencias a columnas",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
+        else:
+            resultadoDer = self.opDer.traducir(tabla, arbol,cadenaTraducida)
+
+        if isinstance(resultadoDer, Excepcion):
+            return resultadoDer
+
+        # Comprobamos el tipo de operador
+        if self.operador == '>':
+            
+            if(arbol.getWhere() or arbol.getUpdate()):
+                error = Excepcion('42883',"Semántico","No se pueden traducir un query",self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
+            else:
+                if (resultadoIzq.tipo.tipo == Tipo_Dato.SMALLINT or resultadoIzq.tipo.tipo == Tipo_Dato.INTEGER or resultadoIzq.tipo.tipo == Tipo_Dato.BIGINT or resultadoIzq.tipo.tipo == Tipo_Dato.DECIMAL or resultadoIzq.tipo.tipo == Tipo_Dato.NUMERIC or resultadoIzq.tipo.tipo == Tipo_Dato.REAL or resultadoIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoIzq.tipo.tipo == Tipo_Dato.MONEY) and (resultadoDer.tipo.tipo == Tipo_Dato.SMALLINT or resultadoDer.tipo.tipo == Tipo_Dato.INTEGER or resultadoDer.tipo.tipo == Tipo_Dato.BIGINT or resultadoDer.tipo.tipo == Tipo_Dato.DECIMAL or resultadoDer.tipo.tipo == Tipo_Dato.NUMERIC or resultadoDer.tipo.tipo == Tipo_Dato.REAL or resultadoDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoDer.tipo.tipo == Tipo_Dato.MONEY):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo    
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo                                  
+                else:
+                    error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" > "+self.opDer.tipo.toString(),self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
+        elif self.operador == '<':
+            if(arbol.getWhere() or arbol.getUpdate()):
+                error = Excepcion('42883',"Semántico","No se pueden traducir un query",self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
+            else:
+                if (resultadoIzq.tipo.tipo == Tipo_Dato.SMALLINT or resultadoIzq.tipo.tipo == Tipo_Dato.INTEGER or resultadoIzq.tipo.tipo == Tipo_Dato.BIGINT or resultadoIzq.tipo.tipo == Tipo_Dato.DECIMAL or resultadoIzq.tipo.tipo == Tipo_Dato.NUMERIC or resultadoIzq.tipo.tipo == Tipo_Dato.REAL or resultadoIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoIzq.tipo.tipo == Tipo_Dato.MONEY) and (resultadoDer.tipo.tipo == Tipo_Dato.SMALLINT or resultadoDer.tipo.tipo == Tipo_Dato.INTEGER or resultadoDer.tipo.tipo == Tipo_Dato.BIGINT or resultadoDer.tipo.tipo == Tipo_Dato.DECIMAL or resultadoDer.tipo.tipo == Tipo_Dato.NUMERIC or resultadoDer.tipo.tipo == Tipo_Dato.REAL or resultadoDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoDer.tipo.tipo == Tipo_Dato.MONEY):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo                    
+                elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
+                else:
+                    error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" < "+self.opDer.tipo.toString(),self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
+        elif self.operador == '>=':
+            if(arbol.getWhere() or arbol.getUpdate()):
+                error = Excepcion('42883',"Semántico","No se pueden traducir un query",self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
+            else:
+                if (resultadoIzq.tipo.tipo == Tipo_Dato.SMALLINT or resultadoIzq.tipo.tipo == Tipo_Dato.INTEGER or resultadoIzq.tipo.tipo == Tipo_Dato.BIGINT or resultadoIzq.tipo.tipo == Tipo_Dato.DECIMAL or resultadoIzq.tipo.tipo == Tipo_Dato.NUMERIC or resultadoIzq.tipo.tipo == Tipo_Dato.REAL or resultadoIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoIzq.tipo.tipo == Tipo_Dato.MONEY) and (resultadoDer.tipo.tipo == Tipo_Dato.SMALLINT or resultadoDer.tipo.tipo == Tipo_Dato.INTEGER or resultadoDer.tipo.tipo == Tipo_Dato.BIGINT or resultadoDer.tipo.tipo == Tipo_Dato.DECIMAL or resultadoDer.tipo.tipo == Tipo_Dato.NUMERIC or resultadoDer.tipo.tipo == Tipo_Dato.REAL or resultadoDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoDer.tipo.tipo == Tipo_Dato.MONEY):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + ">=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
+                else:
+                    error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" >= "+self.opDer.tipo.toString(),self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
+        elif self.operador == '<=':
+            if(arbol.getWhere() or arbol.getUpdate()):
+                error = Excepcion('42883',"Semántico","No se pueden traducir un query",self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
+            else:
+                if (resultadoIzq.tipo.tipo == Tipo_Dato.SMALLINT or resultadoIzq.tipo.tipo == Tipo_Dato.INTEGER or resultadoIzq.tipo.tipo == Tipo_Dato.BIGINT or resultadoIzq.tipo.tipo == Tipo_Dato.DECIMAL or resultadoIzq.tipo.tipo == Tipo_Dato.NUMERIC or resultadoIzq.tipo.tipo == Tipo_Dato.REAL or resultadoIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoIzq.tipo.tipo == Tipo_Dato.MONEY) and (resultadoDer.tipo.tipo == Tipo_Dato.SMALLINT or resultadoDer.tipo.tipo == Tipo_Dato.INTEGER or resultadoDer.tipo.tipo == Tipo_Dato.BIGINT or resultadoDer.tipo.tipo == Tipo_Dato.DECIMAL or resultadoDer.tipo.tipo == Tipo_Dato.NUMERIC or resultadoDer.tipo.tipo == Tipo_Dato.REAL or resultadoDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoDer.tipo.tipo == Tipo_Dato.MONEY):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "<=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
+                else:
+                    error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" <= "+self.opDer.tipo.toString(),self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
+        elif self.operador == '=':
+            if(arbol.getWhere()):
+                error = Excepcion('42883',"Semántico","No se pueden traducir un query",self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
+            elif arbol.getUpdate():
+                error = Excepcion('42883',"Semántico","No se pueden traducir un query",self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
+            else:
+                if (resultadoIzq.tipo.tipo == Tipo_Dato.SMALLINT or resultadoIzq.tipo.tipo == Tipo_Dato.INTEGER or resultadoIzq.tipo.tipo == Tipo_Dato.BIGINT or resultadoIzq.tipo.tipo == Tipo_Dato.DECIMAL or resultadoIzq.tipo.tipo == Tipo_Dato.NUMERIC or resultadoIzq.tipo.tipo == Tipo_Dato.REAL or resultadoIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoIzq.tipo.tipo == Tipo_Dato.MONEY) and (resultadoDer.tipo.tipo == Tipo_Dato.SMALLINT or resultadoDer.tipo.tipo == Tipo_Dato.INTEGER or resultadoDer.tipo.tipo == Tipo_Dato.BIGINT or resultadoDer.tipo.tipo == Tipo_Dato.DECIMAL or resultadoDer.tipo.tipo == Tipo_Dato.NUMERIC or resultadoDer.tipo.tipo == Tipo_Dato.REAL or resultadoDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoDer.tipo.tipo == Tipo_Dato.MONEY):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo                    
+                elif (resultadoIzq.tipo.tipo == Tipo_Dato.DATE or resultadoIzq.tipo.tipo == Tipo_Dato.TIME or resultadoIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR) and (resultadoDer.tipo.tipo == Tipo_Dato.DATE or resultadoDer.tipo.tipo == Tipo_Dato.TIME or resultadoDer.tipo.tipo == Tipo_Dato.TIMESTAMP or resultadoDer.tipo.tipo == Tipo_Dato.CHAR):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
+                else:
+                    error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" = "+self.opDer.tipo.toString(),self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
+        elif self.operador == '<>':
+            if(arbol.getWhere() or arbol.getUpdate()):
+                error = Excepcion('42883',"Semántico","No se pueden traducir un query",self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error
+            else:
+                if (resultadoIzq.tipo.tipo == Tipo_Dato.SMALLINT or resultadoIzq.tipo.tipo == Tipo_Dato.INTEGER or resultadoIzq.tipo.tipo == Tipo_Dato.BIGINT or resultadoIzq.tipo.tipo == Tipo_Dato.DECIMAL or resultadoIzq.tipo.tipo == Tipo_Dato.NUMERIC or resultadoIzq.tipo.tipo == Tipo_Dato.REAL or resultadoIzq.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoIzq.tipo.tipo == Tipo_Dato.MONEY) and (resultadoDer.tipo.tipo == Tipo_Dato.SMALLINT or resultadoDer.tipo.tipo == Tipo_Dato.INTEGER or resultadoDer.tipo.tipo == Tipo_Dato.BIGINT or resultadoDer.tipo.tipo == Tipo_Dato.DECIMAL or resultadoDer.tipo.tipo == Tipo_Dato.NUMERIC or resultadoDer.tipo.tipo == Tipo_Dato.REAL or resultadoDer.tipo.tipo == Tipo_Dato.DOUBLE_PRECISION or resultadoDer.tipo.tipo == Tipo_Dato.MONEY):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif (self.opIzq.tipo.tipo == Tipo_Dato.DATE or self.opIzq.tipo.tipo == Tipo_Dato.TIME or self.opIzq.tipo.tipo == Tipo_Dato.TIMESTAMP or self.opIzq.tipo.tipo == Tipo_Dato.CHAR) and (self.opDer.tipo.tipo == Tipo_Dato.DATE or self.opDer.tipo.tipo == Tipo_Dato.TIME or self.opDer.tipo.tipo == Tipo_Dato.TIMESTAMP or self.opDer.tipo.tipo == Tipo_Dato.CHAR):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
+                else:
+                    error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" <> "+self.opDer.tipo.toString(),self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
+        elif self.operador == "LIKE":
+            print("aqui entra al like")
+            if(arbol.getWhere()):
+                error = Excepcion('42883',"Semántico","No se pueden traducir un query con operador like",self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error            
+            else:
+                if (resultadoIzq.tipo.tipo == Tipo_Dato.VARCHAR or resultadoIzq.tipo.tipo == Tipo_Dato.CHAR or resultadoIzq.tipo.tipo == Tipo_Dato.CHARACTER or resultadoIzq.tipo.tipo == Tipo_Dato.VARCHAR or resultadoIzq.tipo.tipo == Tipo_Dato.VARYING or resultadoIzq.tipo.tipo == Tipo_Dato.TEXT ) and (resultadoDer.tipo.tipo == Tipo_Dato.VARCHAR or resultadoDer.tipo.tipo == Tipo_Dato.CHAR or resultadoDer.tipo.tipo == Tipo_Dato.CHARACTER or resultadoDer.tipo.tipo == Tipo_Dato.VARCHAR or resultadoDer.tipo.tipo == Tipo_Dato.VARYING or resultadoDer.tipo.tipo == Tipo_Dato.TEXT):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "==" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
+                else:
+                    error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" = "+self.opDer.tipo.toString(),self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
+                    
+        elif self.operador == "NOT LIKE":
+            if(arbol.getWhere()):
+                error = Excepcion('42883',"Semántico","No se pueden traducir un query con operador like",self.linea,self.columna)
+                arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
+                return error                  
+            else:
+                if (self.opIzq.tipo.tipo == Tipo_Dato.VARCHAR or self.opIzq.tipo.tipo == Tipo_Dato.CHAR or self.opIzq.tipo.tipo == Tipo_Dato.CHARACTER or self.opIzq.tipo.tipo == Tipo_Dato.VARCHAR or self.opIzq.tipo.tipo == Tipo_Dato.VARYING or self.opIzq.tipo.tipo == Tipo_Dato.TEXT ) and (self.opDer.tipo.tipo == Tipo_Dato.VARCHAR or self.opDer.tipo.tipo == Tipo_Dato.CHAR or self.opDer.tipo.tipo == Tipo_Dato.CHARACTER or self.opDer.tipo.tipo == Tipo_Dato.VARCHAR or self.opDer.tipo.tipo == Tipo_Dato.VARYING or self.opDer.tipo.tipo == Tipo_Dato.TEXT):
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.BOOLEAN),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo
+                elif resultadoIzq.tipo.tipo == Tipo_Dato.ID or resultadoDer.tipo.tipo == Tipo_Dato.ID:
+                    etiquetaV = arbol.generaEtiqueta()
+                    etiquetaF = arbol.generaEtiqueta()
+                    codigo = resultadoIzq.codigo + resultadoDer.codigo
+                    codigo = codigo + "\tif (" + resultadoIzq.temporal + "!=" + resultadoDer.temporal + "): \n\t\tgoto ."+etiquetaV+" \n\tgoto ."+etiquetaF+" \n"
+                    nuevo = Simbolo3d(Tipo("",Tipo_Dato.ID),"",codigo,"."+etiquetaV+":","."+etiquetaF+":")
+                    return nuevo   
+                else:
+                    error = Excepcion('42883',"Semántico","el operador no existe: "+self.opIzq.tipo.toString()+" = "+self.opDer.tipo.toString(),self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
+        elif self.operador == "IN":
+            error = Excepcion('42883',"Semántico","No se pueden traducir un query con operador in",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
+        elif self.operador == "NOT IN":
+            error = Excepcion('42883',"Semántico","No se pueden traducir un query con operador in",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
                 
         else:
             error = Excepcion('42804',"Semántico","Operador desconocido.",self.linea,self.columna)

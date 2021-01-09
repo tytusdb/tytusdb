@@ -6,12 +6,15 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter import *
 from ui.Pantalla_TS import *
-from ui.Pantalla_AST import *
+#from ui.Pantalla_AST import *
 from ui.Pantalla_Error import *
 import tkinter.messagebox
 from analizer import interpreter
 from analizer.gramaticaFase2 import parserTo3D , getCodigo
 from analizer.reports import BnfGrammar
+import json
+from json2html import *
+
 class Pantalla:
     def __init__(self):
         self.lexicalErrors = list()
@@ -27,7 +30,7 @@ class Pantalla:
         self.window.geometry("700x750")
         self.window.resizable(0, 0)
         self.window.title("Query Tool")
-        self.window.config( bg="black")
+        self.window.config(bg="black")
         self.frame_entrada = Frame(
             self.window, height=300, width=520, bd=10, bg="black"
         )
@@ -43,22 +46,27 @@ class Pantalla:
         navMenu = Menu(self.window)
         navMenu.add_command(label="TABLA DE SIMBOLOS", command=self.open_ST)
         navMenu.add_command(label="AST", command=self.open_AST)
-        navMenu.add_command(label="REPORTE GRAMATICAL", command=self.reporteGramatical)
-        navMenu.add_command(label="REPORTE DE ERRORES",command=self.open_Reporte,)
+        navMenu.add_command(label="REPORTE GRAMATICAL",
+                            command=self.reporteGramatical)
+        navMenu.add_command(label="REPORTE DE ERRORES",
+                            command=self.open_Reporte)
+        navMenu.add_command(label="OPTIMIZAR",
+                    command=self.optimizar)
 
         self.window.config(menu=navMenu)
         frame_btn = Frame(self.window)
         btn = Button(frame_btn, text="Ejecutar F1", command=self.analize)
         btn.pack(side=LEFT, anchor=E, padx=25, pady=20)
-        btn_1 = Button(frame_btn, text="Verificar Errores", command=self.parse)
-        btn_1.pack(side=LEFT, anchor=E, padx=25, pady=20)
-        btn_codigo_3d = Button(frame_btn, text="Generar Codigo 3D", command=self.generarCodigo3d)
+    
+        btn_codigo_3d = Button(
+            frame_btn, text="Generar Codigo 3D", command=self.generarCodigo3d)
         btn_codigo_3d.pack(side=LEFT, anchor=E, padx=25, pady=20)
-        frame_btn.configure( bg="black")
+        frame_btn.configure(bg="black")
         frame_btn.pack()
         # Creacion del notebook
         self.tabControl = ttk.Notebook(self.window, width=650, height=300)
-        console_frame = Frame(self.tabControl, height=20, width=150, bg="#d3d3d3")
+        console_frame = Frame(self.tabControl, height=20,
+                              width=150, bg="#d3d3d3")
         self.text_Consola = tk.Text(console_frame, height=20, width=150)
         self.text_Consola.pack(fill=BOTH)
         console_frame.pack(fill=BOTH)
@@ -72,7 +80,8 @@ class Pantalla:
             for consult in consults:
                 i += 1
                 if consult != None:
-                    frame = Frame(self.tabControl, height=300, width=450, bg="#d3d3d3")
+                    frame = Frame(self.tabControl, height=300,
+                                  width=450, bg="#d3d3d3")
                     # Creacion del scrollbar
                     table_scroll = Scrollbar(frame, orient="vertical")
                     table_scrollX = Scrollbar(frame, orient="horizontal")
@@ -138,7 +147,8 @@ class Pantalla:
             )
             if len(self.postgreSQL) > 0:
                 i = 0
-                self.text_Consola.insert(INSERT, "-----------ERRORS----------" + "\n")
+                self.text_Consola.insert(
+                    INSERT, "-----------ERRORS----------" + "\n")
                 while i < len(self.postgreSQL):
                     self.text_Consola.insert(INSERT, self.postgreSQL[i] + "\n")
                     i += 1
@@ -147,7 +157,8 @@ class Pantalla:
         messages = result["messages"]
         if len(messages) > 0:
             i = 0
-            self.text_Consola.insert(INSERT, "-----------MESSAGES----------" + "\n")
+            self.text_Consola.insert(
+                INSERT, "-----------MESSAGES----------" + "\n")
             while i < len(messages):
                 self.text_Consola.insert(INSERT, str(messages[i]) + "\n")
                 i += 1
@@ -160,26 +171,25 @@ class Pantalla:
         """
         self.refresh()
         entrada = ""
-        entrada = self.txt_entrada.get( "1.0", END)
-        res     = interpreter.generar_codigo_3d(entrada)
+        entrada = self.txt_entrada.get("1.0", END)
+        res = interpreter.generar_codigo_3d(entrada)
         self.lexicalErrors = res["err_lexicos"]
         self.syntacticErrors = res["err_sintacticos"]
-        #self.semanticErrors = res["semantic"]
+        self.semanticErrors = res["semantic"]
         self.ts = res["symbols"]
         if (
             len(self.lexicalErrors)
             + len(self.syntacticErrors)
-           # + len(self.semanticErrors)
+           + len(self.semanticErrors)
            # + len(self.postgreSQL)
             > 0
-        ):
+           ):
             tkinter.messagebox.showerror(
                 title="Error", message="la entrada posee errores"
             )
         else:
             cadena_codigo_3d = getCodigo()
-            self.text_Consola.insert(INSERT,cadena_codigo_3d)
-
+            self.text_Consola.insert(INSERT, cadena_codigo_3d)
 
     def refresh(self):
         tabls = self.tabControl.tabs()
@@ -223,16 +233,25 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
+        # info = self.read('Database.json')
+        # f = open("tb.html", "w")
+        # f.write(json2html.convert(json=info))
+        # f.close()
+        # os.system('tb.html')
         windowTableS = Pantalla_TS(self.window, self.ts)
-
+    def read(self ,path: str) -> dict:
+        with open(path) as file:
+            return json.load(file)
     def open_AST(self):  # Abre la pantalla del AST
-        os.system('cd test-output & round-table.gv.png')
-        windowTableS = Pantalla_AST(self.window)
+        os.system('cd ./test-output & round-table.gv.svg')
+
 
     def open_Reporte(self):  # Abre la pantalla de los reportes de errores
         windowTableS = Pantalla_Error(
             self.window, self.lexicalErrors, self.syntacticErrors, self.semanticErrors
         )
+    def optimizar(self):
+        pass#metodo cante :v
 
     def reporteGramatical(self):
         os.system('cd test-output & ReporteGramatica.bnf')

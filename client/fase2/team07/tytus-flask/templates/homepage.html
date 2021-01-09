@@ -1,0 +1,589 @@
+{% extends "plantilla.html" %}
+
+{% block content %}
+
+    <!--CONTENEDOR PRINCIPAL-->
+    <div class="container mt-5">
+        <div class="row">
+            <!--BARRA IZQUIERDA-->
+            <div class="col-2">
+                <div class="row" id="cont1">
+                    <div class="col-12">
+                        NAVEGADOR
+                    </div>
+                    <div class="col-12">
+                        <br>
+                    </div>
+                    <!--OPCIONES 1-->
+                    <div class="col-12">
+                        BASES DE DATOS
+                        <div class="col-12">
+
+                            <button onclick="crearDB();" type="button" class="btn btn-light">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
+                                    <path
+                                            d="M4 0h5.5v1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h1V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                                    <path d="M9.5 3V0L14 4.5h-3A1.5 1.5 0 0 1 9.5 3z"/>
+                                    <path fill-rule="evenodd"
+                                          d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z"/>
+                                </svg>
+                                CREATE
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button onclick="dropDB();" type="button" class="btn btn-light">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                                    <path
+                                            d="M4 0h5.5v1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h1V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                                    <path d="M9.5 3V0L14 4.5h-3A1.5 1.5 0 0 1 9.5 3z"/>
+                                    <path fill-rule="evenodd"
+                                          d="M5.18 6.616a.5.5 0 0 1 .704.064L8 9.219l2.116-2.54a.5.5 0 1 1 .768.641L8.651 10l2.233 2.68a.5.5 0 0 1-.768.64L8 10.781l-2.116 2.54a.5.5 0 0 1-.768-.641L7.349 10 5.116 7.32a.5.5 0 0 1 .064-.704z"/>
+                                </svg>
+                                DROP
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <br>
+                        </div>
+                    </div>
+                    <!--FIN OPCIONES-->
+                    <!--OPCIONES 2-->
+                    <div class="col-12">
+                        TABLAS
+                        <div class="col-12">
+                            <button onclick="crearTB();" type="button" class="btn btn-light">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
+                                    <path
+                                            d="M4 0h5.5v1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h1V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                                    <path d="M9.5 3V0L14 4.5h-3A1.5 1.5 0 0 1 9.5 3z"/>
+                                    <path fill-rule="evenodd"
+                                          d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z"/>
+                                </svg>
+                                CREATE
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button onclick="alterTB();"type="button" class="btn btn-light">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                    <path
+                                            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456l-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                    <path fill-rule="evenodd"
+                                          d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                </svg>
+                                ALTER
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button onclick="dropTB();" type="button" class="btn btn-light">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                                    <path
+                                            d="M4 0h5.5v1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h1V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                                    <path d="M9.5 3V0L14 4.5h-3A1.5 1.5 0 0 1 9.5 3z"/>
+                                    <path fill-rule="evenodd"
+                                          d="M5.18 6.616a.5.5 0 0 1 .704.064L8 9.219l2.116-2.54a.5.5 0 1 1 .768.641L8.651 10l2.233 2.68a.5.5 0 0 1-.768.64L8 10.781l-2.116 2.54a.5.5 0 0 1-.768-.641L7.349 10 5.116 7.32a.5.5 0 0 1 .064-.704z"/>
+                                </svg>
+                                DROP
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button onclick="showTB();"type="button" class="btn btn-light">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-eye"
+                                     viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                          d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z"/>
+                                    <path fill-rule="evenodd"
+                                          d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                </svg>
+                                SHOW
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <br>
+                        </div>
+                    </div>
+                    <!--FIN OPCIONES-->
+                    <!--OPCIONES 3-->
+                    <div class="col-12">
+                        TRIGGERS
+                        <div class="col-12">
+                            <button onclick="crearTG();" type="button" class="btn btn-light">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
+                                    <path
+                                            d="M4 0h5.5v1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h1V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                                    <path d="M9.5 3V0L14 4.5h-3A1.5 1.5 0 0 1 9.5 3z"/>
+                                    <path fill-rule="evenodd"
+                                          d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z"/>
+                                </svg>
+                                CREATE
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button onclick="dropTG();"type="button" class="btn btn-light">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-file-earmark-excel" viewBox="0 0 16 16">
+                                    <path
+                                            d="M4 0h5.5v1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h1V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2z"/>
+                                    <path d="M9.5 3V0L14 4.5h-3A1.5 1.5 0 0 1 9.5 3z"/>
+                                    <path fill-rule="evenodd"
+                                          d="M5.18 6.616a.5.5 0 0 1 .704.064L8 9.219l2.116-2.54a.5.5 0 1 1 .768.641L8.651 10l2.233 2.68a.5.5 0 0 1-.768.64L8 10.781l-2.116 2.54a.5.5 0 0 1-.768-.641L7.349 10 5.116 7.32a.5.5 0 0 1 .064-.704z"/>
+                                </svg>
+                                DROP
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <br>
+                        </div>
+                    </div>
+                    <!--FIN OPCIONES-->
+                </div>
+            </div>
+            <!--BARRA DERECHA-->
+            <div class="col-10">
+                <div class="row" id="cont2">
+                    <!--OPCIONES-->
+                    <div class="col-12">
+                        BARRA DE OPCIONES
+                    </div>
+                    <div class="col-12">
+                        <button type="button" class="btn btn-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-card-text"
+                                 viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M14.5 3h-13a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
+                                <path fill-rule="evenodd"
+                                      d="M3 5.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3 8a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 8zm0 2.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5z"/>
+                            </svg>
+                            SQL
+                        </button>
+                        <button type="button" class="btn btn-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z"/>
+                            </svg>
+                            STATISTICS
+                        </button>
+                        <button type="button" class="btn btn-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-code-square"
+                                 viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M14 1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                                <path fill-rule="evenodd"
+                                      d="M6.854 4.646a.5.5 0 0 1 0 .708L4.207 8l2.647 2.646a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 0 1 .708 0zm2.292 0a.5.5 0 0 0 0 .708L11.793 8l-2.647 2.646a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708 0z"/>
+                            </svg>
+                            CODE
+                        </button>
+                        <button type="button" class="btn btn-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                 class="bi bi-gear"
+                                 viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                      d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z"/>
+                                <path fill-rule="evenodd"
+                                      d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/>
+                            </svg>
+                            PROPERTIES
+                        </button>
+                    </div>
+                    <!--BARRA INTERACCION-->
+                    <div class="col-12">
+                        VENTANA DE INTERACCION
+                        <br>    
+                        <div class="col-12">
+                            <div class="form-floating">                                                         
+                                    <div class="acciones">
+                                        <div class="botones">
+                                            <button onclick="guardar();" id="btnguardar">Guardar</button>
+                                            <button onclick="agregar();" id="btnAgregar">+</button>
+                                            <button onclick="quitar();" id="btnQuitar">-</button>
+                                        </div> 
+                                    </div>
+                                    <div class="Cconsolas">
+                                        <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td rowspan="2" colspan="2">
+                                                    <div id="pestanas" width="100px">
+                                                        <ul id=lista>
+                                                        </ul>
+                                                    </div>
+                                                    <div id="contenidopestanas">      
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <input id="fileInput" title="Abrir" type="file" size="50" onchange="abrir(this.files)" class="botones">
+                                    </div>
+                                    <br>
+                                    <button  onclick="cambiar()" class="btn btn-primary">Ejecutar</button>
+                                    <br>
+                                    <form action="{{url_for('com')}}" method="POST">
+                                        <div style="display: none;">
+                                            <textarea id="editor" placeholder="Leave a comment here" name="code"></textarea> 
+                                        <script>
+                                            var contenidor = CodeMirror.fromTextArea(document.getElementById('editor'),
+                                            {
+                                                mode: "text/x-pgsql",
+                                                theme: "neat",
+                                                lineNumbers: true,
+                                                autoCloseTags: true              
+                                            });                           
+                                        </script> 
+                                        </div>
+                                        <button id ="btnejec" style="display: none;">Ejecutar</button>
+                                        {% with messages = get_flashed_messages() %}
+                                            {% if messages %}
+                                                {% for message in messages %}
+        
+                                                <div class="mb-3">
+                                                  <label for="exampleFormControlTextarea1" class="form-label">Consola Salida</label>
+                                                  <textarea class="form-control" id="exampleFormControlTextarea1" rows="10">{{ message }}</textarea>
+                                                </div>                                           
+                                                </textarea>
+                                                    
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endwith %}
+                                    </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function cambiar(){
+            contenidor.setValue(document.getElementById(get_vent()).value);
+            var btn = document.getElementById("btnejec");
+            btn.click();
+        }   
+
+    function crearDB(){
+        var contenido=document.getElementById(get_vent());
+        contenido.value = `
+-- Syntax:
+-- CREATE [OR REPLACE] DATABASE [IF NOT EXISTS] name
+-- [ OWNER [=] user_name ]-- [ MODE [=] mode_number ]
+-- Example:
+CREATE OR REPLACE DATABASE IF NOT EXISTS Tytusdb;`;
+moverse("pestanas",get_vent().replace("textarea", "p"));
+    }
+    
+    
+    function dropDB(){
+        var contenido=document.getElementById(get_vent());
+        contenido.value =`
+-- Syntax:
+-- DROP DATABASE [ IF EXISTS ] name
+-- Example:
+CREATE OR REPLACE DATABASE IF NOT EXISTS Tytusdb;`
+moverse("pestanas",get_vent().replace("textarea", "p"));
+        
+    }
+    function crearTB(){
+        var contenido=document.getElementById(get_vent());
+        contenido.value =`
+-- Syntax:
+-- CREATE TABLE my_first_table (
+-- column1 type [DEFAULT value] [[NOT] NULL] [[CONSTRAINT name] UNIQUE] [[CONSTRAINT name] CHECK (condition_column1)]
+-- [, column2...]
+-- [, [CONSTRAINT name] CHECK (condition_many_columns)...]
+-- [, UNIQUE (column1 [, column2]...)]
+-- [, [PRIMARY KEY (column1,..., column_n)]
+-- [, [FOREIGN KEY (column1,..., column_n) REFERENCES table (column1_other,..., column_n_other)]);
+-- Example:
+CREATE TABLE accounts (
+\tuser_id serial PRIMARY KEY,
+\tusername VARCHAR ( 50 ) UNIQUE NOT NULL,
+\tpassword VARCHAR ( 50 ) NOT NULL,
+\temail VARCHAR ( 255 ) UNIQUE NOT NULL,
+\tcreated_on TIMESTAMP NOT NULL,
+\tlast_login TIMESTAMP 
+);
+        `
+moverse("pestanas",get_vent().replace("textarea", "p"));
+        
+    }
+    function alterTB(){
+        var contenido=document.getElementById(get_vent());
+        contenido.value =`
+-- Syntax:
+-- ALTER TABLE table ADD COLUMN column type;
+-- ALTER TABLE products DROP COLUMN description;
+-- ALTER TABLE table ADD CHECK (name <> '');
+-- ALTER TABLE table ADD CONSTRAINT some_name UNIQUE (column);
+-- ALTER TABLE table ADD FOREIGN KEY (column_group_id) REFERENCES column_groups;
+-- ALTER TABLE table ALTER COLUMN column SET NOT NULL;
+-- ALTER TABLE table DROP CONSTRAINT some_name;
+-- ALTER TABLE table RENAME COLUMN column1 TO column1_1;
+-- [... ;]
+-- Example:
+ALTER TABLE table ADD COLUMN Mycolumn INTEGER;`
+moverse("pestanas",get_vent().replace("textarea", "p"));
+        
+    }
+    function dropTB(){
+        var contenido=document.getElementById(get_vent());
+        contenido.value =`
+-- Syntax:
+-- DROP TABLE name;
+-- Example:
+DROP TABLE accounts;`
+moverse("pestanas",get_vent().replace("textarea", "p"));
+        
+    }
+    function showTB(){
+        var contenido=document.getElementById(get_vent());
+        contenido.value =`
+-- Syntax:
+-- SELECT select_list FROM ... [WHERE ...] GROUP BY ... HAVING boolean_expression
+-- Example:
+SELECT * FROM accounts;`
+moverse("pestanas",get_vent().replace("textarea", "p"));
+        
+    }
+    function crearTG(){
+        var contenido = document.getElementById(get_vent());
+        contenido.value=`
+-- Syntax:
+-- CREATE [ CONSTRAINT ] TRIGGER name { BEFORE | AFTER | INSTEAD OF } { event [ OR ... ] }
+-- ON table
+-- [ FROM referenced_table_name ]
+-- [ NOT DEFERRABLE | [ DEFERRABLE ] { INITIALLY IMMEDIATE | INITIALLY DEFERRED } ]
+-- [ FOR [ EACH ] { ROW | STATEMENT } ]
+-- [ WHEN ( condition ) ]
+-- EXECUTE PROCEDURE function_name ( arguments )
+
+-- where event can be one of:
+
+--     INSERT
+--     UPDATE [ OF column_name [, ... ] ]
+--     DELETE
+--     TRUNCATE
+-- Example:
+CREATE TRIGGER check_update
+BEFORE UPDATE ON accounts
+FOR EACH ROW
+WHEN (OLD.balance IS DISTINCT FROM NEW.balance)
+EXECUTE PROCEDURE check_account_update();`
+moverse("pestanas",get_vent().replace("textarea", "p"));
+        
+    }
+    function dropTG(){
+        contenido = document.getElementById(get_vent());
+        contenido.value=`
+-- Syntax:
+-- DROP TRIGGER [ IF EXISTS ] name ON table [ CASCADE | RESTRICT ]
+-- Example:
+DROP TRIGGER mytrigger ON table `
+moverse("pestanas",get_vent().replace("textarea", "p"));
+        
+    }
+    var contador = 0;
+
+function getContador() {
+    return contador++;
+}
+
+var ventanaActual = "p1";
+function get_vent() {
+    return ventanaActual;
+}
+
+function setVentana(vent) {
+    ventanaActual = vent;
+}
+
+var lista = new Array();
+function linkedlist(pestana, nombre) {
+    var obj = new Object();
+    obj.pestana = pestana;
+    obj.nombre = nombre;
+    lista.push(obj);
+}
+
+function eliminarPestana(pestana) {
+    for (var i = 0; i < lista.length; i++) {
+        if (lista[i].pestana == pestana) {
+            delete lista[i];
+        }
+    }
+}
+
+function moverse(pestanias, pestania) {
+    var id = pestania.replace('p', '');
+    setVentana('textarea' + id);
+
+    var pestanna1 = document.getElementById(pestania);
+    var listaPestannas = document.getElementById(pestanias);
+    var cpestanna = document.getElementById('c' + pestania);
+    var listacPestannas = document.getElementById('contenido' + pestanias);
+
+    var i = 0;
+    while (typeof listacPestannas.getElementsByTagName('div')[i] != 'undefined') {
+        $(document).ready(function () {
+            $(listacPestannas.getElementsByTagName('div')[i]).css('display', 'none');
+            $(listaPestannas.getElementsByTagName('li')[i]).css('background', '#A1BDF0');
+            $(listaPestannas.getElementsByTagName('li')[i]).css('padding-bottom', '0px');
+            $(listaPestannas.getElementsByTagName('li')[i]).css('padding-left', '10px');
+        });
+        i += 1;
+    }
+
+    $(document).ready(function () {
+        $(cpestanna).css('display', '');
+        $(pestanna1).css('background', '#0d6efd');
+        $(pestanna1).css('padding-bottom','0px');
+        $(pestanna1).css('padding-left','10px');
+    });
+
+    try {
+        var act = document.getElementById('cp' + id);
+        var tact = document.getElementById('textarea' + id);
+
+        while (act.firstChild) {
+            act.removeChild(act.firstChild);
+        }
+
+        act.appendChild(tact);
+        var editor = CodeMirror(act, {
+            lineNumbers: true,
+            value: tact.value,
+            matchBrackets: true,
+            styleActiveLine: true,
+            theme: "neat",
+            mode: "text/x-pgsql"
+        }).on('change', editor => {
+            tact.value = editor.getValue();
+        });
+    } catch (error) { }
+
+}
+
+/*---------------------------------------Funcion Agregar Pestania----------------------------------------*/
+function agregar() {
+    var x = getContador();
+    var lu = document.getElementById("lista");
+    var li = document.createElement("li");
+    li.setAttribute('id', 'p' + x);
+    var a = document.createElement("a");
+    a.setAttribute('id', 'a' + x);
+    a.setAttribute('href', 'javascript:moverse("pestanas","p' + x + '")');
+    a.text = 'nueva(' + x + ')';
+    li.appendChild(a);
+    lu.appendChild(li);
+    moverse("pestanas", "p" + x);
+
+    var contenido = document.getElementById("contenidopestanas");
+    var divp = document.createElement("div");
+    divp.setAttribute('id', 'cp' + x);
+    var ta = document.createElement("textarea");
+    ta.setAttribute('id', 'textarea' + x);
+    ta.setAttribute('name', 'textarea' + x);
+    ta.setAttribute('class', 'textos');
+    ta.setAttribute('style', 'display:none');
+    ta.cols = 10;
+    divp.appendChild(ta);
+    contenido.appendChild(divp);
+
+    var act = document.getElementById('cp' + x);
+    var tact = document.getElementById('textarea' + x);
+    var editor = CodeMirror(act, {
+        lineNumbers: true,
+        value: tact.value,
+        matchBrackets: true,
+        styleActiveLine: true,
+        theme: "neat",
+        mode: "text/x-pgsql",
+
+    }).on('change', editor => {
+        tact.value = editor.getValue();
+    });
+
+}
+
+function quitar() {
+    try {
+        var lu = document.getElementById("lista");
+        lu.removeChild(document.getElementById(get_vent().replace("textarea", "p")));
+        var contenido = document.getElementById("contenidopestanas");
+        contenido.removeChild(document.getElementById(get_vent().replace("textarea", "cp")));
+        eliminarPestana(get_vent());
+    } catch (error) { }
+
+}
+
+function abrir(files) {
+    agregar();
+    var file = files[0];
+    var r = new FileReader();
+    r.onload = function (e) {
+        var act = document.getElementById(get_vent().replace("textarea", "cp"));
+        var tact = document.getElementById(get_vent());
+        tact.value = e.target.result;
+
+        while (act.firstChild) {
+            act.removeChild(act.firstChild);
+        }
+
+        act.appendChild(tact);
+        var editor = CodeMirror(act, {
+            lineNumbers: true,
+            value: tact.value,
+            matchBrackets: true,
+            styleActiveLine: true,
+            theme: "neat",
+            mode: "text/x-pgsql"
+        }).on('change', editor => {
+            tact.value = editor.getValue();
+        });
+    };
+    r.readAsText(file);
+    file.clear;
+
+    var a = document.getElementById(get_vent().replace("textarea", "a"));
+    a.text = file.name;
+    linkedlist(get_vent(), file.name);
+
+    var file_input = document.getElementById("fileInput");
+    document.getElementById('fileInput').value = "";
+}
+
+function guardar(){
+    var ta=document.getElementById(get_vent());
+    var contenido=ta.value;
+
+    var nombre="SuArchivo.sql";
+    var file=new Blob([contenido], {type: 'text/plain'});
+
+    if(window.navigator.msSaveOrOpenBlob){
+        window.navigator.msSaveOrOpenBlob(file, nombre);
+    }else{
+        var a=document.createElement("a"),url=URL.createObjectURL(file);
+        a.href=url;
+        a.download=nombre;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function(){
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+        },0); 
+    }
+}
+
+</script>
+
+{% endblock %}

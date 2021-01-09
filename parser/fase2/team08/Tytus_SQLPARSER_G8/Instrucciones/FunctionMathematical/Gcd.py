@@ -2,6 +2,8 @@ import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Primitivo import Primitivo
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
 # Esta función unicamente acepta enteros.
 class Gcd(Instruccion):
     def __init__(self, opIzq, opDer, strGram, linea, columna):
@@ -33,12 +35,24 @@ class Gcd(Instruccion):
             return error
             
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
+        super().traducir(tabla, arbol)
+        resultadoIzq=""
+        resultadoDer=""
+        if isinstance(self.opIzq, Primitivo):
+            resultadoIzq = self.opIzq.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.opIzq, Aritmetica):
+            resultadoIzq = self.opIzq.concatenar(tabla,arbol)
+        else:
+            resultadoIzq=self.opIzq.traducir(tabla,arbol)
         
-        retorno = self.valor.traducir(tabla,arbol)
-        #print(retorno.temporalAnterior)
-        #print(type(self.valor))
-        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
-        return f"GCD({self.opIzq.traducir(tabla,arbol).temporalAnterior} , {self.opDer.traducir(tabla,arbol).temporalAnterior})"
+        if isinstance(self.opDer, Primitivo):
+            resultadoDer = self.opDer.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.opDer, Aritmetica):
+            resultadoDer = self.opDer.concatenar(tabla,arbol)
+        else:
+            resultadoDer= self.opDer.traducir(tabla,arbol)
+
+        return f"GCD({resultadoIzq},{resultadoDer})"

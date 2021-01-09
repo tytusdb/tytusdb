@@ -41,14 +41,37 @@ class DropDatabase(Instruccion):
     def generar3D(self, tabla, arbol):
         super().generar3D(tabla,arbol)
         code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
         t0 = c3d.getTemporal()
         if self.existe:
             code.append(c3d.asignacionString(t0, "DROP DATABASE IF EXISTS " + self.id + ";"))
         else:
             code.append(c3d.asignacionString(t0, "DROP DATABASE " + self.id + ";"))
         code.append(c3d.asignacionTemporalStack(t0))
-        code.append(c3d.aumentarP())
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
 
+        return code
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        code.append(t0 + ' = "' + self.id + '"')
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        t1 = c3d.getTemporal()
+        code.append(t1 + ' = ' + str(self.existe))
+        code.append('heap[h] = ' + t1)
+        code.append('h = h + 1')
+        t2 = c3d.getTemporal()
+        code.append(t2 + ' = ' + str(self.opcion))
+        code.append('heap[h] = ' + t2)
+        code.append('p = h')
+        code.append('call_drop_database()')
+        
         return code
         
 '''

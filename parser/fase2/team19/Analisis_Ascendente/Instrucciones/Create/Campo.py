@@ -77,18 +77,18 @@ class Campo(Instruccion):
         if campo.caso == 1:
             # id con su tipo
             # verificamos tipo si viene
-            print("1->>>>>>>>>>>>>>>>> ",campo.id)
+            #print("1->>>>>>>>>>>>>>>>> ",campo.id)
 
             #if campo.tipo != None and ts.validar_sim(campo.id) == -1:
             if ts.validar_sim(campo.id) == -1:
                 if str(campo.tipo.longitud) != None:
-                    print("campo: ",str(campo.tipo.tipo))
+                    pass#print("campo: ",str(campo.tipo.tipo))
 
                 if "VARCHAR" in str(campo.tipo.tipo).upper() or "CHARACTER" in str(campo.tipo.tipo).upper() or "CHARACTERVARYING" in str(campo.tipo.tipo).upper() or "DECIMAL" in str(campo.tipo.tipo).upper():
                     valores = []
                     if str(campo.acompaniamiento) != str(None):
                         for data in campo.acompaniamiento:
-                            print(data.tipo ," - ",data.valorDefault)
+                            #print(data.tipo ," - ",data.valorDefault)
                             if str(data.valorDefault) == str(None):
                                 valores.append(data.tipo)
                             else:
@@ -102,7 +102,7 @@ class Campo(Instruccion):
                     check = []
                     if str(campo.acompaniamiento) != str(None):
                         for data in campo.acompaniamiento:
-                            print(data.tipo, " - ", data.valorDefault)
+                            #print(data.tipo, " - ", data.valorDefault)
                             if str(data.valorDefault) == str(None):
                                 valores.append(data.tipo)
                             else:
@@ -112,7 +112,7 @@ class Campo(Instruccion):
                                 else:
                                     valores.append(str(data.tipo)+":"+str(data.valorDefault))
 
-                    print("campo-> ",str(campo.tipo.tipo)," ",campo.acompaniamiento)
+                    #print("campo-> ",str(campo.tipo.tipo)," ",campo.acompaniamiento)
                     campo_nuevo = TS.Simbolo(TS.TIPO_DATO.CAMPO, campo.id, str(campo.tipo.tipo).upper(), valores, check)
                     ts.agregar_sim(campo_nuevo)
                     return valor
@@ -129,13 +129,13 @@ class Campo(Instruccion):
 
         elif campo.caso == 2:
             # constraint
-            print("")
-            print("2->>>>>>>>>>>>>>>>> ", campo.id)
+            #print("")
+            #print("2->>>>>>>>>>>>>>>>> ", campo.id)
             for idcito in campo.idFk:
-                print(idcito.id)
+                #print(idcito.id)
                 if ts.validar_sim(idcito.id) == 1:
                     obtenerCampo = ts.buscar_sim(idcito.id)
-                    print("ejecutando campos------------------------------------------!!!!!!1")
+                    #print("ejecutando campos------------------------------------------!!!!!!1")
                     tablita = []
                     for dataReferencia in campo.idR:
                         tablita.append(dataReferencia.id)
@@ -149,16 +149,16 @@ class Campo(Instruccion):
                     consola.append(f"42P10	invalid_column_reference, Campo{idcito.id} no encontrado")
                     exceptions.append("Error Semantico - 42P10- invalid_column_reference-fila-columna")
                     valor = False
-            print("")
+            #print("")
 
         elif campo.caso == 3:
             # foreing key
-            print("3->>>>>>>>>>>>>>>>> ", campo.idFk)
+            #print("3->>>>>>>>>>>>>>>>> ", campo.idFk)
             for idcito in campo.idFk:
-                print(idcito.id)
+                #print(idcito.id)
                 if ts.validar_sim(idcito.id) == 1:
                     obtenerCampo = ts.buscar_sim(idcito.id)
-                    print("ejecutando campos------------------------------------------!!!!!!1")
+                    #print("ejecutando campos------------------------------------------!!!!!!1")
                     tablita = []
                     for dataReferencia in campo.idR:
                         tablita.append(dataReferencia.id)
@@ -172,11 +172,11 @@ class Campo(Instruccion):
                     consola.append(f"42P10	invalid_column_reference, Campo{idcito.id} no encontrado")
                     exceptions.append("Error Semantico - 42P10- invalid_column_reference-fila-columna")
                     valor = False
-            print("")
+            #print("")
 
         elif campo.caso == 4:
             # primary key
-            print("caso 4")
+            #print("caso 4")
             for campito in nombreCampo:
 
                 if ts.validar_sim(campito.id) == 1:
@@ -196,12 +196,12 @@ class Campo(Instruccion):
                     valor= False
                     consola.append(f"Error: el identificador {campito.id},no esta definido\n")
                     break
-            print(valor)
+            #print(valor)
         else:
-            print("5->>>>>>>>>>>>>>>>> ", campo.id)
+            #print("5->>>>>>>>>>>>>>>>> ", campo.id)
             # id con su tipo
             # verificamos tipo si viene
-            print("1->>>>>>>>>>>>>>>>> ", campo.id)
+            #print("1->>>>>>>>>>>>>>>>> ", campo.id)
 
             # if campo.tipo != None and ts.validar_sim(campo.id) == -1:
             if ts.validar_sim(campo.id) == -1:
@@ -211,7 +211,7 @@ class Campo(Instruccion):
                     check = []
                     if str(campo.acompaniamiento) != str(None):
                         for data in campo.acompaniamiento:
-                            print(data.tipo, " - ", data.valorDefault)
+                            #print(data.tipo, " - ", data.valorDefault)
                             if str(data.valorDefault) == str(None):
                                 valores.append(data.tipo)
                             else:
@@ -236,5 +236,64 @@ class Campo(Instruccion):
             return valor
             # ts.agregar_sim()
 
-        print(valor)
+        #print(valor)
         return valor
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        codigo_quemado = ''
+        if self.caso == 1: #ID tipo acompaniamiento || ID tipo  Da lo mismo son la misma chingadera pero uno con complemento = None
+            tipo = ''
+            lista_tipo = self.tipo.tipo.split('-')
+            if len(lista_tipo) == 1:
+                tipo = self.tipo.tipo
+            elif len(lista_tipo) == 2:
+                if lista_tipo[0] == 'CHARACTERVARYING':
+                    tipo = 'CHARACTER VARYING ( %s )' % lista_tipo[1]
+                else:
+                    tipo = '%s ( %s )' % (lista_tipo[0], lista_tipo[1])
+            else:
+                tipo = '%s ( %s, %s )' % (lista_tipo[0], lista_tipo[1], lista_tipo[2])
+            acompaniamiento = ''
+            if self.acompaniamiento is not None:
+                for acom in self.acompaniamiento:
+                    acompaniamiento += '%s ' % acom.getC3D(lista_optimizaciones_C3D)
+            return '%s %s %s' % (self.id, tipo, acompaniamiento)
+        elif self.caso == 2: #CONSTRAINT ID FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
+            idFk = None
+            for var in self.idFk:
+                if idFk is None:
+                    idFk = var.id
+                else:
+                    idFk += ', %s' % var.id
+            idR = None
+            for var in self.idR:
+                if idR is None:
+                    idR = var.id
+                else:
+                    idR += ', %s' % var.id
+            return 'constraint %s foreign key ( %s ) references %s ( %s )' % (self.id, idFk, self.tablaR, idR)
+        elif self.caso == 3: #FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
+            idFk = None
+            for var in self.idFk:
+                if idFk is None:
+                    idFk = var.id
+                else:
+                    idFk += ', %s' % var.id
+            idR = None
+            for var in self.idR:
+                if idR is None:
+                    idR = var.id
+                else:
+                    idR += ', %s' % var.id
+            return 'foreign key ( %s ) references %s ( %s )' % (idFk, self.tablaR, idR)
+        elif self.caso == 4: #PRIMARY KEY PARIZQ listaID PARDR
+            idFk = None
+            for var in self.id:
+                if idFk is None:
+                    idFk = var.id
+                else:
+                    idFk += ', %s' % var.id
+            return 'primary key ( %s )' % idFk
+        elif self.caso == 5: #ID ID
+            return '%s %s' % (self.id, self.tipo)
+        return codigo_quemado

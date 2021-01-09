@@ -6,6 +6,8 @@ class Tipos(Enum):
     Booleano = 3
     Decimal = 4 
     Id = 5
+    ISQL = 6
+    Void = 7
 
 
 class Expresion():

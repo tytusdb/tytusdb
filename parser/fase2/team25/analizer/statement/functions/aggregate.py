@@ -109,6 +109,8 @@ class AggregateFunction(Expression):
         new = Nodo.Nodo("CALL")
         new.addNode(f)
         new.addNode(p)
-
-        p.addNode(self.colData.dot())
+        if self.colData == '*':
+            p.addNode(Nodo.Nodo('*'))
+        else:
+            p.addNode(self.colData.dot())
         return new

@@ -1,10 +1,33 @@
 import sys
 sys.path.append('../G26/Expresiones')
+sys.path.append('../G26/Instrucciones/DDL')
 
 from TablaSimbolos import *
 from Primitivo import *
 from Identificador import *
 from Condicionales import *
+import json
+from index import *
+
+def readData(datos):
+    try:
+        f = open("./Utils/tabla.txt", "r")
+        text = f.read()
+        f.close()
+        text = text.replace('\'','"')
+        text = text.replace('False','"False"')
+        text = text.replace('None','""')
+        text = text.replace('True','"True"')
+        #print(text)
+        datos.reInsertarValores(json.loads(text))
+        #print(str(datos))
+    except:
+        ''
+
+def writeData(datos):
+    f = open("./Utils/tabla.txt", "w")
+    f.write(str(datos))
+    f.close()
 
 class Lista:
     def __init__(self, tablaSimbolos, databaseSeleccionada):
@@ -16,7 +39,32 @@ class Lista:
 
     def reInsertarValores(self, data):
         for llave in data['tablaSimbolos'].keys():
+            if llave == 'funciones_':
+                self.tablaSimbolos['funciones_'] = data['tablaSimbolos']['funciones_']
+                continue
+
             self.tablaSimbolos[llave] = {'tablas' : {}, 'enum' : {}, 'owner' : data['tablaSimbolos'][llave]['owner'], 'mode' : data['tablaSimbolos'][llave]['mode']}
+
+            if 'index' in data['tablaSimbolos'][llave]:
+                self.tablaSimbolos[llave]['index'] = []
+                for indexVal in data['tablaSimbolos'][llave]['index']:
+                    nombre = indexVal['name']
+
+                    try:
+                        if indexVal['columns']['option'] == 'True': opt = True
+                        else: opt = False
+                        columnas = PredIndexLH(indexVal['columns']['id'], opt)
+                    except:
+                        columnas = []
+                        for col in indexVal['columns']:
+                            columnas.append(Identificador(None, col['column']))
+
+                    tableI = indexVal['table']
+                    orderI = indexVal['order']
+
+                    a = saveIndex(nombre, columnas, tableI, orderI)
+                    self.tablaSimbolos[llave]['index'].append(a)
+
             if data['tablaSimbolos'][llave]['tablas'] != {}:
                 for tabla in data['tablaSimbolos'][llave]['tablas'].keys():
 
@@ -108,7 +156,7 @@ class Lista:
 
                             self.tablaSimbolos[llave]['tablas'][tabla]['constraint'].append(ConstraintData(const['name'], type, const['tipo']))
 
-                        print(const)
+                        #print(const)
             if data['tablaSimbolos'][llave]['enum'] != {}:
                 for enums in data['tablaSimbolos'][llave]['enum']:
                     self.tablaSimbolos[llave]['enum'][enums] = []

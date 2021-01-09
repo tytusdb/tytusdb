@@ -1,9 +1,10 @@
 from graphviz import Digraph
 
+
 class Graficar:
     def __init__(self):
         self.dot = Digraph(name="AST")
-        self.dot.node_attr['shape']='record'
+        self.dot.node_attr['shape'] = 'record'
         self.indice = 0
 
     def graficar_arbol(self, raiz):
@@ -14,13 +15,13 @@ class Graficar:
             self.dot.render('reports/arbolAst', view=True)
 
     def graficar_nodos(self, raiz):
-        if(raiz is None):
+        if (raiz is None):
             return
-        self.dot.node('node'+str(self.indice), raiz.getContenido())
+        self.dot.node('node' + str(self.indice), raiz.getContenido())
         self.incrementar()
         for hijos in raiz.getHijos():
             self.graficar_nodos(hijos)
-    
+
     def incrementar(self):
         self.indice = self.indice + 1;
 
@@ -28,7 +29,7 @@ class Graficar:
         self.indice = indice
 
     def relacionar_nodos(self, raiz):
-        if(raiz is None):
+        if (raiz is None):
             return
         indice_padre = self.indice
         for hijo in raiz.getHijos():

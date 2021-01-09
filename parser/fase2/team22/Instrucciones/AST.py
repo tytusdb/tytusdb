@@ -31,55 +31,59 @@ class AST:
     def TiposInstruccion(self, inst, padre):
         if inst != None:
             for i in inst:
-                print("=======>>>", i)
-                if 'CreateDatabase' in str(i):
-                    self.CreateDatabase(i, padre)
-                elif 'Show' in str(i):
-                    self.Show(padre)
-                elif 'Use' in str(i):
-                    self.Use(i, padre)
-                elif 'AlterDatabase' in str(i):
-                    self.AlterDatabase(i, padre)
-                elif 'AlterDBOwner' in str(i):
-                    self.AlterDBOwner(i, padre)
-                elif 'CreateOrReplace' in str(i):
-                    self.CreateOrReplace(i, padre)
-                elif 'CreateTable' in str(i):
-                    self.CreateTable(i, padre)
-                elif 'insertTable' in str(i):
-                    self.insertTable(i, padre)
-                elif 'UpdateTable' in str(i):
-                    self.Update(i, padre)
-                elif 'DropTable' in str(i):
-                    self.DropTable(i, padre)
-                elif 'DropDatabase' in str(i):
-                    self.DropDatabase(i, padre)
-                elif 'DeleteTable' in str(i):
-                    self.DeleteTable(i, padre)
-                elif 'CreateType' in str(i):
-                    self.CreateType(i, padre)
-                elif 'truncate' in str(i):
-                    self.truncate(i, padre)
-                elif 'AlterTableAddColumn' in str(i):
-                    self.AlterTableAddColumn(i, padre)
-                elif 'AlterTableAddCheck' in str(i):
-                    self.AlterTableAddCheck(i, padre)
-                elif 'AlterTableAddConstraint' in str(i):
-                    self.AlterTableAddConstraint(i, padre)
-                elif 'AlterTableAddConstraintFK' in str(i):
-                    self.AlterTableAddConstraintFK(i, padre)
-                elif 'AlterTableAddFK' in str(i):
-                    self.AlterTableAddFK(i, padre)
-                elif 'AlterTableAlterColumnType' in str(i):
-                    self.AlterTableAlterColumnType(i, padre)
-                elif 'AlterTableDropConstraint' in str(i):
-                    self.AlterTableDropConstraint(i, padre)
-                elif 'SelectLista' in str(i):
-                    self.SelectLista(i, padre)
-                # elif isinstance(i, Select):
-                #     self.Select(i, padre)
-                # elif isinstance(i, Union):
-                #     self.Union(i, padre)
+                try:
+                    # print("=======>>>", i)
+                    if 'CreateDatabase' in str(i):
+                        self.CreateDatabase(i, padre)
+                    elif 'Show' in str(i):
+                        self.Show(padre)
+                    elif 'Use' in str(i):
+                        self.Use(i, padre)
+                    elif 'AlterDatabase' in str(i):
+                        self.AlterDatabase(i, padre)
+                    elif 'AlterDBOwner' in str(i):
+                        self.AlterDBOwner(i, padre)
+                    elif 'CreateOrReplace' in str(i):
+                        self.CreateOrReplace(i, padre)
+                    elif 'CreateTable' in str(i):
+                        self.CreateTable(i, padre)
+                    elif 'insertTable' in str(i):
+                        self.insertTable(i, padre)
+                    elif 'UpdateTable' in str(i):
+                        self.Update(i, padre)
+                    elif 'DropTable' in str(i):
+                        self.DropTable(i, padre)
+                    elif 'DropDatabase' in str(i):
+                        self.DropDatabase(i, padre)
+                    elif 'DeleteTable' in str(i):
+                        self.DeleteTable(i, padre)
+                    elif 'CreateType' in str(i):
+                        self.CreateType(i, padre)
+                    elif 'truncate' in str(i):
+                        self.truncate(i, padre)
+                    elif 'AlterTableAddColumn' in str(i):
+                        self.AlterTableAddColumn(i, padre)
+                    elif 'AlterTableAddCheck' in str(i):
+                        self.AlterTableAddCheck(i, padre)
+                    elif 'AlterTableAddConstraint' in str(i):
+                        self.AlterTableAddConstraint(i, padre)
+                    elif 'AlterTableAddConstraintFK' in str(i):
+                        self.AlterTableAddConstraintFK(i, padre)
+                    elif 'AlterTableAddFK' in str(i):
+                        self.AlterTableAddFK(i, padre)
+                    elif 'AlterTableAlterColumnType' in str(i):
+                        self.AlterTableAlterColumnType(i, padre)
+                    elif 'AlterTableDropConstraint' in str(i):
+                        self.AlterTableDropConstraint(i, padre)
+                    elif 'SelectLista' in str(i):
+                        self.SelectLista(i, padre)
+                    # elif isinstance(i, Select):
+                    #     self.Select(i, padre)
+                    # elif isinstance(i, Union):
+                    #     self.Union(i, padre)
+                except:
+                    #print('Instruccion no reconocida o con problemas: ', i)
+                    pass
     
 
     def CreateDatabase(self, inst, padre):
@@ -206,7 +210,7 @@ class AST:
                             self.c += 'Nodo'+ str(self.contador)+ '[label="' + acom.tipo + ': '+ str(acom.valorDefault.valor) + '"]\n' 
                         elif acom.tipo == 'UNIQUE':
                             if acom.valorDefault != None:
-                                print(">>>>>>>>>", acom.valorDefaul)
+                                # print(">>>>>>>>>", acom.valorDefaul)
                                 if isinstance(acom.valorDefault, Id):
                                     self.c += 'Nodo'+ str(self.contador)+ '[label="' + acom.tipo + ': ' + acom.valorDefault.id +'"]\n' 
                                 else:    
@@ -271,7 +275,7 @@ class AST:
             self.Valor(var, padre)
 
     def Valor(self, var, padre):
-        print("*****************", var)
+        # print("*****************", var)
         
         if 'ID' in str(var):
             self.contador += self.contador
@@ -316,7 +320,7 @@ class AST:
             self.listaID(inst.lexpre, str(self.contador))      
 
     def Update(self, inst, padre):
-        print(1)
+        # print(1)
         self.contador = self.contador + 1
         self.c += 'Nodo'+ str(self.contador)+ '[label="Instruccion: UPDATE"]\n' 
         self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
@@ -359,15 +363,43 @@ class AST:
         np = str(self.contador)
         self.CrearNodo('Table: ' + inst.valor, np)
         if inst.insWhere != None:
-            self.CrearNodo('WHERE', np)
-            #where
-            #puede ser expresion, primitivo o where
-            if isinstance(inst.where, Expresion):#asignacion, andOr
-                self.E(inst.where, np)
-            elif isinstance(inst.where, Primitivo):
-                self.Primitivo(inst.where, np)
-            elif isinstance(inst.where, Where):
-                self.Where(inst.where, np)
+            
+            if 'DateTimeTypes' in str(inst.where.valor):
+                self.CrearNodo('WHERE', np)
+                self.Time(inst.where.valor, np)
+            elif 'Identificador' in str(inst.where.valor):
+                self.CrearNodo('WHERE', np)
+                self.CrearNodo(inst.where.valor , np)
+            # elif 'Alias' in col:
+            #     self.IdAsId(col, np)
+            elif 'Expresiones' in str(inst.where.valor):
+                self.CrearNodo('WHERE', np)
+                self.Math_(inst.where.valor, np)
+            elif 'FunctionAgregate' in str(inst.where.valor):
+                self.CrearNodo('WHERE', np)
+                self.Agregate(inst.where.valor, np)
+            elif 'FunctionBinaryString' in str(inst.where.valor):
+                self.CrearNodo('WHERE', np)
+                self.Binario(inst.where.valor, np)
+            elif 'FunctionMathematical' in str(inst.where.valor):
+                self.CrearNodo('WHERE', np)
+                self.Fun_Math_(inst.where.valor, np)
+            elif 'FunctionTrigonometric' in str(inst.where.valor):
+                self.CrearNodo('WHERE', np)
+                self.Trig(inst.where.valor, np)
+            elif 'Relacional' in str(inst.where.valor):
+                self.CrearNodo('WHERE', np)
+                self.Relacional(inst.where.valor, np)
+
+            # self.CrearNodo('WHERE', np)
+            # #where
+            # #puede ser expresion, primitivo o where
+            # if isinstance(inst.where, Expresion):#asignacion, andOr
+            #     self.E(inst.where, np)
+            # elif isinstance(inst.where, Primitivo):
+            #     self.Primitivo(inst.where, np)
+            # elif isinstance(inst.where, Where):
+            #     self.Where(inst.where, np)
 
     def CreateType(self, inst, padre):
         self.CrearNodo('Instruccion: CREATE TYPE', padre)
@@ -634,7 +666,7 @@ class AST:
         edr = False
         prim = False
         prim2 = False
-        print('expresion')
+        # print('expresion')
 
     def Identificador(self, id, padre):
         self.contador += self.contador
@@ -649,7 +681,7 @@ class AST:
             self.Columna(col, np)
 
     def Columna(self, col, padre):
-        print("@@@ >", col)
+        # print("@@@ >", col)
         self.CrearNodo('Columna', padre)
         np = str(self.contador)
 

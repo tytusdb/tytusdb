@@ -1,0 +1,12 @@
+
+CREATE FUNCTION myFuncion(texto text) RETURNS text AS $$
+BEGIN
+ resultado := 442;
+	
+
+
+	RETURN resultado
+END;
+$$ LANGUAGE plpgsql;
+
+select myFuncion('INICIO CALIFICACION FASE 2');

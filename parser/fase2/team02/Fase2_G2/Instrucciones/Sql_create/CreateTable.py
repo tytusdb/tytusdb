@@ -192,14 +192,13 @@ class CreateTable(Instruccion):
 
     def analizar(self, tabla, arbol):
         print("analizar")
-
-    def traducir(self, tabla, arbol):
-        print("holi")
-        cadena = ""
+    def extraer(self,tabla,arbol):
+        
+        cadena = "\" "
 
         try:
 
-            cadena += "\"Create table " + self.tabla + "("
+            cadena += "Create table " + self.tabla + "("
             print("analizararaaaa")
 
             for x in range(0, len(self.campos)):
@@ -214,16 +213,25 @@ class CreateTable(Instruccion):
                 cadena += self.campos[x].traducir(tabla,arbol)
                 print(" cadena +=")
 
+            cadena += ");\""
+ 
         except:
               print(" fallo")
                                                 
               pass     
                            
-        '''
-        for y in range(0, len(self.herencia)):
-            print(self.herencia[y].traducir(tabla,arbol))
-        '''
-        cadena += ");\""
+
+
+
+        return cadena  
+    def traducir(self, tabla, arbol):
+        print("holi")
+        cadena = ""
+        try: 
+       
+              cadena += self.extraer(tabla,arbol) 
+        except Exception as e:
+              print(e)
 
         arbol.addComen("Asignar cadena")
         temporal1 = tabla.getTemporal()
@@ -237,6 +245,7 @@ class CreateTable(Instruccion):
         arbol.addc3d(f"{temporal3} = { temporal2}+1")
         arbol.addComen("Asignacion de parametros")
         arbol.addc3d(f"Pila[{temporal3}] = {temporal1}")
+        #  arbol.addc3d(f"Pila[{temporal3}] =\" hellohouse\"")
 
         arbol.addComen("Llamada de funcion")
         arbol.addc3d(f"P = P+2")

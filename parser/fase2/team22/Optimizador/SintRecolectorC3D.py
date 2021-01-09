@@ -18,8 +18,13 @@ def p_init(t):
     'init   : instrucciones'
     primeraPasada = OptMirilla(t[1], [])
     segundaPasada = OptMirilla(primeraPasada.ListaOptimizada, primeraPasada.reporteOptimizado)
+    lensegunda = len(segundaPasada.reporteOptimizado)
+    for l in range(0, lensegunda):
+        primeraPasada = OptMirilla(segundaPasada.ListaOptimizada, segundaPasada.reporteOptimizado)
+        segundaPasada = OptMirilla(primeraPasada.ListaOptimizada, primeraPasada.reporteOptimizado)
+        lensegunda = len(segundaPasada.reporteOptimizado)
     segundaPasada.generarReporte()
-    segundaPasada.GenerarCodigo3D(segundaPasada.ListaOptimizada)
+    t[0] = segundaPasada.GenerarCodigo3D(segundaPasada.ListaOptimizada)
 
 def p_instrucciones(t):
     'instrucciones  : instrucciones instruccion'
@@ -33,6 +38,14 @@ def p_instrucciones2(t):
 def p_instruccion_asignacion(t):
     'instruccion    : ID IGUAL valor'
     t[0] = Asignacion(Identificador(t[1]), t[3])
+
+def p_instruccion_asignacion_listaPosicion(t):
+    'instruccion    : ID CORIZQ ID CORDER IGUAL valor'
+    t[0] = Asignacion(ListaPosicion(Identificador(t[1]), Identificador(t[3])), t[6])
+
+def p_isntruccion_llamFuncion(t):
+    'instruccion    : ID PARIZQ PARDER'
+    t[0] = LlamFuncion(Identificador(t[1]))
 
 def p_instruccion_if(t):
     'instruccion    : IF condicion GOTO ID'
@@ -102,6 +115,10 @@ def p_valorOp_valor_true_false(t):
                     | FALSE'''
     t[0] = Valor(t[1], 'BOOLEAN')
 
+def p_valorOp_valor_lista(t):
+    '''valorOp  : CORIZQ valorOp CORDER'''
+    t[0] = ValorLista(t[2])
+
 def p_condicion_mayor(t):
     'condicion  : valorOp MAYOR valorOp'
     t[0] = Condicion(t[1], t[3], OP_RELACIONAL.MAYOR_QUE)
@@ -155,7 +172,6 @@ def p_error(p):
 parser = yacc.yacc()
 
 def ejecutarEscaneo(texto):
-    instrucciones = parser.parse(texto)
     columna = 0
     lexer.lineno= 0
     return parser.parse(texto)

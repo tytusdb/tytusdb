@@ -13,11 +13,11 @@ class Avg(Instruccion):
             return resultado
         suma = 0
         for x in range(0, len(resultado)):
-            print(f"posicion {x}")
-            print(f"valor {resultado[x][0]}")
-            if str.isnumeric(resultado[x][0]):
+            #print(f"posicion {x}")
+            #print(f"valor {resultado[x][0]}")
+            if str.isnumeric(str(resultado[x][0])):
                 suma += int(resultado[x][0])
-            elif str.isdecimal(resultado[x][0]):
+            elif str.isdecimal(str(resultado[x][0])):
                 suma += float(resultado[x][0])
             else:
                 error = Excepcion("22023", "Semantico", "Parametro de evaluacion invalido", self.linea, self.columna)
@@ -27,8 +27,14 @@ class Avg(Instruccion):
 
         suma = suma / len(resultado)
         return np.array([[suma]])
-'''
-instruccion = Avg("hola mundo",None, 1,2)
 
-instruccion.ejecutar(None,None)
-'''
+
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+    
+    def traducir(self, tabla, arbol):
+        super().traducir(tabla, arbol)
+        cadena = "AVG("
+        cadena += self.valor.concatenar(tabla,arbol)
+        cadena += ")"
+        return cadena

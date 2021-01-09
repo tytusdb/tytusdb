@@ -1,10 +1,14 @@
-from AVLMode import avlMode as avl
-from BMode import BMode as b
-from BPlusMode import BPlusMode as bplus
-from DictMode import DictMode as dict
-from IsamMode import ISAMMode as isam
-from JsonMode import jsonMode as json
-from HashMode.storage import HashMode as hash
+# File:     switchMode
+# License:  Released under MIT License
+# Notice:   Copyright (c) 2020 TytusDB Team
+
+from storage.avl import avlMode as avl
+from storage.b import BMode as b
+from storage.bplus import BPlusMode as bplus
+from storage.dict import DictMode as dict
+from storage.isam import ISAMMode as isam
+from storage.json import jsonMode as json
+from storage.hash.storage import HashMode as hash
 
 def switchMode(mode):
     if mode == 'avl':
@@ -21,8 +25,4 @@ def switchMode(mode):
         return json
     elif mode == 'hash':
         return hash
-
-
-
-
 

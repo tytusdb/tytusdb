@@ -6,12 +6,15 @@
 # 201220165 - Oscar Rolando Bernard Peralta
 
 # IMPORT SECTION
+
 import ply.lex as lex
 import ply.yacc as yacc
 from Expresiones import *
 from Instrucciones import *
 from Retorno import Retorno
 from NodoAST import NodoAST
+from analizadorFase2.Generador.Generador import Generador
+from analizadorFase2.Instrucciones.Parametros_llamada import Parametro_llamada
 from analizadorFase2.Instrucciones.Else import Else_inst
 from analizadorFase2.Operaciones.TiposOperacionesLR import TiposOperacionesLR
 from analizadorFase2.Operaciones.Operaciones_LogicasRelacionales import OperacionesLogicasRelacionales
@@ -20,11 +23,16 @@ from analizadorFase2.Instrucciones.Asignacion import Asignacion
 from analizadorFase2.Instrucciones.Declaracion import Declaracion
 from analizadorFase2.Instrucciones.Parametro import Parametro
 from analizadorFase2.Instrucciones.Funcion import Funcion
+from analizadorFase2.Function.FuncionNativa import FuncionNativa
 from analizadorFase2.Operaciones.Operaciones_Aritmeticcas import Operaciones_Aritmeticas
 from analizadorFase2.Operaciones.TiposOperacionesA import TiposOperaciones
+from analizadorFase2.Function.TipoFunNativa import TipoFunNativa
 from analizadorFase2.Operaciones.OperacionesUnarias import OperacionesUnarias
 from analizadorFase2.Abstractas.Primitivo import Primitivo
 from analizadorFase2.Abstractas.Expresion import Tipos
+from analizadorFase2.Instrucciones.Return import Return_inst
+from analizadorFase2.Instrucciones.Llamada import Llamada
+from analizadorFase2.Instrucciones.EliminarFuncion import EliminarFuncion
 import re
 
 # VARIABLES GLOBALES
@@ -33,6 +41,7 @@ counter_syntactic_error = 1
 reporte_gramatical = []
 codigo_3D = []
 contador = 0
+contador_label = 0
 
 # LISTADO DE PALABRAS RESERVADAS
 palabras_reservadas = {
@@ -223,7 +232,9 @@ palabras_reservadas = {
     'language'      : 'LANGUAGE',
     'procedure'     : 'PROCEDURE',
     'inout'         : 'INOUT',
-    'execute'       : 'EXECUTE'
+    'execute'       : 'EXECUTE',
+    'major'         : 'MAJOR',
+    'minor'         : 'MINOR'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -326,11 +337,13 @@ def t_ID(t):
 def t_IDALIAS(t):
     r'\".*?\"'
     t.value = t.value[1:-1]
+    print("idalias")
     return t
 
 
 def t_CADENA(t):
     r'\'.*?\''
+    print("cadena")
     t.value = t.value[1:-1]
     return t
 
@@ -404,7 +417,11 @@ def p_instrucciones1(t):
     """
         INSTRUCCIONES   :   INSTRUCCIONES INSTRUCCION
     """
-    global reporte_gramatical
+    global reporte_gramatical, codigo_3D
+    if not isinstance(t[2].getInstruccion(), Funcion):
+        if not isinstance(t[2].getInstruccion(), str):
+            print(t[2].getInstruccion().instruccion3d)
+            codigo_3D.append(t[2].getInstruccion().instruccion3d)
     reporte_gramatical.append("<INSTRUCCIONES> ::= <INSTRUCCIONES> <INSTRUCCION>")
     val = t[1].getInstruccion()
     val.append(t[2].getInstruccion())
@@ -418,7 +435,12 @@ def p_instrucciones2(t):
     """
         INSTRUCCIONES   :   INSTRUCCION
     """
-    global reporte_gramatical
+    global reporte_gramatical, codigo_3D
+    print("INSTRUCCIONES")
+    if not isinstance(t[1].getInstruccion(), Funcion):
+        if not isinstance(t[1].getInstruccion(), str):
+            print(t[1].getInstruccion().instruccion3d)
+            codigo_3D.append(t[1].getInstruccion().instruccion3d)
     reporte_gramatical.append("<INSTRUCCIONES> ::= <INSTRUCCION>")
     val = [t[1].getInstruccion()]
     ret = Retorno(val, NodoAST("INST"))
@@ -484,9 +506,37 @@ def p_instruccion2(t):
                         |   FUNCION_N
                         |   PROCEDURE_N
                         |   PEXECUTE
+                        |   I_DROPI
+                        |   I_ALTERIN
     """
     t[0] = t[1]
 
+def p_instruccion3(t):
+    """ 
+    INSTRUCCION   :   DROP FUNCTION ID
+                  |   DROP FUNCTION ID PCOMA
+    """
+    global codigo_3D,contador
+    auxtemp = "\tt" + str(contador)
+    C3D = auxtemp + "='C3D_" + t[3] + "'\n\t" + "lista = [" + auxtemp + "]\n\tnativa_borrarfuncion()"
+    val = EliminarFuncion(t[3], C3D)
+    ret = Retorno(val, NodoAST("DROP FUNCTION"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+def p_instruccion4(t):
+    """
+    INSTRUCCION :   DROP PROCEDURE ID
+                |   DROP PROCEDURE ID PCOMA
+    """
+    global codigo_3D,contador
+    auxtemp = "t" + str(contador)
+    C3D = auxtemp + "='C3D_" + t[3] + "'\n\t" + "lista = [" + auxtemp + "]\n\tnativa_borrarfuncion()"
+   #codigo_3d.append(C3D)
+    val = EliminarFuncion(t[3], C3D)
+    ret = Retorno(val, NodoAST("DROP FUNCTION"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 def p_use(t):
     'I_USE           :   USE ID PCOMA'
@@ -510,8 +560,9 @@ def p_ctype(t):
     C3D = 't' + str(contador) + ' = "create type ' + str(t[3]) + ' as enum ( ' + str(t[7].getInstruccion()) + ');"'
 
     contador = contador + 1
-    codigo_3D.append(C3D)
-    ret = Retorno(CreateType(t[3], t[7].getInstruccion()), NodoAST("CREATE TYPE"))
+    #codigo_3d.append(C3D)
+    val = EliminarFuncion(t[3], C3D)
+    ret = Retorno(CreateType(t[3], t[7].getInstruccion(),C3D), NodoAST("CREATE TYPE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[7].getNodo())
     t[0] = ret
@@ -559,8 +610,8 @@ def p_ctable(t):
         t[5].getInstruccion()) + ') inherits (' + str(t[9]) + ');"'
     contador = contador + 1
 
-    codigo_3D.append(C3D)
-    ret = Retorno(CreateTable(t[3], t[5].getInstruccion(), t[9]), NodoAST("CREATE TABLE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(CreateTable(t[3], t[5].getInstruccion(), t[9],C3D), NodoAST("CREATE TABLE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[5].getNodo())
     ret.getNodo().setHijo(NodoAST("INHERITS"))
@@ -575,8 +626,8 @@ def p_ctable1(t):
     C3D = 't' + str(contador) + ' = "create table ' + str(t[3]) + ' ( ' + str(t[5].getInstruccion()) + ' );"'
     contador = contador + 1
 
-    codigo_3D.append(C3D)
-    ret = Retorno(CreateTable(t[3], t[5].getInstruccion(), None), NodoAST("CREATE TABLE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(CreateTable(t[3], t[5].getInstruccion(), None,C3D), NodoAST("CREATE TABLE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[5].getNodo())
     t[0] = ret
@@ -1155,9 +1206,9 @@ def p_ReplaceV(t):
     reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "IF" "NOT" "EXISTS" "ID" ";"')
     C3D = 't' + str(contador) + ' = "create or replace database if not exists ' + str(t[8]) + ';"'
 
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
     contador = contador + 1
-    ret = Retorno(CreateDatabase(t[8], None, True, True), NodoAST("CREATE DATABASE"))
+    ret = Retorno(CreateDatabase(t[8], None, True, True,C3D), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[8]))
     t[0] = ret
 
@@ -1168,9 +1219,9 @@ def p_Replace_1V(t):
     reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "ID"";"')
     C3D = 't' + str(contador) + ' = "create or replace database ' + str(t[5]) + ';"'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
 
-    ret = Retorno(CreateDatabase(t[5], None, False, True), NodoAST("CREATE DATABASE"))
+    ret = Retorno(CreateDatabase(t[5], None, False, True,C3D), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     t[0] = ret
 
@@ -1180,10 +1231,10 @@ def p_Replace1V(t):
     global reporte_gramatical, codigo_3D, contador
     C3D = 't' + str(contador) + '= "create database if not exists ' + str(t[6]) + ';"'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
     reporte_gramatical.append(
         '<I_REPLACE> ::= "CREATE" "DATABASE" "IF" "NOT" "EXISTS" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
-    ret = Retorno(CreateDatabase(t[6], None, True, False), NodoAST("CREATE DATABASE"))
+    ret = Retorno(CreateDatabase(t[6], None, True, False,C3D), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[6]))
     t[0] = ret
 
@@ -1195,8 +1246,8 @@ def p_Replace2V(t):
     C3D = 't' + str(contador) + ' =  "create database ' + str(t[3]) + ';"'
 
     contador = contador + 1
-    codigo_3D.append(C3D)
-    ret = Retorno(CreateDatabase(t[3], None, False, False), NodoAST("CREATE DATABASE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(CreateDatabase(t[3], None, False, False,C3D), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
 
@@ -1210,8 +1261,8 @@ def p_Replace(t):
         t[9].getInstruccion()) + ';" '
     contador = contador + 1
 
-    codigo_3D.append(C3D)
-    ret = Retorno(CreateDatabase(t[8], t[9].getInstruccion(), True, True), NodoAST("CREATE DATABASE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(CreateDatabase(t[8], t[9].getInstruccion(), True, True,C3D), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[8]))
     ret.getNodo().setHijo(t[9].getNodo())
     print('create database')
@@ -1225,9 +1276,9 @@ def p_Replace_1(t):
         '<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
     C3D = 't' + str(contador) + ' = "create or replace database ' + str(t[5]) + ' ' + str(t[6].getInstruccion()) + ';"'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
 
-    ret = Retorno(CreateDatabase(t[5], t[6].getInstruccion(), False, True), NodoAST("CREATE DATABASE"))
+    ret = Retorno(CreateDatabase(t[5], t[6].getInstruccion(), False, True,C3D), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     ret.getNodo().setHijo(t[6].getNodo())
     t[0] = ret
@@ -1241,8 +1292,8 @@ def p_Replace1(t):
     C3D = 't' + str(contador) + ' = " create database if not exists ' + str(t[6]) + ' ' + str(
         t[7].getInstruccion()) + ';"'
     contador = contador + 1
-    codigo_3D.append(C3D)
-    ret = Retorno(CreateDatabase(t[6], t[7].getInstruccion(), True, False), NodoAST("CREATE DATABASE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(CreateDatabase(t[6], t[7].getInstruccion(), True, False,C3D), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[6]))
     ret.getNodo().setHijo(t[7].getNodo())
     t[0] = ret
@@ -1254,9 +1305,9 @@ def p_Replace2(t):
     reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "DATABASE" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
     C3D = 't' + str(contador) + ' = "create database ' + str(t[3]) + ' ' + str(t[4].getInstruccion()) + ';"'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
 
-    ret = Retorno(CreateDatabase(t[3], t[4].getInstruccion(), False, False), NodoAST("CREATE DATABASE"))
+    ret = Retorno(CreateDatabase(t[3], t[4].getInstruccion(), False, False,C3D), NodoAST("CREATE DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[4].getNodo())
     t[0] = ret
@@ -1321,9 +1372,9 @@ def p_tAlter(t):
     C3D = 't' + str(contador) + ' = " alter database ' + str(t[3]) + ' ' + str(t[4].getInstruccion())
     contador = contador + 1
 
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
     reporte_gramatical.append('<I_ALTERDB> ::= "ALTER" "DATABASE" "ID" <P_OPERACION_ALTERDB> ";" ')
-    ret = Retorno(AlterDB(t[3], t[4].getInstruccion()), NodoAST("ALTER DATABASE"))
+    ret = Retorno(AlterDB(t[3], t[4].getInstruccion(),C3D), NodoAST("ALTER DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[4].getNodo())
     t[0] = ret
@@ -1398,8 +1449,8 @@ def p_AlterTB(t):
     C3D = 't' + str(contador) + ' = "alter table ' + str(t[3]) + ' ' + str(t[4].getInstruccion()) + ';"'
     contador = contador + 1
 
-    codigo_3D.append(C3D)
-    ret = Retorno(AlterAddC(t[3], t[4].getInstruccion()), NodoAST("ALTER TABLE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(AlterAddC(t[3], t[4].getInstruccion(),C3D), NodoAST("ALTER TABLE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[4].getNodo())
     t[0] = ret
@@ -1412,8 +1463,8 @@ def p_AlterTB2(t):
     C3D = 't' + str(contador) + ' = "alter table ' + str(t[3]) + ' ' + str(t[4].getInstruccion()) + ';"'
     contador = contador + 1
 
-    codigo_3D.append(C3D)
-    ret = Retorno(AlterD(t[3], t[4].getInstruccion()), NodoAST("ALTER TABLE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(AlterD(t[3], t[4].getInstruccion(),C3D), NodoAST("ALTER TABLE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[4].getNodo())
     t[0] = ret
@@ -1426,8 +1477,8 @@ def p_AlterTB3(t):
     C3D = 't' + str(contador) + ' = "alter table ' + str(t[3]) + ' add ' + str(t[5].getInstruccion()) + ';"'
     contador = contador + 1
 
-    codigo_3D.append(C3D)
-    ret = Retorno(AlterTBAdd(t[3], t[5].getInstruccion()), NodoAST("ALTER TABLE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(AlterTBAdd(t[3], t[5].getInstruccion(),C3D), NodoAST("ALTER TABLE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[5].getNodo())
     t[0] = ret
@@ -1440,8 +1491,8 @@ def p_AlterTB4(t):
     C3D = 't' + str(contador) + ' = "alter table ' + str(t[3]) + ' alter column ' + str(t[6]) + ' set not null;"'
     contador = contador + 1
 
-    codigo_3D.append(C3D)
-    ret = Retorno(AlterNotNull(t[3], t[6]), NodoAST("ALTER TABLE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(AlterNotNull(t[3], t[6],C3D), NodoAST("ALTER TABLE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(NodoAST(t[6]))
     ret.getNodo().setHijo(NodoAST("NOT NULL"))
@@ -1455,8 +1506,8 @@ def p_AlterTB5(t):
     C3D = 't' + str(contador) + ' = " alter table ' + str(t[3]) + ' drop constraint ' + str(t[6]) + ';"'
     contador = contador + 1
 
-    codigo_3D.append(C3D)
-    ret = Retorno(AlterDConstraint(t[3], t[6]), NodoAST("ALTER TABLE"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(AlterDConstraint(t[3], t[6],C3D), NodoAST("ALTER TABLE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(NodoAST("DROP CONSTRAINT"))
     ret.getNodo().setHijo(NodoAST(t[6]))
@@ -1469,9 +1520,9 @@ def p_AlterTB6(t):
     reporte_gramatical.append('<I_ALTERTB> ::= "ALTER" "TABLE" "ID" <L_COLUMN> ";"')
     C3D = 't' + str(contador) + ' = "alter table ' + str(t[3]) + ' ' + str(t[4].getInstruccion()) + ';"'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
 
-    ret = Retorno(Alter(t[3], t[4].getInstruccion()), NodoAST("ALTER TABLE"))
+    ret = Retorno(Alter(t[3], t[4].getInstruccion(),C3D), NodoAST("ALTER TABLE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[4].getNodo())
     t[0] = ret
@@ -1674,8 +1725,8 @@ def p_dropTB(t):
     C3D = 't' + str(contador) + ' = "drop table ' + str(t[3]) + ';"'
 
     contador = contador + 1
-    codigo_3D.append(C3D)
-    ret = Retorno(DropT(t[3]), NodoAST("DROP"))
+    #codigo_3D.append(C3D)
+    ret = Retorno(DropT(t[3],C3D), NodoAST("DROP"))
     ret.getNodo().setHijo(NodoAST("TABLE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
@@ -1690,9 +1741,9 @@ def p_dropDB(t):
     reporte_gramatical.append('<I_DROP> ::= "DROP" "DATABASE" "IF" "EXISTS" "ID" ";" ')
     C3D = 't' + str(contador) + '= " drop database if exists ' + str(t[5]) + ';"'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
 
-    ret = Retorno(IfExist1(t[5], True), NodoAST("DROP"))
+    ret = Retorno(IfExist1(t[5], True,C3D), NodoAST("DROP"))
     ret.getNodo().setHijo(NodoAST("DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     t[0] = ret
@@ -1704,9 +1755,9 @@ def p_DropDBid(t):
     reporte_gramatical.append('<I_DROP> ::= "DROP" "DATABASE" "ID" ";" ')
     C3D = 't' + str(contador) + ' = " drop database ' + str(t[3]) + ';"'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
 
-    ret = Retorno(IfExist1(t[3], False), NodoAST("DROP"))
+    ret = Retorno(IfExist1(t[3], False,C3D), NodoAST("DROP"))
     ret.getNodo().setHijo(NodoAST("DATABASE"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     t[0] = ret
@@ -1720,11 +1771,32 @@ def p_insertTB(t):
     'I_INSERT      : INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA'
     global reporte_gramatical, codigo_3D, contador
     reporte_gramatical.append('<I_INSERT> ::= "INSERT" "INTO" "ID" "VALUES" "(" <I_LVALT> ")" ";" ')
-    C3D = 't' + str(contador) + ' = "insert into ' + str(t[3]) + ' values ( ' + str(t[6].getInstruccion()) + ')'
-    contador = contador + 1
-    codigo_3D.append(C3D)
+    C3D = ""
+    if str(t[6].getInstruccion()).find("#LLAMADA") != -1:
+        inst = ""
+        val = ""
+        auxinst = str(t[6].getInstruccion()).split(",")
+        for i in range(0, len(auxinst)):
+            if auxinst[i].find("#LLAMADA") != -1:
+                valllamada = auxinst[i].split("#VALOR")[0]
+                valllamada1 = valllamada.replace("#LLAMADA", "")
+                inst += valllamada1
+                valor = auxinst[i].split("#VALOR")[1]
+                val += valor
+                if i != len(auxinst) - 1:
+                    val += ", "
+            else:
+                val += auxinst[i]
+                if i != len(auxinst) - 1:
+                    val += ", "
 
-    ret = Retorno(Insert(t[3], None, t[6].getInstruccion()), NodoAST("INSERT"))
+        C3D = inst + "\tt" + str(contador) + ' = "insert into ' + str(t[3]) + ' values( ' + val + ");\"\n\tlista=[t" + str(contador) + "]\n\tfuncionIntermedia()"
+    else:
+        C3D = 't' + str(contador) + ' = "insert into ' + str(t[3]) + ' values ( ' + str(t[6].getInstruccion()) + ');"'
+    contador = contador + 1
+    #codigo_3D.append(C3D)
+
+    ret = Retorno(Insert(t[3], None, t[6].getInstruccion(),C3D), NodoAST("INSERT"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[6].getNodo())
     t[0] = ret
@@ -1734,12 +1806,33 @@ def p_insertTB1(t):
     'I_INSERT      : INSERT INTO ID PABRE I_LVALT PCIERRA VALUES PABRE I_LVALT PCIERRA PCOMA'
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append('<I_INSERT> ::= "INSERT" "INTO" "ID" "(" <I_LVALT> ")" "VALUES "(" <I_LVARLT> ")" ";" ')
-    C3D = 't' + str(contador) + ' = "insert into ' + str(t[3]) + ' ( ' + str(
+    C3D = ""
+    if str(t[5].getInstruccion()).find("#LLAMADA") != -1:
+        inst = ""
+        val = ""
+        auxinst = str(t[6].getInstruccion()).split(",")
+        for i in range(0, len(auxinst)):
+            if auxinst[i].find("#LLAMADA") != -1:
+                valllamada = auxinst[i].split("#VALOR")[0]
+                valllamada1 = valllamada.replace("#LLAMADA", "")
+                inst += valllamada1
+                valor = auxinst[i].split("#VALOR")[1]
+                val += valor
+                if i != len(auxinst) - 1:
+                    val += ", "
+            else:
+                val += auxinst[i]
+                if i != len(auxinst) - 1:
+                    val += ", "
+
+        C3D = inst + "\tt" + str(contador) + ' = "insert into ' + str(t[3]) + '(' + str(t[5].getInstruccion()) + ')' + ' values( ' + val + ");\"\n\tlista=[t" + str(contador) + "]\n\tfuncionIntermedia()"
+    else:
+        C3D = 't' + str(contador) + ' = "insert into ' + str(t[3]) + ' ( ' + str(
         t[5].getInstruccion()) + ') values (' + str(t[9].getInstruccion()) + ');"'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
 
-    ret = Retorno(Insert(t[3], t[5].getInstruccion(), t[9].getInstruccion()), NodoAST("INSERT"))
+    ret = Retorno(Insert(t[3], t[5].getInstruccion(), t[9].getInstruccion(),C3D), NodoAST("INSERT"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[5].getNodo())
     ret.getNodo().setHijo(t[9].getNodo())
@@ -1796,9 +1889,9 @@ def p_update(t):
     C3D = 't' + str(contador) + ' = "update ' + str(t[2]) + ' set ' + str(t[4].getInstruccion()) + ' ' + str(
         t[5].getInstruccion()) + ';"'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
 
-    ret = Retorno(Update(t[2], t[4].getInstruccion(), t[5].getInstruccion()), NodoAST(t[1]))
+    ret = Retorno(Update(t[2], t[4].getInstruccion(), t[5].getInstruccion(),C3D), NodoAST(t[1]))
     ret.getNodo().setHijo(NodoAST(t[2]))
     ret.getNodo().setHijo(t[4].getNodo())
     ret.getNodo().setHijo(t[5].getNodo())
@@ -1879,9 +1972,9 @@ def p_show(t):
     global reporte_gramatical, codigo_3D, contador
     C3D = 't' + str(contador) + ' = " show databases; "'
     contador = contador + 1
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
     reporte_gramatical.append('<I_SHOW> ::= "SHOW" "DATABASE" ";" ')
-    ret = Retorno(Show(t[2]), NodoAST("SHOW"))
+    ret = Retorno(Show(t[2],C3D), NodoAST("SHOW"))
     # ret.getNodo().setHijo(NodoAST(t[2]))
     t[0] = ret
 
@@ -1895,9 +1988,9 @@ def p_delete(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append('<I_DELETE> ::= "DELETE" "FROM" "ID" <PWHERE> ";" ')
     C3D = 't' + str(contador) + ' = "delete from ' + str(t[3]) + ' ' + str(t[4].getInstruccion()) + ';"'
-    codigo_3D.append(C3D)
+    #codigo_3D.append(C3D)
     contador = contador + 1
-    ret = Retorno(DeleteFrom(t[3], t[4].getInstruccion()), NodoAST(t[1]))
+    ret = Retorno(DeleteFrom(t[3], t[4].getInstruccion(),C3D), NodoAST(t[1]))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[4].getNodo())
     t[0] = ret
@@ -1908,12 +2001,10 @@ def p_delete(t):
 # ------------------------------------------------------- INDEX-------------------------------------------------
 def p_CIndex(t):
    'I_CINDEX        :   CREATE INDEX ID ON ID PABRE LCINDEX PCIERRA PCOMA'
-   global reporte_gramatical, contador, codigo_3D
+   global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "(" <LCINDEX> ")" ";" ')
-   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7].getInstruccion()) + ')' + ';"'
-   codigo_3D.append(C3D)
-   contador = contador + 1
-   ret = Retorno(Index(t[3],t[5],t[7].getInstruccion(),False,False),NodoAST("INDEX"))
+   
+   ret = Retorno(Index(t[3],t[5],t[7].getInstruccion(),False,False,None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(t[7].getNodo())
@@ -1921,25 +2012,20 @@ def p_CIndex(t):
 
 def p_CIndex2(t):
    'I_CINDEX        :   CREATE INDEX ID ON ID USING HASH PABRE ID PCIERRA PCOMA'
-   global reporte_gramatical, contador, codigo_3D
+   global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "USING" "HASH" "(" "ID" ")" ";" ')
-   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7]) + ')' + ';"'
-   codigo_3D.append(C3D)
-   contador = contador + 1
-   ret = Retorno(Index(t[3],t[5],t[9],False,True),NodoAST("INDEX"))
+
+   ret = Retorno(Index(t[3],t[5],t[9],False,True,None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(NodoAST(t[9]))
    t[0] = ret
 
 def p_CIndex3(t):
-   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE NUMERO COMA NUMERO PCIERRA PCOMA'
-   global reporte_gramatical, contador, codigo_3D
+   'I_CINDEX        :   CREATE INDEX ID ON ID PABRE MAJOR COMA MINOR PCIERRA PCOMA'
+   global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID"  "(" "NUMERO" "," "NUMERO"  ")" ";" ')
-   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7]) + ',' + str(t[9]) + ')' + ';"'
-   codigo_3D.append(C3D)
-   contador = contador + 1
-   ret = Retorno(IndexMM(t[3],t[5],t[7],t[9]),NodoAST("INDEX"))
+   ret = Retorno(IndexMM(t[3],t[5],t[7],t[9],None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(NodoAST(t[7]))
@@ -1948,12 +2034,10 @@ def p_CIndex3(t):
   
 def p_CIndex4(t):
    'I_CINDEX        :   CREATE UNIQUE INDEX ID ON ID PABRE LCINDEX PCIERRA PCOMA'
-   global reporte_gramatical, contador, codigo_3D
+   global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "UNIQUE" "INDEX" "ID" "ON" "ID"  "(" <LCINDEX> ")" ";" ')
-   C3D = 't' + str(contador) + ' = "create unique index ' + str(t[4]) + ' on ' + str(t[6]) + '(' + str(t[8].getInstruccion()) + ')' + ';"'
-   codigo_3D.append(C3D)
-   contador = contador + 1
-   ret = Retorno(Index(t[4],t[6],t[8].getInstruccion(),True,False),NodoAST("INDEX"))
+
+   ret = Retorno(Index(t[4],t[6],t[8].getInstruccion(),True,False,None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[4]))
    ret.getNodo().setHijo(NodoAST(t[6]))
    ret.getNodo().setHijo(t[8].getNodo())
@@ -1961,12 +2045,10 @@ def p_CIndex4(t):
 
 def p_CIndex5(t):
    'I_CINDEX        :   CREATE INDEX ID ON ID PABRE LCINDEX PCIERRA PWHERE PCOMA'
-   global reporte_gramatical, contador, codigo_3D
+   global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "(" <LCINDEX> ")" <PWHERE> ";" ')
-   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7].getInstruccion()) + ')' + str(t[9].getInstruccion()) + ';"'
-   codigo_3D.append(C3D)
-   contador = contador + 1
-   ret = Retorno(IndexW(t[3],t[5],t[7].getInstruccion(),t[9].getInstruccion()),NodoAST("INDEX"))
+
+   ret = Retorno(IndexW(t[3],t[5],t[7].getInstruccion(),t[9].getInstruccion(),None),NodoAST("INDEX"))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(t[7].getNodo())
@@ -1988,12 +2070,10 @@ def p_CIndex6(t):
        comp = 'NULLS FIRST'
    elif t[8] == 'NL':
        comp = 'NULLS LAST'
-   global reporte_gramatical, contador, codigo_3D
+   global reporte_gramatical
    reporte_gramatical.append('<I_CINDEX> ::= "CREATE" "INDEX" "ID" "ON" "ID" "(" "ID" <COMPLEMENTOINDEX> ")" ";" ')
-   C3D = 't' + str(contador) + ' = "create index ' + str(t[3]) + ' on ' + str(t[5]) + '(' + str(t[7]) + ' ' + str(comp) + ')' + ';"'
-   codigo_3D.append(C3D)
-   contador = contador + 1
-   ret = Retorno(IndexOrden(t[3],t[5],t[7],t[8]), NodoAST('INDEX'))
+
+   ret = Retorno(IndexOrden(t[3],t[5],t[7],t[8],None), NodoAST('INDEX'))
    ret.getNodo().setHijo(NodoAST(t[3]))
    ret.getNodo().setHijo(NodoAST(t[5]))
    ret.getNodo().setHijo(NodoAST(t[7]))
@@ -2011,6 +2091,67 @@ def p_CIndex6(t):
        ret.getNodo().setHijo(NodoAST('NULLS LAST'))
    t[0] = ret
 
+def p_DropIndex(t):
+    'I_DROPI  :   DROP INDEX ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_DROPI> ::= \"DROP\" \"INDEX\" \"ID\" \";\" ")
+    ret = Retorno(DropIndex(t[3],None), NodoAST('DROP INDEX'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+
+def p_AlterIndex(t):
+    'I_ALTERIN  :   ALTER INDEX IF EXISTS ID RENAME TO ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"IF\" \"EXIST\" \"ID\" \"DO\" \"RENAME\" \"TO\" \"ID\" \";\" ")
+    ret = Retorno(AlterRenameIn(t[5],t[8],None), NodoAST('ALTER INDEX'))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(NodoAST(t[8]))
+    t[0] = ret
+
+def p_AlterIndex2(t):
+    'I_ALTERIN  :   ALTER INDEX ID RENAME TO ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"ID\" \"DO\" \"RENAME\" \"TO\" \"ID\" \";\" ")
+    ret = Retorno(AlterRenameIn(t[3],t[6],None), NodoAST('ALTER INDEX'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[6]))
+    t[0] = ret
+
+
+def p_AlterIndex3(t):
+    'I_ALTERIN  :   ALTER INDEX IF EXISTS ID ALTER ID NUMERO PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"IF\" \"EXISTS\" \"ID\" \"ALTER\" \"ID\"  \"NUMERO\" \";\" ")
+    ret = Retorno(AlterIndex(t[5],t[7],t[8],True,None), NodoAST('ALTER INDEX'))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
+
+def p_AlterIndex4(t):
+    'I_ALTERIN  :   ALTER INDEX IF EXISTS ID ALTER ID ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"IF\" \"EXISTS\" \"ID\" \"ALTER\" \"ID\" \"ID\" \";\" ")
+    ret = Retorno(AlterIndex(t[5],t[7],t[8],False,None), NodoAST('ALTER INDEX'))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
+
+
+
+def p_AlterIndex5(t):
+    'I_ALTERIN  :   ALTER INDEX ID ALTER ID NUMERO PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"ID\" \"ALTER\" \"ID\" \"NUMERO\" \";\" ")
+    ret = Retorno(AlterIndex(t[3],t[5],t[6],True,None), NodoAST('ALTER INDEX'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+def p_AlterIndex6(t):
+    'I_ALTERIN  :   ALTER INDEX ID ALTER ID ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_ALTERIN> ::= \"ALTER\" \"INDEX\" \"ID\" \"ALTER\" \"ID\"  \"ID\" \";\" ")
+    ret = Retorno(AlterIndex(t[3],t[5],t[6],False,None), NodoAST('ALTER INDEX'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 def p_LCINDEX(t):
    'LCINDEX        :   LCINDEX COMA VALINDEX'
@@ -2035,7 +2176,8 @@ def p_VALINDEX(t):
 
 def p_VALINDEX2(t):
    'VALINDEX        :   LOWER PABRE ID PCIERRA'
-   ret = Retorno(t[1],NodoAST(t[3]))
+   ret = Retorno(t[3],NodoAST(t[1]))
+   ret.getNodo().setHijo(NodoAST(t[3]))
    t[0] = ret
 
 def p_VALINDEX3(t):
@@ -2077,11 +2219,33 @@ def p_ISelect(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" <VALORES> <PFROM> <LCOMPLEMENTOS>")
     if isinstance(t[2], str):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
+        C3D = ""
+        if t[2].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[2].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) +  ' ' + val + ' ' + str(
+                t[3].getInstruccion()) + ' ' + str(t[4].getInstruccion()) + ';"\n\tlista=[t' + str(contador) + ']\n\tfuncionIntermedia()'
+        else:
+            C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ';"'
-        codigo_3D.append(C3D)
+        #codigo_3D.append(C3D)
         contador = contador + 1
-        ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), None, False), NodoAST("SELECT"))
+        ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), None, False,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[2]))
         ret.getNodo().setHijo(t[3].getNodo())
         ret.getNodo().setHijo(t[4].getNodo())
@@ -2089,9 +2253,9 @@ def p_ISelect(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2].getInstruccion()) + ' ' + str(
             t[3].getInstruccion()) + ' ' + str(t[4].getInstruccion()) + ';"'
-        codigo_3D.append(C3D)
+        #codigo_3D.append(C3D)
         contador = contador + 1
-        ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), None, False),
+        ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), None, False,C3D),
                       NodoAST("SELECT"))
         ret.getNodo().setHijo(t[2].getNodo())
         ret.getNodo().setHijo(t[3].getNodo())
@@ -2104,11 +2268,33 @@ def p_ISelect4(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"DISTINCT\" <VALORES> <PFROM> <LCOMPLEMENTOS>")
     if isinstance(t[3], str):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(
+        C3D = ""
+        if t[3].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[3].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) + ' ' + str(t[2]) + ' ' + val + ' ' + str(
+                t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"\n\tlista=[t' + str(contador) + ']\n\tfuncionIntermedia()'
+        else:
+            C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
-        codigo_3D.append(C3D)
+        #codigo_3D.append(C3D)
         contador = contador + 1
-        ret = Retorno(Select3(t[3], t[4].getInstruccion(), None, t[5].getInstruccion(), True), NodoAST("SELECT"))
+        ret = Retorno(Select3(t[3], t[4].getInstruccion(), None, t[5].getInstruccion(), True,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[3]))
         ret.getNodo().setHijo(t[4].getNodo())
         ret.getNodo().setHijo(t[5].getNodo())
@@ -2116,9 +2302,9 @@ def p_ISelect4(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
-        codigo_3D.append(C3D)
+        #codigo_3D.append(C3D)
         contador = contador + 1
-        ret = Retorno(Select3(t[3].getInstruccion(), t[4].getInstruccion(), None, t[5].getInstruccion(), True),
+        ret = Retorno(Select3(t[3].getInstruccion(), t[4].getInstruccion(), None, t[5].getInstruccion(), True,C3D),
                       NodoAST("SELECT"))
         ret.getNodo().setHijo(t[3].getNodo())
         ret.getNodo().setHijo(t[4].getNodo())
@@ -2131,11 +2317,33 @@ def p_ISelect2(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" <VALORES> <PFROM> <PWHERE> <LCOMPLEMENTOS>")
     if isinstance(t[2], str):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
+        C3D = ""
+        if t[2].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[2].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) + ' ' + ' ' + val + ' ' + str(t[3].getInstruccion()) + ' ' + str(
+                t[4].getInstruccion())  + ' ' + str(t[5].getInstruccion()) + ';"\n\tlista=[t' + str(contador) + ']\n\tfuncionIntermedia()'
+        else:
+            C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
-        codigo_3D.append(C3D)
+        #codigo_3D.append(C3D)
         contador = contador + 1
-        ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), False),
+        ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), False,C3D),
                       NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[2]))
         ret.getNodo().setHijo(t[3].getNodo())
@@ -2145,10 +2353,10 @@ def p_ISelect2(t):
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
-        codigo_3D.append(C3D)
+        #codigo_3D.append(C3D)
         contador = contador + 1
         ret = Retorno(
-            Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), False),
+            Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), False,C3D),
             NodoAST("SELECT"))
         ret.getNodo().setHijo(t[2].getNodo())
         ret.getNodo().setHijo(t[3].getNodo())
@@ -2162,12 +2370,34 @@ def p_ISelect6(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"DISTINCT\" <VALORES> <PFROM> <PWHERE> <LCOMPLEMENTOS>")
     if isinstance(t[3], str):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(
+        C3D = ""
+        if t[3].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[3].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) + ' ' + str(t[2]) + ' ' + val + ' ' + str(
+                t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ' ' + str(t[6].getInstruccion()) + ';"\n\tlista=[t' + str(contador) + ']\n\tfuncionIntermedia()'
+        else:
+            C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(
             t[4].getInstruccion()) + + ' ' + str(t[5].getInstruccion()) + ' ' + str(t[6].getInstruccion()) + ';"'
 
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[3], t[4].getInstruccion(), t[5].getInstruccion(), t[6].getInstruccion(), True),
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[3], t[4].getInstruccion(), t[5].getInstruccion(), t[6].getInstruccion(), True,C3D),
                       NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[3]))
         ret.getNodo().setHijo(t[4].getNodo())
@@ -2178,9 +2408,9 @@ def p_ISelect6(t):
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + + ' ' + str(t[6].getInstruccion()) + ';"'
         contador = contador + 1
-        codigo_3D.append(C3D)
+        #codigo_3D.append(C3D)
         ret = Retorno(
-            Select3(t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), t[6].getInstruccion(), True),
+            Select3(t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), t[6].getInstruccion(), True,C3D),
             NodoAST("SELECT"))
         ret.getNodo().setHijo(t[3].getNodo())
         ret.getNodo().setHijo(t[4].getNodo())
@@ -2194,21 +2424,41 @@ def p_ISelect3(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_sELECT> ::= \"SELECT\" \DISTINCT\" <VALORES> <PFROM> <PWHERE>")
     if isinstance(t[2], str):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
+        C3D = ""
+        if t[2].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[2].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) + ' ' + val + ' ' + str(t[3].getInstruccion()) + ' ' + str(t[4].getInstruccion()) + ';"\n\tlista=[t' + str(contador) + ']\n\tfuncionIntermedia()'
+        else:
+            C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ' ' + str(
             t[4].getInstruccion()) + ';"'
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), None, False), NodoAST("SELECT"))
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[2], t[3].getInstruccion(), t[4].getInstruccion(), None, False,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[2]))
         ret.getNodo().setHijo(t[3].getNodo())
         ret.getNodo().setHijo(t[4].getNodo())
         t[0] = ret
     else:
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2].getInstruccion()) + ' ' + str(
-            t[3].getInstruccin()) + ' ' + str(t[4].getInstruccion()) + ';"'
+        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2].getInstruccion()) + ' ' + str(t[3].getInstruccion()) + ' ' + str(t[4].getInstruccion()) + ';"'
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), None, False),
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), None, False,C3D),
                       NodoAST("SELECT"))
         ret.getNodo().setHijo(t[2].getNodo())
         ret.getNodo().setHijo(t[3].getNodo())
@@ -2221,12 +2471,33 @@ def p_ISelect7(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_sELECT> ::= \"SELECT\" \DISTINCT\" <VALORES> <PFROM> <PWHERE>")
     if isinstance(t[3], str):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(
+        C3D = ""
+        if t[3].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[3].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) + ' ' + str(t[2]) + ' ' + val + ' ' + str(t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';\n\tlista=[t' + str(contador) + ']\n\tfuncionIntermedia()"'
+        else:
+            C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
 
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[3], t[4].getInstruccion(), t[5].getInstruccion(), None, True), NodoAST("SELECT"))
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[3], t[4].getInstruccion(), t[5].getInstruccion(), None, True,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[3]))
         ret.getNodo().setHijo(t[4].getNodo())
         ret.getNodo().setHijo(t[5].getNodo())
@@ -2236,8 +2507,8 @@ def p_ISelect7(t):
             t[4].getInstruccion()) + ' ' + str(t[5].getInstruccion()) + ';"'
 
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), None, True),
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), None, True,C3D),
                       NodoAST("SELECT"))
         ret.getNodo().setHijo(t[3].getNodo())
         ret.getNodo().setHijo(t[4].getNodo())
@@ -2250,12 +2521,33 @@ def p_ISelect5(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"DISTINCT\" <VALORES> <PFROM>")
     if isinstance(t[3], str):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(
+        C3D = ""
+        if t[3].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[3].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) + ' ' + str(t[2]) + ' ' + val + ' ' + str(t[4].getInstruccion()) + ';"\n\tlista=[t' + str(contador) + ']\n\tfuncionIntermedia()'
+        else:
+            C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ' ' + str(
             t[4].getInstruccion()) + ';"'
 
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[3], t[4].getInstruccion(), None, None, True), NodoAST("SELECT"))
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[3], t[4].getInstruccion(), None, None, True,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[3]))
         ret.getNodo().setHijo(t[4].getNodo())
         t[0] = ret
@@ -2264,8 +2556,8 @@ def p_ISelect5(t):
             t[4].getInstruccion()) + ';"'
 
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[3].getInstruccion(), t[4].getInstruccion(), None, None, None), NodoAST("SELECT"))
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[3].getInstruccion(), t[4].getInstruccion(), None, None, None,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(t[3].getNodo())
         ret.getNodo().setHijo(t[4].getNodo())
         t[0] = ret
@@ -2276,11 +2568,32 @@ def p_ISelect1(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" <VALORES> <PFROM>")
     if isinstance(t[2], str) or isinstance(t[2], int):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ';"'
+        C3D = ""
+        if t[2].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[2].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) + ' ' + val + ' ' + str(t[3].getInstruccion()) + ';"\n\tlista=[t' + str(contador) + ']\n\tfuncionIntermedia()'
+        else:
+             C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ';"'
 
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[2], t[3].getInstruccion(), None, None, False), NodoAST("SELECT"))
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[2], t[3].getInstruccion(), None, None, False,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[2]))
         ret.getNodo().setHijo(t[3].getNodo())
         t[0] = ret
@@ -2288,8 +2601,8 @@ def p_ISelect1(t):
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3].getInstruccion()) + ';"'
 
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), None, None, False), NodoAST("SELECT"))
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), None, None, False,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(t[2].getNodo())
         ret.getNodo().setHijo(t[3].getNodo())
         t[0] = ret
@@ -2300,19 +2613,40 @@ def p_ISelect8(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" <VALORES>")
     if isinstance(t[2], str):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ';"'
-
-        contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[2], None, None, None, False), NodoAST("SELECT"))
+        C3D = ""
+        if t[2].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[2].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) + ' ' + val + ';"\n\tlista=[t' + str(contador) + ']\n\tt' + str(++contador) + '=funcionIntermedia()'
+        else:
+            C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ';"'
+        print(C3D)
+        contador = contador + 2
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[2], None, None, None, False,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[2]))
         t[0] = ret
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2].getInstruccion()) + ';"'
 
         contador = contador + 1
-        codigo_3D.append(C3D)
-        ret = Retorno(Select3(t[2].getInstruccion(), None, None, None, False), NodoAST("SELECT"))
+        #codigo_3D.append(C3D)
+        ret = Retorno(Select3(t[2].getInstruccion(), None, None, None, False,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(t[2].getNodo())
         t[0] = ret
 
@@ -2322,47 +2656,43 @@ def p_ISelect9(t):
     global reporte_gramatical, contador, codigo_3D
     reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"DISTINCT\" <VALORES>")
 
-    if isinstance(t[2], str):
-        C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ';"'
-        ret = Retorno(Select3(t[2], None, None, None, True), NodoAST("SELECT"))
+    if isinstance(t[3], str):
+        C3D = ""
+        if t[3].find("#LLAMADA") != -1:
+            inst = ""
+            val = ""
+            auxinst = t[3].split(",")
+            for i in range(0, len(auxinst)):
+                print("I", i, auxinst[i])
+                if auxinst[i].find("#LLAMADA") != -1:
+                    valllamada = auxinst[i].split("#VALOR")[0]
+                    valllamada1 = valllamada.replace("#LLAMADA", "")
+                    inst += valllamada1
+                    valor = auxinst[i].split("#VALOR")[1]
+                    val += valor
+                    if i != len(auxinst) - 1:
+                        val += ", "
+                else:
+                    val += auxinst[i]
+                    if i != len(auxinst) - 1:
+                        val += ", "
+            C3D = inst + '\tt' + str(contador) + " = \"" + str(t[1]) + ' ' + str(t[2]) + ' ' + val + ';"\n\tlista=[t' + str(contador) + ']\n\tfuncionIntermedia()'
+        else:
+            C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) + ' ' + str(t[3]) + ';"'
+        ret = Retorno(Select3(t[3], None, None, None, True,C3D), NodoAST("SELECT"))
         ret.getNodo().setHijo(NodoAST(t[2]))
 
         contador = contador + 1
-        codigo_3D.append(C3D)
+        #codigo_3D.append(C3D)
         t[0] = ret
     else:
         C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2].getInstruccion()) + ' ' + str(t[3]) + ';"'
-        ret = Retorno(Select3(t[2].getInstruccion(), None, None, None, True), NodoAST("SELECT"))
-        ret.getNodo().setHijo(t[2].getNodo())
+        ret = Retorno(Select3(t[3].getInstruccion(), None, None, None, True,C3D), NodoAST("SELECT"))
+        ret.getNodo().setHijo(t[3].getNodo())
         contador = contador + 1
 
-        codigo_3D.append(C3D)
+        #codigo_3D.append(C3D)
         t[0] = ret
-
-def p_ISelect10(t):
-    'I_SELECT   :   SELECT ID PABRE PCIERRA '
-    global reporte_gramatical, contador, codigo_3D
-    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"ID\" \"()\" ")
-    C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) +'()' +';"'
-    ret = Retorno(SelectFun(t[2],None),NodoAST("SELECT"))
-    ret.getNodo().setHijo(NodoAST(t[2]))
-
-    contador = contador + 1
-    codigo_3D.append(C3D)
-    t[0] = ret
-
-def p_ISelect11(t):
-    'I_SELECT   :   SELECT ID PABRE L_ID PCIERRA '
-    global reporte_gramatical, contador, codigo_3D
-    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"ID\" \"()\" ")
-    C3D = 't' + str(contador) + ' = "' + str(t[1]) + ' ' + str(t[2]) +'('+ str(t[4].getInstruccion()) + ')' +';"'
-    ret = Retorno(SelectFun(t[2],t[4].getInstruccion()),NodoAST("SELECT"))
-    ret.getNodo().setHijo(NodoAST(t[2]))
-    ret.getNodo().setHijo(t[4].getNodo())
-
-    contador = contador + 1
-    codigo_3D.append(C3D)
-    t[0] = ret
 
 
 def p_LComplementoS(t):
@@ -2564,6 +2894,8 @@ def p_ComplementoOrderCI(t):
     elif t[2] == 'DNL':
         ret.getNodo().setHijo(NodoAST('DESC NULLS LAST'))
     t[0] = ret
+
+
 
 
 def p_ComplementoOrderCOBC(t):
@@ -3845,6 +4177,46 @@ def p_CondicionIgual(t):
     ret.getNodo().setHijo(t[3].getNodo())
     t[0] = ret
 
+def p_CondicionLlamada(t):
+    'CONDICION  :   ID PABRE PCIERRA '
+    global contador, contador_label, codigo_3D, lista
+    val = Llamada(t[1], None)
+    gen = Generador(contador, contador_label, val)
+    aux = gen.compilarLlamada1(val)
+    val.setInstruccion(aux.valor)
+    contador = gen.temp
+    contador_label = gen.label
+    C3D = gen.codigo3d
+    inst = ""
+    for i in range(0, len(C3D)):
+        inst += C3D[i] + "\n"
+    print("print c3d", inst)
+    #codigo_3D.append(inst)
+    val.setInstruccion3d(inst)
+    ret = Retorno("#LLAMADA" + inst + "#VALOR" + "\" + str(" + aux.valor + ") + \"", NodoAST("LLAMADA"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
+
+def p_CondicionLlamada1(t):
+    'CONDICION  :   ID PABRE PARAMETROSL PCIERRA '
+    global contador, contador_label, codigo_3D, lista
+    val = Llamada(t[1], t[3].getInstruccion())
+    gen = Generador(contador, contador_label, val)
+    aux = gen.compilarLlamada1(val)
+    val.setInstruccion(aux.valor)
+    contador = gen.temp
+    contador_label = gen.label
+    C3D = gen.codigo3d
+    inst = ""
+    for i in range(0, len(C3D)):
+        inst += C3D[i] + "\n"
+    #codigo_3D.append(inst)
+    val.setInstruccion3d(inst)
+    ret = Retorno("#LLAMADA" + inst + "#VALOR" + "\" + str(" + aux.valor + ") + \"", NodoAST("LLAMADA"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+    print(ret)
 
 def p_CondicionDif(t):
     'CONDICION  :   CONDICION DIF CONDICION '
@@ -4295,25 +4667,16 @@ def p_CondicionSubConsulta(t):
 
 
 def p_CondicionFunciones(t):
-    'CONDICION  :   FUNCION PABRE ID PCIERRA'
+    'CONDICION  :   FUNCION PABRE I_LIDS PCIERRA'
     global reporte_gramatical
-    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" \"ID\" \")\"")
-    val = str(t[1]) + '(' + str(t[3]) + ')'
+    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" <I_LIDS> \")\"")
+    val = str(t[1]) + '(' + str(t[3].getInstruccion()) + ')'
     ret = Retorno(val, NodoAST('FUNCION'))
     ret.getNodo().setHijo(NodoAST(t[1]))
-    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[3].getInstruccion())
     t[0] = ret
 
 
-def p_CondicionFunciones1(t):
-    'CONDICION  :   FUNCION PABRE ID PUNTO ID PCIERRA'
-    global reporte_gramatical
-    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" \"ID\" \".\" \"ID\" \")\"")
-    valor = str(t[1]) + '(' + str(t[3]) + '.' + str(t[5]) + ')'
-    ret = Retorno(valor, NodoAST('FUNCION'))
-    ret.getNodo().setHijo(NodoAST(t[1]))
-    ret.getNodo().setHijo(NodoAST(t[3]))
-    t[0] = ret
 
 
 def p_CondicionNow(t):
@@ -4771,7 +5134,9 @@ def p_PTimestamIdP(t):
 #----------------------------------------------------
 def p_Funcion(t):
     'FUNCION_N  :   CREATE FUNCTION ID PABRE PARAMS PCIERRA RETORNO DECLAREF STAMENT '
-    ret = Retorno(Funcion(t[3], t[5].getInstruccion(), t[8].getInstruccion(), t[9].getInstruccion()), NodoAST("FUNCION"))
+    val = Funcion(t[3], t[5].getInstruccion(), t[8].getInstruccion(), t[9].getInstruccion(), t[7], False)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("FUNCION"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[5].getNodo())
     ret.getNodo().setHijo(t[8].getNodo())
@@ -4780,7 +5145,9 @@ def p_Funcion(t):
 
 def p_Funcion2(t):
     'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PARAMS PCIERRA RETORNO DECLAREF STAMENT '
-    ret = Retorno(Funcion(t[5], t[7].getInstruccion(), t[10].getInstruccion(), t[11].getInstruccion()), NodoAST("FUNCION"))
+    val = Funcion(t[5], t[7].getInstruccion(), t[10].getInstruccion(), t[11].getInstruccion(), t[9], False)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("FUNCION"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     ret.getNodo().setHijo(t[7].getNodo())
     ret.getNodo().setHijo(t[10].getNodo())
@@ -4789,7 +5156,9 @@ def p_Funcion2(t):
 
 def p_Funcion3(t):
     'FUNCION_N  :   CREATE FUNCTION ID PABRE PCIERRA RETORNO DECLAREF STAMENT '
-    ret = Retorno(Funcion(t[3], None, t[7].getInstruccion(), t[8].getInstruccion()), NodoAST("FUNCION"))
+    val = Funcion(t[3], None, t[7].getInstruccion(), t[8].getInstruccion(), t[6], False)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("FUNCION"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     ret.getNodo().setHijo(t[7].getNodo())
     ret.getNodo().setHijo(t[8].getNodo())
@@ -4797,7 +5166,9 @@ def p_Funcion3(t):
 
 def p_Funcion4(t):
     'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PCIERRA RETORNO DECLAREF STAMENT '
-    ret = Retorno(Funcion(t[5], None, t[9].getInstruccion(), t[10].getInstruccion()), NodoAST("FUNCION"))
+    val = Funcion(t[5], None, t[9].getInstruccion(), t[10].getInstruccion(), t[8], False)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("FUNCION"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     ret.getNodo().setHijo(t[9].getNodo())
     ret.getNodo().setHijo(t[10].getNodo())
@@ -4805,7 +5176,9 @@ def p_Funcion4(t):
 
 def p_Funcion5(t):
     'FUNCION_N  :   CREATE FUNCTION ID PABRE PARAMS PCIERRA RETORNO STAMENT '
-    ret = Retorno(Funcion(t[3], t[5].getInstruccion(), None, t[8].getInstruccion()), NodoAST("FUNCION"))
+    val = Funcion(t[3], t[5].getInstruccion(), None, t[8].getInstruccion(), t[7], False)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("FUNCION"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[5].getNodo())
     ret.getNodo().setHijo(t[8].getNodo())
@@ -4813,7 +5186,9 @@ def p_Funcion5(t):
 
 def p_Funcion6(t):
     'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PARAMS PCIERRA RETORNO STAMENT '
-    ret = Retorno(Funcion(t[5], t[7].getInstruccion(), None, t[10].getInstruccion()), NodoAST("FUNCION"))
+    val = Funcion(t[5], t[7].getInstruccion(), None, t[10].getInstruccion(), t[9], False)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("FUNCION"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     ret.getNodo().setHijo(t[7].getNodo())
     ret.getNodo().setHijo(t[10].getNodo())
@@ -4821,27 +5196,36 @@ def p_Funcion6(t):
 
 def p_Funcion7(t):
     'FUNCION_N  :   CREATE FUNCTION ID PABRE PCIERRA RETORNO STAMENT '
-    ret = Retorno(Funcion(t[3], None, None, t[7].getInstruccion()), NodoAST("FUNCION"))
+    val = Funcion(t[3], None, None, t[7].getInstruccion(), t[6], False)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("FUNCION"))
     ret.getNodo().setHijo(NodoAST(t[3]))
     ret.getNodo().setHijo(t[7].getNodo())
     t[0] = ret
 
 def p_Funcion8(t):
     'FUNCION_N  :   CREATE OR REPLACE FUNCTION ID PABRE PCIERRA RETORNO STAMENT '
-    ret = Retorno(Funcion(t[5], None, None, t[9].getInstruccion()), NodoAST("FUNCION"))
+    val = Funcion(t[5], None, None, t[9].getInstruccion(), t[8], False)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("FUNCION"))
     ret.getNodo().setHijo(NodoAST(t[5]))
     ret.getNodo().setHijo(t[9].getNodo())
     t[0] = ret
 
 def p_Retorno(t):
     'RETORNO  :   RETURNS I_TIPO AS FINF '
+    if t[2].getInstruccion().lower() == "text":
+        t[0] = Tipos.Cadena
+    else:
+        t[0] = None
 
 def p_Retorno1(t):
     'RETORNO  :   AS FINF '
+    t[0] = Tipos.Void
 
 def p_Params(t):
     'PARAMS  :   PARAMS COMA PARAM '
-    t[1].getInstruccion().append(t[2].getInstruccion())
+    t[1].getInstruccion().append(t[3].getInstruccion())
     ret = Retorno(t[1].getInstruccion(), t[3].getNodo())
     ret.getNodo().setHijo(t[1].getNodo())
     t[0] = ret
@@ -4878,7 +5262,7 @@ def p_Declaraciones1(t):
 
 def p_Declaracion(t):
     'DECLARACION  :   ID I_TIPO PCOMA'
-    ret = Retorno(Declaracion(t[1]), NodoAST("DECLARACION"))
+    ret = Retorno(Declaracion(t[1],t[2].getInstruccion()), NodoAST("DECLARACION"))
     ret.getNodo().setHijo(NodoAST(t[1]))
     t[0] = ret
 
@@ -4911,10 +5295,12 @@ def p_InstruccionFN1(t):
 
 def p_InstruccionFN2(t):
     'INSTRUCCIONFN  :   PRETURN'
+    t[0] = t[1]
 
 def p_InstruccionFN3(t):
     'INSTRUCCIONFN  :   INSTRUCCION'
-    t[0] = t[1]
+    ret = Retorno(Primitivo(Tipos.ISQL, t[1].getInstruccion().instruccion3d), t[1].getNodo())
+    t[0] = ret
 
 def p_Asignacion(t):
     'ASIGNACION  :   ID DPUNTOS IGUAL VALORF PCOMA'
@@ -5003,9 +5389,16 @@ def p_Else5(t):
 
 def p_Return(t):
     'PRETURN  :   RETURN PCOMA'
+    val = Return_inst(None)
+    ret = Retorno(val, NodoAST("RETURN"))
+    t[0] = ret
 
 def p_Return2(t):
     'PRETURN  :   RETURN VALORF PCOMA'
+    val = Return_inst(t[2].getInstruccion())
+    ret = Retorno(val, NodoAST("RETURN"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_CuerpoIf(t):
     'CUERPOIF  :   LINSTRUCCIONESFN'
@@ -5132,17 +5525,19 @@ def p_VALORFExp(t):
     t[0] = ret
    
 
+#TODO: AGREGAR
 def p_VALORFIs(t):
     'VALORF  :   VALORF IS VALORF '
 
+#TODO: AGREGAR
 def p_VALORFIsN(t):
     'VALORF  :   VALORF IS NULL VALORF '
     
-
+#TODO: AGREGAR
 def p_VALORFInn(t):
     'VALORF  :   VALORF NOT NULL VALORF '
     
-
+#TODO: AGREGAR
 def p_VALORFM(t):
     'VALORF  :   MENOS VALORF %prec UMENOS'
     ret = Retorno(OperacionesUnarias(TiposOperaciones.RestaUnaria, t[2].getInstruccion()), NodoAST("-"))
@@ -5155,6 +5550,8 @@ def p_VALORFP(t):
     ret.getNodo().setHijo(t[2].getNodo())
     t[0] = ret
 
+
+#TODO: AGREGAR DIEGO
 def p_VALORFExtract(t):
     'VALORF  :   EXTRACT PABRE DATETIME FROM PTIMESTAMP PCIERRA '
 
@@ -5170,7 +5567,7 @@ def p_VALORFDec(t):
 
 def p_VALORFCad(t):
     'VALORF  :   CADENA'
-    ret = Retorno(Primitivo(Tipos.Cadena, "\"" + t[1] + "\""), NodoAST(str(t[1])))
+    ret = Retorno(Primitivo(Tipos.Cadena, "\'" + t[1] + "\'"), NodoAST(str(t[1])))
     t[0] = ret
 
 def p_VALORFTrue(t):
@@ -5188,163 +5585,424 @@ def p_VALORFId(t):
     ret = Retorno(Primitivo(Tipos.Id, t[1]), NodoAST(t[1]))
     t[0] = ret
 
+#TODO: AGREGAR VERIFICAR COMO QUEDA 
 def p_VALORFDatePart(t):
-    'VALORF  :   DATE_PART PABRE VALOR COMA INTERVAL VALOR PCIERRA '
+    'VALORF  :   DATE_PART PABRE CADENA COMA INTERVAL CADENA PCIERRA '
+    #'VALORF  :   DATE_PART PABRE VALOR COMA INTERVAL VALOR PCIERRA '
 
+#TODO: AGREGAR 
 def p_VALORFCurrentDate(t):
     'VALORF  :   CURRENT_DATE '
 
+#TODO: AGREGAR 
 def p_VALORFCurrentTime(t):
     'VALORF  :   CURRENT_TIME '
 
+#TODO: AGREGAR 
 def p_VALORFTimeStamp(t):
     'VALORF  :   TIMESTAMP CADENA '
 
+#TODO: AGREGAR 
 def p_VALORFBetween(t):
     'VALORF  :   VALORF BETWEEN VALORF '
 
+#TODO: AGREGAR 
 def p_VALORFNotBetween(t):
     'VALORF  :   VALORF NOT BETWEEN VALORF'
 
+#TODO: AGREGAR 
 def p_VALORFBetweenSimetric(t):
     'VALORF  :   VALORF BETWEEN SIMMETRIC VALORF '
 
+#TODO: AGREGAR 
 def p_VALORFBetweenNotSimetric(t):
     'VALORF  :   VALORF NOT BETWEEN SIMMETRIC VALORF'
 
+#TODO: AGREGAR 
 def p_VALORFIsDistinct(t):
     'VALORF  :   VALORF IS DISTINCT FROM VALORF '
 
+#TODO: AGREGAR 
 def p_VALORFIsNotDistinct(t):
     'VALORF  :   VALORF IS NOT DISTINCT FROM VALORF '
 
+#TODO: AGREGAR 
 def p_VALORFNull(t):
     'VALORF  :   NULL '
 
+#TODO: AGREGAR 
 def p_VALORFUnknown(t):
     'VALORF  :   UNKNOWN '
 
+#TODO: AGREGAR 
 def p_VALORFNow(t):
     'VALORF  :   NOW PABRE PCIERRA '
 
+#TODO: AGREGAR DIEGO1
 def p_VALORFAvg(t):
-    'VALORF  :   AVG PABRE VALOR PCIERRA '
+    'VALORF  :   AVG PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.avg,t[3].getInstruccion()), NodoAST("AVG"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
+#TODO: AGREGAR DIEGO1
 def p_VALORFSum(t):
-    'VALORF  :   SUM PABRE VALOR PCIERRA '
+    'VALORF  :   SUM PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.avg,t[3].getInstruccion()), NodoAST("SUM"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
+#TODO: AGREGAR DIEGO1
 def p_VALORFMin(t):
-    'VALORF  :   MIN PABRE VALOR PCIERRA '
+    'VALORF  :   MIN PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.avg,t[3].getInstruccion()), NodoAST("MIN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
+#TODO: AGREGAR DIEGO1
 def p_VALORFMax(t):
-    'VALORF  :   MAX PABRE VALOR PCIERRA '
+    'VALORF  :   MAX PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.avg,t[3].getInstruccion()), NodoAST("MAX"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
+#TODO: AGREGAR DIEGO11
 def p_VALORFAbs(t):
-    'VALORF  :   ABS PABRE LVALOR PCIERRA '
+    'VALORF  :   ABS PABRE VALORF PCIERRA '
+    #VALOR ABSOLUTO DE UN NUMERO O VARIABLE 
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("ABS"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
+
+#TODO: AGREGAR DIEGO1
 def p_VALORFCbrt(t):
-    'VALORF  :   CBRT PABRE LVALOR PCIERRA '
+    'VALORF  :   CBRT PABRE VALORF PCIERRA '
+    #RAIZ CUBICA DE UN VALOR O VARIABLE
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("CBRT"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
+#TODO: AGREGAR DIEGO1
 def p_VALORFCeil(t):
-    'VALORF  :   CEIL PABRE LVALOR PCIERRA '
+    'VALORF  :   CEIL PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("CEIL"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
+#TODO: AGREGAR DIEGO1
 def p_VALORFCeiling(t):
-    'VALORF  :   CEILING PABRE LVALOR PCIERRA '
+    'VALORF  :   CEILING PABRE LNUMF PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("CEILING"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
+#TODO: AGREGAR DIEGO1 PENDIENTE
 def p_VALORFSubstring(t):
     'VALORF  :   SUBSTRING PABRE LVALOR PCIERRA '
+    ret= Retorno(FuncionNativa(TipoFunNativa.abs,t[3].getInstruccion()), NodoAST("SUBSTRING"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0]=ret
 
+#TODO: AGREGAR DIEGO PENDIENTE
+def p_VALORFSubstr(t):
+    'VALORF  :   SUBSTR PABRE LVALOR PCIERRA '
+
+#TODO: AGREGAR DIEGO PENDIENTE
 def p_VALORFLength(t):
     'VALORF  :   LENGTH PABRE LVALOR PCIERRA '
 
+#TODO: AGREGAR DIEGO PENDIENTE
 def p_VALORFTrim(t):
     'VALORF  :   TRIM PABRE LBOTHF CADENA FROM CADENA PCIERRA '
 
+#TODO: AGREGAR DIEGO PENDIENTE
 def p_VALORFTrim1(t):
     'VALORF  :   TRIM PABRE LBOTHF FROM CADENA COMA CADENA PCIERRA '
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAcos(t):
-    'VALORF  :   ACOS  PABRE LNUMF PCIERRA '
+    'VALORF  :   ACOS  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.acos, t[3].getInstruccion()), NodoAST("ACOS"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAcosd(t):
-    'VALORF  :   ACOSD PABRE LNUMF PCIERRA  '
+    'VALORF  :   ACOSD PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.acosd, t[3].getInstruccion()), NodoAST("ACOSD"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAsin(t):
-    'VALORF  :   ASIN  PABRE LNUMF PCIERRA '
+    'VALORF  :   ASIN  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.asin, t[3].getInstruccion()), NodoAST("ASIN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAsind(t):
-    'VALORF  :   ASIND PABRE LNUMF PCIERRA  '
+    'VALORF  :   ASIND PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.asind, t[3].getInstruccion()), NodoAST("ASIND"))
+    ret.getNodo().setHijo(t[3].getNodo())
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAtan(t):
-    'VALORF  :   ATAN  PABRE LNUMF PCIERRA '
+    'VALORF  :   ATAN  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atan, t[3].getInstruccion()), NodoAST("ATAN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAtand(t):
-    'VALORF  :   ATAND PABRE LNUMF PCIERRA  '
+    'VALORF  :   ATAND PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atand, t[3].getInstruccion()), NodoAST("ATAND"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAtan2(t):
     'VALORF  :   ATAN2D PABRE LNUMF PCIERRA  '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atan2d, t[3].getInstruccion()), NodoAST("ATAN2D"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAtan2d(t):
     'VALORF  :   ATAN2 PABRE LNUMF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atan2, t[3].getInstruccion()), NodoAST("ATAN2"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFCos(t):
-    'VALORF  :   COS PABRE LNUMF PCIERRA '
+    'VALORF  :   COS PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cos, t[3].getInstruccion()), NodoAST("COS"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFCosd(t):
-    'VALORF  :   COSD  PABRE LNUMF PCIERRA '
+    'VALORF  :   COSD  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cosd, t[3].getInstruccion()), NodoAST("COSD"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFCot(t):
-    'VALORF  :   COT PABRE LNUMF PCIERRA '
+    'VALORF  :   COT PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cot, t[3].getInstruccion()), NodoAST("COT"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFCotd(t):
-    'VALORF  :   COTD PABRE LNUMF PCIERRA '
+    'VALORF  :   COTD PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cotd, t[3].getInstruccion()), NodoAST("COTD"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFSin(t):
-    'VALORF  :   SIN PABRE LNUMF PCIERRA '
+    'VALORF  :   SIN PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.sin, t[3].getInstruccion()), NodoAST("SIN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFSind(t):
-    'VALORF  :   SIND  PABRE LNUMF PCIERRA '
+    'VALORF  :   SIND  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.sind, t[3].getInstruccion()), NodoAST("SIND"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFTan(t):
-    'VALORF  :   TAN PABRE LNUMF PCIERRA '
+    'VALORF  :   TAN PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.tan, t[3].getInstruccion()), NodoAST("TAN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFTand(t):
-    'VALORF  :   TAND  PABRE LNUMF PCIERRA '
+    'VALORF  :   TAND  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.tand, t[3].getInstruccion()), NodoAST("TAND"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFSinh(t):
-    'VALORF  :   SINH  PABRE LNUMF PCIERRA '
+    'VALORF  :   SINH  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.sinh, t[3].getInstruccion()), NodoAST("SINH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO
 def p_VALORFCosh(t):
-    'VALORF  :   COSH  PABRE LNUMF PCIERRA '
+    'VALORF  :   COSH  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.cosh, t[3].getInstruccion()), NodoAST("COSH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFTanh(t):
-    'VALORF  :   TANH  PABRE LNUMF PCIERRA '
+    'VALORF  :   TANH  PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.tanh, t[3].getInstruccion()), NodoAST("TANH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAsinh(t):
-    'VALORF  :   ASINH PABRE LNUMF PCIERRA  '
+    'VALORF  :   ASINH PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.asinh, t[3].getInstruccion()), NodoAST("ASINH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAcosh(t):
-    'VALORF  :   ACOSH PABRE LNUMF PCIERRA  '
+    'VALORF  :   ACOSH PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.acosh, t[3].getInstruccion()), NodoAST("ACOSH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
+#TODO: AGREGAR DIEGO 
 def p_VALORFAtanh(t):
-    'VALORF  :   ATANH PABRE LNUMF PCIERRA  '
+    'VALORF  :   ATANH PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.atanh, t[3].getInstruccion()), NodoAST("ATANH"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+#FIN TRIGONOMETRICAS 
+#NUEVO BLOQUE 
+# --------------------------- AGREGAR----------------
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionDegreesVF(t):
+    'VALORF  :   DEGREES PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.degree, t[3].getInstruccion()), NodoAST("DEGREE"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionDivVF(t):
+    'VALORF  :   DIV PABRE LNUMF PCIERRA'
+    ret = Retorno(FuncionNativa(TipoFunNativa.div, t[3].getInstruccion()), NodoAST("DIV"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionExpVF(t):
+    'VALORF  :   FEXP PABRE LNUMF PCIERRA'
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionFactorialVF(t):
+    'VALORF  :   FACTORIAL PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.factorial, t[3].getInstruccion()), NodoAST("FACTORIAL"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionFloorVF(t):
+    'VALORF  :   FLOOR PABRE LNUMF PCIERRA  '
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionGcdVF(t):
+    'VALORF  :   GCD PABRE LNUMF PCIERRA  '
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionLnVF(t):
+    'VALORF  :   LN PABRE VALORF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.ln, t[3].getInstruccion()), NodoAST("LN"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionLogVF(t):
+    'VALORF  :   LOG PABRE LNUMF PCIERRA '
+    ret = Retorno(FuncionNativa(TipoFunNativa.log, t[3].getInstruccion()), NodoAST("LOG"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionModVF(t):
+    'VALORF  :   MOD PABRE LNUMF PCIERRA  '
+    ret = Retorno(FuncionNativa(TipoFunNativa.mod, t[3].getInstruccion()), NodoAST("MOD"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionPowerVF(t):
+    'VALORF  :   POWER PABRE LNUMF PCIERRA  '
+    ret = Retorno(FuncionNativa(TipoFunNativa.pow, t[3].getInstruccion()), NodoAST("POWER"))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionRadiansVF(t):
+    'VALORF  :   RADIANS PABRE LNUMF PCIERRA  '
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionRoundVF(t):
+    'VALORF  :   ROUND PABRE LNUMF PCIERRA  '
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionSignVF(t):
+    'VALORF  :   SIGN PABRE LNUMF PCIERRA  '
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionWidth_bucketVF(t):
+    'VALORF  :   WIDTH_BUCKET PABRE LNUMF PCIERRA  '
+
+#TODO: AGREGAR DIEGO 
+def p_IdFuncionTruncVF(t):
+    'VALORF  :   TRUNC  PABRE LNUMF PCIERRA'
+
+#FIN NUEVO BLOQUE 
+
+
 
 def p_VALORFAsigna(t):
     'VALORF  :   ID PABRE PCIERRA '
+    val = Llamada(t[1], None)
+    ret = Retorno(val, NodoAST("LLAMADA"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_VALORFAsigna2(t):
-    'VALORF  :   ID PABRE PARAMETROS PCIERRA '
+    'VALORF  :   ID PABRE PARAMETROSL PCIERRA '
+    val = Llamada(t[1], t[3].getInstruccion())
+    ret = Retorno(val, NodoAST("LLAMADA"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_VALORFInstruccion(t):
-    'VALORF  :  PABRE INSTRUCCION PCIERRA '
-
+    'VALORF  :  INSTRUCCION '
+    print("valorf", t[1].getInstruccion().instruccion3d)
+    ret = Retorno(Primitivo( Tipos.ISQL,t[1].getInstruccion().instruccion3d), t[1].getNodo())
+    t[0] = ret
 
 def p_Parametros(t):
-    'PARAMETROS  :   PARAMETROS COMA ID '
+    'PARAMETROSL  :   PARAMETROSL COMA PARAML'
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_Parametros1(t):
-    'PARAMETROS  :   ID '
+    'PARAMETROSL  :   PARAML '
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
+def p_Paraml(t):
+    'PARAML  :   VALORF'
+    val = Parametro_llamada(t[1].getInstruccion())
+    ret = Retorno(val, t[1].getNodo())
+    t[0] = ret
 
 def p_LVALOR(t):
     'LVALOR  :   VALORF  '
@@ -5352,70 +6010,153 @@ def p_LVALOR(t):
 def p_LVALOR1(t):
     'LVALOR  :   VALORF COMA NUMERO COMA NUMERO  '
 
-
+#CAMBIOS A SOLICITUD DE ASTRID
 def p_LNumFunc(t):
-    'LNUMF  : LNUMF COMA NUMF'
+    'LNUMF  : LNUMF COMA VALORF'
+    t[1].getInstruccion().append(t[3].getInstruccion())
+    ret = Retorno(t[1].getInstruccion(), t[3].getNodo())
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
+    
+#CAMBIOS A SOLICITUD DE ASTRID
 def p_LNumNumF(t):
-    'LNUMF   : NUMF'
+    'LNUMF   : VALORF'
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, t[1].getNodo())
+    t[0] = ret
 
-
-def p_NumFNumero(t):  
-    'NUMF    : NUMERO '
-
-def p_NumFDecimal(t):
-    'NUMF  :   DECIMALN '
-
-def p_NumFCadena(t):
-    'NUMF  :   CADENA '
 
 def p_LBOTHFLeading(t):
     'LBOTHF  :   LEADING   '
+    
 
-def p_LBOTHFTrailing(t):
-    'LBOTHF  :   TRAILING   '
 
-def p_LBOTHFBoth(t):
-    'LBOTHF  :   BOTH   '
+#def p_NumFNumero(t):  
+#    'NUMF    : NUMERO '
+#
+#def p_NumFDecimal(t):
+#    'NUMF  :   DECIMALN '
+#
+#def p_NumFCadena(t):
+#    'NUMF  :   CADENA '
+#
+#def p_LBOTHFLeading(t):
+#    'LBOTHF  :   LEADING   '
+#
+#def p_LBOTHFTrailing(t):
+#    'LBOTHF  :   TRAILING   '
+#
+#def p_LBOTHFBoth(t):
+#    'LBOTHF  :   BOTH   '
 
 # -------------------------------------------------- PROCEDIMIENTO
 
 def p_PROCEDURE(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+    val = Funcion(t[3], t[5].getInstruccion(), None, t[11].getInstruccion(), Tipos.Void, True)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    t[0] = ret
 
 def p_PROCEDURE2(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE LPARAMP PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
+    val = Funcion(t[3], t[5].getInstruccion(), t[11].getInstruccion(), t[12].getInstruccion(), Tipos.Void, True)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    ret.getNodo().setHijo(t[12].getNodo())
+    t[0] = ret
 
 def p_PROCEDURE3(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF STAMENTP '
+    val = Funcion(t[3], None, None, t[10].getInstruccion(), Tipos.Void, True)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[10].getNodo())
+    t[0] = ret
 
 def p_PROCEDURE4(t):
     'PROCEDURE_N  :   CREATE PROCEDURE ID PABRE PCIERRA LANGUAGE PLPGSQL AS FINF DECLAREF STAMENTP '
-
+    val = Funcion(t[3], None, t[10].getInstruccion(), t[11].getInstruccion(), Tipos.Void, True)
+    #agregarfuncion(val)
+    ret = Retorno(val, NodoAST("PROCEDURE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[10].getNodo())
+    ret.getNodo().setHijo(t[11].getNodo())
+    t[0] = ret
 
 def p_StatementP(t):
     'STAMENTP  :   BEGIN LINSTRUCCIONESFN END PCOMA FINF PCOMA'
+    t[0] = t[2]
 
 def p_LParamP(t):
     'LPARAMP  :   LPARAMP COMA PARAMP   '
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_LParamP2(t):
     'LPARAMP  :   PARAMP   '
-
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST("PARAM"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_ParamP(t):
     'PARAMP  :   INOUT ID I_TIPO  '
+    ret = Retorno(Parametro(t[2], t[3]), NodoAST('PARAMETRO'))
+    t[0] = ret
 
 def p_ParamP2(t):
     'PARAMP  :   ID I_TIPO'
-
+    ret = Retorno(Parametro(t[1], t[2]), NodoAST('PARAMETRO'))
+    t[0] = ret
 
 def p_Execute(t):
     'PEXECUTE  :   EXECUTE ID PABRE PCIERRA PCOMA'
+    global contador, contador_label
+    val = Llamada(t[2], None)
+    gen = Generador(contador, contador_label, val)
+    gen.compilarLlamada(val)
+    contador = gen.temp
+    contador_label = gen.label
+    C3D = gen.codigo3d
+    inst = ""
+    for i in range(0, len(C3D)):
+        inst += C3D[i] + "\n"
+    print("print c3d", inst)
+    val.setInstruccion3d(inst)
+    ret = Retorno(val, NodoAST("EXECUTE"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
 def p_Execute2(t):
-    'PEXECUTE  :   EXECUTE ID PABRE PARAMETROS PCIERRA PCOMA'
-
+    'PEXECUTE  :   EXECUTE ID PABRE PARAMETROSL PCIERRA PCOMA'
+    global contador, contador_label
+    val = Llamada(t[2], t[4].getInstruccion())
+    gen = Generador(contador, contador_label, val)
+    gen.compilarLlamada(val)
+    contador = gen.temp
+    contador_label = gen.label
+    C3D = gen.codigo3d
+    inst = ""
+    for i in range(0, len(C3D)):
+        inst += C3D[i] + "\n"
+    val.setInstruccion3d(inst)
+    ret = Retorno(val, NodoAST("EXECUTE"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 
 #---------------------------------------------------FIN PROCEDIMIENTO
@@ -5452,7 +6193,22 @@ parser = yacc.yacc()
 
 
 def parse(p_input):
-    global counter_lexical_error, counter_syntactic_error
+    global counter_lexical_error, counter_syntactic_error, contador, codigo_3D, contador_label, reporte_gramatical
+    codigo_3D = []
+    reporte_gramatical = []
+    contador = 0
+    contador_label = 0
     counter_lexical_error = 1
     counter_syntactic_error = 1
-    return parser.parse(p_input)
+    p = parser.parse(p_input)
+    gramaticaBNF(p_input)
+    return p
+
+def gramaticaBNF(input):
+    global reporte_gramatical
+    instrucciones_bnf = []  
+    file = open ("./gramatica.md","w")
+    for instruccion_bnf in reversed(reporte_gramatical) :
+        file.write(instruccion_bnf)
+        file.write("\n")
+    file.close()

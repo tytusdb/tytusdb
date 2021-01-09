@@ -196,7 +196,23 @@ reservadas = {
     'on'    :   'ON',
     'using' :   'USING',
     'hash'  :   'HASH',
-    'first' : 'FIRST'
+    'first' : 'FIRST',
+    'if' : 'IF',
+    'elsif' : 'ELSIF',
+    'concurrently'  :   'CONCURRENTLY',
+    'cascade'   :   'CASCADE',
+    'restrict'  :   'RESTRICT',
+    'reset' :   'RESET',
+    'nowait'    :   'NOWAIT',
+    'depends'   :   'DEPENDS',
+    'extension' :   'EXTENSION',
+    'tablespace'    :   'TABLESPACE',
+    'owned' :   'OWNED',
+
+    'procedure' :'PROCEDURE',
+    'language' : 'LANGUAGE',
+    'plpgsql' : 'PLPGSQL',
+    'execute' : 'EXECUTE',
 }
 
 tokens = [
@@ -230,7 +246,6 @@ tokens = [
             'CHAR',
             'ID',
             'PUNTOCOMA',
-            'PTCOMA',
             'CORCHETEA',
             'CORCHETEC',
             'DOLAR'
@@ -260,9 +275,8 @@ t_PARA = r'\('
 t_PARC = r'\)'
 t_DOSPUNTOS=r'\:'
 t_COMA=r'\,'
-t_PUNTOCOMA=r'\;'
+t_PUNTOCOMA = r'\;'
 t_PUNTO=r'\.'
-t_PTCOMA = r'\;'
 t_CORCHETEA=r'\['
 t_CORCHETEC=r'\]'
 t_DOLAR = r'\$'
@@ -382,12 +396,619 @@ def p_inst(p):
             |   delete
             |   usedb
             |   query
+            |   queryf
             |   createfunc
             |   createind
+            |   createproc
+            |   dropind
+            |   alterind
+            |   dropfunc
+            |   dropproc
+            |   callproc
+            
+            
             
     """
     p[0] = p[1]
     insertProduction(p.slice, len(p.slice))
+
+def p_dropfunc(t):
+    'dropfunc : DROP FUNCTION lidf PUNTOCOMA'
+    t[0] = dropfunc(t[3])
+
+def p_dropproc(t):
+    'dropproc : DROP PROCEDURE  lidf PUNTOCOMA'
+    t[0] = dropfunc(t[3])
+
+
+def p_lidfz(t):
+    ' lidf : lidf COMA ID'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lidf(t):
+    ' lidf :  ID'
+    t[0] = [t[1]]
+
+
+
+
+
+def p_instprocedural(t):
+    """
+    instp    :   createdbp
+            |   showdbp
+            |   alterdbp
+            |   dropdbp
+            |   createtbp
+            |   droptbp
+            |   altertbp
+            |   insertpp
+            |   updatep
+            |   deletep
+            |   querypp
+            |   createindp
+            |   dropindp
+            |   alterindp
+            
+    """
+    t[0] = inst_procedural(t[1])
+
+#ALTER INDICE DUPLICADO-----------------------------------------------*
+def p_alterindp(p):
+    """
+    alterindp    :   ALTER INDEX ifexistsind alterind2p ownedbyindp alterind2p nowait PUNTOCOMA
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7] +  p[8]
+    insertProduction(p.slice, len(p.slice))
+
+def p_alterind2p(p):
+    """
+    alterind2p   :   id tipocambioind parametrosindp
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+def p_alterind2p1(p):
+    """
+    alterind2p   :   ALL IN TABLESPACE id ownedbyindp
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5]
+    insertProduction(p.slice, len(p.slice))
+
+def p_alterind2p11(p):
+    "alterind2p  :   SET TABLESPACE id"
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+def p_alterind2p111(p):
+    "alterind2p  :   "
+    p[0] = ""
+    insertProduction(p.slice, len(p.slice))
+
+def p_parametrosindp(p):
+    "parametrosindp  :   PARA parindp PARC"
+    p[0] = p[1] + p[2] + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+def p_parametrosindp1(p):
+    "parametrosindp  :   parindp"
+    p[0] = p[1]
+    insertProduction(p.slice, len(p.slice))
+
+def p_parametrosindp11(p):
+    "parametrosindp  :   id id"
+    p[0] = p[1] + " " + p[2]
+    insertProduction(p.slice, len(p.slice))
+
+def p_parindp(t):
+    "parindp :   parindp COMA idind"
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
+
+def p_parindp1(p):
+    "parindp :   idind"
+    p[0] = p[1]
+
+def p_ownedbyindp(p):
+    "ownedbyindp :   OWNED BY parindp"
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+    
+def p_ownedbyindp1(p):
+    "ownedbyindp    :   "
+    p[0] = ""
+    insertProduction(p.slice, len(p.slice))
+
+#DROP INDICE DUPLICADO----------------------------------------------------------------------------------*
+def p_dropindp(p):
+    "dropindp    :   DROP INDEX concind ifexistsind listaidindp cascrestind PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + p[7]
+    insertProduction(p.slice, len(p.slice))
+
+def p_listaidindp(t):
+    "listaidindp :   listaidindp COMA id"
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
+
+def p_listaidindp1(p):
+    "listaidindp :   id"
+    p[0] = p[1]
+
+#CREATE INDICE DUPLICADO--------------------------------------------------------------------------------*
+def p_createindp(p):
+    "createindp  :   CREATE uniqueind INDEX id ON id createind2p"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7]
+    insertProduction(p.slice, len(p.slice))
+
+def p_createind2p(p):
+    "createind2p :   USING HASH createind3p"
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+def p_createind2p1(p):
+    "createind2p :   createind3p"
+    p[0] = p[1]
+    insertProduction(p.slice, len(p.slice))
+
+def p_createind3p(p):
+    "createind3p :   PARA listacolindp PARC indwherep PUNTOCOMA" 
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + p[5]
+    insertProduction(p.slice, len(p.slice))
+
+def p_listacolindp(t):
+    "listacolindp    :   listacolindp COMA columnaindp"
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
+
+def p_listacolindp1(p):
+    "listacolindp    :   columnaindp"
+    p[0] = p[1]
+
+def p_columnaindp(p):
+    """
+    columnaindp          :   id ordenindp
+                        |   id idcondindp 
+    """
+    p[0] = p[1] + " " + p[2]
+    insertProduction(p.slice, len(p.slice))
+
+def p_columnaindp1(p):
+    "columnaindp :   id"
+    p[0] = p[1]
+    insertProduction(p.slice, len(p.slice))
+
+def p_ordenindp(p):
+    "ordenindp   :   indorder NULLS indorder2"
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+def p_idcondindp(p):
+    "idcondindp :  PARA id PARC"
+    p[0] = p[1] + p[2] + p[3] 
+    insertProduction(p.slice, len(p.slice))
+
+def p_indwherep(p):
+    "indwherep   :   WHERE indnotp indwherecondp"
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+def p_indwherep1(p):
+    "indwherep   :   "
+    p[0] = ""
+    insertProduction(p.slice, len(p.slice))
+
+def p_indnotp(p):
+    "indnotp :   NOT PARA notcondp PARC"
+    p[0] = p[1] + p[2] + p[3] + p[4]
+    insertProduction(p.slice, len(p.slice))
+ 
+def p_indnotp1(p):
+    "indnotp :   "
+    p[0] = ""
+    insertProduction(p.slice, len(p.slice))
+
+def p_notcondp(t):
+    "notcondp    :   notcondp AND notvalp"
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
+
+def p_notcondp1(p):
+    "notcondp    :   notvalp"
+    p[0] = p[1]
+
+def p_notvalp(p):
+    "notvalp :   id signo id valortipo"
+    p[0] = p[1] + p[2] + p[3] + " " + p[4]
+    insertProduction(p.slice, len(p.slice))
+
+def p_indwherecondp(p):
+    "indwherecondp   :   id signo valortipo"
+    p[0] = p[1] + p[2] + p[3]
+    insertProduction(p.slice, len(p.slice))
+    
+def p_indwherecondp1(p):
+    "indwherecondp   :   "
+    p[0] = ""
+    insertProduction(p.slice, len(p.slice))
+
+#-------------------------------------------------------------------------------------------------------*
+
+def p_querypp(t):
+    'querypp : queryp com PUNTOCOMA'
+    #por el momento 
+    t[0] = ''
+    insertProduction(t.slice, len(t.slice))
+
+
+#DELETE DUPLICADO-----------------------------------------------------------------------------------
+def p_deletep(p):
+    "deletep :   DELETE FROM id WHERE wherecondp PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6]
+    insertProduction(p.slice, len(p.slice))
+
+def p_wherecondp(p):
+    "wherecondp  :  id BETWEEN valortipo AND valortipo"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5]
+    insertProduction(p.slice, len(p.slice))
+
+def p_wherecondp1(p):
+    """
+    wherecondp  :   id MAYOR valortipo
+            |   id MENOR valortipo
+            |   id IGUAL valortipo
+            |   id MENOR_IGUAL valortipo
+            |   id MAYOR_IGUAL valortipo
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+#UPDATE DUPLICADO-----------------------------------------------------------------------------------------
+def p_updatep(p):
+    "updatep :   UPDATE id SET cond WHERE wherecondp PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7]
+    insertProduction(p.slice, len(p.slice))
+
+def p_condp(p):
+    """
+    condp    :   id MAYOR valortipo
+            |   id MENOR valortipo
+            |   id IGUAL valortipo
+            |   id MENOR_IGUAL valortipo
+            |   id MAYOR_IGUAL valortipo
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+#INSERT DUPLICADO--------------------------------------------------------------------------------------------
+def p_insertpp(p):
+    'insertpp :   INSERT INTO ID colkeypz VALUES PARA lvaloresp PARC PUNTOCOMA'
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7] + " " + p[8] + " " + p[9]
+    insertProduction(p.slice, len(p.slice))
+
+def p_colkeypz(t):
+    'colkeypz : PARA colkey2pz PARC'
+    t[0] = t[1] + t[2] + t[3]
+
+def p_colkeypzEmpty(t):
+    'colkeypz : empty'
+    t[0] = ''
+
+def p_colkey2pz(t):
+    'colkey2pz : colkey2pz COMA ID'
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
+
+def p_colkey2pzSingle(t):
+    'colkey2pz : ID'
+    t[0] = t[1]
+
+def p_lvaloresp(t):
+    'lvaloresp : lvaloresp COMA valortipo '
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
+
+def p_lvalorespSingle(t):
+    'lvaloresp : valortipo'
+    t[0] = t[1]
+
+#ALTER TABLE DUPLICADO------------------------------------------------------------------------------------------------
+def p_altertbp(p):
+    "altertbp   :   ALTER TABLE id altertb2p PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5]
+    insertProduction(p.slice, len(p.slice))
+
+def p_altertb2p(t):
+    "altertb2p   :   altertb2p alteracionp"
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
+
+def p_altertb2p1(p):
+    "altertb2p   :   alteracionp"
+    p[0] = p[1]
+
+def p_alteracionp11111(p):
+    """
+    alteracionp  :   FOREIGN KEY colkeypz
+                |   REFERENCES id colkeypz
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+def p_alteracionp111(p):
+    "alteracionp :   UNIQUE colkeypz"
+    p[0] = p[1] + " " + p[2]
+    insertProduction(p.slice, len(p.slice))
+
+def p_alteracionp1111(p):
+    "alteracionp :   altcolp"
+    p[0] = p[1]
+    insertProduction(p.slice, len(p.slice))
+
+def p_alteracionp11(p):
+    "alteracionp :   ADD addpropp"
+    p[0] = p[1] + " " + p[2]
+    insertProduction(p.slice, len(p.slice))
+
+def p_alteracionp1(p):
+    """
+    alteracionp  :   DROP droppropp id
+                |   SET NOT NULL
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+    insertProduction(p.slice, len(p.slice))
+
+def p_altcolp(t):
+    "altcolp :   altcolp COMA alterp"
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
+    
+def p_altcolp1(p):
+    "altcolp :   alterp"
+    p[0] = p[1]
+
+def p_alterp(p):
+    "alterp  :   ALTER COLUMN id propaltcolp"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4]
+    insertProduction(p.slice, len(p.slice))
+    
+def p_propaltcolp(p):
+    "propaltcolp :   TYPE reservadatipo"
+    p[0] = p[1] + " " + p[2]
+    insertProduction(p.slice, len(p.slice))
+
+def p_addpropp(p):
+    "addpropp    :   CHECK PARA condp PARC"
+    p[0] = p[1] + p[2] + p[3] + p[4]
+    insertProduction(p.slice, len(p.slice))
+
+def p_addpropp1(p):
+    """
+    addpropp :   CONSTRAINT id
+            |   COLUMN columnap
+    """
+    p[0] = p[1] + " " + p[2]
+    insertProduction(p.slice, len(p.slice))
+
+def p_columnap(p):
+    "columnap    :   id reservadatipop notnullp keyp referencesp defaultp constraintp"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7]
+    insertProduction(p.slice, len(p.slice))
+
+def p_reservadatipop(p):
+    """
+    reservadatipop   :   SMALLINT
+                    |   INTEGER
+                    |   BIGINT
+                    |   DECIMAL
+                    |   NUMERIC
+                    |   REAL
+                    |   DOUBLE PRECISION
+                    |   MONEY
+                    |   TEXT
+                    |   DATE
+                    |   TIME
+                    |   BOOLEAN
+    """
+    p[0] = p[1]
+    insertProduction(p.slice, len(p.slice))
+
+def p_reservadatipop1(p):
+    """
+    reservadatipop   :   VARCHAR PARA INT PARC
+                    |   CHARACTER varying PARA INT PARC
+                    |   CHAR PARA INT PARC
+    """
+    p[0] = p[1]
+    insertProduction(p.slice, len(p.slice))
+
+def p_notnullp(p):
+    "notnullp    :   not NULL"
+    p[0] = p[1] + " " + p[2]
+    insertProduction(p.slice, len(p.slice))
+
+def p_notnullp1(p):
+    "notnullp    :   "
+    p[0] = ""
+
+def p_keyp(p):
+    """
+    keyp :   SERIAL PRIMARY KEY
+        |   PRIMARY KEY colkeypz
+        |   FOREIGN KEY colkeypz
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+
+def p_keyp1(p):
+    "keyp    :   "
+    p[0] = ""
+
+def p_referencesp(p):
+    "referencesp :   REFERENCES id"
+    p[0] = p[1] + " " + p[2]
+
+def p_referencesp1(p):
+    "referencesp :   "
+    p[0] = ""
+
+def p_defaultp(p):
+    "defaultp   :   DEFAULT id"
+    p[0] = p[1] + " " + p[2] 
+
+def p_defaultp1(p):
+    "defaultp    :   "
+    p[0] = ""
+
+def p_constraintp(p):
+    "constraintp :   UNIQUE"
+    p[0] = p[1]
+
+def p_constraintp1(p):
+    "constraintp :   constp CHECK PARA condp PARC"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + p[4] + p[5]
+
+def p_constraintp11(p):
+    "constraintp :   "
+    p[0] = ""
+
+def p_constp(p):
+    "constp  :   CONSTRAINT id"
+    p[0] = p[1] + " " + p[2] 
+
+def p_droppropp(p):
+    """
+    droppropp    :   COLUMN
+    """
+    p[0] = p[1]
+
+def p_droppropp1(p):
+    """
+    droppropp    :   CONSTRAINT id
+    """
+    p[0] = p[1] + " " + p[2]
+
+#DROP TABLE DUPLICADO---------------------------------------------------------------------------------------------------
+def p_droptbp(p):
+    "droptbp :   DROP TABLE id PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + p[4]
+
+#CREATE TABLE DUPLICADO------------------------------------------------------------------------------------------------
+def p_createtbp(p):
+    "createtbp   :   CREATE TABLE id PARA coltbp PARC inheritsp PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7] + " " + p[8]
+
+def p_coltbp(t):
+    "coltbp  :   coltbp COMA columnap"
+    res = ''
+    res += t[1]
+    res += ','+t[3]
+    t[0] = res
+
+def p_coltbp1(p):
+    "coltbp  :   columnap"
+    p[0] = p[1]
+
+def p_inheritsp(p):
+    "inheritsp   :   INHERITS PARA id PARC"
+    p[0] = p[1] + p[2] + p[3] + p[4]
+
+def p_inhritsp1(p):
+    "inheritsp   :   "
+    p[0] = ""
+
+#DROP DATABASE DUPLICADO-------------------------------------------------------------------------------------------------
+def p_dropdbp(p):
+    "dropdbp :   DROP DATABASE ifexistsp id PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + p[5]
+
+def p_ifexistsp(p):
+    "ifexistsp   :   IF EXISTS"
+    p[0] = p[1] + " " + p[2]
+
+def p_ifexistsp1(p):
+    "ifexistsp   :   "
+    p[0] = ""
+
+#ALTER DATABASE DUPLICADO---------------------------------------------------------------------------------------------------
+def p_alterdbp(p):
+    "alterdbp    :   ALTER DATABASE alterdb2p PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4]
+
+def p_alterdb2p(p):
+    "alterdb2p   :   id alterdb3p"
+    p[0] = p[1] + " " + p[2]
+
+def p_alterdb2p1(p):
+    "alterdb2p    :   NAME OWNER TO valortipo"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4]
+
+def p_alterdb3p(p):
+    "alterdb3p   :   RENAME TO valortipo"
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+
+def p_alterdb3p1(p):
+    "alterdb3p   :   OWNER TO LLAVEA valortipo SIMBOLOOR valortipo SIMBOLOOR valortipo LLAVEC"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7] + " " + p[8] + " " + p[9]
+
+#SHOW DATABASE DUPLICADO------------------------------------------------------------------------------------------------------
+def p_showdbp(p):
+    "showdbp :   SHOW DATABASES PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + p[3]
+
+#CREATE DATABASE DUPLICADO---------------------------------------------------------------------------------------------------
+def p_createdbp(p):
+    "createdbp   :   CREATE replacedbp DATABASE ifnotexistsp id ownerp modep PUNTOCOMA"
+    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7] + " " + p[8]
+
+def p_replacedbp(p):
+    "replacedbp  :   OR REPLACE"
+    p[0] = p[1] + " " + p[2]
+
+def p_replacedbp1(p):
+    "replacedbp  :   "
+    p[0] = ""
+
+def p_ifnotexistsp(p):
+    "ifnotexistsp    :   IF NOT EXISTS"
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+
+def p_ifnotexistsp1(p):
+    "ifnotexistsp    :   "
+    p[0] = ""
+
+def p_ownerp(p):
+    "ownerp :   OWNER IGUAL valortipo"
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+
+def p_ownerp1(p):
+    "ownerp  :   "
+    p[0] = ""
+
+def p_modep(p):
+    "modep   :   MODE IGUAL valortipo"
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+
+def p_modep1(p):
+    "modep   :   "
+    p[0] = ""
+
+#---------------------------------------------------------------------------------------------------------------------------------
 
 def p_id(p):
     "id : ID"
@@ -400,10 +1021,26 @@ def p_valortipo(p):
                 |   ID
                 |   DEC
                 |   TEXTO
+                |   VARCHAR
                 |   FALSE
                 |   TRUE
+                |  callfunc
     """
-    p[0] = str(p[1])
+    
+    if isinstance(p[1],llamadaF):
+        p[0] = p[1]
+    else:
+        try :
+            t = float(p[1])
+            p[0] = str(t)
+        except:
+            ''''''
+        if p[0] is None :
+            if p[1].lower() == 'true' or p[1].lower() == 'false':
+                p[0] = p[1].upper()
+            else:
+                p[0] = '\''+str(p[1])+'\''
+
     insertProduction(p.slice, len(p.slice))
 
 def p_valornume(p):
@@ -634,7 +1271,7 @@ def p_varying1(p):
 #MANIPULACION DE BASES DE DATOS
 #CREATEDB----------------------
 def p_createdb(p):
-    "createdb   :   CREATE replacedb DATABASE ifnotexists id owner mode PTCOMA"
+    "createdb   :   CREATE replacedb DATABASE ifnotexists id owner mode PUNTOCOMA"
     p[0] = inst.createdb(p[2],p[4],p[5],p[6],p[7])
     insertProduction(p.slice, len(p.slice))
 
@@ -680,13 +1317,13 @@ def p_mode1(p):
 
 #SHOW DATABASES------------------
 def p_showdb(p):
-    "showdb :   SHOW DATABASES PTCOMA"
+    "showdb :   SHOW DATABASES PUNTOCOMA"
     p[0] = inst.showdb(p[1])
     insertProduction(p.slice, len(p.slice))
    
 #ALTER DATABASE------------------
 def p_alterdb(p):
-    "alterdb    :   ALTER DATABASE alterdb2 PTCOMA"
+    "alterdb    :   ALTER DATABASE alterdb2 PUNTOCOMA"
     p[0] = inst.alterdb(p[3])
     insertProduction(p.slice, len(p.slice))
 
@@ -712,7 +1349,7 @@ def p_alterdb31(p):
 
 #DROP DATABASE--------------------
 def p_dropdb(p):
-    "dropdb :   DROP DATABASE ifexists id PTCOMA"
+    "dropdb :   DROP DATABASE ifexists id PUNTOCOMA"
     insertProduction(p.slice, len(p.slice))
 
 def p_ifexists(p):
@@ -727,14 +1364,14 @@ def p_ifexists1(p):
 
 #USE DATABASE----------------------
 def p_usedb(p):
-    "usedb  :   USE id PTCOMA"
+    "usedb  :   USE id PUNTOCOMA"
     p[0] = inst.usedb(p[2])
     insertProduction(p.slice, len(p.slice))
 
 #MANIPULACION DE TABLAS
 # CREATE TABLE-------------------
 def p_createtb(p):
-    "createtb   :   CREATE TABLE id PARA coltb PARC inherits PTCOMA"
+    "createtb   :   CREATE TABLE id PARA coltb PARC inherits PUNTOCOMA"
     p[0] = inst.createtb(p[3],p[5],p[7])
     insertProduction(p.slice, len(p.slice))
 
@@ -865,13 +1502,13 @@ def p_const1(p):
 
 #DROP TABLE----------
 def p_droptb(p):
-    "droptb :   DROP TABLE id PTCOMA"
+    "droptb :   DROP TABLE id PUNTOCOMA"
     p[0] = inst.droptb(p[3])
     insertProduction(p.slice, len(p.slice))
 
 #ALTER TABLE---------
 def p_altertb(p):
-    "altertb    :   ALTER TABLE id altertb2 PTCOMA"
+    "altertb    :   ALTER TABLE id altertb2 PUNTOCOMA"
     p[0] = inst.altertb(p[3],p[4])
     insertProduction(p.slice, len(p.slice))
 
@@ -962,7 +1599,7 @@ def p_alteracion11111(p):
 #MANIPULACION DE DATOS
 #INSERT---------------
 def p_insert(p):
-    "insert :   INSERT INTO id colkey VALUES PARA valores PARC PTCOMA"
+    "insert :   INSERT INTO id colkey VALUES PARA valores PARC PUNTOCOMA"
     p[0] = inst.insert(p[3],p[7])
     insertProduction(p.slice, len(p.slice))
 
@@ -981,13 +1618,13 @@ def p_valores1(p):
 
 #UPDATE----------------
 def p_update(p):
-    "update :   UPDATE id SET cond WHERE wherecond PTCOMA"
+    "update :   UPDATE id SET cond WHERE wherecond PUNTOCOMA"
     p[0] = inst.update(p[2],p[4],p[6])
     insertProduction(p.slice, len(p.slice))
 
 #DELETE----------------
 def p_delete(p):
-    "delete :   DELETE FROM id WHERE wherecond PTCOMA"
+    "delete :   DELETE FROM id WHERE wherecond PUNTOCOMA"
     p[0] = inst.delete(p[3],p[5])
     insertProduction(p.slice, len(p.slice))
 
@@ -1013,13 +1650,13 @@ def p_createind21(p):
     p[0] = p[1]
 
 def p_createind3(p):
-    "createind3 :   PARA listacolind PARC indwhere PTCOMA" 
+    "createind3 :   PARA listacolind PARC indwhere PUNTOCOMA" 
     p[0] = inst.createind3(p[2],p[4]) 
 
 def p_listacolind(p):
     "listacolind    :   listacolind COMA columnaind"
     p[1].append(p[3])
-    p[0] = inst.listacolind(p[1])
+    p[0] = p[1]
 
 def p_listacolind1(p):
     "listacolind    :   columnaind"
@@ -1037,8 +1674,8 @@ def p_columnaind1(p):
     p[0] = p[1]
 
 def p_ordenind(p):
-    "ordenind   :   indorder NULL indorder2"
-    p[0] = inst.ordenind(p[2] + " " + p[3] + " " + p[4])
+    "ordenind   :   indorder NULLS indorder2"
+    p[0] = inst.ordenind(p[1] + " " + p[2] + " " + p[3])
 
 def p_idcondind(p):
     "idcondind :  PARA id PARC"
@@ -1115,7 +1752,157 @@ def p_signo(p):
     """
     p[0] = p[1]
 
-"""FIN ANALIZADOR SINTACTICO ASCENDENTE"""
+#DROP INDEX
+def p_dropind(p):
+    "dropind    :   DROP INDEX concind ifexistsind listaidind cascrestind PUNTOCOMA"
+    p[0] = inst.IndexDrop(p[1] + " " + p[2], p[5], p[6])
+
+def p_concind(p):
+    "concind  :   CONCURRENTLY"
+    p[0] = p[1]
+
+def p_concind1(p):
+    "concind    :   "
+    p[0] = ""
+
+def p_ifexistsind(p):
+    "ifexistsind    :   IF EXISTS"
+    p[0] = p[1] + " " + p[2]
+
+def p_ifexistsind1(p):
+    "ifexistsind    :   "
+    p[0] = ""
+
+def p_listaidind(p):
+    "listaidind :   listaidind COMA id"
+    p[1].append(p[3])
+    p[0] = p[1]
+
+def p_listaidind1(p):
+    "listaidind :   id"
+    p[0] = [p[1]]
+
+def p_cascrestind(p):
+    """
+    cascrestind    :   CASCADE
+                   |   RESTRICT
+    """
+    p[0] = p[1]
+
+def p_cascrestind1(p):
+    "cascrestind    :   "
+    p[0] = ""
+
+#ALTER INDEX
+def p_alterind(p):
+    """
+    alterind    :   ALTER INDEX ifexistsind alterind2 ownedbyind alterind2 nowait PUNTOCOMA
+    """
+    p[0] = inst.IndexAlter(p[1] + " " + p[2], p[4])
+
+def p_nowait(p):
+    "nowait :   NOWAIT"
+    p[0] = p[1]
+
+def p_nowait1(p):
+    "nowait :   "
+    p[0] = ""
+
+def p_ownerbyind(p):
+    "ownedbyind :   OWNED BY parind"
+    p[0] = p[3]
+    
+def p_ownedbyind1(p):
+    "ownedbyind    :   "
+    p[0] = ""
+
+def p_alterind2(p):
+    """
+    alterind2   :   id tipocambioind parametrosind
+    """
+    p[0] = inst.propalter(p[2], p[1], p[3])
+
+def p_alterind21(p):
+    """
+    alterind2   :   ALL IN TABLESPACE id ownedbyind
+    """
+    p[0] = inst.propalter(p[1] + " " + p[2] + " " + p[3], p[4], p[5])
+
+def p_alterind211(p):
+    "alterind2  :   SET TABLESPACE id"
+    p[0] = p[3]
+
+def p_alterind2111(p):
+    "alterind2  :   "
+    p[0] = ""
+
+def p_tipocambioind(p):
+    """
+    tipocambioind   :   RENAME TO
+                    |   SET TABLESPACE
+    """
+    p[0] = p[1] + " " + p[2]
+
+def p_tipocambioind1(p):
+    """
+    tipocambioind   :   DEPENDS ON EXTENSION
+    """
+    p[0] = p[1] + " " + p[2] + " " + p[3]
+
+def p_tipocambioind11(p):
+    """
+    tipocambioind   :   SET
+                    |   RESET
+                    |   ALTER columnindopc
+    """
+    p[0] = p[1]
+
+def p_columnindopc(p):
+    """
+    columnindopc    :   COLUMN
+    """
+    p[0] = p[1]
+
+def p_columnindopc1(p):
+    """
+    columnindopc    :   
+    """
+    p[0] = ""
+
+def p_parametrosind(p):
+    "parametrosind  :   PARA parind PARC"
+    p[0] = p[2]
+
+def p_parametrosind1(p):
+    "parametrosind  :   parind"
+    p[0] = p[1]
+
+def p_parametrosind11(p):
+    "parametrosind  :   id id"
+    p[0] = inst.alterind(p[1],p[2])
+
+def p_parind(p):
+    "parind :   parind COMA idind"
+    p[1].append(p[3])
+    p[0] = p[1]
+
+def p_parind1(p):
+    "parind :   idind"
+    p[0] = [p[1]]
+
+def p_idind(p):
+    "idind  :   id IGUAL valortipo"
+    p[0] = p[1] + p[2] + str(p[3])
+
+def p_idind1(p):
+    "idind  :   id"
+    p[0] = p[1]
+
+#-----------------------------------------------------------------------FIN ANALIZADOR SINTACTICO ASCENDENTE----------------------------------------------
+
+
+
+
 
 def p_empty(p):
      'empty :'
@@ -1123,10 +1910,10 @@ def p_empty(p):
      insertProduction(p.slice, len(p.slice))
 
 def p_query(t):
-    'query : queryp com PTCOMA'
+    'query : queryp com PUNTOCOMA'
     #por el momento 
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_com(t):
     ''' 
@@ -1135,12 +1922,12 @@ def p_com(t):
         | EXCEPT query
         | empty
     '''
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_queryP(t):
     'queryp : SELECT queryp2  '
     t[0] =  t[2]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_queryp2(t):
     '''queryp2 : distinct select_list FROM table_expression condition group having order lim off
@@ -1150,41 +1937,41 @@ def p_queryp2(t):
         t[0] = select_func(t[2])
     else:
         t[0] =  select(t[1],t[2],t[4],t[5],t[6],t[7],t[8],t[9],t[10])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 
 def p_distinct(t):
     'distinct : DISTINCT'
     t[0] = True
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_distinctEmpty(t):
     'distinct : empty'
     t[0] = False
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_select_listAll(t):
     'select_list : MULTIPLICACION'
     t[0]=[exp_id('*',None)]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_select_listList(t):
     'select_list : list'
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_list(t):
     'list : list COMA column aliascol'
     t[3].alias = t[4]
     t[1].append(t[3])
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_listSingle(t):
     'list : column aliascol'
     t[1].alias = t[2]
     t[0] = [t[1]]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_column(t):
     'column : ID columnp '
@@ -1192,27 +1979,27 @@ def p_column(t):
         t[0] = exp_id(t[1],None)
     else:
         t[0] = exp_id(t[2],t[1])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_fun_sis(t):
     '''funciones_sis : funciones_sis COMA fsis aliascol'''
     t[3].alias = t[4]
     t[1].append(t[3])
     t[0]=t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_fun_sisa(t):
     '''funciones_sis : fsis aliascol'''
     t[1].alias = t[2]
     t[0] = [t[1]]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_fsis(t):
     '''fsis : trig
             | math
             | func '''
     t[0]=t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_columnFunc(t):
     '''
@@ -1223,7 +2010,7 @@ def p_columnFunc(t):
 
     '''
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_TRIG(t):
     '''
@@ -1250,28 +2037,28 @@ def p_TRIG(t):
 		| ACOSH PARA exp PARC
 		| ATANH PARA exp PARC
     '''
-    if t[1].lower() == 'acos' : t[0] =  trig_acos(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'acosd' : t[0] =  trig_acosd(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'asin' : t[0] =  trig_asin(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'asind' : t[0] =  trig_asind(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'atan' : t[0] =  trig_atan(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'atand' : t[0] =  trig_atand(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'atan2' : t[0] =  trig_atan2(t[3],t[5],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'atan2d' : t[0] =  trig_atan2d(t[3],t[5],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'cos' : t[0] =  trig_cos(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'cosd' : t[0] =  trig_cosd(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'cot' : t[0] =  trig_cot(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'cotd' : t[0] =  trig_cotd(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'sin' : t[0] =  trig_sin(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'sind' : t[0] =  trig_sind(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'tan' : t[0] =  trig_tan(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'tand' : t[0] =  trig_tand(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'sinh' : t[0] =  trig_sinh(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'cosh' : t[0] =  trig_cosh(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'tanh' : t[0] =  trig_tanh(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'asinh' : t[0] =  trig_asinh(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'acosh' : t[0] =  trig_acosh(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'atanh' : t[0] =  trig_atanh(t[3],None);insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'acos' : t[0] =  trig_acos(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'acosd' : t[0] =  trig_acosd(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'asin' : t[0] =  trig_asin(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'asind' : t[0] =  trig_asind(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'atan' : t[0] =  trig_atan(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'atand' : t[0] =  trig_atand(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'atan2' : t[0] =  trig_atan2(t[3],t[5],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'atan2d' : t[0] =  trig_atan2d(t[3],t[5],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'cos' : t[0] =  trig_cos(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'cosd' : t[0] =  trig_cosd(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'cot' : t[0] =  trig_cot(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'cotd' : t[0] =  trig_cotd(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'sin' : t[0] =  trig_sin(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'sind' : t[0] =  trig_sind(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'tan' : t[0] =  trig_tan(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'tand' : t[0] =  trig_tand(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'sinh' : t[0] =  trig_sinh(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'cosh' : t[0] =  trig_cosh(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'tanh' : t[0] =  trig_tanh(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'asinh' : t[0] =  trig_asinh(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'acosh' : t[0] =  trig_acosh(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'atanh' : t[0] =  trig_atanh(t[3],None);##insertProduction(t.slice, len(t.slice))
 
 
 def p_math(t):
@@ -1306,33 +2093,33 @@ def p_math(t):
 		| SETSEED PARA  exp PARC    
 
     '''
-    if t[1].lower() == 'abs' : t[0] =  math_abs(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'cbrt' : t[0] =  math_cbrt(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'ceil' : t[0] =  math_ceil(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'ceiling' : t[0] =  math_ceil(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'div' : t[0] =  math_div(t[3],t[5],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'exp' : t[0] =  math_exp(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'factorial' : t[0] =  math_factorial(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'floor' : t[0] =  math_floor(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'gcd' : t[0] =  math_gcd(t[3],t[5],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'lcm' : t[0] =  math_lcm(t[3],t[5],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'ln' : t[0] =  math_ln(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'log' : t[0] =  math_log(t[3],t[5],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'log10' : t[0] =  math_log10(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'min_scale' : t[0] =  math_min_scale(t[3],None);insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'abs' : t[0] =  math_abs(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'cbrt' : t[0] =  math_cbrt(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'ceil' : t[0] =  math_ceil(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'ceiling' : t[0] =  math_ceil(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'div' : t[0] =  math_div(t[3],t[5],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'exp' : t[0] =  math_exp(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'factorial' : t[0] =  math_factorial(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'floor' : t[0] =  math_floor(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'gcd' : t[0] =  math_gcd(t[3],t[5],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'lcm' : t[0] =  math_lcm(t[3],t[5],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'ln' : t[0] =  math_ln(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'log' : t[0] =  math_log(t[3],t[5],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'log10' : t[0] =  math_log10(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'min_scale' : t[0] =  math_min_scale(t[3],None);##insertProduction(t.slice, len(t.slice))
     elif t[1].lower() == 'mod' : t[0] =  math_mod(t[3],t[5],None);(t.slice, len(t.slice))
-    elif t[1].lower() == 'pi' : t[0] =  math_pi(None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'power' : t[0] =  math_power(t[3],t[5],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'radians' : t[0] =  math_radians(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'round' : t[0] =  math_round(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'scale' : t[0] =  math_scale(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'sign' : t[0] =  math_sign(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'sqrt' : t[0] =  math_sqrt(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'trim_scale' : t[0] =  math_trim_scale(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'trunc' : t[0] =  math_trunc(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'width_bucket' : t[0] =  math_widthBucket(t[3],t[5],t[7],t[9],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'random' : t[0] =  math_random(None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'setseed' : t[0] =  math_setseed(t[3],None);insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'pi' : t[0] =  math_pi(None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'power' : t[0] =  math_power(t[3],t[5],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'radians' : t[0] =  math_radians(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'round' : t[0] =  math_round(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'scale' : t[0] =  math_scale(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'sign' : t[0] =  math_sign(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'sqrt' : t[0] =  math_sqrt(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'trim_scale' : t[0] =  math_trim_scale(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'trunc' : t[0] =  math_trunc(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'width_bucket' : t[0] =  math_widthBucket(t[3],t[5],t[7],t[9],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'random' : t[0] =  math_random(None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'setseed' : t[0] =  math_setseed(t[3],None);##insertProduction(t.slice, len(t.slice))
 
 def p_function_countAll(t):
     'func : COUNT PARA MULTIPLICACION PARC'
@@ -1357,21 +2144,21 @@ def p_function(t):
                 | NOW PARA PARC
 
     '''
-    if t[1].lower() == 'sum' : t[0] = fun_sum(t[3],None);insertProduction(t.slice, len(t.slice))
-    elif t[1].lower() == 'avg' : t[0] = fun_avg(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'max' : t[0] = fun_max(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'min' : t[0] = fun_min(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'count' : t[0] = fun_count(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'length' : t[0] = fun_length(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'substring' : t[0] = fun_substr(t[3],t[5],t[7],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'trim' : t[0] = fun_trim(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'md5' : t[0] = fun_md5(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'sha256' : t[0] = fun_sha256(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'substr' : t[0] = fun_substr(t[3],t[5],t[7],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'convert' : t[0] = fun_convert(t[3],t[5],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'greatest' : t[0] = fun_greatest(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'least' : t[0] = fun_least(t[3],None);insertProduction(t.slice, len(t.slice))
-    if t[1].lower() == 'now' : t[0] = fun_now(None);insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'sum' : t[0] = fun_sum(t[3],None);##insertProduction(t.slice, len(t.slice))
+    elif t[1].lower() == 'avg' : t[0] = fun_avg(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'max' : t[0] = fun_max(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'min' : t[0] = fun_min(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'count' : t[0] = fun_count(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'length' : t[0] = fun_length(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'substring' : t[0] = fun_substr(t[3],t[5],t[7],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'trim' : t[0] = fun_trim(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'md5' : t[0] = fun_md5(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'sha256' : t[0] = fun_sha256(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'substr' : t[0] = fun_substr(t[3],t[5],t[7],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'convert' : t[0] = fun_convert(t[3],t[5],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'greatest' : t[0] = fun_greatest(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'least' : t[0] = fun_least(t[3],None);##insertProduction(t.slice, len(t.slice))
+    if t[1].lower() == 'now' : t[0] = fun_now(None);##insertProduction(t.slice, len(t.slice))
 
 
 def p_type(t):
@@ -1390,122 +2177,122 @@ def p_type(t):
         | TIMESTAMP
     '''
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_lexps(t):
     'lexps : lexps COMA exp'
     t[1].append(t[3])
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_lexpsSingle(t):
     'lexps : exp '
     t[0] = [t[1]]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_columnp(t):
     '''columnp : PUNTO ID
             | PUNTO MULTIPLICACION
     '''
     t[0] = t[2]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_columnpEmpty(t):
     'columnp : empty'
     t[0] = None
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_aliascol(t):
     'aliascol : AS ID'
     t[0] = t[2]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 
 
 def p_aliascolEmpty(t):
     'aliascol : empty'
     t[0] = None
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_table_expression(t):
     'table_expression : table_expression COMA texp'
     t[1].append(t[3])
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_table_expressionSingle(t):
     'table_expression : texp'
     t[0] = [t[1]]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
     
 def p_texp_id(t):
     'texp : ID aliastable'
     t[0] = texp_id(t[1],t[2])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_table_expressionQuery(t):
     'texp : PARA query PARC aliastable '
     t[0] = texp_query(t[2],t[4])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_aliastable(t):
     'aliastable : ID'
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_aliastableEmpty(t):
     'aliastable : empty'
     t[0] = None
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_casewhen(t):
     'casewhen : CASE WHEN exp_case THEN exp casos else END aliastable'
     t[0] = casewhen( t[3], t[5], t[6], t[7], t[8])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_exp_case(t):
     'exp_case : exp oper exp'
-    if t[2] == '='  : t[0] = exp_igual(t[1],t[3]);insertProduction(t.slice, len(t.slice))
-    elif t[2] == '>': t[0] = exp_mayor(t[1], t[3]);insertProduction(t.slice, len(t.slice))
-    elif t[2] == '<': t[0] = exp_menor(t[1], t[3]);insertProduction(t.slice, len(t.slice))
-    elif t[2] == '<>': t[0] = exp_diferente(t[1], t[3]);insertProduction(t.slice, len(t.slice))
-    elif t[2] == '>=': t[0] = exp_mayor_igual(t[1], t[3]);insertProduction(t.slice, len(t.slice))
-    elif t[2] == '<=': t[0] = exp_menor_igual(t[1], t[3]);insertProduction(t.slice, len(t.slice))
+    if t[2] == '='  : t[0] = exp_igual(t[1],t[3]);##insertProduction(t.slice, len(t.slice))
+    elif t[2] == '>': t[0] = exp_mayor(t[1], t[3]);##insertProduction(t.slice, len(t.slice))
+    elif t[2] == '<': t[0] = exp_menor(t[1], t[3]);##insertProduction(t.slice, len(t.slice))
+    elif t[2] == '<>': t[0] = exp_diferente(t[1], t[3]);##insertProduction(t.slice, len(t.slice))
+    elif t[2] == '>=': t[0] = exp_mayor_igual(t[1], t[3]);##insertProduction(t.slice, len(t.slice))
+    elif t[2] == '<=': t[0] = exp_menor_igual(t[1], t[3]);##insertProduction(t.slice, len(t.slice))
 
 def p_expcaseIn(t):
     'exp_case : exp IN PARA queryp PARC'
     t[0] = exp_in(t[1],t[4])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expcaseNotIn(t):
     'exp_case : exp NOT IN PARA queryp PARC'
     t[0] = exp_not_in(t[1],t[5])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expcaseBetween(t):
     'exp_case : exp BETWEEN exp AND exp'
     t[0] = exp_between(t[1],t[3],t[5])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expcaseIsDistinct(t):
     'exp_case : exp IS DISTINCT FROM exp'
     t[0] = exp_diferente(t[1],t[5])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expcaseIsNotDistinct(t):
     'exp_case : exp IS NOT DISTINCT FROM exp'
     t[0] = exp_igual(t[1],t[6])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expcaseExists(t):
     'exp_case : EXISTS PARA queryp PARC'
     t[0] = exp_exists(t[3],None,True)
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expcaseNotExists(t):
     'exp_case : NOT EXISTS PARA queryp PARC'
     t[0] = exp_exists(t[3],None,False)
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expNum(t):
     '''exp : INT
@@ -1513,18 +2300,18 @@ def p_expNum(t):
     
     '''
     t[0] = exp_num(t[1])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expText(t):
     'exp : VARCHAR'
     t[0] = exp_text(t[1])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expBoolean(t):
     '''exp : TRUE
         | FALSE'''
     t[0] = exp_bool(t[1])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expID(t):
     'exp : ID columnp'
@@ -1532,7 +2319,7 @@ def p_expID(t):
         t[0] = exp_id(t[1],None)
     else:
         t[0] = exp_id(t[2],t[1])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expUmas(t):
     'exp : MAS exp %prec UMAS'
@@ -1540,7 +2327,7 @@ def p_expUmas(t):
         #Error semántico
         return
     t[0] = t[2]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_expUmenos(t):
     'exp : MENOS exp %prec UMENOS'
@@ -1549,7 +2336,7 @@ def p_expUmenos(t):
         return
     t[2].val *= -1
     t[0] = t[2]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
     
 def p_expCombined(t):
     ''' exp : exp MAS exp
@@ -1566,7 +2353,7 @@ def p_expCombined(t):
         elif t[2] == '-': t[0] = exp_resta(t[1], t[3])
         elif t[2] == '*': t[0] = exp_multiplicacion(t[1], t[3])
         elif t[2] == '/': t[0] = exp_division(t[1], t[3])
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_oper(t):
     ''' oper : IGUAL
@@ -1577,58 +2364,58 @@ def p_oper(t):
             | DIFERENTE
     '''
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_casos(t):
     '''casos : lcases
     '''
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_casosEmpty(t):
     '''casos :  empty             
     '''
     t[0] = None
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_lista_cases(t):
     'lcases : lcases WHEN exp_case THEN exp '
     t[2] = case(t[3],t[5])
     t[1].append(t[2])
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_lcasesSingle(t):
     'lcases :  WHEN exp_case THEN exp '
     t[0] =  [case(t[2],t[4])]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_else(t):
     'else : ELSE  exp '
     t[0] = t[2]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_elseEmpty(t):
     'else : empty'
     t[0] = None
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_condition(t):
     'condition : WHERE lconditions  '
     t[0] = t[2]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_lconditions(t):
     'lconditions : lconditions andor exp_case'
     c = condition(t[3],t[2])
     t[1].append(c)
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_lconditionsSingle(t):
     'lconditions : exp_case'
     t[0] = [condition(t[1],None)]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_andor(t):
     '''
@@ -1636,50 +2423,50 @@ def p_andor(t):
         | OR
     '''
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_conditionEmpty(t):
     'condition : empty'
     t[0] = None
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_groupby(t):
     'group : GROUP BY lids'
     t[0] = True
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_groupbyEmpty(t):
     'group : empty'
     t[0] = False
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_lids(t):
     'lids : lids COMA ID columnp'
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_lidsSingle(t):
     'lids : ID columnp'
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_having(t):
     'having : HAVING PARA exp_case PARC '
     t[0] = condition(t[3],'AND')
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_havingEmpty(t):
     'having : empty'
     t[0] = None
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_orderby(t):
     'order : ORDER BY ID columnp ascdsc'
     t[0] = [t[3],t[4],t[5]]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_orderbyEmpty(t):
     'order : empty'
     t[0] = None
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_ascdsc(t):
     '''ascdsc : ASC
@@ -1687,30 +2474,30 @@ def p_ascdsc(t):
     
     '''
     t[0] = t[1]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_lim(t):
     'lim : LIMIT INT'
     t[0] = t[2]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_limit(t):
     'lim : empty'
     t[0] = 0
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_offset(t):
     'off : OFFSET INT'
     t[0] = t[2]
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_offsetEmpty(t):
     'off : empty'
     t[0] = 0
-    insertProduction(t.slice, len(t.slice))
+    ##insertProduction(t.slice, len(t.slice))
 
 def p_createfunc(t):
-    'createfunc : CREATE FUNCTION ID PARA lparamsp PARC RETURNS type AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
+    'createfunc : CREATE FUNCTION ID PARA lparamsp PARC RETURNS type AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR LANGUAGE PLPGSQL PUNTOCOMA'
     t[0] = createfunc(t[3],t[5],t[8],t[12])
 
 def p_lparamsp(t):
@@ -1746,7 +2533,7 @@ def p_declare(t):
     if len(t) > 2 :
         t[0] = t[2]
     else:
-        t[0] = t[1]
+        t[0] = []
 
 
 def p_declareList(t):
@@ -1765,7 +2552,6 @@ def p_declaresAsAlias(t):
 def p_declaration(p):
     ''' declares : ID consta type coll  nn  ddiexp PUNTOCOMA'''
     p[0] = declaration(p[1],p[2],p[3],p[4],p[5],p[6])
-    print('entro')
 
 def p_ddiexp(p):
     '''ddiexp : ddi newexp '''
@@ -1833,9 +2619,140 @@ def p_instruccion(t):
                     | asignacion
                     | rtrn 
                     | block
+                    | instif
+                    | instSimplecase
+                    | instScase
+                    | instp
+                    | callproc
+                    
     
      '''
     t[0] = t[1]
+
+def p_callpro(t):
+    ''' callproc : EXECUTE ID PARA lnexp PARC PUNTOCOMA'''
+    t[0] = llamadaP(t[2],t[4])
+
+
+
+def p_callfunc(t):
+    ''' callfunc : ID PARA lnexp PARC '''
+    t[0] = llamadaF(t[1],t[3])
+
+def p_instSimplecase(t):
+    '''instSimplecase : CASE newexp WHEN lnexp THEN body lwhenv pelse END CASE PUNTOCOMA'''
+    
+
+
+#searched case
+def p_instScase(t):
+    '''instScase : CASE WHEN newexp THEN body lwhen pelse END CASE PUNTOCOMA'''
+    t[0] = iff(t[3],t[6],t[7],t[8])
+
+
+def p_lwhen(t):
+    ''' lwhen : lwhen cuando'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lwhena(t):
+    ''' lwhen : cuando'''
+    t[0] = [t[1]]
+
+def p_cuando(t):
+    ''' cuando : WHEN newexp THEN body'''
+    t[0] = elsif(t[2],t[4])
+
+
+
+def p_lwhenv(t):
+    ''' lwhenv : lwhenv cuandos'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lwhenvarios(t):
+    ''' lwhenv : cuandos'''
+    t[0] = [t[1]]
+
+
+def p_cuandos(t):
+    ''' cuandos : WHEN lnexp THEN body'''
+    
+
+def p_instif(t):
+    '''instif : IF  newexpb  THEN body lelsif pelse END IF PUNTOCOMA'''
+    t[0] = iff(t[2],t[4],t[5],t[6])
+
+
+
+
+def p_lelsif(t):
+    ''' lelsif : lelsif elsif'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_lelsifR(t):
+    ''' lelsif :  elsif'''
+    t[0] = [t[1]]
+
+def p_lelsifRN(t):
+    ''' lelsif :  '''
+    t[0] = []
+
+def p_elsif(t):
+    '''elsif : ELSIF  newexpb THEN body'''
+    t[0] = elsif(t[2],t[4])
+
+
+def p_lnexpini(t):
+    ''' lnexp : lnexpll'''
+    t[0] = t[1]
+
+def p_lnexpinia(t):
+    ''' lnexp : '''
+    t[0] = []
+    
+
+def p_lnexp(t):
+    ''' lnexpll : lnexpll COMA newexp'''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lnexpu(t):
+    ''' lnexpll :  newexp'''
+    t[0] = [t[1]]
+
+
+def p_pelse(t):
+    '''pelse :  ELSE body'''
+    t[0] = els(t[2])
+
+def p_pelseN(t):
+    '''pelse :  '''
+    t[0] = None
+
+def p_bodyu(t):
+    ''' bodyu : asignacion
+             | raisenotice
+             | declares
+             | rtrn
+             | instif
+             | instSimplecase
+             | instScase
+             | instp
+             | callproc
+             '''
+    t[0] = t[1]
+
+
+def p_body(t):
+    ''' body : body bodyu'''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_bodya(t):
+    ''' body : bodyu'''
+    t[0] = [t[1]]
 
 def p_raisenotice(t):
     #Imprimir
@@ -1844,8 +2761,8 @@ def p_raisenotice(t):
     t[0] = raisenotice(t[3],t[4])
 
 def p_compvalue(t):
-    'compvalue : COMA ID'
-    t[0] = t[1]
+    'compvalue : COMA newexp'
+    t[0] = t[2]
 
 def p_compvalueEmpty(t):
     'compvalue : empty'
@@ -1853,7 +2770,7 @@ def p_compvalueEmpty(t):
 
 def p_asignacion(t):
     'asignacion : ID igualacion newexp PUNTOCOMA'
-    t[0] = asignacion(t[1],t[4])
+    t[0] = asignacion(t[1],t[3])
 
 def p_igualacion(t):
     '''igualacion : DOSPUNTOS IGUAL
@@ -1866,12 +2783,20 @@ def p_return(t):
     t[0] = rtrn(t[2])
 
 
+
+
 def p_newexp_id(t):
     '''newexp :  ID'''
     t[0] = exp_idp(t[1])
 
 def p_newexp_bool(t):
     '''newexp : TRUE
+            | FALSE
+    '''
+    t[0] = exp_textp(t[1])
+
+def p_newexp_boolb(t):
+    '''newexpb : TRUE
             | FALSE
     '''
     t[0] = exp_textp(t[1])
@@ -1883,8 +2808,163 @@ def p_newexp_num(t):
     t[0] = exp_nump(t[1])
             
 def p_newexp_text(t):
-    '''newexp :  VARCHAR '''
+    '''newexp :  VARCHAR
+            | TEXTO '''
     t[0] = exp_textp(t[1])
+
+def p_newexpFun(t):
+    ''' 
+    newexp : trign
+            | mathn
+            | funcn
+    '''
+    t[0] = t[1]
+
+
+
+def p_mathn(t):
+    '''
+    mathn : ABS PARA  newexp PARC
+		| CBRT PARA  newexp PARC
+		| CEIL PARA  newexp PARC
+		| CEILING PARA  newexp PARC
+		| DEGREES PARA  newexp PARC
+		| DIV PARA  newexp COMA newexp PARC	
+		| EXP PARA  newexp PARC	
+		| FACTORIAL PARA  newexp PARC
+		| FLOOR PARA  newexp PARC
+		| GCD PARA  newexp COMA newexp PARC
+		| LCM PARA  newexp COMA newexp PARC
+		| LN PARA  newexp PARC
+		| LOG PARA  newexp COMA newexp PARC
+		| LOG10 PARA  newexp PARC
+		| MIN_SCALE PARA newexp PARC
+		| MOD PARA newexp COMA newexp PARC
+		| PI PARA PARC
+		| POWER PARA  newexp COMA newexp PARC
+		| RADIANS PARA  newexp PARC
+		| ROUND PARA  newexp PARC
+		| SCALE PARA  newexp PARC
+		| SIGN PARA  newexp PARC
+		| SQRT PARA  newexp PARC
+		| TRIM_SCALE PARA newexp PARC
+		| TRUNC PARA  newexp PARC 
+		| WIDTH_BUCKET PARA  newexp COMA newexp COMA newexp COMA newexp PARC
+		| RANDOM PARA PARC
+		| SETSEED PARA  newexp PARC    
+
+    '''
+    if t[1].lower() == 'abs' : t[0] =  math_absp(t[3],None)
+    elif t[1].lower() == 'cbrt' : t[0] =  math_cbrtp(t[3],None)
+    elif t[1].lower() == 'ceil' : t[0] =  math_ceilp(t[3],None)
+    elif t[1].lower() == 'ceiling' : t[0] =  math_ceilp(t[3],None)
+    elif t[1].lower() == 'div' : t[0] =  math_divp(t[3],t[5],None)
+    elif t[1].lower() == 'exp' : t[0] =  math_expp(t[3],None)
+    elif t[1].lower() == 'factorial' : t[0] =  math_factorialp(t[3],None)
+    elif t[1].lower() == 'floor' : t[0] =  math_floorp(t[3],None)
+    elif t[1].lower() == 'gcd' : t[0] =  math_gcdp(t[3],t[5],None)
+    elif t[1].lower() == 'lcm' : t[0] =  math_lcmp(t[3],t[5],None)
+    elif t[1].lower() == 'ln' : t[0] =  math_lnp(t[3],None)
+    elif t[1].lower() == 'log' : t[0] =  math_logp(t[3],t[5],None)
+    elif t[1].lower() == 'log10' : t[0] =  math_log10p(t[3],None)
+    elif t[1].lower() == 'min_scale' : t[0] =  math_min_scalep(t[3],None)
+    elif t[1].lower() == 'mod' : t[0] =  math_modp(t[3],t[5],None)
+    elif t[1].lower() == 'pi' : t[0] =  math_pip(None)
+    elif t[1].lower() == 'power' : t[0] =  math_powerp(t[3],t[5],None)
+    elif t[1].lower() == 'radians' : t[0] =  math_radiansp(t[3],None)
+    elif t[1].lower() == 'round' : t[0] =  math_roundp(t[3],None)
+    elif t[1].lower() == 'scale' : t[0] =  math_scalep(t[3],None)
+    elif t[1].lower() == 'sign' : t[0] =  math_signp(t[3],None)
+    elif t[1].lower() == 'sqrt' : t[0] =  math_sqrtp(t[3],None)
+    elif t[1].lower() == 'trim_scale' : t[0] =  math_trim_scalep(t[3],None)
+    elif t[1].lower() == 'trunc' : t[0] =  math_truncp(t[3],None)
+    elif t[1].lower() == 'width_bucket' : t[0] =  math_widthBucketp(t[3],t[5],t[7],t[9],None)
+    elif t[1].lower() == 'random' : t[0] =  math_randomp(None)
+    elif t[1].lower() == 'setseed' : t[0] =  math_setseedp(t[3],None)
+
+def p_trign(t):
+    '''
+        trign : ACOS PARA newexp PARC
+		| ACOSD PARA newexp PARC
+		| ASIN PARA newexp PARC
+		| ASIND PARA newexp PARC
+		| ATAN PARA newexp PARC
+		| ATAND PARA newexp PARC
+		| ATAN2 PARA newexp COMA newexp PARC
+		| ATAN2D PARA newexp COMA newexp PARC
+		| COS PARA newexp PARC
+		| COSD PARA newexp PARC
+		| COT PARA newexp PARC
+		| COTD PARA newexp PARC
+		| SIN PARA newexp PARC
+		| SIND PARA newexp PARC
+		| TAN PARA newexp PARC
+		| TAND PARA newexp PARC
+		| SINH PARA newexp PARC
+		| COSH PARA newexp PARC 
+		| TANH PARA newexp PARC
+		| ASINH PARA newexp PARC
+		| ACOSH PARA newexp PARC
+		| ATANH PARA newexp PARC
+    '''
+    if t[1].lower() == 'acos' : t[0] =  trig_acosp(t[3],None)
+    elif t[1].lower() == 'acosd' : t[0] =  trig_acosdp(t[3],None)
+    elif t[1].lower() == 'asin' : t[0] =  trig_asinp(t[3],None)
+    elif t[1].lower() == 'asind' : t[0] =  trig_asindp(t[3],None)
+    elif t[1].lower() == 'atan' : t[0] =  trig_atanp(t[3],None)
+    elif t[1].lower() == 'atand' : t[0] =  trig_atandp(t[3],None)
+    elif t[1].lower() == 'atan2' : t[0] =  trig_atan2p(t[3],t[5],None)
+    elif t[1].lower() == 'atan2d' : t[0] =  trig_atan2dp(t[3],t[5],None)
+    elif t[1].lower() == 'cos' : t[0] =  trig_cosp(t[3],None)
+    elif t[1].lower() == 'cosd' : t[0] =  trig_cosdp(t[3],None)
+    elif t[1].lower() == 'cot' : t[0] =  trig_cotp(t[3],None)
+    elif t[1].lower() == 'cotd' : t[0] =  trig_cotdp(t[3],None)
+    elif t[1].lower() == 'sin' : t[0] =  trig_sinp(t[3],None)
+    elif t[1].lower() == 'sind' : t[0] =  trig_sindp(t[3],None)
+    elif t[1].lower() == 'tan' : t[0] =  trig_tanp(t[3],None)
+    elif t[1].lower() == 'tand' : t[0] =  trig_tandp(t[3],None)
+    elif t[1].lower() == 'sinh' : t[0] =  trig_sinhp(t[3],None)
+    elif t[1].lower() == 'cosh' : t[0] =  trig_coshp(t[3],None)
+    elif t[1].lower() == 'tanh' : t[0] =  trig_tanhp(t[3],None)
+    elif t[1].lower() == 'asinh' : t[0] =  trig_asinhp(t[3],None)
+    elif t[1].lower() == 'acosh' : t[0] =  trig_acoshp(t[3],None)
+    elif t[1].lower() == 'atanh' : t[0] =  trig_atanhp(t[3],None)
+
+def p_funcn(t):
+    '''
+        funcn :  LENGTH PARA newexp PARC
+                | SUBSTRING PARA newexp COMA INT COMA INT PARC
+                | TRIM PARA newexp PARC
+                | MD5 PARA newexp PARC
+                | SHA256 PARA newexp PARC
+                | SUBSTR PARA newexp COMA INT COMA INT PARC
+                | CONVERT PARA newexp AS type PARC
+                | NOW PARA PARC
+
+    '''
+    
+    if t[1].lower() == 'length' : t[0] = fun_lengthp(t[3],None)
+    elif t[1].lower() == 'substring' : t[0] = fun_substrp(t[3],t[5],t[7],None)
+    elif t[1].lower() == 'trim' : t[0] = fun_trimp(t[3],None)
+    elif t[1].lower() == 'md5' : t[0] = fun_md5p(t[3],None)
+    elif t[1].lower() == 'sha256' : t[0] = fun_sha256p(t[3],None)
+    elif t[1].lower() == 'substr' : t[0] = fun_substrp(t[3],t[5],t[7],None)
+    elif t[1].lower() == 'convert' : t[0] = fun_convertp(t[3],t[5],None)
+    elif t[1].lower() == 'now' : t[0] = fun_nowp(None)
+
+def p_newexp_callfunc(t):
+    'newexp : callfunc'
+    t[0] = t[1]
+
+
+def p_nlexps(t):
+    'nlexps : nlexps newexp'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_nlexpsS(t):
+    'nlexps : newexp'
+    t[0] = [t[1]]
 
 def p_newexp_una(t):
     '''newexp : MENOS newexp %prec UMENOS
@@ -1895,6 +2975,23 @@ def p_newexp_una(t):
         t[0] = t[2]
     elif t[1] == '+': 
         t[0] = t[2]
+
+def p_new(t):
+    ''' newexpb : newexp IGUAL newexp
+                | newexp MAYOR_IGUAL newexp
+                | newexp MENOR_IGUAL newexp
+                | newexp MAYOR newexp
+                | newexp MENOR newexp
+                | newexp DIFERENTE newexp
+
+
+    '''
+    if t[2] == '='  : t[0] = exp_igualp(t[1],t[3])
+    elif t[2] == '>': t[0] = exp_mayorp(t[1], t[3])
+    elif t[2] == '<': t[0] = exp_menorp(t[1], t[3])
+    elif t[2] == '<>': t[0] = exp_diferentep(t[1], t[3])
+    elif t[2] == '>=': t[0] = exp_mayor_igualp(t[1], t[3])
+    elif t[2] == '<=': t[0] = exp_menor_igualp(t[1], t[3])
 
 def p_newexp_bi(t):
     '''newexp : newexp MAS newexp
@@ -1912,6 +3009,15 @@ def p_newexp_bi(t):
         elif t[2] == '/': t[0] = exp_divisionp(t[1], t[3])
 
 
+def p_createproc(t):
+    'createproc : CREATE PROCEDURE ID PARA lparamsp PARC LANGUAGE PLPGSQL AS DOLAR DOLAR block PUNTOCOMA DOLAR DOLAR'
+    t[0] = createfunc(t[3],t[5],None,t[12])
+
+def p_queryf(t):
+    'queryf : SELECT COMA newexp PUNTOCOMA'
+    t[0] = queryf(t[3])
+
+
 def p_error(t):
     if t:
         descript = 'error sintactico en el token ' + str(t.type)
@@ -1920,7 +3026,7 @@ def p_error(t):
         nuevo_error = CError(linea,columna,descript,'Sintactico')
         insert_error(nuevo_error)
         parser.errok()
-        #print(t)
+        print(t)
     else:
         print("No se pudo recuperar")
     return

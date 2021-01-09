@@ -1,10 +1,12 @@
 #from Instrucciones.instruccion import Instruccion
-from Analisis_Ascendente.Instrucciones.expresion import Id
+from Analisis_Ascendente.Instrucciones.expresion import Id, Primitivo
 from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 #from storageManager.jsonMode import *
 from Analisis_Ascendente.storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as ts
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import C3D.GeneradorTemporales as GeneradorTemporales
+from Analisis_Ascendente.Instrucciones.instruccion import Tipo
 
 
 class Alter(Instruccion):
@@ -20,6 +22,127 @@ class Alter(Instruccion):
         self.id3 = id3
         self.fila = fila
         self.columna = columna
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        if self.caso == 1: #ADD COLUMN listaID tipo
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            tipo = ''
+            lista_tipo = self.tipo.tipo.split('-')
+            if len(lista_tipo) == 1:
+                tipo = self.tipo.tipo
+            elif len(lista_tipo) == 2:
+                if lista_tipo[0] == 'CHARACTERVARYING':
+                    tipo = 'CHARACTER VARYING ( %s )' % lista_tipo[1]
+                else:
+                    tipo = '%s ( %s )' % (lista_tipo[0], lista_tipo[1])
+            else:
+                tipo = '%s ( %s, %s )' % (lista_tipo[0], lista_tipo[1], lista_tipo[2])
+            return 'add column %s %s' % (lista_id, tipo)
+        elif self.caso == 2: #DROP COLUMN listaID
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            return 'drop column %s' % lista_id
+        elif self.caso == 3: #ADD CHECK PARIZQ checkprima PARDR
+            izquierda = self.check.iz
+            derecha = self.check.dr
+            if isinstance(izquierda, Primitivo):
+                if isinstance(izquierda.valor, str):
+                    izquierda = "'%s'" % izquierda.valor
+                else:
+                    izquierda = izquierda.valor
+            elif isinstance(izquierda, Id):
+                izquierda = izquierda.id
+            if isinstance(derecha, Primitivo):
+                if isinstance(derecha.valor, str):
+                    derecha = "'%s'" % derecha.valor
+                else:
+                    derecha = derecha.valor
+            elif isinstance(derecha, Id):
+                derecha = derecha.id
+            return 'add check ( %s %s %s )' % (izquierda, self.valorDefault.operador, derecha)
+        elif self.caso == 4: #DROP CONSTRAINT ID
+            return 'drop constraint %s' % self.id
+        elif self.caso == 5: #ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            lista_id_ref = None
+            for id_en_lista in self.id3:
+                if lista_id_ref is None:
+                    lista_id_ref = id_en_lista.id
+                else:
+                    lista_id_ref += ', %s' % id_en_lista.id
+            return 'add foreign key ( %s ) references %s ( %s )' % (lista_id, self.id2, lista_id_ref)
+        elif self.caso == 6: #ALTER COLUMN ID TYPE tipo
+            tipo = ''
+            lista_tipo = self.tipo.tipo.split('-')
+            if len(lista_tipo) == 1:
+                tipo = self.tipo.tipo
+            elif len(lista_tipo) == 2:
+                if lista_tipo[0] == 'CHARACTERVARYING':
+                    tipo = 'CHARACTER VARYING ( %s )' % lista_tipo[1]
+                else:
+                    tipo = '%s ( %s )' % (lista_tipo[0], lista_tipo[1])
+            else:
+                tipo = '%s ( %s, %s )' % (lista_tipo[0], lista_tipo[1], lista_tipo[2])
+            return 'alter column %s type %s' % (self.id, tipo)
+        elif self.caso == 7: #ALTER COLUMN ID SET NOT NULL
+            return 'alter column %s set not null' % self.id
+        elif self.caso == 8: #ADD PRIMARY KEY PARIZQ listaID PARDR
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            return 'add primary key ( %s )' % lista_id
+        elif self.caso == 9: #ADD CONSTRAINT ID PRIMARY KEY PARIZQ listaID PARDR
+            id = self.ccc[11:len(self.ccc)]
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            return 'add constraint %s primary key ( %s )' % (id, lista_id)
+        elif self.caso == 10: #ADD CONSTRAINT ID FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR
+            id_constraint = self.ccc[11:len(self.ccc)]
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            lista_id_ref = None
+            for id_en_lista in self.id3:
+                if lista_id_ref is None:
+                    lista_id_ref = id_en_lista.id
+                else:
+                    lista_id_ref += ', %s' % id_en_lista.id
+            return 'add constraint %s foreign key ( %s ) references %s ( %s )' % (id_constraint, lista_id, self.id2, lista_id_ref)
+        elif self.caso == 11: #ADD CONSTRAINT ID UNIQUE PARIZQ listaID PARDR
+            id_constraint = self.ccc[11:len(self.ccc)]
+            lista_id = None
+            for id_en_lista in self.id:
+                if lista_id is None:
+                    lista_id = id_en_lista.id
+                else:
+                    lista_id += ', %s' % id_en_lista.id
+            return 'add constraint %s unique ( %s )' % (id_constraint, lista_id)
+
+
 
 
 class AlterTable(Instruccion):
@@ -50,11 +173,11 @@ class AlterTable(Instruccion):
                 for altirto in alterTable.alter:
 
                     if altirto.caso == 1:
-                        print("caso 1")
+                        #print("caso 1")
                         #alter table add column ( listaids)
                         for idcito in altirto.id:
                             if entornoTabla.validar_sim(idcito.id) == -1:
-                                print(idcito.id, "<-----------------------------------")
+                                #print(idcito.id, "<-----------------------------------")
                                 valores = []
                                 columna_nueva = TS.Simbolo(TS.TIPO_DATO.CAMPO,idcito.id,altirto.tipo.tipo,valores,None)
                                 simbolo_tabla.valor = simbolo_tabla.valor + 1
@@ -71,11 +194,11 @@ class AlterTable(Instruccion):
 
 
                     elif altirto.caso == 2:
-                        print("caso 2")
+                        #print("caso 2")
                         #alter table drop column ( listaids)
                         for idcito in altirto.id:
                             if entornoTabla.validar_sim(idcito.id) == 1:
-                                print(idcito.id, "<-----------------------------------")
+                                #print(idcito.id, "<-----------------------------------")
                                 valores = []
                                 #columna_nueva = TS.Simbolo(TS.TIPO_DATO.CAMPO,idcito.id,altirto.tipo.tipo,valores,None)
                                 entornoTabla.eliminar_sim(idcito.id)
@@ -93,19 +216,19 @@ class AlterTable(Instruccion):
 
 
                     elif altirto.caso == 3:
-                        print("caso 3")
-                        print(altirto.check)
+                        #print("caso 3")
+                        #print(altirto.check)
                         datos = altirto.check
 
 
 
                         campo = datos.iz
-                        print(campo.id)
+                        #print(campo.id)
                         data2 = datos.dr
-                        print(data2)
-                        #print(data2.valor)
+                        #print(data2)
+                        ##print(data2.valor)
                         operador= datos.operador
-                        print(operador)
+                        #print(operador)
 
                         if entornoTabla.validar_sim(campo.id) == 1:
 
@@ -149,20 +272,20 @@ class AlterTable(Instruccion):
 
 
                     elif altirto.caso == 4:
-                        print("caso 4")
+                        #print("caso 4")
 
                         data_borrar = altirto.id
 
                         lista = entornoTabla.simbolos
                         for columna  in lista:
-                            print(columna)
+                            #print(columna)
                             indice = 0
                             banderaBorrar = False
                             for valor in lista.get(columna).valor:
-                                print(" ->",valor)
+                                #print(" ->",valor)
                                 if "CONSTRAINT" in valor:
                                     nombre=str(valor).split(":")[1]
-                                    print("-- ",nombre, data_borrar)
+                                    #print("-- ",nombre, data_borrar)
                                     if nombre == data_borrar:
                                         banderaBorrar = True
                                         break
@@ -171,7 +294,7 @@ class AlterTable(Instruccion):
                                 break
 
 
-                        print(banderaBorrar, indice)
+                        #print(banderaBorrar, indice)
                         if banderaBorrar:
                             lista.get(columna).valor.pop(indice)
                             consola.append(f"Drop constraint eliminada de la tabla {alterTable.id}")
@@ -180,9 +303,9 @@ class AlterTable(Instruccion):
                             exceptions.append(f"Error semantico- 23000-integrity_constraint_violation- fila - columna ")
 
                     elif altirto.caso == 5:
-                        print("caso 5")
+                        #print("caso 5")
                         # constraint
-                        print("")
+                        #print("")
                         banderaTodoBien = True
                         if entornoBD.validar_sim(altirto.id2) == 1:
                             # referencia la tabla a cual se desea hacer la llave foranea
@@ -192,7 +315,7 @@ class AlterTable(Instruccion):
 
                             for campito in altirto.id3:
                                 if entornoTablarefrencia.validar_sim(campito.id) == 1:
-                                    print("todo bien")
+                                    pass#print("todo bien")
                                 else:
                                     banderaTodoBien = False
                                     break;
@@ -201,10 +324,10 @@ class AlterTable(Instruccion):
 
                             for idcito in altirto.id:
 
-                                print(idcito.id)
+                                #print(idcito.id)
                                 if entornoTabla.validar_sim(idcito.id) == 1:
                                     obtenerCampo = entornoTabla.buscar_sim(idcito.id)
-                                    print("ejecutando campos------------------------------------------!!!!!!1")
+                                    #print("ejecutando campos------------------------------------------!!!!!!1")
                                     tablita = []
                                     for dataReferencia in altirto.id3:
                                         tablita.append(dataReferencia.id)
@@ -219,7 +342,7 @@ class AlterTable(Instruccion):
                                     consola.append(f"42P10	invalid_column_reference, Campo {idcito.id} no encontrado")
                                     exceptions.append("Error Semantico - 42P10- invalid_column_reference-fila-columna")
                                     valor = False
-                            print("")
+                            #print("")
 
                         else:
                             consola.append(
@@ -230,14 +353,14 @@ class AlterTable(Instruccion):
 
 
                     elif altirto.caso == 6:
-                        print("caso 6")
+                        #print("caso 6")
 
                         if entornoTabla.validar_sim(altirto.id) == 1:
                             data = entornoTabla.buscar_sim(altirto.id)
                             nueva_Data = TS.Simbolo(data.categoria, altirto.id, altirto.tipo.tipo, data.valor, data.Entorno)
 
                             entornoTabla.actualizar_sim(nueva_Data)
-                            print(altirto.tipo.tipo)
+                            #print(altirto.tipo.tipo)
                             consola.append(f"Alter column realizado con exito en {altirto.id}\n")
                         else:
                             consola.append(f"No existe el campo {altirto.id}, Error alter columna")
@@ -246,7 +369,7 @@ class AlterTable(Instruccion):
 
 
                     elif altirto.caso == 7:
-                        print("caso 6")
+                        #print("caso 6")
 
                         if entornoTabla.validar_sim(altirto.id) == 1:
                             data = entornoTabla.buscar_sim(altirto.id)
@@ -263,20 +386,20 @@ class AlterTable(Instruccion):
                                 f"Error semantico-22005	error_in_assignment-No se ha encontrado la columna {altirto.id}-fila-columna")
 
                     elif altirto.caso == 8:
-                        print("caso 8")
+                        #print("caso 8")
                         # constraint
-                        print("")
+                        #print("")
                         banderaTodoBien = True
                         valor=True
                         if banderaTodoBien:
                             pks = []
                             for idcito in altirto.id:
 
-                                print(idcito.id)
+                                #print(idcito.id)
 
                                 if entornoTabla.validar_sim(idcito.id) == 1:
                                     obtenerCampo = entornoTabla.buscar_sim(idcito.id)
-                                    print("ejecutando campos------------------------------------------!!!!!!1")
+                                    #print("ejecutando campos------------------------------------------!!!!!!1")
 
 
 
@@ -298,27 +421,27 @@ class AlterTable(Instruccion):
                                     valor = False
 
                             if valor:
-                                print(pks)
-                                print(BD.id, simbolo_tabla.id, pks)
-                                print(alterAddPK(BD.id, simbolo_tabla.id, pks))
-                                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                                pass#print(pks)
+                                #print(BD.id, simbolo_tabla.id, pks)
+                                #print(alterAddPK(BD.id, simbolo_tabla.id, pks))
+                                #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 
 
 
                     elif altirto.caso == 9:
-                        print("caso 9")
+                        #print("caso 9")
                         # constraint
-                        print("")
+                        #print("")
                         valor=True
                         if banderaTodoBien:
                             pks = []
                             for idcito in altirto.id:
 
-                                print(idcito.id)
+                                #print(idcito.id)
                                 if entornoTabla.validar_sim(idcito.id) == 1:
                                     obtenerCampo = entornoTabla.buscar_sim(idcito.id)
-                                    print("ejecutando campos------------------------------------------!!!!!!1")
+                                    #print("ejecutando campos------------------------------------------!!!!!!1")
                                     tablita = []
                                     for dataReferencia in altirto.id:
                                         tablita.append(dataReferencia.id)
@@ -340,17 +463,17 @@ class AlterTable(Instruccion):
                                     exceptions.append("Error Semantico - 42P10- invalid_column_reference-fila-columna")
                                     valor = False
                             if valor:
-                                print(pks)
-                                print(BD.id, simbolo_tabla.id, pks)
-                                print(alterAddPK(BD.id, simbolo_tabla.id, pks))
-                                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                                pass#print(pks)
+                                #print(BD.id, simbolo_tabla.id, pks)
+                                #print(alterAddPK(BD.id, simbolo_tabla.id, pks))
+                                #print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 
 
                     elif altirto.caso == 10:
-                        print("caso 10")
+                        #print("caso 10")
                         # constraint
-                        print("")
+                        #print("")
                         banderaTodoBien = True
                         if entornoBD.validar_sim(altirto.id2) == 1:
                             # referencia la tabla a cual se desea hacer la llave foranea
@@ -360,7 +483,7 @@ class AlterTable(Instruccion):
 
                             for campito in altirto.id3:
                                 if entornoTablarefrencia.validar_sim(campito.id) == 1:
-                                    print("todo bien")
+                                    pass#print("todo bien")
                                 else:
                                     banderaTodoBien = False
                                     break;
@@ -369,10 +492,10 @@ class AlterTable(Instruccion):
 
                             for idcito in altirto.id:
 
-                                print(idcito.id)
+                                #print(idcito.id)
                                 if entornoTabla.validar_sim(idcito.id) == 1:
                                     obtenerCampo = entornoTabla.buscar_sim(idcito.id)
-                                    print("ejecutando campos------------------------------------------!!!!!!1")
+                                    #print("ejecutando campos------------------------------------------!!!!!!1")
                                     tablita = []
                                     for dataReferencia in altirto.id3:
                                         tablita.append(dataReferencia.id)
@@ -387,7 +510,7 @@ class AlterTable(Instruccion):
                                     consola.append(f"42P10	invalid_column_reference, Campo {idcito.id} no encontrado")
                                     exceptions.append("Error Semantico - 42P10- invalid_column_reference-fila-columna")
                                     valor = False
-                            print("")
+                            #print("")
 
                         else:
                             consola.append(
@@ -398,18 +521,18 @@ class AlterTable(Instruccion):
 
 
                     elif altirto.caso == 11:
-                        print("caso 8")
+                        #print("caso 8")
                         # constraint
-                        print("")
+                        #print("")
                         banderaTodoBien = True
                         if banderaTodoBien:
 
                             for idcito in altirto.id:
 
-                                print(idcito.id)
+                                #print(idcito.id)
                                 if entornoTabla.validar_sim(idcito.id) == 1:
                                     obtenerCampo = entornoTabla.buscar_sim(idcito.id)
-                                    print("ejecutando campos------------------------------------------!!!!!!1")
+                                    #print("ejecutando campos------------------------------------------!!!!!!1")
                                     tablita = []
                                     for dataReferencia in altirto.id:
                                         tablita.append(dataReferencia.id)
@@ -426,9 +549,9 @@ class AlterTable(Instruccion):
                                     valor = False
 
                 if banderaTodoBien:
-                    print("todo correcto")
+                    pass#print("todo correcto")
                 else:
-                    print("todo mal")
+                    pass#print("todo mal")
             else:
                 consola.append(f"42P01	undefined_table, no existe la tabla {alterTable.id}")
                 exceptions.append(f"Error semantico-42P01- 42P01	undefined_table, no existe la tabla {alterTable.id}-fila-columna")
@@ -439,6 +562,29 @@ class AlterTable(Instruccion):
         else:
             consola.append("22005	error_in_assignment, No se ha seleccionado una BD\n")
             exceptions.append("Error semantico-22005	error_in_assignment-No se ha seleccionado DB-fila-columna")
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        temporal1 = GeneradorTemporales.nuevo_temporal()
+        codigo_quemado1 = 'alter table %s ' % self.id
+        c3d = '''
+    # ------------ALTER TABLE------------
+    top_stack = top_stack + 1
+    %s = "%s \\n"
+''' % (temporal1, codigo_quemado1)
+        temporal2 = GeneradorTemporales.nuevo_temporal()
+        temporal2_anterior = temporal1
+        for i, elemento_lista in enumerate(self.alter):
+            c3d += '    %s = "%s \\n"\n' % (temporal2, elemento_lista.getC3D(lista_optimizaciones_C3D))
+            c3d += '    %s = %s + %s\n' % (temporal2, temporal2_anterior, temporal2)
+            if (i+1) != len(self.alter):
+                temporal2_anterior = temporal2
+                temporal2 = GeneradorTemporales.nuevo_temporal()
+        temporal3 = GeneradorTemporales.nuevo_temporal()
+        c3d += '''    %s = ";"
+    %s = %s + %s 
+    stack[top_stack] = %s 
+''' % (temporal3, temporal3, temporal2, temporal3, temporal3)
+        return c3d
 
 
 

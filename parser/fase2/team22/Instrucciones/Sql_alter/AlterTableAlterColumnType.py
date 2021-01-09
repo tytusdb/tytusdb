@@ -3,6 +3,8 @@ from Instrucciones.Excepcion import Excepcion
 import collections
 #from storageManager.jsonMode import *
 # Solo reconocerlo en la gramatica y modificarlo en tu table de tipos
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class AlterTableAlterColumnType(Instruccion):
     def __init__(self, tabla, lista_col, strGram, linea, columna):
@@ -61,3 +63,56 @@ class AlterTableAlterColumnType(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "ALTER TABLE " + self.tabla))
+        t1 = c3d.getTemporal()
+        for col in self.lista_col:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" ALTER COLUMN " + col.id + " TYPE " + col.tipo.toString() + "\"", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+            if col.tipo.dimension != None:
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\"(" + str(col.tipo.dimension) + ")\"", "STRING"), OP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = c3d.getTemporal()
+
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t1))
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
+
+        return code
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        bd = arbol.getBaseDatos()
+        if bd != None and bd != "":
+            code.append(t0 + ' = "' + bd + '"')
+        else:
+            code.append(t0 + ' = ' + str(None))
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        t1 = c3d.getTemporal()
+        code.append(t1 + ' = "' + str(self.tabla) + '"')
+        code.append('heap[h] = ' + t1)
+        code.append('h = h + 1')
+        if self.lista_col != None:
+            code.append('heap[h] = []')
+            for columna in self.lista_col:
+                t2 = c3d.getTemporal()
+                code.append(t2 + ' = ["' + str(columna) + '"]')
+                code.append('heap[h] = heap[h] + ' + t2)
+        else:
+            code.append('heap[h] = None')
+        code.append('p = h')
+        code.append('call_alterTable_columnType()')
+        
+        return code

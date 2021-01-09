@@ -7,6 +7,8 @@ from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.Excepcion import Excepcion
 import numpy as np
 from storageManager.jsonMode import *
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 # valor -----> nombre de la tabla
 # lcol ------> lista con el nombre de las columnas
@@ -57,6 +59,7 @@ class insertTable(Instruccion):
 
                     # Recorrido para insertar
                     for c in range(0,len(listaColumnas)):
+                        print("==>", self.lexpre[c])
                         res = self.lexpre[c].ejecutar(tabla, arbol)
                         if isinstance(res, Excepcion):
                             return res
@@ -186,7 +189,8 @@ class insertTable(Instruccion):
                         return error
                     tablaLocal = Tabla(tabla)
                     for c in range(0,len(objetoTabla.lista_de_campos)):
-                        res = self.lexpre[c].ejecutar(tabla, arbol)
+                        if self.lexpre[c] != None:
+                            res = self.lexpre[c].ejecutar(tabla, arbol)
                         if isinstance(res, Excepcion):
                             return res
                         if objetoTabla.lista_de_campos[c].constraint != None:
@@ -215,7 +219,8 @@ class insertTable(Instruccion):
                                         arbol.consola.append(error.toString())
                                         return error
                         # Comprobación de que el tipo sea el mismo
-                        comprobar = self.comprobarTipo(objetoTabla.lista_de_campos[c].tipo,self.lexpre[c].tipo, res, arbol)
+                        if self.lexpre[c] != None:
+                            comprobar = self.comprobarTipo(objetoTabla.lista_de_campos[c].tipo,self.lexpre[c].tipo, res, arbol)
                         if isinstance(comprobar, Excepcion):
                             return comprobar
                         if comprobar:
@@ -366,3 +371,96 @@ class insertTable(Instruccion):
         elif (tipoColumna.tipo == Tipo_Dato.BOOLEAN) and (tipoValor.tipo == Tipo_Dato.BOOLEAN):
             return True
         return False
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "INSERT INTO " + self.valor))
+        t1 = c3d.getTemporal()
+        if self.lcol != None:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" (\" ", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+            sizeCol = len(self.lcol)
+            contador = 1
+            for col in self.lcol:
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + col + "\"", "STRING"), OP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = c3d.getTemporal()
+                if contador != sizeCol:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))
+                else:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\")\"", "STRING"), OP_ARITMETICO.SUMA))
+                contador += 1
+                t0 = t1
+                t1 = c3d.getTemporal()
+
+        code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" VALUES (\" ", "STRING"), OP_ARITMETICO.SUMA))
+        t0 = t1
+        sizeCol = len(self.lexpre)
+        contador = 1
+        for col in self.lexpre:
+            result = col.generar3D(tabla, arbol)
+            if not isinstance(result, list):
+                t1 = c3d.getTemporal()
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(result) + "\"", "STRING"), OP_ARITMETICO.SUMA))
+                '''if col != None:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + str(col.generar3D(tabla, arbol)) + "\"", "STRING"), OP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = c3d.getTemporal()
+                if contador != sizeCol:
+                    code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))'''
+                t0 = t1
+                t1 = c3d.getTemporal()
+            else:
+                code += result
+                t0 = c3d.getLastTemporal()
+                t1 = c3d.getTemporal()
+
+            if contador != sizeCol:
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\", \"", "STRING"), OP_ARITMETICO.SUMA))
+            else:
+                code.append(c3d.operacion(t1, Identificador(t0), Valor("\");\"", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            contador += 1
+            
+
+        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
+
+        return code
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t00 = c3d.getTemporal()
+        code.append(t00 + ' = "' + arbol.bdUsar + '"')
+        code.append('heap[h] = ' + t00)
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        code.append(t0 + ' = "' + self.valor + '"')
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        if self.lcol != None:
+            code.append('heap[h] = []')
+            for columna in self.lcol:
+                t1 = c3d.getTemporal()
+                code.append(t1 + ' = ["' + columna + '"]')
+                code.append('heap[h] = heap[h] + ' + t1)
+        else:
+            code.append('heap[h] = None')
+        code.append('h = h + 1')
+        code.append('heap[h] = []')
+        for valor in self.lexpre:
+            t2 = c3d.getTemporal()
+            code.append(t2 + ' = [' + str(valor.generar3D(tabla, arbol)) + ']')
+            code.append('heap[h] = heap[h] + ' + t2)
+        code.append('p = h')
+        code.append('call_insert_table()')
+        
+        return code

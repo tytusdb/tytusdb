@@ -363,21 +363,37 @@
                     <div class="form-group">
                         <div class="btn-group" role="group" aria-label="Basic example">
                             <form action="{{ url_for('Commit') }}" method="POST">
-                                <input type="submit" class="btn btn-primary" value="Commit" data-toggle="tooltip"
+                                <button type="submit" class="btn btn-primary" value="Commit" data-toggle="tooltip"
                                     data-placement="top" title="Commit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                      </svg>
+                                </button>
                             </form>
                         </div>
                         <div class="btn-group" role="group" aria-label="Basic example">
                             <form action="{{ url_for('Rollback')}}" method="POST">
-                                <input type="submit" class="btn btn-primary" value="RollBack" data-toggle="tooltip"
+                                <button type="submit" class="btn btn-primary" value="RollBack" data-toggle="tooltip"
                                     data-placement="top" title="RollBack">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-dash-circle-fill" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM4.5 7.5a.5.5 0 0 0 0 1h7a.5.5 0 0 0 0-1h-7z"/>
+                                      </svg>
+                                </button>
                             </form>
                         </div>
                         <div class="btn-group" role="group" aria-label="Basic example">
-                            <button id="btnAgregarPestana" onclick="actionAgregarPestana();" class="btn btn-primary" >Agregar Pestaña</button>
-                        </div>
-                        <div class="btn-group" role="group" aria-label="Basic example">
-                            <button id="btnQuitarPestana" onclick="actionQuitarPestana();" class="btn btn-primary" >Quitar Pestaña</button>
+                            <button id="btnAgregarPestana" onclick="actionAgregarPestana();" class="btn btn-primary" data-toggle="tooltip"
+                            data-placement="top" title="Agregar Pestaña" >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v3h-3a.5.5 0 0 0 0 1h3v3a.5.5 0 0 0 1 0v-3h3a.5.5 0 0 0 0-1h-3v-3z"/>
+                              </svg>
+                        </button>
+                            <button id="btnQuitarPestana" onclick="actionQuitarPestana();" class="btn btn-primary" data-toggle="tooltip"
+                            data-placement="top" title="Quitar Pestañas">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                              </svg>
+                            </button>
                         </div>
                     </div>
                     <form action="{{ url_for('SomeFunction') }}" method="POST">
@@ -406,7 +422,12 @@
                                 </button>
                             </div>
                             <div class="btn-group" role="group" aria-label="Basic example">
-                                <input type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" data-toggle="tooltip"
+                                data-placement="top" title="Ejecutar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
+                                    <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
+                                  </svg>
+                                </button>
 
                             </div>
 
@@ -419,34 +440,11 @@
                         </div> -->
                         <div id="contenido"></div>
                         <br>
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link active" id="home-tab" data-bs-toggle="tab" href="#home" role="tab"
-                                    aria-controls="home" aria-selected="true">Tablas</a>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab"
-                                    aria-controls="profile" aria-selected="false">Consola</a>
-                            </li>
-                        </ul>
-                        <div class="form-control">
-                            <div class="tab-content" id="myTabContent">
-                                <div class="tab-pane fade show active" id="home" role="tabpanel"
-                                    aria-labelledby="home-tab">
-                                    <div class="form-floating">
-
-                                        <!--Aca poner componente que mostrara las tablas -->
-
-
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                    <div class="form-floating">
-                                        <textarea class="form-control" style="height: 30%" id="Consolatxt"></textarea>
-                                    </div>
-                                </div>
-                            </div>
+                        <div>
+                          {{form.text(class_="form-control")}}  
                         </div>
+                        
+                        
                         <br>
                     </form>
                 </div>

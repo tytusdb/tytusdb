@@ -20,8 +20,7 @@ class If(Instruction):
             condition = self.condition.compile(environment)
         else:
             condition = self.condition[0].compile(environment)
-            
-        ThreeAddressCode().addCode(f"print(f\"{condition.value} = { {condition.value} }\")")
+        
         ThreeAddressCode().addCode(f"if({condition.value}): goto .{lbl_true}")
         ThreeAddressCode().addCode(f"goto .{lbl_false}")
 

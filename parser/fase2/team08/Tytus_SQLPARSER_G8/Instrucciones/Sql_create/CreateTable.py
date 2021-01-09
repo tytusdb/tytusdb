@@ -185,10 +185,11 @@ class CreateTable(Instruccion):
     
 
     def analizar(self, tabla, arbol):
-        print("analizar")
+        #print("analizar")
+        pass
 
     def traducir(self, tabla, arbol):
-        print("holi")
+        #print("holi")
         cadena = "\"Create table " + self.tabla + " ( "
 
         for x in range(0, len(self.campos)):
@@ -234,7 +235,7 @@ class CreateTable(Instruccion):
 class IdentificadorColumna(Instruccion):
     def __init__(self, id, linea, columna):
         self.id = id
-        Instruccion.__init__(self,Tipo(Tipo_Dato.ID),linea,columna,strGram)
+        Instruccion.__init__(self,Tipo(Tipo_Dato.ID),linea,columna)
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
@@ -246,3 +247,9 @@ class IdentificadorColumna(Instruccion):
             return error
         self.tipo = variable.tipo
         return variable.valor.ejecutar(tabla, arbol)
+
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+
+    def traducir(self, tabla, arbol):
+        return super().traducir(tabla, arbol)

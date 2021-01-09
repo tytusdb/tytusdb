@@ -7,6 +7,9 @@ from Analisis_Ascendente.storageManager.jsonMode import *
 #from storageManager.jsonMode import *
 
 #USE
+from C3D import GeneradorTemporales
+
+
 class Use(Instruccion):
     def __init__(self, id):
         self.id = id
@@ -37,3 +40,12 @@ class Use(Instruccion):
                         return
 
                 consola.append(f"La Base de Datos {use.id} no existe\n")
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        etiqueta = GeneradorTemporales.nuevo_temporal()
+        code3D = '    # ---------USE DB-------- \n'
+        code3D += '    top_stack = top_stack + 1 \n'
+        code3D += '    %s = ' % etiqueta
+        code3D += '\"use ' + self.id + ';\" \n'
+        code3D += '    stack[top_stack] = %s \n' % etiqueta
+        return code3D

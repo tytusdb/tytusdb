@@ -8,9 +8,12 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo, Tipo_Dato
 from Instrucciones.Tablas.Campo import Campo
 from storageManager.jsonMode import *
 import numpy as np
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
+
+
 class Identificador(Instruccion):
-    def __init__(self, id, strGram, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.ID),linea,columna,strGram)
+    def __init__(self, id, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,Tipo("",Tipo_Dato.ID),linea,columna,strGram,strSent)
         self.id = id
 
     def ejecutar(self, tabla, arbol):
@@ -84,3 +87,10 @@ class Identificador(Instruccion):
             return error
         self.tipo = variable.tipo
         return variable.valor.ejecutar(tabla, arbol)
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        super().ejecutar(tabla,arbol)
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + str(self.id) + "\n"
+        nuevo = Simbolo3d(self.tipo,temporal,codigo,None,None)
+        return nuevo

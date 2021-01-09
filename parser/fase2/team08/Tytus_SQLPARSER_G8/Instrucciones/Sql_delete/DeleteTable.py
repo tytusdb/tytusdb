@@ -28,7 +28,7 @@ class DeleteTable(Instruccion):
                         arregloDeColumnasAEliminar = self.insWhere.ejecutar(tabla,arbol)
                         arregloAEliminar = self.devolverIdentificadores(tablaSelect,arregloDeColumnasAEliminar)
                         for d in arregloAEliminar:
-                            res = delete(arbol.getBaseDatos(),self.valor,[d])#SI IMPRIME 0, BORRO CON EXITO
+                            res = delete(arbol.getBaseDatos(),self.valor,[d+1])#SI IMPRIME 0, BORRO CON EXITO
                             if(res == 0):
                                 arbol.consola.append(f"Se elimino el siguiente registro { d } correctamente.")
                             else:

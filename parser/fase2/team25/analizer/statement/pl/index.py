@@ -5,9 +5,10 @@ from analizer.abstract import instruction
 from analizer.reports import Nodo
 from analizer.symbol.environment import Environment
 
-indexEnv = Environment(None)
+indexEnv = Environment(None,for3d=True)
+indicesReg = dict()
 
-class CreateIndex(instruction.Instruction):
+class Index(instruction.Instruction):
     def __init__(self, indice, tabla, campos, tipo, row, column) -> None:
         self.index = indice
         self.table = tabla
@@ -16,9 +17,6 @@ class CreateIndex(instruction.Instruction):
         super().__init__(row, column)
 
     def execute(self, environment):
-        if not indexEnv in instruction.envVariables:
-            instruction.envVariables.append(indexEnv)
-
         campos = 'Campos: '
         if isinstance(self.fields, list):
             for index in range(len(self.fields)):
@@ -30,11 +28,16 @@ class CreateIndex(instruction.Instruction):
             campos += self.fields +';'
 
         valor = 'Tabla: ' + self.table + '; ' + campos
-        tipo = 'INDEX' if self.type else 'UNIQUE INDEX'
-        indexEnv.addVar(self.index,  valor, tipo, self.row, self.column)
+        tipo = 'INDEX' if not self.type else 'UNIQUE INDEX'
+        if indexEnv.addVar(self.index,  valor, tipo, self.row, self.column):
+            indicesReg[self.index] = self
+        else:
+            instruction.semanticErrors.append(
+                ("ERROR: El indice ya existe",self.row)
+            )
 
     def dot(self):
-        texto = "CREATE_INDEX"  
+        texto = "CREATE_INDEX"
 
         if self.type:
             texto = self.type + "_" + texto
@@ -65,4 +68,45 @@ class CreateIndex(instruction.Instruction):
         return new
 
     def __str__(self) -> str:
-        return 'Index: ' + self.index 
+        return 'Index: ' + self.index
+
+#TODO Implementar errores semanticos
+def dropIndex(id):
+
+    if id in indexEnv.variables:
+        indexEnv.variables.pop(id)
+        return indicesReg.pop(id)
+    else:
+        instruction.semanticErrors.append(
+            ("ERROR: El indice no existe",0)
+        )
+
+def alterIndex(id, indice, existencia = False):
+    if id in indexEnv.variables:
+        mod = dropIndex(id)
+        try:
+            if len(mod.fields) == 1:
+                raise Exception()
+            mod.fields.pop(indice)
+            mod.execute(None)
+        except:
+            instruction.semanticErrors.append(
+                ("ERROR: Fuera de los limites de los indices",0)
+            )  
+    elif not existencia:
+        instruction.semanticErrors.append(
+            ("ERROR: El indice no existe",0)
+        )
+
+def alterIndexChange(id, oldCol, newCol, existencia = False):
+    if id in indexEnv.variables:
+        mod = dropIndex(id)
+        if oldCol in mod.campos and not newCol in mod.campos:
+            mod.campos.remove(oldCol)
+            mod.campos.append(newCol)
+            mod.execute(None)
+        raise Exception()
+    elif not existencia:
+        instruction.semanticErrors.append(
+            ("ERROR: El indice no existe",0)
+        ) 

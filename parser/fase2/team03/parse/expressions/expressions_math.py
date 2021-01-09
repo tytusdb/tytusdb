@@ -24,7 +24,7 @@ class Abs(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ABS({self.exp.generate(table, tree)})'
 
 
 class Cbrt(ASTNode):
@@ -44,7 +44,7 @@ class Cbrt(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'CBRT({self.exp.generate(table, tree)})'
 
 
 class Ceil(ASTNode):
@@ -64,7 +64,7 @@ class Ceil(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'CEIL({self.exp.generate(table, tree)})'
 
 
 class Degrees(ASTNode):
@@ -84,7 +84,7 @@ class Degrees(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'DEGREES({self.exp.generate(table, tree)})'
 
 
 class Div(ASTNode):
@@ -108,7 +108,7 @@ class Div(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'DIV({self.exp.generate(table, tree)})'
 
 
 class Exp(ASTNode):
@@ -128,7 +128,7 @@ class Exp(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'EXP({self.exp.generate(table, tree)})'
 
 
 class Factorial(ASTNode):
@@ -148,7 +148,7 @@ class Factorial(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'FACTORIAL({self.exp.generate(table, tree)})'
 
 
 class Floor(ASTNode):
@@ -168,7 +168,7 @@ class Floor(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'FLOOR({self.exp.generate(table, tree)})'
 
 
 class Gcd(ASTNode):
@@ -190,7 +190,7 @@ class Gcd(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'GCD({self.exp.generate(table, tree)})'
 
 
 class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python version
@@ -212,7 +212,7 @@ class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python 
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'LCM({self.exp.generate(table, tree)})'
 
 
 class Ln(ASTNode):
@@ -234,7 +234,7 @@ class Ln(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'LN({self.exp.generate(table, tree)})'
 
 
 class Log(ASTNode):
@@ -256,7 +256,7 @@ class Log(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'LOG({self.exp.generate(table, tree)})'
 
 
 class Log10(ASTNode):
@@ -278,7 +278,7 @@ class Log10(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'LOG10({self.exp.generate(table, tree)})'
 
 
 # TODO MINSCALE() function not implemented, only returns the value of the argument
@@ -299,7 +299,7 @@ class MinScale(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'MINSCALE({self.exp.generate(table, tree)})'
 
 
 class Mod(ASTNode):
@@ -320,7 +320,7 @@ class Mod(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'MOD({self.exp1.generate(table, tree)}, {self.exp2.generate(table, tree)})'
 
 
 class PI(ASTNode):
@@ -334,7 +334,7 @@ class PI(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return 'PI()'
 
 
 class Power(ASTNode):
@@ -355,7 +355,7 @@ class Power(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'POWER({self.exp.generate(table, tree)}, {self.exp.generate(table, tree)})'
 
 
 class Radians(ASTNode):
@@ -375,7 +375,7 @@ class Radians(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'RADIANS({self.exp.generate(table, tree)})'
 
 
 class Random(ASTNode):
@@ -389,7 +389,7 @@ class Random(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return 'RANDOM()'
 
 
 class Round(ASTNode):
@@ -414,7 +414,7 @@ class Round(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ROUND({self.exp1.generate(table, tree)}, {self.exp2.generate(table, tree)})'
 
 
 class Scale(ASTNode):
@@ -441,7 +441,7 @@ class Scale(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'SCALE({self.exp.generate(table, tree)})'
 
 
 class SetSeed(ASTNode):
@@ -460,7 +460,7 @@ class SetSeed(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'SETSEED({self.exp.generate(table, tree)})'
 
 
 class Sign(ASTNode):
@@ -484,7 +484,7 @@ class Sign(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'SIGN({self.exp.generate(table, tree)})'
 
 
 class Sqrt(ASTNode):
@@ -507,7 +507,7 @@ class Sqrt(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'SQRT({self.exp.generate(table, tree)})'
 
 
 # TODO TRIMSCALE() function not implemented, only returns the value of the argument
@@ -528,7 +528,7 @@ class TrimScale(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'TRIMSCALE({self.exp.generate(table, tree)})'
 
 
 class Trunc(ASTNode):
@@ -548,7 +548,7 @@ class Trunc(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'TRUNC({self.exp.generate(table, tree)})'
 
 
 # TODO WIDTHBUCKET()function not implemented, only returns the sum of the arguments

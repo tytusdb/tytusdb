@@ -12,6 +12,7 @@ from Instrucciones.Tablas.Indice import Indice
 import numpy as np
 import pandas as pd
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
+from Instrucciones.PL.Llamada import Llamada
 
 class Index(Instruccion):
                        #dist  tipo  lcol  lcol  linners where lrows
@@ -26,15 +27,13 @@ class Index(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         val = self.idTabla.devolverTabla(tabla, arbol)
-        
+
         if(val == 0):
             error = Excepcion("42P01", "Semantico", "La tabla " + str(self.identificador.devolverId(tabla, arbol)) + " no existe", self.linea, self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             print('Error tabla no existe')
             return error
-
-
 
         tablaIndex = extractTable(arbol.getBaseDatos(), val)
         arbol.setTablaActual(tablaIndex)
@@ -50,19 +49,49 @@ class Index(Instruccion):
         arbol.setColumnasActual(res)
 
         ## solo me quedaria buscar entre las columnas si existe la columnas 
-        print(res) 
+        #print(res) 
 
         listaMods = []
 
         if self.where:
             listaMods = self.where.ejecutar(tabla, arbol)
         
-        
-
         for x in range(0, len(self.lcol)):
             variable = self.lcol[x]
+            #print("CONTENIDO DE LCOL")
+            #print(variable)
+            #print(variable.parseindex(tabla,arbol))
             objetoTabla = arbol.devolviendoTablaDeBase(val)
-            print(variable)
+            if isinstance(variable, Llamada):
+                idcol = variable.parseindex(tabla, arbol)
+                if self.buscarColumna(idcol, res):
+                    if objetoTabla:
+                        for indices in objetoTabla.lista_de_indices:
+                            if indices.obtenerNombre == idcol :
+                                error = Excepcion('42P01',"Semántico","el indice «"+idcol+"» ya existe",self.linea,self.columna)
+                                arbol.excepciones.append(error)
+                                arbol.consola.append(error.toString())
+                                return error
+                        
+                    ind = Indice(self.idIndex, "Indice")
+                    ind.lRestricciones.append("Columna: "+ idcol)
+                    if self.tipoIndex:
+                        ind.lRestricciones.append(self.tipoIndex)
+                    
+                    for indi in objetoTabla.lista_de_indices:
+                        if indi.nombre == self.idIndex:
+                                error = Excepcion('42P07',"Semántico","la relación «"+self.idIndex+"» ya existe.",self.linea,self.columna)
+                                arbol.excepciones.append(error)
+                                arbol.consola.append(error.toString())
+                                return error
+
+                    objetoTabla.lista_de_indices.append(ind)
+                    arbol.consola.append(f"Indice: {self.idIndex} insertado correctamente.\n")    
+
+                    #print("ingresar a memoria")
+
+                else:
+                    print("error la columna no existe")
             if isinstance(variable, Identificador):
                 idcol = variable.id
                 if self.buscarColumna(variable.id, res):
@@ -79,16 +108,21 @@ class Index(Instruccion):
                     if self.tipoIndex:
                         ind.lRestricciones.append(self.tipoIndex)
                     
+                    for indi in objetoTabla.lista_de_indices:
+                        if indi.nombre == self.idIndex:
+                                error = Excepcion('42P07',"Semántico","la relación «"+self.idIndex+"» ya existe.",self.linea,self.columna)
+                                arbol.excepciones.append(error)
+                                arbol.consola.append(error.toString())
+                                return error
+                                
                     objetoTabla.lista_de_indices.append(ind)
-                    arbol.consola.append("Indice insertado correctamente")    
+                    arbol.consola.append(f"Indice: {self.idIndex} insertado correctamente.\n")    
 
-                    print("ingresar a memoria")
+                    #print("ingresar a memoria")
 
                 else:
                     print("error la columna no existe")
 
-        
-    
     def buscarColumna(self, nombre, listacolumnas):
         for i in range(0, len(listacolumnas)):
             if listacolumnas[i] == nombre:
@@ -97,19 +131,73 @@ class Index(Instruccion):
         return False
 
 
-
-        
-
-        
-
-    
     def analizar(self, tabla, arbol):
-        pass
-        
+        return super().analizar(tabla, arbol)
+
     def traducir(self, tabla, arbol):
-        pass
+        super().traducir(tabla, arbol)
+        #self.idIndex = idIndex
+        #self.idTabla = idTabla
+        #self.lcol = lcol
+        #self.where = where
+        #self.tipoIndex = tipoIndex        
+        cadena = "\"CREATE"
+        if self.tipoIndex == "UNIQUE":
+            cadena += " UNIQUE"
+        cadena += f" INDEX {self.idIndex} ON {self.idTabla.concatenar(tabla,arbol)} "
+        if self.tipoIndex == "HASH":
+            cadena += "USING HASH "
+        cadena += "("
+        for col in self.lcol:
+            #print(col)
+
+            if isinstance(col, Identificador):
+                cadena += f"{col.concatenar(tabla,arbol)}"
+            elif isinstance(col, Llamada):
+                cadena += f"{col.concatenar2(tabla, arbol)}"
+            
+            if self.tipoIndex == "NULLS FIRST":
+                cadena += " NULLS FIRST"
+            elif self.tipoIndex == "DESC NULLS LAST":
+                cadena += " DESC NULLS LAST"
+            if(self.lcol.index(col)< (len(self.lcol)-1)):
+                cadena +=", "
+        cadena += ")"
+        if(self.where !=None):
+            if isinstance(self.where, str):
+                cadena+= f" {self.where}"
+            else:
+                cadena += f" {self.where.traducir(tabla,arbol)}"
+        cadena += ";\""
+
         
 
+
+        arbol.addComen("Asignar cadena")
+        temporal1 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal1} = { cadena }")
+
+        arbol.addComen("Entrar al ambito")
+        temporal2 = tabla.getTemporal()
+        arbol.addc3d(f"{temporal2} = P+2")
+        temporal3 = tabla.getTemporal()
+        arbol.addComen("parametro 1")
+        arbol.addc3d(f"{temporal3} = { temporal2}+1")
+        arbol.addComen("Asignacion de parametros")
+        arbol.addc3d(f"Pila[{temporal3}] = {temporal1}")
+
+        arbol.addComen("Llamada de funcion")
+        arbol.addc3d(f"P = P+2")
+        arbol.addc3d(f"funcionintermedia()")
+        
+        arbol.addComen("obtener resultado")
+        temporalX = tabla.getTemporal()
+        arbol.addc3d(f"{temporalX} = P+2")
+        temporalR = tabla.getTemporal()
+        arbol.addc3d(f"{temporalR} = Pila[{ temporalX }]")
+
+        arbol.addComen("Salida de funcion")
+        arbol.addc3d(f"P = P-2")
 '''
 columnas y filas
 matrix = np.array(([[1,"k","t"],[2,"L","a"],[3,"N","y"]]))

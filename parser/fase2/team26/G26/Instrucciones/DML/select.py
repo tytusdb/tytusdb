@@ -60,9 +60,11 @@ class Select(Instruccion):
                                     if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
                                     else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
                                 except:
-                                    if contadorNombre == 0: nombreTabla = nombreColumna.val
-                                    else: nombreTabla = nombreColumna.val + str(contadorNombre)
-
+                                    try:
+                                        if contadorNombre == 0: nombreTabla = nombreColumna.val
+                                        else: nombreTabla = nombreColumna.val + str(contadorNombre)
+                                    except:
+                                        return Error('Semantico', 'Ambiguedad con ' + str(nombreColumna), 0, 0)
                     try:
                         s = diccionarioColumnasAceptadas[nombreTabla]
                         contadorNombre = contadorNombre + 1
@@ -224,8 +226,11 @@ class Select(Instruccion):
                                     if contadorNombre == 0: nombreTabla = nombreColumna.tipofuncionfehca
                                     else: nombreTabla = nombreColumna.tipofuncionfehca + str(contadorNombre)
                                 except:
-                                    if contadorNombre == 0: nombreTabla = nombreColumna.val
-                                    else: nombreTabla = nombreColumna.val + str(contadorNombre)
+                                    try:
+                                        if contadorNombre == 0: nombreTabla = nombreColumna.val
+                                        else: nombreTabla = nombreColumna.val + str(contadorNombre)
+                                    except:
+                                        return Error('Semantico', 'Ambiguedad con ' + str(nombreColumna), 0, 0)
 
                     try:
                         a = diccionarioColumnasAceptadas[nombreTabla]
@@ -374,7 +379,7 @@ class Select(Instruccion):
                                 break;
                             for keys in columnasAceptadas:
                                 directorioTablas[keys]['fila'] = columnasAceptadas[keys][i]
-                                print(directorioTablas)
+                                #print(directorioTablas)
                             try:
                                 comprobar = nombreColumna.execute(data, directorioTablas)
                             except:
@@ -1047,7 +1052,7 @@ class FuncionBinaria(Instruccion):
                 return argumento2
 
             if argumento.type == 'string' or argumento.type == 'ID' :
-                return Primitive('integer',str(argumento.val)[argumento1.val:argumento2.val])
+                return Primitive('string',str(argumento.val)[argumento1.val:argumento2.val])
             else:
                 error = Error('Semántico', 'Error de tipos en LENGTH, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
                 return error
@@ -2402,12 +2407,14 @@ class FuncionMatematicaSimple(Instruccion):
             else:
                 return Error('Semantico', 'El tipo para SUM debe ser numerico o float.', 0, 0)
         elif self.operador == 'count':
+            diccionarioRetorno['type'] = 'integer'
             if diccionarioAgrupacion == {}:
                 val = 0
+                arr = []
                 for key in columnasAceptadas:
                     for v in columnasAceptadas[key]:
-                        val = len(v)
-                        break
+                        arr.append(v)
+                    val = len(arr)
                     diccionarioRetorno['val'][key] = [val]
                     break
             else:

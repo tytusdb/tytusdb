@@ -48,12 +48,12 @@ class OptMirilla:
                 elif type(pila[indice]) == C3D.SentenciaIF:
                     #signfica que debe ejecutar el análisis de los ifs
                     #el orden es el siguiente 7, 4 o 5 y 3
-                    print('regla 7')
+                    #print('regla 7')
                     pila[indice].EtiquetaTrue.Id = self.regla7(pila, pila[indice], indice)
-                    print('regla 4 y 5')
+                    #print('regla 4 y 5')
                     self.regla4y5(pila, pila[indice], indice)
                     if indice not in self.ElementosIgnorar:
-                        print('regla 3')
+                        #print('regla 3')
                         self.regla3(pila, pila[indice], indice)
                 elif type(pila[indice]) == C3D.Goto:
                     #El orden para cuando venga goto es el siguiente 6 y 2
@@ -96,7 +96,7 @@ class OptMirilla:
                         #Si la condición de arriba no se cumple, seguimos analizando
                         if type(elemento.Valor) == C3D.Identificador:
                             #Si esto se valida, quiere decir que encontramos una asiganción de variable a otra
-                            if elemento.Valor.Id == operacion.Tx.Id:
+                            if elemento.Valor.Id == operacion.Tx.Id and elemento.Tx.Id == operacion.Valor.Id:
                                 #Si entramos aquí quiere decir que cumple las condiciones para ser optimizado
                                 #Indicamos que esta línea de código es inutil, y seguimos nuestro análisis en busca de otros puntos similares
                                 termino = elemento.Tx.Id + ' = ' + str(elemento.Valor.Id)
@@ -114,6 +114,7 @@ class OptMirilla:
         posiblesIgnorados = []
         indiceAux = 0
         reportado = []
+        posiblesIgnorados.append(indice)
         for elementos in pila:
             if indiceAux > indice:
                 #Aquí ya estamos más adelante que nuestra orden anterior.
@@ -179,7 +180,7 @@ class OptMirilla:
         if type(operacion.Condicion.Op1) == C3D.Valor and type(operacion.Condicion.Op2) == C3D.Valor:
             #Significa que ambos elementos a comparar son constantes. por lo que se cumple parte de la regla 4
             if self.ejecutarComparacion(operacion.Condicion.Op1.Valor, operacion.Condicion.Operador, operacion.Condicion.Op2.Valor):
-                print('regla 4')
+                #print('regla 4')
                 termino = 'if ' + self.ImprimirCondicional(operacion.Condicion) + ' goto ' + operacion.EtiquetaTrue.Id
                 self.ElementosIgnorar.append(indice)
                 if len(pila) > indice+1 and type(pila[indice+1]) == C3D.Goto:
@@ -191,7 +192,7 @@ class OptMirilla:
                 self.ListaOptimizada.append(nuevaOrden)
                 return
             else:
-                print('regla 5')
+                #print('regla 5')
                 self.ElementosIgnorar.append(indice)
                 if len(pila)>indice+1 and type(pila[indice+1]) == C3D.Goto:
                     termino = 'if ' + self.ImprimirCondicional(operacion.Condicion) + ' goto ' + operacion.EtiquetaTrue.Id
@@ -445,9 +446,9 @@ class OptMirilla:
             if type(elemento.Valor) == C3D.Identificador:
                 return elemento.Tx.Id + ' = ' + elemento.Valor.Id
             elif type(elemento.Valor) == C3D.Operacion:
-                return elemento.Tx.Id + ' = ' + self.ImprimirElemento(elemento.Operacion.Op1) + self.ImprimirOperador(elemento.Operacion.Operador) + self.ImprimirElemento(elemento.Operacion.Op2)
+                return elemento.Tx.Id + ' = ' + self.ImprimirElemento(elemento.Valor.Op1) + self.ImprimirOperador(elemento.Valor.Operador) + self.ImprimirElemento(elemento.Valor.Op2)
             elif type(elemento.Valor) == C3D.Valor:
-                return elemento.Tx.Id+ ' = ' +elemento.Valor.Valor
+                return elemento.Tx.Id+ ' = ' +str(elemento.Valor.Valor)
         elif type(elemento) == C3D.SentenciaIF:
             return 'if ' + self.ImprimirCondicional(elemento.Condicion) + ' goto ' + elemento.EtiquetaTrue.Id
         elif type(elemento) == C3D.Goto:
@@ -582,7 +583,7 @@ class OptMirilla:
             elif type(comando) == C3D.Etiqueta:
                 Codigo3D = Codigo3D + 'label .' + comando.Etiqueta.Id
             else:
-                Codigo3D = Codigo3D + comando
+                Codigo3D = Codigo3D + str(comando)
             Codigo3D = Codigo3D + '\n'
         Codigo = Codigo + Codigo3D
         Codigo = Codigo + "\nfunction()"
@@ -591,6 +592,7 @@ class OptMirilla:
         file = open("C3DOptimo.py", "w")
         file.write(Codigo)
         file.close()
+        return Codigo3D
 
     
     def ImprimirElemento(self, elemento):

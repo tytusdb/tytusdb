@@ -16,10 +16,11 @@ class TimeStamp(Instruccion):
         today = todays.strftime("%Y-%m-%d %H:%M:%S")
         return today
     
-    def analizar(self, ts, arbol):
-        pass
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
     
     def traducir(self, tabla, arbol):
+        super().traducir(tabla, arbol)
         return f"TIMESTAMP '{self.identificador}'"
 
 '''

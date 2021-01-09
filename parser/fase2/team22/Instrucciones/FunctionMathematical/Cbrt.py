@@ -3,6 +3,10 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
 import math
 import numpy as np
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
+from Optimizador.C3D import Valor as ClassValor
+from Optimizador.C3D import OP_ARITMETICO as ClassOP_ARITMETICO
+from Optimizador.C3D import Identificador as ClassIdentificador
 
 class Cbrt(Instruccion):
     def __init__(self, valor, strGram, linea, columna):
@@ -25,6 +29,17 @@ class Cbrt(Instruccion):
             arbol.consola.append(error.toString())
             return error
         return np.cbrt(resultado)
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
+        t0 = c3d.getLastTemporal()
+        t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\"CBRT(" + str(self.valor.generar3D(tabla, arbol)) + ")\"", "STRING"), ClassOP_ARITMETICO.SUMA))
+
+        return code
 
 '''
 arr1 = [1, 27000, 64, -1000] 

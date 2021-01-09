@@ -14,6 +14,8 @@ from Analisis_Ascendente.Tabla_simbolos.TablaSimbolos import Simbolo
 from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 from Analisis_Ascendente.storageManager.jsonMode import *
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+import C3D.GeneradorTemporales as GeneradorTemporales
+from Analisis_Ascendente.Instrucciones.expresion import Id, Primitivo
 
 #from Instrucciones.instruccion import Instruccion
 tipos_de_dato = {
@@ -93,7 +95,7 @@ class CreateTable(Instruccion):
 
 
             # creo el entorno de la tabla
-            print("Creando entorno tabla")
+            ##print("Creando entorno tabla")
             nuevo_entorno_tabla = {}
             tsTabla = TS.TablaDeSimbolos(nuevo_entorno_tabla)
             # recorrer campos y le mando el entorno de la tabla quien es el que adentro de este
@@ -113,15 +115,13 @@ class CreateTable(Instruccion):
 
                         for campito in campo.idR:
                             if entornoTablarefrencia.validar_sim(campito.id) == 1:
-                                print("todo bien")
+                                pass
                             else:
                                 banderaTodoBien = False
                                 break;
 
                         if banderaTodoBien:
-                            print("todo esta bien")
                             banderaTodoBien = Campo.ejecutar(campo, tsTabla, consola, exceptions)
-                            print(banderaTodoBien)
                             if campo.caso == 2 or campo.caso == 3 or campo.caso == 4:
                                 cantidad_columnas = cantidad_columnas - 1
                             if not banderaTodoBien:
@@ -132,7 +132,6 @@ class CreateTable(Instruccion):
 
                 else:
                     banderaTodoBien = Campo.ejecutar(campo, tsTabla, consola, exceptions)
-                    print(banderaTodoBien)
                     if campo.caso == 2 or campo.caso==3 or campo.caso==4:
                         cantidad_columnas=cantidad_columnas-1
                     if not banderaTodoBien:
@@ -141,8 +140,6 @@ class CreateTable(Instruccion):
             if banderaTodoBien:
 
                 if str(CreateTable.idInherits) != str(None):
-                    print("---------",CreateTable.idInherits)
-                    print(entornoBD.validar_sim(CreateTable.idInherits))
                     if entornoBD.validar_sim(CreateTable.idInherits) == 1:
 
 
@@ -159,14 +156,11 @@ class CreateTable(Instruccion):
                         entornoBD.agregar_sim(nueva_tabla)
                         createTable(bdactual.valor, CreateTable.id, cantidad_columnas+contador)
                         columnas = tsTabla.simbolos
-                        print("Agregando llaves primarias")
                         i = 0
                         pks = []
                         for columna in columnas:
-                            print(columnas.get(columna).id)
 
                             for data in columnas.get(columna).valor:
-                                print("     data: ", data)
                                 if 'PRIMARYKEY' in data:
                                     pks.append(i)
 
@@ -184,14 +178,11 @@ class CreateTable(Instruccion):
 
                     createTable(bdactual.valor, CreateTable.id, cantidad_columnas)
                     columnas = tsTabla.simbolos
-                    print("Agregando llaves primarias")
                     i = 0
                     pks = []
                     for columna in columnas:
-                        print(columnas.get(columna).id)
 
                         for data in columnas.get(columna).valor:
-                            print("     data: ",data)
                             if 'PRIMARYKEY' in data:
                                 pks.append(i)
 
@@ -209,6 +200,44 @@ class CreateTable(Instruccion):
             consola.append("22005	error_in_assignment, No se ha seleccionado una BD\n")
             exceptions.append("Error semantico-22005	error_in_assignment-No se ha seleccionado DB-fila-columna")
 
+    def getC3D(self, lista_optimizaciones_C3D):
+        codigo_quemado1 = "create table %s ( \\n" % self.id
+        temporal1 = GeneradorTemporales.nuevo_temporal()
+        c3d = '''
+    # -----------CREATE TABLE------------
+    top_stack = top_stack + 1 
+    %s = "%s"
+''' % (temporal1, codigo_quemado1)
+
+        codigo_quemado2 = []
+        for campo in self.campos:
+            codigo_quemado2.append(campo.getC3D(lista_optimizaciones_C3D))
+        temporal2 = GeneradorTemporales.nuevo_temporal()
+        temporal2Anterior = None
+        for i, codigo_quemado in enumerate(codigo_quemado2):
+            if (i + 1) == len(codigo_quemado2): #Es el ultimo elemento
+                c3d += '    %s = "%s\\n"\n' % (temporal2, codigo_quemado)
+                if temporal2Anterior is not None:
+                    c3d += '    %s = %s + %s\n' % (temporal2, temporal2Anterior, temporal2)
+            else:
+                c3d += '    %s = "%s,\\n"\n' % (temporal2, codigo_quemado)
+                if temporal2Anterior is not None:
+                    c3d += '    %s = %s + %s\n' % (temporal2, temporal2Anterior, temporal2)
+                temporal2Anterior = temporal2
+                temporal2 = GeneradorTemporales.nuevo_temporal()
+        c3d += '    %s = %s + %s\n' % (temporal2, temporal1, temporal2)
+        codigo_quemado3 = ''
+        temporal3 = GeneradorTemporales.nuevo_temporal()
+        if self.idInherits is not None:
+            codigo_quemado3 = ') inherits ( %s ) ;' % self.idInherits
+        else:
+            codigo_quemado3 = ') ;'
+        c3d += '''    %s = "%s"
+    %s = %s + %s 
+    stack[top_stack] = %s  
+''' % (temporal3, codigo_quemado3, temporal3, temporal2, temporal3, temporal3)
+        return c3d
+
 
 class Acompaniamiento(Instruccion):
     def __init__(self, tipo, valorDefault,fila,columna):
@@ -217,3 +246,59 @@ class Acompaniamiento(Instruccion):
         self.fila = fila
         self.columna = columna
 
+    def getC3D(self, lista_optimizaciones_C3D):
+        if self.tipo == 'NOTNULL':
+            return 'not null'
+        elif self.tipo == 'NULL':
+            return 'null'
+        elif self.tipo == 'UNIQUE':
+            if self.valorDefault is not None:
+                if isinstance(self.valorDefault, Id):
+                    return 'unique %s' % self.valorDefault.id
+                else:
+                    aux = None
+                    for valor in self.valorDefault:
+                        if aux is None:
+                            aux = '%s' % valor.id
+                        else:
+                            aux += ', %s' % valor.id
+                    return 'unique ( %s )' % valor
+            else:
+                return 'unique'
+        elif self.tipo == 'DEFAULT':
+            aux = None
+            for valor in self.valorDefault:
+                if isinstance(valor, Primitivo):
+                    if isinstance(valor.valor, str):
+                        temporal = '\'%s\'' % valor.valor
+                    else:
+                        temporal = valor.valor
+                    if aux is None:
+                        aux = '%s' % temporal
+                    else:
+                        aux += ', %s' % temporal
+            return 'default %s' % aux
+        elif self.tipo == 'PRIMARYKEY':
+            return 'primary key'
+        elif self.tipo == 'CONSTRAINT':
+            return 'constraint %s' % self.valorDefault
+        elif self.tipo == 'REFERENCES':
+            return 'references %s' % self.valorDefault
+        elif self.tipo == 'CHECK':
+            izquierda = self.valorDefault.iz
+            derecha = self.valorDefault.dr
+            if isinstance(izquierda, Primitivo):
+                if isinstance(izquierda.valor, str):
+                    izquierda = "'%s'" % izquierda.valor
+                else:
+                    izquierda = izquierda.valor
+            elif isinstance(izquierda, Id):
+                izquierda = izquierda.id
+            if isinstance(derecha, Primitivo):
+                if isinstance(derecha.valor, str):
+                    derecha = "'%s'" % derecha.valor
+                else:
+                    derecha = derecha.valor
+            elif isinstance(derecha, Id):
+                derecha = derecha.id
+            return 'check ( %s %s %s )' % (izquierda, self.valorDefault.operador, derecha)

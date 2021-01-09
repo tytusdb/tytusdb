@@ -65,7 +65,7 @@ class Arithmetic(Expression):
                 + str(self.row)
             )
         except:
-            raise expression.list_errors.append(
+            expression.list_errors.append(
                 "Error: XX000: Error interno (Binary Aritmethic Operation)"
                 + "\n En la linea: "
                 + str(self.row)
@@ -80,8 +80,8 @@ class Arithmetic(Expression):
         return new
 
     def generate3d(self ,environment , instanciaAux):
-        exp1 = self.exp1.generate3d(environment ,instanciaAux)
-        exp2 = self.exp2.generate3d(environment ,instanciaAux)
+        exp1 = self.exp1.generate3d(environment ,instanciaAux) # t1 = 3 + 4 
+        exp2 = self.exp2.generate3d(environment ,instanciaAux) # 5
         operator = self.operator
 
         tn = instanciaAux.getNewTemporal()#va llevar su control de getTempola tambien

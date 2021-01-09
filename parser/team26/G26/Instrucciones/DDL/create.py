@@ -1,9 +1,7 @@
 import sys
 sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
-sys.path.append('../G26/Librerias/storageManager')
-
-
+sys.path.append('../tytus/storage/storageManager')
 
 from jsonMode import *
 from instruccion import *

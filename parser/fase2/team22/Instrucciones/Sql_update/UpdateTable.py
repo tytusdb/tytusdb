@@ -5,6 +5,8 @@ from storageManager.jsonMode import *
 from Instrucciones.Sql_create.Tipo_Constraint import Tipo_Dato_Constraint
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato
 import numpy as np
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class UpdateTable(Instruccion):
     def __init__(self, id, tipo, lCol, insWhere, strGram ,linea, columna):
@@ -237,6 +239,26 @@ class UpdateTable(Instruccion):
         '''
         def update(database: str, table: str, register: dict, columns: list) -> int:
             '''
+
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "UPDATE " + self.identificador.generar3D(tabla, arbol) + " SET "))
+        for col in self.listaDeColumnas:
+            '''code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" ADD COLUMN " + col.id + " " + col.tipo.toString() + "\" ", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()'''
+            code += col.generar3D(tabla, arbol)
+            t0 = c3d.getLastTemporal()
+        t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t1))
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
+
+        return code
 
 
 '''

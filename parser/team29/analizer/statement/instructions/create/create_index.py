@@ -1,6 +1,7 @@
 from analizer.abstract import instruction
 from analizer.reports import Nodo
 from analizer.typechecker.Metadata import File
+from analizer.typechecker.Metadata import Struct
 
 
 class CreateIndex(instruction.Instruction):
@@ -11,12 +12,25 @@ class CreateIndex(instruction.Instruction):
         self.optList = optList
         self.whereCl = whereCl
         self.usingMethod = usingMethod
+        if not idIndex:
+            idIndex = "index_" + idTable
+            for l in optList:
+                idIndex += "_" + l[0]
+            self.idIndex = idIndex
 
     def execute(self, environment):
+        Struct.load()
         name = self.idIndex
         if self.existIndex(name):
             return "Error: ya existe un index con el nombre " + name
-
+        table = Struct.extractTable(instruction.dbtemp, self.idTable)
+        if table == 1 or table == 0:
+            return (
+                "Error: no existe la tabla "
+                + self.idTable
+                + " en la base de datos "
+                + instruction.dbtemp
+            )
         try:
             Index = File.importFile("Index")
             indexBody = {}

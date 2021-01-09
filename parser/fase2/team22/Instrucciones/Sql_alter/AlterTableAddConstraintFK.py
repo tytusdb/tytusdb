@@ -2,6 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.Sql_create.Tipo_Constraint import Tipo_Constraint, Tipo_Dato_Constraint
 from Instrucciones.Excepcion import Excepcion
 #from storageManager.jsonMode import *
+from Optimizador.C3D import *
+from Instrucciones.TablaSimbolos import Instruccion3D as c3d
 
 class AlterTableAddConstraintFK(Instruccion):
     def __init__(self, tabla, id_constraint, lista_id1,tabla2, lista_id2, strGram, linea, columna):
@@ -96,4 +98,98 @@ class AlterTableAddConstraintFK(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
 
+    def generar3D(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
+        t0 = c3d.getTemporal()
+        code.append(c3d.asignacionString(t0, "ALTER TABLE " + self.tabla + "\\n"))
+        t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\"ADD CONSTRAINT " + self.id_constraint +  "\\n\"", "STRING"), OP_ARITMETICO.SUMA))
+        t0 = t1
+        t1 = c3d.getTemporal()
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\"FOREIGN KEY (\"", "STRING"), OP_ARITMETICO.SUMA))
+        t0 = t1
+        t1 = c3d.getTemporal()
+
+        sizeCol = len(self.lista_id1)
+        contador = 1
+        for id in self.lista_id1:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + id + "\"", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+            if contador != sizeCol:
+                code.append(c3d.operacion(t1, Identificador(t0), Valor('", "', "STRING"), OP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = c3d.getTemporal()
+            contador += 1
         
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\")\\nREFERENCES " + self.tabla2 + "(\"", "STRING"), OP_ARITMETICO.SUMA))
+        t0 = t1
+        t1 = c3d.getTemporal()
+
+        sizeCol = len(self.lista_id2)
+        contador = 1
+        for id in self.lista_id2:
+            code.append(c3d.operacion(t1, Identificador(t0), Valor("\"" + id + "\"", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
+            if contador != sizeCol:
+                code.append(c3d.operacion(t1, Identificador(t0), Valor('", "', "STRING"), OP_ARITMETICO.SUMA))
+                t0 = t1
+                t1 = c3d.getTemporal()
+            contador += 1
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\");\"", "STRING"), OP_ARITMETICO.SUMA))
+        
+        code.append(c3d.asignacionTemporalStack(t1))
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
+
+        return code
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        bd = arbol.getBaseDatos()
+        if bd != None and bd != "":
+            code.append(t0 + ' = "' + bd + '"')
+        else:
+            code.append(t0 + ' = ' + str(None))
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        t1 = c3d.getTemporal()
+        code.append(t1 + ' = "' + str(self.tabla) + '"')
+        code.append('heap[h] = ' + t1)
+        code.append('h = h + 1')
+        t2 = c3d.getTemporal()
+        code.append(t2 + ' = "' + str(self.id_constraint) + '"')
+        code.append('heap[h] = ' + t2)
+        code.append('h = h + 1')
+        if self.lista_id1 != None:
+            code.append('heap[h] = []')
+            for columna in self.lista_id1:
+                t3 = c3d.getTemporal()
+                code.append(t3 + ' = ["' + str(columna) + '"]')
+                code.append('heap[h] = heap[h] + ' + t3)
+        else:
+            code.append('heap[h] = None')
+        code.append('h = h + 1')
+        t4 = c3d.getTemporal()
+        code.append(t4 + ' = "' + str(self.tabla2) + '"')
+        code.append('heap[h] = ' + t4)
+        code.append('h = h + 1')
+        if self.lista_id2 != None:
+            code.append('heap[h] = []')
+            for columna in self.lista_id2:
+                t5 = c3d.getTemporal()
+                code.append(t5 + ' = ["' + str(columna) + '"]')
+                code.append('heap[h] = heap[h] + ' + t5)
+        else:
+            code.append('heap[h] = None')
+        code.append('p = h')
+        code.append('call_alterTable_addConstraintFK()')
+        
+        return code

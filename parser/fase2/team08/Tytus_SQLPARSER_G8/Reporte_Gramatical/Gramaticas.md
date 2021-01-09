@@ -14,6 +14,10 @@ Grupo 8
 - [Gramatica Ascendente](#gramatica-ascendente)
 
 ## Descripcion
+ Ya que se concluyo que PLY, la libreria de python para analizadores sintacticos utiliza un analizador ascendente se acordó utilizar ya que se contruyo para una gramatica ascendente recursiva hacia la izquierda, sin embargo se analizo a mas detalle la gramatica recursiva por la derecha o descendente ya que La libreria PLY no utiliza un analizador de este tipo sino se tendria que simular con una pila el recorrido y despues de todo estoy hacer el recorrido dos veces, se acordo mejor utilizar la herramienta como fue diseñada.
+
+ Una de las ventajas mas destacables de usar una gramatica ascendente recursiva por la izquierda es que no necesita de producciones vacias como lo hacemos con la descendente, esto a veces puede incurrir en fallos a la hora de usar producciones vacias en lo que haria que nuestro analizador recurriera a mas bugs, ya sumandole que no fue hecha la libreria para gramaticas descendentes pues optamos como grupo utilizar como fue diseñado.
+
  
 
 ## Elementos Lexicos

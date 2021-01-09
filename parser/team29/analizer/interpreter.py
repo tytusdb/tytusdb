@@ -1,14 +1,20 @@
 from sys import path
 from os.path import dirname as dir
+from numpy.lib.arraysetops import isin
 from prettytable import PrettyTable
 
 path.append(dir(path[0]))
 
 from analizer.statement.instructions.select.select import Select
+from analizer.statement.functions.call import FunctionCall, TYPE
+from analizer.statement.functions.extract import ExtractDate
+from analizer.statement.functions.part import DatePart
+from analizer.statement.expressions.primitive import Primitive
 from analizer.abstract import instruction
 from analizer import grammar
 from analizer.reports import BnfGrammar
 import pandas as pd
+from analizer.typechecker.Metadata import File
 
 
 def execution(input):
@@ -32,8 +38,6 @@ def execution(input):
                 else:
                     querys.append(None)
                     messages.append("Error: Select.")
-                # print(r[0].iloc[0].iloc[0])
-                # print(r)
             else:
                 r = v.execute(None)
                 print(r)
@@ -41,6 +45,7 @@ def execution(input):
     semanticErrors = grammar.returnSemanticErrors()
     PostgresErrors = grammar.returnPostgreSQLErrors()
     symbols = symbolReport()
+    indexes = indexReport()
     obj = {
         "messages": messages,
         "querys": querys,
@@ -49,6 +54,8 @@ def execution(input):
         "semantic": semanticErrors,
         "postgres": PostgresErrors,
         "symbols": symbols,
+        "indexes": indexes,
+        "functions": [],
     }
     printTable_PT(querys)
     astReport()
@@ -100,6 +107,77 @@ def symbolReport():
         report.append(enc)
     instruction.envVariables = list()
     return report
+
+
+def selectFirstValue(input):
+    """
+    Funcion para obtener el primer valor de un select
+    """
+    result = grammar.parse(input)
+    if len(result) > 1:
+        result[0].execute(None)
+        type_ = result[1].params[0].temp
+        result = result[1].execute(None)
+        df = result[0]
+        types = result[1]
+        if df.empty:
+            if types[type_] == TYPE.STRING:
+                return ""
+            elif types[type_] == TYPE.NUMBER:
+                return 0
+            if types[type_] == TYPE.BOOLEAN:
+                return "False"
+            return ""
+        if isinstance(df, pd.core.series.Series):
+            df = df.iloc[0]
+        else:
+            df = df.iloc[0].iloc[0]
+    else:
+        df = result[0].execute(None)[0].iloc[0].iloc[0]
+    return df
+
+
+def indexReport():
+    index = File.importFile("Index")
+    enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
+    filas = []
+    for (name, Index) in index.items():
+        columns = ""
+        for column in Index["Columns"]:
+            columns += (
+                ", " + column["Name"] + " " + column["Order"] + " " + column["Nulls"]
+            )
+        filas.append(
+            [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
+        )
+    enc.append(filas)
+    return enc
+
+
+def invokeFunction(id, *params):
+    temp = None
+    list_ = params
+    params = []
+    for p in list_:
+        if isinstance(p, str):
+            p = p.strip('"')
+            p = p.strip("'")
+        params.append(p)
+    if id == "extract":
+        temp = ExtractDate(params[0], params[1], params[2], 0, 0)
+        temp = temp.execute(None)
+    elif id == "date_part":
+        temp = DatePart(params[0], params[1], params[2], 0, 0)
+        temp = temp.execute(None)
+    else:
+        parameters = []
+        for p in params:
+            parameters.append(Primitive(TYPE.NULL, p, p, 0, 0))
+        temp = FunctionCall(id, parameters, 0, 0)
+        temp = temp.execute(None)
+    if temp:
+        return temp.value
+    return temp
 
 
 def printTable_PT(tables):

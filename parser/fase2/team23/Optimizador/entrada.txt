@@ -1,0 +1,25 @@
+from goto import with_goto 
+import C3D 
+
+@with_goto  # Decorador necesario
+def main():
+t2 = 1 + 2
+t1 = t2 + 0
+t4 = 1 + 3
+t3 = t4 + 0
+t3 = t3 - 0
+t5 = t1 > t3
+if t5 : goto .L1
+goto .L2
+
+label .L1
+C3D.eje_if = "Verdadero"
+C3D.pila = 0
+C3D.ejecutar() #Crear Base de datos
+
+goto .L3
+
+label .L2
+C3D.eje_if = "Else"
+label .L3
+main()

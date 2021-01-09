@@ -1,18 +1,24 @@
 import hashlib
 from models.instructions.Expression.expression import Expression, PrimitiveData, DATA_TYPE, Identifiers
 from controllers.error_controller import ErrorController
-#TODO: REVISAR QUE NO MUERA CON DECODE, UNCODE, GETBYTE, SETBYTE, CONVERT
+from controllers.three_address_code import ThreeAddressCode
+# TODO: REVISAR QUE NO MUERA CON DECODE, UNCODE, GETBYTE, SETBYTE, CONVERT
+
+
 class Length(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, line, column) :
+
+    def __init__(self, value, line, column):
         self.value = value
         self.alias = f'LENGTH({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
+
     def __repr__(self):
         return str(vars(self))
 
@@ -39,19 +45,46 @@ class Length(Expression):
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self, environment):
+        try:
+            temp = ThreeAddressCode().newTemp()
+            val = self.value.compile(environment).value
+            dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
+            ThreeAddressCode().addCode(dataTemp)
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal} = len({temp})")
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+
 class Substring(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, down, up, line, column) :
+
+    def __init__(self, value, down, up, line, column):
         self.value = value
         self.alias = f'SUBSTRING({self.value.alias})'
         self.up = up
         self.down = down
         self.line = line
         self.column = column
+        self._tac = self.alias
+
     def __repr__(self):
         return str(vars(self))
 
@@ -79,6 +112,38 @@ class Substring(Expression):
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+    def compile(self, environment):
+        try:
+            i = self.down.compile(environment).value
+            j = self.up.compile(environment).value
+            temp = ThreeAddressCode().newTemp()
+            val = self.value.compile(environment).value
+            dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
+            tempi = ThreeAddressCode().newTemp()
+            tempj = ThreeAddressCode().newTemp()
+            dataTempi = f"{tempi} = {i}"
+            dataTempj = f"{tempj} = {j}"
+            ThreeAddressCode().addCode(dataTemp)
+            ThreeAddressCode().addCode(dataTempi)
+            ThreeAddressCode().addCode(dataTempj)
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal} = {temp}[{tempi}:{tempj}]")
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
 
 class Substr(Expression):
     '''
@@ -86,13 +151,16 @@ class Substr(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, down, up, line, column) :
+
+    def __init__(self, value, down, up, line, column):
         self.value = value
         self.alias = f'SUBSTR({self.value.alias})'
         self.up = up
         self.down = down
         self.line = line
         self.column = column
+        self._tac = self.alias
+
     def __repr__(self):
         return str(vars(self))
 
@@ -121,17 +189,52 @@ class Substr(Expression):
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self, environment):
+        try:
+            i = self.down.compile(environment).value
+            j = self.up.compile(environment).value
+            temp = ThreeAddressCode().newTemp()
+            val = self.value.compile(environment).value
+            dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
+            tempi = ThreeAddressCode().newTemp()
+            tempj = ThreeAddressCode().newTemp()
+            dataTempi = f"{tempi} = {i}"
+            dataTempj = f"{tempj} = {j}"
+            ThreeAddressCode().addCode(dataTemp)
+            ThreeAddressCode().addCode(dataTempi)
+            ThreeAddressCode().addCode(dataTempj)
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal} = {temp}[{tempi}:{tempj}]")
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+
 class Trim(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, line, column) :
+
+    def __init__(self, value, line, column):
         self.value = value
         self.alias = f'TRIM({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
+
     def __repr__(self):
         return str(vars(self))
 
@@ -156,17 +259,44 @@ class Trim(Expression):
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self, environment):
+        try:
+            temp = ThreeAddressCode().newTemp()
+            val = self.value.compile(environment).value
+            dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
+            ThreeAddressCode().addCode(dataTemp)
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal} = {temp}.strip()")
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+
 class MD5(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, line, column) :
+
+    def __init__(self, value, line, column):
         self.value = value
         self.alias = f'MD5({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
+
     def __repr__(self):
         return str(vars(self))
 
@@ -175,13 +305,14 @@ class MD5(Expression):
             if isinstance(self.value, Identifiers):
                 lista1 = []
                 val = self.value.process(environment)
-                result = [hashlib.md5(columns.encode()).hexdigest() for columns in val[0]]
+                result = [hashlib.md5(columns.encode()).hexdigest()
+                          for columns in val[0]]
                 lista1.append(result)
                 lista1.append(self.alias)
                 return lista1
             else:
                 cadena = self.value.process(environment).value
-                result = hashlib.md5(cadena.encode()) 
+                result = hashlib.md5(cadena.encode())
                 return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para md5"
@@ -191,17 +322,45 @@ class MD5(Expression):
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self, environment):
+        try:
+            temp = ThreeAddressCode().newTemp()
+            val = self.value.compile(environment).value
+            dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
+            ThreeAddressCode().addCode(dataTemp)
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(
+                f"{temporal} = md5({temp}.encode()).hexdigest()")
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+
 class SHA256(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, line, column) :
+
+    def __init__(self, value, line, column):
         self.value = value
         self.alias = f'SHA256({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
+
     def __repr__(self):
         return str(vars(self))
 
@@ -210,13 +369,14 @@ class SHA256(Expression):
             if isinstance(self.value, Identifiers):
                 lista1 = []
                 val = self.value.process(environment)
-                result = [hashlib.sha256(columns.encode()).hexdigest() for columns in val[0]]
+                result = [hashlib.sha256(columns.encode()).hexdigest()
+                          for columns in val[0]]
                 lista1.append(result)
                 lista1.append(self.alias)
                 return lista1
             else:
                 cadena = self.value.process(environment).value
-                result = hashlib.sha256(cadena.encode()) 
+                result = hashlib.sha256(cadena.encode())
                 return PrimitiveData(DATA_TYPE.STRING, result.hexdigest(), self.line, self.column)
         except TypeError:
             desc = "Tipo de dato invalido para sha256"
@@ -226,18 +386,45 @@ class SHA256(Expression):
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self, environment):
+        try:
+            temp = ThreeAddressCode().newTemp()
+            val = self.value.compile(environment).value
+            dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
+            ThreeAddressCode().addCode(dataTemp)
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(
+                f"{temporal} = sha256({temp}.encode()).hexdigest()")
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+
 class GetByte(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, pos, line, column) :
+
+    def __init__(self, value, pos, line, column):
         self.value = value
         self.pos = pos
         self.alias = f'GETBYTE({self.value.alias})'
         self.line = line
         self.column = column
+
     def __repr__(self):
         return str(vars(self))
 
@@ -263,19 +450,49 @@ class GetByte(Expression):
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self, environment):
+        try:
+            temp = ThreeAddressCode().newTemp()
+            val = self.value.compile(environment).value
+            tempPos = ThreeAddressCode().newTemp()
+            index = self.pos.compile(environment).value
+            dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
+            dataPos = f'{tempPos} = {index}'
+            ThreeAddressCode().addCode(dataTemp)
+            ThreeAddressCode().addCode(dataPos)
+            temporal = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temporal} = ord({temp}[{tempPos}])")
+            return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+
 class SetByte(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, pos, no_char, line, column) :
+
+    def __init__(self, value, pos, no_char, line, column):
         self.value = value
         self.pos = pos
         self.no_char = no_char
         self.alias = f'SETBYTE({self.value.alias})'
         self.line = line
         self.column = column
+
     def __repr__(self):
         return str(vars(self))
 
@@ -286,7 +503,8 @@ class SetByte(Expression):
             if isinstance(self.value, Identifiers):
                 lista1 = []
                 val = self.value.process(environment)
-                result = [(columns[:index] + chr(char) + columns[index + 1:]) for columns in val[0]]
+                result = [(columns[:index] + chr(char) + columns[index + 1:])
+                          for columns in val[0]]
                 lista1.append(result)
                 lista1.append(self.alias)
                 return lista1
@@ -302,18 +520,25 @@ class SetByte(Expression):
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self):
+        return super().compile()
+
+
 class Convert(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, data_type, line, column) :
+
+    def __init__(self, value, data_type, line, column):
         self.value = value
         self.data_type = data_type
         self.alias = f'CONVERT({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
+
     def __repr__(self):
         return str(vars(self))
 
@@ -323,18 +548,18 @@ class Convert(Expression):
                 if isinstance(self.value, Identifiers):
                     lista1 = []
                     val = self.value.process(environment)
-                    result = [ int(columns) for columns in val[0]]
+                    result = [int(columns) for columns in val[0]]
                     lista1.append(result)
                     lista1.append(self.alias)
                     return lista1
                 else:
                     cadena = self.value.process(environment).value
-                    return PrimitiveData(DATA_TYPE.NUMBER, int(cadena) , self.line, self.column)
+                    return PrimitiveData(DATA_TYPE.NUMBER, int(cadena), self.line, self.column)
             else:
                 if isinstance(self.value, Identifiers):
                     lista1 = []
                     val = self.value.process(environment)
-                    result = [ str(columns) for columns in val[0]]
+                    result = [str(columns) for columns in val[0]]
                     lista1.append(result)
                     lista1.append(self.alias)
                     return lista1
@@ -349,18 +574,55 @@ class Convert(Expression):
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self, environment):
+        try:
+            if self.data_type.lower() == 'integer':
+                temp = ThreeAddressCode().newTemp()
+                val = self.value.compile(environment).value
+                dataTemp = f"{temp} = '{val}'"
+
+                cambio = False
+                if val[0] == 't':
+                    sub = val[1:]
+                    if sub.isnumeric():  # ES UN TEMPORAL
+                        dataTemp = f"{temp} = {val}"
+                        cambio = True
+                if cambio is False:
+                    dataTemp = f"{temp} = '{val}'"
+
+                ThreeAddressCode().addCode(dataTemp)
+                temporal = ThreeAddressCode().newTemp()
+                ThreeAddressCode().addCode(
+                    f"{temporal} = int({temp})")
+                return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
+            else:
+                temp = ThreeAddressCode().newTemp()
+                val = self.value.compile(environment).value
+                dataTemp = f"{temp} = '{val}'"
+                ThreeAddressCode().addCode(dataTemp)
+                temporal = ThreeAddressCode().newTemp()
+                ThreeAddressCode().addCode(
+                    f"{temporal} = {temp}")
+                return PrimitiveData(DATA_TYPE.STRING, temporal, self.line, self.column)
+        except:
+            desc = "FATAL ERROR --- StringFuncs"
+            ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+
 class Encode(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, format_text, line, column) :
+
+    def __init__(self, value, format_text, line, column):
         self.value = value
         self.value = format_text
         self.alias = f'ENCODE({self.value.alias})'
         self.line = line
         self.column = column
+
     def __repr__(self):
         return str(vars(self))
 
@@ -369,7 +631,7 @@ class Encode(Expression):
             if isinstance(self.value, Identifiers):
                 lista1 = []
                 val = self.value.process(environment)
-                result = [ str(columns) for columns in val[0]]
+                result = [str(columns) for columns in val[0]]
                 lista1.append(result)
                 lista1.append(self.alias)
                 return lista1
@@ -384,18 +646,25 @@ class Encode(Expression):
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
 
+    def compile(self):
+        pass
+
+
 class Decode(Expression):
     '''
         La función se usa para devolver el valor después de 
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value, format_text, line, column) :
+
+    def __init__(self, value, format_text, line, column):
         self.value = value
         self.value = format_text
         self.alias = f'DECODE({self.value.alias})'
         self.line = line
         self.column = column
+        self._tac = self.alias
+
     def __repr__(self):
         return str(vars(self))
 
@@ -404,7 +673,7 @@ class Decode(Expression):
             if isinstance(self.value, Identifiers):
                 lista1 = []
                 val = self.value.process(environment)
-                result = [ str(columns) for columns in val[0]]
+                result = [str(columns) for columns in val[0]]
                 lista1.append(result)
                 lista1.append(self.alias)
                 return lista1
@@ -418,3 +687,6 @@ class Decode(Expression):
         except:
             desc = "FATAL ERROR --- StringFuncs"
             ErrorController().add(34, 'Execution', desc, self.line, self.column)
+
+    def compile(self):
+        pass

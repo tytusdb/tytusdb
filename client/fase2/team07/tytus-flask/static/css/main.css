@@ -1,0 +1,142 @@
+body {
+	background: #EFEFBB;  /* fallback for old browsers */
+	background: -webkit-linear-gradient(to right, #D4D3DD, #EFEFBB);  /* Chrome 10-25, Safari 5.1-6 */
+	background: linear-gradient(to right, #D4D3DD, #EFEFBB); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+#cont1 {
+	background: #E1E8F3;
+}
+
+#cont2 {
+	background: #D1DBED;
+}
+
+.botones {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+  }
+  
+  .botones button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+  }
+  
+  .botones button:hover {
+    background-color: #ddd;
+  }
+  
+  .botones button.active {
+    background-color: #ccc;
+  }
+  .botones select{
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+  }
+  
+  .botonescontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+  }
+
+.textos {
+    width: 100px;
+    height: 400px;
+}
+
+#contenedor{
+    width: 50%;
+    margin: auto;
+    background:rgb(209,219,237);
+	padding: 0px 0px 0px 0px;
+}
+
+#pestanas {
+    float: top;
+    font-size: 3ex;
+	font-weight: bold;
+	padding-left: 25px;
+}
+
+#pestanas ul{
+    width: 100%;
+    margin-left: -40px;
+}
+
+#pestanas li{
+    list-style-type: none;
+    float: left;
+    text-align: center;
+    margin: 0px 0px -0px -0px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom:rgb(64, 123, 233);
+    border-top:rgb(64, 123, 233);
+    padding: 0px 0px 0px 0px;
+}
+
+#pestanas a:link{
+    text-decoration: none;
+    color: white;
+    font-size:12px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#contenidopestanas{
+    clear: both;
+    background: rgb(209,219,237);
+    padding: 0px 20px 20px 20px;
+    border-radius: 5px;
+    border-top-left-radius: 0px;
+    width: 100%;
+    height: 50%;
+}
+
+#pestanascon {
+    float: top;
+    font-size: 3ex;
+    font-weight: bold;
+}
+
+#pestanascon ul{
+    margin-left: -40px;
+}
+
+#pestanascon li{
+    list-style-type: none;
+    float: left;
+    text-align: center;
+    margin: 0px 2px -2px -0px;
+    padding: 20px 20px 0px 20px;
+}
+
+#pestanascon a:link{
+    text-decoration: none;
+    color: #ffffff;
+}
+
+#contenidopestanascon{
+    clear: both;
+    background: rgb(209,219,237);
+    padding: 0px 0px 20px 20px;
+    border-top-left-radius: 0px;
+    width: 100%;
+    height: 50%;
+}
+
+#lista{
+	padding: 0px,0px,0px,20px;
+}

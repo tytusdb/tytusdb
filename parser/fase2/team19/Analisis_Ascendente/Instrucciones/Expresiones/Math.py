@@ -13,13 +13,17 @@ class Math_(Instruccion):
         self.fila = fila
         self.columna = columna
 
+    def getC3D(self):
+        code = self.nombre + '('
+        if self.E1 is not None:
+            code += str(self.E1.valor)
+        if self.E2 is not None:
+            code += ', ' + str(self.E2.valor)
+        code += ')'
+        return code
+
 
     def Resolver(mathe,ts, Consola,exceptions):
-
-        #Consola.append('E1 -- ' + mathe.nombre + '\n')
-        #Consola.append('E2 -- ' + type(mathe.E2).__name__ + '\n')
-
-
         if isinstance(mathe,Math_):
             if mathe.E1 == None and mathe.E2 == None:
                 if mathe.nombre == 'PI':
@@ -86,4 +90,21 @@ class Math_(Instruccion):
             return  mathe.valor
         elif isinstance(mathe, Expresion.Expresion):
             return Expresion.Expresion.Resolver(mathe,ts,Consola,exceptions)
+        elif isinstance(mathe, Unario):
+            num1 = Math_.Resolver(mathe.op, ts, Consola, exceptions)
+            if mathe.operador == '-':
+                if isinstance(num1, int) or isinstance(num1, float):
+                    return num1 * -1
+                else:
+                    return 0
+            elif mathe.operador == '+':
+                if isinstance(num1, int) or isinstance(num1, float):
+                    return num1
+                else:
+                    return 0
+            else:
+                if isinstance(num1, bool):
+                    return not num1
+                else:
+                    True
 

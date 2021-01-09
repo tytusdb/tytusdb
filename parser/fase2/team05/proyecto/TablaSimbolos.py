@@ -32,11 +32,13 @@ class DATA_TYPE(Enum):
 class Symbol:
     """ This class represent the symbol inside de symbol table """
 
-    def __init__(self, p_tId, p_id, p_type, p_value):
+    def __init__(self, p_tId, p_id, p_type, p_value,p_Orden,p_Declaracion):
         self.id = p_id
         self.type = p_type
         self.value = p_value
         self.tId = p_tId
+        self.p_Declaracion = p_Declaracion
+        self.p_Orden = p_Orden
 
 
 # SYMBOL TABLE CLASS
@@ -61,8 +63,14 @@ class SymbolTable:
         else:
             self.symbols[symbol.id] = symbol
 
-    def destroy(self, p_id):
-        if p_id not in self.symbols:
+    def update1(self, symbol):
+        if symbol.tId not in self.symbols:
+            print('ERROR :: Variable no definida.')
+        else:
+            self.symbols[symbol.tId] = symbol
+
+    def destroy(self, tId):
+        if tId not in self.symbols:
             print('ERROR :: Variable ', id, 'no definida.')
         else:
-            self.symbols[p_id] = None
+            del self.symbols[tId]

@@ -14,6 +14,8 @@ from Utils.fila import fila
 from Error import *
 import Instrucciones.DML.select as select
 import json
+import reporte as reporte
+import optimizar as opt
 #from select import *
 
 ##########################################################################
@@ -31,7 +33,7 @@ def openFile():
         return
     editor.delete("1.0", TK.END)
     with open(route, "r") as input_file:
-        text = input_file.read()    
+        text = input_file.read()
         editor.insert(TK.END, text)
     root.title(f"TYTUSDB_Parser - {route}")
 
@@ -43,152 +45,169 @@ def analisis():
     salida.delete("1.0", "end")
     texto = editor.get("1.0", "end")
 
-    try:
-        f = open("./Utils/tabla.txt", "r")
-        text = f.read()
-        f.close()
-        text = text.replace('\'','"')
-        text = text.replace('False','"False"')
-        text = text.replace('None','""')
-        text = text.replace('True','"True"')
-
-        print(text)
-        datos.reInsertarValores(json.loads(text))
-        print(str(datos))
-    except:
-        print('error')
-    
     #g2.tempos.restartTemp() #reinicia el contador de temporales.
     prueba = g2.parse(texto)
+    try:
+        escribirEnSalidaFinal(prueba['printList'])
+    except:
+        ''
     #print(prueba['text'])
-
-    exepy = '''
+    try:
+        exepy = '''
 #imports
-from goto import with_goto
+import sys
+sys.path.append('../G26/Librerias/goto')
+
+from goto import *
 import gramatica as g
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
+import Instrucciones.DML.select as select
+from Error import *
+import reporte as reporte
 
-storage.dropAll()
+#storage.dropAll()
 
 heap = []
+semerrors = []
+erroresS = list()
 
-datos = l.Lista({}, '') 
+datos = l.Lista({}, '')
+l.readData(datos)
 '''
-    exepy += '''
-#funcion intermedia    
-def mediador():
+        exepy += '''
+#funcion intermedia
+def mediador(value):
     global heap
-    # Analisis sintactico
+    global semerrors
+    global reporte
+   # Analisis sintactico
     instrucciones = g.parse(heap.pop())
+    erroresS = (g.getMistakes())
+
     for instr in instrucciones['ast'] :
-        print(instr.execute(datos))
+        if instr == None:
+            erroresS = g.getMistakes()
+            return 0
+        try:
+            val = instr.execute(datos)
+        except:
+            val = (instr.execute(datos, {}))
+
+        if isinstance(val, Error):
+            'error semantico'
+            print(val)
+            semerrors.append(val)
+        elif isinstance(instr, select.Select) :
+
+            if value == 0:
+                try:
+                    print(val)
+                    if len(val.keys()) > 1 :
+                        print('El numero de columnas retornadas es mayor a 1')
+                        return 0
+                    for key in val:
+                        if len(val[key]['columnas']) > 1 :
+                            print('El numero de filas retornadas es mayor a 1')
+                        else :
+                            return val[key]['columnas'][0][0]
+                        break
+                except:
+                    return 0
+            else:
+                print(instr.ImprimirTabla(val))
+        else :
+            try:
+                return val.val
+            except:
+                print(val)
+
+    l.writeData(datos)
 '''
 
-    exepy += '''
-#funciones de plg-sql   
+        exepy += '''
+#funciones de plg-sql
 
 
 '''
-
-    exepy += '''
+        l.readData(datos)
+        optt = ""
+        for val in datos.tablaSimbolos.keys():
+            if val == 'funciones_':
+                for func in datos.tablaSimbolos[val]:
+                    try:
+                        f = open("./Funciones/" + func['name'] + ".py", "r")
+                        pruebaaa = f.read()
+                        optt = opt.optimizar(pruebaaa)
+                        exepy += optt
+                        f.close()
+                    except:
+                        exepy += '#Se cambio el nombre del archivo que guarda la funcion. Funcion no encontrada'
+        exepy += '''
 #main
-#@with_goto
+@with_goto
 def main():
     global heap
 '''
 
-    exepy += str(prueba['text'])
+        exepy += str(prueba['text'])
+        exepy += '''
+    reporte.Rerrores(erroresS, semerrors, "Reporte_Errores_Semanticos.html")
 
-    exepy += '''
 #Ejecucion del main
 if __name__ == "__main__":
-    main()    
+    main()
 '''
 
-    f = open("./c3d.py", "w")
-    f.write(exepy)
-    f.close()
+        f = open("./c3d.py", "w")
+        f.write(exepy)
+        f.close()
 
-    instrucciones = g.parse(texto)
-    erroresSemanticos = []
 
-    try:
-        hacerReporteGramatica(instrucciones['reporte'])
+        l.readData(datos)
+        if 'funciones_' in datos.tablaSimbolos:
+            for funciones in datos.tablaSimbolos['funciones_']:
+                #print(funciones)
+                if funciones['drop'] == 0:
+                    try:
+                        os.remove('../G26/Funciones/' + funciones['name'] +'.py')
+                    except:
+                        ''
+
+
+
+        try:
+            reporte.hacerReporteGramatica(prueba['reporte'])
+            errores = g2.getMistakes()
+            recorrerErrores(errores)
+            reporte.Rerrores(errores, [], "Reporte_Errores_Sintactico_Lexicos.html")
+            reporte.reporteTabla(datos)
+        except:
+           ''
+
+        escribirEnSalidaFinal('Se ha generado el codigo en 3 direcciones.')
+        #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
+        reptOpti = prueba['opt']
+        fro = open("./Reportes/ReporteOptimizacion.txt", "w")
+        fro.write(reptOpti)
+        fro.close()
     except:
-        print("")
-
-    '''try:
-        f = open("./Utils/tabla.txt", "r")
-        text = f.read()
-        text = text.replace('\'','"')
-        text = text.replace('False','"False"')
-        text = text.replace('None','""')
-        text = text.replace('True','"True"')
-
-        print(text)
-        datos.reInsertarValores(json.loads(text))
-        print(str(datos))
-    except:
-        print('error')'''
-    for instr in instrucciones['ast'] :
-
-            if instr != None:
-                result = instr.execute(datos)
-                if isinstance(result, Error):
-                    escribirEnSalidaFinal(str(result.desc))
-                    erroresSemanticos.append(result)
-                elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
-                    escribirEnSalidaFinal(str(instr.ImprimirTabla(result)))
-                else:
-                    escribirEnSalidaFinal(str(result))
+        print("No se ha podido generar el codigo ya que existen errores sintacticos")
+        escribirEnSalidaFinal("No se ha podido generar el codigo ya que existen errores sintacticos")
 
 
-    f = open("./Utils/tabla.txt", "w")
-    f.write(str(datos))
-    f.close()
-
-    errores = g.getMistakes()
-    recorrerErrores(errores)
-    Rerrores(errores, erroresSemanticos)
-    errores.clear()
-    erroresSemanticos.clear()
-
-    reporteTabla()
-    del instrucciones
-    #aqui se puede poner o llamar a las fucniones para imprimir en la consola de salida
-
-def Rerrores(errores, semanticos):
-    f = open("./Reportes/Reporte_Errores.html", "w")
-    f.write("<!DOCTYPE html>\n")
-    f.write("<html>\n")
-    f.write("   <head>\n")
-    f.write('       <meta charset="UTF-8">\n')
-    f.write('       <meta name="viewport" content="width=device-width, initial-scale=1.0">')
-    f.write("       <title>Reporte de errores</title>\n")
-    f.write('      <link rel="stylesheet" href="style.css">\n')
-    f.write("   </head>\n")
-    f.write("   <body>\n")
-    f.write("       <p><b>Reporte de Errores<b></p>")
-    f.write("       <div>")
-    f.write("       <table>\n")
-    f.write("           <tr class='titulo'>   <td><b>Tipo</b></td>   <td><b>Descripcion</b></td>   <td><b>Linea</b></td> </tr>\n")
-    for error in errores:
-        f.write("           <tr> <td>" + error.getTipo() + "</td> <td>" + error.getDescripcion() + "</td> <td>"+ error.getLinea()  + "</td> </tr>\n")
-    for semantico in semanticos:
-        f.write("           <tr> <td>Semantico"  + "</td> <td>" + semantico.desc + "</td> <td>" + str(semantico.line) + "</td> </tr>\n")
-    f.write("       </table>\n")
-    f.write("         </div>")
-    f.write("   </body>\n")
-    f.write("</html>\n")
-    f.close()
+try:
+    l.readData(datos)
+    reporte.reporteTabla(datos)
+except:
+    ''
 
 def tabla():
     ruta = ".\\Reportes\\Reporte_TablaSimbolos.html"
     webbrowser.open(ruta)
 
 def ast():
-    g.grafo.showtree()
+    g2.grafo.showtree()
 
 def gramatica():
     os.system("notepad   ./Reportes/GramaticaAutomatica.md")
@@ -200,7 +219,7 @@ def ayuda():
     print("hola")
 
 def mistakes():
-    ruta = ".\\Reportes\\Reporte_Errores.html"
+    ruta = ".\\Reportes\\Reporte_Errores_Sintactico_Lexicos.html"
     webbrowser.open(ruta)
 
 def recorrerErrores(errores):
@@ -209,135 +228,8 @@ def recorrerErrores(errores):
         salidaE += error.toString() + "\n"
     salida.insert("1.0", salidaE)
 
-def hacerReporteGramatica(gramatica):
-    if gramatica != None:
-        f = open("./Reportes/GramaticaAutomatica.md", "w")
-        f.write("# Gramatica Generada Automaticamente\n")
-        f.write("La gramatica que se genero en el analisis realizado es la siguiente:\n")
-        f.write("******************************************************************\n")
-        f.write(gramatica)
-        f.write("\n******************************************************************")
-        f.close()
-    else:
-        f = open("./Reportes/GramaticaAutomatica.md", "w")
-        f.write("#Gramatica Generada Automaticamente\n")
-        f.write("No se detecto")
 
-def reporteTabla():
-    f = open("./Reportes/Reporte_TablaSimbolos.html", "w")
-    f.write("<!DOCTYPE html>\n")
-    f.write("<html>\n")
-    f.write("   <head>\n")
-    f.write('       <meta charset="UTF-8">\n')
-    f.write('       <meta name="viewport" content="width=device-width, initial-scale=1.0">')
-    f.write("       <title>Reporte de tabla simbolos</title>\n")
-    f.write('      <link rel="stylesheet" href="style.css">\n')
-    f.write("   </head>\n")
-    f.write("   <body>\n")
-    f.write("       <p><b>Reporte Tabla de Simbolos<b></p>\n")
-    f.write("       <div>\n")
-    for a in datos.tablaSimbolos:
-        f.write("           <div>\n")
-        f.write("               <p class='base'>BASE DE DATOS: ")
-        f.write(a)
-        f.write("</p>\n")
-        owner = datos.tablaSimbolos[a]['owner']
-        for table in datos.tablaSimbolos[a]['tablas']:
-                columnas = []
-                for column in datos.tablaSimbolos[a]['tablas'][table]['columns']:
-                    cc = ""
-                    try:
-                        cc = column['name']
-                    except:
-                        cc = column.name
-                    nombre = cc
 
-                    tt = ""
-                    try:
-                        tt = column.type
-                    except:
-                        tt = column['type']
-                    tipo = tt
-
-                    yy = ""
-                    try:
-                        yy = column.size
-                    except:
-                        yy = column['size']
-                    size = yy
-
-                    c = fila(nombre, tipo, size)
-
-                    ff = ""
-                    try:
-                        ff = column['pk']
-                    except:
-                        ff = column.pk
-                    if ff != None:
-                        c.setPK()
-
-                    gg = ""
-                    try:
-                        gg = column['fk']
-                    except:
-                        gg = column.fk
-                    if gg != None:
-                        c.setFK()
-
-                    aa = ""
-                    try:
-                        aa = column['unique']
-                    except:
-                        aa = column.unique
-                    if aa != None:
-                        c.setUnique()
-
-                    bb = ""
-                    try:
-                        bb = column['default']
-                    except:
-                        bb = column.default
-                    if bb == None:
-                        c.setDefault('None')
-                    else:
-                        c.setDefault(column.default)
-                    columnas.append(c)
-                f.write("<p class='tabla'>Tabla: ")
-                f.write(table)
-                f.write("</p>")
-                f.write("               <table>\n")
-                f.write("                   <tr class='titulo'>   <td><b>Nombre</b></td>   <td><b>Tipo</b></td>   <td><b>Size</b></td>   <td><b>PK</b></td>  <td><b>FK</b></td> <td><b>Unique</b></td>  <td><b>Default</b></td> </tr>\n")
-                for col in columnas:
-                    f.write("               <tr><td>")
-                    f.write(col.nombre)
-                    f.write("</td><td>")
-                    f.write(col.tipo)
-                    f.write("</td><td>")
-                    f.write(str(col.size))
-                    f.write("</td><td>")
-                    if col.PK == False:
-                        f.write("False")
-                    else:
-                        f.write("True")
-                    f.write("</td><td>")
-                    if col.FK == False:
-                        f.write("False")
-                    else:
-                        f.write("True")
-                    f.write("</td><td>")
-                    if col.unique == False:
-                        f.write("False")
-                    else:
-                        f.write("True")
-                    f.write("</td><td>")
-                    f.write(col.default)
-                f.write("</td></tr>\n")
-                f.write("               </table>\n")
-                f.write("           </div>\n")
-                f.write("         </div>\n")
-    f.write("   </body>\n")
-    f.write("</html>\n")
-    f.close()
 
 def escribirEnSalidaInicio(texto): #borra lo que hay y escribe al inicio
     salida.insert("1.0", texto)

@@ -1,6 +1,6 @@
 #from Instrucciones.instruccion import Instruccion
 from Analisis_Ascendente.Instrucciones.instruccion import *
-#from storageManager.jsonMode import *
+from operator import itemgetter
 from Analisis_Ascendente.storageManager.jsonMode import *
 #import Tabla_simbolos.TablaSimbolos as ts
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
@@ -12,6 +12,9 @@ from Analisis_Ascendente.Instrucciones.Time import  Time
 from Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
 from prettytable import PrettyTable
 
+from C3D import GeneradorTemporales
+
+
 class Select_inst(Instruccion):
 
     def __init__(self):
@@ -19,37 +22,46 @@ class Select_inst(Instruccion):
 
 
     def ejecutar(y,Select,ts,consola,exceptions):
-
-
-        insert('prueba1', 'tabla1', [1, 'Fredy', 'Ramirez'])
-        insert('prueba1', 'tabla1', [2, 'Mauro', 'Martinez'])
-        insert('prueba1', 'tabla1', [3, 'Javier', 'Lima'])
-        insert('prueba1', 'tabla1', [4, 'Yisus', 'Yisusx2'])
-        insert('prueba1', 'tabla1', [5, 'Jacks', 'Wade'])
-
-        insert('prueba1', 'tabla2', [1, 'Mario', 'Guatemala', 'Contabilidad'])
-        insert('prueba1', 'tabla2', [2, 'Jorge', 'Dubai', 'Programador'])
-        insert('prueba1', 'tabla2', [3, 'Pepe', 'Brasil', 'Contabilidad'])
-        insert('prueba1', 'tabla2', [4, 'Fredy', 'Noruega', 'Jefe'])
-        insert('prueba1', 'tabla2', [5, 'Juan', 'Italia', 'Desarollador'])
-
-        insert('prueba1', 'tabla3', [1, 'Sic', 'USA', '4av. km 19.3'])
-        insert('prueba1', 'tabla3', [2, 'Pepe', 'Irak', 'en amatitlan ese'])
-        insert('prueba1', 'tabla3', [3, 'Etesech', 'China', 'perdido'])
-        insert('prueba1', 'tabla3', [4, 'ufuefue', 'Japon', 'Selva'])
-        insert('prueba1', 'tabla3', [5, 'osas', 'Venezuela', 'Jungla'])
-        print("entro en selectinst2")
-        #x = PrettyTable()
-
-
-
-
         ejemplo = opcion(Select,ts,consola,exceptions)
-        #print('Antes del final')
-        #print(ejemplo)
-        #print('LLEGUE AL FINAL ')
         return ejemplo
 
+    def get3D(self, Select, ts, lista_optimizaciones_C3D):
+        etiqueta = GeneradorTemporales.nuevo_temporal()
+        code3d = '\n     # ---------SELECT----------- \n'
+        code3d += '    top_stack = top_stack + 1 \n'
+        code3d += '    %s = \"select ' % etiqueta
+        bdactual = ts.buscar_sim("usedatabase1234")
+        if  bdactual is not None:
+            BD = ts.buscar_sim(bdactual.valor)
+            entornoBD = BD.Entorno
+            listaTablas = entornoBD.simbolos
+        if Select.columnas == '*':
+            code3d += '* from '
+        else:
+            columnitas = ''
+            for col in Select.columnas:
+                if isinstance(col, IdAsId):
+                    columnitas += col.id1.id + ' as ' + col.id2.id + ','
+                elif isinstance(col, IdId):
+                    columnitas += col.id1.id + '.' + col.id2.id + ','
+                else:
+                    columnitas += str(col.id) + ','
+            columnitas2 = list(columnitas)
+            size = len(columnitas2) - 1
+            del(columnitas2[size])
+            s = "".join(columnitas2)
+            code3d += s + ' from '
+        tablas = ''
+        for tables in Select.inner:
+            tablas += str(tables.id) + ','
+        tablitas = list(tablas)
+        siz = len(tablitas) - 1
+        del (tablitas[siz])
+        t = "".join(tablitas)
+        code3d += t
+        code3d += ';\" \n'
+        code3d += '    stack[top_stack] = %s \n' % etiqueta
+        return code3d
 
 
 def opcion(Select,ts,consola,exceptions):
@@ -126,7 +138,7 @@ def opcion(Select,ts,consola,exceptions):
                             break
 
                 listaCampoOficial.extend(listaDeListas(listaAuxiliarC))
-                if Select.orderby != None:
+                if Select.orderby is not None:
                     pass
                 else:
                     consola.append('\n' + x.get_string() + '\n')
@@ -150,9 +162,9 @@ def opcion(Select,ts,consola,exceptions):
                 for tabl in Select.inner:
                     if isinstance(tabl, Id):
                         listaAux = existeCampo(tabl.id, listaTablas,repetido)
-                        print(listaAux[0])
-                        print(listaAux[1])
-                        if (listaAux[0]):
+                        #print(listaAux[0])
+                        #print(listaAux[1])
+                        if listaAux[0]:
                             listaNumeros[listaAux[1]] += 1
 
                 for aux in listaNumeros:  # busca si hay campos duplicados
@@ -176,7 +188,7 @@ def opcion(Select,ts,consola,exceptions):
                                 break
 
                         elif isinstance(tabl, IdId):
-                            print(tabl.id1.id)
+                            pass
                         elif isinstance(tabl, IdAsId):
                             pass
                             # Agregar Metodo
@@ -379,13 +391,11 @@ def opcion(Select,ts,consola,exceptions):
                                         for alias in listaTmp[0]:
                                             if lp != None:
                                                 if (lp['LQBP'] == alias['Alias']):
-                                                    print('ENTRO EN LA OPCION DEL ALIAS ')
                                                     IdIdp2(x, col, listCampos2, listaTablas, bdactual, alias['Tabla'].id,col.id2.id,listaSubquery,listaAuxiliarC)
 
                                         for alias in listaTmp2[0]:
                                             if lp != None:
                                                 if lp['LQBP'] == alias['Tabla'].id:
-                                                    print('ENTRO EN LA OPCION LA TABLA ')
                                                     IdIdp2(x, col, listCampos2, listaTablas, bdactual, alias['Tabla'].id,col.id2.id,listaSubquery,listaAuxiliarC)
 
 
@@ -418,13 +428,17 @@ def opcion(Select,ts,consola,exceptions):
                     return
         #print(listaSubquery)
 
-        if Select.orderby != None: ##-------------------------------------->>> ORDER BY
+        if Select.orderby is not None:
+            ##-------------------------------------->>> ORDER BY
             pass
             for nm in Select.orderby:
                 if isinstance(nm, Id):
                     indexG = buscar_infice(nm.id, listaSubquery)
-                    registro = sorted(listaCampoOficial, key=lambda i: str(i[indexG]).lower())
-                    imprimir_Tabla(Select,registro,listaSubquery,x)
+                    if Select.orderbymod == 'desc':
+                        registro = sorted(listaCampoOficial, key=itemgetter(indexG), reverse=True)
+                    else:
+                        registro = sorted(listaCampoOficial, key=itemgetter(indexG))
+                    imprimir_Tabla(Select, registro, listaSubquery,x)
             consola.append('\n' + x.get_string() + '\n')
             x.clear()
 
@@ -513,7 +527,6 @@ def IdSimpleG(Select,listaTablas,bdactual,listaAux,x,listCampos2,col,groups,sub,
                 auxiliarColumna = []
                 if (col.id == groups.id):
                     for tr in lista2:
-                        print(tr[contador])
                         listCampos2.append(tr[contador])
                         auxiliarColumna.append(tr[contador])
                         validar = False
@@ -958,7 +971,7 @@ def imprimir_Tabla(Select,listaCampos,listaEncabezado,x):
         listCampos2.clear()  # LIMPIO LA LISTA DONDE ALMACENARE LOS DATOS DE CADA COLUMNA
         contador += 1  # INDICA LA POSICION DE LA COLUMNA DONDE OBTENGO LOS VALORES
         auxiliarColumna = []
-        if (contador != -1):
+        if contador != -1:
 
             for col in listaCampos:  # RECORRO LOS DATOS DE LA TABLA DE SIMBOLOS
                 listCampos2.append(col[contador])

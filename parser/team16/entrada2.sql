@@ -49,6 +49,8 @@ insert into tbestado values(4,'Inactivo2');
 insert into tbestado values(5,'Activo1');
 
 
-select * from tbestado where ABS(LENGTH(SUBSTRING(tbestado.estado, 0, 4))) > 4;
+select LENGTH(primernombre), SUBSTRING(primernombre, 1, 3), SUBSTR(primernombre, 1, 4) from tbempleado;
 
-select * from tbempleado where DATE_PART('years', INTERVAL tbempleado.tiempo) > 1;
+--select * from tbempleado where DATE_PART('years', INTERVAL tbempleado.tiempo) > 1;
+
+

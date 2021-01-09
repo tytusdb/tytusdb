@@ -25,16 +25,19 @@ class TIPO_DATO(Enum):
     BASEDEDATOS = 21
     USE = 22
     CLASEENUMERADA = 23
+
     INDEX_SIMPLE = 24
     INDEX_HASH = 25
     INDEX_LOWER = 26
     INDEX_UNIQUE = 27
     INDEX_ORDER = 28
+    PROCEDURE = 50
 
-
-
-
-
+    FUNCTION = 29
+    DECLARE = 30
+    BEGIN = 31
+    PARAMETRO = 32
+    DECLARACION = 33
 
 #La clase simbolo sera todo aquello que se desee guardar para el manejo de los datos
 class Simbolo():
@@ -57,13 +60,14 @@ class TablaDeSimbolos():
 
     def agregar_sim(self, simbolo):
         if id in self.simbolos:
-            print('Error: el identificador ', simbolo.id, ' ya esta definido.')
+            #print('Error: el identificador ', simbolo.id, ' ya esta definido.')
             return
         self.simbolos[simbolo.id] = simbolo
 
     def buscar_sim(self, id):
         if not id in self.simbolos:
-            print('Error: el identificador ', id, ' no esta definido.')
+            #print('Error: el identificador ', id, ' no esta definido.')
+            return None
         return self.simbolos[id]
 
     def validar_sim(self, id):
@@ -74,13 +78,13 @@ class TablaDeSimbolos():
 
     def actualizar_sim(self, simbolo):
         if not simbolo.id in self.simbolos:
-            print('Error: el identificador ', id, ' no esta definido.')
+            pass#print('Error: el identificador ', id, ' no esta definido.')
         else:
             self.simbolos[simbolo.id] = simbolo
 
     def eliminar_sim(self, id):
         if not id in self.simbolos:
-            print("No se encontro el objeto a eliminar")
+            pass#print("No se encontro el objeto a eliminar")
         else:
             del self.simbolos[id]
 

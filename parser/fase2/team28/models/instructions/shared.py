@@ -7,6 +7,9 @@ from pandas.core.frame import DataFrame
 from models.instructions.DML.special_functions import *
 from models.nodo import Node
 from controllers.three_address_code import ThreeAddressCode
+from controllers.procedures import Procedures
+from models.Other.ambito import Ambito
+from models.instructions.Expression.expression import ColumnsTypes
 import pandas as pd 
 class Instruction:
     '''Clase abstracta'''
@@ -30,7 +33,7 @@ class From(Instruction):
             self.alias = None
         else:
             self.alias = f'{self.tables[0].alias}'  
-    
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
 
@@ -89,7 +92,7 @@ class TableReference(Instruction):
         self.option_join = option_join
         self.line = line
         self.column = column
-    
+        self._tac = ''
     def __repr__(self):
         return str(vars(self))
 
@@ -108,7 +111,8 @@ class Where(Instruction):
     '''
     def __init__(self,  condition) :
         self.condition = condition
-    
+        self._tac = ''
+
     def __repr__(self):
         return str(vars(self))
     
@@ -238,6 +242,7 @@ class LikeClause(Instruction):
         self.line = line
         self.alias = f'{valor.alias} {arr_list.alias}'
         self.column = column
+        self._tac = ''
     def __repr__(self):
         return str(vars(self))
     
@@ -272,6 +277,7 @@ class GroupBy(Instruction):
     def __init__(self,  column_names, having_expression) :
         self.column_names = column_names
         self.having_expression = having_expression
+        self._tac = ""
         # self.alias = f'{column_names.alias}'
     
     def __repr__(self):
@@ -343,6 +349,10 @@ class Using(Instruction):
     '''
         USING recibe un array con ids
     '''
+    def __init__(self, value):
+        self.value = value
+        self._tac = ''
+
     def __repr__(self):
         return str(vars(self))
 
@@ -355,6 +365,7 @@ class Returning(Instruction):
     '''
     def __init__(self,  value):
         self.value = value
+        self._tac = ''
     
     def __repr__(self):
         return str(vars(self))
@@ -376,6 +387,7 @@ class Between(Instruction):
         self.line = line
         self.column = column
         self.alias = f'{self.value1} {self.value2}'
+        self._tac = ''
     
     def __repr__(self):
         return str(vars(self))
@@ -436,6 +448,7 @@ class isClause(Instruction):
         self.arr_list = arr_list
         self.line = line
         self.column = column
+        self._tac = ""
     def __repr__(self):
         return str(vars(self))
     
@@ -535,6 +548,7 @@ class ExistsClause(Instruction):
         self.subquery = subquery
         self.line = line
         self.column = column
+        self._tac = ""
         
     def __repr__(self):
         return str(vars(self))
@@ -563,6 +577,7 @@ class ObjectReference(Instruction):
         self.opt_asterisk = opt_asterisk
         self.alias = reference_column.alias
         self.opt_table = opt_table
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -583,14 +598,143 @@ class ObjectReference(Instruction):
         val = self.reference_column.compile(environment)
         if isinstance(val, PrimitiveData):
             return val
-        
+
+        temp_val = val
         val = environment.getVar(val)
 
         if val is None: 
-            print("VARIABLE NO DECLARADA")
+            ErrorController().add(33, 'Execution', f"VARIABLE {temp_val} NO DECLARADA", 0, 0)
             return None
             
         position = val.position
         temporal = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temporal} = Stack[{position}]")
         return PrimitiveData(None, temporal, 0, 0)
+
+def putVarValues(entry:str, temps_array:[], environment: Ambito):
+    entry = entry.replace("))", ")")
+    variables = environment.getAllVarIds()
+    temp = None
+    entry_lower = entry
+    for variable in variables:
+        print(f"variable: {variable}")
+        # variable = f" {variable} "
+        if variable in entry_lower:
+            first_letter = entry_lower.index(variable)
+            next_last_letter = first_letter + len(variable)
+
+            if first_letter - 1 > 0:
+                if entry_lower[first_letter - 1].isalpha(): 
+                    continue
+            if next_last_letter < len(entry_lower):
+                if entry_lower[next_last_letter].isalpha():
+                    continue
+
+            split = entry_lower.split(variable)
+            newValue = environment.getVar(variable)
+            temp = ThreeAddressCode().newTemp()
+            newString = ''
+            #OBTENIENDO VALOR Y PASARLO A UN TEMPORAL
+            ThreeAddressCode().addCode(f"{temp} = Stack[{newValue.position}]")
+            temp_ant = ''
+            for idx, val in enumerate(split):
+
+                if (idx < len(split) - 1):
+                    temp_ant = temp
+                    temp = ThreeAddressCode().newTemp()
+                    ThreeAddressCode().addCode(f"{temp} = \"{val}\" + str({temp_ant})")
+                    newString += f"{val}{newValue.value}"
+       
+            temp_ant = temp
+            temp = ThreeAddressCode().newTemp()
+            ThreeAddressCode().addCode(f"{temp} = {temp_ant} + \";\"")
+            newString += ';'
+
+            print("valor nuevo string: ", newString)
+
+    if len(temps_array) > 0:
+        funciones = Procedures().getProceduresIDs() 
+        contador_funciones = 0
+        for func in funciones:
+            print(f"funcion: {func}")
+            # func = func.lower()
+
+            if func in entry_lower:
+                contador_temporales = ThreeAddressCode().tempCounter
+                #separando string
+                contador_funciones = hacerUnSoloCambio(func, entry_lower, temps_array, contador_funciones)
+
+                for r in range(contador_temporales, ThreeAddressCode().tempCounter-1):
+                    temp_ant = temp
+                    temp = ThreeAddressCode().newTemp()
+                    if temp_ant is None:
+                        ThreeAddressCode().addCode(f"{temp} = t{r} + t{r+1}")
+                    else:
+                        ThreeAddressCode().addCode(f"{temp} = {temp_ant} + t{r+1}")
+                        
+                if temp is None:
+                    dif =  ThreeAddressCode().tempCounter - contador_temporales
+                    if dif > 0:
+                        temp = f"t{contador_temporales + 1}"
+
+                # temp_ant = temp
+                # temp = ThreeAddressCode().newTemp()
+                # ThreeAddressCode().addCode(f"{temp} = {temp_ant} + \";\"")
+                # newString +=  f"{val}"
+                # entry_lower = newString.lower()
+
+                # print("valor nuevo string: ", newString)
+
+
+    if temp is None: return entry
+    else: return temp
+
+
+def hacerUnSoloCambio(func, entry_lower, temps_array, contador_funciones):
+    newString = '' #viendo nada mas como queda armado
+    if func in entry_lower:
+        type_return = Procedures().getReturnType(func)
+        #separando string
+        split = entry_lower.split(func, 1)
+        #recibiendo retorno de la funcion
+        temp = temps_array[contador_funciones]
+        newValue = temp
+        #aumentando contador para obtener el temporal correspondiente
+        contador_funciones += 1
+        temp_ant = ''
+        for idx, val in enumerate(split):
+            #Quitando parametros
+            if idx > 0 and "(" in val and ")" in val:
+                i = val.index("(")
+                j = val.index(")")
+                str1 = val[:i]
+                str2 = val[j+1:]
+                val = str1 + str2
+            if (idx < len(split) - 1):
+                temp_ant = temp
+                temp = ThreeAddressCode().newTemp()
+                # newValue = temp
+                #METIENDO COMILLAS
+                if type_return == ColumnsTypes.TEXT or type_return == ColumnsTypes.VARCHAR:
+                    ThreeAddressCode().addCode(f"{temp} = \"{val}\" + \'\\\"\'")
+                    temp = ThreeAddressCode().newTemp()
+                    ThreeAddressCode().addCode(f"{temp} = str({temp_ant}) + \'\\\"\'")
+                else:
+                    ThreeAddressCode().addCode(f"{temp} = \"{val}\" + str({temp_ant})")
+            newString += f"{val}"
+        if len(split) > 1:
+            print("val", val)
+            contiene_reemplazo = True
+            funciones = Procedures().getProceduresIDs() 
+
+            for func in funciones:
+                if func in val:
+                    contiene_reemplazo = False
+                    break
+            if contiene_reemplazo:
+                temp = ThreeAddressCode().newTemp()
+                ThreeAddressCode().addCode(f"{temp} = \"{val}\"")
+            return hacerUnSoloCambio(func, val, temps_array, contador_funciones)
+
+    return contador_funciones
+    
