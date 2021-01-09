@@ -52,7 +52,7 @@ Por último en la parte inferior de la pantalla, se encuentra la consola. Esta s
 
 **Código**
 
-<img src="docs/Grupo01_Imagen12.jpg" width="550" height="150">
+<img src="docs/Grupo01_Imagen12.jpg" width="850" height="350">
 
 El lenguaje de Tytus utiliza sintaxis de SQL, permite ingresar consultas, crear tablas, crear bases de datos y obtener reportes, por medio de querys. Por ejemplo
 
@@ -65,7 +65,7 @@ CREATE TABLE tblUsuario (
 
 **Consola De Salida v2**
 
-<img src="docs/Grupo01_Imagen13.jpg" width="550" height="150">
+<img src="docs/Grupo01_Imagen13.jpg" width="850" height="350">
 
 La consola de salida se encuentra en la parte inferior de la interfaz y en esta se muestran los resultados de los querys colocados en el editor de texto. Esta consola de salida permite visualizar a manera de tabla los reportes solicitados, asi como tambien listar la información y mostrar mensajes de resultados de la ejecución de las consultas.
 
@@ -128,5 +128,12 @@ El sistema esta compuesto por medio de un servidor y un cliente, los cuales se c
 
 ---
 
+# **Parser**
+
+- El parser utilizado para las consultas esta creado utilizando la herramienta PLY y fue creado por los miembros del grupo 26 del curso de compiladores 2 [G026](../../../parser/team26/G26/ReportesManualTecnico.md).
+
+Este parser es el encargado de procesar las peticiones que se realizan por medio del editor de texto, realiza un analisis de la sintaxis y decide la accion que ejecutar. Posteriormente realiza los cambios necesarios o consultas sobre estructuras de datos previamente construidas por estudiantes del curso de estructuras de datos y devuelve los resultados por medio de un json hacia la consola web.
+
+---
 
 
