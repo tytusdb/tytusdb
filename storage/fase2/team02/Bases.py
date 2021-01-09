@@ -220,3 +220,84 @@ def alterTableMode(database, table, mode):
             return 2        
     except:
         return 1
+
+def alterTable(database, tableOld, tableNew):
+    if searchInMode(tableOld) != None:
+        currentMode = searchInMode(tableOld)
+        if currentMode == 'avl':
+            avlList.append(tableNew)
+            return avl.alterTable(database, tableOld, tableNew)
+        elif currentMode == 'b':
+            bList.append(tableNew)
+            return b.alterTable(database, tableOld, tableNew)
+        elif currentMode == 'bplus':
+            bplusList.append(tableNew)
+            return bplus.alterTable(database, tableOld, tableNew)
+        elif currentMode == 'dict':
+            dictList.append(tableNew)
+            return DM.alterTable(database, tableOld, tableNew)
+        elif currentMode == 'isam':
+            isamList.append(tableNew)
+            return isam.alterTable(database, tableOld, tableNew)
+        elif currentMode == 'json':
+            jsonList.append(tableNew)
+            return j.alterTable(database, tableOld, tableNew)
+        elif currentMode == 'hash':
+            hashList.append(tableNew)
+            return Hash.alterTable(database, tableOld, tableNew)
+    else:
+        return 2
+
+def dropTable(database, table):
+    if searchInMode(table) != None:
+        currentMode = searchInMode(table)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.dropTable(database, table)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.dropTable(database, table)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.dropTable(database, table)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.dropTable(database, table)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.dropTable(database, table)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.dropTable(database, table)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.dropTable(database, table)
+    else:
+        return 2
+
+def showTables(database):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.showTables(database)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.showTables(database)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.showTables(database)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.showTables(database)
+        elif currentMode == 'isam':
+            # isamList.append(database)
+            return isam.showTables(database)
+        elif currentMode == 'json':
+            # jsonList.append(database)
+            return j.showTables(database)
+        elif currentMode == 'hash':
+            # hashList.append(database)
+            return Hash.showTables(database)
+    else:
+        return 2
