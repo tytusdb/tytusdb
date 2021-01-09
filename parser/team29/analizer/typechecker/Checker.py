@@ -1,7 +1,6 @@
-from enum import Enum
-from analizer.abstract import expression
 import analizer.typechecker.Metadata.Struct as S
 from analizer.abstract.expression import Expression
+from analizer.statement.expressions.primitive import Primitive
 from analizer.typechecker.Types.Type import Type
 from analizer.typechecker.Types.Type import TypeNumber
 from analizer.typechecker.Types.Validations import Number as N
@@ -14,6 +13,8 @@ from datetime import datetime
 lstErr = []
 dbActual = ""
 S.load()
+
+syntaxPostgreErrors = []
 
 
 def addError(error):
@@ -46,6 +47,9 @@ def numeric(col, val):
         N.validateMoney(val)
     else:
         print("Invalidate type")
+        syntaxPostgreErrors.append(
+            "Error: 42P18: discrepancia de datos  \n  Type " + col["type"] + " invalido"
+        )
     addError(N.Error)
 
 
@@ -63,6 +67,9 @@ def character(col, val):
             e = C.validateVarchar(col["size"], val)
     except:
         e = "Error: CHARACTER"
+        syntaxPostgreErrors.append(
+            "Error: 42P18: discrepancia de datos  \n  Type " + col["type"] + " invalido"
+        )
     addError(e)
 
 
@@ -95,9 +102,19 @@ def types(col, value):
             return True
         else:
             e = "El valor " + str(value) + " no pertenece a " + col["type"]
+            syntaxPostgreErrors.append(
+                "Error: 42804: discrepancia de datos  \n "
+                + str(value)
+                + " no es del tipo : "
+                + col["type"]
+            )
     else:
         e = " Type " + col["type"] + " no encontrado"
-
+        syntaxPostgreErrors.append(
+            "Error: 42P18: discrepancia de datos  \n  Type "
+            + col["type"]
+            + " no encontrado"
+        )
     addError(e)
 
 
@@ -116,10 +133,16 @@ def select(col, val):
     elif x == TYPE.NUMBER and val.type == TYPE.NUMBER:
         numeric(col, val.value)
     elif col["type"] == "MONEY" and val.type == TYPE.STRING:
-        val.value = val.value.replace(',','')
+        val.value = val.value.replace(",", "")
         numeric(col, val.value)
     else:
         addError(str(val.value) + " no es del tipo : " + col["type"])
+        syntaxPostgreErrors.append(
+            "Error: 42804: discrepancia de datos  \n "
+            + str(val.value)
+            + " no es del tipo : "
+            + col["type"]
+        )
 
 
 def checkValue(dbName, tableName):
@@ -130,7 +153,7 @@ def checkValue(dbName, tableName):
     for col in table["columns"]:
         if col["Default"] != None:
             if col["Default"][1] != 9:
-                value = expression.Primitive(
+                value = Primitive(
                     TypeNumber.get(col["Default"][1]), col["Default"][0], 0, 0, 0
                 )
                 select(col, value)
@@ -144,29 +167,41 @@ def checkValue(dbName, tableName):
 
 def checkInsert(dbName, tableName, columns, values):
     lstErr.clear()
-
-    if columns != None:
-        if len(columns) != len(values):
-            return ["Columnas fuera de los limites"]
-
     table = S.extractTable(dbName, tableName)
-    values = S.getValues(table, columns, values)
     if table == 0:
+        syntaxPostgreErrors.append(
+            "Error: 42000: La base de datos  " + str(dbName) + " no existe"
+        )
         return ["Error: No existe la base de datos"]
     elif table == 1:
+        syntaxPostgreErrors.append(
+            "Error: 42P01: La tabla  " + str(tableName) + " no existe"
+        )
         return ["Error: No existe la tabla"]
-    elif not values:
-        return ["Error: Columnas no identificadas"]
+    if columns != None:
+        if len(columns) != len(values):
+            syntaxPostgreErrors.append(
+                "Error: 42611:  definicion en numero de columnas invalida "
+            )
+            return ["Columnas fuera de los limites"]
     else:
-        pass
+        if len(values) != len(table["columns"]):
+            syntaxPostgreErrors.append(
+                "Error: 42611:  definicion en numero de columnas invalida "
+            )
+            return ["Columnas fuera de los limites"]
+    values = S.getValues(table, columns, values)
+    if not values:
+        syntaxPostgreErrors.append("Error: 42P10: Columnas no identificadas  ")
+        return ["Error: Columnas no identificadas"]
 
     pks = []
     indexCol = 0
     for col in table["columns"]:
         x = Type.get(col["type"])
         value = values[indexCol]
-        if not isinstance(value, expression.Primitive):
-            value = expression.Primitive(x, value, 0, 0, 0)
+        if not isinstance(value, Primitive):
+            value = Primitive(x, value, 0, 0, 0)
             values[indexCol] = value
         if col["PK"]:
             pks.append(indexCol)
@@ -228,6 +263,9 @@ def validateUnique(database, table, value, index):
     for record in records:
         if value == record[index]:
             lstErr.append("El Valor " + str(value) + " ya existe dentro de la tabla")
+            syntaxPostgreErrors.append(
+                "Error: 23505: El valor " + str(value) + " ya existe dentro de la tabla"
+            )
             break
 
 
@@ -243,6 +281,7 @@ def validatePrimary(database, table, values, index):
             lst2.append(values[j].value)
         if lst1 == lst2:
             lstErr.append("Llaves primarias existentes dentro de la tabla")
+            syntaxPostgreErrors.append("Error: 23505: llaves primarias duplicadas ")
             break
 
 
@@ -252,6 +291,9 @@ def validateForeign(database, values, value):
     column = values[1]
     records = jsonMode.extractTable(database, references)
     if records == []:
+        syntaxPostgreErrors.append(
+            "Error: 23503: El valor " + str(value) + " no es una llave foranea "
+        )
         lstErr.append("El Valor " + str(value) + " no es una llave foranea")
         return
     index = S.getIndex(database, references, column)
@@ -259,6 +301,9 @@ def validateForeign(database, values, value):
         if value == record[index]:
             return
     lstErr.append("El Valor " + str(value) + " no es una llave primaria")
+    syntaxPostgreErrors.append(
+        "Error: 23505: El valor " + str(value) + " no es una llave primaria "
+    )
 
 
 def validateConstraint(values, record, database, table, type_):
@@ -289,6 +334,9 @@ def validateConstraint(values, record, database, table, type_):
     try:
         if not insert:
             lstErr.append("El registro no cumple con la restriccion: ", name)
+            syntaxPostgreErrors.append(
+                "Error: 23000: El registro no cumple con la restriccion " + str(name)
+            )
         elif insert:
             return
         else:
@@ -316,12 +364,39 @@ def CheckOperation(value1, value2, type_, operator):
         }
         value = comps.get(operator, None)
         if value == None:
+            syntaxPostgreErrors.append(
+                "Error: 42883: la operacion no existe entre: "
+                + str(type_)
+                + " "
+                + str(operator)
+                + " "
+                + str(type_)
+            )
             return Expression.ErrorBinaryOperation(value1, value1, 0, 0)
         return value
     except:
+        syntaxPostgreErrors.append("Error: XX000: Error fatal CHECK")
         return "Error fatal CHECK"
 
 
 def validateNotNull(notNull, name):
     if notNull:
+        syntaxPostgreErrors.append(
+            "Error: 23502: el valor nulo en la columna '"
+            + name
+            + "' viola la condicion no-nulo"
+        )
         lstErr.append("La columna " + name + "  no puede ser nula")
+
+
+def returnErrors():
+    global syntaxPostgreErrors
+    list_ = T.syntaxPostgreSQL
+    list_ += N.syntaxPostgreErrors
+    list_ += C.syntaxPostgreErrors
+    list_ += syntaxPostgreErrors
+    T.syntaxPostgreSQL = list()
+    N.syntaxPostgreErrors = list()
+    C.syntaxPostgreErrors = list()
+    syntaxPostgreErrors = list()
+    return list_

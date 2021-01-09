@@ -9,8 +9,8 @@ from Instrucciones.Tablas.Campo import Campo
 from storageManager.jsonMode import *
 import numpy as np
 class Identificador(Instruccion):
-    def __init__(self, id, linea, columna):
-        Instruccion.__init__(self,Tipo(Tipo_Dato.ID),linea,columna)
+    def __init__(self, id, strGram, linea, columna):
+        Instruccion.__init__(self,Tipo(Tipo_Dato.ID),linea,columna,strGram)
         self.id = id
 
     def ejecutar(self, tabla, arbol):
@@ -49,16 +49,17 @@ class Identificador(Instruccion):
                 return error
             self.tipo = variable.tipo
             arbol.columnaCheck = self.id
-            return variable.valor.ejecutar(tabla, arbol)
+            return variable.valor
         else:
             # Tengo que traer la variable
             indice = arbol.devolverOrdenDeColumna(arbol.getNombreTabla(), self.id)
             #print("INDICE----------->",arbol.getNombreTabla(),indice,self.id)
-            columnas = arbol.getTablaActual()
-            columnas = np.array(columnas)
-            columna = columnas[:, [indice]]
+            tablaSelect = extractTable(arbol.getBaseDatos(),arbol.getNombreTabla())
+            col = [[item[indice]] for item in tablaSelect]
+            columnas = np.array(col)
+            #print(col)
             self.tipo = arbol.devolverTipoColumna(arbol.getNombreTabla(), self.id)
-            return columna
+            return columnas
 
     def devolverId(self, tabla, arbol):
         return self.id
@@ -83,3 +84,9 @@ class Identificador(Instruccion):
             return error
         self.tipo = variable.tipo
         return variable.valor.ejecutar(tabla, arbol)
+
+    def analizar(self, tabla, arbol):
+        pass
+        
+    def traducir(self, tabla, arbol):
+        pass

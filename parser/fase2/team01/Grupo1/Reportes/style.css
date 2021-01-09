@@ -1,0 +1,24 @@
+body {
+    background:white;
+    color:black;
+    
+}
+
+p{
+    margin: auto;
+    margin-left: 40rem;
+    padding: 1em;
+    font-size: 1.5em;
+    font: 1em sans-serif bolder;
+}
+
+table{
+    margin-top: 2rem;
+    margin-left: 38rem;
+    border-spacing: 1.5em;
+    align-items: center;
+}
+
+.titulo{
+    color: gray;
+}

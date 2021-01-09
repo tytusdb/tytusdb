@@ -7,6 +7,9 @@ parser.out/
 parsertab.py/
 /parser.out
 /parsetab.py
+/jsonMode.py
+jsonMode.py/
+jsonMode.py
 
 # C extensions
 *.so

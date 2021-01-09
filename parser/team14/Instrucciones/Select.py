@@ -18,6 +18,8 @@ class Select(Instruccion):
     'This is an abstract class'
     encabezado = []
     nombreres = ''
+    aliast=[]
+
 
     def __init__(self, distinct=None, exps=None, froms=None, where=None, group=None, having=None, combinging=None,order=None, limit=None):
         self.distinct = distinct
@@ -35,8 +37,10 @@ class Select(Instruccion):
             tablas = []
             result = []
             self.encabezado = []
+            aliast=[]
 
             'Metodo Abstracto para ejecutar la instruccion'
+
             if self.distinct is None and self.froms is None and self.where is None and self.group is None and self.having is None and self.order is None and self.combinig is None:
                 resultados = [];
                 for exp in self.exps:
@@ -51,46 +55,34 @@ class Select(Instruccion):
             elif self.froms != None and self.exps != None:
 
                 for exp in self.froms:
-                    if exp != None:
-                        tipo = exp.tipo;
-                        if tipo.tipo == 'identificador':
-                            nombre = exp.getval(ent).valor
-                            self.nombreres = nombre
-                            tabla = ent.buscarSimbolo(nombre + "_" + ent.getDataBase())
-                            if tabla != None:
-                                tablas.append(tabla)
-                            else:
-                                reporteerrores.append(Lerrores("Error Semantico",
-                                                               "ERROR >> En la instrucción Select, la tabla: " + nombre + " NO EXISTE",
-                                                               0, 0))
-                                variables.consola.insert(INSERT,
-                                                         "ERROR >> En la instrucción Select, la tabla: " + nombre + " NO EXISTE\n")
-                        else:
-                            reporteerrores.append(Lerrores("Error Semantico",
-                                                           "ERROR >> En la instrucción Select, ingreso un nombre de tabla incorrecto",
-                                                           0, 0))
-                            variables.consola.insert(INSERT,
-                                                     "ERROR >> En la instrucción Select, ingreso un nombre de tabla incorrecto\n")
-                    else:
-                        return ("Algo paso")
+
+                        if isinstance(exp,Terminal):
+                            aliast.append('')
+                            tipo = exp.tipo
+                            tablas=self.gettablas(tipo,exp,ent,tablas)
+                        elif isinstance(exp,Alias):
+                            aliast.append(exp.nombre)
+                            expre=exp.expresion
+                            tipo=exp.tipo
+                            tablas=self.gettablas(tipo,expre,ent,tablas)
 
                 if len(tablas) > 1:
                     'Obteniendo encabezados de las tablas'
-                    postab = 1
+
                     for tabla in tablas:
                         cols = tabla.valor
                         for columna in cols:
                             nombre = columna.nombre
-                            self.encabezado.append(nombre + ".T" + str(postab))
-                        postab = postab + 1
+                            self.encabezado.append(nombre + "." +  tabla.nombre.replace('_' + ent.getDataBase(), ''))
+
 
                     'producto cartesiano'
                     real = tablas[0].nombre.replace('_' + ent.getDataBase(), '')
                     result = DBMS.extractTable(ent.getDataBase(), real)
-                    self.nombreres = real + "(T1)"
+                    self.nombreres = real
                     for i in range(0, len(tablas) - 1):
                         real2 = tablas[i + 1].nombre.replace('_' + ent.getDataBase(), '')
-                        self.nombreres += '_' + real2 + "(T" + str(i + 2) + ")"
+                        self.nombreres += "_" +  tabla.nombre.replace('_' + ent.getDataBase(), '')
                         tabla2 = DBMS.extractTable(ent.getDataBase(), real2)
                         result = self.producto(result, tabla2)
                 else:
@@ -98,13 +90,20 @@ class Select(Instruccion):
                     real = tablas[0].nombre.replace('_' + ent.getDataBase(), '')
                     result = DBMS.extractTable(ent.getDataBase(), real)
 
-                'encabezados'
+                'encabezados 1 tabla'
                 if (len(self.encabezado) == 0):
                     for tabla in tablas:
                         cols = tabla.valor
                         for columna in cols:
                             nombre = columna.nombre
                             self.encabezado.append(nombre)
+                #lleno arreglo de alias
+                for exp in self.exps:
+                    self.aliast.append('')
+
+                for x in range(0,len(self.exps)):
+                    if isinstance(self.exps[x],Alias):
+                        self.aliast[i]=self.exps[i].nombre
 
                 # filtros
                 if self.where != None:
@@ -123,10 +122,7 @@ class Select(Instruccion):
 
                 # acceder a columnas
                 if len(self.exps) == 1:
-                    if self.exps[0].getval(ent).valor == '*':
-                        if imp == 1:
-                            self.mostarresult(result, self.encabezado, self.nombreres)
-                    elif self.exps[0].tipo.tipo == 'identificador':
+                    if self.exps[0].tipo.tipo == 'identificador':
                         newenc = []
                         'obtengo  solo columnas pedidas'
                         for i in range(0, len(self.encabezado)):
@@ -139,30 +135,45 @@ class Select(Instruccion):
                                     if (len(newenc) == 0):
                                         newenc.append(self.encabezado[i])
                         self.encabezado = newenc
-                        if imp == 1:
-                            self.mostarresult(result, newenc, self.nombreres)
+
                     else:
-                        'pendientes subconsultas y funciones'
+                        ''
+
                 else:
                     newenc = []
                     newres = []
                     for i in range(0, len(self.exps)):
-                        if self.exps[i].tipo.tipo == 'identificador':
-                            for j in range(0, len(self.encabezado)):
-                                nombrediv = self.encabezado[j].split('.')
-                                nombrecol = nombrediv[0]
-                                if self.exps[i].getval(ent).valor == nombrecol:
-                                    newenc.append(self.encabezado[j])
-                                    for x in range(0, len(result)):
-                                        valcol = result[x][j]
-                                        if len(newres) != len(result):
-                                            newres.append([valcol])
-                                        else:
-                                            newres[x].append(valcol)
+                        if isinstance(self.exps[i], Terminal):
+                            if self.exps[i].tipo.tipo == 'identificador':
+                                for j in range(0, len(self.encabezado)):
+                                    nombrediv = self.encabezado[j].split('.')
+                                    nombrecol = nombrediv[0]
+                                    if self.exps[i].getval(ent).valor == nombrecol:
+                                        newenc.append(self.encabezado[j])
+                                        for x in range(0, len(result)):
+                                            valcol = result[x][j]
+                                            if len(newres) != len(result):
+                                                newres.append([valcol])
+                                            else:
+                                                newres[x].append(valcol)
+                        else:
+                            if isinstance(self.exps[i],FuncionesNativas):
+                                newenc.append(self.exps[i].identificador)
+                            else:
+                                newenc.append('Exp'+len(newenc))
+
+                            for fila in range(0,len(result)):
+                                exp=self.exps[i]
+                                res=self.resolver(exp,ent,result,tablas,fila)
+                                if len(newres) != len(result):
+                                    newres.append([res.valor])
+                                else:
+                                    newres[fila].append(res.valor)
+
                     result = newres
                     self.encabezado = newenc
-                    if imp == 1:
-                        self.mostarresult(newres, newenc, self.nombreres)
+
+                #distinct
                 if self.distinct!=None:
                     newres=[]
                     'elimino duplicados'
@@ -177,12 +188,36 @@ class Select(Instruccion):
                             newres.append(fila)
                     result=newres
 
+                if imp == 1:
+                    self.mostarresult(result, self.encabezado, self.nombreres)
+
             return [self.encabezado, result]
 
         except  Exception as inst:
             print(inst)
             return
 
+
+    def gettablas(self,tipo,exp,ent,tablas):
+        if tipo.tipo == 'identificador':
+            nombre = exp.getval(ent).valor
+            self.nombreres = nombre
+            tabla = ent.buscarSimbolo(nombre + "_" + ent.getDataBase())
+            if tabla != None:
+                tablas.append(tabla)
+            else:
+                reporteerrores.append(Lerrores("Error Semantico",
+                                               "ERROR >> En la instrucción Select, la tabla: " + nombre + " NO EXISTE",
+                                               0, 0))
+                variables.consola.insert(INSERT,
+                                         "ERROR >> En la instrucción Select, la tabla: " + nombre + " NO EXISTE\n")
+        else:
+            reporteerrores.append(
+                Lerrores("Error Semantico", "ERROR >> En la instrucción Select, ingreso un nombre de tabla incorrecto",
+                         0, 0))
+            variables.consola.insert(INSERT,
+                                     "ERROR >> En la instrucción Select, ingreso un nombre de tabla incorrecto\n")
+        return tablas
 
     def mostarresult(self, result,enc, nomresult):
         if not len(result) > 0:
@@ -246,7 +281,7 @@ class Select(Instruccion):
             exp=expresion.exp1
             res= self.resolver(exp,entorno,result,tablas,fila)
             op = Unaria(res,expresion.operador)
-            return op
+            return op.getval(entorno)
 
         else:
             'aqui resuelvo los terminales y funciones'
@@ -257,9 +292,29 @@ class Select(Instruccion):
                         nombrecol = nombrediv[0]
                         if expresion.getval(entorno).valor == nombrecol:
                             dato=result[fila][i]
-                            tipo=self.gettipo(entorno,tablas,nombrecol)
+                            tipo = None
+                            if len(nombrediv) > 1:
+                                tipo = self.gettipo(entorno, tablas, nombrediv[0], nombrediv[1])
+                            else:
+                                tipo = self.gettipo(entorno, tablas, nombrediv[0])
                             term=Terminal(tipo,dato)
                             return term
+                elif expresion.tipo.tipo=='acceso':
+                    for i in range(0, len(self.encabezado)):
+                        nombrediv = self.encabezado[i].split('.')
+                        nombrecol = nombrediv[0]
+                        nombretabla=nombrediv[1]
+                        nombrecol=nombretabla+'.'+nombrecol
+                        if expresion.getval(entorno).valor == nombrecol:
+                            dato=result[fila][i]
+                            tipo = None
+                            if len(nombrediv) > 1:
+                                tipo = self.gettipo(entorno, tablas, nombrediv[0], nombrediv[1])
+                            else:
+                                tipo = self.gettipo(entorno, tablas, nombrediv[0])
+                            term=Terminal(tipo,dato)
+                            return term.getval(entorno)
+
                 else:
                     return expresion
 
@@ -275,35 +330,38 @@ class Select(Instruccion):
                             nombrediv = self.encabezado[i].split('.')
                             nombrecol = nombrediv[0]
                             if val == nombrecol:
-                                tipo = self.gettipo(entorno, tablas, val)
+                                tipo=None
+                                if len(nombrediv)>1:
+                                    tipo = self.gettipo(entorno, tablas, val,nombrediv[1])
+                                else:
+                                    tipo = self.gettipo(entorno, tablas, val)
                                 dato = result[fila][i]
                                 tempexp[j]=Terminal(tipo,dato)
-                return FuncionesNativas(expresion.identificador,tempexp)
+                    func=FuncionesNativas(expresion.identificador, tempexp)
+                return func.getval(entorno)
 
 
-    def gettipo(self,entorno,tablas,col):
+    def gettipo(self,entorno,tablas,col,ntabla=''):
         tipo = None
         for tabla in tablas:
+            real = tabla.nombre.replace('_' + entorno.getDataBase(), '')
             columnas = tabla.valor
             i = 0
             for columna in columnas:
                 nombre = columna.nombre
                 if col == nombre:
-                    if(tipo==None):
+                    if (ntabla==real or ntabla=='') and tipo==None:
                         tipo = columna.tipo
-                    else:
-                        return None
                 i = i + 1
         return tipo
 
 
-    '''def group(self):
+    def group(self):
         'Ejecucucion del group'
     def having(self):
         'Ejecucucion del having'
     def order(self):
-        'Ejecucucion del order'''
-
+        'Ejecucucion del order'
     def m_limit(self,result,limit,off):
         if str(limit).lower=='all':
             limit=len(result)
@@ -370,6 +428,11 @@ class Limit():
     def __init__(self,limit=-1,off=-1):
         self.limit=limit
         self.off=off
+
+class Alias():
+    def __init__(self,expresion,nombre):
+        self.expresion=expresion
+        self.nombre=nombre
 
 class Combi():
     def __init__(self,combi,select,all=''):

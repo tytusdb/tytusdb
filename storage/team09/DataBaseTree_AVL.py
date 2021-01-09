@@ -1,6 +1,6 @@
 from .Tables import Tables
 #import ISAM.BinWriter as b
-import ISAM.BinWriter as b
+from .ISAM import BinWriter as b
 import os
 import pickle
 from PIL import Image

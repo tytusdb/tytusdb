@@ -1,0 +1,1 @@
+ Create table tbCalificacion(idcalifica integer  not null primary key, item varchar (100) not null, punteo integer  not null);print('1007'); insert into tbCalificacion values( 'Update', 1007) ;select * from tbCalificacion ;

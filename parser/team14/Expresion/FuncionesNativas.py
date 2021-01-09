@@ -62,13 +62,21 @@ class FuncionesNativas(Expresion):
         except:
             return "Error: La función: " + funcion + " solo recibe valores númericos"
 
-        if (funcion == "length" or funcion == "md5" or funcion == "sha256" or funcion == "convert"):
+        if (funcion == "length" or funcion == "md5" or funcion == "sha256" or funcion == "convert"  or funcion == "trim"):
             valexpresion = self.expresiones[0].getval(entorno).valor
+            t=0
+            for tam in self.expresiones:
+                t=t+1
+
+            if (funcion=="trim" and t==2):
+                val1expresion = self.expresiones[1].getval(entorno).valor
+                return self.FunctionWithTwoParameter(funcion, sizeparametro, valexpresion,val1expresion)
+
             # print(valexpresion,'valooooor')
             return self.FunctionWithOneParameter(funcion, sizeparametro, valexpresion)
 
         elif (
-                funcion == "get_byte" or funcion == "set_byte" or funcion == "encode" or funcion == "decode" or funcion == "trim" or funcion == "date_part"):
+                funcion == "get_byte" or funcion == "set_byte" or funcion == "encode" or funcion == "decode" or funcion == "date_part"):
             val1expresion = self.expresiones[0].getval(entorno).valor
             val2expresion = self.expresiones[1].getval(entorno).valor
             return self.FunctionWithTwoParameter(funcion, sizeparametro, val1expresion, val2expresion)
@@ -234,6 +242,11 @@ class FuncionesNativas(Expresion):
 
             elif (funcion == "convert"):
                 return self.expresiones[0]
+            
+            elif (funcion == "trim"):
+                trim = exp.strip()
+                return Terminal(Tipo('varchar', trim, self.l(trim), -1), trim)
+
 
 
 
@@ -311,6 +324,12 @@ class FuncionesNativas(Expresion):
                 datepart=datepart.getval()
 
                 return Terminal(Tipo('integer', datepart, self.l(datepart), -1), datepart)
+            
+            elif (funcion == "trim"):
+                print('exp',exp2)
+                trim = exp1.strip(exp2)
+                return Terminal(Tipo('varchar', trim, self.l(trim), -1), trim)
+
 
         else:
 

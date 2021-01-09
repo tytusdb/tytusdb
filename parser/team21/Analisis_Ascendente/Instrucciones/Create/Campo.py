@@ -1,8 +1,10 @@
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
-from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import * #Expresion
-from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo
-import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from tytus.parser.team21.Analisis_Ascendente.storageManager.jsonMode import *
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import * #Expresion
+from tytus.parser.team21.Analisis_Ascendente.Instrucciones.expresion import Primitivo
+import tytus.parser.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
+
 tipos_de_dato = {
     'smallint': 'SMALLINT', 'integer': 'INTEGER', 'bigint': 'BIGINT', 'decimal': 'DECIMAL',
     'numeric': 'NUMERIC', 'double': 'DOUBLE', 'precision': 'PRECISION', 'real': 'REAL',
@@ -86,7 +88,7 @@ class Campo(Instruccion):
                     valores = []
                     if str(campo.acompaniamiento) != str(None):
                         for data in campo.acompaniamiento:
-                            print(data.tipo ,"  ",data.valorDefault)
+                            print(data.tipo ," - ",data.valorDefault)
                             if str(data.valorDefault) == str(None):
                                 valores.append(data.tipo)
                             else:
@@ -97,16 +99,21 @@ class Campo(Instruccion):
                     return valor
                 elif str(campo.tipo.tipo).lower() in tipos_de_dato and ts.validar_sim(campo.id) == -1:
                     valores = []
+                    check = []
                     if str(campo.acompaniamiento) != str(None):
                         for data in campo.acompaniamiento:
-                            print(data.tipo, "  ", data.valorDefault)
+                            print(data.tipo, " - ", data.valorDefault)
                             if str(data.valorDefault) == str(None):
                                 valores.append(data.tipo)
                             else:
-                                valores.append(str(data.tipo)+":"+str(data.valorDefault))
+                                if isinstance(data.valorDefault,Expresion):
+                                    check.append(data.valorDefault)
+                                    valores.append(str(data.tipo) + ":" + "expresion")
+                                else:
+                                    valores.append(str(data.tipo)+":"+str(data.valorDefault))
 
                     print("campo-> ",str(campo.tipo.tipo)," ",campo.acompaniamiento)
-                    campo_nuevo = TS.Simbolo(TS.TIPO_DATO.CAMPO, campo.id, str(campo.tipo.tipo).upper(), valores, None)
+                    campo_nuevo = TS.Simbolo(TS.TIPO_DATO.CAMPO, campo.id, str(campo.tipo.tipo).upper(), valores, check)
                     ts.agregar_sim(campo_nuevo)
                     return valor
 
@@ -192,5 +199,42 @@ class Campo(Instruccion):
             print(valor)
         else:
             print("5->>>>>>>>>>>>>>>>> ", campo.id)
+            # id con su tipo
+            # verificamos tipo si viene
+            print("1->>>>>>>>>>>>>>>>> ", campo.id)
+
+            # if campo.tipo != None and ts.validar_sim(campo.id) == -1:
+            if ts.validar_sim(campo.id) == -1:
+
+                if ts.validar_sim(campo.id) == -1:
+                    valores = []
+                    check = []
+                    if str(campo.acompaniamiento) != str(None):
+                        for data in campo.acompaniamiento:
+                            print(data.tipo, " - ", data.valorDefault)
+                            if str(data.valorDefault) == str(None):
+                                valores.append(data.tipo)
+                            else:
+                                if isinstance(data.valorDefault, Expresion):
+                                    check.append(data.valorDefault)
+                                    valores.append(str(data.tipo) + ":" + "expresion")
+                                else:
+                                    valores.append(str(data.tipo) + ":" + str(data.valorDefault))
+
+
+                    campo_nuevo = TS.Simbolo(TS.TIPO_DATO.CAMPO, campo.id, campo.tipo.upper(), valores, check)
+                    ts.agregar_sim(campo_nuevo)
+                    return valor
+
+                else:
+                    if ts.validar_sim(campo.id) == 1:
+                        consola.append(f"Repeat identificador {campo.id}")
+                    else:
+                        consola.append(f"42P18	indeterminate_datatype, Tipo de dato no valido para {campo.id}\n")
+                        exceptions.append(f"Error Semantico-NUMERO-info-fila-columna")
+                    valor = False
+            return valor
+            # ts.agregar_sim()
+
         print(valor)
         return valor

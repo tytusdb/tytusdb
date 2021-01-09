@@ -25,7 +25,7 @@ class Tables:
         self.load(ruta)
 
 
-    def createTable(self, database, table, numberColumns,ruta):
+    def createTable(self, table, numberColumns, ruta):
         if not table in self.Tabs:
             self.initCheck(str(ruta)+"/"+str(table))
             tab = TabsStruct(table, numberColumns,

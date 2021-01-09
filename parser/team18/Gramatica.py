@@ -390,13 +390,13 @@ def p_alttbadd(t):
                   | ADD alttbadd2  '''
      
      if len(t)==3:
-          t[0]=ALTERTBO_ADD(0,0,0,0,t[2])
+          t[0]=ALTERTBO_ADD(0,0,0,"C",t[2])
      else:
           temp=t[2]
           temp=temp.upper()
 
           if (temp!="COLUMN" and temp!="CONSTRAINT"):
-               t[0]=ALTERTBO_ADD(t[2],t[3],t[4],0,[])
+               t[0]=ALTERTBO_ADD(t[2],t[3],t[4],"ID",[])
           elif temp=="COLUMN":
                t[0]=ALTERTBO_ADD(t[3],t[4],t[5],t[2],[])
           elif temp=="CONSTRAINT":
@@ -405,13 +405,8 @@ def p_alttbadd(t):
           
 
 def p_alttbadd2(t):
-     '''alttbadd2 : alttbadd2 COMA alttbadd3
-                  | alttbadd3  '''
-     if len(t)==4:
-          t[0]=t[1]+[t[3]]
-     else:
-          t[0]=[t[1]]
-
+     '''alttbadd2 : alttbadd3  '''
+     t[0]=t[1]
 def p_alttbadd3(t):
      '''alttbadd3 : CHECK PAR_A exp PAR_C
                   | UNIQUE PAR_A alttbadd4 PAR_C
@@ -427,7 +422,7 @@ def p_alttbadd3(t):
      elif temp=="PRIMARY":
           t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[4],0,0)
      elif temp=="FOREIGN" :
-          t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[4],t[6],t[9])
+          t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[4],t[7],t[9])
 
 
 def p_alttbadd4(t):
@@ -608,18 +603,20 @@ def p_lista_select(t):
 def p_value_select(t):
      '''value_select : columna_name alias_name
                      | ID PUNTO ASTERISCO alias_name
-                     | funcion_math alias_name
-                     | funcion_date alias_name
                      | PAR_A seleccionar PAR_C alias_name'''
-     if len(t) == 2:
+     if len(t) == 3:
           t[0] = Valor_Select(t[1],'normal',t[2],None)
-     elif len(t) == 3:
-          t[0] = Valor_Select(None,'funcion',t[2],t[1])
      else:
           if t[1] == "(":
                t[0] = Valor_Select(None,'subquery',t[4],t[2])
           else:
                t[0] = t[0] = Valor_Select(Operando_ID(t[1]),'*',t[4],None)
+
+
+def p_value_select_funtion(t):
+     '''value_select : funcion_math alias_name
+                     | funcion_date alias_name'''
+     t[0] = Valor_Select(None,'funcion',t[2],t[1])
 
 
 def p_value_select_case(t):
@@ -937,122 +934,125 @@ def p_funcion_math(t):
                      | CONVERT PAR_A exp AS tipo PAR_C 
                      | width_bucket PAR_A exp COMA exp COMA exp COMA exp PAR_C
                      | empty'''
-     if (t[1].lower() == 'abs'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ABS)
-     elif(t[1].lower() == 'cbrt'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.CBRT)
-     elif(t[1].lower() == 'ceil'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.CEIL)
-     elif(t[1].lower() == 'ceiling'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.CEILING)
-     elif(t[1].lower() == 'degrees'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.DIV)
-     elif(t[1].lower() == 'exp'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.EXP)
-     elif(t[1].lower() == 'factorial'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.FACTORIAL)
-     elif(t[1].lower() == 'floor'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.FLOOR)
-     elif(t[1].lower() == 'ln'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.LN)
-     elif(t[1].lower() == 'log'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.LOG)
-     elif(t[1].lower() == 'radians'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.RADIANS)
-     elif(t[1].lower() == 'sign'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SIGN)
-     elif(t[1].lower() == 'sqrt'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SQRT)
-     elif(t[1].lower() == 'trunc'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.TRUNC)
-     elif(t[1].lower() == 'pi'):
-          t[0] = Operacion_Definida(OPERACION_MATH.PI)
-     elif(t[1].lower() == 'random'):
-          t[0] = Operacion_Definida(OPERACION_MATH.RANDOM)
-     #funciones con > 2 argumentos
-     elif(t[1].lower() == 'gcd'):
-          t[0] = Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.GCD)
-     elif(t[1].lower() == 'mod'):
-          t[0] = Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.MOD)
-     elif(t[1].lower() == 'div'):
-          t[0] = Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.DIV)
-     elif(t[1].lower() == 'power'):
-          t[0] = Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.POWER)
-     elif(t[1].lower() == 'round'):
-          t[0] = Operacion_Math_Binaria(t[3],t[5], OPERACION_MATH.ROUND)
+     if len(t) == 2:
+          t[0] = t[1]
+     else:
+          if (t[1].lower() == 'abs'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ABS)
+          elif(t[1].lower() == 'cbrt'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.CBRT)
+          elif(t[1].lower() == 'ceil'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.CEIL)
+          elif(t[1].lower() == 'ceiling'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.CEILING)
+          elif(t[1].lower() == 'degrees'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.DIV)
+          elif(t[1].lower() == 'exp'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.EXP)
+          elif(t[1].lower() == 'factorial'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.FACTORIAL)
+          elif(t[1].lower() == 'floor'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.FLOOR)
+          elif(t[1].lower() == 'ln'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.LN)
+          elif(t[1].lower() == 'log'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.LOG)
+          elif(t[1].lower() == 'radians'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.RADIANS)
+          elif(t[1].lower() == 'sign'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SIGN)
+          elif(t[1].lower() == 'sqrt'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SQRT)
+          elif(t[1].lower() == 'trunc'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.TRUNC)
+          elif(t[1].lower() == 'pi'):
+               t[0] = Operacion_Definida(OPERACION_MATH.PI)
+          elif(t[1].lower() == 'random'):
+               t[0] = Operacion_Definida(OPERACION_MATH.RANDOM)
+          #funciones con > 2 argumentos
+          elif(t[1].lower() == 'gcd'):
+               t[0] = Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.GCD)
+          elif(t[1].lower() == 'mod'):
+               t[0] = Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.MOD)
+          elif(t[1].lower() == 'div'):
+               t[0] = Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.DIV)
+          elif(t[1].lower() == 'power'):
+               t[0] = Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.POWER)
+          elif(t[1].lower() == 'round'):
+               t[0] = Operacion_Math_Binaria(t[3],t[5], OPERACION_MATH.ROUND)
+          
      
-
-     #trigonometric
-     elif(t[1].lower() == 'acos'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ACOS)
-     elif(t[1].lower() == 'acosd'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ACOSD)
-     elif(t[1].lower() == 'asin'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ASIN)
-     elif(t[1].lower() == 'asind'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ASIND)
-     elif(t[1].lower() == 'atan'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATAN)
-     elif(t[1].lower() == 'atand'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATAND)
-     elif(t[1].lower() == 'atan2'):
-          t[0] =  Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.ATAN2)
-     elif(t[1].lower() == 'atan2d'):
-          t[0] =  Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.ATAN2D)
-     elif(t[1].lower() == 'cos'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COS)
-     elif(t[1].lower() == 'cosd'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COSD)
-     elif(t[1].lower() == 'cot'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COT)
-     elif(t[1].lower() == 'cotd'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COTD)
-     elif(t[1].lower() == 'sin'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SIN)
-     elif(t[1].lower() == 'sind'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SIND)
-     elif(t[1].lower() == 'tan'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.TAN)
-     elif(t[1].lower() == 'tand'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.TAND)
-     elif(t[1].lower() == 'sinh'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SINH)
-     elif(t[1].lower() == 'cosh'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COSH)
-     elif(t[1].lower() == 'tanh'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.TANH)
-     elif(t[1].lower() == 'asinh'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ASINH)
-     elif(t[1].lower() == 'acosh'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ACOSH)
-     elif(t[1].lower() == 'atanh'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATANH)
-
-     elif(t[1].lower() == 'width_bucket'):
-          t[0] = Operacion__Cubos(t[3],t[5],t[7],t[9],OPERACION_MATH.WIDTH_BUCKET)
+          #trigonometric
+          elif(t[1].lower() == 'acos'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ACOS)
+          elif(t[1].lower() == 'acosd'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ACOSD)
+          elif(t[1].lower() == 'asin'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ASIN)
+          elif(t[1].lower() == 'asind'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ASIND)
+          elif(t[1].lower() == 'atan'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATAN)
+          elif(t[1].lower() == 'atand'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATAND)
+          elif(t[1].lower() == 'atan2'):
+               t[0] =  Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.ATAN2)
+          elif(t[1].lower() == 'atan2d'):
+               t[0] =  Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.ATAN2D)
+          elif(t[1].lower() == 'cos'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COS)
+          elif(t[1].lower() == 'cosd'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COSD)
+          elif(t[1].lower() == 'cot'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COT)
+          elif(t[1].lower() == 'cotd'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COTD)
+          elif(t[1].lower() == 'sin'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SIN)
+          elif(t[1].lower() == 'sind'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SIND)
+          elif(t[1].lower() == 'tan'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.TAN)
+          elif(t[1].lower() == 'tand'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.TAND)
+          elif(t[1].lower() == 'sinh'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.SINH)
+          elif(t[1].lower() == 'cosh'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COSH)
+          elif(t[1].lower() == 'tanh'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.TANH)
+          elif(t[1].lower() == 'asinh'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ASINH)
+          elif(t[1].lower() == 'acosh'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ACOSH)
+          elif(t[1].lower() == 'atanh'):
+               t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATANH)
      
-     #Binary strings
-     elif(t[1].lower() == 'md5'):
-          t[0] = Operacion_Strings(t[3],OPERACION_BINARY_STRING.MD5)
-     elif(t[1].lower() ==  'sha256'):
-          t[0] = Operacion_Strings(t[3],OPERACION_BINARY_STRING.SHA256)
-     elif(t[1].lower() ==  'length'):
-          t[0] = Operacion_Strings(t[3],OPERACION_BINARY_STRING.LENGTH)
+          elif(t[1].lower() == 'width_bucket'):
+               t[0] = Operacion__Cubos(t[3],t[5],t[7],t[9],OPERACION_MATH.WIDTH_BUCKET)
+          
+          #Binary strings
+          elif(t[1].lower() == 'md5'):
+               t[0] = Operacion_Strings(t[3],OPERACION_BINARY_STRING.MD5)
+          elif(t[1].lower() ==  'sha256'):
+               t[0] = Operacion_Strings(t[3],OPERACION_BINARY_STRING.SHA256)
+          elif(t[1].lower() ==  'length'):
+               t[0] = Operacion_Strings(t[3],OPERACION_BINARY_STRING.LENGTH)
+          
      
-
-     elif(t[1].lower() ==  'substring'):
-          t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SUBSTRING)
-     elif(t[1].lower() ==  'substr'):
-          t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SUBSTR)
-     elif(t[1].lower() ==  'set_byte'):
-          t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SET_BYTE)
-     
-     elif(t[1].lower() ==  'get_byte'):
-          t[0] = Operacion_String_Binaria(t[3],t[7],OPERACION_BINARY_STRING.GET_BYTE)
-     elif(t[1].lower() ==  'encode'):
-          t[0] = Operacion_String_Binaria(t[3],t[6],OPERACION_BINARY_STRING.ENCODE)
-     elif(t[1].lower() ==  'decode'):
-          t[0] = Operacion_String_Binaria(t[3],t[5],OPERACION_BINARY_STRING.DECODE)
+          elif(t[1].lower() ==  'substring'):
+               t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SUBSTRING)
+          elif(t[1].lower() ==  'substr'):
+               t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SUBSTR)
+          elif(t[1].lower() ==  'set_byte'):
+               t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SET_BYTE)
+          
+          elif(t[1].lower() ==  'get_byte'):
+               t[0] = Operacion_String_Binaria(t[3],t[7],OPERACION_BINARY_STRING.GET_BYTE)
+          elif(t[1].lower() ==  'encode'):
+               t[0] = Operacion_String_Binaria(t[3],t[6],OPERACION_BINARY_STRING.ENCODE)
+          elif(t[1].lower() ==  'decode'):
+                    t[0] = Operacion_String_Binaria(t[3],t[5],OPERACION_BINARY_STRING.DECODE)
      
      
 def p_funciones_select_count(t):
@@ -1544,5 +1544,6 @@ parser = yacc.yacc()
 def parse(input) :
      global Error_Lex
      global Error_Sin
+     root=parser.parse(input)
      Reporte_Errores(Error_Lex,Error_Sin)
-     return parser.parse(input)
+     return root

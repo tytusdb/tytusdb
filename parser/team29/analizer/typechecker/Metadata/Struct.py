@@ -29,7 +29,6 @@ def createDatabase(name, mode, owner):
 
 
 def alterDatabaseRename(databaseOld, databaseNew):
-
     for data in Databases:
         if data["name"] == databaseOld:
             data["name"] = databaseNew
@@ -143,7 +142,7 @@ def extractTable(dbName, tableName):
                     return table
             Error.append("Tabla no encontrada")
             return 1
-    Error.append("Dase de datos no encontrada")
+    Error.append("Base de datos no encontrada")
     return 0
 
 
@@ -524,3 +523,17 @@ def existType(name):
 
 def save():
     File.exportFile(Databases, "Databases")
+
+
+def getListIndex(dbName, tableName, columns):
+    table = extractTable(dbName, tableName)
+    if table == 0 or table == 1:
+        return None
+    n = len(table["columns"])
+    index = []
+    for j in columns:
+        for i in range(n):
+            col = table["columns"][i]
+            if col["name"] == j:
+                index.append(i)
+    return index

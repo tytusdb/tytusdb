@@ -1,9 +1,7 @@
 import sys
 sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
-sys.path.append('../G26/Librerias/storageManager')
-
-
+sys.path.append('../tytus/storage/storageManager')
 
 from jsonMode import *
 from instruccion import *
@@ -139,7 +137,7 @@ class Create(Instruccion):
                         null = default.list.execute(data)
                         unique = null.list.execute(data)
                         if unique.list == None : check = None
-                        else : check = unique.list.execute()
+                        else : check = unique.list.execute(data)
 
                         '''print('----------Columnas inicio----------')
                         print(primary)

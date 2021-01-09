@@ -1,0 +1,23 @@
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+	
+	    resultado := 6;
+           
+    	if cantidad = resultado then
+			retorna = 1;
+	else 
+			retorna = 900;
+		
+	end if;
+
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+
+insert into tbCalificacion values(1,'Create Table and Insert',ValidaRegistros('tbProducto',63));
+insert into tbCalificacion values(1,'Create2',ValidaRegistros('tbProducto',6));
+
+insert into tbCalificacion values(1,'Create T3',ValidaRegistros('tbProducto',688));
+

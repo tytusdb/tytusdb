@@ -1,0 +1,30 @@
+CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
+DECLARE resultado INTEGER; 
+		retorna   INTEGER;
+BEGIN
+
+
+
+
+	if tabla = 'tbProducto' then
+	    SELECT * FROM tbProducto;
+retorna = 75;
+        end if;
+    	if cantidad = resultado then
+			retorna = 1;
+	
+		end if;
+	
+	if tabla = 'tbProductoUp' then
+	    retorna := 2333;
+        end if;
+    	if cantidad = 33 then
+			retorna = 13;
+		
+	end if;
+
+RETURN retorna;
+END;
+$$ LANGUAGE plpgsql;
+
+execute ValidaRegistros('tbProducto',3) ;

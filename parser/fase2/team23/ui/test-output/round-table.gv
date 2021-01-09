@@ -1,0 +1,28 @@
+// AST
+digraph {
+	2645 [label=INSTRUCTION_LIST]
+	2646 [label=INSERT_INTO]
+	2647 [label=tbinventario]
+	2648 [label=PARAMS]
+	2649 [label=1]
+	2650 [label=2]
+	2651 [label=3]
+	2652 [label=50]
+	2653 [label=CALL]
+	2654 [label=now]
+	2655 [label=PARAMS]
+	2656 [label="Laptop Lenovo T420 i7 8GB"]
+	2657 [label=INST]
+	2645 -> 2646
+	2646 -> 2647
+	2646 -> 2648
+	2648 -> 2649
+	2648 -> 2650
+	2648 -> 2651
+	2648 -> 2652
+	2648 -> 2653
+	2653 -> 2654
+	2653 -> 2655
+	2648 -> 2656
+	2645 -> 2657
+}
