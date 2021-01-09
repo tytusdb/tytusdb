@@ -79,10 +79,42 @@ class AlterTableAddColumn(Instruccion):
         code.append(c3d.asignacionString(t0, "ALTER TABLE " + self.tabla))
         t1 = c3d.getTemporal()
         for col in self.lista_col:
-            #code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" ADD COLUMN " + col.id + "\\'\" ", "STRING"), OP_ARITMETICO.SUMA))
-            col.generar3D()
+            code.append(c3d.operacion(t1, Identificador(t0), Valor(" \" ADD COLUMN " + col.id + " " + col.tipo.toString() + "\" ", "STRING"), OP_ARITMETICO.SUMA))
+            t0 = t1
+            t1 = c3d.getTemporal()
 
-        code.append(c3d.asignacionTemporalStack(t0))
+        code.append(c3d.operacion(t1, Identificador(t0), Valor("\";\"", "STRING"), OP_ARITMETICO.SUMA))
+        code.append(c3d.asignacionTemporalStack(t1))
         code.append(c3d.aumentarP())
 
+        return code
+
+    def generar3DV2(self, tabla, arbol):
+        super().generar3D(tabla,arbol)
+        code = []
+        code.append('h = p')
+        code.append('h = h + 1')
+        t0 = c3d.getTemporal()
+        bd = arbol.getBaseDatos()
+        if bd != None and bd != "":
+            code.append(t0 + ' = "' + bd + '"')
+        else:
+            code.append(t0 + ' = ' + str(None))
+        code.append('heap[h] = ' + t0)
+        code.append('h = h + 1')
+        t1 = c3d.getTemporal()
+        code.append(t1 + ' = ' + str(self.tabla))
+        code.append('heap[h] = ' + t1)
+        code.append('h = h + 1')
+        if self.lista_col != None:
+            code.append('heap[h] = []')
+            for columna in self.lista_col:
+                t2 = c3d.getTemporal()
+                code.append(t2 + ' = ["' + str(columna) + '"]')
+                code.append('heap[h] = heap[h] + ' + t2)
+        else:
+            code.append('heap[h] = None')
+        code.append('p = h')
+        code.append('call_alterTable_addColumn()')
+        
         return code

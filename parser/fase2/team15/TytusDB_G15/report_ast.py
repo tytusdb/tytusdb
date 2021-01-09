@@ -52,7 +52,7 @@ class AST:
                 self.crearNodoDelete("node2",instruccion)
             # SELECT
             elif isinstance(instruccion, Create_select_general):
-                self.crearNodo_SelectTable("node2",instruccion)
+                self.crearNodoExpresion("node2",'SELECT')
             elif isinstance(instruccion, Create_select_time):
                 self.crearNode_SelectTime("node2",instruccion)
             elif isinstance(instruccion, Funcion_Index):
@@ -60,8 +60,8 @@ class AST:
             '''elif isinstance(instruccion, Create_select_uno):
                 self.crearNode_SelectGL("node2",instruccion)'''
             indice = indice +1
-        dot.view('reportes/AST', cleanup=True)
-
+        #dot.view('reportes/AST', cleanup=True)
+        dot.render('reportes/AST', format='pdf', view=False)
 
     def crearNodoIndex(self, padre, instruccion):
         global  contadorNodos, dot

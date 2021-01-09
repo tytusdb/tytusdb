@@ -24,7 +24,25 @@ class CreateType(Instruction):
 
         SymbolTable().add(typeNew._name, str(typeNew._values), 'TYPE', 'DB', None, '0', '0')
         print(typeNew)
+        #CREANDO C3D
+        temp = ThreeAddressCode().newTemp()
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
 
     def compile(self, instrucction):
+        temp = ThreeAddressCode().newTemp()
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+
+    def optimizate(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")

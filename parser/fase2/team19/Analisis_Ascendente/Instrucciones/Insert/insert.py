@@ -1,9 +1,16 @@
 from Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
+from Analisis_Ascendente.Instrucciones.PLPGSQL import EjecutarFuncion
 from Analisis_Ascendente.Instrucciones.expresion import Primitivo
 from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 from Analisis_Ascendente.storageManager.jsonMode import *
 import Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 from datetime import date,datetime
+
+from C3D import GeneradorTemporales
+from Analisis_Ascendente.Instrucciones.expresion import Funcion
+from Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
+from Analisis_Ascendente.Instrucciones.Time import Time
+
 todoBien = True
 #INSERT INTO
 class InsertInto(Instruccion):
@@ -15,7 +22,64 @@ class InsertInto(Instruccion):
         self.fila = fila
         self.columna = columna
 
-
+    def getC3D(self, lista_Optim):
+        etiqueta = GeneradorTemporales.nuevo_temporal()
+        code = '\n     # ---------INSERT INTO----------- \n'
+        code += '    top_stack = top_stack + 1 \n'
+        code += '    %s = ' % etiqueta
+        code += '\"insert into ' + self.id
+        ides = ''
+        if self.listaId is not None:
+            code += '('
+            for ide in self.listaId:
+                ides += ide.id + ','
+            ids = list(ides)
+            size = len(ids) - 1
+            del (ids[size])
+            s = "".join(ids)
+            code += s + ') values('
+        else:
+            code += ' values ('
+        values = ''
+        for val in self.values:
+            if isinstance(val, Math_):
+                if val.E1 == None and val.E2 == None:
+                    values += '%s,' % val.nombre
+                else:
+                    if val.E2 == None:
+                        val1 = ''
+                        if isinstance(val.E1.valor, str):
+                            val1 = "'%s'" % str(val.E1.valor)
+                        else:
+                            val1 = str(val.E1.valor)
+                        values += '%s ( %s ),' % (val.nombre, val1)
+                    else:
+                        val1 = ''
+                        if isinstance(val.E1.valor, str):
+                            val1 = "'%s'" % str(val.E1.valor)
+                        else:
+                            val1 = str(val.E1.valor)
+                        val2 = ''
+                        if isinstance(val.E2.valor, str):
+                            val2 = "'%s'" % str(val.E2.valor)
+                        else:
+                            val2 = str(val.E2.valor)
+                        values += '%s ( %s , %s ),' % (val.nombre, val1, val2)
+            elif isinstance(val, Time):
+                values += '%s,' % val.getC3D()
+            elif isinstance(val.valor, str):
+                values += '\''+ str(val.valor) + '\','
+            else:
+                values += str(val.valor) + ','
+        vals = list(values)
+        size = len(vals) - 1
+        del (vals[size])
+        v = "".join(vals)
+        code += v
+        code += ')'
+        code += ';\" \n'
+        code += '    stack[top_stack] = %s \n' % etiqueta
+        return code
 
 
     def ejecutar(insertinto,ts,consola,exceptions):
@@ -40,7 +104,7 @@ class InsertInto(Instruccion):
                 if insertinto.caso==1:
 
 
-                    print("caso1")
+                    #print("caso1")
                     for data in insertinto.listaId:
                         contador = 1
                         for columna in entornoTabla.simbolos:
@@ -50,14 +114,14 @@ class InsertInto(Instruccion):
                                 break
                             contador=contador+1
 
-                    print(indices_a_buscar)
+                    #print(indices_a_buscar)
 
                     lista = entornoTabla.simbolos
                     contador = 1
                     for columna in lista:
 
                         if not contador in indices_a_buscar:
-                            print("((((((((((((((((((((((((((((((((((((((")
+                            #print("((((((((((((((((((((((((((((((((((((((")
                             if "NOTNULL" in lista.get(columna).valor:
                                 global todoBien
                                 todoBien = False
@@ -75,7 +139,7 @@ class InsertInto(Instruccion):
 
 
                     for data in insertinto.values:
-                        print("val :",data.valor)
+                        pass#print("val :",data.valor)
 
                     if todoBien:
                         contadoraux= 1
@@ -102,7 +166,7 @@ class InsertInto(Instruccion):
 
                             insert(BD.id, simbolo_tabla.id, dataainsertar)
 
-                            consola.append(f"insert en la tabla {insertinto.id}, exitoso\n")
+                            #consola.append(f"insert en la tabla {insertinto.id}, exitoso\n")
                         else:
                             consola.append(f"Campos insconsistentes")
 
@@ -112,7 +176,7 @@ class InsertInto(Instruccion):
 
                     todoBien=True
                 else:
-                    print("caso 2")
+                    #print("caso 2")
 
                     if len(insertinto.values) == len(entornoTabla.simbolos):
                         i =0
@@ -152,20 +216,24 @@ class InsertInto(Instruccion):
             exceptions.append("Error semantico-22005	error_in_assignment-No se ha seleccionado DB-fila-columna")
 
 def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consola,exception,bd,tabla,globall):
-    print("estoy aqui !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    #print("estoy aqui !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     todobien = False
-#    print(lista_valores[index].valor)
-#    print(date.fromisoformat(lista_valores[index].valor))
-#    print(isinstance(date.fromisoformat(lista_valores[index].valor),date))
-#    print('DATE' in str(lista_tabla.get(campo).tipo).upper())
+#    #print(lista_valores[index].valor)
+#    #print(date.fromisoformat(lista_valores[index].valor))
+#    #print(isinstance(date.fromisoformat(lista_valores[index].valor),date))
+#    #print('DATE' in str(lista_tabla.get(campo).tipo).upper())
     datafinal = None
     if isinstance(lista_valores[index],Instruccion):
         datafinal = Expresion.Resolver(lista_valores[index],ts,Consola,exception)
         datainsertar.append(datafinal)
+    elif isinstance(lista_valores[index],Funcion):
+        datafinal = EjecutarFuncion.ResolverFuncion(lista_valores[index],globall,Consola,exception)
+        datainsertar.append(datafinal)
+        EjecutarFuncion.limpiarFuncion(lista_valores[index],globall)
     else:
         datafinal = lista_valores[index].valor
         datainsertar.append(datafinal)
-    print(datafinal)
+    #print(datafinal)
 
 
     if isinstance(datafinal,int) and 'INTEGER' in str(lista_tabla.get(campo).tipo).upper():
@@ -226,25 +294,25 @@ def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consol
                                                      tabla, index)
 
         except:
-            print("error de tipo")
+            #print("error de tipo")
             todobien = False
     else:
         try:
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5")
-            print(lista_tabla.get(campo).tipo)
+            #print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5")
+            #print(lista_tabla.get(campo).tipo)
             for data in globall.simbolos:
-                print(":: ",data)
+                pass#print(":: ",data)
             if globall.validar_sim(str(lista_tabla.get(campo).tipo).lower()) == 1:
-                print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4")
+                #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4")
                 for data in ts.simbolos:
-                    print(";;; ",data)
+                    pass#print(";;; ",data)
                 simbolo_enumo = globall.buscar_sim(str(lista_tabla.get(campo).tipo).lower())
 
                 if datafinal in simbolo_enumo.valor:
                     todobien = True
                     Consola.append("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11")
             else:
-                print("no encotrado")
+                pass#print("no encotrado")
         except:
             todobien= False
     return todobien
@@ -252,9 +320,9 @@ def comprobar_tipos(datainsertar,index,lista_valores,campo,lista_tabla,ts,Consol
 
 def comprobarcheck(expresion,data,valor,nombre_columna,ts,Consola,exception):
     valor_retorno=True
-    print("que pedo",data)
+    #print("que pedo",data)
     #if data == 1:
-    print("-> ",expresion)
+    #print("-> ",expresion)
     if expresion != None:
 
         for datos in expresion:
@@ -274,12 +342,12 @@ def comprobarcheck(expresion,data,valor,nombre_columna,ts,Consola,exception):
 
 def comprobar_caracteristicas(tipo_caracteristica,data,Consola,Exception,nombre_bd,nombre_tabla,posicion):
     devolver=True
-    print("->>>>>",tipo_caracteristica)
+    #print("->>>>>",tipo_caracteristica)
     if tipo_caracteristica != None:
-        print("aqui estamos")
+        #print("aqui estamos")
 
         for caracteristica in tipo_caracteristica:
-            print(caracteristica)
+            #print(caracteristica)
             if "NOTNULL" in str(caracteristica):
 
                 if data == None:
@@ -287,16 +355,16 @@ def comprobar_caracteristicas(tipo_caracteristica,data,Consola,Exception,nombre_
                     devolver=False
                     break
             elif "UNIQUE" in str(caracteristica) or "PRIMARYKEY" in str(caracteristica):
-                print(nombre_bd.id,nombre_tabla.id)
+                #print(nombre_bd.id,nombre_tabla.id)
                 datas = extractTable(nombre_bd.id,nombre_tabla.id)
-                print("unique or primary ->  ",posicion)
+                #print("unique or primary ->  ",posicion)
                 for fila in datas:
                     if str(fila[posicion])== str(data):
                         devolver= False
                         Consola.append("Constraint unique active")
-                    print(fila[posicion])
+                    #print(fila[posicion])
 
 
-                print(data)
+                #print(data)
 
     return  devolver

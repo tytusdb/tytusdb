@@ -7,6 +7,7 @@ class CreateCol(Instruction):
         self._column_name = column_name
         self._type_column = type_column
         self._properties = properties
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -19,6 +20,7 @@ class Unique(Instruction):
 
     def __init__(self, column_list):
         self._column_list = column_list
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -31,6 +33,7 @@ class Check(Instruction):
 
     def __init__(self, column_condition):
         self._column_condition = column_condition
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -43,6 +46,7 @@ class PrimaryKey(Instruction):
 
     def __init__(self, column_list):
         self._column_list = column_list
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -57,6 +61,7 @@ class ForeignKey(Instruction):
         self._column_list = column_list
         self._table_name = table_name
         self._table_column_list = table_column_list
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -70,6 +75,7 @@ class Constraint(Instruction):
     def __init__(self, column_name, column_condition):
         self._column_name = column_name
         self._column_condition = column_condition
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
@@ -84,9 +90,13 @@ class ColumnTipo(Instruction):
         self._tipoColumna = tipoColumna 
         self._paramOne = paramOne
         self._paramTwo = paramTwo
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
 
     def process(self,instruction):
         pass
+
+    def compile(self):
+        return self._tipoColumna

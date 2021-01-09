@@ -1,6 +1,7 @@
 from sys import path
 from os.path import dirname as dir
-
+import webbrowser
+import os
 path.append(dir(path[0]))
 from tkinter import ttk
 import tkinter as tk
@@ -42,6 +43,7 @@ class Pantalla:
         navMenu = Menu(self.window)
         navMenu.add_command(label="Tabla de Simbolos", command=self.open_ST)
         navMenu.add_command(label="AST", command=self.open_AST)
+        navMenu.add_command(label="AST pdf", command=self.open_PDF)
         navMenu.add_command(
             label="Reporte de errores",
             command=self.open_Reporte,
@@ -124,6 +126,7 @@ class Pantalla:
         self.semanticErrors = result["semantic"]
         self.postgreSQL = result["postgres"]
         self.ts = result["symbols"]
+        self.indexes = result["indexes"]
         if (
             len(self.lexicalErrors)
             + len(self.syntacticErrors)
@@ -194,7 +197,7 @@ class Pantalla:
             table.insert(parent="", index="end", iid=i, text=i, values=(row))
 
     def open_ST(self):  # Abre la pantalla de la table de simbolos
-        windowTableS = Pantalla_TS(self.window, self.ts)
+        windowTableS = Pantalla_TS(self.window, self.ts, self.indexes)
 
     def open_AST(self):  # Abre la pantalla del AST
         windowTableS = Pantalla_AST(self.window)
@@ -203,7 +206,9 @@ class Pantalla:
         windowTableS = Pantalla_Error(
             self.window, self.lexicalErrors, self.syntacticErrors, self.semanticErrors
         )
-
+    def open_PDF(self):
+        url = "file:///" + os.path.realpath("test-output/round-table.gv.pdf")
+        webbrowser.open(url)
 
 def main():  # Funcion main
     queryTool = Pantalla()

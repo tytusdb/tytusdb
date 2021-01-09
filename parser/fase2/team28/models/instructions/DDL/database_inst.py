@@ -47,7 +47,11 @@ class CreateDB(Instruction):
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        ThreeAddressCode().addCode(f"{temp} = '{self._tac}'")
+        #LLAMANDO A FUNCION PARA ANALIZAR
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
 
 
 class DropDB(Instruction):
@@ -57,14 +61,23 @@ class DropDB(Instruction):
         self._database_name = database_name
         self._noLine = noLine
         self._noColumn = noColumn
-        self._tac = tac
+        self._tac = ''
 
     def __repr__(self):
         return str(vars(self))
 
     def compile(self, instrucction):
+        #CREANDO C3D
         temp = ThreeAddressCode().newTemp()
-        ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        database_id = SymbolTable().useDatabase
+        if database_id is not None:
+            ThreeAddressCode().addCode(f"{temp} = \"USE {database_id}; {self._tac}\"")
+        else:
+            ThreeAddressCode().addCode(f"{temp} = \"{self._tac}\"")
+        #LLAMANDO A FUNCION PARA ANALIZAR ESTA COCHINADA
+        temp1 = ThreeAddressCode().newTemp()
+        ThreeAddressCode().addCode(f"{temp1} = parse({temp})")
+        return temp1
 
     def process(self, instrucction):
         typeChecker = TypeChecker()
@@ -81,7 +94,7 @@ class ShowDatabase(Instruction):
 
     def __init__(self, patherMatch, tac):
         self._patherMatch = patherMatch
-        self._tac = tac
+        self._tac = ''
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
@@ -136,7 +149,7 @@ class AlterDatabase(Instruction):
         self._newValue = newValue
         self._noLine = noLine
         self._noColumn = noColumn
-        self._tac = tac
+        self._tac = ''
 
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
@@ -167,6 +180,7 @@ class UseDatabase(Instruction):
     def compile(self, instrucction):
         temp = ThreeAddressCode().newTemp()
         ThreeAddressCode().addCode(f"{temp} = '{self._tac};'")
+        SymbolTable().useDatabase = self._dbActual
 
     def process(self, instrucction):
         typeChecker = TypeChecker()

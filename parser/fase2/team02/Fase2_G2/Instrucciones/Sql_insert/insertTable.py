@@ -7,6 +7,7 @@ from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.Excepcion import Excepcion
 import numpy as np
 from storageManager.jsonMode import *
+from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
 
 # valor -----> nombre de la tabla
 # lcol ------> lista con el nombre de las columnas
@@ -179,7 +180,7 @@ class insertTable(Instruccion):
                         arbol.excepciones.append(error)
                         arbol.consola.append(error.toString())
                         return error
-                    arbol.consola.append(f"el registro se inserto correctamente.")
+                    # arbol.consola.append(f"el registro se inserto correctamente.")
                     
                 # El insert no tiene una lista de columnas
                 else:
@@ -272,7 +273,7 @@ class insertTable(Instruccion):
                         arbol.excepciones.append(error)
                         arbol.consola.append(error.toString())
                         return error
-                    arbol.consola.append(f"el registro se inserto correctamente.")
+                    # arbol.consola.append(f"el registro se inserto correctamente.")
             else:
                 error = Excepcion('42P01',"Semántico","No existe la relación "+self.valor,self.linea,self.columna)
                 arbol.excepciones.append(error)
@@ -379,7 +380,7 @@ class insertTable(Instruccion):
         cadena = "\" "
 
         try: 
-             cadena = "insert into "
+             cadena += "insert into "
              cadena += self.valor + " values( "
              j=0
              p=0
@@ -387,14 +388,19 @@ class insertTable(Instruccion):
                  
                  p=p+1
              for ele in self.lexpre: 
-                 print(ele)
-                 print("cadena es ")
-                 
-                 cadena += ele.traducir(tabla,arbol).temporalAnterior 
-                 print(ele.traducir(tabla,arbol).temporalAnterior)
-                 if( j > -1 and j<p-1):
-                    cadena += ", "
-                 j=j+1
+                try: 
+                        print(ele)
+                      #  print("cadena es ",ele)
+                        if isinstance(ele, Now.Now):
+                            cadena += ele.traducir(tabla,arbol)
+                        else:
+                            cadena += ele.traducir(tabla,arbol).temporalAnterior 
+                       # print(ele.traducir(tabla,arbol).temporalAnterior)
+                        if( j > -1 and j<p-1):
+                            cadena += ", "
+                        j=j+1
+                except Exception as e:
+                    print(e)
              cadena += ") ;"
              
         except Exception as e:

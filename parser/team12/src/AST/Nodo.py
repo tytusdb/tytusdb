@@ -44,3 +44,11 @@ class Nodo(metaclass=ABCMeta):
     @abstractmethod
     def execute(self, enviroment):
         pass
+
+    @abstractmethod
+    def compile(self, enviroment):
+        pass
+
+    @abstractmethod
+    def getText(self):
+        pass

@@ -3,30 +3,4 @@ edge [color=black]; rankdir = TB;
 Nodo0[label="INICIO"]
 Nodo1[label="Instrucciones"]
 Nodo0 -> Nodo1;
-Nodo2[label="CREATE DATABASE"]
-Nodo1 -> Nodo2;
-Nodo3[label="IF NOT EXISTS"]
-Nodo2 -> Nodo3;
-Nodo4[label="test"]
-Nodo2 -> Nodo4;
-Nodo5[label="MODE: 1"]
-Nodo2 -> Nodo5;
-Nodo10[label="USE DATABASE [test]"]
-Nodo1 -> Nodo10;
-Nodo11[label="Instruccion: CREATE TABLE"]
-Nodo1 -> Nodo11;
-Nodo12[label="Id: tabla"]
-Nodo11 -> Nodo12;
-Nodo13[label="Campo"]
-Nodo11 -> Nodo13;
-Nodo14[label="Id: id"]
-Nodo13 -> Nodo14;
-Nodo15[label="Tipo: Tipo_Dato.INTEGER"]
-Nodo13 -> Nodo15;
-Nodo16[label="Campo"]
-Nodo11 -> Nodo16;
-Nodo17[label="Id: column2"]
-Nodo16 -> Nodo17;
-Nodo18[label="Tipo: Tipo_Dato.INTEGER"]
-Nodo16 -> Nodo18;
 }

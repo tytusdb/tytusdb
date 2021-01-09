@@ -39,4 +39,11 @@ class Function_Factorial(Expresion):
             self.tipo = Type_Expresion(Data_Type.error)
             self.valorExpresion = None 
             return self.valorExpresion
-        
+    
+    def compile(self, enviroment):
+        print("compile")
+    
+    def getText(self):
+        exp = self.hijos[0]
+        stringReturn = 'factorial('+ exp.getText() +')'
+        return stringReturn

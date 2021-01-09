@@ -11,6 +11,7 @@ import os
 #from sintactico import ejecutar_analisis
 import reportes.RealizarReportes
 import reportes.reportesimbolos as rs
+import reportes.reporteFunciones as rf
 import reportes.RealizarGramatica
 
 from Instrucciones.TablaSimbolos.Tabla import Tabla
@@ -65,7 +66,7 @@ class interfaz():
         #img = PhotoImage(file='img/icons/Postgresql.ico')
         #self.window.tk.call('wm', 'iconphoto', self.window._w, img)
         self.window.configure(background="#6a8d92")
-        self.window.title("Query Tool - Grupo 8")
+        self.window.title("Query Tool - Grupo 22")
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
         w, h = 1370,670
         self.window.geometry("%dx%d+0+0" % (w, h))
@@ -82,6 +83,7 @@ class interfaz():
         mnreportes = Menu(menu,tearoff=0)
         mnreportes.add_command(label='Tabla de Errores', command=self.tblerrores_click)
         mnreportes.add_command(label='Tabla de Simbolos', command=self.tblsimbolos_click)
+        mnreportes.add_command(label='Tabla de Funciones y Procedimientos', command=self.tblfunciones_click)
         mnreportes.add_command(label='AST', command=self.ast_click)
         mnreportes.add_command(label='Reporte Gramatical', command=self.repDin_click)
         menu.add_cascade(label='Reportes', menu=mnreportes)
@@ -116,13 +118,13 @@ class interfaz():
         self.crear_tab("","Nuevo.sql")
         
         lblentrada= Label(self.window,text="Archivo de Entrada:",height=1, width=15,bg='#80b192')
-        lblentrada.place(x=20,y=80)
+        lblentrada.place(x=25,y=78)
         lblsalida= Label(self.window,text="Consola de Salida:",height=1, width=15,bg='#80b192')
-        lblsalida.place(x=20,y=350)
+        lblsalida.place(x=25,y=350)
         lblsalida= Label(self.window,text="Codigo 3 Direcciones:",height=1, width=20,bg='#80b192')
-        lblsalida.place(x=670,y=350)
+        lblsalida.place(x=455,y=78)
         lblsalida= Label(self.window,text="Código 3 Direccciones Optimizado:",height=1, width=27,bg='#80b192')
-        lblsalida.place(x=690,y=480)
+        lblsalida.place(x=895,y=78)
 
         #redimensionar los elementos
         #self.window.bind('<Configure>',self.resizeEvent)
@@ -190,6 +192,14 @@ class interfaz():
         global arbol
         rs.crear_tabla(arbol)  
         arbol = None         
+    def tblfunciones_click(self):
+        # Función que crea el reporte de tabla de funciones y procedimientos, recibe como parametro una tabla.
+        # global arbol
+        # rf.crear_tabla(arbol)  
+        # arbol = None   
+
+        filename = "TablaFunciones.html"
+        webbrowser.open_new_tab(filename)
 
     def ast_click(self):
         try:
@@ -268,7 +278,7 @@ class interfaz():
         self.salidaC3d[-1].insert(INSERT, entrada+"")
 
     def btnOptimizarC3D_click(self):
-        archivo = open("C3DOptimo.py", "r")
+        archivo = open("Codigo3DOptimizado.py", "r")
         entrada = archivo.read()
         archivo.close()
         self.salidaC3dOpt[self.tab.index("current")].delete(1.0,END)
@@ -284,17 +294,17 @@ class interfaz():
         self.tab_frame[-1].pack(fill='both', expand=1)
         self.tab_frame[-1].config(bd=5)
         self.tab.add(self.tab_frame[-1],text=nombre)
-        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15))
+        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=52,height=15))
         self.txtentrada[-1].place(x=0,y=25)
         self.txtentrada[-1].insert(INSERT,entrada+"")
         #self.txtentrada[-1].bind("<MouseWheel>", self.OnMouseWheel)
 
-        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=80,height=15,background="#070707",foreground="#FEFDFD"))
+        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=162,height=15,background="#070707",foreground="#FEFDFD"))
         self.txtsalida[-1].place(x=0,y=298)
-        self.salidaC3d.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=80,height=6))
-        self.salidaC3d[-1].place(x=660,y=298)
-        self.salidaC3dOpt.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=80,height=6))
-        self.salidaC3dOpt[-1].place(x=660,y=430)
+        self.salidaC3d.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=52,height=15))
+        self.salidaC3d[-1].place(x=440,y=25)
+        self.salidaC3dOpt.append(scrolledtext.ScrolledText(self.tab_frame[-1], width=52,height=15))
+        self.salidaC3dOpt[-1].place(x=880,y=25)
         #nombre del archivo
         #print(self.tab.tab(self.tab.select(),"text"))
         self.tab.select(int(len(self.tab_frame)-1))

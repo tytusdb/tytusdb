@@ -1,4 +1,7 @@
 function login(login,password){
+    var user = document.getElementById("Usuario")
+    var pass = document.getElementById("Password")
+    
     ruta = 'http://localhost:8888/login/' + login + "-" + password 
     fetch(ruta)
     .then(response => response.json())

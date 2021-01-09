@@ -1,5 +1,6 @@
 from abc import abstractmethod
 
+
 class Instruction:
     """
     Esta clase representa una instrucción
