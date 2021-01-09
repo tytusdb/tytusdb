@@ -40,6 +40,16 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 
 ![Con titulo](Img/2_Creacion_BD.jpeg "Creacion BD")
 
+### Ejemplo de Entrada Creacion de Base de Datos 
+
+```sql 
+CREATE DATABASE IF NOT EXISTS test
+    OWNER = 'root'
+    MODE = 1;
+```
+
+*foto de las respuestas*
+
 ### Eliminacion de Base de Datos
 * **Paso 1:** Se dirige al apartado para eliminar una base de datos
 * **Paso 2:** Escribe el nombre de la base de datos a eliminar
@@ -49,6 +59,13 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 * **Paso 6:** La base de datos sera eliminada de su sistema
 
 ![Con titulo](Img/3_eliminar_BD.jpeg "Eliminar BD")
+
+### Ejemplo de Eliminacion de una Base de Datos 
+
+
+```sql 
+DROP DATABASE  IF EXISTS  califica2;
+```
 
 ### Modificacion de Base de datos
 * **Paso 1:** Se dirige al apartado para Cambiar de nombre una base de datos
@@ -60,6 +77,15 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 * **Paso 7:** La base de datos obtendra el nuevo nombre escrito en el paso 3
 
 ![Con titulo](Img/4_Modificar_BD.jpeg "Modificar BD")
+
+### Ejemplo de modificacion del nombre de la base de datos 
+
+
+```sql 
+ALTER TABLE tbusuario
+```
+
+
 
 ### Modificacion Tablas
 * **Paso 1:** Se dirige al apartado para renombrar una tabla
@@ -73,6 +99,16 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 
 ![Con titulo](Img/5_Modificar_Tabla.jpeg "Modificar Tablas")
 
+
+
+### Ejemplo de Eliminacion de una Base de Datos 
+
+
+```sql 
+ALTER DATABASE olddbname RENAME TO newdbname;
+```
+
+
 ### Eliminacion Tablas
 * **Paso 1:** Se dirige al apartado para eliminar una tabla
 * **Paso 2:** Selecciona la base de datos donde se encuentra la tabla a eliminar
@@ -83,3 +119,10 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 * **Paso 7:** La tabla sera eliminada de su sistema
 
 ![Con titulo](Img/6_Eliminar_Tabla.jpeg "Eliminar Tablas")
+
+
+### Ejemplo de Eliminar una Tabla 
+
+```sql 
+drop table tbempleadoidentificacion;
+```
