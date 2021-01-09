@@ -117,6 +117,111 @@ def alterTableDropFK(database, table, indexName):
             save(FK, 'FK')
     except:
         return 1
+
+# ALTER ADD INDEX UNIQUE
+def alterTableAddUnique(database, table, indexName, columns):
+    try:
+        if os.path.isfile(os.getcwd() + '\\Data\\UNIQUE.bin'):
+            UNIQUE = load('UNIQUE')
+        else:
+            UNIQUE = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            j = checkMode(db[database][0])
+            tables = j.showTables(database)
+            if table in tables:
+                if len(columns) != 0:
+                    if UNIQUE.get(indexName) is None:
+                        if 'UNIQUE' not in tables:
+                            j.createTable(database, 'UNIQUE', 4)
+                            j.alterAddPK(database, 'UNIQUE', [2])
+                        j.insert(database, 'UNIQUE', [database, table, indexName, columns])
+                        UNIQUE.update({indexName: [database, table, indexName, columns]})
+                        save(UNIQUE, 'UNIQUE')
+                        return 0
+                    return 1
+                return 4
+            return 3
+        return 2
+    except:
+        return 1
+
+# DROP INDEX UNIQUE
+def alterTableDropUnique(database, table, indexName):
+    try:
+        if os.path.isfile(os.getcwd() + '\\Data\\UNIQUE.bin'):
+            UNIQUE = load('UNIQUE')
+            db = load('metadata')
+            if db.get(database) is not None:
+                j = checkMode(db[database][0])
+                tables = j.showTables(database)
+                if table in tables:
+                    if UNIQUE.get(indexName) is not None:
+                        j.delete(database, 'UNIQUE', [indexName])
+                        UNIQUE.pop(indexName)
+                        save(UNIQUE, 'UNIQUE')
+                        return 0
+                    return 4
+                return 3
+            return 2
+        else:
+            UNIQUE = {}
+            save(UNIQUE, 'UNIQUE')
+    except:
+        return 1
+
+# ALTER ADD INDEX
+def alterTableAddIndex(database, table, indexName, columns):
+    try:
+        if os.path.isfile(os.getcwd() + '\\Data\\INDEX.bin'):
+            INDEX = load('INDEX')
+        else:
+            INDEX = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            j = checkMode(db[database][0])
+            tables = j.showTables(database)
+            if table in tables:
+                if len(columns) != 0:
+                    if INDEX.get(indexName) is None:
+                        if 'INDEX' not in tables:
+                            j.createTable(database, 'INDEX', 4)
+                            j.alterAddPK(database, 'INDEX', [2])
+                        j.insert(database, 'INDEX', [database, table, indexName, columns])
+                        INDEX.update({indexName: [database, table, indexName, columns]})
+                        save(INDEX, 'INDEX')
+                        return 0
+                    return 1
+                return 4
+            return 3
+        return 2
+    except:
+        return 1
+
+# ALTER DROP INDEX
+def alterTableDropIndex(database, table, indexName):
+    try:
+        if os.path.isfile(os.getcwd() + '\\Data\\INDEX.bin'):
+            INDEX = load('INDEX')
+            db = load('metadata')
+            if db.get(database) is not None:
+                j = checkMode(db[database][0])
+                tables = j.showTables(database)
+                if table in tables:
+                    if INDEX.get(indexName) is not None:
+                        j.delete(database, 'INDEX', [indexName])
+                        INDEX.pop(indexName)
+                        save(INDEX, 'INDEX')
+                        return 0
+                    return 4
+                return 3
+            return 2
+        else:
+            INDEX = {}
+            save(INDEX, 'INDEX')
+    except:
+        return 1
+
     
 # Blockchain
 def safeModeOn(database, table):
