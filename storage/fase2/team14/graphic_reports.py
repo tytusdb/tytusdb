@@ -142,7 +142,7 @@ class PantallaGrafico:
         self.scrollx.pack(side=BOTTOM, fill=X)
         self.canvas.configure(xscrollcommand=self.scrollx.set)
         self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        Button(self.canvas, text="Salir", command=self.salir, width=20).place(x=10, y=10)
+        Button(self.canvas, text="Salir", command=self.salir, width=20).pack()
 
         imagen = None
         if grafico == 'tabla':
@@ -155,7 +155,7 @@ class PantallaGrafico:
                 imagen = PhotoImage(file=(nombreBD + '-' + nombreTabla + 'DF.png'))
             except:
                 imagen = PhotoImage(file=('img/no-DF.png'))
-        labelimagen = Label(self.segundocontenedor, image=imagen).place(x=10, y=40)
+        labelimagen = Label(self.segundocontenedor, image=imagen).pack()
 
 
         self.ventana.mainloop()
@@ -193,7 +193,7 @@ class PantallaGraficoBases:
         self.scrollx.pack(side=BOTTOM, fill=X)
         self.canvas.configure(xscrollcommand=self.scrollx.set)
         self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        Button(self.canvas, text="Salir", command=self.salir, width=20).place(x=10, y=10)
+        Button(self.canvas, text="Salir", command=self.salir, width=20).pack()
 
         imagen = None
         try:
@@ -201,7 +201,7 @@ class PantallaGraficoBases:
             imagen = PhotoImage(file=(nombreBD + 'DSD.png'))
         except:
             imagen = PhotoImage(file=('img/no-DSD.png'))
-        labelimagen = Label(self.segundocontenedor, image=imagen).place(x=10, y=40)
+        labelimagen = Label(self.segundocontenedor, image=imagen).pack()
 
         self.ventana.mainloop()
 
