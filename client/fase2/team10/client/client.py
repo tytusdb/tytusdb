@@ -13,6 +13,7 @@ import analizer.typechecker.Metadata.Struct as databases
 from datetime import date
 from datetime import datetime
 from tkinter import simpledialog
+from tkinter import filedialog as fd
 
 serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serv_add = ('localhost', 10000)
@@ -26,8 +27,6 @@ class cliente():
         databases.load()
         self.databases = databases.Databases
 
-
-        # self.send_scritp('create database shooooooooooooooooo___x2_alv;')
         databases.load()    
         # Creacion de la Ventana
         self.raiz = Tk()
@@ -65,7 +64,6 @@ class cliente():
         
 
         # Preconfiguracion de la ventana
-
         self.raiz.title("TytusDB ")
         self.raiz.iconphoto(self.raiz, self.PYREMOTO_ICON)
         self.raiz.option_add("*Font", "Helvetica 12")
@@ -110,6 +108,9 @@ class cliente():
             
         self.toolsMenu.add_command(
             label="Crear DB", command=self.f_crear_db, image=self.START_ICON, compound=LEFT)
+
+        self.toolsMenu.add_command(
+            label="Eliminar DB", command=self.f_elimnar_db, image=self.START_ICON, compound=LEFT)
         # Programacion del Menu de informacion
         self.aboutMenu.add_command(
             label="GRUPO 10", command=self.f_integrantes, image=self.GRUPO_ICON, compound=LEFT)
@@ -267,7 +268,7 @@ class cliente():
         recibido = 0
         esperado = len(texto)
         #Recibiendo JSON
-        data = serv.recv(4096)     
+        data = serv.recv(1500500)     
         data_json = json.loads(data.decode())
         recibido += len(data)
         #imprimiendo todo el json
@@ -308,6 +309,7 @@ class cliente():
     '''===========================================================
        FUNCIONALIDADES RESPONSIVAS DEL QUERYTOOL CON EL CLIENTE
     ==========================================================='''
+
     # SE ENCARGA DE CREAR UNA BASE DE DATOS
     def f_crear_db(self):
         dll_db = simpledialog.askstring("Create DB", "Ingresar nombre")
@@ -316,7 +318,15 @@ class cliente():
         self.send_scritp(query)
         databases.load()
         self.f_charge_treeview()
-        # self.f_set_console_message('La base de datos '+dll_db+' ha sido creada\n')
+
+    # SE ENCARGA DE ELIMINAR UNA BASE DE DATOS
+    def f_elimnar_db(self):
+        dll_db = simpledialog.askstring("Delete DB", "Ingresar nombre")
+        query = "drop database "+dll_db+";"
+        #print(query)
+        self.send_scritp(query)
+        databases.load()
+        self.f_charge_treeview()
 
     # SE ENCARGA DE ACTUALIZAR EL TREEVIEW
     def f_charge_treeview(self):
@@ -403,20 +413,32 @@ class cliente():
     
     #GUARDA UN SCRIPT SQL
     def f_guardar(self):
-            messagebox.showinfo(
-            "Loading...", "DEBERA GUARDAR LOS QUERYS")
-    
-    
+        name_file = fd.asksaveasfilename(initialdir = "/",title="Guardar como",filetypes = (("sql files","*.sql"),("todos los archivos","*.*")))
+        if name_file != '':
+            file_opened = open(name_file,"w",encoding="utf-8")
+            file_opened.write(self.texto.get('1.0', END)) 
+            file_opened.close()
+            messagebox.showinfo("Información", "Los datos fueron guardados en el archivo.")
 
+    
+    
     def f_buscar(self):
         messagebox.showinfo(
             "Loading...", "DEBERA BUSCAR DENTRO DEL QUERY")
 
     
-
+    #CARGA UN SCRIPT SQL
     def f_cargar(self):
-        messagebox.showinfo(
-            "Loading...", "DEBERA CARGAR QUERY")
+        name_file = fd.askopenfilename(initialdir = "/",title="Abrir archivo",filetypes = (("sql files","*.sql"),("todos los archivos","*.*")))
+        if name_file != '':
+            file_opened = open(name_file,"r",encoding="utf-8")
+            texto_abrir = file_opened.read()
+            print(texto_abrir) 
+            self.f_query_tool()  
+            self.texto.insert(INSERT,texto_abrir)
+            messagebox.showinfo("Información", "Archivo *sql cargado.")
+            
+            
 
     def f_eliminar(self):
         messagebox.showinfo(
@@ -537,6 +559,7 @@ class cliente():
         serv.close()
         self.raiz.destroy()
 
+        
 
 def f_verificar_iconos(iconos):
     for icono in iconos:
