@@ -11,6 +11,7 @@ class Tabla(object):
         self.fk=None  # fk de la tabla
         self.datos=[] #las tablas que se guardan  abajo se muestra como se guardo
         self.codificado=[]  # datos de tuplas codificadas
+        self.compreso = False
 
     def __str__(self) -> str:
         return f" MODOTABLA {self.modo} nombreBase {self.base} NOmbreTabla {self.tabla} Ncol {self.columnas}  PK {self.pk}  FK {self.fk} tuplas {self.datos} "
@@ -22,6 +23,7 @@ class Base(object):
        self.modo=modo
        self.encoding=encoding
        self.index=[]
+       self.compreso = False
 
     def __str__(self) -> str:
         return f" Base {self.base}  modo {self.modo}  encoding {self.encoding}  {self.index}"

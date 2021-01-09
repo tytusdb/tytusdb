@@ -13,3 +13,10 @@ def toASCII(cadena)-> str:
     except:
         print('Error en codificacion ascci')
         return None
+
+def utf(cadena: str) -> str:
+    try:
+        return cadena.encode('utf-8')
+    except:
+        print("Error de codificacion ISO")
+        return None
