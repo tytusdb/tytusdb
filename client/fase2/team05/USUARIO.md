@@ -1,54 +1,63 @@
-# Manual Usuario 
 
-  Tytus es un software que administra el acceso a base de datos.
+
+![Alt text](capturas/logo2.png?raw=true "")
+
+**Universidad de San Carlos de Guatemala**
+
+**Facultad de Ingenieria**
+
+**Escuela de Ciencias y Sistemas**
+
+**Sistemas de Bases de Datos I**
+
+**Ing. Luis Espino**
+
+**Aux. Jonnathan Castillo**
+
+**Grupo 5**
+
+
+# <center>Manual de Usuario 
+
+Tytus es un software que administra el acceso a una base de datos llevando el control de sus respectivas tablas al momento de realizar operaciones sobre ellas.
   
-![Alt text](capturas/1.png?raw=true "")
+![Alt text](capturas/6f2.png?raw=true "")
 
 ## Area
-  * Arbol DB
   * Menu 
+  * Arbol DB
   * Consulta
   * Resultado
 
+## Menu  
+  Permite al usuario tener un acceso rapido a las funcionalidades del sistema, sin necesidad de ingresar la sintaxis definida para ese metodo. 
+ ![Alt text](capturas/7f2.png?raw=true "")
 
-  ## Arbol DB
+**Archivo**
+
+  * *Crear base de datos* : Permite al usuario crear una base de datos colocando el nombre en el campo correspodiente.
+   ![Alt text](capturas/3f2.png?raw=true "")
+   ![Alt text](capturas/5f2.png?raw=true "")
+
+## Arbol DB
+
+Permite presentar al usuario una vista estructurada en tiempo real, de las bases de datos almacenas en el sistema. Se representan las bases de datos con el nombre que asigno el usuario y una lista de tablas asociadas a cada base de datos.
+  ![Alt text](capturas/4f2.png?raw=true "")
+
+## Consulta  
+ Área que tiene como objetivo almacenar las consultas escritas por el usuario asi como tambien crear nuevas pestañas para otras consultas. 
+ ![Alt text](capturas/2f2.png?raw=true "")
   
-  Permite presentar al usuario una vista estructurada en tiempo real, de las bases de datos almacenas en el sistema. Se representan las bases de datos con el nombre que asigno el usuario y una lista de tablas asociadas a cada base de datos.
-  ![Alt text](capturas/2.png?raw=true "")
-
-  ## Menu  
-  Permite al usuario tener un acceso rapido a los metodos basicos en el sistema, sin necesidad de ingresar la sintaxis definida para ese metodo. 
- ![Alt text](capturas/3.png?raw=true "")
-
-  **Archivo**
-
-  * *Create data base* : Permite al usuario crear una base de datos.
-   ![Alt text](capturas/6.png?raw=true "")
-  * *Delete data base* : Permite al usuario eliminar una base de datos especifica.
-
-  **Tablas**
-  * *Crear tabla* : Permite al usuario crear una tabla en una base de datos.
-   ![Alt text](capturas/7.png?raw=true "")
-  * *Eliminar tabla* : Elimina una tabla en una base de datos, unciamente se necesita su nombre y en que base de datos está almacenada.
-  * *Agregar columna* : Agrega columnas o atributos a una tabla especifica.
-  * *Eliminar columna* : Elimina una columna en una tabla especifica.
-
-  **Script**
-  * *Create Script* : Despliega un area de texto, para que el usuario ingrese consultas a las bases de datos .
- 
-  **Otros**
-  * *Manual de usuario* : Es un documento en el cual se definen las operaciones basicas o flujos de trabajo para cuando un nuevo usuario interactue con este software y sirva como guia de trabajo.
-
-
-  ## Consulta  
- Área que tiene como objetivo almacenar las consultas escritas por el usuario. 
- ![Alt text](capturas/4.png?raw=true "")
-  Botones de ayuda:
+  **Botones de ayuda:**
+   ![Alt text](capturas/1f2.png?raw=true "")
+   
   * *Abrir* : Abre un archivo local con extension .sql , el cual tiene consultas a bases de datos.
+     ![Alt text](capturas/10f2.png?raw=true "")
   * *Guardar* : Guarda las consultas escritas en el area de texto. 
-  * *Stop* : Permite cancelar la ejecucion de una consulta a base de datos.
+  ![Alt text](capturas/11f2.png?raw=true "")
+  * *Agregar* : Permite crear nuevas pestañas para las consultas.
   * *Run* : Realiza la consulta a base de datos.
-
-  ## Resultado
+ 
+ ## Resultado
   Area especifica para desplegar al usuario los resultados de las consultas ingresadas.
-   ![Alt text](capturas/5.png?raw=true "")
+   ![Alt text](capturas/8f2.png?raw=true "")
