@@ -146,6 +146,24 @@ def dropDatabase(database: str) -> int:
         commit(databasesinfo, 'databasesinfo')
     return result
 
+# elimina la base de datos de los registros del modo
+def deleteFunctions(database, mode):
+    if mode == 'avl':
+        return AVLM.dropDatabase(database)
+    elif mode == 'b':
+        return BM.dropDatabase(database)
+    elif mode == 'bplus':
+        return BPlusM.dropDatabase(database)
+    elif mode == 'dict':
+        return DictM.dropDatabase(database)
+    elif mode == 'isam':
+        return ISAMM.dropDatabase(database)
+    elif mode == 'json':
+        return jsonM.dropDatabase(database)
+    elif mode == 'hash':
+        return HashM.dropDatabase(database)
+
+
 # cambia el modo de una base de datos completa
 def alterDatabaseMode(database: str, mode: str) -> int:
     modes = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
@@ -343,7 +361,6 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
                 for i in range(0, len(tabla)):
                     tupla = tabla[i]
                     for j in range(0, len(tupla)):
-                        # print(tupla[j])
                         if type(tupla[j]) == bytes:
                             tupla[j] = zlib.decompress(tupla[j]).decode()
                     tabla[i] = tupla
@@ -376,7 +393,7 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
         elif databasesinfo[1][database][table]['mode'] == 'hash':
             result = HashM.alterAddPK(database, table, columns)
         if result == 0:
-            databasesinfo[1][database][table]['PK'] = [columns]
+            databasesinfo[1][database][table]['PK'] = columns
         return result
     except:
         return 1
