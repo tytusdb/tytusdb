@@ -783,3 +783,30 @@ def alterTableCompress(database: str, table: str, level: int):
             return 2       
     except:
         return 1
+
+def alterTableDecompress(database: str, table: str):
+    try:
+        baseexist = searchInMode(database)
+        if baseexist != None:
+            if len(compT) == 0:
+                return 4
+            if searchInMode(table) == None:
+                return 3
+            oldReg = []
+            # comp = []
+            oldTables = showTables(database)
+
+            for table in oldTables:
+                oldReg.append(extractTable(database,table))
+                valCol = len(extractTable(database,table)[0])
+            
+            for c in comp:
+                decompressedT = zlib.decompress(c)
+                decompT.append(decompressedT)
+            print(decompT)
+            # print(comp)
+            return 0
+        else:
+            return 2       
+    except:
+        return 1
