@@ -148,6 +148,25 @@ def extractTable(database, table):
                 return value
     return None
 
+def extractTable2(database, table):
+    chargePersistence()
+    alterDatabaseDecompress(database)
+    changueMode(databases)
+    for item in databases:      
+        if database == item["name"]:
+            tables = item["tables"]
+            return tables
+    return None    
+
+def extractDatabase(database):
+    chargePersistence()
+    alterDatabaseDecompress(database)
+    changueMode(databases)
+    for item in databases:    
+        if item["name"]==database:
+            return item["tables"]      
+    return None  
+
 def extractRangeTable(database, table, columnNumber, lower, upper):
     for item in structs:
         value = item.extractRangeTable(database, table, columnNumber, lower, upper)
