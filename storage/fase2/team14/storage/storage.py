@@ -13,7 +13,7 @@ import os
 import hashlib
 import zlib
 
-#*---------------------------------------others----------------------------------------------*
+# *---------------------------------------others----------------------------------------------*
 
 # Comprueba la existencia de los directorios 
 def initcheck():
@@ -126,7 +126,7 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
     return result
 
 
-  #Elimina bases de datos
+# Elimina bases de datos
 def dropDatabase(database: str) -> int:
     result = 0
     if database not in databasesinfo[0]:
@@ -146,6 +146,7 @@ def dropDatabase(database: str) -> int:
             del databasesinfo[2][database]
         commit(databasesinfo, 'databasesinfo')
     return result
+
 
 # elimina la base de datos de los registros del modo
 def deleteFunctions(database, mode):
@@ -233,9 +234,9 @@ def alterDatabaseEncoding(database: str, encoding: str) -> int:
                     commit(databasesinfo, 'databasesinfo')
                     return 0
         except:
-            return 1    
+            return 1
 
-#*----------------------------------tables-------------------------------------------*
+        # *----------------------------------tables-------------------------------------------*
 
 
 # crea una instancia de Tabla y lo almacena en el listado de tablas de la base de datos  
@@ -244,17 +245,16 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
     if database not in databasesinfo[0]:
         return 2
     else:
-        #verificando si toda la base de datos esta compresa
+        # verificando si toda la base de datos esta compresa
         tablas = showTables(database)
-        if len(tablas)>0:
-            descompresos=0
+        if len(tablas) > 0:
+            descompresos = 0
             for tabla in tablas:
-                print(tabla,' estado ',databasesinfo[1][database][tabla]['Compress'])
                 if databasesinfo[1][database][tabla]['Compress'] == False:
                     descompresos += 1
         else:
-            descompresos=1
-        #creando tablas
+            descompresos = 1
+        # creando tablas
         if databasesinfo[0][database]['mode'] == 'avl':
             result = AVLM.createTable(database, table, numberColumns)
         elif databasesinfo[0][database]['mode'] == 'b':
@@ -270,8 +270,8 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
         elif databasesinfo[0][database]['mode'] == 'hash':
             result = HashM.createTable(database, table, numberColumns)
     if result == 0:
-        #guardando informacion de las tablas
-        if descompresos!=0:
+        # guardando informacion de las tablas
+        if descompresos != 0:
             databasesinfo[1][database].update(
                 {table: {'mode': databasesinfo[0][database]['mode'], 'numberColumns': numberColumns, 'PK': None,
                          'safeMode': False, 'Compress': False}})
@@ -296,7 +296,7 @@ def showTables(database: str) -> list:
         return []
 
 
-#extrae y devuelve todos los registros de una tabla      
+# extrae y devuelve todos los registros de una tabla
 def extractTable(database: str, table: str) -> list:
     tuples = []
     if database not in databasesinfo[0]:
@@ -322,11 +322,10 @@ def extractTable(database: str, table: str) -> list:
         for i in range(0, len(tabla)):
             tupla = tabla[i]
             for j in range(0, len(tupla)):
-                # print(tupla[j])
                 if type(tupla[j]) == bytes:
                     tupla[j] = zlib.decompress(tupla[j]).decode()
             tabla[i] = tupla
-        tuples=tabla
+        tuples = tabla
     return tuples
 
 
@@ -361,14 +360,14 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
         elif databasesinfo[1][database][table]['mode'] == 'hash':
             tuples = HashM.extractRangeTable(database, table, columnNumber, lower, upper)
         if databasesinfo[1][database][table]['Compress'] == True:
-                tabla = tuples
-                for i in range(0, len(tabla)):
-                    tupla = tabla[i]
-                    for j in range(0, len(tupla)):
-                        if type(tupla[j]) == bytes:
-                            tupla[j] = zlib.decompress(tupla[j]).decode()
-                    tabla[i] = tupla
-                tuples=tabla
+            tabla = tuples
+            for i in range(0, len(tabla)):
+                tupla = tabla[i]
+                for j in range(0, len(tupla)):
+                    if type(tupla[j]) == bytes:
+                        tupla[j] = zlib.decompress(tupla[j]).decode()
+                tabla[i] = tupla
+            tuples = tabla
         return tuples
     except:
         return []
@@ -431,8 +430,9 @@ def alterDropPK(database: str, table: str) -> int:
     except:
         return 1
 
+
 # vincula una FK entre dos tablas
-def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list, tableRef: str, columnsRef: list) -> int:
     try:
         result = 0
         if database not in databasesinfo[0]:
@@ -440,7 +440,7 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
         elif table not in databasesinfo[1][database] or tableRef not in databasesinfo[1][database]:
             result = 3
         else:
-            if len(columns) >= 1 and len(columnsRef)>= 1:
+            if len(columns) >= 1 and len(columnsRef) >= 1:
                 if len(columns) == len(columnsRef):
                     tableColumns = databasesinfo[1][database][table]['numberColumns']
                     tableColumnsRef = databasesinfo[1][database][tableRef]['numberColumns']
@@ -480,9 +480,9 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
                                     Fk1 = ''
                                     for i in columns:
                                         if i == len(value) - 1:
-                                            Fk1 = Fk1 + value[i]
+                                            Fk1 = Fk1 + str(value[i])
                                         else:
-                                            Fk1 = Fk1 + value[i] + '_'
+                                            Fk1 = Fk1 + str(value[i]) + '_'
                                     if Fk1 in Values1:
                                         Rep = False
                                         break
@@ -494,22 +494,23 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
                                         Fk2 = ''
                                         for i in columnsRef:
                                             if i == len(value) - 1:
-                                                Fk2 = Fk2 + value[i]
+                                                Fk2 = Fk2 + str(value[i])
                                             else:
-                                                Fk2 = Fk2 + value[i] + '_'
+                                                Fk2 = Fk2 + str(value[i]) + '_'
                                         if Fk2 not in Values1:
                                             Val1 = False
                                             break
                                     if Val1:
-                                        res = createTable(database,table + 'FK',3)
+                                        res = createTable(database, table + 'FK', 3)
                                         if res == 0:
-                                            res1 = insert(database,table+'FK',[indexName,tableRef,columnsRef])
+                                            res1 = insert(database, table + 'FK', [indexName, tableRef, columnsRef])
                                             if res1 == 0:
-                                                dictFK = {indexName: {'columns':columns}}
+                                                dictFK = {indexName: {'columns': columns}}
                                                 FKey = {'FK': dictFK}
                                                 databasesinfo[1][database][table].update(FKey)
-                                                commit(databasesinfo,'databasesInfo')
-                                            else: result = 1
+                                                commit(databasesinfo, 'databasesInfo')
+                                            else:
+                                                result = 1
                                         else:
                                             result = 1
                                     else:
@@ -525,7 +526,8 @@ def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  t
         return result
     except:
         return 1
-    
+
+
 # elimina el vinculo de una FK entre las tablas
 def alterTableDropFK(database: str, table: str, indexName: str) -> int:
     try:
@@ -537,10 +539,10 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
         else:
             if 'FK' in databasesinfo[1][database][table]:
                 if indexName in databasesinfo[1][database][table]['FK']:
-                    res = dropTable(database, table+'FK')
+                    res = dropTable(database, table + 'FK')
                     if res == 0:
                         del databasesinfo[1][database][table]['FK'][indexName]
-                        commit(databasesinfo,'databasesinfo')
+                        commit(databasesinfo, 'databasesinfo')
                         result = 0
                     else:
                         result = 1
@@ -551,6 +553,7 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
         return result
     except:
         return 1
+
 
 # vincula un indice unico a la tabla
 def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
@@ -569,11 +572,11 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
                         col1 = False
                         break
                 if col1:
-                    registers = extractTable(database,table)
+                    registers = extractTable(database, table)
                     if len(registers) == 0:
                         res = createTable(database, table + 'IndexUnique', 2)
                         if res == 0:
-                            res1 = insert(database, table + 'IndexUnique', [indexName,columns])
+                            res1 = insert(database, table + 'IndexUnique', [indexName, columns])
                             if res1 == 0:
                                 dictIU = {indexName: {'columns': columns}}
                                 IndexU = {'IndexUnique': dictIU}
@@ -629,7 +632,8 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
         return result
     except:
         return 1
-    
+
+
 # elimina el vinculo del indice unico en la tabla
 def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
     try:
@@ -655,7 +659,8 @@ def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
         return result
     except:
         return 1
-    
+
+
 # vincula un indice a las columnas de una tabla
 def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
     try:
@@ -693,6 +698,7 @@ def alterTableAddIndex(database: str, table: str, indexName: str, columns: list)
     except:
         return 1
 
+
 # elimina el indice de una tabla
 def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
     try:
@@ -718,8 +724,9 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
         return result
     except:
         return 1
-    
-# cambia el nombre de una tabla      
+
+
+# cambia el nombre de una tabla
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
     try:
         result = 0
@@ -750,7 +757,7 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
         return result
     except:
         return 1
-    
+
 
 # modifica el modo de una tabla en especifico
 def alterTableMode(database: str, table: str, mode: str) -> int:
@@ -771,6 +778,8 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
                 PK = None
                 if databasesinfo[1][database][table]['PK'] is not None:
                     PK = databasesinfo[1][database][table]['PK']
+                compres = databasesinfo[1][database][table]['Compress']
+                safem = databasesinfo[1][database][table]['safeMode']
                 dropTable(database, table)
                 if mode == 'avl':
                     AVLM.createDatabase(database)
@@ -794,7 +803,8 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
                     HashM.createDatabase(database)
                     HashM.createTable(database, table, numberColumns)
                 databasesinfo[1][database].update(
-                    {table: {'mode': mode, 'numberColumns': numberColumns, 'PK': None, 'safeMode': False, 'Compress': False}})
+                    {table: {'mode': mode, 'numberColumns': numberColumns, 'PK': None, 'safeMode': safem,
+                             'Compress': compres}})
                 commit(databasesinfo, 'databasesinfo')
                 if PK is not None:
                     alterAddPK(database, table, PK)
@@ -810,7 +820,7 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
         return 1
 
 
-#Agrega una columna a una tabla      
+# Agrega una columna a una tabla
 def alterAddColumn(database: str, table: str, default: any) -> int:
     try:
         result = 0
@@ -956,7 +966,7 @@ def loadCSV(file: str, database: str, table: str) -> list:
         return []
 
 
-#Metodo que muestra la informacion de un registro      
+# Metodo que muestra la informacion de un registro
 def extractRow(database: str, table: str, columns: list) -> list:
     try:
         try:
@@ -992,7 +1002,6 @@ def extractRow(database: str, table: str, columns: list) -> list:
             for i in range(0, len(tabla)):
                 tupla = tabla[i]
                 for j in range(0, len(tupla)):
-                    # print(tupla[j])
                     if type(tupla[j]) == bytes:
                         tupla[j] = zlib.decompress(tupla[j]).decode()
                 tabla[i] = tupla
@@ -1002,7 +1011,7 @@ def extractRow(database: str, table: str, columns: list) -> list:
         return []
 
 
-#Metodo que modifica los valores de un registro      
+# Metodo que modifica los valores de un registro
 def update(database: str, table: str, register: dict, columns: list) -> int:
     try:
         result = 0
@@ -1010,8 +1019,6 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
             result = 2
         elif table not in databasesinfo[1][database]:
             result = 3
-        elif databasesinfo[1][database][table]['Compress'] == True:
-            return 1
         else:
             try:
                 encoding = databasesinfo[0][database]['encoding']
@@ -1021,6 +1028,13 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
                         register[i] = x.decode(encoding)
             except:
                 return 1
+            if databasesinfo[1][database][table]['Compress'] == True:
+                for i in register:
+                    if type(register[i]) == str:
+                        register[i] = zlib.compress(bytes(register[i].encode()))
+                for i in columns:
+                    if type(i) == str:
+                        i = zlib.compress(bytes(i.encode()))
             oldRegister = None
             if databasesinfo[1][database][table]['safeMode']:
                 oldRegister = extractRow(database, table, columns)
@@ -1040,13 +1054,13 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
                 result = HashM.update(database, table, register, columns)
             if databasesinfo[1][database][table]['safeMode'] and result == 0:
                 newRegister = extractRow(database, table, columns)
-                update_block(database,table, newRegister, oldRegister)
+                update_block(database, table, newRegister, oldRegister)
         return result
     except:
         return 1
 
 
-#Metodo que elimina un registro      
+# Metodo que elimina un registro
 def delete(database: str, table: str, columns: list) -> int:
     try:
         result = 0
@@ -1110,8 +1124,9 @@ def truncate(database: str, table: str) -> int:
         return result
     except:
         return 1
-    
-#Genera el checksum de una base de datos
+
+
+# Genera el checksum de una base de datos
 def checksumDatabase(database: str, mode: str) -> str:
     try:
         if database in databasesinfo[0]:
@@ -1125,7 +1140,7 @@ def checksumDatabase(database: str, mode: str) -> str:
                 if value['mode'] == 'avl':
                     hash.update(open('data/avlMode/' + database + '_' + key + '.tbl', 'rb').read())
                 elif value['mode'] == 'b':
-                    hash.update(open('data/BMode/' + database + '-' + key + '-' + 'b'+'.bin', 'rb').read())
+                    hash.update(open('data/BMode/' + database + '-' + key + '-' + 'b' + '.bin', 'rb').read())
                 elif value['mode'] == 'bplus':
                     hash.update(open('data/BPlusMode/' + database + '/' + key + '/' + key + '.bin', 'rb').read())
                 elif value['mode'] == 'dict':
@@ -1139,8 +1154,8 @@ def checksumDatabase(database: str, mode: str) -> str:
             return hash.hexdigest()
     except:
         return None
-    
-#genera el checksum de una tabla especifica
+
+
 def checksumTable(database: str, table: str, mode: str) -> str:
     try:
         if database in databasesinfo[0]:
@@ -1151,7 +1166,7 @@ def checksumTable(database: str, table: str, mode: str) -> str:
             else:
                 return None
             if databasesinfo[1][database][table]['mode'] == 'avl':
-                hash.update(open('data/avlMode/' + database + '_' + table+'.tbl', 'rb').read())
+                hash.update(open('data/avlMode/' + database + '_' + table + '.tbl', 'rb').read())
             elif databasesinfo[1][database][table]['mode'] == 'b':
                 hash.update(open('data/BMode/' + database + '-' + table + '-b' + '.bin', 'rb').read())
             elif databasesinfo[1][database][table]['mode'] == 'bplus':
@@ -1163,66 +1178,70 @@ def checksumTable(database: str, table: str, mode: str) -> str:
             elif databasesinfo[1][database][table]['mode'] == 'json':
                 hash.update(open('data/json/' + database + '-' + table, 'rb').read())
             elif databasesinfo[1][database][table]['mode'] == 'hash':
-                hash.update(open('data/hash/' + database + '/' + table +'.bin', 'rb').read())
+                hash.update(open('data/hash/' + database + '/' + table + '.bin', 'rb').read())
             return hash.hexdigest()
     except:
-        return None
-     
-        
-        
-#comprime una tabla    
+        return 'None'
+
+
+# comprime una tabla
 def alterTableCompress(database: str, table: str, level: int) -> int:
     if database not in databasesinfo[0]:
         return 2
-    if level<-1 or level>9:
+    if level < -1 or level > 9:
         return 4
     if databasesinfo[1][database][table]['mode'] == 'json':
         return 1
     tablas = showTables(database)
     if table not in tablas:
         return 2
+    elif databasesinfo[1][database][table]['Compress']:
+        return 1
     try:
-        tabla=extractTable(database,table)
-        for i in range(0,len(tabla)):
-            tupla=tabla[i]
-            for j in range(0,len(tupla)):
-                if type(tupla[j])==str:
-                    #------------------------------------aqui es donde se comprime----------------------------
-                    tupla[j]=zlib.compress(bytes(tupla[j].encode()),level)
-                elif type(tupla[j])==bytes:
+        tabla = extractTable(database, table)
+        for i in range(0, len(tabla)):
+            tupla = tabla[i]
+            for j in range(0, len(tupla)):
+                if type(tupla[j]) == str:
+                    # ------------------------------------aqui es donde se comprime----------------------------
+                    tupla[j] = zlib.compress(bytes(tupla[j].encode()), level)
+                elif type(tupla[j]) == bytes:
                     tupla[j] = zlib.compress(tupla[j], level)
-            tabla[i]=tupla
+            tabla[i] = tupla
         databasesinfo[1][database][table]['Compress'] = True
         commit(databasesinfo, 'databasesinfo')
-        truncate(database,table)
+        truncate(database, table)
         for tupla in tabla:
-            insert(database,table,tupla)
+            insert(database, table, tupla)
         return 0
     except:
         return 1
-    
-#comprime una base de datos completa
+
+
+# comprime una base de datos completa
 def alterDatabaseCompress(database: str, level: int) -> int:
     if database not in databasesinfo[0]:
         return 2
-    if level<-1 or level>9:
+    if level < -1 or level > 9:
         return 4
     try:
-        tablas=showTables(database)
-        compreso=0
+        tablas = showTables(database)
+        compreso = 0
         for tabla in tablas:
-            compreso+=alterTableCompress(database,tabla,level)
-        if compreso==0:
+            compreso += alterTableCompress(database, tabla, level)
+        if compreso == 0:
             return 0
         else:
             return 1
     except:
         return 1
-#descomprime una tabla de datos
+
+
+# descomprime una tabla de datos
 def alterTableDecompress(database: str, table: str) -> int:
     if database not in databasesinfo[0]:
         return 2
-    if databasesinfo[1][database][table]['Compress']!=True:
+    if not databasesinfo[1][database][table]['Compress']:
         return 3
     if databasesinfo[1][database][table]['mode'] == 'json':
         return 1
@@ -1230,42 +1249,45 @@ def alterTableDecompress(database: str, table: str) -> int:
     if table not in tablas:
         return 1
     try:
-        tabla=extractTable(database,table)
-        for i in range(0,len(tabla)):
-            tupla=tabla[i]
-            for j in range(0,len(tupla)):
-                if type(tupla[j])==bytes:
+        tabla = extractTable(database, table)
+        for i in range(0, len(tabla)):
+            tupla = tabla[i]
+            for j in range(0, len(tupla)):
+                if type(tupla[j]) == bytes:
                     # ------------------------------------aqui es donde se descomprime----------------------------
-                    tupla[j]=zlib.decompress(tupla[j]).decode()
-            tabla[i]=tupla
+                    tupla[j] = zlib.decompress(tupla[j]).decode()
+            tabla[i] = tupla
         databasesinfo[1][database][table]['Compress'] = False
         commit(databasesinfo, 'databasesinfo')
-        truncate(database,table)
+        truncate(database, table)
         for tupla in tabla:
-            insert(database,table,tupla)
+            insert(database, table, tupla)
 
         return 0
     except:
         return 1
-#Descomprime una base de datos entera
+
+
+# Descomprime una base de datos entera
 def alterDatabaseDecompress(database: str) -> int:
     if database not in databasesinfo[0]:
         return 2
-    tablas=showTables(database)
+    tablas = showTables(database)
     compresion = False
     for table in tablas:
-        if databasesinfo[1][database][table]['Compress']==True:
-            compresion=True
-    if compresion==False:
+        if databasesinfo[1][database][table]['Compress'] == True:
+            compresion = True
+    if compresion == False:
         return 3
     try:
         for table in tablas:
             if databasesinfo[1][database][table]['Compress'] == True:
-                alterTableDecompress(database,table)
+                alterTableDecompress(database, table)
         return 0
     except:
         return 1
-    
+
+
 # devuelve un text cifrado
 def encrypt(backup: str, password: str) -> str:
     return _encrypt(backup, password)
@@ -1295,6 +1317,7 @@ def safeModeOff(database: str, table: str) -> int:
     except:
         return 1
 
+
 # grafica el diagrama de estructura de una base de datos
 def graphDSD(database: str) -> str:
     try:
@@ -1306,8 +1329,8 @@ def graphDSD(database: str) -> str:
                       ' rankdir=LR\n' \
                       ' nodesep=.05;\n' \
                       ' node [shape=record,width=.1,height=.1];\n' \
-                      ' subgraph cluster0{\n'\
-                      ' label="'+ database +'";\n'
+                      ' subgraph cluster0{\n' \
+                      ' label="' + database + '";\n'
 
             tables = showTables(database)
             for table in tables:
@@ -1315,24 +1338,25 @@ def graphDSD(database: str) -> str:
                 if newTB in tables:
                     tables.remove(newTB)
             for table in tables:
-                if table+'FK' not in tables:
-                    content += ' '+table +'[label= "'+ table +'"]\n'
+                if table + 'FK' not in tables:
+                    content += ' ' + table + '[label= "' + table + '"]\n'
             for table in tables:
                 if 'FK' in databasesinfo[1][database][table] and len(databasesinfo[1][database][table]['FK']) > 0:
-                    references = extractTable(database,table+'FK')
+                    references = extractTable(database, table + 'FK')
                     for num in references:
-                        ref = ' '+str(num[1]) + '->' + table +'\n'
+                        ref = ' ' + str(num[1]) + '->' + table + '\n'
                         content += ref
             content += ' }\n' \
                        '}'
-            diagram = open(database+'DSD.dot','w')
+            diagram = open(database + 'DSD.dot', 'w')
             diagram.write(content)
             result = diagram.name
             diagram.close()
-            os.system("dot -Tpng "+ database +"DSD.dot -o "+ database +"DSD.png")
+            os.system("dot -Tpng " + database + "DSD.dot -o " + database + "DSD.png")
         return result
     except:
         return 1
+
 
 # grafica el diagrama de dependencias de una tabla
 def graphDF(database: str, table: str) -> str:
@@ -1366,12 +1390,12 @@ def graphDF(database: str, table: str) -> str:
                     nodoName = 'nodo' + str(i) + '_PK'
                     nodos.append(nodoName)
                     if i == PK[-1]:
-                        label += '<' + nodoName + '>'+ str(i) + ''
+                        label += '<' + nodoName + '>' + str(i) + ''
                         label += '"];'
                         content += '  PK' + label + '\n'
                         content += '  }\n'
                     else:
-                        label += '<' + nodoName + '>'+ str(i) + '|'
+                        label += '<' + nodoName + '>' + str(i) + '|'
 
             if IndexUnique is not None:
                 content += '  subgraph cluster3{\n' \
@@ -1397,7 +1421,7 @@ def graphDF(database: str, table: str) -> str:
             for i in cols:
                 nodePK = 'nodo' + str(i) + '_PK'
                 nodeIndexUnique = 'nodo' + str(i) + '_IndexUnique'
-                nodoName = 'nodo' + str(i) +'_Reg'
+                nodoName = 'nodo' + str(i) + '_Reg'
                 if nodePK not in nodos and nodeIndexUnique not in nodos:
                     reg.append(nodoName)
                     if i == cols[-1]:
@@ -1428,3 +1452,4 @@ def graphDF(database: str, table: str) -> str:
         return result
     except:
         return 1
+
