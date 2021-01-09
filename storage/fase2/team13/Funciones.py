@@ -566,6 +566,46 @@ def showDict(dictionary):
     for key in dictionary:
         print(key, ":", dictionary[key])
 
+# ROUTES TABLES
+def getRouteTable(mode, database, table):
+    if mode == 'avl':
+        return os.getcwd() + '\\Data\\avlMode\\' + database + '_' + table + '.tbl'
+    elif mode == 'b':
+        return os.getcwd() + '\\Data\\b\\' + database + '-' + table.lower() + '-b.bin'
+    elif mode == 'bplus':
+        return os.getcwd() + '\\Data\\BPlusMode\\' + database + '\\' + table + '\\' + table + '.bin'
+    elif mode == 'dict':
+        return os.getcwd() + '\\Data\\' + database + '\\' + table + '.bin'
+    elif mode == 'isam':
+        return os.getcwd() + '\\Data\\ISAMMode\\tables\\' + database.lower() + table.lower() + '.bin'
+    elif mode == 'json':
+        return os.getcwd() + '\\Data\\json\\' + database + '-' + table
+    elif mode == 'hash':
+        return os.getcwd() + '\\Data\\hash\\' + database + '\\' + table + '.bin'
+
+# SHOW DICTIONARY FK
+def showFK(dictionary):
+    print('--FOREIGN KEYS--')
+    for key in dictionary:
+        print(key, ':', dictionary[key])
+
+# SHOW DICTIONARY UNIQUE
+def showUNIQUE(dictionary):
+    print('--UNIQUE INDEX--')
+    for key in dictionary:
+        print(key, ':', dictionary[key])
+
+# SHOW DICTIONARY INDEX
+def showINDEX(dictionary):
+    print('--INDEX--')
+    for key in dictionary:
+        print(key, ':', dictionary[key])
+
+# SHOW DICTIONARY PK
+def showPK(dictionary):
+    print('--PRIMARY KEYS--')
+    for key in dictionary:
+        print(key, ':', dictionary[key])    
 
 # SHOW MODE
 def showMode(mode):
@@ -634,13 +674,58 @@ def insertAgain(database, mode, newMode):
 
     if tables:
         for name_table in tables:
-            register = old_mode.extractTable(database, name_table) 
-            number_columns = dict_tables.get(name_table)[0]
-            new_mode.createTable(database, name_table, number_columns)
+            if name_table != 'FK' and name_table != 'UNIQUE' and name_table != 'INDEX':
+                register = old_mode.extractTable(database, name_table)  # [['A', '1'], ['B', '2'],  ['C', '3']]
+                number_columns = dict_tables.get(name_table)[0]
+                new_mode.createTable(database, name_table, number_columns)
 
-            if register:  # There are registers
-                for list_register in old_mode.extractTable(database, name_table):
-                    new_mode.insert(database, name_table, list_register)
+                # ADDING PK
+                if dictPK != 1:
+                    values = dictPK.get(name_table)
+                    if values:
+                        listPK = values[2]
+                        if 'HIDDEN' not in listPK:
+                            new_mode.alterAddPK(database, name_table, listPK)
+
+                if register:  # There are registers
+                    for list_register in old_mode.extractTable(database, name_table):
+                        new_mode.insert(database, name_table, list_register)
+
+            elif name_table == 'FK':
+                # ADDING FK
+                if dictFK != 1:
+                    for key in dictFK:
+                        new_mode_tables = new_mode.showTables(database)
+                        values = dictFK[key]
+                        if values[0] == database:
+                            if 'FK' not in new_mode_tables:
+                                new_mode.createTable(database, 'FK', 6)
+                                new_mode.alterAddPK(database, 'FK', [1])
+                            new_mode.insert(database, 'FK', dictFK[key])
+
+            elif name_table == 'UNIQUE':
+                # ADDING UNIQUE
+                if dictUNIQUE != 1:
+                    for key in dictUNIQUE:
+                        new_mode_tables = new_mode.showTables(database)
+                        values = dictUNIQUE[key]
+                        if values[0] == database:
+                            if 'UNIQUE' not in new_mode_tables:
+                                new_mode.createTable(database, 'UNIQUE', 4)
+                                new_mode.alterAddPK(database, 'UNIQUE', [2])
+                            new_mode.insert(database, 'UNIQUE', dictUNIQUE[key])
+
+            elif name_table == 'INDEX':
+                # ADDING INDEX
+                if dictINDEX != 1:
+                    for key in dictINDEX:
+                        new_mode_tables = new_mode.showTables(database)
+                        values = dictINDEX[key]
+                        if values[0] == database:
+                            if 'INDEX' not in new_mode_tables:
+                                new_mode.createTable(database, 'INDEX', 4)
+                                new_mode.alterAddPK(database, 'INDEX', [2])
+                            new_mode.insert(database, 'INDEX', dictINDEX[key])
 
         old_mode.dropDatabase(database)   
         
