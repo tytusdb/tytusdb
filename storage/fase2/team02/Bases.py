@@ -687,3 +687,21 @@ def chooseMode(mode,database):
             return 0
         else:
             return Hash.createDatabase(database)
+
+def searchInMode(value):
+    if value in avlList:
+        return 'avl'
+    elif value in bList:
+        return 'b'
+    elif value in bplusList:
+        return 'bplus'
+    elif value in dictList:
+        return 'dict'
+    elif value in jsonList:
+        return 'json'
+    elif value in isamList:
+        return 'isam'
+    elif value in hashList:
+        return 'hash'
+    else:
+        return None
