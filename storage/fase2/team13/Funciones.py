@@ -670,6 +670,10 @@ def insertAgain(database, mode, newMode):
     tables = old_mode.showTables(database)
 
     dictionary = load('metadata')
+    dictPK = loadReturn('PK')  
+    dictFK = loadReturn('FK')
+    dictUNIQUE = loadReturn('UNIQUE')
+    dictINDEX = loadReturn('INDEX')
     dict_tables = dictionary.get(database)[2]
 
     if tables:
@@ -897,7 +901,7 @@ def extractTable(database, table):
         dictionary = load('metadata')
         value_base = dictionary.get(database)
         if not value_base:
-            return None
+            return []
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         value_return = j.extractTable(database, table)
@@ -913,10 +917,20 @@ def extractTable(database, table):
                     newTuple.append(register)
 
             newTable.append(newTuple)
+            
+        value_return = []
+        for r in newTable:
+            newRegister = []
+            for c in r:
+                if isinstance(c, bytes):
+                    newRegister.append(c.decode(dictionary[database][1]))
+                else:
+                    newRegister.append(c)
+            value_return.append(newRegister)
         
         return value_return
     except:
-        return None
+        return []
     
   
 # EXTRACT RANGE TABLE
@@ -929,9 +943,13 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
         dictionary = load('metadata')
         value_base = dictionary.get(database)
         if not value_base:
-            return None
+            return []
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
+        if isinstance(lower, str):
+            lower = lower.encode(dictionary[database][1])
+        if isinstance(upper, str):
+            upper = upper.encode(dictionary[database][1])
         value_return = j.extractRangeTable(database, table, int(columnNumber), lower, upper)
         
         # Decompress
@@ -945,10 +963,20 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
                     newTuple.append(register)
 
             newTable.append(newTuple)
+            
+        value_return = []
+        for r in newTable:
+            newRegister = []
+            for c in r:
+                if isinstance(c, bytes):
+                    newRegister.append(c.decode(dictionary[database][1]))
+                else:
+                    newRegister.append(c)
+            value_return.append(newRegister)
         
         return value_return
     except:
-        return None
+        return []
 
 
 def alterAddPK(database, table, columns):
@@ -1147,3 +1175,11 @@ def load(nombre):
     objeto = file.read()
     file.close()
     return pickle.loads(objeto)      
+
+def loadReturn(nombre):
+    if os.path.isfile(os.getcwd() + '\\Data\\' + nombre + ".bin"):
+        file = open(os.getcwd() + "\\Data\\" + nombre + ".bin", "rb")
+        objeto = file.read()
+        file.close()
+        return pickle.loads(objeto)
+    return 1
