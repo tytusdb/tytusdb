@@ -1,11 +1,11 @@
 # Flask api
-Backend para aplicación tytus
+Backend para aplicación tytus para el [cliente](../../../client/fase2/team05) 'team05'
 
 ## Probar código:
 Tener instalado:
 * Python 3.8.5
 * Versión más reciente de Pip
-* pipenv (Explicaciòn abajo)
+* pipenv (Explicación abajo)
 
 Luego de clonar el repositorio y posicionarse en esta carpeta (server/team05)
 
@@ -27,3 +27,23 @@ $ python app.py
 4. Dentro de esa consola, se ejecuta la aplicación
 
 La aplicación deberìa estar corriendo en [localhost:5000](http://localhost:5000)
+
+## Librerías utilizadas
+Si no se desea instalar pipenv, puede instalar las librerías directamente en el sistema a través del comando ```pip install```
+
+Las librerías utlizadas son:
+- flask
+- flask-cors
+- numpy
+- graphviz
+- pandas
+- ply
+- prettytable
+
+En Windows o Linux es necesario tener instalado [Graphviz](https://www.graphviz.org/download/) version 2.44.1 o superior
+
+## Diagrama de paquetes del servidor
+
+![Alt text](img/uml_server.png?raw=true "")
+
+Para más información de SQL Parser, su gramática, uso, etc., [click aquí](../../../parser/team29/docs)
