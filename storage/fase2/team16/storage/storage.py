@@ -195,6 +195,18 @@ def decrypt(cipherBackup: str, password: str) -> str:
 def graphDSD(database: str) -> str:
     return GRP.graphDSD(database)
 
+def graphDF(database: str, table: str) -> str:
+    try:
+        bases = Handler.rootinstance()
+        for base in bases:
+            if base.name == database:
+                tables = i.tables
+                for tb in tables:
+                    if tb.name == table:
+                        return graph.graphDF(tb)
+        return None
+    except:
+        return None
 
 # endregion
 

@@ -3,10 +3,8 @@
 # Copyright (c) 2020 TytusDb Team
 # Developers: SG#16
 
-
 import os
 from ..handler import Handler
-
 
 def generate(name: str, data: str):
     if not os.path.exists('./_tmp_'):
@@ -19,7 +17,6 @@ def generate(name: str, data: str):
     os.system("dot -Tjpg " + name + ".dot -o " + './_tmp_/' + old + ".jpg")
     os.system('_tmp_\\' + old + ".jpg")
 
-
 def graphDSD(database: str):
     try:
         handler = Handler()
@@ -27,14 +24,12 @@ def graphDSD(database: str):
             raise Exception()
         databases = handler.rootinstance()
         db, index = _exist(database, databases)
-        if db:
-            # el obtejo de la db, listado de tablas, matriz de llaves foráneas
+        if db
             generate("graphDSD", _generateDSD(db.tables, db.fk))
             return "graphDSD"
         return None
     except:
         return None
-
 
 def _exist(database: str, databases):
     tmp = None
@@ -50,7 +45,6 @@ def _exist(database: str, databases):
 def _generateDSD(tables, fks):
     content = "digraph Grafo{\nrankdir=LR;\nnode [shape=record];\n"
     for table in tables:
-        # agregando comulnas
         aux = table.name + "[label=\""
         for column in range(table.numberColumns):
             if column == 0:
@@ -58,12 +52,8 @@ def _generateDSD(tables, fks):
             else:
                 aux = aux + "| <c" + str(column) + ">" + str(column)
         aux = aux + "\" ]; \n"
-
-        # empaquetando la tabla
         aux = aux + "subgraph \"cluster_error." + table.name + "\" { label =\"" + table.name + "\";" \
                                                                             " " + table.name + ";} \n"
-        # falta esperar los indices asumiendo que table.fk es una matriz [[colum, table.name , columnRef]] de referencias
-        # fk =
         if fks:
             for fk in table.fk:
                 for col in fk[3]:
@@ -72,16 +62,17 @@ def _generateDSD(tables, fks):
 
         content = content + aux
     content = content + "}"
-    #return __export(content)
     return content
 
-def __export(content):
+def graphDF(table):
     try:
-        archivo = open('imgs/graph.dot', 'w', encoding="utf8")
-        archivo.write(content)
-        archivo.close()
-        # exportamos
-        os.system('dot -Tjpg imgs/graph.dot -o imgs/graph.jpg')
-        return "imgs/graph.jpg"
+        g = 'digraph g{\n    node[shape= circle, style= filled, fontname="Century Gothic", color="#006400", fillcolor="#90EE90"]\n    edge[color="#145A32"]\n    rankdir=LR\n'
+        for i in range(table.numberColumns):
+            if not i in table.unique:
+                for j in table.unique:
+                    g += "    " + str(j) + "->" + str(i) + "\n"
+        g += '}'
+        generate("DF_" + table.name, g)
+        return "DF_" + table.name + ".png"
     except:
         return None
