@@ -555,20 +555,34 @@ def alterDatabaseMode(database: str, mode: str) -> int:
         return 1 #Error en la operación
 #funciones de checksum
 x = datetime.datetime.now()
+
+#Genera un diggest a partir  del contenido de la base de datos incluyendo sus tablas
 def checksumDatabase(database:str, mode:str) -> str:
-    stringDatabase =""
-    for bases in showTables(database):       
-        stringDatabase += bases
-        for tables in extractTable(database,bases):            
-            for regitros in tables:              
-                stringDatabase += str(regitros)
-    stringDatabase += str(x)    
-    if mode == "MD5":        
-        h=hashlib.md5(stringDatabase.encode('utf-8'))   
-        return h.hexdigest()
-    elif mode == "SHA256":        
-        h=hashlib.sha256(stringDatabase.encode('utf-8'))   
-        return h.hexdigest()
+    try:
+        d = database.lower()
+        mode = mode.upper()
+        stringDatabase =""
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            for tabla in lista_tablas:
+                if tabla.bd == d:
+                    stringDatabase += tabla.nombre
+                    registros = elegirModo(tabla.modo).extractTable(d, tabla.nombre)
+                    if registros:
+                        for reg in registros:
+                            for item in reg:
+                                stringDatabase += str(item)
+            if mode == "MD5": 
+                h=hashlib.md5(stringDatabase.encode('utf-8'))
+                return h.hexdigest()
+            elif mode == "SHA256":
+                h=hashlib.sha256(stringDatabase.encode('utf-8'))
+                return h.hexdigest()
+        else:
+            return None #Base de Datos no existe
+    except:
+        return None #Error en la operación
+
 def checksumTable(database:str, table:str, mode:str) -> str:
     stringTable=""
     for tables in extractTable(database,table):            
