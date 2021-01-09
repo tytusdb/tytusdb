@@ -11,6 +11,126 @@ from PIL import Image
 from team16.DataAccessLayer import reports as reportsTeam16
 
 
+
+def graphStructure(j, mode, structure, database, table):
+    # structure = [ database, table, tuple ]
+    if mode == 'bplus':
+
+        if structure == 'database':
+            databaseTree_ = j.serializable.Read('./Data/BPlusMode/', 'Databases')
+            databaseTree_.graph("Databases")
+            return './Data/BPlusMode/DataBases.png'
+
+        elif structure == 'table':
+            table_ = j.serializable.Read(f"./Data/BPlusMode/{database}/", f'{database}')
+            table_.graph(database)
+            return f'./Data/BPlusMode/{database}/{database}.png'
+
+        elif structure == 'tuple':
+            tuple_ = j.serializable.Read(f"./Data/BPlusMode/{database}/{table}/", f'{table}')
+            tuple_.graficar(database, table)
+            return f'./Data/BPlusMode/{database}/{table}/{table}.png'
+
+    elif mode == 'hash':
+
+        if structure == 'database':
+            j._storage.graficar()
+            return './dbs.png'
+
+        elif structure == 'table':
+            tmp = j._storage.Buscar(database)
+            tmp.graficar()
+            return './tablas.png'
+
+        elif structure == 'tuple':
+            tmp = j._storage.Cargar(database, table)
+            tmp.Grafico()
+            return './hash.png'
+
+    elif mode == 'isam':
+
+        if structure == 'database':
+            j.checkDirs()
+            j.chartList(j.showDatabases())
+            return './list.png'
+
+        elif structure == 'table':
+            j.checkDirs()
+            j.chartList(j.showTables(database))
+            return './list.png'
+
+        elif structure == 'tuple':
+            j.checkDirs()
+            tab = j.rollback('tables/' + database + table)
+            tab.chart()
+            return './isam.png'
+
+    elif mode == 'avl':
+
+        if structure == 'database':
+            reportsTeam16.graphicDatabases()
+            return './tmp/databases.png'
+
+        elif structure == 'table':
+            reportsTeam16.graphicTables(database)
+            return './tmp/db-tables.png'
+
+        elif structure == 'tuple':
+            reportsTeam16.graphAVL(database, table)
+            return './tmp/grafo-avl.png'
+
+    elif mode == 'b':
+
+        if structure == 'database':
+            databases_ = j.showDatabases()
+            listGraph(databases_)
+            return './List.png'
+
+        elif structure == 'table':
+            tables_ = j.showTables(database)
+            listGraph(tables_)
+            return './List.png'
+
+        elif structure == 'tuple':
+            j.serializar.rollback(str(database) + "-" + str(table) + "-B").graficar()
+            return './salida.png'
+
+    elif mode == 'json':
+
+        if structure == 'database':
+            databases_ = j.showDatabases()
+            listGraph(databases_)
+            return './List.png'
+
+        if structure == 'table':
+            tables_ = j.showTables(database)
+            print(tables_)
+            listGraph(tables_)
+            return './List.png'
+
+        if structure == 'tuple':
+            tuples_ = j.extractTable(database, table)
+            tupleGraph(tuples_)
+            return './List.png'
+
+    elif mode == 'dict':
+
+        if structure == 'database':
+            databases_ = j.showDatabases()
+            listGraph(databases_)
+            return './List.png'
+
+        if structure == 'table':
+            tables_ = j.showTables(database)
+            listGraph(tables_)
+            return './List.png'
+
+        if structure == 'tuple':
+            tuples_ = j.extractTable(database, table)
+            tupleGraph(tuples_)
+            return './List.png'
+
+
 def centrar_ventana(app, ancho, alto):
     app.config(width=ancho, height=alto)  # linen - light cyan - ghost white WhiteSmoke
     # Centrar ventana
