@@ -1250,6 +1250,29 @@ def dropTable(database, table) :
 # INSERT
 def insert(database, table, register):
     try:
+        if os.path.isfile(os.getcwd() + '\\Data\\PK.bin'):
+            PK = load('PK')
+        else:
+            PK = {}
+
+        dictionary = load('metadata')
+
+        if dictionary.get(database) is None:
+            return 2  # database doesn't exist
+
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        newRegister = []
+        for c in register:
+            if isinstance(c, str):
+                newRegister.append(c.encode(dictionary[database][1]))
+            else:
+                newRegister.append(c)
+        value_return = j.insert(database, table, newRegister)
+        if PK.get(table) is None:
+            PK.update({table: [database, table, ['HIDDEN']]})
+            save(PK, 'PK')
+        
         # Method to Blockchain
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
@@ -1273,6 +1296,19 @@ def update(database, table, register, columns):
     # table: str name of table
     # register: dictionary {column: newValue}
     # columns: list [primaryKey] [primarykey1, primarykey2...]
+    try:
+        dictionary = load('metadata')
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        # Save the old tuple for the BChain method
+        newColumns = []
+        for key in columns:
+            newColumns.append(key.encode(dictionary[database][1]))
+        oldTuple = j.extractRow(database, table, newColumns)
+        for key in register:
+            if isinstance(register[key], str):
+                register.update({key: register[key].encode(dictionary[database][1])})
+        value_return = j.update(database, table, register, newColumns)    
     
         # Method to Blockchain
         if value_return == 0:
@@ -1301,6 +1337,76 @@ def update(database, table, register, columns):
     except:
         return 1
     
+def loadCSV(file, database, table):
+    dictionary = load('metadata')
+    try:
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        file = open(file, 'r')
+        file = file.read()
+        registers = file.split('\n')
+        results = []
+        for r in registers:
+            newRegister = []
+            register = r.split(',')
+            for c in register:
+                if isinstance(c, str):
+                    newRegister.append(c.encode(dictionary[database][1]))
+                else:
+                    newRegister.append(c)
+            results.append(j.insert(database, table, newRegister))
+        return results
+    except:
+        return []
+  
+def extractRow(database, table, columns):
+    dictionary = load('metadata')
+    try:
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        new_Columns = []
+        for i in columns:
+            if isinstance(i, str):
+                new_Columns.append(i.encode(dictionary[database][1]))
+            else:
+                new_Columns.append(i)
+        register = j.extractRow(database, table, new_Columns)
+        newRegister = []
+        for c in register:
+            if isinstance(c, bytes):
+                newRegister.append(c.decode(dictionary[database][1]))
+            else:
+                newRegister.append(c)
+        return newRegister
+    except:
+        return []
+    
+def delete(database, table, columns):
+    dictionary = load('metadata')
+    try:
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        new_Columns = []
+        for i in columns:
+            if isinstance(i, str):
+                new_Columns.append(i.encode(dictionary[database][1]))
+            else:
+                new_Columns.append(i)
+        value_return = j.delete(database, table, new_Columns)
+        return value_return
+    except:
+        return 1
+   
+def truncate(database, table):
+    dictionary = load('metadata')
+    try:
+        mode = dictionary.get(database)[0]
+        j = checkMode(mode)
+        value_return = j.truncate(database, table)
+        return value_return
+    except:
+        return 1
+
     
     
 # ------------------------------------------------------- FILES --------------------------------------------------------
