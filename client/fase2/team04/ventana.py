@@ -14,6 +14,7 @@ textos=[]
 control=0
 notebook= None
 consola = None
+bases = None
 raiz = None
 tools = None
 loginOn = False
@@ -119,6 +120,7 @@ def enviarQuery():
     global textos
     global jsonTree
     global jsonDB
+    global bases
 
     idx = 0
     if notebook.select():
@@ -148,6 +150,8 @@ def enviarQuery():
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\n{}".format(result))
         consola.config(state=DISABLED)
+        bases.entregado(jsonDB)
+
     else:
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\nHa ocurrido un error.")
@@ -178,6 +182,8 @@ def LogIn():
     global raiz
     global loginOn
     global ActiveUsername
+    global bases
+    global jsonDB
     if loginOn is False:
         d = MyDialog(raiz)
         if d.accept is True:
@@ -207,6 +213,8 @@ def LogIn():
                         ActiveUsername = myUsername
                         consola.insert(INSERT,"\nUsuario " + ActiveUsername + " loggeado correctamente.")
                         changeToLogout()
+                        getDatabases()
+                        bases.entregado(jsonDB)
                     else:
                         consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
                     consola.config(state=DISABLED)
@@ -336,7 +344,8 @@ def CrearVentana():
     FrameIzquiero = Frame(raiz, relief=RAISED, bd=2, bg='gray21')
     FrameIzquiero.pack(side="left", fill="both")
     #Se llama a la clase Arbol
-    Arbol(FrameIzquiero)
+    global bases
+    bases = Arbol(FrameIzquiero)
     #Boton para realizar consulta
     Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray', command = enviarQuery).pack(side="top",fill="both")
     #Consola de Salida
@@ -394,6 +403,7 @@ def añadir(titulo):
     a=notebook.index(b)
     textos[a].text.bind("<KeyRelease>", Spellcheck)
     textos[a].text.bind("<Key>", Spellcheck)
+    
 
 def Spellcheck(self):
     global notebook
