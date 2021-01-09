@@ -148,6 +148,11 @@ def get_Data(database: str, table: str, mode: str):
     if metadata_db:
         struct = get_struct(metadata_db.get_mode())         
         return struct.extractTable(database, table)
+    
+def get_Data2(database: str, table: str, mode: str, metadata_db):
+    if metadata_db:
+        struct = get_struct(metadata_db.get_mode())
+        return struct.extractTable(database, table)
 
 
 def alterTableMode(database: str, table: str, mode: str):
