@@ -8,17 +8,21 @@
 > - Byron Antonio Orellana Alburez 201700733
 
 # Manual de Usuario
+## Interfaz Grafica 
+![WhatsApp Image 2021-01-08 at 8 19 29 PM](https://user-images.githubusercontent.com/14981793/104080686-18cc2e00-51ef-11eb-9488-e63eea236b8f.jpeg)
+
 ## Editor de texto
 La interfaz gráfica se compone de un editor de texto con resaltado de sintaxis sql en el cual podemos escribir consultas y nos genera la salida correspondiente en la parte inferior de la aplicación
 ## Arbol de Directorios
 También se cuenta con un navegador en la barra lateral izquierda para poder visualizar las diferentes bases de datos a las que tenemos acceso
-
+## Enviar Consulta
+Se envia el texto en el area de texto al servidor para ser analizado y que se nos muestre en la consola de salida
 # Manual Técnico 
 ## Conexión con el servidor
 ```python
 myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 ```
-
+ 
 > Se crea la conexion con el servidor.
 
 ```python
