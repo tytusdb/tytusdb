@@ -91,17 +91,9 @@ TytusStorage almacena todo dentro de la carpeta *data* del proyecto, de manera r
 
 ## Uso del almacenamiento
 
-Las siguientes funciones se enfocan en 
+Los metodos correspondientes al administrador del almacenamiento fueron explicados en la fase 1.
 
-### funci(param, param) 
-explicacion
-
-| Valor de retorno | Definición |
-| ------ | ------ |
-| 0 | Operación exitosa |
-| 1 | Error en la operación |
-| 2 | Base de datos inexistente |
-| 3 | Tabla inexistente |
+Puede consultarlos [aqui](https://github.com/tytusdb/tytus/blob/main/storage/team15/docs/Manual%20de%20usuario.md "Documentacion fase 1").
 
 
 ## Uso del administrador del modo de almacenamiento
@@ -347,7 +339,8 @@ El método se encarga de descomprimir una tabla especifica de la base de datos e
 | 0 | Operación exitosa |
 | 1 | Error en la operación |
 | 2 | Base de datos inexistente |
-| 3 | No existe compresión |
+| 3 | Tabla inexistente |
+| 4 | No existe compresión |
 
 
 

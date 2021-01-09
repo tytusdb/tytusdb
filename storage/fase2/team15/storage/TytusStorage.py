@@ -2161,9 +2161,9 @@ def alterTableDecompress(database: str, table: str) -> int:
                 except:
                     return 1
             else:
-                return 3
+                return 4
         else:
-            return 1
+            return 3
     else:
         return 2
 
