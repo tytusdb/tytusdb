@@ -2,7 +2,6 @@ import tkinter as Tk
 
 import tkinter.ttk as Ttk
 from tkinter import messagebox
-from tkinter import filedialog
 
 import storageManager as u
 
@@ -21,11 +20,11 @@ label_TB.place(x=25,y=75)
 entry_tb=Tk.Entry(ventana)
 entry_tb.place(x=25,y=100)
 
-b_DSD=Tk.Button(ventana,text='Reporte DSD', command=lambda:[u.graphDSD(entry_tb.get())])
-b_DSD.place(x=225,y=75)
+b_DSD=Tk.Button(ventana,text='Reporte DSD', command=lambda:[u.graphDSD(entry_db.get())])
+b_DSD.place(x=200,y=50)
 
 b_DF=Tk.Button(ventana,text='Reporte DF', command=lambda:[u.graphDF(entry_db.get(),entry_tb.get())])
-b_DF.place(x=225,y=100)
+b_DF.place(x=200,y=100)
 
 
 ventana.mainloop()
