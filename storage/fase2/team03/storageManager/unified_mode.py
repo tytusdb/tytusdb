@@ -1931,4 +1931,87 @@ def graphDF(database: str, table: str) -> int:
     except:
         return None
 
+def deserializar():
+    #Si el archivo binario 'data' no existe no hay nada para deserializar
+    if os.path.exists("data.bin"):
+        #Se activa la bandera serializado
+        global deserializadoActivado
+        deserializadoActivado = True
 
+        #Deserializa el archivo binario 'data' que retorna una lista de diccionarios para las bases de datos
+        diccionariosDb = __rollback("data")
+        #Se recorre cada base de datos obteniendola por su ruta de archivo
+        for db in diccionariosDb:
+            #Capturamos el nombre de la base de datos
+            nombreDb = db["nameDb"]
+            #Se crea la base de datos para tenerla en memoria
+            createDatabase(nombreDb, db["mode"], db["encoding"])
+        
+            #Se recorre cada diccionario tabla dentro de la base de datos especifica
+            diccionariosTb = db["tables"]
+            for tb in diccionariosTb:
+                #Extraer toda la informacion del diccionario de tabla actual
+                nombreTb = tb["nameTb"]
+                modeTb = tb["mode"]
+                columnas = tb["columns"]
+                pk = tb["pk"]
+                registros = tb["registros"]
+                registrosFk = tb["registrosFk"]
+                registrosUn = tb["registrosUn"]
+                registrosIn = tb["registrosIn"]
+                bandera = tb["Bandera"]
+
+
+                # Pedir la lista de diccionarios de base de datos------------------------------------------
+                listaDB = __rollback("data")
+
+                #Se elimina el diccionario correspondiente a la tabla del archivo data
+                for db in listaDB:
+                    if db["nameDb"] == nombreDb:
+                        db["tables"].remove(tb)
+                        break
+
+                # Se guarda la lista de base de datos ya actualizada en el archivo data
+                __commit(listaDB, "data")
+                #------------------------------------------------------------------------------------------
+
+                #Se crea la base de datos en memoria y las instancias de Fk, Un, In
+                __createTable(nombreDb, nombreTb, columnas, modeTb)
+                #Se actualiza la pk
+                alterAddPK(nombreDb, nombreTb, pk)
+
+                #Se insertan los registros de la estructura
+                for tupla in registros:
+                    insert(nombreDb, nombreTb, tupla)
+                
+                #Se insertan lo registros de las llaves foraneas
+                for tupla in registrosFk:
+                    #[indexName, table, tableRef, columns, columnsRef]
+                    alterTableAddFK(nombreDb, tupla[1], tupla[0], tupla[3], tupla[2], tupla[4])
+
+                #Se insertan los registros de las llaves unicas
+                for tupla in registrosUn:
+                    #[indexName, table, columns]
+                    alterTableAddUnique(nombreDb, tupla[1], tupla[0], tupla[2])
+                    
+                #Se insertan los registros de los indices
+                for tupla in registrosIn:
+                    #[indexName, table, columns]
+                    alterTableAddIndex(nombreDb, tupla[1], tupla[0], tupla[2])
+
+                # Pedir la lista de diccionarios de base de datos------------------------------------------
+                listaDB = __rollback("data")
+
+                #Se elimina el diccionario correspondiente a la tabla del archivo data
+                for db in listaDB:
+                    if db["nameDb"] == nombreDb:
+                        for tb in db["tables"]:
+                            if tb["nameTb"] == nombreTb:
+                                tb["Bandera"] = bandera
+                            break
+
+                # Se guarda la lista de base de datos ya actualizada en el archivo data
+                __commit(listaDB, "data")
+                #------------------------------------------------------------------------------------------
+
+        deserializadoActivado = False
