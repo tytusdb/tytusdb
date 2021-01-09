@@ -7,6 +7,7 @@ from storage.json import jsonMode as json
 from storage.dict import DictMode as dict
 import os
 import pickle
+from graphviz import Digraph
 # from PIL import Image
 
 class Fks:
@@ -134,6 +135,21 @@ def alterTableDropIndex(database, table, indexName, modo):
     except:
         return 1
 
+def graphDSD(database):
+    try:
+        texto = ''' '''
+        imagen = Digraph(name="graphDSD", filename="graphDSD", format="png")
+        for d in Indices:
+            if Indices[d].db == database:
+                if not Indices[d].tableRef == None:
+                    imagen.node(Indices[d].table, Indices[d].table, shape="box", color ="blue")
+                    imagen.node(Indices[d].tableRef, Indices[d].tableRef, shape="box", color ="blue")
+                    imagen.edge(str(Indices[d].table),str(Indices[d].tableRef))
+                    texto+= str(Indices[d].table)+''' -> '''+str(Indices[d].tableRef)+''';\n'''
+        imagen.render(view=True)
+        return texto
+    except:
+        return None
     
 def actualMod(mode):
     if mode == "avl":

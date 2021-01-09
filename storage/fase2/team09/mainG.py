@@ -956,3 +956,10 @@ def alterTableCompress(database: str, table: str, level: int) -> int:
                 return 2  # Database no existe
     else:
         return 4  # level incorrecto
+
+# Grafos
+def graphDSD(database: str) -> str:
+    try:
+        return indices.graphDSD(database)
+    except:
+        return None
