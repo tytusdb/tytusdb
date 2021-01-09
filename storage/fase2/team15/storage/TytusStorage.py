@@ -85,10 +85,12 @@ def dropAll():
     '''Removes all the data stored
 
         Returns:\n
-        0: successful operation
+        list: successful operation
         1: an error ocurred
     
     '''
+
+    global _data
 
     try:
 
@@ -100,6 +102,8 @@ def dropAll():
 
             for db in list:
                 var.append(mode.dropDatabase(db))
+
+        _data = []
 
         return var
 
@@ -170,6 +174,9 @@ def _index(database, table, index):
 
 
 def _Comprobar(database, table, registro):
+    '''
+    METODO PARA COMPROBAR LA INTEGRIDAD DE LLAVES FORÁNEAS
+    '''
 
     db = _database(database)
 
@@ -203,6 +210,48 @@ def _Comprobar(database, table, registro):
         return False
 
 
+def _Comprobar_unique(database, table, columns):
+    '''
+    METODO PARA COMPROBAR LA UNICIDAD DE DATOS
+    '''
+
+    db = _database(database)
+
+    if db:
+
+        tb = _table(database, table)
+
+        if tb:
+
+
+            for i in columns:
+
+                registros = extractTable(database, table)    
+
+                if registros:
+
+                    columna = []
+
+                    for registro in registros:
+
+                        columna.append(registro[i])
+
+                    while columna:
+
+                        valor = columna.pop()
+
+                        if valor in columna:
+                            return False            
+                
+            return True   
+
+        else:
+            return False
+
+    else:
+        return False
+
+
 # ===============================//=====================================
 #                      ADMINISTRACION DE ALMACENAMIENTO
 
@@ -223,11 +272,11 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
     """
 
     if not _database(database):
-        compress = False
+
         val = _createDatabase(database, mode, encoding)
-        level = 0
+
         if val == 0:
-            _data.append({"nombre": database, "modo": mode, "encoding": encoding, "tablas": [], "compress": compress, "level": level})
+            _data.append({"nombre": database, "modo": mode, "encoding": encoding, "tablas": []})
             _Guardar()
 
         return val
@@ -508,34 +557,21 @@ def extractTable(database: str, table: str) -> list:
 
     if bd:
 
-        tb = _table(database, table)
+        tb = _table(database, table)  
 
         if tb:
 
-            mode = tb["modo"]
-            val = -1
+            compress = tb["compress"]
 
-            if mode == "avl":
-                val = avl.extractTable(database, table)
+            val = _extractTable(database, table, tb["modo"])
 
-            elif mode == "b":
-                val = b.extractTable(database, table)
-
-            elif mode == "bplus":
-                val = bplus.extractTable(database, table)
-
-            elif mode == "hash":
-                val = hash.extractTable(database, table)
-
-            elif mode == "isam":
-                val = isam.extractTable(database, table)
-
-            elif mode == "json":
-                val = json.extractTable(database, table)
-
-            elif mode == "dict":
-                val = dict.extractTable(database, table)
-
+            if compress:
+                if len(val):
+                    for x in val:
+                        for y in x:
+                            if type(y) == str:
+                                i = x.index(y)
+                                x[i] = zlib.decompress(bytes.fromhex(y)).decode()
             return val
 
         else:
@@ -543,6 +579,35 @@ def extractTable(database: str, table: str) -> list:
 
     else:
         return 2
+
+
+def _extractTable(database: str, table: str, mode) -> list:
+
+    val = -1
+
+    if mode == "avl":
+        val = avl.extractTable(database, table)
+
+    elif mode == "b":
+        val = b.extractTable(database, table)
+
+    elif mode == "bplus":
+        val = bplus.extractTable(database, table)
+
+    elif mode == "hash":
+        val = hash.extractTable(database, table)
+
+    elif mode == "isam":
+        val = isam.extractTable(database, table)
+
+    elif mode == "json":
+        val = json.extractTable(database, table)
+
+    elif mode == "dict":
+        val = dict.extractTable(database, table)
+
+    return val
+    
 
 
 def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
@@ -593,7 +658,7 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
 
             elif mode == "dict":
                 val = dict.extractRangeTable(database, table, columnNumber, lower, upper)
-
+            
             if compress:
                 if len(val):
                     for x in val:
@@ -609,6 +674,7 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
 
     else:
         return 2
+
 
 def alterAddPK(database: str, table: str, columns: list) -> int:
     """Adds a PK to a table in a database
@@ -1072,8 +1138,10 @@ def loadCSV(file: str, database: str, table: str) -> list:
     bd = _database(database)
 
     if bd:
+
         tb = _table(database, table)
         encoding = bd["encoding"]
+
         if tb:
 
             mode = tb["modo"]
@@ -1126,6 +1194,7 @@ def loadCSV(file: str, database: str, table: str) -> list:
     else:
         return []
 
+
 def extractRow(database: str, table: str, columns: list) -> list:
     """Shows a register of a table in a database
 
@@ -1149,6 +1218,7 @@ def extractRow(database: str, table: str, columns: list) -> list:
 
             mode = tb["modo"]
             compress = tb["compress"]
+
             val = -1
 
             if mode == "avl":
@@ -1186,6 +1256,7 @@ def extractRow(database: str, table: str, columns: list) -> list:
 
     else:
         return []
+
 
 def update(database: str, table: str, register: dict, columns: list) -> int:
     """Updates a register into a table in a database
@@ -1274,7 +1345,6 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
         return 2
 
 
-
 def delete(database: str, table: str, columns: list) -> int:
     """Deletes a register into a table in a database
 
@@ -1338,7 +1408,6 @@ def delete(database: str, table: str, columns: list) -> int:
 
     else:
         return 2
-
 
 
 def truncate(database: str, table: str) -> int:
@@ -1423,33 +1492,49 @@ def alterDatabaseMode(database: str, mode: str) -> int:
             if bd["modo"] == mode or mode not in ["avl", "b", "bplus", "dict", "hash", "isam", "json"]:
                 return 4
 
-            data = []
-
             lista_tablas = showTables(database)
 
             if lista_tablas:
 
+                data = []
+
                 for tabla in lista_tablas:
-                    # lista de [tabla, registros]       
 
                     registros = extractTable(database, tabla)
-                    data.append([tabla, registros])
+                    
+                    fk_list, ui_list, i_list = _table(database, tabla)["foreign_keys"].extractTable(), _table(database, tabla)["unique_index"].extractTable(), _table(database, tabla)["index"].extractTable()
+                
+                    data.append([_table(database, tabla), registros, fk_list, ui_list, i_list])
 
-            # creando la nueva base de datos
-            createDatabase(database + "_temp", mode, bd["encoding"])
-
-            for tabla in data:
-
-                tb = _table(database, tabla[0])
-
-                createTable(database + "_temp", tb["nombre"], tb["columnas"])
-                alterAddPK(database + "_temp", tb["nombre"], tb["pk"])
-
-                for registro in tabla[1]:
-                    insert(database + "_temp", tb["nombre"], registro)
+            else:
+                bd["modo"] = mode
+                return 0
 
             dropDatabase(database)
-            alterDatabase(database + "_temp", database)
+            createDatabase(database, mode, bd["encoding"])
+                
+            for tabla in data:
+
+                tb = tabla[0]
+                createTable(database, tb["nombre"], tb["columnas"])
+
+                if tb["pk"]:
+                    alterAddPK(database, tb["nombre"], tb["pk"])
+
+                if tabla[1]:
+
+                    for registro in tabla[1]:
+                        insert(database, tb["nombre"], registro)
+                        
+                if tabla[2]:
+                    for fk in tabla[2]:
+                        tb["foreign_keys"].insert(fk)
+                if tabla[3]:
+                    for ui in tabla[3]:
+                        tb["unique_index"].insert(ui)
+                if tabla[4]:
+                    for i in tabla[4]:
+                        tb["index"].insert(i)
 
             return 0
 
@@ -1491,20 +1576,29 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
 
                 registros = extractTable(database, table)
 
-                _createDatabase(database, mode, bd["encoding"])
+                fk_list, ui_list, i_list = tb["foreign_keys"].extractTable(), tb["unique_index"].extractTable(), tb["index"].extractTable()
+                
+                dropTable(database, table)
 
-                _createTable(database, table + "_temp", tb["columnas"], mode)
-                alterAddPK(database, table + "_temp", tb["pk"])
+                _createDatabase(database, mode, bd["encoding"])
+                _createTable(database, table, tb["columnas"], mode)
+
+                alterAddPK(database, table, tb["pk"])
+
+                tb = _table(database, table)
 
                 for registro in registros:
-                    insert(database, table + "_temp", registro)
+                    insert(database, table, registro)
 
-                dropTable(database, table)
-                alterTable(database, table + "_temp", table)
-
-                for key in ["foreign_keys", "unique_index", "index"]: print(">> " + key + " :",
-                                                                            _table(database, table)[key].alterTableMode(
-                                                                                mode))
+                if fk_list:
+                    for fk in fk_list:
+                        tb["foreign_keys"].insert(fk)
+                if ui_list:
+                    for ui in ui_list:
+                        tb["unique_index"].insert(ui)
+                if i_list:
+                    for i in i_list:
+                        tb["index"].insert(i)
 
                 return 0
 
@@ -1606,7 +1700,7 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
 
         if tb:
 
-            fk = _foreign_key(database, indexName)
+            fk = _foreign_key(database, table, indexName)
 
             if fk:
                 return tb["foreign_keys"].delete(indexName)
@@ -1634,9 +1728,8 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
             0: operation successful
             1: an error ocurred
             2: non-existent database
-            3: non-existent table, non-existent refering table
-            4: columns lenght are different
-            5: tables data incompatible            
+            3: non-existent table
+            4: duplicate value
     """
 
     bd = _database(database)
@@ -1646,6 +1739,9 @@ def alterTableAddUnique(database: str, table: str, indexName: str, columns: list
         tb = _table(database, table)
 
         if tb:
+
+            if not _Comprobar_unique(database, table, columns):
+                return 4
 
             tb["unique_index"].insert([indexName, table, columns])
             return 0
@@ -1681,9 +1777,9 @@ def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
 
         if tb:
 
-            fk = _unique_index(database, indexName)
+            ui = _unique_index(database, table, indexName)
 
-            if fk:
+            if ui:
                 return tb["unique_index"].delete(indexName)
 
             else:
@@ -1709,9 +1805,7 @@ def alterTableAddIndex(database: str, table: str, indexName: str, columns: list)
             0: operation successful
             1: an error ocurred
             2: non-existent database
-            3: non-existent table, non-existent refering table
-            4: columns lenght are different
-            5: tables data incompatible            
+            3: non-existent table       
     """
 
     bd = _database(database)
@@ -1744,7 +1838,7 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
             0: operation successful
             1: an error ocurred
             2: non-existent database
-            3: non-existent table, non-existent refering table
+            3: non-existent table
             4: non-existent index
     """
 
@@ -1756,9 +1850,9 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
 
         if tb:
 
-            fk = _index(database, indexName)
+            i = _index(database, table, indexName)
 
-            if fk:
+            if i:
                 return tb["index"].delete(indexName)
 
             else:
@@ -1774,7 +1868,7 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
 # ===============================//=====================================
 #                      ADMINISTRACION DE CODIFICACION
 
-ef alterDatabaseEncoding(database: str, encoding: str) -> int:
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
     """Changes a database encoding
 
         Pararameters:\n
@@ -1810,6 +1904,7 @@ ef alterDatabaseEncoding(database: str, encoding: str) -> int:
                 return 1
     else:
         return 2
+
 
 # ===============================//=====================================
 #                      ADMINISTRACION DE CHECKSUM
@@ -1944,8 +2039,7 @@ def alterDatabaseDecompress(database: str) -> int:
                 for t in table:
                     val = extractTable(database, t['nombre'])
                     truncate(database, t['nombre'])
-                    print("Lista antes")
-                    print(val)
+                    
                     if len(val):
                         for x in val:
                             for y in x:
@@ -1959,6 +2053,7 @@ def alterDatabaseDecompress(database: str) -> int:
                 bd["compress"] = False
 
                 return 0
+                
             except:
                 return 1
         else:
@@ -1996,7 +2091,7 @@ def alterTableCompress(database: str, table: str, level: int) -> int:
 
                 if not com:
                     try:
-                        val = extractTable(database, tb['nombre'])
+                        val = _extractTable(database, tb['nombre'], tb["modo"])
                         truncate(database, tb['nombre'])
                         if len(val):
                             for x in val:
@@ -2004,12 +2099,13 @@ def alterTableCompress(database: str, table: str, level: int) -> int:
                                     if type(y) == str:
                                         try:
                                             i = x.index(y)
-                                            x[i] =zlib.compress(y.encode(), level).hex()
+                                            x[i] = zlib.compress(y.encode(), level).hex()
                                         except:
                                             return 1
                                 insert(database, tb['nombre'], x)
                         tb["compress"] = True
                         tb["level"] = level
+
                         return 0
                     except:
                         return 1
@@ -2047,7 +2143,7 @@ def alterTableDecompress(database: str, table: str) -> int:
             
             if com:
                 try:
-                    val = extractTable(database, tb['nombre'])
+                    val = _extractTable(database, tb['nombre'], tb["modo"])
                     truncate(database, tb['nombre'])
                     
                     if len(val):
@@ -2071,7 +2167,6 @@ def alterTableDecompress(database: str, table: str) -> int:
     else:
         return 2
 
-
 # ===============================//=====================================
 #                      ADMINISTRACION DE SEGURIDAD
 
@@ -2084,14 +2179,14 @@ def encrypt(backup: str, password: str) -> str:
 
         Returns:\n
             str: cryptogram of the encryption
-            1: an error ocurred
+            None: an error ocurred
     """
 
     try:
         return comp.encriptar(backup, password)
 
     except:
-        return '1'
+        return None
 
 
 def decrypt(cipherBackup: str, password: str) -> str:
@@ -2103,14 +2198,14 @@ def decrypt(cipherBackup: str, password: str) -> str:
 
         Returns:\n
             str: decrypted text
-            1: an error ocurred
+            None: an error ocurred
     """
 
     try:
         return comp.desencriptar(cipherBackup, password)
 
     except:
-        return '1'
+        return None
 
 
 def safeModeOn(database: str, table: str) -> int:
@@ -2180,52 +2275,69 @@ def safeModeOff(database: str, table: str) -> int:
 # ===============================//=====================================
 #                      GENERACIÓN DE GRAFOS
 
-def _Graficar(database, table):
+def graphTable(database: str, table: str):
+    """Graphs a table inner structure
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table
+
+        Returns:\n
+            str: successful operation
+            None: non-existent database, an error ocurred
+    """
+
     try:
+
         mode = _table(database, table)["modo"]
 
         if mode == "avl":
 
             avl._Cargar(database, table)
-            return "avl"
 
         elif mode == "b":
 
             b._Cargar(database, table)
-            return "b"
 
         elif mode == "bplus":
 
             bplus._Cargar(database, table)
-            return "bplus"
 
         if mode == "hash":
 
             hash._Cargar(database, table)
-            return "hash"
 
         elif mode == "isam":
 
             isam._Cargar(database, table)
-            return "isam"
 
-        return 0
+        return _main_path+"\\graph\\"+mode+".png"
 
     except:
-        return 1
+        return None
 
 
-def GraphSafeTable(database: str, table: str) -> int:
+def graphSafeTable(database: str, table: str) -> int:
+    """Graphs a table blockchain diagram
+
+        Pararameters:\n
+            database (str): name of the database
+            table (str): name of the table
+
+        Returns:\n
+            str: successful operation
+            None: non-existent database, an error ocurred
+    """
 
     try:
 
         nombreST = str(database) + '-' + str(table)
         BC.GraphSafeTable(nombreST, _main_path)
 
-        return 0
+        return _main_path+"\\graph\\BlockChain.png"
 
     except:
-        return 1
+        return None
 
 
 def graphDSD(database: str) -> int:
