@@ -944,6 +944,115 @@ def truncate(database: str, table: str) -> int:
     except:
         return 1
 
+
+##################
+#   MODE CRUD    #
+##################
+
+def alterDatabaseMode(database: str, mode: str) -> int:
+    try:
+        # se comprueba el modo
+        modos = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
+        if mode not in modos:
+            return 4
+        else:
+            # se llama a la base de datos
+            bdata = __getDatabase(database)
+
+            if bdata:
+                # se extrae el modo si es igual, se deja igual 
+                if bdata["mode"] == mode:
+                    return 4
+                
+                # se extrae un listado de tablas
+                #tablas = []
+                #for t in bdata.get("tables"):
+                    #tablas.append(t.get("nombretb"))
+                tablas = showTables(database)
+                
+                # se extrae el los registros de las tablas
+                newdata=[]
+                if len(tablas) != 0:
+                    
+                    for nombreTb in tablas:
+                        newdata.append([nombreTb, extractTable(database, nombreTb)])                          ##### EXTRACTTABLE
+                
+                # se elimina la base de datos 
+                dropDatabase(database)   
+                # se crea la nueva base de datos en el modo respectivo                                                       ##### DROPDATABASE
+                createDatabase(database , mode, bdata["encoding"])
+
+                for t in newdata:
+                    createTable(database, __getTable(database, t[0]).get("nameTb"), __getTable(database, t[0]).get("columns"))   #### _table             ##### CREATETABLE
+                    alterAddPK(database , __getTable(database, t[0]).get("nameTb"), __getTable(database, t[0]).get("pk"))                      ##### ALTERADDPK
+
+                    # INSERTAR LOS REGISTROS EN LA NUEVA ESTRUCTURA
+                    for reg in newdata[1]:
+                        insert(database, __getTable(database, t[0]).get("nameTb"), reg)                   ##### INSERT 
+                
+                return 0
+            else:
+                return 2           
+    except:
+        return 1
+
+def alterTableMode(database: str, table: str, mode: str) -> int:
+    try:
+        # se comprueba el modo
+        modos = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
+        if mode not in modos:
+            return 4
+        else:
+            # se llama a la base de datos
+            bdata= __getDatabase(database)
+
+            if bdata:
+               
+                # se extrae la tabla buscada
+                #tabla =[]
+                #for t in bdata.get("tables"):
+                    #if t.get("nameTb") == table:
+                        #tabla.append(t.get("nombretb"))
+                
+                # obtener diccionario de la tabla especifica
+                tabla = __getTable(database, table)
+
+                if tabla is False:
+                    return 3
+                
+                # se extrae el modo de la tabla  si es igual, se deja igual 
+                if tabla["mode"] == mode:
+                    return 4
+                
+                # se extrae el los registros de la tabla
+                newdata = extractTable(database, tabla["nameTb"])
+
+                # se elimina la base tabla 
+                dropTable(database, table)                                                       ##### DROPDATABASE
+                
+                # se crea la nueva tabla
+                __createTable(database, table, tabla["columns"], mode)
+                alterAddPK(database, tabla.get("nameTb"), tabla.get("pk"))
+
+                # se ingresan los nuevos registros
+                for reg in newdata:
+                    insert(database, table, reg)
+                
+                # obtener diccionario de la tabla con el nuevo modo
+                tabla = __getTable(database, table)
+
+                tabla["foreign_keys"].alterTableMode(mode)
+                tabla["unique_index"].alterTableMode(mode)
+                tabla["index"].alterTableMode(mode)
+
+                return 0
+            else:
+                return 2           
+    except:
+        return 1
+
+
+
 def graphDSD(database: str) -> int:
     """Graphs a database ERD
 
