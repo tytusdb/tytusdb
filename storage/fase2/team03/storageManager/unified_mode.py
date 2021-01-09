@@ -1053,6 +1053,166 @@ def alterTableMode(database: str, table: str, mode: str) -> int:
 
 
 
+
+##################
+# CODIFIED CRUD  #
+##################
+
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    
+    bdObtenida=__getDatabase(database) #comprueba que exista la base de datos
+
+    if bdObtenida:
+        
+        codificaciones=["utf8", "ascii", "iso-8859-1"]
+        #si el encoding enviado esta en la codificaciones
+        if  encoding in codificaciones:
+            try:
+                listaDB = __rollback("data")
+                for db in listaDB:
+                    if db["nameDb"] == database:
+                        db["encoding"]=encoding
+                        break
+                
+                #Se guarda la nueva base de datos en el archivo data
+                __commit(listaDB, "data")
+
+                #################### ENCODING ###################
+
+                #################### ENCODING ###################
+                return 0 #operacion exitosa
+            except:
+                return 1 #Error en la operacion
+        else:
+            return 3 # La codificacion no valida
+    else:
+        return 2 #la BD no existe
+
+def checksumTable(database: str, table: str, mode: str) -> str:
+    if mode.upper()=="MD5":
+        try:
+            #Extraemos el diccionario de la base de datos respectiva
+            db = __getDatabase(database)
+            #si existe la BD y existe la Tabla
+            if db:
+                for tb in db["tables"]:
+                    if tb["nameTb"]==table:
+
+                        registros = extractTable(database, tb["nameTb"])
+
+                        ruta=database+table
+                        __commit(registros, ruta)
+
+                        if os.path.exists(ruta+".bin"):
+                            hasher=hashlib.md5()
+
+                            with open(ruta+".bin", 'rb') as open_file:
+                                content=open_file.read()
+                                hasher.update(content)
+                            return hasher.hexdigest() #devuelve el checksum MD5 de la tabla
+                return None #No se encontro la tabla
+            else:
+                #si llega hasta aca es por que no encontro la BD
+                return None
+        #si ocurre un error al leer el archivo con el RollBack    
+        except:
+            return None
+    elif mode.upper()=="SHA256":
+        try:
+            #Extraemos el diccionario de la base de datos respectiva
+            db = __getDatabase(database)
+            #si existe la BD y existe la Tabla
+            if db:
+                for tb in db["tables"]:
+                    if tb["nameTb"]==table:
+
+                        registros = extractTable(database, tb["nameTb"])
+
+                        ruta=database+table
+                        __commit(registros, ruta)
+                        
+                        if os.path.exists(ruta+".bin"):
+                            hasher=hashlib.sha256()
+
+                            with open(ruta+".bin", 'rb') as open_file:
+                                content=open_file.read()
+                                hasher.update(content)
+                            return hasher.hexdigest() #devuelve el checksum MD5 de la tabla
+                return None #No se encontro la tabla
+            else:
+                #si llega hasta aca es por que no encontro la BD
+                return None
+        #si ocurre un error al leer el archivo con el RollBack    
+        except:
+            return None
+    else:
+        return None #devuelve none por que no se encuentra el modo
+
+def checksumDatabase(database: str, mode: str) -> str:
+    if mode.upper()=="MD5":
+        try:
+            #Extraemos el diccionario de la base de datos respectiva
+            db = __getDatabase(database)
+
+            #si existe la BD
+            if db:
+                ruta=database
+                __commit(db, ruta)
+                if os.path.exists(ruta+".bin"):
+                    hasher=hashlib.md5()
+
+                    with open(ruta+".bin", 'rb') as open_file:
+                        content=open_file.read()
+                        hasher.update(content)
+                    return hasher.hexdigest() #devuelve el checksum MD5 de la BD
+            else:
+                #si llega hasta aca es por que no encontro la BD
+                return None
+        #si ocurre un error al leer el archivo con el RollBack    
+        except:
+            return None
+    elif mode.upper()=="SHA256":
+        try:
+            #Extraemos el diccionario de la base de datos respectiva
+            db = __getDatabase(database)
+
+            #si existe la BD
+            if db:
+                ruta=database
+                __commit(db, ruta)
+                if os.path.exists(ruta+".bin"):
+                    hasher=hashlib.sha256()
+
+                    with open(ruta+".bin", 'rb') as open_file:
+                        content=open_file.read()
+                        hasher.update(content)
+                    return hasher.hexdigest() #devuelve el checksum SHA256 de la BD
+            else:
+                #si llega hasta aca es por que no encontro la BD
+                return None
+        #si ocurre un error al leer el archivo con el RollBack    
+        except:
+            return None
+    else:
+        return None #devuelve none por que no se encuentra el modo
+
+def encrypt(backup: str, password: str) -> str:
+    try:
+
+        salida=enc.encriptMessage(backup, password)
+        return salida #retorna el criptograma
+    except:
+        return 1    #ocurrio algun error en la encriptacion
+
+def decrypt(cipherBackup: str, password: str) -> str:
+    try:
+        x=des.decryptMessage(cipherBackup, password)
+        return x #se envia el criptograma desencriptado
+    except:
+        return 1   #ocurrio un error o clave invalida
+
+
+
 def graphDSD(database: str) -> int:
     """Graphs a database ERD
 
@@ -1165,3 +1325,5 @@ def graphDF(database: str, table: str) -> int:
         return 0
     except:
         return None
+
+
