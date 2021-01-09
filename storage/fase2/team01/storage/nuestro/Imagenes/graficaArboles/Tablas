@@ -1,0 +1,10 @@
+digraph arbol {
+	node [height=.1 shape=record]
+	countries [label="<f0> |<f1> countries|<f2>"]
+	cities [label="<f0> |<f1> cities|<f2>"]
+	countries:<f0> -> cities:<f1>
+	languages [label="<f0> |<f1> languages|<f2>"]
+	countries:<f2> -> languages:<f1>
+	label="\n\nTablas: world"
+	fontsize=20
+}
