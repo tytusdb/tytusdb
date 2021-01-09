@@ -830,3 +830,37 @@ def comprimidoBase(base):
             if d.compreso:
                 return True
     return False
+
+
+def alterDatabaseCompress(database: str, level: int) -> int:
+    if (-1 <= level or level > 9):
+        if (buscarbase(database)):
+            try:
+                if (comprimidoBase(database)):
+                    print("La base de datos ya ha sido comprimida")
+                    return 4  # Base de datos ya comprimida
+                else:
+                    for d in lista_bases:
+                        if d.base == database:
+                            d.compreso = True
+
+                    Actualizar(lista_bases, "basesG")
+                    for d in list_table:
+                        if d.base == database:
+                            arregloTupla = d.codificado
+                            d.codificado = []
+                            for i in arregloTupla:
+                                if isinstance(i, str):
+                                    NuevoValor = zlib.compress(i, level)
+                                    d.codificado.append(NuevoValor)
+                            d.compreso = True
+                    Actualizar(list_table, "tablasG")
+
+                    return 0  # operación exitosa
+            except:
+                print("Error en la compresion de la base de datos")
+                return 1  # Error en la operación
+        else:
+            return 2  # Database no existe
+    else:
+        return 3  # level incorrecto
