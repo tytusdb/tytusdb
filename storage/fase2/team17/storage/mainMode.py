@@ -6,6 +6,9 @@ class main():
         #self.godGuide2 = {}
         self.godGuide = {'avl': {}, 'b': {}, 'bplus': {}, 'dict': {}, 'isam': {}, 'json': {}, 'hash': {}}
         self.guiaModos = {}
+        self.fk = {}
+        self.Betzy = {}
+        self.index = {}
         self.listMode = ['avl', 'hash', 'b', 'bplus', 'dict', 'isam', 'json']
         self.listEncoding = ['ascii', 'iso-8859-1', 'utf8']
 
@@ -111,6 +114,175 @@ class main():
         return 1
 
     # ---------------------FUNCIONES DE ADMINISTRACION DE INDICES----------------------#
+
+    # AGREGAR LISTA DE LLAVES FORANEAS A UNA TABLA
+
+    def alterTableAddFK(self, database, table, indexName, columns,  tableRef, columnsRef):
+        try:
+            if table == tableRef:
+                return 1
+            c1 = 0
+            c2 = 0
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database,i):
+                    clave = True
+            if clave:
+                if self.searchTB(database,table) and self.searchTB(database,tableRef):
+                    if len(columnsRef)>= 1 and len(columns)>= 1:
+                        if len(columnsRef)==len(columns):
+                            c1 = self.getNumColumns(database,table)
+                            c2 = self.getNumColumns(database,table)                      
+                            for a in columns:
+                                if a>c1 or a<0:
+                                    return 5
+                            for c in columnsRef:
+                                if c>c2 or a<0:
+                                    return 5
+                            if database not in self.fk.keys():
+                                self.fk[database] = {table:{indexName:[columns,columnsRef,tableRef]}}
+                            elif table not in self.fk[database].keys():
+                                self.fk[database][table] ={indexName: [columns,columnsRef,tableRef]} 
+                            elif indexName not in self.fk[database][table].keys():
+                                self.fk[database][table][indexName] = [columns,columnsRef,tableRef]
+                            else:
+                                return 1
+                            return 0
+                        else:
+                            return 4
+                    else:
+                        return 4
+                else:
+                    return 3
+            else:
+                return 2
+        except:
+            return 1
+    
+    # ELIMINAR LLAVES FORANEAS A UNA TABLA
+
+    def alterTableDropFK(self,database, table, indexName):
+        try:
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database,i):
+                    clave = True
+            if clave:
+                if self.searchTB(database,table):
+                    if database in self.fk.keys():
+                        if table in self.fk[database].keys():
+                            if indexName in self.fk[database][table].keys():
+                                self.fk[database][table].pop(indexName)
+                                return 0
+                    return 4
+                return 3
+            else:
+                return 2
+        except:
+            return 1
+    
+    # AGREGAR UN IDENTIFICADOR UNICO A UNA TABLA
+
+    def alterTableAddUnique(self, database, table, indexName, columns):
+        try:
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database,i):
+                    clave = True
+            if clave:
+                if self.searchTB(database,table):
+                    c1 = self.getNumColumns(database,table)
+                    for i in columns:
+                        if i > c1 or i < 0:
+                            return 5                  
+                    if database not in self.Betzy.keys():
+                        self.Betzy[database] = {table:{indexName:[columns]}}
+                    elif table not in self.Betzy[database].keys():
+                        self.Betzy[database][table] ={indexName: [columns]} 
+                    elif indexName not in self.Betzy[database][table].keys():
+                        self.Betzy[database][table][indexName] = [columns]
+                    else:
+                        return 1
+                    return 0
+                return 3
+            else:
+                return 2
+        except:
+            return 1
+    
+    # ELIMINAR EL INDENTIFICADOR UNICO A UNA TABLA
+
+    def alterTableDropUnique(self, database, table, indexName):
+        try:
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database,i):
+                    clave = True
+            if clave:
+                if self.searchTB(database,table):
+                    if database in self.Betzy.keys():
+                        if table in self.Betzy[database].keys():
+                            if indexName in self.Betzy[database][table].keys():
+                                self.Betzy[database][table].pop(indexName)
+                                return 0
+                    return 4
+                return 3
+            else:
+                return 2
+        except:
+            return 1
+
+    # AGREGAR UN INDICE A UNA TABLA
+
+    def alterTableAddIndex(self, database, table, indexName, columns):
+        try:
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database,i):
+                    clave = True
+            if clave:
+                if self.searchTB(database,table):
+                    c1 = self.getNumColumns(database,table)
+                    for i in columns:
+                        if i > c1 or i < 0:
+                            return 5
+                    if database not in self.index.keys():
+                        self.index[database] = {table:{indexName:columns}}
+                        return 0
+                    elif table not in self.index[database].keys():
+                        self.index[database][table] = {indexName:columns}
+                    elif indexName not in self.index[database][table].keys():
+                        self.index[database][table][indexName] = [columns]
+                    else:
+                        return 1
+                    return 0                  
+                return 3
+            else:
+                return 2
+        except:
+            return 1
+
+    # ELIMINAR UN INDICE A UNA TABLA
+    
+    def alterTableDropIndex(self, database, table, indexName):
+        try:
+            clave = False
+            for i in self.listMode:
+                if self.searchDB(database,i):
+                    clave = True
+            if clave:
+                if self.searchTB(database,table):
+                    if database in self.index.keys():
+                        if table in self.index[database].keys():
+                            if indexName in self.index[database][table].keys():
+                                self.index[database][table].pop(indexName)
+                                return 0
+                    return 4
+                return 3
+            else:
+                return 2
+        except:
+            return 1
 
     # ---------------------FUNCIONES DE ADMINISTRACION DE LA CODIFICACION----------------------#
 
@@ -586,7 +758,22 @@ class main():
             for j in switch.switchMode(i).showDatabases():
                 if table in switch.switchMode(i).showTables(j):
                         return switch.switchMode(i).extractTable(j, table)
+    def getNumColumns(self,database,table):
+        for i in self.listMode:
+            for j in self.godGuide[i].keys():
+                if table in self.godGuide[i][j][0].keys() and j == database:
+                    return self.godGuide[i][j][0][table][0]
 
+    def getPK(self,database,table):
+        for i in self.listMode:
+            for j in self.godGuide[i].keys():
+                if table in self.godGuide[i][j][0].keys() and j == database:
+                    return self.godGuide[i][j][0][table][1]
+        for i in self.listMode:
+            for j in self.godGuide[i].keys():
+                if table in self.godGuide[i][j][0].keys() and j == database:
+                    return self.godGuide[i][j][0][table][0]
+                      
     def delTB(self, database, table):
         for i in self.listMode:
             for j in switch.switchMode(i).showDatabases():
