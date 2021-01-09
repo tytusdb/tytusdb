@@ -815,3 +815,18 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
             return 2
     except:
         return 1
+
+def comprimidoTabla(base, tabla):
+    for d in list_table:
+        if d.base == base and d.tabla == tabla:
+            if d.compreso:
+                return True
+    return False
+
+
+def comprimidoBase(base):
+    for d in lista_bases:
+        if d.base == base:
+            if d.compreso:
+                return True
+    return False
