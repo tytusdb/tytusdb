@@ -261,9 +261,9 @@ class TableModule:
                 if x >= _tableRef.numberColumns:
                     raise
             name = "_PKSTRUCTURE__"
-            pk = [2]
-            numberColumns = 6
-            register = [database, table, indexName, columns, tableRef, columnsRef]
+            pk = [0]
+            numberColumns = 5
+            register = [indexName, table, columns, tableRef, columnsRef]
             if not db.fk:
                 eval(actionCreator(db.mode, 'createTable', ['database', 'name', 'numberColumns']))
                 eval(actionCreator(db.mode, 'alterAddPK', ['database', 'name', 'pk']))
@@ -289,9 +289,12 @@ class TableModule:
                 return 3
             indexName = [indexName]
             name = "_PKSTRUCTURE__"
-            if eval(actionCreator(db.mode, 'delete', ['database', 'name', 'indexName'])) != 0:
+            result = eval(actionCreator(db.mode, 'delete', ['database', 'name', 'indexName']))
+            if result == 4:
+                return 4
+            if result != 0:
                 raise
-            reg = next((x for x in _table.fk if x[2].lower() == indexName[0].lower()), None)
+            reg = next((x for x in _table.fk if x[0].lower() == indexName[0].lower()), None)
             _table.fk.remove(reg)
 
             res = eval(actionCreator(db.mode, 'extractTable', ['database', 'name']))
@@ -305,16 +308,131 @@ class TableModule:
             return 1
 
     def alterTableAddUnique(self, database: str, table: str, indexName: str, columns: list) -> int:
-        pass
+        try:
+            if not isinstance(database, str) or not isinstance(table, str) or \
+                    not isinstance(indexName, str) or not isinstance(columns, list):
+                raise
+            self.dbs = self.handler.rootinstance()
+            db, index = self._exist(database)
+            if not db:
+                return 2
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            if not _table:
+                return 3
+            if len(columns) == 0:
+                raise
+            for x in columns:
+                if x >= _table.numberColumns:
+                    return 4
+            name = "_UNIQUESTRUCTURE__"
+            pk = [0]
+            numberColumns = 3
+            register = [indexName, table, columns]
+            if not db.unique:
+                eval(actionCreator(db.mode, 'createTable', ['database', 'name', 'numberColumns']))
+                eval(actionCreator(db.mode, 'alterAddPK', ['database', 'name', 'pk']))
+            if eval(actionCreator(db.mode, 'insert', ['database', 'name', 'register'])) != 0:
+                raise
+            db.unique = True
+            _table.unique.append(register)
+            self.handler.rootupdate(self.dbs)
+            return 0
+        except:
+            return 1
 
     def alterTableDropUnique(self, database: str, table: str, indexName: str) -> int:
-        pass
+        try:
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(indexName, str):
+                raise
+            self.dbs = self.handler.rootinstance()
+            db, index = self._exist(database)
+            if not db:
+                return 2
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            if not _table:
+                return 3
+            indexName = [indexName]
+            name = "_UNIQUESTRUCTURE__"
+            result = eval(actionCreator(db.mode, 'delete', ['database', 'name', 'indexName']))
+            if result == 4:
+                return 4
+            elif result != 0:
+                raise
+            reg = next((x for x in _table.unique if x[0].lower() == indexName[0].lower()), None)
+            _table.unique.remove(reg)
+
+            res = eval(actionCreator(db.mode, 'extractTable', ['database', 'name']))
+            if res or res == []:
+                if len(res) == 0:
+                    eval(actionCreator(_table.mode, 'dropTable', ['database', 'name']))
+                    db.unique = False
+            self.handler.rootupdate(self.dbs)
+            return 0
+        except:
+            return 1
 
     def alterTableAddIndex(self, database: str, table: str, indexName: str, columns: list) -> int:
-        pass
+        try:
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(indexName, str) \
+                    or not isinstance(columns, list):
+                raise
+            self.dbs = self.handler.rootinstance()
+            db, index = self._exist(database)
+            if not db:
+                return 2
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            if not _table:
+                return 3
+            if len(columns) == 0:
+                raise
+            for x in columns:
+                if x >= _table.numberColumns:
+                    return 4
+            name = "_INDEXSTRUCTURE__"
+            pk = [0]
+            numberColumns = 3
+            register = [indexName, table, columns]
+            if not db.fk:
+                eval(actionCreator(db.mode, 'createTable', ['database', 'name', 'numberColumns']))
+                eval(actionCreator(db.mode, 'alterAddPK', ['database', 'name', 'pk']))
+            if eval(actionCreator(db.mode, 'insert', ['database', 'name', 'register'])) != 0:
+                raise
+            db.index = True
+            _table.index.append(register)
+            self.handler.rootupdate(self.dbs)
+            return 0
+        except:
+            return 1
 
     def alterTableDropIndex(self, database: str, table: str, indexName: str) -> int:
-        pass
+        try:
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(indexName, str):
+                raise
+            self.dbs = self.handler.rootinstance()
+            db, index = self._exist(database)
+            if not db:
+                return 2
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            if not _table:
+                return 3
+            indexName = [indexName]
+            name = "_INDEXSTRUCTURE__"
+            result = eval(actionCreator(db.mode, 'delete', ['database', 'name', 'indexName']))
+            if result == 4:
+                return 4
+            elif result != 0:
+                raise
+            reg = next((x for x in _table.index if x[0].lower() == indexName[0].lower()), None)
+            _table.index.remove(reg)
+            res = eval(actionCreator(db.mode, 'extractTable', ['database', 'name']))
+            if res or res == []:
+                if len(res) == 0:
+                    eval(actionCreator(_table.mode, 'dropTable', ['database', 'name']))
+                    db.index = False
+            self.handler.rootupdate(self.dbs)
+            return 0
+        except:
+            return 1
 
     def alterTableCompress(self, database: str, table: str, level: int) -> int:
         try:
