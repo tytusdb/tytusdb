@@ -3,6 +3,7 @@ import hashlib
 import os
 import pathlib
 from graphviz import Digraph
+import threading
 
 def writeBlockChain(db, table, data, falg = True):
     """escribe el blockchain"""
@@ -29,6 +30,11 @@ def writeBlockChain(db, table, data, falg = True):
 
 
 def showBlockChain(db, table, data):
+    hilo = threading.Thread(target=_showBlockChain, args = (db, table, data))
+    hilo.start()
+
+
+def _showBlockChain(db, table, data):
     """muestra el grafo"""
     initCheck()
     name = db + "_" + table
