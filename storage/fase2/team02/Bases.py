@@ -838,7 +838,7 @@ def alterDataBaseEncoding(database, codificacion):
         for i in listMode:
             if searchInMode(database)!= None :  #Buscamos la base 
                 if  listEncoding(codificacion):
-                    tabla = showTables(database, i) #Verificamos si hay tablas en la BD
+                   # tabla = showTables(database, i) #Verificamos si hay tablas en la BD
                     if showTables(database, i):#tabla != []:
                         for j in showTables : #La codificaci[on de las tablas] \
                             tupla = extractTable(database, j)   
@@ -1026,3 +1026,4 @@ def CodSHA256(Entrada):
     SHACodigo.update(Entrada.encode('utf8'))
     Proceso = SHACodigo.hexdigest()
     return Proceso
+
