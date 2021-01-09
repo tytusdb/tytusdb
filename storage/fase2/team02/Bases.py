@@ -206,6 +206,57 @@ def alterTableDropFK(database, table, indexName):
     except:
         return 1
 
+def alterTableAddUnique(database, table, indexName, columns):    
+    Temporal = showTables(database)
+    bandera = False
+    bandera2 = False
+    contador = 0
+
+    if Temporal == 2:
+        return 2
+
+    try:
+        for i in Temporal:
+            if table == i:
+                contador += 1
+                if contador >= 1:
+                    bandera = True
+                
+        for j in range(len(listados)):
+            if indexName == listados[j].indexName:
+                bandera2 = True
+            
+
+        if bandera == False:
+            return 3
+        elif bandera2 == True:
+            return 5
+        else:
+            listados.append(controlUnique(database,table,indexName,columns))
+            return 0
+    except:
+        return 1
+
+
+def alterTableDropUnique(database, table, indexName):
+    try:
+        for j in range(len(listados)):
+            if database == listados[j].database:
+                for k in range(len(listados)):
+                    if table == listados[k].table:
+                        for i in range(len(listados)):
+                            if indexName == listados[i].indexName:
+                                listados.pop(i)
+                                return 0
+                            else:
+                                return 4
+                    else:
+                        return 3
+            else:
+                return 2
+    except:
+        return 1
+
 #-------------TABLAS-------------------
 def createTable(database, table, numbercolumns):
     if searchInMode(database) != None:
