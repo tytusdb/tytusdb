@@ -12,8 +12,9 @@ import { Subscription } from 'rxjs';
 
 export class DataComponent implements OnInit, OnDestroy {
 
-  message: string;
+  message: any;
   subscription: Subscription;
+
 
   constructor(private servicio: TableDataService, private data: ShareService) { }
 
@@ -22,31 +23,49 @@ export class DataComponent implements OnInit, OnDestroy {
 
   headers: string[]; // = ['ID', 'Name', 'Age', 'Gender', 'Country']
   rows: string[]; // = [[**,**],[**,**]]
+  anuncio: any;
 
   //
   // const Squery = {query: 'SHOW DATABASES;'};
 
   ngOnInit(): void {
     this.subscription = this.data.currentMessage.subscribe(message => this.message = message);
-
-    // console.log(JSON.parse(this.message).result);
-    // if (obj.result.querys != null){
-    const arreglo = JSON.parse(this.message).result.querys;
-    this.headers = arreglo[0][0];
-    this.rows = arreglo[0][1];
-    // }
-
-    // if ($.isArray(siteArray)) {
-    //   if (siteArray.length) {
-    //
-    //   }
-    // }
-
   }
 
   // tslint:disable-next-line:typedef
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+
+  // tslint:disable-next-line:typedef
+  refresh(){
+
+    // tslint:disable-next-line:triple-equals
+    if (this.message.result.messages[0] != 0){
+      this.anuncio = this.message.result.messages[0];
+      // tslint:disable-next-line:triple-equals
+    }else if (this.message.result.lexical[0] != 0){
+      this.anuncio = this.message.result.lexical[0];
+      // tslint:disable-next-line:triple-equals
+    }else if (this.message.result.postgres[0] != 0){
+      this.anuncio = this.message.result.postgres[0];
+      // tslint:disable-next-line:triple-equals
+    }else if (this.message.result.semantic[0] != 0){
+      this.anuncio = this.message.result.semantic[0];
+      // tslint:disable-next-line:triple-equals
+    }else if (this.message.result.syntax[0] != 0){
+      this.anuncio = this.message.result.syntax[0];
+    }else{
+    }
+
+
+    const arreglo = this.message.result.querys;
+
+    if (arreglo[0] != null){
+      this.headers = arreglo[0][0];
+      this.rows = arreglo[0][1];
+    }
+
   }
 
 }

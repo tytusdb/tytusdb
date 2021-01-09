@@ -1,9 +1,0 @@
-@mixin font($family, $variant: 'regular', $modifiers: null) {
-  font-family: font-family($family, $variant);
-  font-weight: normal;
-  font-style: normal;
-
-  @if($modifiers) {
-    @include font-modifiers($family, $modifiers);
-  }
-}

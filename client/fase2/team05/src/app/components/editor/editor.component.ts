@@ -52,8 +52,8 @@ export class EditorComponent implements OnInit, OnDestroy {
 
     this.servicio.create({query: this.get()}).subscribe((response) => {
       const body = response.body;
-      const msg = body;
-      this.data.changeMessage(msg);
+      // const msg = body;
+      this.data.changeMessage(body);
     }, err => console.log(err));
     // -----------------------
   }

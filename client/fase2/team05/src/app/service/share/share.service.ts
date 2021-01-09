@@ -6,7 +6,7 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class ShareService {
 
-  private messageSource = new BehaviorSubject('-');
+  private messageSource = new BehaviorSubject('{}');
   currentMessage = this.messageSource.asObservable();
 
   constructor() { }
