@@ -1085,6 +1085,73 @@ def alterDatabaseEncoding(database: str, encoding: str) -> int:
             return 2
     except Exception:
         return 1
+    
+def safeModeOn(database: str, table: str):
+    data = {}
+
+    
+    retorno = showTables(database)
+       
+    if retorno:
+        for y in range(0, len(retorno)):
+           if(retorno[y]==table):
+                tabla=retorno[y]   
+
+    datos =  extractTable(database, table)
+    if datos:
+    
+        for t in datos:
+            indice = 0
+            listaAppend = {}
+            while indice < len(t):
+                listaAppend[indice] =  t[indice]
+                indice = indice + 1
+        json_data = j.dumps(listaAppend, indent = 3)
+        data[table] = []
+        data[table].append(json_data)
+
+    nombre = table + ".json"
+    with open(nombre, 'w') as file:
+        j.dump(data, file, indent=4)
+        file.close()
+    
+        
+def safeModeOff(database: str, table: str):
+    try:
+        booleanDB = False
+        booleanT = False
+        BaseDatos = showDatabases()
+        print(BaseDatos)
+        if BaseDatos:
+            for x in range(0, len(BaseDatos)):
+                if(BaseDatos[x] == database):
+                    booleanDB = True
+        Tablas = showTables(database)
+        if Tablas:
+            for x in range(0, len(Tablas)):
+                if(Tablas[x] == table):
+                    booleanT = True
+        if(booleanDB == True):
+            if(booleanT == True):
+                nombre = table + ".json"
+                try:
+                    remove(nombre)
+                    return 0
+          
+                except Exception:
+              
+                    return 4   
+            else:
+          
+                return 3
+                
+        else:
+           
+            return 2
+
+    except Exception:
+       
+        return 1
 
 def encrypt(backup: str, password: str) -> str:
     return cripto.encrypt(backup, password)
