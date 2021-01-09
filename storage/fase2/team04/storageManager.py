@@ -12,8 +12,10 @@ from storage.json_mode import jsonMode
 from storage.dict import DictMode
 from storage.b import Serializable
 from DBList import DBList
+from blockchain import blockchain
+import hashlib
 import re
-import codificar
+import zlib
 from random import randint
 
 #Para la password
@@ -701,6 +703,20 @@ def insert(database: str, table: str, register: list):
             result = HashMode.insert(database, table, register)
         if result != 3:
             break
+    tb = databases.find_table(database, table)
+    if tb.safeMode:
+        key = ""
+        for pk in tb.pk:
+            key += str(register[pk])
+        cs = checksumDatabase(database, "SHA256")
+        print(cs)
+        print(tb.blockchain.new_block(key, cs))
+        for x in range(5):
+            try:
+                Serializable.commit(databases, "lista_bases_de_datos")
+                return result
+            except:
+                continue
     return result
 
 # Descripción:
@@ -1114,6 +1130,20 @@ def update(database, table, register, columns):
             result = jsonMode.update(database, table, register, columns)
         elif db.mode == "hash":
             result = HashMode.update(database, table, register, columns)
+    tb = databases.find_table(database, table)
+    if tb.safeMode:
+        key = ""
+        for pk in tb.pk:
+            key += str(register[pk])
+        cs = checksumDatabase(database, "SHA256")
+        tb.blockchain.update_block(key, cs, True)
+        tb.blockchain.break_blockchain(key)
+        for x in range(5):
+            try:
+                Serializable.commit(databases, "lista_bases_de_datos")
+                return result
+            except:
+                continue
     return result
 
 def truncate(database, table):
@@ -1534,3 +1564,1304 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
                 except:
                     continue
     return 4
+
+# Descripción:
+#     Agrega un índice único, creando una estructura adicional con el modo indicado para la base de datos
+# Parámetros:
+#     database:str - El nombre de la base de datos a utilizar
+#     table:str - El nombre de la tabla a utilizar
+#     indexName:str - El nombre único del índice
+#     columns:list - Conjunto de índices de columnas que forman parte de la llave foránea
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - indexName repetido
+#     5 - No se cumple la integridad de unicidad
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb = databases.find_table(database, table)
+    if tb == None:
+        return 3
+    
+    for iu in tb.iu:
+        if iu["indexName"] == indexName:
+            return 4
+
+    registers = extractTable(database, table)
+    aux_data = [] # Usado para verificar si hay datos repetidos
+    for register in registers:
+        unique_index = ""
+        for column in columns:
+            unique_index += str(register[column])
+        if unique_index in aux_data:
+            return 5
+        aux_data.append(unique_index)
+
+    # Creando la nueva estructura
+    if createTable(database, indexName, len(columns) + 1) != 0:
+        return 1
+    
+    # Definiendo las llaves primarias de la nueva estructura
+    aux_pk = []
+    for x in range(len(columns)):
+        aux_pk.append(x)
+    if alterAddPK(database, indexName, aux_pk) != 0:
+        return 1
+
+    # Insertando los registros a la nueva estructura
+    for register in registers:
+        aux_register = []
+        for x in range(len(register)):
+            if x in columns:
+                aux_register.append(register[x])
+        reference_pk = {}
+        for x in range(len(register)):
+            if x in tb.pk:
+                reference_pk[x] = register[x]
+        aux_register.append(reference_pk)
+        
+        if insert(database, indexName, aux_register) != 0:
+            return 1
+
+    # Agregando la información del índice único a la tabla
+    tb.iu.append({"indexName": indexName,
+                  "table": table,
+                  "columns": columns,
+                  "pk": aux_pk})
+    databases.find_table(database, indexName).hidden = True
+
+    # Almacenando la información de la lista de bases de datos
+    for x in range(5):
+        try:
+            Serializable.commit(databases, "lista_bases_de_datos")
+            return 0
+        except:
+            continue
+    
+    return 1
+
+# Descripción:
+#     Destruye el índice único tanto como metadato de la tabla como la estructura adicional creada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+#     table:str - El nombre de la tabla
+#     indexName:str - El nombre único del índice
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - Nombre de índice no existente
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb_local = databases.find_table(database, table)
+    if tb_local == None:
+        return 3
+    
+    for x in range(len(tb_local.iu)):
+        if tb_local.iu[x]["indexName"] == indexName:
+            if dropTable(database, indexName) != 0:
+                return 1
+            tb_local.iu.pop(x)
+            for x in range(5):
+                try:
+                    Serializable.commit(databases, "lista_bases_de_datos")
+                    return 0
+                except:
+                    continue
+    return 4
+
+# Descripción:
+#     Agrega un índice, creando una estructura adicional con el modo indicado para la base de datos
+# Parámetros:
+#     database:str - El nombre de la base de datos a utilizar
+#     table:str - El nombre de la tabla a utilizar
+#     indexName:str - El nombre único del índice
+#     columns:list - Conjunto de índices de columnas que forman parte de la llave foránea
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - indexName repetido
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb = databases.find_table(database, table)
+    if tb == None:
+        return 3
+    
+    for indx in tb.indx:
+        if indx["indexName"] == indexName:
+            return 4
+
+    registers = extractTable(database, table)
+
+    # Creando la nueva estructura
+    if createTable(database, indexName, len(columns) + 1) != 0:
+        return 1
+    
+    # Definiendo las llaves primarias de la nueva estructura
+    aux_pk = []
+    for x in range(len(columns)):
+        aux_pk.append(x)
+    if alterAddPK(database, indexName, aux_pk) != 0:
+        return 1
+
+    # Insertando los registros a la nueva estructura
+    for register in registers:
+        aux_register = []
+        for x in range(len(register)):
+            if x in columns:
+                aux_register.append(register[x])
+        reference_pk = {}
+        for x in range(len(register)):
+            if x in tb.pk:
+                reference_pk[x] = register[x]
+        aux_register.append(reference_pk)
+        insert(database, indexName, aux_register)
+
+    # Agregando la información del índice único a la tabla
+    tb.indx.append({"indexName": indexName,
+                  "table": table,
+                  "columns": columns,
+                  "pk": aux_pk})
+    databases.find_table(database, indexName).hidden = True
+
+    # Almacenando la información de la lista de bases de datos
+    for x in range(5):
+        try:
+            Serializable.commit(databases, "lista_bases_de_datos")
+            return 0
+        except:
+            continue
+    
+    return 1
+
+# Descripción:
+#     Destruye el índice tanto como metadato de la tabla como la estructura adicional creada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+#     table:str - El nombre de la tabla
+#     indexName:str - El nombre único del índice
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - Nombre de índice no existente
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb_local = databases.find_table(database, table)
+    if tb_local == None:
+        return 3
+    
+    for x in range(len(tb_local.indx)):
+        if tb_local.indx[x]["indexName"] == indexName:
+            if dropTable(database, indexName) != 0:
+                return 1
+            tb_local.indx.pop(x)
+            for x in range(5):
+                try:
+                    Serializable.commit(databases, "lista_bases_de_datos")
+                    return 0
+                except:
+                    continue
+    return 4
+
+# Descripcion
+# Activa el modo seguro para una tabla de una base de datos.
+# Parametos:
+# 	Parámetro database: 
+# 	nombre de la base de datos. 
+# 	Parámetro table: nombre de la tabla.
+# Valor de retorno:
+# 	0 operación exitora, 
+#	1 error en la operación, 
+#	2 database inexistente, 
+#	3 table inexistente, 
+#	4 modo seguro existente.
+def safeModeOn(database: str, table: str):
+    if not os.path.isdir(".\\DataJsonBC"):
+        os.makedirs(".\\DataJsonBC")
+    try:
+        dbs = databases.find_all(database)
+        if dbs == []:
+            return 2 #insexistente bd
+        tb = databases.find_table(database, table)
+        if tb == None:
+            return 3
+        if tb.safeMode == True:
+            return 4
+        
+        for db in dbs:
+            tb = db.tables.search(table)
+            if tb != None:
+                tb.blockchain = blockchain(db.name + "_" + tb.name)
+                tb.safeMode = True
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        break
+                    except:
+                        continue
+                with open(".\\DataJsonBC\\" + db.name + "_" + tb.name + ".json", "w") as bc:
+                    bc.write('{"blocks": []}')
+                break
+        return 0
+    except:
+        return 1#error
+
+#Descripcion:
+# Desactiva el modo seguro en la tabla especificada de la base de datos.
+# Parámetro database:
+#	 nombre de la base de datos.
+# Parámetro table: 
+#	nombre de la tabla.
+# Valor de retorno:
+#	0 operación exitora, 
+#	1 error en la operación,
+#	2 database inexistente, 
+#	3 table inexistente,
+#	4 modo seguro no existente.
+def safeModeOff(database: str, table: str):
+    try:
+        dbs = databases.find_all(database)
+        if dbs == []:
+            return 2 #insexistente bd
+        tb = databases.find_table(database, table)
+        if tb == None:
+            return 3
+        if tb.safeMode == False:
+            return 4
+        
+        for db in dbs:
+            tb = db.tables.search(table)
+            if tb != None:
+                tb.blockchain = None
+                tb.safeMode = False
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        break
+                    except:
+                        continue
+                os.remove(".\\DataJsonBC\\" + db.name + "_" + tb.name + ".json")
+                break
+        return 0
+    except:
+        return 1#error
+
+# Descripcion:
+# 	Asociada una codificación a una base de datos por completo. (UPDATE)
+# Parámetro database: 
+#	es el nombre de la base de datos a utilizar. Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.
+# Valor de retorno: 
+#	0 operación exitosa,
+#	1 error en la operación, 
+#	2 database no existente, 
+#	3 nombre de modo no existente.
+def checksumDatabase(database: str, mode: str):
+	try:
+		list_routes = get_routes(database)
+		#falta: if para ver si la db existe, abenido del get_routes
+		if list_routes != []:
+			#verifico existe modo
+			if(mode.upper() == 'MD5'):
+				m = hashlib.md5()
+				print(mode)#quitar
+			elif(mode.upper() == 'SHA256'):
+				m = hashlib.sha256()
+				print(mode)#quitar
+			else:
+				return 3 #nombre del modo no existe
+
+			for direcc in list_routes:
+				file = open(direcc,'rb')
+				tabla = file.read() #en tipo binario
+				file.close()
+				m.update(tabla)
+			return m.hexdigest()
+		else:
+			return 1 #error: la db no tiene tablas
+	except:
+		return 1 #error en la operacion
+
+
+def checksumTable(database: str, table:str, mode: str):
+	try:
+		list_routes = get_route_table(database,table)
+		#falta: if para ver si la db existe, obenido del get_routes
+		if list_routes != None:
+			#verifico existe modo
+			if(mode.upper() == 'MD5'):
+				m = hashlib.md5()
+				print(mode)#quitar
+			elif(mode.upper() == 'SHA256'):
+				m = hashlib.sha256()
+				print(mode)#quitar
+			else:
+				return 3 #nombre del modo no existe
+
+				direcc = list_routes
+				file = open(direcc,'rb')
+				tabla = file.read() #en tipo binario
+				file.close()
+				m.update(tabla)
+			return m.hexdigest()
+		else:
+			return 1 #error: la db no tiene tablas
+	except:
+		return 1 #error en la operacion
+# Agregue compresión utilizando la biblioteca. Se debe agregar a columna tipo varchar o text de cada tabla de la base de datos. (UPDATE)
+# Parámetro database: es el nombre de la base de datos que se desea modificar
+# Parámetro level: es el nivel de compressión definido por la función compress de la bilbioteca zlib de Python.
+# Valor de retorno: 
+#0 operación exitosa, 
+#1 error en la operación, 
+#2 database no existente, 
+#3 table no existente, 
+#4 level incorrecto.
+def alterDatabaseCompress(database: str, level: int):
+	try:
+		dbs = databases.find_all(database)
+		if dbs == []:
+		    return 2
+
+		if databases.search(database).compress == True:
+			return 1 #error
+
+		if level < -1 or level > 9:
+			return 4
+
+		for db in dbs:
+
+		    tables = []
+		    aux = db.tables.first
+		    while aux != None:
+		        tables.append(aux)
+		        aux = aux.next
+
+		    if tables != []:
+
+		        if db.mode == "avl":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	avlMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos: #lista de registros(lista)
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "b":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	BMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "bplus":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	BPlusMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "dict":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	DictMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "isam":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	ISAMMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "json":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	jsonMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "hash":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	HashMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		databases.search(database).compress = True		            		
+		return 0#exito
+	except:
+		return 1 #error
+
+# Quita la compresión de una base de datos especificada. (UPDATE)
+# Parámetro:
+#	 database: es el nombre de la base de datos a utilizar.
+# Valor de retorno: 
+#	0 operación exitosa, 
+#	1 error en la operación, 
+#	2 database no existente, 
+#	3 no había compresión.
+def alterDatabaseDecompress(database: str):
+	try:
+
+		dbs = databases.find_all(database)
+		if dbs == []:
+		    return 2
+		if databases.search(database).compress == False:
+			return 3 #error
+
+		for db in dbs:
+
+		    tables = []
+		    aux = db.tables.first
+		    while aux != None:
+		        tables.append(aux)
+		        aux = aux.next
+
+		    if tables != []:
+
+		        if db.mode == "avl":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	avlMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+				            		
+
+		        elif db.mode == "b":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	BMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "bplus":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	BPlusMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "dict":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	DictMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "isam":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	ISAMMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "json":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	jsonMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "hash":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	HashMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		databases.search(database).compress = False		            		
+		return 0#exito		
+
+	except:
+		return 1 #error
+
+# Agregue compresión  Se debe agregar a columna tipo varchar o text de cada tabla de la base de datos. De igual manera, al extraer la información se debe descomprimir
+# Parametros:
+# 	Parámetro database: es el nombre de la base de datos que se desea modificar
+# 	Parámetro table: es el nombre de la tabla.
+# 	Parámetro level: es el nivel de compressión definido por la función compress de la bilbioteca zlib de Python.
+# Valor de retorno: 
+#	0 operación exitosa, 
+#	1 error en la operación, 
+#	2 database no existente,
+#	3 table no existe 
+#	4 level incorrecto.
+def alterTableCompress(database: str, table: str, level: int):
+#	try:
+		dbs = databases.find_all(database)
+		if dbs == []:
+		    return 2
+		if databases.find_table(database,table) == None:
+			return 3
+		if level < -1 or level > 9:
+			return 4
+
+		for db in dbs:
+
+			#nuevo
+			tb = db.tables.search(table)
+			if tb == None:
+				continue
+
+			if db.mode == "avl":
+				if tb.compress == False:
+					datos =	avlMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos: #lista de registros(lista)
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo			            		
+
+			elif db.mode == "b":
+				if tb.compress == False:
+					datos =	BMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "bplus":
+				if tb.compress == False:
+					datos =	BPlusMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "dict":
+				if tb.compress == False:
+					datos =	DictMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "isam":
+				if tb.compress == False:
+					datos =	ISAMMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "json":
+				if tb.compress == False:
+					datos =	jsonMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "hash":
+				if tb.compress == False:
+					datos =	HashMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+		databases.find_table(database, table).compress = True#actualizo		            		
+		return 0#exito		
+
+#	except:
+#		return 1 #error
+
+# Quita la compresión de una base de datos especificada. (UPDATE)
+# Parámetro:
+#	database: es el nombre de la base de datos a utilizar.
+#	Parámetro table: es el nombre de la tabla a utilizar.
+# Valor de retorno:
+#	0 operación exitosa, 
+#	1 error en la operación, 
+#	2 database no existente, 
+#	3 no había compresión.
+def alterTableDecompress(database: str, table: str):
+#	try:
+
+		dbs = databases.find_all(database)
+		if dbs == []:
+		    return 2
+
+		if databases.find_table(database,table).compress == False:
+			return 3 #error
+
+		for db in dbs:
+
+			#nuevo
+			tb = db.tables.search(table)
+			if tb == None:
+				continue
+
+
+			if db.mode == "avl":
+				if tb.compress == True:
+					datos =	avlMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos: #lista de registros(lista)
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo				            		
+
+			elif db.mode == "b":
+				if tb.compress == True:
+					datos =	BMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "bplus":
+				if tb.compress == True:
+					datos =	BPlusMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "dict":
+				if tb.compress == True:
+					datos =	DictMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "isam":
+				if tb.compress == True:
+					datos =	ISAMMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "json":
+				if tb.compress == True:
+					datos =	jsonMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "hash":
+				if tb.compress == True:
+					datos =	HashMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+		databases.find_table(database, table).compress = False#actualizo	            		
+		return 0#exito		
+
+#	except:
+#		return 1 #error
+
+
+def comprimir(text,nivel):
+	try:
+		b = bytes(text, encoding="utf-8")
+		comp = zlib.compress(b,nivel)#b en bytes
+		return comp
+
+	except:
+		return 1#error
+
+
+def descomprimir(comp):
+	try:
+		decomp = zlib.decompress(comp).decode()
+
+		return decomp
+	except:
+		return 1#error
+
+class Grafo:
+    def graphDF(database: str, table: str):
+        dbs = databases.find_all(database)
+        if dbs == []:
+            return None
+        for db in dbs:
+            tb = db.tables.search(table)
+            if tb == None:
+                continue
+            if db.mode == "avl":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+
+            elif db.mode == "b":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+            elif db.mode == "bplus":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+            elif db.mode == "dict":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+            elif db.mode == "isam":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+            elif db.mode == "json":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg") 
+            elif db.mode == "hash":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg") 
+        if route != None and os.path.exists(route):
+            return route
+        return None
