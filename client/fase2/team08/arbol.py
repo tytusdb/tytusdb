@@ -4,6 +4,11 @@ import tkinter as tk
 from tkinter import messagebox as MessageBox
 from PIL.ImagePalette import load
 from PIL import ImageTk, Image
+import os
+import http.client
+import json
+import pathlib
+
 
 class Arbol(Frame):
     def __init__(self, *args, **kwargs):
@@ -17,9 +22,47 @@ class Arbol(Frame):
             fieldbackground = "silver",
             activebackground="gray59"
             )
-        
+        #
+        myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+        headers = {
+            "Content-type": "application/json"
+        }
+
+        myConnection.request("GET", "/getDB", "", headers)
+        response = myConnection.getresponse()
+        print("GET: Status: {} and reason: {}".format(response.status, response.reason))
+        if response.status == 200:       
+            data = response.read() 
+            data_1=  str(data.decode("utf-8"))
+            print(data_1)
+            lista = str(data_1).split("}},")
+            #print(lista[0])
+            #print(lista[1])
+            for x in range(0,len(lista)):
+                print("\n")
+                lista2 = str(lista[x]).split("},")
+                padre=lista2[0].split("\"")
+                print("-------PADRE---------")
+                print(padre[1])
+                print("-----HIJOS------------")
+                print(padre[3])
+                for y in range(1, len(lista2)):
+                    temp= lista2[y].split("\"")
+                    print(temp[1])
+        else:
+            print("Error F")
+            #consola.config(state=NORMAL)
+            #consola.insert(INSERT,"\nHa ocurrido un error.")
+            #consola.config(state=DISABLED)
+        myConnection.close()
+
+        #
+
         # Crear las imagenes que iran en el treeview, 
         # Folder para Bases y File para tablas
+
+        #{"TEST": {"TBUSUARIO": {"NCOL": 3, "PKEY": [0]}, "TBROL": {"NCOL": 2, "PKEY": [0]}, "TBROLXUSUARIO": {"NCOL": 2}}}
         self.file_image = tk.PhotoImage(file="resources/file.png")
         self.folder_image = tk.PhotoImage(file="resources/folder.png")
         self.file_image = self.file_image.subsample(35)
