@@ -40,12 +40,31 @@ export class DataComponent implements OnInit, OnDestroy {
   // tslint:disable-next-line:typedef
   refresh(){
 
-    this.anuncio = this.message.result.messages[0];
+    // tslint:disable-next-line:triple-equals
+    if (this.message.result.messages[0] != 0){
+      this.anuncio = this.message.result.messages[0];
+      // tslint:disable-next-line:triple-equals
+    }else if (this.message.result.lexical[0] != 0){
+      this.anuncio = this.message.result.lexical[0];
+      // tslint:disable-next-line:triple-equals
+    }else if (this.message.result.postgres[0] != 0){
+      this.anuncio = this.message.result.postgres[0];
+      // tslint:disable-next-line:triple-equals
+    }else if (this.message.result.semantic[0] != 0){
+      this.anuncio = this.message.result.semantic[0];
+      // tslint:disable-next-line:triple-equals
+    }else if (this.message.result.syntax[0] != 0){
+      this.anuncio = this.message.result.syntax[0];
+    }else{
+    }
+
 
     const arreglo = this.message.result.querys;
-    this.headers = arreglo[0][0];
-    this.rows = arreglo[0][1];
 
+    if (arreglo[0] != null){
+      this.headers = arreglo[0][0];
+      this.rows = arreglo[0][1];
+    }
 
   }
 
