@@ -4,6 +4,7 @@ import shutil
 import zlib
 import hashlib
 from Blockchain import *
+from cryptography.fernet import Fernet
 
 databases = {}  # LIST WITH DIFFERENT MODES
 dict_encoding = {'ascii': 1, 'iso-8859-1': 2, 'utf8': 3}
