@@ -1073,6 +1073,14 @@ def concatenateColumns(table, listIndex, numberColumns, listPK):
 
     return string
 
+
+# SELECT ONLY ONE DATABASE AND TABLE
+def databaseTableIndex(dictionary, database, table):
+    for key in dictionary:
+        values = dictionary[key]
+        if values[0] == database and values[1] == table:
+            return values
+
 # ------------------------------------------------------ FASE 1 --------------------------------------------------------
 # -------------------------------------------------- Table CRUD --------------------------------------------------------
 
