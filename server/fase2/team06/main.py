@@ -1,7 +1,49 @@
 import eel
 
 
+import sys
+sys.path.append('../G26/Instrucciones')
+sys.path.append('../G26/Librerias')
+sys.path.append('../G26/Utils')
+sys.path.append('../G26')
+
+import gramatica as g
+import Instrucciones.DML.select as select
+import Instrucciones.DDL.show as show
+from storageManager import jsonMode as storage
+import Lista as l
+from Error import *
+
 eel.init('client')
+storage.dropAll()
+datos = l.Lista({}, '')
+
+@eel.expose
+def analize(texto):
+  global datos
+  instrucciones = g.parse(texto)
+
+
+  for instr in instrucciones['ast']:
+    if instr != None:
+      result = instr.execute(datos)
+      if isinstance(result, Error):
+        eel.printText(str(result))
+        
+      elif isinstance(instr, select.Select) or isinstance(instr, select.QuerysSelect):
+        eel.addTable(str(instr.ImprimirTabla(result).get_html_string(format=True)))
+        
+      elif isinstance(instr, show.Show):
+        eel.addTable(str(result.get_html_string(format=True)))
+         
+      else:
+        eel.printText(str(result))
+        
+        #return str(result)
+ 
+  errores = g.getMistakes()
+  errores.clear()
+  del instrucciones
 
 @eel.expose
 def PYejecutarScript():
