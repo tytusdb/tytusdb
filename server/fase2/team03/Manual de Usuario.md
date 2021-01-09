@@ -28,7 +28,7 @@ Donde se podran encontrar diversas opciones como:
 
 En estas opciones el usuario podra navegar libremente y podra interactuar con el sistema de base de datos con el que cuenta actualmente
 
-![Con titulo](img/1_Principal.jpeg "Pantalla Principal")
+![Con titulo](Img/1_Principal.jpeg "Pantalla Principal")
 
 ### Creacion de Base de Datos
 * **Paso 1:** Se dirige al apartado para agregar una nueva base de datos
@@ -38,7 +38,7 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 * **Paso 5:** Aparecera un mensaje en la pantalla principal avisando la nueva creacion
 * **Paso 6:** La base de datos sera creada correctamente
 
-![Con titulo](img/2_Creacion_BD.jpeg "Creacion BD")
+![Con titulo](Img/2_Creacion_BD.jpeg "Creacion BD")
 
 ### Eliminacion de Base de Datos
 * **Paso 1:** Se dirige al apartado para eliminar una base de datos
@@ -48,7 +48,7 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 * **Paso 5:** Aparecera un mensaje en la pantalla principal avisando la eliminacion
 * **Paso 6:** La base de datos sera eliminada de su sistema
 
-![Con titulo](img/3_eliminar_BD.jpeg "Eliminar BD")
+![Con titulo](Img/3_eliminar_BD.jpeg "Eliminar BD")
 
 ### Modificacion de Base de datos
 * **Paso 1:** Se dirige al apartado para Cambiar de nombre una base de datos
@@ -59,7 +59,7 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 * **Paso 6:** Aparecera un mensaje en la pantalla principal avisando el renombramiento
 * **Paso 7:** La base de datos obtendra el nuevo nombre escrito en el paso 3
 
-![Con titulo](img/4_Modificar_BD.jpeg "Modificar BD")
+![Con titulo](Img/4_Modificar_BD.jpeg "Modificar BD")
 
 ### Modificacion Tablas
 * **Paso 1:** Se dirige al apartado para renombrar una tabla
@@ -71,7 +71,7 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 * **Paso 7:** Aparecera un mensaje en la pantalla principal avisando la modificacion
 * **Paso 8:** La tabla seleccionada en el paso 3 tendra el nuevo nombre del paso 4
 
-![Con titulo](img/5_Modificar_Tabla.jpeg "Modificar Tablas")
+![Con titulo](Img/5_Modificar_Tabla.jpeg "Modificar Tablas")
 
 ### Eliminacion Tablas
 * **Paso 1:** Se dirige al apartado para eliminar una tabla
@@ -82,4 +82,4 @@ En estas opciones el usuario podra navegar libremente y podra interactuar con el
 * **Paso 6:** Aparecera un mensaje en la pantalla principal avisando la eliminacion
 * **Paso 7:** La tabla sera eliminada de su sistema
 
-![Con titulo](img/6_Eliminar_Tabla.jpeg "Eliminar Tablas")
+![Con titulo](Img/6_Eliminar_Tabla.jpeg "Eliminar Tablas")
