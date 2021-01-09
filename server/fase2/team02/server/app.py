@@ -2,6 +2,17 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from user import users
 
+'''# archivos de parser team16
+import interprete as Inter
+import Ast2 as ast
+from Instruccion import *
+import Gramatica as g
+import ts as TS
+import jsonMode as JSON_INGE
+import jsonMode as json
+import Instruccion as INST'''
+
+
 app = Flask(__name__)
 CORS(app)
 
@@ -15,13 +26,17 @@ def conectar():
         return jsonify({"msj":"Conexion establecida"})
     return jsonify({"msj":"Usuario o contraseña invalidos"})
 
+
 # recibe los queries del cliente
 @app.route('/query',methods=['POST'])
 def transaccionar():
     query = request.json['query']
     print(query)
     #  codigo de parser para analizar
-    return jsonify({"msj":"Query procesado"})
+
+    
+    #retornar hacia el cliente los resultados
+    return jsonify({"msj":"Query procesado"}) # cambiar ese msj por los resultados
 
 
 @app.route('/newUser', methods=['POST'])

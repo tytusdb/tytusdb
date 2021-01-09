@@ -8,6 +8,7 @@ from .AVLMode import avlMode as AVLM
 from .jsonMode import jsonMode as jsonM
 from .DictMode import DictMode as DictM
 from .encryption import _decrypt, _encrypt
+from .Blockchain import *
 import os
 import hashlib
 import zlib
@@ -146,6 +147,24 @@ def dropDatabase(database: str) -> int:
         commit(databasesinfo, 'databasesinfo')
     return result
 
+# elimina la base de datos de los registros del modo
+def deleteFunctions(database, mode):
+    if mode == 'avl':
+        return AVLM.dropDatabase(database)
+    elif mode == 'b':
+        return BM.dropDatabase(database)
+    elif mode == 'bplus':
+        return BPlusM.dropDatabase(database)
+    elif mode == 'dict':
+        return DictM.dropDatabase(database)
+    elif mode == 'isam':
+        return ISAMM.dropDatabase(database)
+    elif mode == 'json':
+        return jsonM.dropDatabase(database)
+    elif mode == 'hash':
+        return HashM.dropDatabase(database)
+
+
 # cambia el modo de una base de datos completa
 def alterDatabaseMode(database: str, mode: str) -> int:
     modes = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
@@ -155,17 +174,20 @@ def alterDatabaseMode(database: str, mode: str) -> int:
         elif mode not in modes:
             return 4
         else:
-            createDatabase('temporal_name', mode, 'utf8')
-            for key in databasesinfo[1][database].keys():
-                createTable('temporal_name', key, databasesinfo[1][database][key]['numberColumns'])
-                if databasesinfo[1][database][key]['PK'] is not None:
-                    alterAddPK('temporal_name', key, databasesinfo[1][database][key]['PK'])
-                registers = extractTable(database, key)
-                for register in registers:
-                    insert('temporal_name', key, register)
-            dropDatabase(database)
-            alterDatabase('temporal_name', database)
-            return 0
+            if databasesinfo[0][database]['mode'] == mode:
+                return 1
+            else:
+                createDatabase('temporal_name', mode, 'utf8')
+                for key in databasesinfo[1][database].keys():
+                    createTable('temporal_name', key, databasesinfo[1][database][key]['numberColumns'])
+                    if databasesinfo[1][database][key]['PK'] is not None:
+                        alterAddPK('temporal_name', key, databasesinfo[1][database][key]['PK'])
+                    registers = extractTable(database, key)
+                    for register in registers:
+                        insert('temporal_name', key, register)
+                dropDatabase(database)
+                alterDatabase('temporal_name', database)
+                return 0
     except:
         return 1
 
@@ -343,7 +365,6 @@ def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, 
                 for i in range(0, len(tabla)):
                     tupla = tabla[i]
                     for j in range(0, len(tupla)):
-                        # print(tupla[j])
                         if type(tupla[j]) == bytes:
                             tupla[j] = zlib.decompress(tupla[j]).decode()
                     tabla[i] = tupla
@@ -376,7 +397,7 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
         elif databasesinfo[1][database][table]['mode'] == 'hash':
             result = HashM.alterAddPK(database, table, columns)
         if result == 0:
-            databasesinfo[1][database][table]['PK'] = [columns]
+            databasesinfo[1][database][table]['PK'] = columns
         return result
     except:
         return 1
@@ -1271,5 +1292,139 @@ def safeModeOff(database: str, table: str) -> int:
         databasesinfo[1][database][table]['safeMode'] = False
         turn_off_safe_mode(database, table)
         return 0
+    except:
+        return 1
+
+# grafica el diagrama de estructura de una base de datos
+def graphDSD(database: str) -> str:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = None
+        else:
+            content = 'digraph GraphDatabase{\n' \
+                      ' rankdir=LR\n' \
+                      ' nodesep=.05;\n' \
+                      ' node [shape=record,width=.1,height=.1];\n' \
+                      ' subgraph cluster0{\n'\
+                      ' label="'+ database +'";\n'
+
+            tables = showTables(database)
+            for table in tables:
+                newTB = table + 'FK'
+                if newTB in tables:
+                    tables.remove(newTB)
+            for table in tables:
+                if table+'FK' not in tables:
+                    content += ' '+table +'[label= "'+ table +'"]\n'
+            for table in tables:
+                if 'FK' in databasesinfo[1][database][table] and len(databasesinfo[1][database][table]['FK']) > 0:
+                    references = extractTable(database,table+'FK')
+                    for num in references:
+                        ref = ' '+str(num[1]) + '->' + table +'\n'
+                        content += ref
+            content += ' }\n' \
+                       '}'
+            diagram = open(database+'DSD.dot','w')
+            diagram.write(content)
+            result = diagram.name
+            diagram.close()
+            os.system("dot -Tpng "+ database +"DSD.dot -o "+ database +"DSD.png")
+        return result
+    except:
+        return 1
+
+# grafica el diagrama de dependencias de una tabla
+def graphDF(database: str, table: str) -> str:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = None
+        elif table not in databasesinfo[1][database]:
+            result = None
+        else:
+            content = 'digraph GraphDatabase{\n' \
+                      ' rankdir=LR\n' \
+                      ' nodesep=.05;\n' \
+                      ' node [shape=record,width=.1,height=.1];\n' \
+                      ' subgraph cluster0{\n' \
+                      ' label="' + database.upper() + '-' + table.upper() + '";\n'
+            nodos = []
+            cols = []
+            columns = databasesinfo[1][database][table]['numberColumns']
+            PK = databasesinfo[1][database][table]['PK']
+            IndexUnique = None
+            if 'IndexUnique' in databasesinfo[1][database][table]:
+                for indexU in databasesinfo[1][database][table]['IndexUnique']:
+                    IndexUnique = databasesinfo[1][database][table]['IndexUnique'][indexU]['columns']
+
+            if PK is not None:
+                content += '  subgraph cluster1{\n' \
+                           '  label = "PK"\n'
+                label = '[label = "'
+                for i in PK:
+                    nodoName = 'nodo' + str(i) + '_PK'
+                    nodos.append(nodoName)
+                    if i == PK[-1]:
+                        label += '<' + nodoName + '>'+ str(i) + ''
+                        label += '"];'
+                        content += '  PK' + label + '\n'
+                        content += '  }\n'
+                    else:
+                        label += '<' + nodoName + '>'+ str(i) + '|'
+
+            if IndexUnique is not None:
+                content += '  subgraph cluster3{\n' \
+                           '  label = "IndexUnique"\n'
+                label = '[label = "'
+                for i in IndexUnique:
+                    nodoName = 'nodo' + str(i) + '_IndexUnique'
+                    nodos.append(nodoName)
+                    if i == IndexUnique[-1]:
+                        label += '<' + nodoName + '>' + str(i) + ''
+                        label += '"];'
+                        content += '  IndexUnique' + label + '\n'
+                        content += '  }\n'
+                    else:
+                        label += '<' + nodoName + '>' + str(i) + '|'
+
+            for i in range(columns):
+                cols.append(i)
+            reg = []
+            content += '  subgraph cluster4{\n' \
+                       '  label = "Registers"\n'
+            label = '[label = "'
+            for i in cols:
+                nodePK = 'nodo' + str(i) + '_PK'
+                nodeIndexUnique = 'nodo' + str(i) + '_IndexUnique'
+                nodoName = 'nodo' + str(i) +'_Reg'
+                if nodePK not in nodos and nodeIndexUnique not in nodos:
+                    reg.append(nodoName)
+                    if i == cols[-1]:
+                        label += '<' + nodoName + '>' + str(i) + ''
+                        label += '"];'
+                        content += '  Register' + label + '\n'
+                        content += '  }\n'
+                    else:
+                        label += '<' + nodoName + '>' + str(i) + '|'
+
+            for arrows in nodos:
+                arr1 = arrows.split('_')
+                if arr1[1] == 'PK':
+                    for tuple in reg:
+                        direction = 'PK:' + arrows + '->' + 'Register:' + tuple + '\n'
+                        content += direction
+                if arr1[1] == 'IndexUnique':
+                    for tuple in reg:
+                        direction = 'IndexUnique:' + arrows + '->' + 'Register:' + tuple + '\n'
+                        content += direction
+            content += ' }\n' \
+                       '}'
+            diagram = open(database + '-' + table + 'DF.dot', 'w')
+            diagram.write(content)
+            result = diagram.name
+            diagram.close()
+            os.system("dot -Tpng " + database + '-' + table + "DF.dot -o " + database + '-' + table + "DF.png")
+        return result
     except:
         return 1

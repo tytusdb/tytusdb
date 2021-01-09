@@ -38,9 +38,10 @@ def myGET():
     global consola
     print("GET: Status: {} and reason: {}".format(response.status, response.reason))
     if response.status == 200:       
-        data = response.read()   
+        data = response.read() 
+        data_1=  str(str(data.decode("utf-8").replace("],", "],\n").replace("{", "{\n "))).replace("}", "\n}")
         consola.config(state=NORMAL)
-        consola.insert(INSERT,"\n" + data.decode("utf-8"))
+        consola.insert(INSERT,"\n\n" + data_1)
         consola.config(state=DISABLED)
     else:
         consola.config(state=NORMAL)

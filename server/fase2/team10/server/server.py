@@ -26,16 +26,11 @@ serv.listen(1)
 
 while True:    
     print("waiting for connection")
-    #obj = interpreter.execution("create database prueba3; use prueba1; drop table cliente ; create table cliente(id integer primary key);");
-    #print(obj)
-    #print("send data")
-    #json_data = json.dumps(obj, sort_keys=False, indent=2)
-    #print("data %s" % json_data)
     connection, client_address = serv.accept()
     try:
         print(client_address)
         while True:
-            data = connection.recv(4096)
+            data = connection.recv(1500500)
             print(data.decode('utf-8'))
 
             #recibimos el script del query tool y la decodificamos a utf 8 

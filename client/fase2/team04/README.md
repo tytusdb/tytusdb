@@ -19,7 +19,9 @@ import json
 
 **Arbol.py**
 
-Donde se controla la treeview de las bases de datos y sus tablas.
+- Nota
+En la zona izquierda de la pantalla, se puede ver el arbol de navegacion del DBMS, donde estan las bases de datos creadas
+
 
 ```python
 class Arbol(Frame):
@@ -88,6 +90,19 @@ def abrir():
     ...
 ```
 > Este método se creó para abrir documentos .sql, se importó la librería "os" para acceder a los métodos para el manejo de archivos, se utilizó global para poder usar variables declaradas afuera del ámbito, en la variable archivo se guarda el archivo que se desea abrir, y luego se pregunta si el archivo no está vació, si no lo está, se podrá acceder al nombre de este y se manda a llamar al método "añadir" para agregar la nueva pestaña y poder visualizar el archivo.
+
+```python
+def Spellcheck(self):
+    ...
+```
+Este metodo se encarga de resaltar con colores las palabras reservadas que se escriben
+dentro del campo de texto.
+
+```python
+def getDatabases():
+    ...
+```
+Este metodo se encarga se encarga de generar el arbor de forma automatica
 
 ```python
 def guardarComo():
@@ -218,6 +233,13 @@ Al darle clic en abrir, se podrá ver el archivo .sql desplegado en una pestaña
 > Al dar clic en la opción GET se puede ver que se registró el usuario exitosamente.
 
 ## Manual de Usuario (Server)
+
+las librerias necesarias para el servidor son:
+- HTTPServer
+- BaseHTTPRequestHandler
+
+El puerto que se utilizo es el puerto:
+ - 8000
 
 > Debido a que el servidor trabaja de forma interna no se necesita más que una línea de comando, la función de este comando es conectar al servidor en su respectivo puerto para que pueda recibir las peticiones desde la aplicación. El puerto que se decidió utilizar fue el 8000. A continuación se muestra una imagen de como se debe ingresar dicho comando.
 
