@@ -86,18 +86,51 @@ def createDatabase(database: str, mode: str, encoding: str):
 
 
 def alterDatabaseMode(database: str, mode: str):
-    metadata_db,index=get_metadata_db(database)
+    metadata_db, index = get_metadata_db(database)
+    metadata_db=copy.copy(metadata_db)
     metadata_db_list.pop(index)
-    createDatabase(database, mode, metadata_db.get_encondig())
+    
+    
     if metadata_db:
         oldMode = metadata_db.get_mode()
+        old_mode_struct = get_struct(oldMode)
         mode_struct = get_struct(mode)
-        tables = mode_struct.showTables(database)
+
+        if mode not in ["avl", "b", "bplus", "isam", "hash", "json", "dict"]:
+            return 4
+
+        tables=list()
+        for value in metadata_db.get_tab().values():
+            
+            tables.append(value.get_name_table())
+
+        createDatabase(database, mode, metadata_db.get_encondig())
+        metadata_new, index2 = get_metadata_db(database)        
+        
         for tabla in tables:
-            listaDatos = get_Data(database, tabla, oldMode)
+            
+            listaDatos = get_Data2(database, tabla, oldMode,metadata_db)
             numberColumns = metadata_db.get_table(tabla).get_nums_colums()
             insertAlter(database, tabla, numberColumns, mode, listaDatos)
-        metadata_db.dropDatabase(database)
+            metadata_new.create_table(tabla,numberColumns,mode)             
+            
+             
+            for fk in metadata_db.get_table(tabla).fk.extractForeign():     
+                metadata_new.get_table(tabla).fk.insertFK(fk)
+            for unique in metadata_db.get_table(tabla).unique.extractUnique():     
+                metadata_new.get_table(tabla).unique.insertUnique(unique)
+            for index in metadata_db.get_table(tabla).index.extractIndex():     
+                metadata_new.get_table(tabla).index.insertIndex(index)
+
+            metadata_db.drop_table(tabla)
+            
+
+        x = old_mode_struct.dropDatabase(database)
+        if x != 0:
+            return 1
+        return 0
+    else:
+        return 2
         
 
 
@@ -118,27 +151,33 @@ def get_Data(database: str, table: str, mode: str):
 
 
 def alterTableMode(database: str, table: str, mode: str):
-    metadata_db, index_metadata = get_metadata_db(database) 
-    metadata_db = Database() 
+    metadata_db, index_metadata = get_metadata_db(database)
     if metadata_db:
         oldMode = metadata_db.get_mode()
         encoding = metadata_db.get_encondig()
-        if mode not in ["avl","b","bPlus","dict","isam","hash","json"]: return 4
-        struct = get_struct(metadata_db.get_mode())
-        tables = struct.showTables(database)
-        for tabla in tables:
-            if tabla == table:
-                listaDatos = get_Data(database, tabla, oldMode)  # UNA LISTA VACIA NO EJECUTA EL FOR
-                numberColumns = len(listaDatos[0])
-                #insertAlter(database+"_"+mode, tabla, numberColumns, mode, listaDatos)
-                if metadata_db.get_table(table).get_pk_list() != []:
-                    alterAddPK(database, table,metadata_db.get_table(table).get_pk_list())
-                createDatabase(database+"_"+mode, mode, encoding)
-                createTable(database+"_"+mode, table, numberColumns)
-                for i in listaDatos:
-                    insert(database, table,i)
-                struct.dropTable(database, table)
-                return 0
+        if mode not in ["avl", "b", "bplus", "dict", "isam", "hash", "json"]: return 4
+        struct = get_struct(metadata_db.get_mode())        
+        if metadata_db.get_table(table):
+            listaDatos = get_Data(database, table, oldMode)            
+            numberColumns = metadata_db.get_table(table).get_nums_colums()            
+            if metadata_db.get_table(table).get_pk_list() != []:
+                alterAddPK(database, table, metadata_db.get_table(table).get_pk_list())
+            createDatabase(database + "_" + mode, mode, encoding)
+            metadata_new, index2 = get_metadata_db(database + "_" + mode) 
+            createTable(database + "_" + mode, table, numberColumns)
+            for i in listaDatos:
+                insert(database, table, i)
+            
+            for fk in metadata_db.get_table(table).fk.extractForeign():     
+                metadata_new.get_table(table).fk.insertFK(fk)
+            for unique in metadata_db.get_table(table).unique.extractUnique():     
+                metadata_new.get_table(table).unique.insertUnique(unique)
+            for index in metadata_db.get_table(table).index.extractIndex():     
+                metadata_new.get_table(table).index.insertIndex(index)
+            struct.dropTable(database, table)
+            metadata_db.drop_table(table)
+
+            return 0
         return 3
     else:
         return 2
