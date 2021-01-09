@@ -301,3 +301,330 @@ def showTables(database):
             return Hash.showTables(database)
     else:
         return 2
+
+#--------Registros----------------------
+def alterAddPK(database, table, columns):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.alterAddPK(database, table, columns)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.alterAddPK(database, table, columns)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.alterAddPK(database, table, columns)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.alterAddPK(database, table, columns)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.alterAddPK(database, table, columns)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.alterAddPK(database, table, columns)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.alterAddPK(database, table, columns)
+    else:
+        return 2
+
+def alterDropPK(database, table):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.alterDropPK(database, table)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.alterDropPK(database, table)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.alterDropPK(database, table)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.alterDropPK(database, table)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.alterDropPK(database, table)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.alterDropPK(database, table)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.alterDropPK(database, table)
+    else:
+        return 2
+
+def insert(database, table, register):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.insert(database, table, register)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.insert(database, table, register)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.insert(database, table, register)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.insert(database, table, register)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.insert(database, table, register)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.insert(database, table, register)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.insert(database, table, register)
+    else:
+        return 2
+
+def update(database, table, register, columns):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.update(database, table, register, columns)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.update(database, table, register, columns)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.update(database, table, register, columns)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.update(database, table, register, columns)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.update(database, table, register, columns)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.update(database, table, register, columns)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.update(database, table, register, columns)
+    else:
+        return 2
+
+def delete(database, table, columns):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.delete(database, table, columns)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.delete(database, table, columns)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.delete(database, table, columns)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.delete(database, table, columns)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.delete(database, table, columns)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.delete(database, table, columns)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.delete(database, table, columns)
+    else:
+        return 2
+
+def truncate(database, table):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.truncate(database, table)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.truncate(database, table)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.truncate(database, table)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.truncate(database, table)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.truncate(database, table)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.truncate(database, table)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.truncate(database, table)
+    else:
+        return 2
+
+def alterAddColumn(database,table, default):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.alterAddColumn(database,table, default)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.alterAddColumn(database,table, default)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.alterAddColumn(database,table, default)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.alterAddColumn(database,table, default)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.alterAddColumn(database,table, default)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.alterAddColumn(database,table, default)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.alterAddColumn(database,table, default)
+    else:
+        return 2
+
+def alterDropColumn(database, table, columnNumber):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.alterDropColumn(database, table, columnNumber)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.alterDropColumn(database, table, columnNumber)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.alterDropColumn(database, table, columnNumber)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.alterDropColumn(database, table, columnNumber)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.alterDropColumn(database, table, columnNumber)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.alterDropColumn(database, table, columnNumber)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.alterDropColumn(database, table, columnNumber)
+    else:
+        return 2
+
+def extractTable(database, table):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.extractTable(database, table)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            #registros = b.extractTable(database, table) -> [reg,reg2,regi]
+
+            return b.extractTable(database, table)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.extractTable(database, table)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.extractTable(database, table)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.extractTable(database, table)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.extractTable(database, table)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.extractTable(database, table)
+    else:
+        return 2
+
+def extractRangeTable(database, table, columnNumber, lower, upper):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.extractRangeTable(database, table, columnNumber, lower, upper)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.extractRangeTable(database, table, columnNumber, lower, upper)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.extractRangeTable(database, table, columnNumber, lower, upper)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.extractRangeTable(database, table, columnNumber, lower, upper)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.extractRangeTable(database, table, columnNumber, lower, upper)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.extractRangeTable(database, table, lower, upper)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.extractRangeTable(database, table, columnNumber, lower, upper)
+    else:
+        return 2
+
+def extractRow(database, table, columns):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.extractRow(database, table, columns)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.extractRow(database, table, columns)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.extractRow(database, table, columns)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.extractRow(database, table, columns)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.extractRow(database, table, columns)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.extractRow(database, table, columns)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.extractRow(database, table, columns)
+    else:
+        return 2
+
+def loadCSV(file,database,table):
+    if searchInMode(database) != None:
+        currentMode = searchInMode(database)
+        if currentMode == 'avl':
+            # avlList.append(tableNew)
+            return avl.loadCSV(file,database,table)
+        elif currentMode == 'b':
+            # bList.append(tableNew)
+            return b.loadCSV(file,database,table)
+        elif currentMode == 'bplus':
+            # bplusList.append(tableNew)
+            return bplus.loadCSV(file,database,table)
+        elif currentMode == 'dict':
+            # dictList.append(tableNew)
+            return DM.loadCSV(file,database,table)
+        elif currentMode == 'isam':
+            # isamList.append(tableNew)
+            return isam.loadCSV(file,database,table)
+        elif currentMode == 'json':
+            # jsonList.append(tableNew)
+            return j.loadCSV(file,database,table)
+        elif currentMode == 'hash':
+            # hashList.append(tableNew)
+            return Hash.loadCSV(file,database,table)
+    else:
+        return 2
