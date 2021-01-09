@@ -856,25 +856,25 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
     except:
         return 1 #Error en la operación
 
-
-
-# Administración de la codificación
+#Asocia una codificación a una base de datos por completo
 def alterDatabaseEncoding(database: str, encoding: str) -> int:
     try:
         d=database.lower()
         e=encoding.lower()
-
-        if existDatabase(d):
+        itemDB = buscaBBDD(d)
+        if itemDB:
             if e in cCodificaciones:
+                itemDB.codificacion = e
+                for tabla in lista_tablas:
+                    if tabla.bd == d:
+                        tabla.codificacion = e
                 return 0 #Operación exitosa
             else:
                 return 3 #Codificación incorrecta
-            
         else:
             return 2 #Base de Datos existente
     except:
-        return 1
-
+        return 1 #Error en la operación
 
 #funciones de checksum
 x = datetime.datetime.now()
@@ -992,3 +992,45 @@ def decrypt(cipherBackup:str, password:str) -> str:
             return 1 
     except:
         return 1 #Error en la operación
+
+#Genera un gráfico mediante Graphviz acerca de la base de datos especificada
+def graphDSD(database: str) -> str:
+    try:
+        d = database.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            return None #NO IMPLEMENTADA
+        else:
+            return None #No existe la Base de Datos
+    except:
+        return None #Error en la operación
+
+#Genera un gráfico mediante Graphviz acerca de las dependencias funcionales de una tabla especificada de una base de datos
+def graphDF(database: str, table: str) -> str:
+    try:
+        d = database.lower()
+        t = table.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                f = Digraph('arbol', filename='imagenes\\'+t,
+                format="png", node_attr={'shape': 'record', 'height': '.1'})
+                f.attr(rankdir='LR')
+                f.node(t)
+                for tabla in lista_tablas:
+                    if tabla.bd == d:
+                        for llave in tabla.FK:
+                            print(tabla.FK[llave].tableRef)
+                            if tabla.FK[llave].tableRef == t:
+                                f.edge(t, tabla.nombre)
+                f.attr(label=r'\n\n'+t)
+                f.attr(fontsize='20')
+                f.render()
+                return f
+            else:
+                return None #Tabla no existe en la Base de Datos
+        else:
+            return None #No existe la Base de Datos
+    except:
+        return None #Error en la operación
