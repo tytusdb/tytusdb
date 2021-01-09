@@ -1,38 +1,3 @@
-Skip to content
-Search or jump to…
-
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@RomaelP 
-Learn Git and GitHub without any code!
-Using the Hello World guide, you’ll start a branch, write comments, and open a pull request.
-
-
-RomaelP
-/
-TytusDB_team11
-forked from joorgej/TytusDB_team11
-0
-01
-Code
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-TytusDB_team11/cliente/tytusweb/src/app/component/editor/editor.component.ts /
-
-Jose Moran Funcionalidades
-Latest commit a03421b 1 hour ago
- History
- 1 contributor
-161 lines (142 sloc)  4.16 KB
- 
 import { Component, OnInit, ElementRef, ViewChild, Output } from '@angular/core';
 import { PruebaService } from 'src/app/service/prueba.service'
 import Swal from 'sweetalert2';
@@ -194,15 +159,3 @@ export class EditorComponent implements OnInit {
     document.body.removeChild(selBox);
   }
 }
-© 2021 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
