@@ -553,6 +553,26 @@ def alterDatabaseMode(database: str, mode: str) -> int:
             return 2 #Base de Datos no existente
     except:
         return 1 #Error en la operación
+
+
+# Administración de la codificación
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    try:
+        d=database.lower()
+        e=encoding.lower()
+
+        if existDatabase(d):
+            if e in cCodificaciones:
+                return 0 #Operación exitosa
+            else:
+                return 3 #Codificación incorrecta
+            
+        else:
+            return 2 #Base de Datos existente
+    except:
+        return 1
+
+
 #funciones de checksum
 x = datetime.datetime.now()
 
@@ -613,39 +633,60 @@ def checksumTable(database:str, table:str, mode:str) -> str:
     except:
         return None #Error en la operación
 
+#funciones para encriptar y descriptar 
+def generar_clave():
+    clave = Fernet.generate_key()
+    with open("clave.key","wb") as archivo_clave:
+            archivo_clave.write(clave)
+def cargar_clave():
+    return open("clave.key","rb").read()
+
+#Crifra el texto backup con la llave password y devuelve el criptograma
 def encrypt(backup: str, password: str) -> str:
-    clave = password
-    if  existDatabase(backup) and clave:
-        stringDatabase =""
-        for bases in showTables(backup):       
-            stringDatabase += bases
-            for tables in extractTable(backup,bases):            
-                for regitros in tables:              
-                    stringDatabase += str(regitros)        
-        mensaje=stringDatabase.encode()        
-        try:
-            f = Fernet(clave)
+    try:
+        clave = password.encode()
+        d = backup.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD and clave:
+            stringDatabase =""
+            for tabla in lista_tablas:
+                if tabla.bd == d:
+                    stringDatabase += tabla.nombre
+                    registros = elegirModo(tabla.modo).extractTable(d, tabla.nombre)
+                    if registros:
+                        for reg in registros:
+                            for item in reg:
+                                stringDatabase += str(item)
+            mensaje=stringDatabase.encode()
+            salt = b'M\nYr;tlLdw\xa3\xa7\x96\x1f\xf5J'
+            kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=100000,)
+            key = base64.urlsafe_b64encode(kdf.derive(clave))
+            f = Fernet(key)
             encriptando = f.encrypt(mensaje)
             with open(backup+".txt","wb") as archivo_generado:
                 archivo_generado.write(encriptando)
             print(encriptando)
-            return 0            
-        except:
-            return 1
-    else:
-        return 1
+            return 0 #Operacion exitosa
+        else:
+            return 1 #Backup no existe
+    except:
+        return 1 #Error en la operación
 
+#Descrifra el texto cipherBackup con la llave password y devuelve el texto plano
 def decrypt(cipherBackup:str, password:str) -> str:
-    clave = password
-    if cipherBackup and clave:
-        try:
-            f=Fernet(clave)
+    try:
+        clave = password.encode()
+        if cipherBackup and clave:
+            salt = b'M\nYr;tlLdw\xa3\xa7\x96\x1f\xf5J'
+            kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=100000,)
+            key = base64.urlsafe_b64encode(kdf.derive(clave))
+            f = Fernet(key)
             codigo = open(cipherBackup+".txt","rb").read()
-            desencriptar = f.decrypt(codigo)           
+            desencriptar = f.decrypt(codigo)
             with open(cipherBackup+"_cipher.txt","wb") as archivo_generado:
                 archivo_generado.write(desencriptar)            
             return 0
-        except:
-            return 1
-    else:
-        return 1 
+        else:
+            return 1 
+    except:
+        return 1 #Error en la operación
