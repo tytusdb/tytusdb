@@ -10,8 +10,6 @@ from .Complements.compress import Compression
 from .Complements.checksum import *
 from .Complements.security import Blockchain
 
-from .tuple_module import TupleModule
-
 
 class Table:
     def __init__(self, name: str, mode: str, compress, numberColumns: int):
@@ -21,6 +19,9 @@ class Table:
         self.pk = []
         self.security = None
         self.compress = compress
+        self.fk = []
+        self.unique = []
+        self.index = []
 
 
 class TableModule:
@@ -236,10 +237,72 @@ class TableModule:
 
     def alterTableAddFK(self, database: str, table: str, indexName: str, columns: list, tableRef: str,
                         columnsRef: list) -> int:
-        pass
+        try:
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(indexName, str) \
+                    or not isinstance(columns, list) or not isinstance(tableRef, str) or not \
+                    isinstance(columnsRef, list):
+                raise
+            self.dbs = self.handler.rootinstance()
+            db, index = self._exist(database)
+            if not db:
+                return 2
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            _tableRef = next((x for x in db.tables if x.name.lower() == tableRef.lower()), None)
+            if not _table or not _tableRef:
+                return 3
+            if len(columns) != len(columnsRef):
+                return 4
+            if len(columns) == 0:
+                raise
+            for x in columns:
+                if x >= _table.numberColumns:
+                    raise
+            for x in columnsRef:
+                if x >= _tableRef.numberColumns:
+                    raise
+            name = "_PKSTRUCTURE__"
+            pk = [2]
+            numberColumns = 6
+            register = [database, table, indexName, columns, tableRef, columnsRef]
+            if not db.fk:
+                eval(actionCreator(db.mode, 'createTable', ['database', 'name', 'numberColumns']))
+                eval(actionCreator(db.mode, 'alterAddPK', ['database', 'name', 'pk']))
+            if eval(actionCreator(db.mode, 'insert', ['database', 'name', 'register'])) != 0:
+                raise
+            db.fk = True
+            _table.fk.append(register)
+            self.handler.rootupdate(self.dbs)
+            return 0
+        except:
+            return 1
 
     def alterTableDropFK(self, database: str, table: str, indexName: str) -> int:
-        pass
+        try:
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(indexName, str):
+                raise
+            self.dbs = self.handler.rootinstance()
+            db, index = self._exist(database)
+            if not db:
+                return 2
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            if not _table:
+                return 3
+            indexName = [indexName]
+            name = "_PKSTRUCTURE__"
+            if eval(actionCreator(db.mode, 'delete', ['database', 'name', 'indexName'])) != 0:
+                raise
+            reg = next((x for x in _table.fk if x[2].lower() == indexName[0].lower()), None)
+            _table.fk.remove(reg)
+
+            res = eval(actionCreator(db.mode, 'extractTable', ['database', 'name']))
+            if res or res == []:
+                if len(res) == 0:
+                    eval(actionCreator(_table.mode, 'dropTable', ['database', 'name']))
+                    db.fk = False
+            self.handler.rootupdate(self.dbs)
+            return 0
+        except:
+            return 1
 
     def alterTableAddUnique(self, database: str, table: str, indexName: str, columns: list) -> int:
         pass

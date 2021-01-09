@@ -21,6 +21,9 @@ class Database:
         self.encoding = encoding
         self.tables = []
         self.compress = None
+        self.fk = False
+        self.unique = False
+        self.index = False
 
     def __repr__(self) -> str:
         return str(self.name)
