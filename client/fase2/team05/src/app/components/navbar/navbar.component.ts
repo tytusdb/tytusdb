@@ -51,6 +51,8 @@ export class NavbarComponent implements OnInit {
        const body = response.body;
         
        alert(body.result.messages[0]);
+
+       this.database.name="";
         
       }, (err) => {
 
