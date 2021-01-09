@@ -14,7 +14,11 @@
 5. Justificación de la gramática
 6. Diagramas
 7. Estructura
-8. Glosario
+8. Requerimientos tecnicos
+9. Librerias Utilizadas
+10. Gramatica
+11. Analisis Sintactico
+12. Glosario
 ---
 ## INTRODUCCIÓN
 El presente documento detalla una los elementos basicos de Tytus DBMS, el cual fue desarrollado por alumnos del curso de compiladores 2. Documentado de la mejor manera posible
@@ -40,7 +44,7 @@ Permitiendo dirigir y ordenar la forma en que la base de datos organiza la infor
 * Reportar adecuadamente los errores encontrados en las sentencias SQL ingresadas.
 
 ## Justificación de la gramática
-Para el proyecto, se opto por implementar una gramatica descendente. Las gramaticas descendentes, son autómatas a pila deterministas que reconocen las frases de un lenguaje por la estrategia de vaciado de pila. Por lo que la pila es de gran ayuda al momento de implementarla. Tomando en consideración el manejo de la pila, decimos implementas este tipo de gramatica. De igual forma tomando en consideración lo siguiente:
+Para el proyecto, se opto por implementar una gramatica ascendete. Las gramaticas ascendetes, son autómatas a pila deterministas que reconocen las frases de un lenguaje por la estrategia de vaciado de pila. Por lo que la pila es de gran ayuda al momento de implementarla. Tomando en consideración el manejo de la pila, decimos implementas este tipo de gramatica. De igual forma tomando en consideración lo siguiente:
 * Fácil de entender e interpretar
 * Gramática explícitamente representada
 * Cada función representa un no terminal
@@ -96,6 +100,142 @@ Para el proyecto, se opto por implementar una gramatica descendente. Las gramati
 
 ### Archivo main.py
 * en este archivo se hace uso del parser para implementarlo con la interfaz grafica.
+
+### Carpeta C3D
+* En esta carpeta se encuentran los archivos realcionados a la generacion del codigo 3D
+   * CompileFile.py, en este archivo se va agregando el codigo a compilar.
+   * Temporal.py
+   * Label.py
+
+### Reports
+* En esta carpeta se encuentran la clase utilizada para la generacion de los diferentes reportes, asi como los reportes generados.
+
+### PLSQL
+* En esta carpeta se encuentran las clases que sirven para la manipulacion de los procedimientos PL/SQL
+
+## REQUERIMIENTOS TECNICOS
+```python
+* ***Sistema Operativo:*** Windows 10, Linux, Mac
+* ***Capacidad RAM:*** 2GB 
+* ***Python 3.1***
+```
+## LIBRERIAS UTILIZADAS
+```python
+* PLY phyton
+* Graphviz python
+* Goto-statement 
+* Prettytable
+* os
+* sys
+* Enum
+* platform
+* re
+* numpy
+* datetime
+* time
+* pandas
+```
+## GRAMATICA
+Palabras reservadas:
+
+```python
+keywords = {
+'ABS' : 'ABS',
+'ACOS' : 'ACOS',
+'ACOSD' : 'ACOSD',
+'ACOSH' : 'ACOSH',
+'ADD' : 'ADD',
+'ALL' : 'ALL',
+'ALTER' : 'ALTER',
+'AND' : 'AND',
+'ANY' : 'ANY',
+'AS' : 'AS',
+'ASC' : 'ASC',
+'ASIN' : 'ASIN',
+'ASIND' : 'ASIND',
+'ASINH' : 'ASINH',
+'ATAN' : 'ATAN',
+'ATAN2' : 'ATAN2',
+.
+.
+.
+'VARIADIC' : 'VARIADIC',
+'VARYING' : 'VARYING',
+'WHEN' : 'WHEN',
+'WHERE' : 'WHERE',
+'WIDTH_BUCKET' : 'WIDTH_BUCKET',
+'WITH' : 'WITH',
+'WITHOUT' : 'WITHOUT',
+'YEAR' : 'YEAR',
+'ZONE' : 'ZONE'
+}
+```
+
+Tokens:
+```python
+#Definicion de tokens del lenguaje
+#Se agregan las keywords
+tokens = [
+    'ASTERISCO',
+    'COMA',
+    'CORCHETEDER',
+    'CORCHETEIZQ',
+   .
+   .
+   .
+    'SLASH',
+    'IDENTIFICADOR',
+    'CADENA',
+    'ENTERO',
+    'NUMDECIMAL',
+] + list(keywords.values())
+
+t_ASTERISCO = r'\*'
+t_COMA = r','
+t_CORCHETEDER = r'\]'
+t_CORCHETEIZQ = r'\['
+t_DIFERENTEQUE = r'<>'
+t_DOBLEDOSPUNTOS = r'\:\:'
+t_IGUAL = r'='
+t_MAS = r'\+'
+t_MAYORIGUAL = r'>='
+t_MAYORQUE = r'>'
+t_MENORIGUAL = r'<='
+t_MENORQUE = r'<'
+t_MENOS = r'-'
+t_PARENTESISDER = r'\)'
+t_PARENTESISIZQ = r'\('
+t_PORCENTAJE = r'%'
+t_POTENCIA = r'\^'
+t_PUNTO = r'\.'
+t_DOSPUNTOS = r':'
+t_PUNTOYCOMA = r';'
+t_SLASH = r'/'
+```
+## ANALISIS SINTACTICO
+```python
+# Asociación de operadores y precedencia
+precedence = (   
+    ('left','OR'),
+     ('left','AND'),
+    ('left','DIFERENTEQUE','IGUAL'), 
+    ('nonassoc','MAYORQUE','MENORQUE','MAYORIGUAL','MENORIGUAL'),
+    ('left','MAS','MENOS'),
+    ('left','ASTERISCO','SLASH','PORCENTAJE'),
+    ('left','POTENCIA'),
+    ('right','UMINUS','NOT')
+    )
+
+'''Se define una función para analizar una parte de la gramatica,
+se declara iniciando con p_, lo que inidica que es una producción.
+Seguido'''
+
+def p_delete(t):
+    '''sent_delete : DELETE FROM IDENTIFICADOR'''
+
+def p_delete_2(t):
+    '''sent_delete : DELETE FROM IDENTIFICADOR sentencia_where'''  
+```
 
 
 

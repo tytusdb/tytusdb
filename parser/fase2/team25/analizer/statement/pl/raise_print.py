@@ -25,4 +25,4 @@ class Raise(instruction.Instruction):
 
     def generate3d(self, environment, instanciaAux):
         valor = self.string2.generate3d(environment,instanciaAux)
-        instanciaAux.addToCode(f"\tprint('{self.string1}' , {valor})")# temporales
+        instanciaAux.addToCode(f"\tprint('{self.string1}' , {valor})")

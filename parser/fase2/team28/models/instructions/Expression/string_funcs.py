@@ -50,6 +50,16 @@ class Length(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             ThreeAddressCode().addCode(dataTemp)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(f"{temporal} = len({temp})")
@@ -110,6 +120,16 @@ class Substring(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             tempi = ThreeAddressCode().newTemp()
             tempj = ThreeAddressCode().newTemp()
             dataTempi = f"{tempi} = {i}"
@@ -176,6 +196,16 @@ class Substr(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             tempi = ThreeAddressCode().newTemp()
             tempj = ThreeAddressCode().newTemp()
             dataTempi = f"{tempi} = {i}"
@@ -234,6 +264,16 @@ class Trim(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             ThreeAddressCode().addCode(dataTemp)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(f"{temporal} = {temp}.strip()")
@@ -287,6 +327,16 @@ class MD5(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             ThreeAddressCode().addCode(dataTemp)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -341,6 +391,16 @@ class SHA256(Expression):
             temp = ThreeAddressCode().newTemp()
             val = self.value.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             ThreeAddressCode().addCode(dataTemp)
             temporal = ThreeAddressCode().newTemp()
             ThreeAddressCode().addCode(
@@ -397,6 +457,16 @@ class GetByte(Expression):
             tempPos = ThreeAddressCode().newTemp()
             index = self.pos.compile(environment).value
             dataTemp = f"{temp} = '{val}'"
+
+            cambio = False
+            if val[0] == 't':
+                sub = val[1:]
+                if sub.isnumeric():  # ES UN TEMPORAL
+                    dataTemp = f"{temp} = {val}"
+                    cambio = True
+            if cambio is False:
+                dataTemp = f"{temp} = '{val}'"
+
             dataPos = f'{tempPos} = {index}'
             ThreeAddressCode().addCode(dataTemp)
             ThreeAddressCode().addCode(dataPos)
@@ -510,6 +580,16 @@ class Convert(Expression):
                 temp = ThreeAddressCode().newTemp()
                 val = self.value.compile(environment).value
                 dataTemp = f"{temp} = '{val}'"
+
+                cambio = False
+                if val[0] == 't':
+                    sub = val[1:]
+                    if sub.isnumeric():  # ES UN TEMPORAL
+                        dataTemp = f"{temp} = {val}"
+                        cambio = True
+                if cambio is False:
+                    dataTemp = f"{temp} = '{val}'"
+
                 ThreeAddressCode().addCode(dataTemp)
                 temporal = ThreeAddressCode().newTemp()
                 ThreeAddressCode().addCode(

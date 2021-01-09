@@ -22,15 +22,15 @@ from Analisis_Ascendente.Instrucciones.Insert.insert import InsertInto
 from Analisis_Ascendente.Instrucciones.Expresiones.IdAsId import IdAsId
 from Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica import Trigonometrica
 from Analisis_Ascendente.Instrucciones.Expresiones.Expresion import Expresion
-from Analisis_Ascendente.Instrucciones.Expresiones.Math import  Math_
-from Analisis_Ascendente.Instrucciones.Expresiones.Binario import  Binario
+from Analisis_Ascendente.Instrucciones.Expresiones.Math import Math_
+from Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
 from Analisis_Ascendente.Instrucciones.Drop.drop import Drop
 from Analisis_Ascendente.Instrucciones.Alter.alterDatabase import AlterDatabase
 from Analisis_Ascendente.Instrucciones.Alter.alterTable import AlterTable
 from Analisis_Ascendente.Instrucciones.Alter.alterTable import Alter
 from Analisis_Ascendente.Instrucciones.Update.Update import Update
 from Analisis_Ascendente.Instrucciones.Delete.delete import Delete
-from Analisis_Ascendente.Instrucciones.Expresiones.Where import  Where
+from Analisis_Ascendente.Instrucciones.Expresiones.Where import Where
 from Analisis_Ascendente.Instrucciones.Type.type import CreateType
 
 class AST:
@@ -41,8 +41,8 @@ class AST:
         self.pe = 0
 
     def ReportarAST(self):
-        print('Graficando AST....')
-        #print(self.sentencias)
+        #print('Graficando AST....')
+        ##print(self.sentencias)
         f = open('AST.dot', 'w')
         self.c = 'digraph G{\n' 
         self.c += 'edge [color=blue]; rankdir = TB;\n'
@@ -52,7 +52,7 @@ class AST:
         self.c += 'Nodo' + '0' +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         self.TiposInstruccion(self.sentencias, str(self.contador))
         self.c += "}\n"
-        #print(arbol)
+        ##print(arbol)
         f.write(self.c)
         f.close()
         check_call(['dot', '-Tsvg', 'AST.dot', '-o', 'AST.svg'])
@@ -268,7 +268,7 @@ class AST:
         self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         for alt in inst.alter:
             if isinstance(alt, Alter):
-                print('es alter')
+                #print('es alter')
                 self.Alter(alt, np)
 
     def Alter(self, inst, padre):
@@ -380,7 +380,7 @@ class AST:
                 self.CrearNodo('FROM', np)
             #puede ser un GroupBy o una lista de columnas, por esta fase
             if isinstance(inst.inner, GroupBy):
-                print('group by')
+                #print('group by')
                 if inst.inner.listaC != None:
                     self.Columnas(inst.inner.listaC, np)
                 self.CrearNodo('GROUP BY', np)
@@ -484,7 +484,7 @@ class AST:
 #---------------------WHERE----------------------------------------
     def Where(self, inst, padre):
         #caso, boolean, columna, listaValores, valor1, valor2, comparison
-        print('-----------------------WHERE')
+        #print('-----------------------WHERE')
         self.CrearNodo('WHERE', padre)
         np = str(self.contador)
         if inst.caso == 1:
@@ -677,10 +677,10 @@ class AST:
         np = str(self.contador)
         self.CrearNodo(inst.nombre, np)
         if inst.E1 != None:
-            print(inst.E1)
+            #print(inst.E1)
             if isinstance(inst.E1, Id):
                 self.Id(inst.E1.id, np)
-                print('es id')
+                #print('es id')
             elif isinstance(inst.E1, Primitivo):
                 self.Primitivo(inst.E1, np)
             elif isinstance(inst.E1, IdId):
@@ -692,10 +692,10 @@ class AST:
             else:
                 self.E(inst.E1, np)
         if inst.E2 != None:
-            print(inst.E2)
+            #print(inst.E2)
             if isinstance(inst.E2, Id):
                 self.Id(inst.E2.id, np)
-                print('es id')
+                #print('es id')
             elif isinstance(inst.E2, Primitivo):
                 self.Primitivo(inst.E2, np)
             elif isinstance(inst.E2, IdId):
@@ -773,12 +773,12 @@ class AST:
         edr = False
         prim = False
         prim2 = False
-        print('expresion')
+        #print('expresion')
         if isinstance(inst, Unario):
-            print('unario')
-            print(inst)
-            print(inst.op)
-            print(inst.operador)
+            #print('unario')
+            #print(inst)
+            #print(inst.op)
+            #print(inst.operador)
             self.contador = self.contador + 1
             self.c += 'Nodo'+ str(self.contador) + '[label="Operador\nUnario: '+str(inst.operador)+' "]\n'
             self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
@@ -793,7 +793,7 @@ class AST:
                 self.E(inst.op, npu)
                 ##########
             if isinstance(inst.op, Unario):
-                print('UNARIO-----')
+                #print('UNARIO-----')
                 self.E(inst.op, npu)
         elif isinstance(inst, Primitivo):
             self.Primitivo(inst, np)
@@ -812,7 +812,7 @@ class AST:
         elif isinstance(inst, Where):
             self.Where(inst, np)
         else : #expresion iz operador dr
-            print('no unario')
+            #print('no unario')
             if isinstance(inst.iz, Unario):
                 self.contador = self.contador + 1
                 self.c += 'Nodo'+ str(self.contador) + '[label="Operador\nUnario: '+inst.iz.operador+' "]\n'
@@ -874,7 +874,7 @@ class AST:
             if isinstance(inst.dr, IdId):
                 self.CrearNodo(inst.dr.id1.id + '.' + inst.dr.id2.id, np)
             if isinstance(inst.iz, Expresion):
-                print('expresion iz')
+                #print('expresion iz')
                 self.E(inst.iz, np)
                 self.contador += self.contador
                 self.c += 'Nodo'+ str(self.contador) + '[label="Operador: ' + inst.operador+'"]\n'
@@ -925,12 +925,12 @@ class AST:
         self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         a = str(self.contador)
         #self.contador += self.contador#
-        print('UNARIO')
+        #print('UNARIO')
         #if isinstance(unario.op, Id):
-         #   print(unario.op)
+         #   #print(unario.op)
           #  self.c += 'Nodo'+ str(self.contador)+ '[label="' + unario.op.id + '"]\n' 
         #elif isinstance(unario.op, Primitivo):
-         #   print(unario.op)
+         #   #print(unario.op)
           #  self.c += 'Nodo'+ str(self.contador)+ '[label="' + str(unario.op.val) + '"]\n' 
         #elif isinstance(unario.op, IdId):
          #   pass
@@ -996,4 +996,4 @@ class AST:
         self.CrearNodo(inst.id, np)
         self.CrearNodo('AS ENUM', np)
         self.listaID(inst.lista, np)
-        
+

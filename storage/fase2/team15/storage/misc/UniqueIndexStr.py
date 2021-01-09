@@ -105,14 +105,14 @@ class UniqueIndexStr:
                 return func.extractRow(self.database, self.table, [nombre])
 
 
-    def alterTableMode(self, database: str, table: str, mode: str) -> int:
+    def alterTableMode(self, mode: str) -> int:
 
         try:
                             
-            registros = self.extractTable(database, table)
+            registros = self.extractTable()
             self.modo = mode
 
-            self.dropTable(database, table)
+            self.dropTable()
             self.createTable()
 
             for registro in registros:

@@ -62,7 +62,7 @@ from analizer.statement.pl.asignacion import Asignacion
 from analizer.statement.pl.declaration import Declaration
 from analizer.statement.pl.procedure import Procedure, dropProc
 from analizer.statement.pl.function import Function, dropFunc
-from analizer.statement.pl.index import Index, dropIndex, alterIndex
+from analizer.statement.pl.index import Index, dropIndex, alterIndex, alterIndexChange
 from analizer.statement.pl.raise_print import Raise
 from analizer.statement.pl.f2Statement import f2Statement
 from analizer.statement.pl.f1Statement import f1Statement
@@ -190,6 +190,23 @@ def p_alter_index(t):
         alterIndex(t[3],t[5])
     repGrammar.append(t.slice)
     C3D_INSTRUCCIONES_SIN_EJECUCION(t)
+
+def p_alter_index_name(t):
+    """
+    dml_index : R_ALTER R_INDEX R_IF R_EXISTS ID R_ALTER R_COLUMN ID ID
+        | R_ALTER R_INDEX R_IF R_EXISTS ID R_ALTER ID ID
+        | R_ALTER R_INDEX ID R_ALTER R_COLUMN ID ID
+        | R_ALTER R_INDEX ID R_ALTER ID ID
+    """
+    repGrammar.append(t.slice)
+    if len(t) == 10:
+        alterIndexChange(t[5],t[8], t[9], True)
+    elif len(t) == 9:
+        alterIndexChange(t[5],t[7], t[8], True)
+    elif len(t) == 8:
+        alterIndexChange(t[3],t[6], t[7])
+    else:
+        alterIndexChange(t[3],t[5], t[6])
 
 def p_fase2_stmt(t):
     '''
@@ -414,6 +431,8 @@ def p_declaration(t):
     """
     if len(t)==6:
         #print('\t'+str(t[1])+' = '+str(t[4]))
+        if isinstance( t[4] , Select): # PARA VALIDACION DEL SELECT
+            t[4] = F1(t[4],C3D_INSTRUCCIONES_FASE1_CADENA(t,True), t.slice[1].lineno , t.slice[1].lexpos )
         t[0] = Declaration(t[1],t[2],t[4],t.slice[1].lineno,t.slice[1].lexpos)
     else:
         t[0] = Declaration(t[1],t[2],None,t.slice[1].lineno,t.slice[1].lexpos)
@@ -489,7 +508,7 @@ def p_executeStmt(t):
     else:
         t[0] = Execute(t[2], [],t.slice[2].lineno, t.slice[2].lexpos)
 
-    t[0].generate3d(None, instancia_codigo3d)
+    #t[0].generate3d(None, instancia_codigo3d)
 
 def p_ifStmt(t):
     """
@@ -2259,7 +2278,7 @@ def parserTo3D(input)-> None:
 #------------------------------------ METODOS PROPIOS DE LA FASE 2
 
 def getCodigo():
-    #instancia_codigo3d.generarArchivoEjecucion()
+    instancia_codigo3d.generarArchivoEjecucion()
     return instancia_codigo3d.getCodigo()
 
 def C3D_INSTRUCCIONES_FASE1(t):

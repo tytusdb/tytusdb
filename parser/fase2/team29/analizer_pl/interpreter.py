@@ -7,6 +7,7 @@ from analizer_pl.C3D.operations import block
 from analizer_pl.reports import BnfGrammar
 from analizer_pl.abstract import global_env
 import analizer_pl.grammar as grammar
+from analizer_pl.libs import File
 
 
 def traducir(input):
@@ -36,17 +37,23 @@ def traducir(input):
     f = open("test-output/c3dopt.py", "w+")
     f.write(optimizacion)
     f.close()
-    semanticErrors = []
+    semanticErrors = grammar.returnSemanticErrors()
+    postgres = grammar.returnPLErrors()
     functions = functionsReport(env)
     symbols = symbolReport()
+    indexes = indexReport()
     obj = {
+        "messages": [],
+        "querys": [],
         "lexical": lexerErrors,
         "syntax": syntaxErrors,
         "semantic": semanticErrors,
+        "postgres": postgres,
         "symbols": symbols,
         "functions": functions,
+        "indexes": indexes,
     }
-    # grammar.InitTree()
+    grammar.InitTree()
     BnfGrammar.grammarReport()
     return obj
 
@@ -90,130 +97,18 @@ def functionsReport(env):
     return rep
 
 
-s = """ 
-
-CREATE FUNCTION ValidaRegistros(tabla varchar(50),cantidad integer) RETURNS integer AS $$
-DECLARE 
-resultado INTEGER; 
-retorna   INTEGER;
-BEGIN
-	if tabla = 'tbProducto' then
-	    resultado := (SELECT md5('23') si, puta as sho) ;
-    	if cantidad = resultado then
-			retorna = 1;
-		else 
-			retorna = 0;
-		end if;
-	end if;
-	if tabla = 'tbProductoUp' then
-	    resultado := (SELECT COUNT(*) FROM tbProducto where estado = 2);
-    	if cantidad = resultado then
-			retorna = 1;
-		else 
-			retorna = 0;
-		end if;
-	end if;
-	if tabla = 'tbbodega' then
-	    resultado := (SELECT COUNT(*) FROM tbbodega);
-    	if cantidad = resultado then
-			retorna = 1;
-		else 
-			retorna = 0;
-		end if;
-	end if;
-RETURN retorna;
-END;
-$$ LANGUAGE plpgsql;
-delete from tbbodega as tb where idbodega = 4 and idbodega = 5;
-"""
-s2 = """
-
-CREATE FUNCTION foo(texto text, b boolean) RETURNS text AS $$
-BEGIN
-update tbbodega set bodega = texto||"fr", id = 1 where idbodega = 4; 
-update tbbodega set bodega = "fr" where idbodega = 4; 
-return texto;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE FUNCTION myFuncion(texto text, b boolean) RETURNS text AS $$
-BEGIN
-INSERT INTO tbProducto values(1,'Laptop Lenovo',md5(texto),1);
-SELECT 3-5>4 and -3=texto as sho, texto between symmetric 2 and 3 as alv;
-
-select * from tbCalificacion;
-select * from tbventa where ventaregistrada = false;
-select * from tbempleadopuesto group by departamento;
-
-select *
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by primernombre,segundonombre,primerapellido;
-
-
-select v.id+foo(texto, 3)
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by primernombre,segundonombre,primerapellido,fechaventa
-limit 1;
-
-select *
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by primernombre,segundonombre,primerapellido
-UNION
-select DISTINCT * 
-from tbventa V,tbempleado E
-where V.idempleado = texto
-group by 1,2,3
-order by 1;
-
-b = texto between symmetric 2 and 3;
-RETURN (3+1)*-1;
-END;
-$$ LANGUAGE plpgsql;
-
-select *
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by primernombre,segundonombre,primerapellido;
-
-select (3+3)*5;
-
-select *
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by primernombre,segundonombre,primerapellido
-UNION
-select DISTINCT * 
-from tbventa V,tbempleado E
-where V.idempleado = texto
-group by 1,2,3
-order by 1;
-
-
-"""
-
-s3 = """
-select E.* from tabla;
-select departamento,count(*) CantEmpleados 
-from tbempleadopuesto
-group by departamento;
-select primernombre,segundonombre,primerapellido,sum(montoventa) 
-from tbventa V,tbempleado E
-where V.idempleado = E.idempleado
-group by primernombre,segundonombre,primerapellido;
-create table tblibrosalario
-( idempleado integer not null,
-  aniocalculo integer not null CONSTRAINT aniosalario CHECK (aniocalculo > 0),
-  mescalculo  integer not null CONSTRAINT mescalculo CHECK (mescalculo > 0),
-  salariobase  money not null,
-  comision     decimal,
-  primary key(idempleado)
- );
-EXECUTE md5("francisco");
-update tbbodega set bodega = 'bodega zona 9' where idbodega = 4; 
-update tbbodega set bodega = DEFAULT where idbodega = 4; 
-"""
-
-traducir(s3)
+def indexReport():
+    index = File.importFile("Index")
+    enc = [["Nombre", "Tabla", "Unico", "Metodo", "Columnas"]]
+    filas = []
+    for (name, Index) in index.items():
+        columns = ""
+        for column in Index["Columns"]:
+            columns += (
+                ", " + column["Name"] + " " + column["Order"] + " " + column["Nulls"]
+            )
+        filas.append(
+            [name, Index["Table"], Index["Unique"], Index["Method"], columns[1:]]
+        )
+    enc.append(filas)
+    return enc

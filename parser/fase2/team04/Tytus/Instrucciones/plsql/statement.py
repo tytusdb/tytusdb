@@ -12,4 +12,4 @@ class Statement(Instruccion):
         pass
 
     def getCodigo(self, tabla, arbol):
-        pass
+        return ""

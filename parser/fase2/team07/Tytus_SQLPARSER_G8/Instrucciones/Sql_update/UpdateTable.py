@@ -7,8 +7,8 @@ from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato
 import numpy as np
 
 class UpdateTable(Instruccion):
-    def __init__(self, id, tipo, lCol, insWhere, strGram ,linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, lCol, insWhere, strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.identificador = id
         self.listaDeColumnas = lCol
         self.insWhere = insWhere
@@ -237,6 +237,12 @@ class UpdateTable(Instruccion):
         '''
         def update(database: str, table: str, register: dict, columns: list) -> int:
             '''
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
 
 
 '''

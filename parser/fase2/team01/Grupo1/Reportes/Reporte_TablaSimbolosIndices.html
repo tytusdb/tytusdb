@@ -1,0 +1,130 @@
+<!DOCTYPE HTML5>
+<html>
+<head>
+<title>Indices</title>
+<style type="text/css">
+.styled-table {
+border-collapse: collapse;
+margin:0 auto;
+font-size: 0.9em;
+font-family: sans-serif;
+min-width: 400px;
+box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);}
+.styled-table thead tr {
+background-color: #009879;
+color: #ffffff;
+text-align: left;}
+.styled-table th,
+.styled-table td {
+padding: 12px 15px;}
+.styled-table tbody tr {
+border-bottom: 1px solid #dddddd;}
+.styled-table tbody tr:nth-of-type(even) {
+background-color: #f3f3f3;}
+.styled-table tbody tr:last-of-type {
+border-bottom:4px solid #009879;}
+.styled-table tbody tr.active-row {
+font-weight: bold;
+color: black;}
+H2 { text-align: center}
+</style>
+</head>
+<body style="background-color:grey;">
+<h2>Indices en la Tabla de simbolos</h2>
+<div style="text-align:center;">
+<table class="styled-table">
+<thead>
+<tr>
+<th>INSTRUCCION</th>
+<th>NOMBRE INDICE</th>
+<th>TABLA</th>
+<th>UNIQUE</th>
+<th>COLUMNA</th>
+<th>TIPO ASC/DESC</th>
+<th>ORDER</th>
+<th>TIPO INDICE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>create</td>
+<td>indicetes</td>
+<td>mytable1</td>
+<td>None</td>
+<td>nombrecam</td>
+<td>None</td>
+<td>Nulls First</td>
+<td>B-tree</td>
+<td>Void</td>
+</tr>
+<tr>
+<td>create</td>
+<td>miind</td>
+<td>productos</td>
+<td>None</td>
+<td>shampoo</td>
+<td>None</td>
+<td>Nulls Last</td>
+<td>B-tree</td>
+<td>Void</td>
+</tr>
+<tr>
+<td>CREATE</td>
+<td>idx_producto</td>
+<td>tbProducto</td>
+<td>UNIQUE</td>
+<td>idproducto idcoodigo idvalor </td>
+<td>None</td>
+<td>None</td>
+<td>B-tree</td>
+<td>Void</td>
+</tr>
+<tr>
+<td>CREATE</td>
+<td>test3_desc_index</td>
+<td>test3</td>
+<td>None</td>
+<td>id</td>
+<td>Desc</td>
+<td>Nulls Last</td>
+<td>B-tree</td>
+<td>Void</td>
+</tr>
+<tr>
+<td>CREATE</td>
+<td>mindice5</td>
+<td>mitable2</td>
+<td>None</td>
+<td>major </td>
+<td>None</td>
+<td>None</td>
+<td>HASH</td>
+<td>Void</td>
+</tr>
+<tr>
+<td>CREATE</td>
+<td>misind6</td>
+<td>mitab6</td>
+<td>None</td>
+<td>idproducto idcoodigo idvalor </td>
+<td>None</td>
+<td>None</td>
+<td>HASH</td>
+<td>Void</td>
+</tr>
+<tr>
+<td>CREATE</td>
+<td>mising4</td>
+<td>tretab</td>
+<td>None</td>
+<td>idproducto idcoodigo idvalor </td>
+<td>None</td>
+<td>None</td>
+<td>GIN</td>
+<td>Void</td>
+</tr>
+</tbody>
+</table>
+</div>
+</body>
+</html> 

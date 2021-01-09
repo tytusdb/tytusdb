@@ -3,13 +3,15 @@ from analizer_pl.modules.expressions import C3D
 from analizer_pl.C3D.operations import operation
 from analizer_pl.reports.Nodo import Nodo
 from analizer_pl.abstract.global_env import GlobalEnvironment
+from analizer_pl import grammar
 
 
 class Identifier(Expression):
-    def __init__(self, id, isBlock, row, column) -> None:
+    def __init__(self, id, isBlock, tempS, row, column) -> None:
         super().__init__(row, column)
         self.id = id
         self.isBlock = isBlock
+        self.tempS = "t" + str(tempS)
 
     def execute(self, environment):
         if self.isBlock:
@@ -18,8 +20,26 @@ class Identifier(Expression):
             return C3D("", self.id, self.row, self.column)
         if not isinstance(environment, GlobalEnvironment):
             if environment.getVar(self.id):
-                return C3D("", '"+str(' + self.id + ')+"', self.row, self.column)
-
+                fix = (
+                    "\t"
+                    + "if isinstance("
+                    + self.id
+                    + ", str): "
+                    + self.tempS
+                    + ' = "\'"+'
+                    + self.id
+                    + '+"\'"'
+                    + "\n"
+                    + "\telse: "
+                    + self.tempS
+                    + " = "
+                    + self.id
+                    + "\n"
+                )
+                grammar.optimizer_.addIgnoreString(str(fix), self.row, False)
+                return C3D(fix, '"+str(' + self.tempS + ')+"', self.row, self.column)
+            else:
+                pass
         return C3D("", self.id, self.row, self.column)
 
     def dot(self):
@@ -60,6 +80,16 @@ class TernaryExpression(Expression):
         val3 = self.exp3.execute(environment)
         c3d += val3.temp
         return C3D(val1.value + val2.value + val3.value, c3d, self.row, self.column)
+
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        n3 = self.exp3.dot()
+        new = Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        new.addNode(n3)
+        return new
 
 
 class BinaryExpression(Expression):

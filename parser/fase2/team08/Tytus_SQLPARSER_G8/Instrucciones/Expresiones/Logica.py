@@ -283,6 +283,7 @@ class Logica(Instruccion):
     def concatenar(self, tabla: Tabla, arbol: Arbol):
         super().traducir(tabla,arbol)
         retorno = Nodo3D()
+        #print(self.opIzq)
         resultadoIzq = self.opIzq.concatenar(tabla,arbol)
         if self.operador == 'AND':
             if isinstance(resultadoIzq, str):
@@ -302,6 +303,8 @@ class Logica(Instruccion):
                     cadena += self.opDer.concatenar(tabla,arbol)
                 return cadena
         elif self.operador == 'NOT':
-            pass
+            if isinstance(resultadoIzq, str):
+                cadena = f"NOT {resultadoIzq}"
+                return cadena
 
         

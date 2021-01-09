@@ -2,11 +2,13 @@ import os
 import pickle
 import shutil
 import zlib
+import hashlib
 from Blockchain import *
 
 databases = {}  # LIST WITH DIFFERENT MODES
 dict_encoding = {'ascii': 1, 'iso-8859-1': 2, 'utf8': 3}
 dict_modes = {'avl': 1, 'b': 2, 'bplus': 3, 'dict': 4, 'isam': 5, 'json': 6, 'hash': 7}
+algoritms = ['SHA256', 'MD5']
 
 
 # ---------------------------------------------------- FASE 2  ---------------------------------------------------------
@@ -64,7 +66,254 @@ def alterDatabaseMode(database, mode):
     except:
         return 1  
     
+# ALTER FOREIGN KEY
+def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
+    try:
+        if os.path.isfile(os.getcwd() + "\\Data\\FK.bin"):
+            FK = load('FK')
+        else:
+            FK = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            j = checkMode(db[database][0])
+            tables = j.showTables(database)
+            if (table in tables) and (tableRef in tables):
+                if len(columns) != 0 and len(columnsRef) != 0:
+                    if FK.get(indexName) is None:
+                        if 'FK' not in tables:
+                            j.createTable(database, 'FK', 6)
+                            j.alterAddPK(database, 'FK', [1])
+                        j.insert(database, 'FK', [database, indexName, table, columns, tableRef, columnsRef])
+                        FK.update({indexName: [database, indexName, table, columns, tableRef, columnsRef]})
+                        save(FK, 'FK')
+                        return 0
+                    return 1
+                return 4
+            return 3
+        return 2
+    except:
+        return 1
+    
+# DROP FOREIGN KEY
+def alterTableDropFK(database, table, indexName):
+    try:
+        if os.path.isfile(os.getcwd() + "\\Data\\FK.bin"):
+            FK = load('FK')
+            db = load('metadata')
+            if db.get(database) is not None:
+                j = checkMode(db[database][0])
+                tables = j.showTables(database)
+                if table in tables:
+                    if FK.get(indexName) is not None:
+                        j.delete(database, 'FK', [indexName])
+                        FK.pop(indexName)
+                        save(FK, 'FK')
+                        return 0
+                    return 4
+                return 3
+            return 2
+        else:
+            FK = {}
+            save(FK, 'FK')
+    except:
+        return 1
 
+# ALTER ADD INDEX UNIQUE
+def alterTableAddUnique(database, table, indexName, columns):
+    try:
+        if os.path.isfile(os.getcwd() + '\\Data\\UNIQUE.bin'):
+            UNIQUE = load('UNIQUE')
+        else:
+            UNIQUE = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            j = checkMode(db[database][0])
+            tables = j.showTables(database)
+            if table in tables:
+                if len(columns) != 0:
+                    if UNIQUE.get(indexName) is None:
+                        if 'UNIQUE' not in tables:
+                            j.createTable(database, 'UNIQUE', 4)
+                            j.alterAddPK(database, 'UNIQUE', [2])
+                        j.insert(database, 'UNIQUE', [database, table, indexName, columns])
+                        UNIQUE.update({indexName: [database, table, indexName, columns]})
+                        save(UNIQUE, 'UNIQUE')
+                        return 0
+                    return 1
+                return 4
+            return 3
+        return 2
+    except:
+        return 1
+
+# DROP INDEX UNIQUE
+def alterTableDropUnique(database, table, indexName):
+    try:
+        if os.path.isfile(os.getcwd() + '\\Data\\UNIQUE.bin'):
+            UNIQUE = load('UNIQUE')
+            db = load('metadata')
+            if db.get(database) is not None:
+                j = checkMode(db[database][0])
+                tables = j.showTables(database)
+                if table in tables:
+                    if UNIQUE.get(indexName) is not None:
+                        j.delete(database, 'UNIQUE', [indexName])
+                        UNIQUE.pop(indexName)
+                        save(UNIQUE, 'UNIQUE')
+                        return 0
+                    return 4
+                return 3
+            return 2
+        else:
+            UNIQUE = {}
+            save(UNIQUE, 'UNIQUE')
+    except:
+        return 1
+
+# ALTER ADD INDEX
+def alterTableAddIndex(database, table, indexName, columns):
+    try:
+        if os.path.isfile(os.getcwd() + '\\Data\\INDEX.bin'):
+            INDEX = load('INDEX')
+        else:
+            INDEX = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            j = checkMode(db[database][0])
+            tables = j.showTables(database)
+            if table in tables:
+                if len(columns) != 0:
+                    if INDEX.get(indexName) is None:
+                        if 'INDEX' not in tables:
+                            j.createTable(database, 'INDEX', 4)
+                            j.alterAddPK(database, 'INDEX', [2])
+                        j.insert(database, 'INDEX', [database, table, indexName, columns])
+                        INDEX.update({indexName: [database, table, indexName, columns]})
+                        save(INDEX, 'INDEX')
+                        return 0
+                    return 1
+                return 4
+            return 3
+        return 2
+    except:
+        return 1
+
+# ALTER DROP INDEX
+def alterTableDropIndex(database, table, indexName):
+    try:
+        if os.path.isfile(os.getcwd() + '\\Data\\INDEX.bin'):
+            INDEX = load('INDEX')
+            db = load('metadata')
+            if db.get(database) is not None:
+                j = checkMode(db[database][0])
+                tables = j.showTables(database)
+                if table in tables:
+                    if INDEX.get(indexName) is not None:
+                        j.delete(database, 'INDEX', [indexName])
+                        INDEX.pop(indexName)
+                        save(INDEX, 'INDEX')
+                        return 0
+                    return 4
+                return 3
+            return 2
+        else:
+            INDEX = {}
+            save(INDEX, 'INDEX')
+    except:
+        return 1
+
+# ALTER ENCODING
+def alterDatabaseEncoding(database, encoding):
+    try:
+        if dict_encoding.get(encoding) is not None:
+            db = load('metadata')
+            if db.get(database) is not None:
+                j = checkMode(db[database][0])
+                tables = j.showTables(database)
+                DB = {}
+                for t in tables:
+                    registers = j.extractTable(database, t)
+                    newRegisters = []
+                    for r in registers:
+                        newRegister = []
+                        for c in r:
+                            if isinstance(c, bytes):
+                                aux = c.decode(db[database][1]).encode(encoding, 'replace')
+                                if '?' in str(aux):
+                                    return 1
+                                newRegister.append(aux)
+                            else:
+                                newRegister.append(c)
+                        newRegisters.append(newRegister)
+                    DB.update({t: newRegisters})
+                for key in DB:
+                    j.truncate(database, key)
+                    registers = DB[key]
+                    for r in registers:
+                        j.insert(database, key, r)
+                db[database][1] = encoding
+                save(db, 'metadata')
+                return 0
+            return 2
+        return 3
+    except:
+        return 1
+
+# CHECKSUM DATABASE
+def checksumDatabase(database, mode):
+    try:
+        if os.path.isfile(os.getcwd() + "\\Data\\checksum.bin"):
+            CHCK = load('checksum')
+        else:
+            CHCK = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            j = checkMode(db[database][0])
+            tables = j.showTables(database)
+            if mode.upper() in algoritms:
+                content = None
+                if mode.upper() == 'MD5':
+                    content = hashlib.md5()
+                elif mode.upper() == 'SHA256':
+                    content = hashlib.sha256()
+                for t in tables:
+                    file = open(getRouteTable(db[database][0], database, t), 'rb')
+                    content.update(file.read())
+                    file.close()
+                    CHCK.update({database: content.hexdigest()})
+                    save(CHCK, 'checksum')
+                    return CHCK[database]
+            return None
+        return None
+    except:
+        return None
+
+# CHECKSUM TABLE
+def checksumTable(database, table, mode):
+    try:
+        if os.path.isfile(os.getcwd() + "\\Data\\checksum.bin"):
+            CHCK = load('checksum')
+        else:
+            CHCK = {}
+        db = load('metadata')
+        if db.get(database) is not None:
+            if mode.upper() in algoritms:
+                content = None
+                if mode.upper() == 'MD5':
+                    content = hashlib.md5()
+                elif mode.upper() == 'SHA256':
+                    content = hashlib.sha256()
+                file = open(getRouteTable(db[database][0], database, table), 'rb')
+                content.update(file.read())
+                file.close()
+                CHCK.update({table: content.hexdigest()})
+                save(CHCK, 'checksum')
+                return CHCK[table]
+            return None
+        return None
+    except:
+        return None
+    
 # Blockchain
 def safeModeOn(database, table):
     try:
@@ -137,7 +386,228 @@ def safeModeOff(database, table):
         return 4
     except:
         return 1
+
+def alterDatabaseCompress(database, level):
+    try:
+
+        if level > 9 or level < 0:
+            return 4
+
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        mode = dictionary.get(database)[0]
+
+        if value_db:
+            j = checkMode(mode)
+            tables = j.showTables(database)
+            for table in tables:
+                newTable = []
+                tableEx = j.extractTable(database, table)
+
+                for tuple in tableEx:
+                    newTuple = []
+                    for register in tuple:
+                        if isinstance(register, bytes):
+                            compressed = zlib.compress(register, level)
+                            newTuple.append(compressed)
+                        else:
+                            newTuple.append(register)
+
+                    newTable.append(newTuple)
+
+                j.truncate(database, table)
+
+                for tuple in newTable:
+                    j.insert(database, table, tuple)
+
+                save(dictionary, 'metadata')
+            return 0
+            # print(newTable)
+
+        else:
+            return 2
+    except:
+        return 1
     
+def alterDatabaseDecompress(database):
+    try:
+
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        mode = dictionary.get(database)[0]
+
+        if value_db:
+            j = checkMode(mode)
+            tables = j.showTables(database)
+            for table in tables:
+                newTable = []
+                tableEx = j.extractTable(database, table)
+
+                if tupleIsnotCompressed(tableEx):
+                    return 3
+
+                for tuple in tableEx:
+                    newTuple = []
+                    for register in tuple:
+                        if iscompressed(register):
+                            # print("Tamaño sin comprimir %d" % len(register))
+                            decompressed = zlib.decompress(register)
+                            # print("Tamaño comprimido %d" % len(compressed))
+                            newTuple.append(decompressed)
+                        else:
+                            newTuple.append(register)
+
+                    newTable.append(newTuple)
+
+                j.truncate(database, table)
+
+                for tuple in newTable:
+                    j.insert(database, table, tuple)
+
+                save(dictionary, 'metadata')
+            return 0
+            # print(newTable)
+
+        else:
+            return 2
+    except:
+        return 1
+    
+def alterTableCompress(database, table, level):
+    try:
+
+        if level > 9 or level < 0:
+            return 4
+
+        newTable = []
+
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        mode = dictionary.get(database)[0]
+
+        if value_db:
+            j = checkMode(mode)
+            tableEx = j.extractTable(database, table)
+            for tuple in tableEx:
+                newTuple = []
+                for register in tuple:
+                    if isinstance(register, bytes):
+                        # print("Tamaño sin comprimir %d" % len(register))
+                        compressed = zlib.compress(register, level)
+                        # print("Tamaño comprimido %d" % len(compressed))
+                        newTuple.append(compressed)
+                    else:
+                        newTuple.append(register)
+
+                newTable.append(newTuple)
+
+            j.truncate(database, table)
+
+            for tuple in newTable:
+                j.insert(database, table, tuple)
+
+            save(dictionary, 'metadata')
+            return 0
+            # print(newTable)
+
+        else:
+            return 2
+    except:
+        return 1
+    
+def alterTableDecompress(database, table):
+    try:
+        newTable = []
+
+        os.path.isfile(os.getcwd() + "\\Data\\metadata.bin")
+        dictionary = load('metadata')
+        value_db = dictionary.get(database)
+        mode = dictionary.get(database)[0]
+
+        if value_db:
+            j = checkMode(mode)
+            tableEx = j.extractTable(database, table)
+
+            if tupleIsnotCompressed(tableEx):
+                return 3
+
+            for tuple in tableEx:
+                newTuple = []
+                for register in tuple:
+                    if iscompressed(register):
+                        # print("Tamaño sin comprimir %d" % len(register))
+                        decompressed = zlib.decompress(register)
+                        # print("Tamaño comprimido %d" % len(compressed))
+                        newTuple.append(decompressed)
+                    else:
+                        newTuple.append(register)
+
+                newTable.append(newTuple)
+
+            j.truncate(database, table)
+
+            for tuple in newTable:
+                j.insert(database, table, tuple)
+
+            save(dictionary, 'metadata')
+            return 0
+            # print(newTable)
+
+        else:
+            return 2
+    except:
+        return 1
+    
+    
+# FIRST REPORT GRAPH
+def graphDSD(database):
+    try:
+        dictionaryFK = load('FK')
+        listValues = FKDatabse(dictionaryFK, database)
+        dictionaryAux = {}
+        counter = 0
+
+        dictDatabases = load('metadata')
+        if dictDatabases.get(database) is None:
+            return None
+
+        string = 'digraph G{\n'
+        string += f'label = "DIAGRAMA DE ESTRUCTURA DE DATOS: {database}"\n'
+        string += 'labelloc = \"t\"\n'
+        string += 'fontsize = \"30\"\n'
+        string += 'edge[ arrowhead = \"open\" ]\n'
+        string += "node[shape = \"ellipse\", fillcolor = \"turquoise\", style = \"filled\", fontcolor = \"black\" ]\n"
+
+        for element in range(0, len(listValues)):
+            listElement = listValues[element]
+            start = listElement[4]
+            end = listElement[2]
+
+            if dictionaryAux.get(start) is None:
+                dictionaryAux[start] = [start, counter]
+                counter += 1
+            if dictionaryAux.get(end) is None:
+                dictionaryAux[end] = [end, counter]
+                counter += 1
+
+            valuesStart = dictionaryAux.get(start)
+            valuesEnd = dictionaryAux.get(end)
+            string += f'node{valuesStart[1]} -> node{valuesEnd[1]}\n'
+
+        for key in dictionaryAux:
+            values = dictionaryAux.get(key)
+            string += f'node{values[1]} [ label = "{values[0]}"]\n'
+
+        string += '}'
+        file = open("DSD.dot", "w")
+        file.write(string)
+        file.close()
+        os.system("dot -Tpng DSD.dot -o DSD.png")
+
+        return string
+    except:
+        return None
+
     
 # ---------------------------------------------- AUXILIARY FUNCTIONS  --------------------------------------------------
 # SHOW DICTIONARY
@@ -146,6 +616,46 @@ def showDict(dictionary):
     for key in dictionary:
         print(key, ":", dictionary[key])
 
+# ROUTES TABLES
+def getRouteTable(mode, database, table):
+    if mode == 'avl':
+        return os.getcwd() + '\\Data\\avlMode\\' + database + '_' + table + '.tbl'
+    elif mode == 'b':
+        return os.getcwd() + '\\Data\\b\\' + database + '-' + table.lower() + '-b.bin'
+    elif mode == 'bplus':
+        return os.getcwd() + '\\Data\\BPlusMode\\' + database + '\\' + table + '\\' + table + '.bin'
+    elif mode == 'dict':
+        return os.getcwd() + '\\Data\\' + database + '\\' + table + '.bin'
+    elif mode == 'isam':
+        return os.getcwd() + '\\Data\\ISAMMode\\tables\\' + database.lower() + table.lower() + '.bin'
+    elif mode == 'json':
+        return os.getcwd() + '\\Data\\json\\' + database + '-' + table
+    elif mode == 'hash':
+        return os.getcwd() + '\\Data\\hash\\' + database + '\\' + table + '.bin'
+
+# SHOW DICTIONARY FK
+def showFK(dictionary):
+    print('--FOREIGN KEYS--')
+    for key in dictionary:
+        print(key, ':', dictionary[key])
+
+# SHOW DICTIONARY UNIQUE
+def showUNIQUE(dictionary):
+    print('--UNIQUE INDEX--')
+    for key in dictionary:
+        print(key, ':', dictionary[key])
+
+# SHOW DICTIONARY INDEX
+def showINDEX(dictionary):
+    print('--INDEX--')
+    for key in dictionary:
+        print(key, ':', dictionary[key])
+
+# SHOW DICTIONARY PK
+def showPK(dictionary):
+    print('--PRIMARY KEYS--')
+    for key in dictionary:
+        print(key, ':', dictionary[key])    
 
 # SHOW MODE
 def showMode(mode):
@@ -182,6 +692,25 @@ def checkMode(mode):
     elif mode == 'hash':
         from storage.hash import hash_mode as j
         return j
+    
+# If tuple is compressed
+def tupleIsnotCompressed(array):
+    flag = True
+
+    for tuple in array:
+        for register in tuple:
+            if iscompressed(register):
+                return False
+
+    return flag
+
+def iscompressed(data):
+    result = True
+    try:
+        s = zlib.decompress(data)
+    except:
+        result = False
+    return result
 
 
 def insertAgain(database, mode, newMode):
@@ -191,17 +720,84 @@ def insertAgain(database, mode, newMode):
     tables = old_mode.showTables(database)
 
     dictionary = load('metadata')
+    dictPK = loadReturn('PK')  
+    dictFK = loadReturn('FK')
+    dictUNIQUE = loadReturn('UNIQUE')
+    dictINDEX = loadReturn('INDEX')
     dict_tables = dictionary.get(database)[2]
 
     if tables:
         for name_table in tables:
-            register = old_mode.extractTable(database, name_table) 
-            number_columns = dict_tables.get(name_table)[0]
-            new_mode.createTable(database, name_table, number_columns)
+            if name_table != 'FK' and name_table != 'UNIQUE' and name_table != 'INDEX':
+                register = old_mode.extractTable(database, name_table)  
+                number_columns = dict_tables.get(name_table)[0]
+                new_mode.createTable(database, name_table, number_columns)
 
-            if register:  # There are registers
-                for list_register in old_mode.extractTable(database, name_table):
-                    new_mode.insert(database, name_table, list_register)
+                # ADDING PK
+                if dictPK != 1:
+                    values = dictPK.get(name_table)
+                    if values:
+                        listPK = values[2]
+                        if 'HIDDEN' not in listPK:
+                            new_mode.alterAddPK(database, name_table, listPK)
+
+                if register:  # There are registers
+                    for list_register in old_mode.extractTable(database, name_table):
+                        new_mode.insert(database, name_table, list_register)
+
+            elif name_table == 'FK':
+                # ADDING FK
+                if dictFK != 1:
+                    for key in dictFK:
+                        new_mode_tables = new_mode.showTables(database)
+                        values = dictFK[key]
+                        if values[0] == database:
+                            if 'FK' not in new_mode_tables:
+                                new_mode.createTable(database, 'FK', 6)
+                                new_mode.alterAddPK(database, 'FK', [1])
+                            new_tuple = []
+                            for i in dictFK[key]:
+                                if isinstance(i, str):
+                                    new_tuple.append(i.encode(dictionary[database][1]))
+                                else:
+                                    new_tuple.append(i)
+                            new_mode.insert(database, 'FK', dictFK[key])
+
+            elif name_table == 'UNIQUE':
+                # ADDING UNIQUE
+                if dictUNIQUE != 1:
+                    for key in dictUNIQUE:
+                        new_mode_tables = new_mode.showTables(database)
+                        values = dictUNIQUE[key]
+                        if values[0] == database:
+                            if 'UNIQUE' not in new_mode_tables:
+                                new_mode.createTable(database, 'UNIQUE', 4)
+                                new_mode.alterAddPK(database, 'UNIQUE', [2])
+                            new_tuple = []
+                            for i in dictUNIQUE[key]:
+                                if isinstance(i, str):
+                                    new_tuple.append(i.encode(dictionary[database][1]))
+                                else:
+                                    new_tuple.append(i)
+                            new_mode.insert(database, 'UNIQUE', new_tuple)
+
+            elif name_table == 'INDEX':
+                # ADDING INDEX
+                if dictINDEX != 1:
+                    for key in dictINDEX:
+                        new_mode_tables = new_mode.showTables(database)
+                        values = dictINDEX[key]
+                        if values[0] == database:
+                            if 'INDEX' not in new_mode_tables:
+                                new_mode.createTable(database, 'INDEX', 4)
+                                new_mode.alterAddPK(database, 'INDEX', [2])
+                            new_tuple = []
+                            for i in dictINDEX[key]:
+                                if isinstance(i, str):
+                                    new_tuple.append(i.encode(dictionary[database][1]))
+                                else:
+                                    new_tuple.append(i)
+                            new_mode.insert(database, 'INDEX', new_tuple)
 
         old_mode.dropDatabase(database)   
         
@@ -273,6 +869,17 @@ def tupleGraph(list_):
     os.system("circo -Tpng List.circo -o List.png")   
     
 
+# FIRST REPORT GRAPH: SELECT ONLY ONE DATABASE
+def FKDatabse(dictionary, database):
+    listValues = []
+    for key in dictionary:
+        values = dictionary[key]
+        if values[0] == database:
+            listValues.append(values)
+
+    return listValues
+
+
 # ------------------------------------------------------ FASE 1 --------------------------------------------------------
 # -------------------------------------------------- Table CRUD --------------------------------------------------------
 
@@ -316,13 +923,37 @@ def dropDatabase(database):
     try:
         nombreBase = str(database)
         dictionary = load('metadata')
+        FK = load('FK')
+        UNIQUE = load('UNIQUE')
+        INDEX = load('INDEX')
+        
         value_base = dictionary.get(nombreBase)
         if value_base:
             mode = dictionary.get(nombreBase)[0]
             j = checkMode(mode)
             j.dropDatabase(nombreBase)
             dictionary.pop(nombreBase)
+
+            if FK != 1:
+                for key in FK:
+                    if FK[key][0] == database:
+                        FK.pop(FK[key][1])
+
+            if INDEX != 1:
+                for key in INDEX:
+                    if INDEX[key][0] == database:
+                        INDEX.pop(INDEX[key][2])
+
+            if UNIQUE != 1:
+                for key in UNIQUE:
+                    if UNIQUE[key][0] == database:
+                        UNIQUE.pop(UNIQUE[key][2])
+
             save(dictionary, 'metadata')
+            save(FK, 'FK')
+            save(INDEX, 'INDEX')
+            save(UNIQUE, 'UNIQUE')
+            return 0
         return 2
     except:
         return 1
@@ -373,14 +1004,36 @@ def extractTable(database, table):
         dictionary = load('metadata')
         value_base = dictionary.get(database)
         if not value_base:
-            return None
+            return []
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         value_return = j.extractTable(database, table)
         
+        # Decompress
+        for tuple in value_return:
+            newTuple = []
+            for register in tuple:
+                if iscompressed(register):
+                    decompressed = zlib.decompress(register)
+                    newTuple.append(decompressed)
+                else:
+                    newTuple.append(register)
+
+            newTable.append(newTuple)
+            
+        value_return = []
+        for r in newTable:
+            newRegister = []
+            for c in r:
+                if isinstance(c, bytes):
+                    newRegister.append(c.decode(dictionary[database][1]))
+                else:
+                    newRegister.append(c)
+            value_return.append(newRegister)
+        
         return value_return
     except:
-        return None
+        return []
     
   
 # EXTRACT RANGE TABLE
@@ -393,18 +1046,48 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
         dictionary = load('metadata')
         value_base = dictionary.get(database)
         if not value_base:
-            return None
+            return []
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
+        if isinstance(lower, str):
+            lower = lower.encode(dictionary[database][1])
+        if isinstance(upper, str):
+            upper = upper.encode(dictionary[database][1])
         value_return = j.extractRangeTable(database, table, int(columnNumber), lower, upper)
+        
+        # Decompress
+        for tuple in value_return:
+            newTuple = []
+            for register in tuple:
+                if iscompressed(register):
+                    decompressed = zlib.decompress(register)
+                    newTuple.append(decompressed)
+                else:
+                    newTuple.append(register)
+
+            newTable.append(newTuple)
+            
+        value_return = []
+        for r in newTable:
+            newRegister = []
+            for c in r:
+                if isinstance(c, bytes):
+                    newRegister.append(c.decode(dictionary[database][1]))
+                else:
+                    newRegister.append(c)
+            value_return.append(newRegister)
         
         return value_return
     except:
-        return None
+        return []
 
 
 def alterAddPK(database, table, columns):
     try:
+        if os.path.isfile(os.getcwd() + '\\Data\\PK.bin'):
+            PK = load('PK')
+        else:
+            PK = {}
         dictionary = load('metadata')
 
         if dictionary.get(database) is None:
@@ -413,6 +1096,8 @@ def alterAddPK(database, table, columns):
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         value_return = j.alterAddPK(database, table, columns)
+        PK.update({table: [database, table, columns]})
+        save(PK, 'PK')
         return value_return
     except:
         return 1
@@ -429,6 +1114,8 @@ def alterDropPK(database, table):
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         value_return = j.alterDropPK(database, table)
+        PK.pop(table)
+        save(PK, 'PK')
         return value_return
     except:
         return 2
@@ -472,6 +1159,8 @@ def alterAddColumn(database, table, default):
 
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
+        if isinstance(default, str):
+            default = default.encode(dictionary[database][1])        
         value_return = j.alterDropColumn(database, table, default)
 
         if value_return == 0:
@@ -511,6 +1200,9 @@ def alterDropColumn(database, table, columnNumber):
 def dropTable(database, table) :
     try:
         dictionary = load('metadata')
+        FK = load('FK')
+        INDEX = load('INDEX')
+        UNIQUE = load('UNIQUE')
 
         if dictionary.get(database) is None:
             return 2  # database doesn't exist
@@ -522,15 +1214,42 @@ def dropTable(database, table) :
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
             dict_tables.pop(table)
+            
+            if FK != 1:
+                for key in FK:
+                    values = FK[key]
+                    if values[0] == database:
+                        if table == values[2] or table == [4]:
+                            FK.pop(values[1])
+                            j.delete(database, 'FK', values[1])
+
+            if INDEX != 1:
+                for key in INDEX:
+                    values = INDEX[key]
+                    if values[0] == database:
+                        if table == values[1]:
+                            INDEX.pop(values[2])
+                            j.delete(database, 'INDEX', values[2])
+
+            if UNIQUE != 1:
+                for key in UNIQUE:
+                    values = UNIQUE[key]
+                    if values[0] == database:
+                        if table == values[1]:
+                            UNIQUE.pop(values[2])
+                            j.delete(database, 'UNIQUE', values[2])
 
             save(dictionary, 'metadata')
+            save(FK, 'FK')
+            save(UNIQUE, 'UNIQUE')
+            save(INDEX, 'INDEX')
     except:
         return 1    
     
     
 # INSERT
 def insert(database, table, register):
-
+    try:
         # Method to Blockchain
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
@@ -599,3 +1318,11 @@ def load(nombre):
     objeto = file.read()
     file.close()
     return pickle.loads(objeto)      
+
+def loadReturn(nombre):
+    if os.path.isfile(os.getcwd() + '\\Data\\' + nombre + ".bin"):
+        file = open(os.getcwd() + "\\Data\\" + nombre + ".bin", "rb")
+        objeto = file.read()
+        file.close()
+        return pickle.loads(objeto)
+    return 1

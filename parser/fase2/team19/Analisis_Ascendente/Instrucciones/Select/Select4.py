@@ -15,27 +15,8 @@ import Analisis_Ascendente.Instrucciones.Expresiones.Expresion as Expresion
 
 class Selectp7(Instruccion):
 
+
     def ejecutar(Select,ts,Consola, Exceptions,mostrar):
-        '''insert('prueba1', 'tabla1', [1, 'Fredy', 'Ramirez'])
-        insert('prueba1', 'tabla1', [2, 'Mauro', 'Martinez'])
-        insert('prueba1', 'tabla1', [3, 'Javier', 'Lima'])
-        insert('prueba1', 'tabla1', [4, 'Yisus', 'Yisusx2'])
-        insert('prueba1', 'tabla1', [5, 'Jacks', 'Wade'])
-
-        insert('prueba1', 'tabla2', [1, 'Mario', 'Guatemala', 'Contabilidad'])
-        insert('prueba1', 'tabla2', [2, 'Eli', 'Dubai', 'Progra'])
-        insert('prueba1', 'tabla2', [3, 'Sis', 'Brasil', 'Master Chief'])
-        insert('prueba1', 'tabla2', [4, 'Fredy', 'Noruega', 'God of War'])
-        insert('prueba1', 'tabla2', [5, 'Luigi', 'Italia', 'Mario Kart'])
-
-        insert('prueba1', 'tabla3', [1, 'Sic', 'USA', '4av. km 19.3'])
-        insert('prueba1', 'tabla3', [2, 'Pepe', 'Irak', 'en amatitlan ese'])
-        insert('prueba1', 'tabla3', [3, 'Etesech', 'China', 'perdido'])
-        insert('prueba1', 'tabla3', [4, 'ufuefue', 'Japon', 'Selva'])
-        insert('prueba1', 'tabla3', [5, 'osas', 'Venezuela', 'Jungla'])'''
-
-
-
         tablasRef = {}
         cont=0
         x = PrettyTable()
@@ -217,8 +198,8 @@ class Selectp7(Instruccion):
             DataSelect = EvaluarWhere(ts,Select,DataSelect,Exceptions,Consola)
 
 
-            print('lo que llego')
-            print(DataSelect)
+            #print('lo que llego')
+            #print(DataSelect)
 
 
             if isinstance(DataSelect,list):
@@ -282,7 +263,7 @@ def encabezados(tablaR,tablasRef,listado_tablas,en):
 
 def ActualizarTabla(x,DataJson,rango,en,DataSelect3, alias):
     filas = len(DataJson)
-    print('filas nueva tabla'+str(filas))
+    #print('filas nueva tabla'+str(filas))
     DataSelectAux =[]
     row = []
 

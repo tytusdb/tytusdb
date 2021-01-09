@@ -64,6 +64,8 @@ class SelectLista(Instruccion):
     def generar3D(self, tabla, arbol):
         super().generar3D(tabla,arbol)
         code = []
+        code.append(c3d.asignacionH())
+        code.append(c3d.aumentarP())
         t0 = c3d.getTemporal()
         code.append(c3d.asignacionString(t0, "SELECT "))
 
@@ -82,7 +84,7 @@ class SelectLista(Instruccion):
         code.append(c3d.operacion(t1, ClassIdentificador(t0), ClassValor("\";\"", "STRING"), ClassOP_ARITMETICO.SUMA))
         
         code.append(c3d.asignacionTemporalStack(t1))
-        code.append(c3d.aumentarP())
+        code.append(c3d.LlamFuncion('call_funcion_intermedia'))
 
         return code
 

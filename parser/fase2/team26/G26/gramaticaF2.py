@@ -1110,6 +1110,7 @@ def p_lista_de_seleccionados_funcion_params(t):
         c3d += '    ' + 'print(\'La funcion/procedimiento '+t[1]+' no fue encontrada.\')\n'
         mistake = error("Semantico", 'La funcion/procedimiento ' + t[1] + ' no fue encontrada.', 0)
         errores.append(mistake)
+        print('La funcion/procedimiento ' + t[1] + ' no fue encontrada.')
 
     t[0] =  {'text': text, 'c3d' : c3d, 'graph' : grafo.index, 'reporte': reporte}
 
@@ -1150,6 +1151,7 @@ def p_lista_de_seleccionados_funcion(t):
 
         mistake = error("Semantico", 'La funcion/procedimiento ' + t[1] + ' no fue encontrada.', 0)
         errores.append(mistake)
+        print('La funcion/procedimiento ' + t[1] + ' no fue encontrada.')
 
     t[0] =  {'text': text, 'c3d' : c3d , 'graph' : grafo.index, 'reporte': reporte}
 
@@ -3185,7 +3187,7 @@ def p_drop_func_proc(t):
                 #os.remove('../G26/Funciones/' + t[2] +'.py')
                 printList = 'función eliminada\n'
             i += 1
-        printList = 'función no encontrada'
+        printList = 'función no encontrada\n'
     else:
         if not 'funciones_' in datos.tablaSimbolos :
             printList = 'procedimiento no encontrado\n'
@@ -3777,10 +3779,30 @@ def p_createprocedure(t):
     reporte += t[5]['reporte'] + t[11]['reporte']
     ftext = '@with_goto\n' + 'def ' + t[3] + '():\n'
     ftext += t[5]['text']
-    ftext += t[11]['text']
+    texxto = t[11]['text']
+    texxto = opt.optimizar(texxto)
+    ftext += texxto
     printList = ''
     try:
         if t[1].lower() == 'or' :
+            if not 'funciones_' in datos.tablaSimbolos:
+                datos.tablaSimbolos['funciones_'] = []
+            found = False
+            for func in datos.tablaSimbolos['funciones_'] :
+                if func['name'] == t[3] and func['tipo'] == 'Procedimiento':
+                    found = True
+                    if func['drop'] == 0:
+                        func['drop'] = 1
+                    break
+
+            if not found :
+                datos.tablaSimbolos['funciones_'].append({'name' : t[3], 'return' : None, 'tipo': 'Procedimiento', 'drop':1})
+                #-----Creando archivo de función
+                f = open('./Funciones/'+t[3]+'.py', "w")
+                f.write(ftext)
+                f.close()
+                #-------------------------------
+
             f = open('./Funciones/'+t[2]+'.py', "w")
             f.write(ftext)
             f.close()
@@ -3808,6 +3830,8 @@ def p_createprocedure(t):
             #-------------------------------
         else :
             printList = 'La funcion ' + t[3] + ' ya esta creada.\n'
+            mistake = error("Semantico", 'La funcion ' + t[3] + ' ya esta creada.', 0)
+            errores.append(mistake)
 
         l.writeData(datos)
     t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}
@@ -3966,6 +3990,8 @@ def p_createfunction(t):
         #-------------------------------
     else :
         printList = 'La funcion ' + t[2] + ' ya esta creada.\n'
+        mistake = error("Semantico", 'La funcion ' + t[2] + ' ya esta creada.', 0)
+        errores.append(mistake)
 
     l.writeData(datos)
     t[0] =  {'text':'' , 'c3d' : '', 'ftext':ftext, 'printList': printList, 'graph' : grafo.index, 'reporte': reporte}

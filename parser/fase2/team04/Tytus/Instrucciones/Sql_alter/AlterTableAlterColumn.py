@@ -29,6 +29,7 @@ class AlterTableAlterColumn(Instruccion):
                         existe.constraint.append(Tipo_Constraint(None, Tipo_Dato_Constraint.NOT_NULL, None))
                         #print("SOLO UNA-------------",existe.nombre, existe.tipo.toString(),len(existe.constraint)) 
                     arbol.consola.append("Consulta devuelta correctamente.")  
+                    print ("Consulta ALTER TABLE ALTER COLUMN devuelta correctamente")
                 else:
                     #print(listaNombres,self.lista_col)
                     #print(lista)
@@ -75,10 +76,10 @@ class AlterTableAlterColumn(Instruccion):
         codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
-        
+        #arbol.consola.append(codigo)
+        return codigo

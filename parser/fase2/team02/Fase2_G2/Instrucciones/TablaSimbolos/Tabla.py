@@ -1,7 +1,7 @@
 
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo as N
-
+from numpy.core.numeric import indices
 class Tabla():
     'Esta clase representa la tabla de símbolos.'
 
@@ -9,15 +9,40 @@ class Tabla():
         self.anterior = anterior
         self.variables = []
         self.funciones = []
+        self.indices = []
+
         self.temporal = 0
         self.etiqueta = 0
         self.heap = 0
         self.stack = 0
         self.my_dic=[]
-
+        self.j=0
         # self.f = 0
+    def setIndex(self, index):
+        tabla = self
+        for f in tabla.indices:
+            if f.id == index.idIndex:
+                print("El indice " + f.id + " ya ha sido declarada.")
+                return "El indice " + f.id + " ya ha sido declarada."
+        print("se agrego el indice")
+        self.indices.append(index)
+        try: 
+        #    a=simbolo.simbolo(funcion.id,"funcion/proc",funcion.linea,funcion.columna)
 
-  
+             a = N(index.idIndex,"","",index.linea,index.columna)
+             self.setVariable(a)
+
+             print("se agrego indice --1 ")
+
+        except Exception as e:
+                print(e) 
+
+        return None
+
+    def aum(self):
+        self.j=self.j+1
+    def getj(self):
+        return self.j
     def setVariable(self,simbolo):
         tabla = self
         for variable in tabla.variables:
@@ -46,11 +71,11 @@ class Tabla():
 
     def getVariable(self,id):
         tabla = self
-        while tabla != None:
-            for variable in tabla.variables:
+        # while tabla != None:
+        for variable in tabla.variables:
                 if variable.id == id:
                     return variable 
-            tabla = tabla.anterior
+            # tabla = tabla.anterior
         return None
  
     def setFuncion(self, funcion):

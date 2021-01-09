@@ -21,6 +21,10 @@ class Index(Instruccion):
         self.lcol = lcol
         self.where = where
 
+
+
+
+
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         val = self.idTabla.devolverTabla(tabla, arbol)
@@ -60,7 +64,24 @@ class Index(Instruccion):
         pass
         
     def traducir(self, tabla, arbol):
-        pass
+        tabla.setIndex(self)
+        cadena = ""
+        funcname = ""
+
+
+       
+        h=0
+        val2param=""
+        val1param=""
+        try:
+                print("actuaparam in self.parametros") 
+
+           
+
+
+        except Exception as e:
+            print(e) 
+        
         
 
 '''

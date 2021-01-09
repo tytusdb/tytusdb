@@ -8,6 +8,7 @@ from Analisis_Ascendente.Instrucciones.PLPGSQL.SelectCount import SelectCount
 from Analisis_Ascendente.Instrucciones.PLPGSQL.plasignacion import Plasignacion
 from Analisis_Ascendente.Instrucciones.Select import SelectDist, selectInst
 from Analisis_Ascendente.Instrucciones.Select.Select2 import Selectp3
+import Analisis_Ascendente.Instrucciones.Select.Select3 as Select3
 from Analisis_Ascendente.Instrucciones.Select.select import Select
 from Analisis_Ascendente.Instrucciones.Select.select1 import selectTime
 from Analisis_Ascendente.Instrucciones.Time import Time
@@ -16,6 +17,7 @@ import Analisis_Ascendente.Instrucciones.Expresiones.Trigonometrica as Trigonome
 import Analisis_Ascendente.Instrucciones.Expresiones.Math as Math
 from Analisis_Ascendente.Instrucciones.Expresiones.Binario import Binario
 from Analisis_Ascendente.storageManager.jsonMode import extractTable
+
 
 #PARA DEJAR VACIA LA FUNCION PARA SU PROXIMA EJECUCION
 def limpiarFuncion(expr,tsglobal):
@@ -99,8 +101,6 @@ def ejecutarSentencias(tsglobal,simboloFuncion,consola,exceptions):
                 elif instr.caso == 4:
                     consola.append('caso 4')
                     Selectp3.ejecutar(instr, tsglobal, consola, exceptions, True)
-                elif instr.caso == 6:
-                    consola.append('caso 6')
             elif isinstance(instr, Ifpl):
                 Ifpl.ejecutar(instr,tsglobal,simboloFuncion.Entorno,consola,exceptions)
             elif isinstance(instr, CasePL):
@@ -123,6 +123,8 @@ def ejecutarPlasignacion(plasignacion,ts,simboloFuncion,consola,exception):
         simvariable = entornoFN.buscar_sim(plasignacion.id)
         if isinstance(plasignacion.expresion,SelectCount):
             valorRetorno = resolverSelectCount(plasignacion.expresion,ts)
+        elif isinstance(plasignacion.expresion,Select):
+            valorRetorno = resolverSelectGlobal(plasignacion.expresion,ts,consola,exception)
         else:
             valorRetorno = ResolverReturn(plasignacion.expresion,ts,entornoFN,consola,exception)
         #verifico que concuerde el tipo de la expresion con el tipo de la variable
@@ -170,13 +172,33 @@ def resolverSelectCount(expresion,ts):
         return count
 
 
+def resolverSelectGlobal(instr,ts,consola,exceptions):
+    valorselect = None
+    if instr.caso == 1:
+        valorselect = selectTime.ejecutar(instr, ts, consola, exceptions, True)
+    elif instr.caso == 2:
+        variable = SelectDist.Select_Dist()
+        valorselect = SelectDist.Select_Dist.ejecutar(variable, instr, ts, consola, exceptions)
+    elif instr.caso == 3:
+        variable = selectInst.Select_inst()
+        valorselect = selectInst.Select_inst.ejecutar(variable, instr, ts, consola, exceptions)
+    elif instr.caso == 4:
+        valorselect = Selectp3.ejecutar(instr, ts, consola, exceptions, True)
+    elif instr.caso == 5:
+        valorselect = Select3.Selectp4.ejecutar(instr, ts, consola, exceptions, True)
+    #Convertimos a un int si se puede
+    try:
+        valor = int(valorselect)
+        return valor
+    except:
+        return valorselect
+
 def ejecutarReturn(Retu,ts,simfuncion,Consola,exception):
     valorRetorno = ResolverReturn(Retu.expr,ts,simfuncion.Entorno,Consola,exception)
     if valorRetorno == 'TRUE':
         valorRetorno = True
     elif valorRetorno == 'FALSE':
         valorRetorno = False
-
     #VERIFICAMOS SI EL VALOR DE RETORNO CON CUERDA CON EL RETURNS DE LA FUNCION
     correcto = verificarRetorno(valorRetorno,simfuncion.tipo)
     if correcto:

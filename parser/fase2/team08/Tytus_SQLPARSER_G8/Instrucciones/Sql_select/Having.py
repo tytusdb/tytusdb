@@ -9,6 +9,12 @@ class Having(Instruccion):
         super().ejecutar(tabla,arbol)
         print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
 
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+
+    def traducir(self, tabla, arbol):
+        return super().traducir(tabla, arbol)
+    
 '''
 instruccion = Having("hola mundo",None, 1,2)
 

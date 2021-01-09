@@ -2,6 +2,8 @@ import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Expresiones.Aritmetica import Aritmetica
+from Instrucciones.Expresiones.Primitivo import Primitivo
 
 class Power(Instruccion):
     def __init__(self, opIzq, opDer, strGram, linea, columna):
@@ -38,8 +40,24 @@ class Power(Instruccion):
             return error
 
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
+        super().traducir(tabla, arbol)
+        resultadoIzq=""
+        resultadoDer=""
+        if isinstance(self.opIzq, Primitivo):
+            resultadoIzq = self.opIzq.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.opIzq, Aritmetica):
+            resultadoIzq = self.opIzq.concatenar(tabla,arbol)
+        else:
+            resultadoIzq=self.opIzq.traducir(tabla,arbol)
         
-        return f"POWER({self.opIzq.traducir(tabla,arbol).temporalAnterior},{self.opDer.traducir(tabla,arbol).temporalAnterior})"
+        if isinstance(self.opDer, Primitivo):
+            resultadoDer = self.opDer.traducir(tabla,arbol).temporalAnterior
+        elif isinstance(self.opDer, Aritmetica):
+            resultadoDer = self.opDer.concatenar(tabla,arbol)
+        else:
+            resultadoDer= self.opDer.traducir(tabla,arbol)
+
+        return f"POWER({resultadoIzq},{resultadoDer})"

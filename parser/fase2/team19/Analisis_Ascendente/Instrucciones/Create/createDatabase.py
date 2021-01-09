@@ -30,7 +30,7 @@ class CreateReplace(Instruccion):
         lb = showDatabases()
         if createDataBase.id in lb:
             if createDataBase.exists:
-                print("no pasa nada")
+                #print("no pasa nada")
                 return
             elif createDataBase.caso == 2:
                 # se borra a nivel de memoria en disco
@@ -51,7 +51,7 @@ class CreateReplace(Instruccion):
             consola.append(f"Replace, la base de datos {createDataBase.id} se ha creado exitosamente\n")
         else:
             consola.append(f"Se creo la base de datos {createDataBase.id} exitosamente\n")
-        print(ts.simbolos)
+        #print(ts.simbolos)
 
     def getC3D(self, lista_optimizaciones_C3D):
 
@@ -71,20 +71,8 @@ class CreateReplace(Instruccion):
     top_stack = top_stack + 1
     %s = "%s"
     stack[top_stack] = %s
-    funcion_intermedia()
  
 ''' % (etiqueta, instruccion_quemada, etiqueta)
-
-        GeneradorTemporales.resetar_numero_temporal()
-
-        optimizacion1 = Reportes.ListaOptimizacion("algo", "prueba1", Reportes.TipoOptimizacion.REGLA1)
-        lista_optimizaciones_C3D.append(optimizacion1)
-
-        optimizacion2 = Reportes.ListaOptimizacion("otro", "prueba2", Reportes.TipoOptimizacion.REGLA6)
-        lista_optimizaciones_C3D.append(optimizacion1)
-
-        optimizacion3 = Reportes.ListaOptimizacion("uno mas", "prueba3", Reportes.TipoOptimizacion.REGLA18)
-        lista_optimizaciones_C3D.append(optimizacion1)
 
         return c3d
 
@@ -102,7 +90,7 @@ class ComplementoCR(Instruccion):
     def getC3D(self):
         instruccion_quemada = ''
         if self.idOwner is not None:
-            instruccion_quemada = 'owner = %s ' % self.idOwner
+            instruccion_quemada = "owner = '%s' " % self.idOwner
         if self.mode is not None:
             instruccion_quemada += 'mode = %s ' % self.mode
         return instruccion_quemada

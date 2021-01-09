@@ -32,10 +32,10 @@ class Cosd(Instruccion):
             return error
         
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-        
+        super().traducir(tabla, arbol)
         if isinstance(self.valor, Primitivo):
             return f"COSD({self.valor.traducir(tabla,arbol).temporalAnterior})"
         elif isinstance(self.valor, Aritmetica):

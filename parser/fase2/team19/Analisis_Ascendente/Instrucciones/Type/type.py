@@ -46,10 +46,7 @@ class CreateType(Instruccion):
     top_stack = top_stack + 1
     %s = "%s"
     stack[top_stack] = %s
-    funcion_intermedia()
 
         ''' % (etiqueta, instruccion_quemada, etiqueta)
-
-        GeneradorTemporales.resetar_numero_temporal()
 
         return c3d

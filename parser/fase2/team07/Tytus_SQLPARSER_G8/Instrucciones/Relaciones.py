@@ -2,8 +2,8 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 import numpy as np
 
 class Relaciones(Instruccion):
-    def __init__(self, query, opcion, query2,strGram ,linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, query, opcion, query2,strGram ,linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.query = query
         self.query2 = query2
         self.opcion = opcion

@@ -874,7 +874,7 @@ def p_arg_distict(t):
 def p_colum_list(t):
     '''colum_list   :   s_list
                     |   SIGNO_POR '''
-    if isinstance(t[0], GenerarBNF):
+    if isinstance(t[1], GenerarBNF):
         t[0] = GenerarBNF()
         t[0].produccion = '<COLUMN_LIST>'
         t[0].code += '\n' + '<COLUMN_LIST>' + ' ::= ' + t[1].produccion + ' ' + t[1].code
@@ -1937,7 +1937,7 @@ def p_asignacion_dos_signo(t):
     t[0].produccion = '<ASIGNACION>'
     t[0].code += '\n' + '<ASIGNACION>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + str(t[3]) + ' ' + str(t[4]) + ' ' + t[5].produccion + ' ' + str(t[6]) + ' ' + t[2].code + ' ' + t[5].code
 
-def p_asignacion_dos_signo(t):
+def p_asignacion_dos_signo_dos(t):
     '''asignacion : ID referencia_id DOSPUNTOS SIGNO_IGUAL PARABRE ins_select_parentesis PARCIERRE PUNTO_COMA'''
     t[0] = GenerarBNF()
     t[0].produccion = '<ASIGNACION>'
@@ -2387,10 +2387,10 @@ def p_argcol(t):
 #                         ELIMINACION PLSQL
 # ======================================================================
 def p_drop_pf(t):
-    ''' drop_pf : DROP drop_case opt_exist ID PARABRE arg_list_opt PARCIERRE PUNTO_COMA'''
+    ''' drop_pf : DROP drop_case opt_exist ID arg_list_opt PUNTO_COMA'''
     t[0] = GenerarBNF()
     t[0].produccion = '<DROP_PF>'
-    t[0].code += '\n' + '<DROP_PF>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' + str(t[5]) + ' ' + t[6].produccion + ' ' + str(t[7]) + ' ' + str(t[8])  + ' ' + t[2].code + ' ' + t[3].code + ' ' + t[6].code
+    t[0].code += '\n' + '<DROP_PF>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' ' + t[3].produccion + ' ' + str(t[4]) + ' ' +  t[5].produccion + ' ' + str(t[6]) + ' ' + t[2].code + ' ' + t[3].code + ' ' + t[5].code
 
 def p_drop_case(t):
     ''' drop_case : FUNCTION
@@ -2400,7 +2400,7 @@ def p_drop_case(t):
     t[0].code += '\n' + '<DROP_CASE>' + ' ::= ' + str(t[1])
 
 def p_opt_exist(t):
-    ''' opt_exist : IF EXIST
+    ''' opt_exist : IF EXISTS
                   |'''
     if len(t)== 3:
         t[0] = GenerarBNF()
@@ -2412,9 +2412,14 @@ def p_opt_exist(t):
         t[0].code += '\n' + '<DROP_CASE>' + ' ::= EPSILON'
 
 def p_arg_list_opt(t):
-    ''' arg_list_opt : arg_list 
-                     |'''
-    if len(t)== 2:
+    ''' arg_list_opt : PARABRE arg_list_opt PARCIERRE
+                    | arg_list 
+                    |'''
+    if len(t)== 4:
+        t[0] = GenerarBNF()
+        t[0].produccion = '<ARG_LIST_OPT>'
+        t[0].code += '\n' + '<ARG_LIST_OPT>' + ' ::= ' + str(t[1]) + ' ' + t[2].produccion + ' '  + str(t[3]) + ' ' +  t[2].code
+    elif len(t)== 2:
         t[0] = GenerarBNF()
         t[0].produccion = '<ARG_LIST_OPT>'
         t[0].code += '\n' + '<ARG_LIST_OPT>' + ' ::= ' + t[1].produccion + ' ' + t[1].code

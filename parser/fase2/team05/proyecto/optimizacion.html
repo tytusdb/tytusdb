@@ -24,33 +24,94 @@
                                 <th>Reglas</th>
                             </tr>
                   <tr>
-                        <td>Regla 1: <br>	T1 = a
-<br>	a = T1
-. Se optimiza por: 	T1 = a
+                        <td>Regla 3: 	if t35=="tbProducto": goto .L0
+<br>	goto .L1
+<br	label .L0
+<br> se optimiza por: <br> 	if t35!="tbProducto": 	goto .L1
+<br>	t36=True
 </td>
                     </tr>  <tr>
-                        <td>Regla 2: 	goto .L1
-	t50=False
-	label .L1
-. Se optimiza por: L1
+                        <td>Regla 3: 	if t36 == True: goto .L3
+<br>	goto .L4
+<br	label .L3
+<br> se optimiza por: <br> 	if t36 != True: 	goto .L4
+<br>	t12 = "SELECT COUNT(*) from tbProducto;"
 </td>
                     </tr>  <tr>
-                        <td>Regla 2: 	if t71>1: goto .L33
-	label .L33
-. Se optimiza por: L33
+                        <td>Regla 3: 	if t38==t39: goto .L5
+<br>	goto .L6
+<br	label .L5
+<br> se optimiza por: <br> 	if t38!=t39: 	goto .L6
+<br>	t40=True
 </td>
                     </tr>  <tr>
-                        <td>Regla 2: 	goto .L34
-	t72=True
-	goto .L35
-	label .L34
-. Se optimiza por: L34
+                        <td>Regla 3: 	if t40 == True: goto .L8
+<br>	goto .L9
+<br	label .L8
+<br> se optimiza por: <br> 	if t40 != True: 	goto .L9
+<br>	retorna=1
 </td>
                     </tr>  <tr>
-                        <td>Regla 2: 	goto .L37
-	VALOR=20
-	goto .L38
-	label .L37
-. Se optimiza por: L37
+                        <td>Regla 3: 	if t41=="tbProductoUp": goto .L11
+<br>	goto .L12
+<br	label .L11
+<br> se optimiza por: <br> 	if t41!="tbProductoUp": 	goto .L12
+<br>	t42=True
+</td>
+                    </tr>  <tr>
+                        <td>Regla 3: 	if t42 == True: goto .L14
+<br>	goto .L15
+<br	label .L14
+<br> se optimiza por: <br> 	if t42 != True: 	goto .L15
+<br>	t13 = "SELECT COUNT(*) from tbProducto where estado = 2;"
+</td>
+                    </tr>  <tr>
+                        <td>Regla 3: 	if t44==t45: goto .L16
+<br>	goto .L17
+<br	label .L16
+<br> se optimiza por: <br> 	if t44!=t45: 	goto .L17
+<br>	t46=True
+</td>
+                    </tr>  <tr>
+                        <td>Regla 3: 	if t46 == True: goto .L19
+<br>	goto .L20
+<br	label .L19
+<br> se optimiza por: <br> 	if t46 != True: 	goto .L20
+<br>	retorna=1
+</td>
+                    </tr>  <tr>
+                        <td>Regla 3: 	if t47=="tbbodega": goto .L22
+<br>	goto .L23
+<br	label .L22
+<br> se optimiza por: <br> 	if t47!="tbbodega": 	goto .L23
+<br>	t48=True
+</td>
+                    </tr>  <tr>
+                        <td>Regla 3: 	if t48 == True: goto .L25
+<br>	goto .L26
+<br	label .L25
+<br> se optimiza por: <br> 	if t48 != True: 	goto .L26
+<br>	t14 = "SELECT COUNT(*) from tbbodega;"
+</td>
+                    </tr>  <tr>
+                        <td>Regla 3: 	if t50==t51: goto .L27
+<br>	goto .L28
+<br	label .L27
+<br> se optimiza por: <br> 	if t50!=t51: 	goto .L28
+<br>	t52=True
+</td>
+                    </tr>  <tr>
+                        <td>Regla 3: 	if t52 == True: goto .L30
+<br>	goto .L31
+<br	label .L30
+<br> se optimiza por: <br> 	if t52 != True: 	goto .L31
+<br>	retorna=1
+</td>
+                    </tr>  <tr>
+                        <td>Regla 3: 	if t58 == True: goto .L36
+<br>	goto .L37
+<br	label .L36
+<br> se optimiza por: <br> 	if t58 != True: 	goto .L37
+<br>	VALOR=20
 </td>
                     </tr>
