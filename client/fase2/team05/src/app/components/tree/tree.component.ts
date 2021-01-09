@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { faSync } from '@fortawesome/free-solid-svg-icons';
-import { ServiceTreeService } from 'src/app/service/service-tree/service-tree.service'
+import { DatabaseService } from 'src/app/service/database/database.service';
 
 @Component({
   selector: 'app-tree',
@@ -15,7 +15,7 @@ export class TreeComponent implements OnInit {
   array_database_service: any[]
   array_tabas_service = []
 
-  constructor(private ServiceTreeService: ServiceTreeService) {
+  constructor(private databaseservice: DatabaseService) {
   }
 
   ngOnInit(): void {
@@ -38,7 +38,7 @@ export class TreeComponent implements OnInit {
 
   consumir_servicio() {
     var array_result: []
-    this.ServiceTreeService.getData_treedatabase().subscribe(
+    this.databaseservice.getData_treedatabase().subscribe(
       res => {
 
         this.data = (res)
