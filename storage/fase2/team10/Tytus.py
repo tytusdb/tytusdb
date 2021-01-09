@@ -4,6 +4,7 @@ import pickle
 import zlib
 import binascii
 import sys
+import hashlib 
 from cryptography.fernet import Fernet
 from BlockChain.BlockChain import BlockChain
 from grafos import grafos, node
@@ -146,6 +147,25 @@ def extractTable(database, table):
             if value != []:
                 return value
     return None
+
+def extractTable2(database, table):
+    chargePersistence()
+    alterDatabaseDecompress(database)
+    changueMode(databases)
+    for item in databases:      
+        if database == item["name"]:
+            tables = item["tables"]
+            return tables
+    return None    
+
+def extractDatabase(database):
+    chargePersistence()
+    alterDatabaseDecompress(database)
+    changueMode(databases)
+    for item in databases:    
+        if item["name"]==database:
+            return item["tables"]      
+    return None  
 
 def extractRangeTable(database, table, columnNumber, lower, upper):
     for item in structs:
@@ -296,43 +316,45 @@ def loadCSV(fileCSV, db, table):
 
 def update(database, table, register, columns):
     for item in structs:
-        value = item.update(database, table, register, columns)
+        codificacion = codificationValidation(getCodificationMode(database),register)
+        if codificacion == True:
+            value = item.update(database, table, register, columns)
         # START BlockChain
-        i = 0
-        while i<len(listBlockChain):
-            if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
-                j = 0
-                tuplesBlockChain = listBlockChain[i].getListValues()
-                tuples = extractTable("ventas", "producto")
-                while j < len(tuplesBlockChain):
-                    k = 0
-                    newValue = ""
-                    while k < len(tuples):
-                        if tuples[k] not in tuplesBlockChain:
-                            newValue = tuples[k]
-                        k += 1
-                    if tuplesBlockChain[j] not in tuples:#.getValue()
-                        listBlockChain[i].alterValueNode(newValue, j)
-                        listBlockChain[i].generateJsonSafeMode()
-                    j += 1
-                break    
-            i += 1
+            i = 0
+            while i<len(listBlockChain):
+                if listBlockChain[i].getName() == (str(database)+"_"+str(table)):
+                    j = 0
+                    tuplesBlockChain = listBlockChain[i].getListValues()
+                    tuples = extractTable("ventas", "producto")
+                    while j < len(tuplesBlockChain):
+                        k = 0
+                        newValue = ""
+                        while k < len(tuples):
+                            if tuples[k] not in tuplesBlockChain:
+                                newValue = tuples[k]
+                            k += 1
+                        if tuplesBlockChain[j] not in tuples:#.getValue()
+                            listBlockChain[i].alterValueNode(newValue, j)
+                            listBlockChain[i].generateJsonSafeMode()
+                        j += 1
+                    break    
+                i += 1
         # END BlockChain
-        if value != 2:
-            if value != 0:
-                return value
-            for i in databases:
-                if database == i["name"]:
-                    for t in i["tables"]:
-                        if table == t["name"]:
-                            for tup in t["tuples"]:
-                                if tup["register"][0] == columns[0]:
-                                    index = 0
-                                    for key in register:
-                                        index = key
-                                    tup["register"][index] = register[index]
-                        persistence(databases)
-                        return value
+            if value != 2:
+                if value != 0:
+                    return value
+                for i in databases:
+                    if database == i["name"]:
+                        for t in i["tables"]:
+                            if table == t["name"]:
+                                for tup in t["tuples"]:
+                                    if tup["register"][0] == columns[0]:
+                                        index = 0
+                                        for key in register:
+                                            index = key
+                                        tup["register"][index] = register[index]
+                            persistence(databases)
+                            return value
     return 2
 
 def delete(database, table, columns):
@@ -678,6 +700,55 @@ def getCodificationMode(database):
             elif i["code"] == "UTF8":
                 return "UTF8"       
     return 2
+
+# 5. GENERACION DEL CHECKSUM
+def checksumDatabase(database,mode):
+    try:
+        file = open("C:/Users/Usuario/Desktop/Fase2-main/Check1.txt", "wb") ##cambiar ruta si es en otra pc
+        file.write(str(extractDatabase(database)).encode("utf-8"))
+        file.close()
+        if mode == "MD5": 
+            md5_hash = hashlib.md5()
+            with open("Check1.txt", "rb") as f:
+                for byte_block in iter(lambda: f.read(4096),b""):
+                    md5_hash.update(byte_block)
+                digest = md5_hash.hexdigest()
+                return digest
+        elif mode == "SHA256":
+            sha256_hash = hashlib.sha256()
+            with open("Check1.txt","rb") as f:
+                for byte_block in iter(lambda: f.read(4096),b""):
+                    sha256_hash.update(byte_block)
+                digest=sha256_hash.hexdigest()
+                return digest
+        else:
+            return None
+    except:
+        return None
+    
+def checksumTable(database,table,mode):
+    try:
+        file = open("C:/Users/Usuario/Desktop/Fase2-main/Check2.txt", "wb") ##cambiar ruta si es en otra pc
+        file.write(str(extractTable2(database, table)).encode("utf-8"))
+        file.close()
+        if mode == "MD5": 
+            md5_hash = hashlib.md5()
+            with open("Check2.txt", "rb") as f:
+                for byte_block in iter(lambda: f.read(4096),b""):
+                    md5_hash.update(byte_block)
+                digest = md5_hash.hexdigest()
+                return digest
+        elif mode == "SHA256":
+            sha256_hash = hashlib.sha256()
+            with open("Check2.txt","rb") as f:
+                for byte_block in iter(lambda: f.read(4096),b""):
+                    sha256_hash.update(byte_block)
+                digest=sha256_hash.hexdigest()
+                return digest
+        else:
+            return None
+    except:
+        return None
 
 # 6. COMPRESION DE DATOS
 def alterDatabaseCompress(database, level):

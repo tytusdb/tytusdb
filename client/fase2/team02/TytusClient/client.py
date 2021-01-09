@@ -68,11 +68,17 @@ class Example(Frame):
         self.master.herramientasMenu = Menu(menubar, tearoff=0)
         self.master.herramientasMenu.add_command(label="Query Tool", command=self.addQueryTool)
         self.master.herramientasMenu.add_command(label="run", command=self.run)
+        self.master.databaseMenu = Menu(menubar, tearoff=0)
+        self.master.databaseMenu.add_command(label="Crear BD", command = self.crearBD)
+        self.master.databaseMenu.add_command(label="Mostrar BD's", command = self.showBDS)
+        self.master.databaseMenu.add_command(label="Mostrar Tabla", command = self.showTable)
+        self.master.databaseMenu.add_command(label="Eliminar Tabla", command = self.dropTable)
         menubar.add_cascade(label="Archivo", menu=self.master.filemenu)
         menubar.add_cascade(label="Servidor", menu=self.master.servermenu)
+        menubar.add_cascade(label="Query", menu=self.master.databaseMenu)
         menubar.add_cascade(label="Herramientas", menu=self.master.herramientasMenu)
         menubar.add_cascade(label="Ayuda", menu=self.master.helpmenu)
-        self.master.config(menu=menubar);
+        self.master.config(menu=menubar)
         # *********************************************************************
         
         # ******************************* ÁRBOL *******************************
@@ -125,12 +131,109 @@ class Example(Frame):
 
         #self.lbl.configure(text="Cambia")
 
+
+    #CONSULTAS RAPIDAS
+    def crearBD(self):
+        bd = simpledialog.askstring(title="TytusDB", prompt="Nombre de base de datos:")
+        owner = simpledialog.askstring(title="TytusDB", prompt="Propietario:")
+        mode = simpledialog.askstring(title="TytusDB", prompt="Modo:")
+        query = "CREATE DATABASE IF NOT EXISTS " + bd + " OWNER = " + owner + " MODE " + mode + " ; USE " + bd + " ;"
+        print(query)
+        url = "http://localhost:10000/query"
+        data = {'query' : query}
+        response = requests.post(url, json = data)
+        if response.status_code == 200:
+            response_json = response.json()
+            print(response_json['msj'])
+            self.areaConsole.insert(tk.INSERT,response_json['msj'])
+            return True
+        else:
+            messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")        
+            return False
+        cadena = active_object.area.get("sel.first", "sel.last")
+        messagebox.showinfo("Tytus", active_object.area.get("sel.first", "sel.last"))
+        nueva = str(cadena).upper()
+        print(nueva)
+    
+    def dropTable(self):
+        tabla = simpledialog.askstring(title="TytusDB", prompt="Nombre de tabla:")
+        query = "DROP TABLE " + tabla + " ;"
+        print(query)
+        url = "http://localhost:10000/query"
+        data = {'query' : query}
+        response = requests.post(url, json = data)
+        if response.status_code == 200:
+            response_json = response.json()
+            print(response_json['msj'])
+            self.areaConsole.insert(tk.INSERT,response_json['msj'])
+            return True
+        else:
+            messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")        
+            return False
+        cadena = active_object.area.get("sel.first", "sel.last")
+        messagebox.showinfo("Tytus", active_object.area.get("sel.first", "sel.last"))
+        nueva = str(cadena).upper()
+        print(nueva)
+    
+    def showTable(self):
+        tabla = simpledialog.askstring(title="TytusDB", prompt="Nombre de tabla:")
+        query = "SELECT * FROM " + tabla + " ;"
+        print(query)
+        url = "http://localhost:10000/query"
+        data = {'query' : query}
+        response = requests.post(url, json = data)
+        if response.status_code == 200:
+            response_json = response.json()
+            print(response_json['msj'])
+            self.areaConsole.insert(tk.INSERT,response_json['msj'])
+            return True
+        else:
+            messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")        
+            return False
+        cadena = active_object.area.get("sel.first", "sel.last")
+        messagebox.showinfo("Tytus", active_object.area.get("sel.first", "sel.last"))
+        nueva = str(cadena).upper()
+        print(nueva)
+
+    def showBDS(self):
+        query = "SHOW DATABASES ;"
+        print(query)
+        url = "http://localhost:10000/query"
+        data = {'query' : query}
+        response = requests.post(url, json = data)
+        if response.status_code == 200:
+            response_json = response.json()
+            print(response_json['msj'])
+            self.areaConsole.insert(tk.INSERT,response_json['msj'])
+            return True
+        else:
+            messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")        
+            return False
+        cadena = active_object.area.get("sel.first", "sel.last")
+        messagebox.showinfo("Tytus", active_object.area.get("sel.first", "sel.last"))
+        nueva = str(cadena).upper()
+        print(nueva)
+
 # METODO PARA ENVIAR QUERYS AL SERVIDOR
     def run(self):
         self.areaConsole.config(state='normal')
         self.areaConsole.delete(1.0, "end")
         active_object = self.nb.nametowidget(self.nb.select())
-        try: 
+        try:
+            query = str(active_object.area.get("sel.first", "sel.last"))
+            if len(query) != 0:
+                url = "http://localhost:10000/query"
+                data = {'query' : query}
+                response = requests.post(url, json = data)
+                if response.status_code == 200:
+                    response_json = response.json()
+                    print(response_json['msj'])
+                    self.areaConsole.insert(tk.INSERT,response_json['msj'])
+                    return True
+                else:
+                    messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
+                    
+                    return False
             cadena = active_object.area.get("sel.first", "sel.last")
             messagebox.showinfo("Tytus", active_object.area.get("sel.first", "sel.last"))
             nueva = str(cadena).upper()
@@ -148,7 +251,7 @@ class Example(Frame):
                     return True
                 else:
                     messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
-                    root.destroy()
+
                     return False 
             cadena2 = messagebox.showinfo("TytusDB", "Escriba un query para procesarlo.")
             nuevaV = str(cadena2).upper()

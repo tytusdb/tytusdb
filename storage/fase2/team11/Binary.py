@@ -2,7 +2,7 @@ import pickle
 import os.path as path
 import re
 import os
-
+from PIL import Image
 
 def commit(obj, file_name):  # Escribe los archivos
 
@@ -49,3 +49,18 @@ def verify_columns(nums_columns, columns):
     else:
         #print("entro al verify")
         return 1
+    
+    
+def generate_grapviz(cadena, path_file, ):
+    if path.exists("./resource/"):
+        file = open("./resource/" + path_file + ".dot", "w", encoding="utf-8")
+        file.write(str(cadena))
+        file.close()
+        from graphviz import render
+        render('dot', 'png', f'./resource/{path_file}.dot')
+        f'./resource/{path_file}.dot.png'
+        #f = Image.open(f'./resource/{path_file}.dot.svg')
+        #f.show()d
+    else:
+        os.makedirs('./resource/')
+        return generate_grapviz(cadena, path_file)

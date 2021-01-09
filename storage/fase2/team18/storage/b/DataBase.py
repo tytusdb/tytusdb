@@ -316,7 +316,7 @@ class DB():
     def loadCSV(self, file, database, table, tipado):
         try:
             tmp = list()
-            with open(file, 'r') as file:
+            with open(file, 'r', encoding='utf-8-sig') as file:
                 reader = csv.reader(file, delimiter = ',')
                 j = 0
                 for row in reader:

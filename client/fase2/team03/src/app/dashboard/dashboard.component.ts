@@ -109,10 +109,8 @@ export class DashboardComponent implements OnInit {
     this.publicar.codigo=this.mensaje;
     this.TempApi.postquery(this.publicar).subscribe(
       res=>{
-        alert("dio");
         this.listacategorias = res;
         this.mensaje2=this.listacategorias.codigo
-      
       }
     );
     //alert(this.mensaje);

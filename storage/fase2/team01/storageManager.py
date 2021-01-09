@@ -581,39 +581,63 @@ def alterDatabaseEncoding(database: str, encoding: str) -> int:
 
 #funciones de checksum
 x = datetime.datetime.now()
+
+#Genera un diggest a partir  del contenido de la base de datos incluyendo sus tablas
 def checksumDatabase(database:str, mode:str) -> str:
-    stringDatabase =""
-    for bases in showTables(database):       
-        stringDatabase += bases
-        for tables in extractTable(database,bases):            
-            for regitros in tables:              
-                stringDatabase += str(regitros)
-    stringDatabase += str(x)    
-    if mode == "MD5":        
-        h=hashlib.md5(stringDatabase.encode('utf-8'))   
-        return h.hexdigest()
-    elif mode == "SHA256":        
-        h=hashlib.sha256(stringDatabase.encode('utf-8'))   
-        return h.hexdigest()
+    try:
+        d = database.lower()
+        mode = mode.upper()
+        stringDatabase =""
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            for tabla in lista_tablas:
+                if tabla.bd == d:
+                    stringDatabase += tabla.nombre
+                    registros = elegirModo(tabla.modo).extractTable(d, tabla.nombre)
+                    if registros:
+                        for reg in registros:
+                            for item in reg:
+                                stringDatabase += str(item)
+            if mode == "MD5": 
+                h=hashlib.md5(stringDatabase.encode('utf-8'))
+                return h.hexdigest()
+            elif mode == "SHA256":
+                h=hashlib.sha256(stringDatabase.encode('utf-8'))
+                return h.hexdigest()
+        else:
+            return None #Base de Datos no existe
+    except:
+        return None #Error en la operación
+
+#Genera un diggest a partir del contenido de la tabla de una base de datos
 def checksumTable(database:str, table:str, mode:str) -> str:
-    stringTable=""
-    for tables in extractTable(database,table):            
-            for regitros in tables:              
-                stringTable += str(regitros)
-    stringTable += str(x)
-    if mode == "MD5":        
-        h=hashlib.md5(stringTable.encode('utf-8'))   
-        return h.hexdigest()
-    elif mode == "SHA256":        
-        h=hashlib.sha256(stringTable.encode('utf-8'))   
-        return h.hexdigest()
-#funciones para encriptar y descriptar 
-def generar_clave():
-    clave = Fernet.generate_key()
-    with open("clave.key","wb") as archivo_clave:
-            archivo_clave.write(clave)
-def cargar_clave():
-    return open("clave.key","rb").read()
+    try:
+        d = database.lower()
+        t = table.lower()
+        mode = mode.upper()
+        stringTable=""
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                stringTable += itemTBL.nombre
+                registros = elegirModo(itemTBL.modo).extractTable(d, t)
+                if registros:
+                    for reg in registros:
+                        for item in reg:
+                            stringTable += str(item)
+                if mode == "MD5":        
+                    h=hashlib.md5(stringTable.encode('utf-8'))   
+                    return h.hexdigest()
+                elif mode == "SHA256":        
+                    h=hashlib.sha256(stringTable.encode('utf-8'))   
+                    return h.hexdigest()
+            else:
+                return None #Tabla no existe en la Base de Datos
+        else:
+            return None #Base de Datos no existe
+    except:
+        return None #Error en la operación
 
 def encrypt(backup: str, password: str) -> str:
     clave = password

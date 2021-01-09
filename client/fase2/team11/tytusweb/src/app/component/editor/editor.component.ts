@@ -64,7 +64,18 @@ export class EditorComponent implements OnInit {
         for (const iterator of res.response.postgres) {
           this.errores += iterator + "\n\n"
         }
-        console.log(this.errores)
+
+        //@ts-ignore
+        for (const iterator of res.response.lexical) {
+          this.errores += iterator + "\n\n"
+        }
+
+        //@ts-ignore
+        for (const iterator of res.response.semantic) {
+          this.errores += iterator + "\n\n"
+        }
+
+        //console.log(this.errores)
       },
       err => console.error(err)
     );
@@ -94,7 +105,16 @@ export class EditorComponent implements OnInit {
         for (const iterator of res.response.postgres) {
           this.errores += iterator + "\n\n"
         }
-        console.log(this.errores)
+
+        //@ts-ignore
+        for (const iterator of res.response.lexical) {
+          this.errores += iterator + "\n\n"
+        }
+
+        //@ts-ignore
+        for (const iterator of res.response.semantic) {
+          this.errores += iterator + "\n\n"
+        }
       },
       err => console.error(err)
     );
