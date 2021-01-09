@@ -1300,6 +1300,360 @@ def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
 
 
 
+##################
+# COMPRESS CRUD  #
+##################
+
+# auxiliar para la eliminacion de una tabla solo en la estructura
+def __dropTableaux(database: str, table: str) -> int:
+    try:
+        if not database.isidentifier() \
+        or not table.isidentifier():
+            raise Exception()
+
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return 2
+        
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return 3
+
+        # Fase2
+        mode = tabla["mode"]
+
+        res = 1
+        if mode == "avl":
+            res = avl.dropTable(database, table)
+        elif mode == "b":
+            res = b.dropTable(database, table)
+        elif mode == "bplus":
+            res = bplus.dropTable(database, table)
+        elif mode == "hash":
+            res = ha.dropTable(database, table)
+        elif mode == "isam":
+            res = isam.dropTable(database, table)
+        elif mode == "json":
+            res = j.dropTable(database, table)
+        elif mode == "dict":
+            res = d.dropTable(database, table)
+        return res
+    except:
+        return 1
+
+# funcion auxiliar para crear una tabla en una estructura
+def __createTableaux(database, table, numberColumns, mode):
+    estado = 1
+    if mode == "avl":
+        estado = avl.createTable(database, table, numberColumns)
+    elif mode == "b":
+        estado = b.createTable(database, table, numberColumns)
+    elif mode == "bplus":
+        estado = bplus.createTable(database, table, numberColumns)
+    elif mode == "hash":
+        estado = ha.createTable(database, table, numberColumns)
+    elif mode == "isam":
+        estado = isam.createTable(database, table, numberColumns)
+    elif mode == "json":
+        estado = j.createTable(database, table, numberColumns)
+    elif mode == "dict":
+        estado = d.createTable(database, table, numberColumns)
+        
+def alterDatabaseCompress(database: str, level: int) -> int:
+    try:
+        # se comprueba  que "level" == 0-9
+        if level  in range(10):
+            # llama la base de datos
+            db =  __getDatabase(database) 
+            if db:
+                # se extrae el listado de tablas
+                l_tablas= showTables(database)
+                if l_tablas:
+                    # se almacena en una lista el nombre de la tabla, las columnas de las llaves primarias y sus registros:
+                    data = []
+                    for tb in db.get("tables"):
+                        # se comprueba que el metadato de la tabla sea False (False == no compreso)
+                        if tb.get("Bandera") is False:
+                            data.append([tb.get("nameTb"),tb.get("pk"),extractTable(database,tb.get("nameTb")),tb.get("mode"),tb.get("columns")])
+                        else:
+                            data = []
+                            return 1
+                    # se comprueba que la data no este vacia 
+                    if data:
+                        # se recorre cada  arrgelo de la data [nombreTabla, llave foranea,[data],mode,columns]
+                        ntable =""
+                        mode = ""
+                        columns = 0
+                        for nreg in data:
+                            new_data =[] # almacena el nuevo regigstro con datos compresos
+                            ntable=nreg[0]   #nombre de la tabla 
+                            pk = nreg[1]        # llaves foranas
+                            mode = nreg[3]
+                            columns = nreg[4]
+                            # se comprime cada columna de los registros en la lista new_data:
+                            contador = 0
+                            for old_data in nreg[2]:
+                                # se comprueba si es una llave primaria, no se comprime
+                                if contador in pk:
+                                    new_data.append(old_data)
+                                # se comprueba que el registro sea texto
+                                elif type(old_data) == str:
+                                    compress = zlib.compress(old_data,level).encode("utf-8")
+                                    new_data.append(compress)
+                                else:
+                                    new_data.append(old_data)
+                                contador +=1
+
+                            truncate(database,ntable)
+                            # se elimina la tabla anterior
+                            #__dropTableaux(database,ntable)
+                            # se crea la tabla 
+                            #__createTableaux(database,ntable,columns,mode )
+                            # se inserta los nuevos registros 
+                            insert(database,ntable,new_data)
+                            # se cambia la bandera de compresion a TRUE
+                            for tb in db.get("tables"):
+                                if tb.get("nameTb")== ntable:
+                                    tb["Bandera"]= True   # INCLUIR LA BANDERA DENTRO DE LOS ATRIBUTOS DEL DICCIONARIO
+                                    #print("imprimiendo los registros compresos")
+                                    #print(extractTable(database,ntable))
+                                                                          
+                        # se retorna 0
+                        return 0
+                    else:
+                        return 1
+                else:
+                    return 1
+            else:
+                return 2
+        else:
+            return 3
+    except:
+        return 1
+
+def alterDatabaseDecompress(database: str) -> int:
+    try:
+        # llama la base de datos
+        db =  __getDatabase(database) 
+        if db:
+            # se extrae el listado de tablas
+            l_tablas= showTables(database)
+            if l_tablas:
+                # se almacena en una lista el nombre de la tabla, las columnas de las llaves primarias y sus registros:
+                data = []
+                no_compress=0
+                compres =0
+                for tb in  db.get("tables"):
+                    compres +=1
+                    # se comprueba que el metadato de la tabla sea Verdadero (TRUE == compreso)
+                    if tb.get("Bandera"):
+                        data.append([tb.get("nameTb"),tb.get("pk"),extractTable(database,tb.get("nameTb")),tb.get("mode"),tb.get("columns")])
+                        
+                    else:
+                        no_compress +=1
+                        
+                # se comprueba que todas las tablas esten compresas:
+                if compres !=no_compress:
+                    data = []
+                    return 1
+                # se comprueba que la data no este vacia 
+                if data:
+                    # se recorre cada  arrgelo de la data [nombreTabla, llave foranea,[data],mode,columns]
+                    ntable =""
+                    mode = ""
+                    columns = 0
+                    for nreg in data:
+                        new_data =[] # almacena el nuevo regigstro con datos compresos
+                        ntable=nreg[0]   #nombre de la tabla 
+                        pk = nreg[1]        # llaves foranas
+                        mode = nreg[3]
+                        columns = nreg[4]
+                        # se comprime cada columna de los registros en la lista new_data:
+                        contador = 0
+                        for old_data in nreg[2]:
+                            # se comprueba si es una llave primaria, no se comprime
+                            if contador in pk:
+                                new_data.append(old_data)
+                            # se comprueba que el registro sea texto
+                            elif type(old_data) == bytes:
+                                decompress = zlib.decompress(old_data).decode("utf-8")
+                                new_data.append(decompress)
+                            else:
+                                new_data.append(old_data)
+                            contador +=1
+                        
+                        truncate(database,ntable)
+                        # se elimina la tabla anterior
+                        #__dropTableaux(database,ntable)
+                        # se crea la tabla 
+                        #__createTableaux(database,ntable,columns,mode )
+                        # se inserta los nuevos registros 
+                        insert(database,ntable,new_data)
+                        # se cambia la bandera de compresion a TRUE
+                        for tb in db.get("tables"):
+                            if tb.get("nameTb")== ntable:
+                                tb["Bandera"]= False                # INCLUIR LA BANDERA DENTRO DE LOS ATRIBUTOS DEL DICCIONARIO 
+                                #print("imprimiendo los registros compresos")
+                                #print(extractTable(database,ntable))                                            
+                    # se retorna 0
+                    return 0
+                else:
+                    return 3
+            else:
+                return 1
+        else:
+            return 2
+    except:
+        return 1
+
+def alterTableCompress(database: str, table: str, level: int) -> int:
+    try:
+        # se comprueba  que "level" == 0-9
+        if level  in range(10):
+            # llama la base de datos
+            db =  __getDatabase(database) 
+            if db:
+                # se extrae el listado de tablas
+                l_tablas= showTables(database)
+                if l_tablas:
+                    # se almacena en una lista el nombre de la tabla, las columnas de las llaves primarias y sus registros:
+                    data = []
+                    for tb in db.get("tables"):
+                        # se busca la tabla 
+                        if tb.get("nameTb")== table:
+                            # se comprueba que el metadato de la tabla sea False (False == no compreso)
+                            if tb.get("Bandera") is False:
+                                data.append([tb.get("nameTb"),tb.get("pk"),extractTable(database,tb.get("nameTb")),tb.get("mode"),tb.get("columns")])
+                                break
+                            else:
+                                data = []
+                                return 1
+                        
+                    # se comprueba que la data no este vacia 
+                    if data:
+                        # se recorre cada  arrgelo de la data [nombreTabla, llave foranea,[data],mode,columns]
+                        ntable =""
+                        mode = ""
+                        columns = 0
+                       
+                        for nreg in data:
+                            new_data =[] # almacena el nuevo regigstro con datos compresos
+                            ntable=nreg[0]   #nombre de la tabla 
+                            pk = nreg[1]        # llaves foranas
+                            mode = nreg[3]
+                            columns = nreg[4]
+                            # se comprime cada columna de los registros en la lista new_data:
+                            contador = 0
+                            for old_data in nreg[2]:
+                                # se comprueba si es una llave primaria, no se comprime
+                                if contador in pk:
+                                    new_data.append(old_data)
+                                # se comprueba que el registro sea texto
+                                elif type(old_data) == str:
+                                    compress = zlib.compress(old_data,level).encode("utf-8")
+                                    new_data.append(compress)
+                                else:
+                                    new_data.append(old_data)
+                                contador +=1
+                            truncate(database,ntable)
+                            # se elimina la tabla anterior
+                            #__dropTableaux(database,ntable)
+                            # se crea la tabla 
+                            #__createTableaux(database,ntable,columns,mode )
+                            # se inserta los nuevos registros 
+                            insert(database,ntable,new_data)
+                            # se cambia la bandera de compresion a TRUE
+                            for tb in db.get("tables"):
+                                if tb.get("nameTb")== ntable:
+                                    tb["Bandera"]= True   # INCLUIR LA BANDERA DENTRO DE LOS ATRIBUTOS DEL DICCIONARIO
+                                    #print("imprimiendo los registros compresos")
+                                    #print(extractTable(database,ntable))
+                                                                          
+                        # se retorna 0
+                        return 0
+                    else:
+                        return 3
+                else:
+                    return 1
+            else:
+                return 2
+        else:
+            return 4
+    except:
+        return 1
+
+def alterTableDecompress(database: str, table: str) -> int:
+    try:
+        # llama la base de datos
+        db =  __getDatabase(database) 
+        if db:
+            # se extrae el listado de tablas
+            l_tablas= showTables(database)
+            if l_tablas:
+                # se almacena en una lista el nombre de la tabla, las columnas de las llaves primarias y sus registros:
+                data = []
+                for tb in db.get("tables"):
+                        # se busca la tabla 
+                        if tb.get("nameTb")== table:
+                            # se comprueba que el metadato de la tabla sea True (True ==  compreso)
+                            if tb.get("Bandera"):
+                                data.append([tb.get("nameTb"),tb.get("pk"),extractTable(database,tb.get("nameTb")),tb.get("mode"),tb.get("columns")])
+                                break
+                            else:
+                                return 4
+               
+                # se comprueba que la data no este vacia 
+                if data:
+                    # se recorre cada  arrgelo de la data [nombreTabla, llave foranea,[data],mode,columns]
+                    ntable =""
+                    mode = ""
+                    columns = 0
+                    
+                    
+                    for nreg in data:
+                        new_data =[] # almacena el nuevo regigstro con datos compresos
+                        ntable=nreg[0]   #nombre de la tabla 
+                        pk = nreg[1]        # llaves foranas
+                        mode = nreg[3]
+                        columns = nreg[4]
+                        # se comprime cada columna de los registros en la lista new_data:
+                        contador = 0
+                        for old_data in nreg[2]:
+                            # se comprueba si es una llave primaria, no se comprime
+                            if contador in pk:
+                                new_data.append(old_data)
+                            # se comprueba que el registro sea texto
+                            elif type(old_data) == bytes:
+                                decompress = zlib.decompress(old_data).decode("utf-8")
+                                new_data.append(decompress)
+                            else:
+                                new_data.append(old_data)
+                            contador +=1
+                        truncate(database,ntable)
+                        # se elimina la tabla anterior
+                        #__dropTableaux(database,ntable)
+                        # se crea la tabla 
+                        #__createTableaux(database,ntable,columns,mode )
+                        # se inserta los nuevos registros 
+                        insert(database,ntable,new_data)
+                        # se cambia la bandera de compresion a TRUE
+                        for tb in db.get("tables"):
+                            if tb.get("nameTb")== ntable:
+                                tb["Bandera"]= False                # INCLUIR LA BANDERA DENTRO DE LOS ATRIBUTOS DEL DICCIONARIO 
+                                #print("imprimiendo los registros compresos")
+                                #print(extractTable(database,ntable))                                            
+                    # se retorna 0
+                    return 0
+                else:
+                    return 3
+            else:
+                return 1
+        else:
+            return 2
+    except:
+        return 1
+
+
 
 
 
