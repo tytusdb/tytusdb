@@ -917,3 +917,32 @@ def alterTableDecompress(database: str, table: str) -> int:
             return 2  # Database no existe
     else:
         return 4  # Sin compresion
+
+def alterTableCompress(database: str, table: str, level: int) -> int:
+    if (-1 <= level or level > 9):
+        if (comprimidoTabla(database, table)):
+            return 5  # tabla ya comprimida
+        else:
+            if (buscarbase(database)):
+                if (buscartabla(database, table)):
+                    try:
+                        for d in list_table:
+                            if d.base == database and d.tabla == table:
+                                arregloTupla = d.codificado
+                                d.codificado = []
+                                for i in arregloTupla:
+                                    if isinstance(i, str):
+                                        NuevoValor = zlib.compress(i, level)
+                                        d.codificado.append(NuevoValor)
+                                d.compreso = True
+                        Actualizar(list_table, "tablasG")
+                        return 0  # operación exitosa
+                    except:
+                        print("Error en la compresion de la tabla")
+                        return 1  # Error en la operación
+                else:
+                    return 3  # Table no existe
+            else:
+                return 2  # Database no existe
+    else:
+        return 4  # level incorrecto
