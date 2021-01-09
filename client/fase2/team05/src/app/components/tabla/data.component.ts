@@ -12,8 +12,9 @@ import { Subscription } from 'rxjs';
 
 export class DataComponent implements OnInit, OnDestroy {
 
-  message: string;
+  message: any;
   subscription: Subscription;
+
 
   constructor(private servicio: TableDataService, private data: ShareService) { }
 
@@ -22,31 +23,30 @@ export class DataComponent implements OnInit, OnDestroy {
 
   headers: string[]; // = ['ID', 'Name', 'Age', 'Gender', 'Country']
   rows: string[]; // = [[**,**],[**,**]]
+  anuncio: any;
 
   //
   // const Squery = {query: 'SHOW DATABASES;'};
 
   ngOnInit(): void {
     this.subscription = this.data.currentMessage.subscribe(message => this.message = message);
-
-    // console.log(JSON.parse(this.message).result);
-    // if (obj.result.querys != null){
-    const arreglo = JSON.parse(this.message).result.querys;
-    this.headers = arreglo[0][0];
-    this.rows = arreglo[0][1];
-    // }
-
-    // if ($.isArray(siteArray)) {
-    //   if (siteArray.length) {
-    //
-    //   }
-    // }
-
   }
 
   // tslint:disable-next-line:typedef
   ngOnDestroy() {
     this.subscription.unsubscribe();
+  }
+
+  // tslint:disable-next-line:typedef
+  refresh(){
+
+    this.anuncio = this.message.result.messages[0];
+
+    const arreglo = this.message.result.querys;
+    this.headers = arreglo[0][0];
+    this.rows = arreglo[0][1];
+
+
   }
 
 }
