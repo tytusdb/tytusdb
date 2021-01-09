@@ -729,7 +729,7 @@ def insertAgain(database, mode, newMode):
     if tables:
         for name_table in tables:
             if name_table != 'FK' and name_table != 'UNIQUE' and name_table != 'INDEX':
-                register = old_mode.extractTable(database, name_table)  # [['A', '1'], ['B', '2'],  ['C', '3']]
+                register = old_mode.extractTable(database, name_table)  
                 number_columns = dict_tables.get(name_table)[0]
                 new_mode.createTable(database, name_table, number_columns)
 
@@ -755,6 +755,12 @@ def insertAgain(database, mode, newMode):
                             if 'FK' not in new_mode_tables:
                                 new_mode.createTable(database, 'FK', 6)
                                 new_mode.alterAddPK(database, 'FK', [1])
+                            new_tuple = []
+                            for i in dictFK[key]:
+                                if isinstance(i, str):
+                                    new_tuple.append(i.encode(dictionary[database][1]))
+                                else:
+                                    new_tuple.append(i)
                             new_mode.insert(database, 'FK', dictFK[key])
 
             elif name_table == 'UNIQUE':
@@ -767,7 +773,13 @@ def insertAgain(database, mode, newMode):
                             if 'UNIQUE' not in new_mode_tables:
                                 new_mode.createTable(database, 'UNIQUE', 4)
                                 new_mode.alterAddPK(database, 'UNIQUE', [2])
-                            new_mode.insert(database, 'UNIQUE', dictUNIQUE[key])
+                            new_tuple = []
+                            for i in dictUNIQUE[key]:
+                                if isinstance(i, str):
+                                    new_tuple.append(i.encode(dictionary[database][1]))
+                                else:
+                                    new_tuple.append(i)
+                            new_mode.insert(database, 'UNIQUE', new_tuple)
 
             elif name_table == 'INDEX':
                 # ADDING INDEX
@@ -779,7 +791,13 @@ def insertAgain(database, mode, newMode):
                             if 'INDEX' not in new_mode_tables:
                                 new_mode.createTable(database, 'INDEX', 4)
                                 new_mode.alterAddPK(database, 'INDEX', [2])
-                            new_mode.insert(database, 'INDEX', dictINDEX[key])
+                            new_tuple = []
+                            for i in dictINDEX[key]:
+                                if isinstance(i, str):
+                                    new_tuple.append(i.encode(dictionary[database][1]))
+                                else:
+                                    new_tuple.append(i)
+                            new_mode.insert(database, 'INDEX', new_tuple)
 
         old_mode.dropDatabase(database)   
         
@@ -905,13 +923,37 @@ def dropDatabase(database):
     try:
         nombreBase = str(database)
         dictionary = load('metadata')
+        FK = load('FK')
+        UNIQUE = load('UNIQUE')
+        INDEX = load('INDEX')
+        
         value_base = dictionary.get(nombreBase)
         if value_base:
             mode = dictionary.get(nombreBase)[0]
             j = checkMode(mode)
             j.dropDatabase(nombreBase)
             dictionary.pop(nombreBase)
+
+            if FK != 1:
+                for key in FK:
+                    if FK[key][0] == database:
+                        FK.pop(FK[key][1])
+
+            if INDEX != 1:
+                for key in INDEX:
+                    if INDEX[key][0] == database:
+                        INDEX.pop(INDEX[key][2])
+
+            if UNIQUE != 1:
+                for key in UNIQUE:
+                    if UNIQUE[key][0] == database:
+                        UNIQUE.pop(UNIQUE[key][2])
+
             save(dictionary, 'metadata')
+            save(FK, 'FK')
+            save(INDEX, 'INDEX')
+            save(UNIQUE, 'UNIQUE')
+            return 0
         return 2
     except:
         return 1
@@ -1042,6 +1084,10 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
 
 def alterAddPK(database, table, columns):
     try:
+        if os.path.isfile(os.getcwd() + '\\Data\\PK.bin'):
+            PK = load('PK')
+        else:
+            PK = {}
         dictionary = load('metadata')
 
         if dictionary.get(database) is None:
@@ -1050,6 +1096,8 @@ def alterAddPK(database, table, columns):
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         value_return = j.alterAddPK(database, table, columns)
+        PK.update({table: [database, table, columns]})
+        save(PK, 'PK')
         return value_return
     except:
         return 1
@@ -1066,6 +1114,8 @@ def alterDropPK(database, table):
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         value_return = j.alterDropPK(database, table)
+        PK.pop(table)
+        save(PK, 'PK')
         return value_return
     except:
         return 2
@@ -1109,6 +1159,8 @@ def alterAddColumn(database, table, default):
 
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
+        if isinstance(default, str):
+            default = default.encode(dictionary[database][1])        
         value_return = j.alterDropColumn(database, table, default)
 
         if value_return == 0:
@@ -1148,6 +1200,9 @@ def alterDropColumn(database, table, columnNumber):
 def dropTable(database, table) :
     try:
         dictionary = load('metadata')
+        FK = load('FK')
+        INDEX = load('INDEX')
+        UNIQUE = load('UNIQUE')
 
         if dictionary.get(database) is None:
             return 2  # database doesn't exist
@@ -1159,15 +1214,42 @@ def dropTable(database, table) :
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
             dict_tables.pop(table)
+            
+            if FK != 1:
+                for key in FK:
+                    values = FK[key]
+                    if values[0] == database:
+                        if table == values[2] or table == [4]:
+                            FK.pop(values[1])
+                            j.delete(database, 'FK', values[1])
+
+            if INDEX != 1:
+                for key in INDEX:
+                    values = INDEX[key]
+                    if values[0] == database:
+                        if table == values[1]:
+                            INDEX.pop(values[2])
+                            j.delete(database, 'INDEX', values[2])
+
+            if UNIQUE != 1:
+                for key in UNIQUE:
+                    values = UNIQUE[key]
+                    if values[0] == database:
+                        if table == values[1]:
+                            UNIQUE.pop(values[2])
+                            j.delete(database, 'UNIQUE', values[2])
 
             save(dictionary, 'metadata')
+            save(FK, 'FK')
+            save(UNIQUE, 'UNIQUE')
+            save(INDEX, 'INDEX')
     except:
         return 1    
     
     
 # INSERT
 def insert(database, table, register):
-
+    try:
         # Method to Blockchain
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
