@@ -324,6 +324,14 @@ class TableModule:
             for x in columns:
                 if x >= _table.numberColumns:
                     return 4
+            used = []
+            for c in _table.unique:
+                for i in c[2]:
+                    used.append(i)
+            for x in columns:
+                if x in used:
+                    return 5
+
             name = "_UNIQUESTRUCTURE__"
             pk = [0]
             numberColumns = 3

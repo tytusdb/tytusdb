@@ -4,6 +4,7 @@ import shutil
 import zlib
 import hashlib
 from Blockchain import *
+from cryptography.fernet import Fernet
 
 databases = {}  # LIST WITH DIFFERENT MODES
 dict_encoding = {'ascii': 1, 'iso-8859-1': 2, 'utf8': 3}
@@ -64,7 +65,8 @@ def alterDatabaseMode(database, mode):
         save(dictionary, 'metadata')
         return 0
     except:
-        return 1  
+        return 1
+    
     
 # ALTER FOREIGN KEY
 def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
@@ -93,6 +95,7 @@ def alterTableAddFK(database, table, indexName, columns, tableRef, columnsRef):
         return 2
     except:
         return 1
+    
     
 # DROP FOREIGN KEY
 def alterTableDropFK(database, table, indexName):
@@ -314,6 +317,26 @@ def checksumTable(database, table, mode):
     except:
         return None
     
+    
+# Encrypt and Decrypt
+def encrypt(backup, password):
+    f = Fernet(password)
+    encodedMessage = backup.encode()
+    encrypted = f.encrypt(encodedMessage)
+    return encrypted.decode()
+
+
+def decrypt(cripherBackup, password):
+    f = Fernet(password)
+    desencriptado = f.decrypt(cripherBackup.encode())
+    return desencriptado.decode()
+
+
+def generateKey():
+    key = Fernet.generate_key().decode()
+    return key
+
+    
 # Blockchain
 def safeModeOn(database, table):
     try:
@@ -339,14 +362,10 @@ def safeModeOn(database, table):
             tabla_info[1] = True
             # If object Blockchain is None
             if tabla_info[2] is None:
-                mode = dictionary.get(database)[0]
-                j = checkMode(mode)
-                list_tuple = j.extractTable(database, table)
-                nameJson = str(database) + '-' + str(table)
-                BChain = make_block_chain(list_tuple, nameJson)
+                BChain = make_block_chain()
                 tabla_info[2] = BChain
-                save(dictionary, 'metadata')
-                return 0
+            save(dictionary, 'metadata')
+            return 0
         # If modeSecurity es ON
         return 4
     except:
@@ -380,8 +399,8 @@ def safeModeOff(database, table):
                 nameJson = str(database) + '-' + str(table)
                 tabla_info[2].removeFilesBlock(nameJson)
                 tabla_info[2] = None
-                save(dictionary, 'metadata')
-                return 0
+            save(dictionary, 'metadata')
+            return 0
         # If modeSecurity es OFF
         return 4
     except:
@@ -960,11 +979,8 @@ def insertAgain(database, mode, newMode):
         
 
 # Blockchain mode when the security mode is on
-def make_block_chain(list_tuple, nameJson):
+def make_block_chain():
     BChain = Blockchain()
-    for tuple in list_tuple:
-        BChain.insertBlock(tuple, nameJson)
-        graphBChain(BChain, nameJson)
     return BChain
 
 
@@ -1057,17 +1073,25 @@ def concatenateColumns(table, listIndex, numberColumns, listPK):
 
     return string
 
+
+# SELECT ONLY ONE DATABASE AND TABLE
+def databaseTableIndex(dictionary, database, table):
+    for key in dictionary:
+        values = dictionary[key]
+        if values[0] == database and values[1] == table:
+            return values
+
 # ------------------------------------------------------ FASE 1 --------------------------------------------------------
 # -------------------------------------------------- Table CRUD --------------------------------------------------------
 
 #SHOWDATABASES
-def showDatabases(database):
+def showDatabases():
     try:
-        dictionary = load('metadata')
-        mode = dictionary.get(database)[0]
-        j = checkMode(mode)
-        value_return = j.showDatabases()
-        return value_return
+        for key in dict_modes:
+            print(key)
+            j = checkMode(key)
+            value_return = j.showDatabases()
+            print(value_return)
     except:
         return []
     
@@ -1085,6 +1109,8 @@ def alterDatabase(databaseOld, databaseNew):
         mode = dictionary.get(str(databaseOld))[0]
         j = checkMode(mode)
         value_return = j.alterDatabase(databaseOld, databaseNew)
+        if mode == "isam" and value_return == 1:
+            value_return = 0
         if value_return == 0:
             info = dictionary[str(databaseOld)]
             dictionary.pop(str(databaseOld))
@@ -1103,7 +1129,7 @@ def dropDatabase(database):
         FK = load('FK')
         UNIQUE = load('UNIQUE')
         INDEX = load('INDEX')
-        
+
         value_base = dictionary.get(nombreBase)
         if value_base:
             mode = dictionary.get(nombreBase)[0]
@@ -1149,7 +1175,8 @@ def createTable(database, table, numberColumns):
 
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
-            dict_tables[table] = [numberColumns, False]
+            Bchain = None
+            dict_tables[table] = [numberColumns, False, Bchain]
             save(dictionary, 'metadata')
 
         return value_return
@@ -1171,6 +1198,7 @@ def showTables(database):
     except:
         return 1
     
+    
 # EXTRACT TABLE
 def extractTable(database, table):
     try:
@@ -1185,8 +1213,8 @@ def extractTable(database, table):
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         value_return = j.extractTable(database, table)
-        
-        # Decompress
+
+        # compress
         for tuple in value_return:
             newTuple = []
             for register in tuple:
@@ -1197,7 +1225,7 @@ def extractTable(database, table):
                     newTuple.append(register)
 
             newTable.append(newTuple)
-            
+
         value_return = []
         for r in newTable:
             newRegister = []
@@ -1207,7 +1235,7 @@ def extractTable(database, table):
                 else:
                     newRegister.append(c)
             value_return.append(newRegister)
-        
+
         return value_return
     except:
         return []
@@ -1231,8 +1259,8 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
         if isinstance(upper, str):
             upper = upper.encode(dictionary[database][1])
         value_return = j.extractRangeTable(database, table, int(columnNumber), lower, upper)
-        
-        # Decompress
+
+        # compress
         for tuple in value_return:
             newTuple = []
             for register in tuple:
@@ -1243,7 +1271,7 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
                     newTuple.append(register)
 
             newTable.append(newTuple)
-            
+
         value_return = []
         for r in newTable:
             newRegister = []
@@ -1253,7 +1281,7 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
                 else:
                     newRegister.append(c)
             value_return.append(newRegister)
-        
+
         return value_return
     except:
         return []
@@ -1282,6 +1310,10 @@ def alterAddPK(database, table, columns):
 
 def alterDropPK(database, table):
     try:
+        if os.path.isfile(os.getcwd() + '\\Data\\PK.bin'):
+            PK = load('PK')
+        else:
+            PK = {}
         dictionary = load('metadata')
 
         value_base = dictionary.get(database)
@@ -1337,8 +1369,8 @@ def alterAddColumn(database, table, default):
         mode = dictionary.get(database)[0]
         j = checkMode(mode)
         if isinstance(default, str):
-            default = default.encode(dictionary[database][1])        
-        value_return = j.alterDropColumn(database, table, default)
+            default = default.encode(dictionary[database][1])
+        value_return = j.alterAddColumn(database, table, default)
 
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
@@ -1365,7 +1397,7 @@ def alterDropColumn(database, table, columnNumber):
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
             number_columns = dict_tables.get(table)[0]
-            dict_tables.get(table)[0] = number_columns-1  # Updating number of columns
+            dict_tables.get(table)[0] = number_columns - 1  # Updating number of columns
 
             save(dictionary, 'metadata')
 
@@ -1374,12 +1406,12 @@ def alterDropColumn(database, table, columnNumber):
         return 1
 
 
-def dropTable(database, table) :
+def dropTable(database, table):
     try:
         dictionary = load('metadata')
-        FK = load('FK')
-        INDEX = load('INDEX')
-        UNIQUE = load('UNIQUE')
+        FK = loadReturn('FK')
+        INDEX = loadReturn('INDEX')
+        UNIQUE = loadReturn('UNIQUE')
 
         if dictionary.get(database) is None:
             return 2  # database doesn't exist
@@ -1391,7 +1423,7 @@ def dropTable(database, table) :
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
             dict_tables.pop(table)
-            
+
             if FK != 1:
                 for key in FK:
                     values = FK[key]
@@ -1399,6 +1431,7 @@ def dropTable(database, table) :
                         if table == values[2] or table == [4]:
                             FK.pop(values[1])
                             j.delete(database, 'FK', values[1])
+                            save(FK, 'FK')
 
             if INDEX != 1:
                 for key in INDEX:
@@ -1407,6 +1440,7 @@ def dropTable(database, table) :
                         if table == values[1]:
                             INDEX.pop(values[2])
                             j.delete(database, 'INDEX', values[2])
+                            save(INDEX, 'INDEX')
 
             if UNIQUE != 1:
                 for key in UNIQUE:
@@ -1415,13 +1449,11 @@ def dropTable(database, table) :
                         if table == values[1]:
                             UNIQUE.pop(values[2])
                             j.delete(database, 'UNIQUE', values[2])
-
+                            save(UNIQUE, 'UNIQUE')
             save(dictionary, 'metadata')
-            save(FK, 'FK')
-            save(UNIQUE, 'UNIQUE')
-            save(INDEX, 'INDEX')
+        return value_return
     except:
-        return 1    
+        return 1   
     
     
 # INSERT
@@ -1449,7 +1481,7 @@ def insert(database, table, register):
         if PK.get(table) is None:
             PK.update({table: [database, table, ['HIDDEN']]})
             save(PK, 'PK')
-        
+
         # Method to Blockchain
         if value_return == 0:
             dict_tables = dictionary.get(database)[2]
@@ -1480,16 +1512,20 @@ def update(database, table, register, columns):
         # Save the old tuple for the BChain method
         newColumns = []
         for key in columns:
-            newColumns.append(key.encode(dictionary[database][1]))
+            if isinstance(key, str):
+                newColumns.append(key.encode(dictionary[database][1]))
+            else:
+                newColumns.append(key)
         oldTuple = j.extractRow(database, table, newColumns)
         for key in register:
             if isinstance(register[key], str):
                 register.update({key: register[key].encode(dictionary[database][1])})
-        value_return = j.update(database, table, register, newColumns)    
-    
+        value_return = j.update(database, table, register, newColumns)
+
+        # ----------------------------------------------------- ISAAC --------------------------------------------------
         # Method to Blockchain
         if value_return == 0:
-            print(j.extractRow(database, table, columns))
+            print(j.extractRow(database, table, newColumns))
             dict_tables = dictionary.get(database)[2]
             tabla_info = dict_tables.get(table)
 
@@ -1498,14 +1534,15 @@ def update(database, table, register, columns):
                 newTuple = []
 
                 # Generate the new Tuple
-                for i in oldTuple:
-                    newTuple.append(i)
+                for i in range(len(oldTuple)):
+                    decodificado = oldTuple[i].decode(dictionary[database][1])
+                    oldTuple[i] = decodificado
+                    newTuple.append(decodificado)
 
                 for key in register:
-                    newTuple[key] = register[key]
+                    newTuple[key] = register[key].decode(dictionary[database][1])
 
                 nameJson = str(database) + '-' + str(table)
-
                 tabla_info[2].updateBlock(oldTuple, newTuple, nameJson)
                 graphBChain(tabla_info[2], nameJson)
                 save(dictionary, 'metadata')
@@ -1583,7 +1620,6 @@ def truncate(database, table):
         return value_return
     except:
         return 1
-
     
     
 # ------------------------------------------------------- FILES --------------------------------------------------------

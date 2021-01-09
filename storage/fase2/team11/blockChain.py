@@ -244,6 +244,6 @@ class BlockChain:
 
             index += 1
         self.__string += "}\n"
-        print(self.__string)
+        #print(self.__string)
         self.__init_id()
         return self.__string
