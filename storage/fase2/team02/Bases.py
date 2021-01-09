@@ -13,6 +13,28 @@ comp = []
 compT,decompT = [],[]
 decomp = []
 
+global lista
+lista = list()
+
+global listados
+listados = list()
+
+class controlFK:
+    def __init__(self, database, table, indexName, columns, tableRef, columnsRef):
+        self.database = database
+        self.table = table
+        self.indexName = indexName
+        self.columns = columns
+        self.tableRef = tableRef
+        self.columnsRef = columnsRef
+
+class controlUnique:
+    def __init__(self, database, table, indexName, columns):
+        self.database = database
+        self.table = table
+        self.indexName = indexName
+        self.columns = columns      
+
 # ----------Bases de datos------------------
 def createDatabase(database, mode, encoding):
     try:
