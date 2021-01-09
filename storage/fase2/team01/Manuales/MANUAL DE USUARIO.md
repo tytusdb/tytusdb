@@ -31,14 +31,14 @@ ___
 # DESCRIPCIÓN DEL SISTEMA
 
 ## Objetivo
-- El propósito de este documento es dar a conocer a los ususarios finales las características y las formas de funcinamiento de una base de datos llamado TytusDB, utilizando el modo de almacenamiento AVL, proporcionando al servidor un conjunto de funciones para extraer la información, esto realizado como proyecto del curso de "Estructura de Datos".
+- El propósito de este documento es dar a conocer a los ususarios finales las características y las formas de funcionamiento de una base de datos llamado TytusDB, utilizando el modo de almacenamiento AVL, proporcionando al servidor un conjunto de funciones para extraer la información, esto realizado como proyecto del curso de "Estructura de Datos".
 - Proporcionar al usuario la informacion necesaria para crear una BD por medio de varios tipos métodos de almacenamiento.
 ## Alcance
 - Informar al usuario de futuras generaciones como implementar un método de almacenamiento teniendo como base la implementación de 7 tipos de metodos .
 - Tener un proceso continuo de revisión y actualización.
 - Facilitar a través del diseño, su uso, conversación y actualización.
 ## Funcionalidad
-El sistema está elaborado en el lenguaje de programación Python, donde por medio de la implementación de 5 tipós de metodos a escoger se realizó el almacenamiento para la creación de una BD que por medio de funciones se extrae la información.
+El sistema está elaborado en el lenguaje de programación Python, donde por medio de la implementación de 7 tipós de metodos a escoger se realizó el almacenamiento para la creación de una BD que por medio de funciones se extrae la información.
 El usuario podrá cargar archivos el cual podrá medir el alcance del software.
 Se podrá observar la generación de reportes.
 ___
