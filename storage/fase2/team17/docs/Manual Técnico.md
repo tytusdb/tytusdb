@@ -191,6 +191,14 @@ Diagramas de flujo
 
 ![](https://github.com/DiiAns23/Prueba-2/blob/Master/img/Eliminar.png)
 
+### Alter Database Mode ###
+
+![](https://github.com/DiiAns23/Prueba-2/blob/Master/img/Database.png)
+
+### Alter Table Mode ###
+
+![](https://github.com/DiiAns23/Prueba-2/blob/Master/img/TYTUS.png)
+
 ### Requerimientos
 * Tener instalado [pip](https://pypi.org/project/pip/).
 
