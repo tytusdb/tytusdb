@@ -35,11 +35,13 @@ class GUI(Frame):
             self.reportes()
         elif self.val == 4:
             self.blockchain()
+        elif self.val == 5:
+            self.grafos()
 
     def centrar(self):
         if self.val == 1:
             ancho = 500
-            alto = 500
+            alto = 560
         elif self.val == 2:
             ancho = 1045
             alto = 660
@@ -78,6 +80,14 @@ class GUI(Frame):
         v4.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(v4, self.master))
         app4 = GUI(master=v4, val=4)
         app4.mainloop()
+    
+    def ventanaGrafos(self):
+        v5 = Toplevel()
+        self.master.iconify()
+        v5['bg'] = "#0f1319"
+        v5.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(v5, self.master))
+        app5 = GUI(master=v5, val=5)
+        app5.mainloop()
 
     @staticmethod
     def on_closing(win, root):
@@ -95,7 +105,7 @@ class GUI(Frame):
     def main(self):
         btnF = Button(text="FUNCIONES", bg="#33868a", bd=0, activebackground="#225b5e",
                       font="Arial 18", pady=12, width=14, command=lambda: self.ventanaFunciones())
-        btnF.pack(side=TOP, pady=(135, 25))
+        btnF.pack(side=TOP, pady=(127, 25))
 
         btnR = Button(text="REPORTES", bg="#33868a", bd=0, activebackground="#225b5e",
                       font="Arial 18", pady=12, width=14, command=lambda: self.ventanaReporte())
@@ -105,9 +115,13 @@ class GUI(Frame):
                       font="Arial 18", pady=12, width=14, command=lambda: self.ventanaBlockhchain())
         btnB.pack(side=TOP, pady=(0, 25))
 
+        btnB = Button(text="GRAFOS", bg="#33868a", bd=0, activebackground="#225b5e",
+                      font="Arial 18", pady=12, width=14, command=lambda: self.ventanaGrafos())
+        btnB.pack(side=TOP, pady=(0, 25))
+
         btnS = Button(text="SALIR", bg="#bf4040", bd=0, activebackground="#924040",
                       font="Arial 18", pady=0, width=14, command=lambda: self.master.destroy())
-        btnS.pack(side=TOP, pady=(0, 25))
+        btnS.pack(side=TOP, pady=(0, 0))
         
     # endregion
 
@@ -473,15 +487,28 @@ class GUI(Frame):
             if arg.get():
                 self.parametros.append(arg.get())
             else:
+                dialog.destroy()
                 return messagebox.showerror("Oops", "Existen campos vacíos")
         response = self.controller.execute(self.parametros, action)
         if response in range(1, 8):
             self.parametros.clear()
+            dialog.destroy()
             return messagebox.showerror("Error número: " + str(response),
                                         "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
-        dialog.destroy()
+        elif action == self.actions[28] or action == self.actions[29]:
+            if response:
+                g = 'graphDSD' if action == self.actions[28] else 'graphDF'
+                dialog.destroy()
+                self.displayGraph(g)
+            else:
+                dialog.destroy()
+                return messagebox.showerror("Error " + str(response),
+                                        "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
+        else:
+            dialog.destroy()
 
-    # Blockchain
+
+#*******************************************Blockchain*******************************************#
     def blockchain(self):
         self.titulo4 = Label(self.master, text="Blockchain", bg="#0f1319", fg="#45c2c5",
                              font=("Century Gothic", 42), pady=12)
@@ -552,10 +579,60 @@ class GUI(Frame):
         except:
             None
 
+#*******************************************Grafos*******************************************#
+    def grafos(self):
+        self.titulo5 = Label(self.master, text="Grafos", bg="#0f1319", fg="#45c2c5",
+                             font=("Century Gothic", 42), pady=12)
+        self.titulo5.pack(fill=X)
+
+        self.scrollbarY = Scrollbar(self.master)
+        self.scrollbarY.pack(side=RIGHT, fill=Y)
+
+        self.scrollbarX = Scrollbar(self.master, orient='horizontal')
+        self.scrollbarX.pack(side=BOTTOM, fill=X)
+
+        btnDSD = Button(self.master,
+                             text=self.actions[28],
+                             bg="#abb2b9", font=("Courier New", 14),
+                             borderwidth=0.5, pady=6, width=25,
+                             command=lambda: self.simpleDialog(["database"], self.actions[28]))
+        btnDSD.place(x=220, y=110)
+
+        btnDF = Button(self.master,
+                             text=self.actions[29],
+                             bg="#abb2b9", font=("Courier New", 14),
+                             borderwidth=0.5, pady=6, width=25,
+                             command=lambda: self.simpleDialog(["database", "table"], self.actions[29]))
+        btnDF.place(x=660, y=110)    
+
+        self.canvas = Canvas(self.master, width=1000, height=435, bg="#0f1319", highlightthickness=0)
+        self.canvas.place(x=72, y=175)
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+        self.scrollbarY.config(command=self.canvas.yview)
+        self.scrollbarX.config(command=self.canvas.xview)
+
+    # Mostrar grafica
+    def displayGraph(self, fname):
+        try:
+            png = self.controller.getGraph(fname)
+            bg = ImageTk.PhotoImage(Image.open(png))
+            if self.canvas.find_all():
+                self.canvas.itemconfig(self.image_on_canvas, image=bg)
+            else:
+                self.image_on_canvas = self.canvas.create_image(370, 170, anchor=W, image=bg)
+            self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+            self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+            self.master.mainloop()
+        except:
+            None
+
+
+
 def run():
     v1 = Tk()
     image = Image.open('storage/View/img/main.png')
-    background_image = ImageTk.PhotoImage(image.resize((500, 500)))
+    background_image = ImageTk.PhotoImage(image.resize((560, 560)))
     background_label = Label(v1, image=background_image)
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
     app = GUI(master=v1, val=1)

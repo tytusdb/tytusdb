@@ -15,7 +15,7 @@ def generate(name: str, data: str):
     f.write(data)
     f.close()
     os.system("dot -Tjpg " + name + ".dot -o " + './_tmp_/' + old + ".jpg")
-    os.system('_tmp_\\' + old + ".jpg")
+    # os.system('_tmp_\\' + old + ".jpg")
 
 def graphDSD(database: str):
     try:
@@ -24,9 +24,26 @@ def graphDSD(database: str):
             raise Exception()
         databases = handler.rootinstance()
         db, index = _exist(database, databases)
-        if db
+        if db:
             generate("graphDSD", _generateDSD(db.tables, db.fk))
-            return "graphDSD"
+            return "/_tmp_/graphDSD.dot"
+        return None
+    except:
+        return None
+
+def graphDF(database: str, table: str):
+    try:
+        handler = Handler()
+        if not isinstance(database, str) or handler.invalid(database):
+            raise Exception()
+        databases = handler.rootinstance()
+        db, index = _exist(database, databases)
+        if db:
+            _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
+            if _table:
+                generate("graphDF", _generateDF(_table))
+                return "/_tmp_/graphDF.dot"
+            return None
         return None
     except:
         return None
@@ -64,15 +81,11 @@ def _generateDSD(tables, fks):
     content = content + "}"
     return content
 
-def graphDF(table):
-    try:
-        g = 'digraph g{\n    node[shape= circle, style= filled, fontname="Century Gothic", color="#006400", fillcolor="#90EE90"]\n    edge[color="#145A32"]\n    rankdir=LR\n'
-        for i in range(table.numberColumns):
-            if not i in table.unique:
-                for j in table.unique:
-                    g += "    " + str(j) + "->" + str(i) + "\n"
-        g += '}'
-        generate("DF_" + table.name, g)
-        return "DF_" + table.name + ".png"
-    except:
-        return None
+def _generateDF(table):
+    g = 'digraph g{\n    node[shape= circle, style= filled, fontname="Century Gothic", color="#006400", fillcolor="#90EE90"]\n    edge[color="#145A32"]\n    rankdir=LR\n'
+    for i in range(table.numberColumns):
+        if not i in table.unique:
+            for j in table.unique:
+                g += "    " + str(j) + "->" + str(i) + "\n"
+    g += '}'
+    return g

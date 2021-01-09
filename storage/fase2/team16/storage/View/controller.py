@@ -5,6 +5,7 @@
 
 
 from . import reports
+# from ..Modules.Complements import graph
 from .. import storage as s
 
 
@@ -86,14 +87,18 @@ class Controller:
                 return s.truncate(args[0], args[1])
             elif action == actions[23]:
                 s.dropAll()
-            elif action == action[24]:
+            elif action == actions[24]:
                 return s.alterDatabaseMode(args[0],args[1])
-            elif action == action[25]:
+            elif action == actions[25]:
                 return s.alterTableMode(args[0],args[1],args[2])
-            elif action == action[26]:
+            elif action == actions[26]:
                 return s.alterTableCompress(args[0],args[1],int(args[2]))
-            elif action == action[27]:
+            elif action == actions[27]:
                 return s.alterTableDecompress(args[0],args[1])
+            elif action == actions[28]:
+                return s.graphDSD(args[0])
+            elif action == actions[29]:
+                return s.graphDF(args[0],args[1])
             # endregion
             else:
                 return 6
@@ -132,6 +137,10 @@ class Controller:
     @staticmethod
     def graphBlockchain(database: str, table: str):
         return reports.graphBlockchain(database, table)
+    
+    @staticmethod
+    def getGraph(graph: str):
+        return '_tmp_/' + str(graph) + '.jpg'
 
 
 
@@ -163,5 +172,7 @@ class Enums:
         24: "Alter DB mode",
         25: "Alter TBL mode",
         26: "Alt compress",
-        27: "Alt decompress"
+        27: "Alt decompress",
+        28: "graphDSD -> Estructuras",
+        29: "graphDF -> Dependencias"
     }
