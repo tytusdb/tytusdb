@@ -1225,6 +1225,80 @@ def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
 
 
 
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
+    try:
+        # se llama a la base de datos
+        bdata= __getDatabase(database)
+
+        if bdata:
+            # se extrae la tabla buscada 
+            tabla = __getTable(database, table)
+
+            # se comprueba la existencia de las tablas
+            if tabla is False:
+                return 3
+            # se agrega el indice a la clase de indices
+            tabla["index"].insert([indexName, table, columns])
+
+            #Se extraen los registros actualizados de la estructura Index
+            registrosIn = tabla["index"].extractTable()
+            #Se guardan en el archivo data
+            listaDB = __rollback("data")
+            for db in listaDB:
+                if db["nameDb"] == database:
+                    for tb in db["tables"]:
+                        if tb["nameTb"] == table:
+                            tb["registrosIn"] = registrosIn
+                            break
+                
+            #Se guarda la lista de base de datos actualizada en el archivo data
+            __commit(listaDB, "data")
+            return 0
+        else:
+            return 2
+    except:
+        return 1
+
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+    try:
+        bdata= __getDatabase(database)
+
+        if bdata:
+            # se extrae la tabla buscada
+            tabla = __getTable(database, table)
+            
+            # se comprueba la existencia de las tablas
+            if tabla is False:
+                return 3
+
+            # se busca el indexname
+            index= tabla["index"].extractRow(indexName)
+            
+            if index:
+                val = tabla["index"].delete(indexName)
+
+                #Se extraen los registros actualizados de la estructura Index
+                registrosIn = tabla["index"].extractTable()
+                #Se guardan en el archivo data
+                listaDB = __rollback("data")
+                for db in listaDB:
+                    if db["nameDb"] == database:
+                        for tb in db["tables"]:
+                            if tb["nameTb"] == table:
+                                tb["registrosIn"] = registrosIn
+                                break
+                    
+                #Se guarda la lista de base de datos actualizada en el archivo data
+                __commit(listaDB, "data")
+                return val    # valor esperado: 0
+            else:
+                return 4
+        else:
+            return 2
+    except:
+        return 1
+
+
 
 
 
