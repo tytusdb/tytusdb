@@ -92,7 +92,7 @@ class Table:
         return self.mode
 
     def set_compress(self, compress):
-        self.mode = compress
+        self.compress = compress
 
     def get_compress(self):
         return self.compress
@@ -156,4 +156,109 @@ class FK:
             self.insertFK(register)
 
         return 0
+    
+  class UNIQUE:
+    def __init__(self, database, table, mode):
+        self.mode = mode
+        self.database = database
+        self.table = "UNIQUE_" + table
+        self.createUnique()
+
+    def createUnique(self):
+        for mode, struct in modes.items():
+            if self.mode == mode:
+                struct.createTable(self.database, self.table, 3)
+                struct.alterAddPK(self.database, self.table, [0])                
+
+    def alterUnique(self, table):
+        for mode, struct in modes.items():
+            if self.mode == mode:
+                aux_Table = self.table
+                self.table = "UNIQUE_" + table
+                return struct.alterTable(self.database, aux_Table, self.table)
+
+    def dropUnique(self):
+        for mode, struct in modes.items():
+            if self.mode == mode:
+                return struct.dropTable(self.database, self.table)
+
+    def insertUnique(self, data):        
+        for mode, struct in modes.items():
+            if self.mode == mode:                
+                return struct.insert(self.database, self.table, data)        
+
+    def deleteUnique(self, name):
+        for mode, struct in modes.items():
+            if self.mode == mode:
+                return struct.delete(self.database, self.table, [name])
+    
+    def extractUnique(self):        
+        for mode, func in modes.items():
+            if self.mode == mode:
+                return func.extractTable(self.database, self.table)
+
+    def alterUniqueMode(self, database: str, table: str, mode: str):
+                                
+        data = self.extractUnique()
+        self.mode = mode
+
+        self.dropUnique()
+        self.createUnique()
+
+        for register in data:
+            self.insertUnique(register)
+
+        return 0
   
+class INDEX:
+    def __init__(self, database, table, mode):
+        self.mode = mode
+        self.database = database
+        self.table = "INDEX_" + table
+        self.createIndex()
+
+    def createIndex(self):
+        for mode, struct in modes.items():
+            if self.mode == mode:
+                struct.createTable(self.database, self.table, 3)
+                struct.alterAddPK(self.database, self.table, [0])                
+
+    def alterIndex(self, table):
+        for mode, struct in modes.items():
+            if self.mode == mode:
+                aux_Table = self.table
+                self.table = "INDEX_" + table
+                return struct.alterTable(self.database, aux_Table, self.table)
+
+    def dropIndex(self):
+        for mode, struct in modes.items():
+            if self.mode == mode:
+                return struct.dropTable(self.database, self.table)
+
+    def insertIndex(self, data):        
+        for mode, struct in modes.items():
+            if self.mode == mode:                
+                return struct.insert(self.database, self.table, data)        
+
+    def deleteIndex(self, name):
+        for mode, struct in modes.items():
+            if self.mode == mode:
+                return struct.delete(self.database, self.table, [name])
+    
+    def extractIndex(self):        
+        for mode, func in modes.items():
+            if self.mode == mode:
+                return func.extractTable(self.database, self.table)
+
+    def alterIndexMode(self, database: str, table: str, mode: str):
+                                
+        data = self.extractIndex()
+        self.mode = mode
+
+        self.dropIndex()
+        self.createIndex()
+
+        for register in data:
+            self.insertIndex(register)
+
+        return 0
