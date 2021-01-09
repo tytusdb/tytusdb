@@ -1,14 +1,4 @@
 # Copyright (c) 2020 TytusDb Team
-'''
-from team16 import avlMode as avl
-from team17 import BMode as b
-from team18 import BPlusMode as bplus
-from CopyTable import *
-#from DictMode import DictMode  as mdict
-#from team15.storage import HashMode as thash
-#from team14 import ISAMMode as isam
-from storageManager import jsonMode as json 
-'''
 import CopyTable as Arreglos
 import HelpMain as Help
 from storage.avl import avlMode as avl
@@ -26,7 +16,6 @@ import blockchain
 import pathlib
 import indices
 import zlib
-
 blokFlag = False
 
 def __init__():
@@ -964,3 +953,13 @@ def graphDSD(database: str) -> str:
     except:
         return None
 
+def devolvercol(base,tabla):
+    for d in list_table:
+        if d.base==base and d.tabla==tabla:
+            return d.columnas
+
+def graphDF(database: str, table: str) -> str:
+    try:
+        return indices.graficar(devolvercol(database,table),database,table)
+    except:
+        return None

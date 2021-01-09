@@ -7,7 +7,6 @@ from storage.json import jsonMode as json
 from storage.dict import DictMode as dict
 import os
 import pickle
-from graphviz import Digraph
 # from PIL import Image
 
 class Fks:
@@ -135,18 +134,24 @@ def alterTableDropIndex(database, table, indexName, modo):
     except:
         return 1
 
+
 def graphDSD(database):
     try:
-        texto = ''' '''
-        imagen = Digraph(name="graphDSD", filename="graphDSD", format="png")
+        texto = ''''''
+        texto += '''digraph G {
+            graph [ordering="out"];\n randkdir=TB;\nnode [shape=square];'''
         for d in Indices:
-            if Indices[d].db == database:
-                if not Indices[d].tableRef == None:
-                    imagen.node(Indices[d].table, Indices[d].table, shape="box", color ="blue")
-                    imagen.node(Indices[d].tableRef, Indices[d].tableRef, shape="box", color ="blue")
-                    imagen.edge(str(Indices[d].table),str(Indices[d].tableRef))
-                    texto+= str(Indices[d].table)+''' -> '''+str(Indices[d].tableRef)+''';\n'''
-        imagen.render(view=True)
+            if d.db == database:
+                if not d.tableRef == None:
+                    texto+= str(d.table)+''' -> '''+str(d.tableRef)+''';\n'''
+        texto += '''\n}'''
+        g=open("graphDSD.dot","w")
+        g.write(texto)
+        g.close()
+        os.system('dot -Tpng graphDSD.dot -o graphDSD.png')
+        os.system('graphDSD.png')
+        img=Image.open("graphDSD.png")
+        img.show()
         return texto
     except:
         return None
@@ -166,3 +171,53 @@ def actualMod(mode):
         return json
     elif mode == "hash":
         return hash
+
+
+def graficar(ncol,database,tablindicese):
+    usado=[]
+    for d in range(0,ncol):
+        usado.append(d)
+    col=[]
+    llaves=[]
+    indicescol=[]
+    archivo = open( 'graph.dot', 'w')
+    archivo.write('digraph D{\ngraph[bgcolor="#0f1319"]\n')
+    #archivo.write(
+     #       'node [shape= circle, style= filled, fontname="Century Gothic", color="#006400", fillcolor="#90EE90"]; \n')
+    #archivo.write('edge[color="#145A32"]')
+    archivo.write(
+            "label= <<font color=\"white\">\"  GRAFO DF  DE TABLA '" + tablindicese+ "' BASE -> '"+database+"' \" </font>> fontname=\"Century Gothic\" \n")
+
+    for d in Indices:
+        if d.db == database:
+            for numero in range(0,d.columns+1):
+                col.append(numero)
+            for pk in d.columns:
+                archivo.write(str(pk)+'[ label ="'+str(pk)+'"];\n')
+                llaves.append(pk)
+            for i in d.columneRef:
+                archivo.write(str(i)+'[ label ="'+str(i)+'"];\n')
+                indicescol.append(i)
+
+
+    for d in llaves:
+        for indi in indicescol:
+            archivo.write(str(d)+ "->" + str(indi)+"\n")
+
+    for us in usado:
+        if us in llaves:
+            usado.remove(us)
+        if us in indicescol:
+            usado.remove(us)
+            
+
+    for d in llaves:
+        for indi in usado:    
+            archivo.write(str(d)+ "->" + str(indi)+"\n")
+
+    for d in indicescol:
+        for indi in usado:    
+            archivo.write(str(d)+ "->" + str(indi)+"\n")
+
+    os.system('dot -Tpng graph.dot -o graph.png')
+    os.system('graph.png')
