@@ -394,15 +394,15 @@ def añadir(titulo):
     valor=Campo(formularios[contador])
     valor.pack(side="left", fill="both",expand=True)
     vsb=Scrollbar(formularios[contador],orient="vertical",command=valor.text.yview)
-    valor.text.configure(yscrollcommand=vsb.set,bg='gray21',fg='white',font="helvetica 12")
+    valor.text.configure(yscrollcommand=vsb.set,bg='gray49',fg='white',font="helvetica 12")
     vsb.pack(side="right",fill="y")
     textos.append(valor)
     contador=control+1
     control=contador
     b=notebook.select()
     a=notebook.index(b)
-    textos[a].text.bind("<KeyRelease>", Spellcheck)
-    textos[a].text.bind("<Key>", Spellcheck)
+    textos[control-1].text.bind("<KeyRelease>", Spellcheck)
+    textos[control-1].text.bind("<Key>", Spellcheck)
     
 
 def Spellcheck(self):
