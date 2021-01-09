@@ -1273,3 +1273,42 @@ def safeModeOff(database: str, table: str) -> int:
         return 0
     except:
         return 1
+
+# grafica el diagrama de estructura de una base de datos
+def graphDSD(database: str) -> str:
+    try:
+        result = 0
+        if database not in databasesinfo[0]:
+            result = None
+        else:
+            content = 'digraph GraphDatabase{\n' \
+                      ' rankdir=LR\n' \
+                      ' nodesep=.05;\n' \
+                      ' node [shape=record,width=.1,height=.1];\n' \
+                      ' subgraph cluster0{\n'\
+                      ' label="'+ database +'";\n'
+
+            tables = showTables(database)
+            for table in tables:
+                newTB = table + 'FK'
+                if newTB in tables:
+                    tables.remove(newTB)
+            for table in tables:
+                if table+'FK' not in tables:
+                    content += ' '+table +'[label= "'+ table +'"]\n'
+            for table in tables:
+                if 'FK' in databasesinfo[1][database][table] and len(databasesinfo[1][database][table]['FK']) > 0:
+                    references = extractTable(database,table+'FK')
+                    for num in references:
+                        ref = ' '+str(num[1]) + '->' + table +'\n'
+                        content += ref
+            content += ' }\n' \
+                       '}'
+            diagram = open(database+'DSD.dot','w')
+            diagram.write(content)
+            result = diagram.name
+            diagram.close()
+            os.system("dot -Tpng "+ database +"DSD.dot -o "+ database +"DSD.png")
+        return result
+    except:
+        return 1
