@@ -130,7 +130,21 @@ class Example(Frame):
         self.areaConsole.config(state='normal')
         self.areaConsole.delete(1.0, "end")
         active_object = self.nb.nametowidget(self.nb.select())
-        try: 
+        try:
+            query = str(active_object.area.get("sel.first", "sel.last"))
+            if len(query) != 0:
+                url = "http://localhost:10000/query"
+                data = {'query' : query}
+                response = requests.post(url, json = data)
+                if response.status_code == 200:
+                    response_json = response.json()
+                    print(response_json['msj'])
+                    self.areaConsole.insert(tk.INSERT,response_json['msj'])
+                    return True
+                else:
+                    messagebox.showinfo("TytusDB", "No se pudo conectar al servidor.")
+                    root.destroy()
+                    return False
             cadena = active_object.area.get("sel.first", "sel.last")
             messagebox.showinfo("Tytus", active_object.area.get("sel.first", "sel.last"))
             nueva = str(cadena).upper()
