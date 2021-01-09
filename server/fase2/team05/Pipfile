@@ -12,6 +12,7 @@ graphviz = "*"
 pandas = "*"
 ply = "*"
 prettytable = "*"
+simplejson = "*"
 
 [dev-packages]
 pylint = "*"
