@@ -930,3 +930,58 @@ def alterTableDecompress(database: str, table: str):
             return 2       
     except:
         return 1
+
+def checksumDatabase(database, mode):
+    MegaCadena = ""
+
+    try:
+        lista = showTables(database)
+        MegaCadena = MegaCadena + database
+
+        for i in lista:
+            MegaCadena = MegaCadena + i
+
+            for j in extractTable(database, i):
+                MegaCadena = MegaCadena + str(j)
+        if mode == "MD5":
+            return CodMD5(MegaCadena)
+        else:
+            return CodSHA256(MegaCadena)
+    
+    except:
+        return None
+
+def checksumTable(database, table, mode):
+    MegaCadena = ""
+
+    try:
+        lista = showTables(database)
+
+        for i in lista:
+            if i == table:
+                MegaCadena = MegaCadena + i
+            
+            for j in extractTable(database, i):
+                if i == table:
+                    MegaCadena = MegaCadena + str(j)
+
+        
+        if mode == "MD5":
+            return CodMD5(MegaCadena)
+        else:
+            return CodSHA256(MegaCadena)
+
+    except:
+        return None
+
+def CodMD5(Entrada):
+    MD5Codigo = hashlib.md5()
+    MD5Codigo.update(Entrada.encode('utf8'))
+    Proceso = MD5Codigo.hexdigest()
+    return Proceso
+
+def CodSHA256(Entrada):
+    SHACodigo = hashlib.sha256()
+    SHACodigo.update(Entrada.encode('utf8'))
+    Proceso = SHACodigo.hexdigest()
+    return Proceso
