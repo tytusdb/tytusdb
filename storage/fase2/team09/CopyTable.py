@@ -10,7 +10,8 @@ class Tabla(object):
         self.pk=None  # pk de la tabla
         self.fk=None  # fk de la tabla
         self.datos=[] #las tablas que se guardan  abajo se muestra como se guardo
-        
+        self.codificado=[]  # datos de tuplas codificadas
+
     def __str__(self) -> str:
         return f" MODOTABLA {self.modo} nombreBase {self.base} NOmbreTabla {self.tabla} Ncol {self.columnas}  PK {self.pk}  FK {self.fk} tuplas {self.datos} "
 
