@@ -64,11 +64,12 @@ class Arbol(Frame):
                     # Se puede repetir este proceso cuantas veces se desee para aumentar
                     # los niveles del treeview, por ahora solo seran 3 niveles
                     # Adentro del insertar va el item padre
-                    subitem = self.treeview.insert(item, END, text=padre[1],image=self.folder_image)
-                    self.treeview.insert(subitem, END, text=padre[3],image=self.file_image)
-                    for y in range(1, len(lista2)):
-                        temp= lista2[y].split("\"")
-                        self.treeview.insert(subitem, END, text=temp[1],image=self.file_image)
+                    if len(padre)>3:
+                        subitem = self.treeview.insert(item, END, text=padre[1],image=self.folder_image)
+                        self.treeview.insert(subitem, END, text=padre[3],image=self.file_image)
+                        for y in range(1, len(lista2)):
+                            temp= lista2[y].split("\"")
+                            self.treeview.insert(subitem, END, text=temp[1],image=self.file_image)
             else:
                 print("Error BASE DE DATOS")
                 #consola.config(state=NORMAL)
