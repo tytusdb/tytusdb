@@ -680,6 +680,28 @@ def chartList(list):
     file.close()
     os.system("dot -Tpng list.dot -o list.png")
 
+#----------verificar base y tabla isam------------------------
+def verificar_Isam(database: str, table: str):
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if dbExists:
+            if tableExists:
+                return 0
+            else:
+                return 3
+        else:
+            return 2
+    except:
+        return 1
 
 
 

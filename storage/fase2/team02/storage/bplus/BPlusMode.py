@@ -547,3 +547,21 @@ def showCollection():
                 print(z)
 
 # ---------------Marcos--------------------#
+
+#--------verificar base y tabla b plus----
+def verificar_Bplus(database, table):
+    if type(database) !=str or type(table)!=str:
+        return 1
+    checkData()
+    if validateIdentifier(database) and validateIdentifier(table):
+        dataBaseTree = serializable.Read('./Data/BPlusMode/', "Databases")
+        root = dataBaseTree.getRoot()
+        if not dataBaseTree.search(root, database):
+            return 2  # database no existente
+        else:
+            tablesTree = serializable.Read(f"./Data/BPlusMode/{database}/", database)
+            if not tablesTree.search(tablesTree.getRoot(), table):
+                return 3  # table no existente
+            return 0  # exito
+    else:
+        return 1

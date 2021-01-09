@@ -113,3 +113,7 @@ def truncate(database: str, table: str) -> int:
 
 def dropAll():
     return DB.dropAll()
+
+#--------verificar base y tabla----------
+def verificar_avl(database, table):
+    return TBL.verificarAVL(database,table)

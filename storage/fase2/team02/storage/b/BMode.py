@@ -204,3 +204,9 @@ def truncate(database: str, table: str) -> int:
     except:
         pass
     return r
+#-------metodo verificar base y tabla---------
+def verificar_B(database,table):
+    if b.searchTB(database,table) == True:
+        return 0
+    else:
+        return 1

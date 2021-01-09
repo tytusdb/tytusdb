@@ -561,3 +561,19 @@ def showCollection():
             for r in data:
                 registers.append(r)
             print(d+' pkeys: '+str(registers))
+
+#------------verificar base y tabla jsonMode---------
+def verificar_Json(database: str, table: str):
+    try:
+        if not database.isidentifier() \
+        or not table.isidentifier() :
+            raise Exception()             
+        initCheck()
+        data = read(dataPath)
+        if not database in data:
+            return 2
+        if not table in data[database]:
+            return 3
+        return 0
+    except:
+        return 1

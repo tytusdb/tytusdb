@@ -75,3 +75,7 @@ def loadCSV(file: str, database: str, table: str):
 
 def dropAll():
     return bd.dropAll()
+
+#--------verificando base y tablas--------------
+def verificar_DictMode(database, table):
+    return ky.verificar_dict(database,table)

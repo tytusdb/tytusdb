@@ -238,3 +238,15 @@ class TableModule:
             return 2
         except:
             return 1
+
+#---------------verificar si base y tabla existen----
+    def verificarAVL(self, database: str, table: str) -> int:
+            try:
+                if not isinstance(database, str) or not isinstance(table, str):
+                    raise
+                if self.handler.exists(database, table):
+                    return 0
+                else:
+                    return 2
+            except:
+                return 1
