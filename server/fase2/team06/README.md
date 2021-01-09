@@ -10,7 +10,7 @@
 
 #### [](https://github.com/tytusdb/tytus/tree/main/server/team06#201612190-marcos-sebastian-velasquez-cabrera)201612190 Marcos Sebastian Velasquez Cabrera
 
-# [](https://github.com/tytusdb/tytus/tree/main/server/team06#tytusdb-manual-tecnico) ![image](https://avatars0.githubusercontent.com/u/74935909?s=200&v=4?raw=true =50x) TytusDB Manual tecnico
+# [](https://github.com/tytusdb/tytus/tree/main/server/team06#tytusdb-manual-tecnico)  TytusDB Manual tecnico
 
 ## TytusDB
 
@@ -22,18 +22,22 @@ Es un proyecto Open Source para desarrollar un administrador de bases de datos. 
 
 ## [](https://github.com/tytusdb/tytus/tree/main/server/team06#librerias)Librerias
 
-### [](https://github.com/tytusdb/tytus/tree/main/server/team06#boostrap) ![image](https://miro.medium.com/max/1024/1*9HanDsRU11ZMsgDGJwN96w.png?raw=true =50x) Boostrap    
+### [](https://github.com/tytusdb/tytus/tree/main/server/team06#boostrap) ![image](https://github.com/tytusdb/tytus/blob/main/server/fase2/team06/img/bop.png?raw=true =50x) Boostrap    
 
 
 Bootstrap es una biblioteca multiplataforma o conjunto de herramientas de código abierto para diseño de sitios y aplicaciones web. Se utilizó esta herramienta para realizar la interfaz gráfica de la aplicación.
 
-### [](https://github.com/tytusdb/tytus/tree/main/server/team06#jquery) ![image](https://avatars0.githubusercontent.com/u/70142?s=200&v=4?raw=true =50x) JQuery
+### [](https://github.com/tytusdb/tytus/tree/main/server/team06#jquery) ![image](https://github.com/tytusdb/tytus/blob/main/server/fase2/team06/img/js.png?raw=true =50x) JQuery
 
 jQuery es una biblioteca multiplataforma de JavaScript, que permite simplificar la manera de interactuar con los documentos HTML.
 
-### [](https://github.com/tytusdb/tytus/tree/main/server/team06#jstree) ![image](https://www.jstree.com/jstree.png?raw=true =50x)  JStree
+### [](https://github.com/tytusdb/tytus/tree/main/server/team06#jstree) ![image](https://github.com/tytusdb/tytus/blob/main/server/fase2/team06/img/jstre.png?raw=true =50x)  JStree
 
 Sirve para desplegar estructuras de árbol totalmente personalizables, configurables e interactivas. Esta libreria se utilizó para agrupar el apartado del navegador bases de datos en la interfaz gráfica.
+
+### [](https://github.com/tytusdb/tytus/tree/main/server/team06#jstree) ![image](https://github.com/tytusdb/tytus/blob/main/server/fase2/team06/img/toast.png?raw=true =50x)  Toastr
+
+Toastr es una libreria javascript para mostrar notificaciones web visuales, interactivas y con muchas opciones. Es posible descargar el la libreria toastr desde el sitio web oficial
 
 ## Funciones Servidor
 ```

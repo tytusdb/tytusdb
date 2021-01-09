@@ -4,6 +4,7 @@ import pickle
 import zlib
 import binascii
 import sys
+import hashlib 
 from cryptography.fernet import Fernet
 from BlockChain.BlockChain import BlockChain
 from grafos import grafos, node
@@ -678,6 +679,32 @@ def getCodificationMode(database):
             elif i["code"] == "UTF8":
                 return "UTF8"       
     return 2
+
+# 5. GENERACION DEL CHECKSUM
+def checksumDatabase(database,mode):
+    try:
+        file = open("C:/Users/Usuario/Desktop/Fase2-main/filename.txt", "wb") ##cambiar ruta si es en otra pc
+        file.write(str(extractDatabase(database)).encode("utf-8"))
+        file.close()
+
+        if mode == "MD5":
+            md5_hash = hashlib.md5()
+            a_file = open("filename.txt", "rb")
+            content = a_file.read()
+            md5_hash.update(content)
+            digest = md5_hash.hexdigest()
+            return digest
+        elif mode == "SHA256":
+            sha256_hash = hashlib.sha256()
+            with open(filename,"rb") as f:
+                for byte_block in iter(lambda: f.read(4096),b""):
+                    sha256_hash.update(byte_block)
+                digest=sha256_hash.hexdigest()
+                return digest
+        else:
+            return None
+    except:
+        return None
 
 # 6. COMPRESION DE DATOS
 def alterDatabaseCompress(database, level):
