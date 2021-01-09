@@ -2,9 +2,6 @@
 
 var arrayCollection = [
   { id: "database", type: "bds", parent: "#", text: "databases" },
-  { id: "dog", type: "bd", parent: "database", text: "Dogs" },
-  { id: "base1", type: "bd", parent: "database", text: "base1" },
-  { id: "table1", type: "td", parent: "base1", text: "table1" },
 ];
 var nameingresa = "";
 var parentname = "";
@@ -104,6 +101,8 @@ function Guarda() {
     autoincre++;
   }
   textoNombre=nameingresa;
+  var text = "create database " + nameingresa + "; \n ";
+  eel.analize(text);
   nameingresa = "";
   parentname = "";
   document.getElementsByName("namedb22")[0].value = "";
@@ -126,6 +125,9 @@ function Guardatb() {
     autoincre++;
   }
   nombreTabla=nameingresa;
+  var text = "use " + parentname + "; \n ";
+  text += "create table " + nameingresa + "; \n ";
+  eel.analize(text);
   nameingresa = "";
   parentname = "";
   document.getElementsByName("nametb2")[0].value = "";
