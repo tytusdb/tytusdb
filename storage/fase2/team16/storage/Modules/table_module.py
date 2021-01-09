@@ -392,7 +392,7 @@ class TableModule:
             pk = [0]
             numberColumns = 3
             register = [indexName, table, columns]
-            if not db.fk:
+            if not db.index:
                 eval(actionCreator(db.mode, 'createTable', ['database', 'name', 'numberColumns']))
                 eval(actionCreator(db.mode, 'alterAddPK', ['database', 'name', 'pk']))
             if eval(actionCreator(db.mode, 'insert', ['database', 'name', 'register'])) != 0:
@@ -491,9 +491,9 @@ class TableModule:
                 return 2
             _table = next((x for x in db.tables if x.name.lower() == table.lower()), None)
             if not _table:
-                raise
-            if not _table.compress:
                 return 3
+            if not _table.compress:
+                return 4
             compressContent = eval(actionCreator(_table.mode, 'extractTable', ['database', 'table']))
             if compressContent or compressContent == []:
                 if len(compressContent) != 0:

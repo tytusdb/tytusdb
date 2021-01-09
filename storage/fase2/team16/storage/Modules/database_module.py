@@ -8,7 +8,6 @@ from .Complements.checksum import *
 from .Complements.compress import Compression
 from .handler import Handler
 from ..path import *
-from .table_module import TableModule
 
 modes = ['avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash']
 codes = ['ascii', 'iso-8859-1', 'utf8']
@@ -241,7 +240,7 @@ class DatabaseModule:
             if level not in [-1, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
                 if level == 0:
                     return 0
-                return 4
+                return 3
             self.databases = self.handler.rootinstance()
             db, index = self._exist(database)
             if not db:

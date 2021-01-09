@@ -47,7 +47,14 @@ class TupleModule:
                 _table = next((x for x in tmp.tables if x.name.lower() == table.lower()), None)
                 if _table:
                     action = actionCreator(_table.mode, 'loadCSV', ['file', 'database', 'table'])
-                    return eval(action)
+                    result = eval(action)
+                    if len(result) != 0:
+                        if _table.security:
+                            reader = self.handler.readcsv(file)
+                            for x in range(len(reader)):
+                                if result[x] == 0:
+                                    _table.security.insert(reader[x])
+                    return result
             return []
         except:
             return []

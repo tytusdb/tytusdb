@@ -6,6 +6,7 @@
 import os
 from ..handler import Handler
 
+
 def generate(name: str, data: str):
     if not os.path.exists('./_tmp_'):
         os.makedirs('./_tmp_')
@@ -14,8 +15,9 @@ def generate(name: str, data: str):
     f = open(name + ".dot", "w")
     f.write(data)
     f.close()
-    os.system("dot -Tjpg " + name + ".dot -o " + './_tmp_/' + old + ".jpg")
+    os.system("dot -Tpng " + name + ".dot -o " + './_tmp_/' + old + ".png")
     # os.system('_tmp_\\' + old + ".jpg")
+
 
 def graphDSD(database: str):
     try:
@@ -30,6 +32,7 @@ def graphDSD(database: str):
         return None
     except:
         return None
+
 
 def graphDF(database: str, table: str):
     try:
@@ -47,6 +50,7 @@ def graphDF(database: str, table: str):
         return None
     except:
         return None
+
 
 def _exist(database: str, databases):
     tmp = None
@@ -70,22 +74,30 @@ def _generateDSD(tables, fks):
                 aux = aux + "| <c" + str(column) + ">" + str(column)
         aux = aux + "\" ]; \n"
         aux = aux + "subgraph \"cluster_error." + table.name + "\" { label =\"" + table.name + "\";" \
-                                                                            " " + table.name + ";} \n"
+                                                                                               " " + table.name + ";} \n"
         if fks:
             for fk in table.fk:
-                for col in fk[3]:
-                    for pk in fk[5]:
-                        aux = aux + fk[4] + ":c" + str(pk) + " -> " + fk[1] + ":c" + str(col) + " [color=red] \n"
+                for col in fk[2]:
+                    for pk in fk[4]:
+                        aux = aux + fk[3] + ":c" + str(pk) + " -> " + fk[1] + ":c" + str(col) + " [color=red] \n"
 
         content = content + aux
     content = content + "}"
     return content
 
+
 def _generateDF(table):
-    g = 'digraph g{\n    node[shape= circle, style= filled, fontname="Century Gothic", color="#006400", fillcolor="#90EE90"]\n    edge[color="#145A32"]\n    rankdir=LR\n'
+    g = 'digraph g{\n  graph[bgcolor="#0f1319"]\n  node[shape= circle, style= filled, fontname="Century Gothic", ' \
+        'color="#006400", ' \
+        'fillcolor="#90EE90"]\n    edge[color="#145A32"]\n    rankdir=LR\n'
+    columns = [x[2] for x in table.unique]
+    tmp = []
+    for t in columns:
+        for y in t:
+            tmp.append(y)
     for i in range(table.numberColumns):
-        if not i in table.unique:
-            for j in table.unique:
+        if not i in tmp:
+            for j in tmp:
                 g += "    " + str(j) + "->" + str(i) + "\n"
     g += '}'
     return g

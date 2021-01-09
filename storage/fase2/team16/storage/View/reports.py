@@ -149,22 +149,23 @@ def graphTuple(data):
     except:
         return None
 
+
 def graphBlockchain(database, table):
     try:
         fname = '_tmp_/blockchain.png'
         dot = open("_tmp_/blockchain.dot", "w")
         blocks = handler.readJSON(database, table)
-        diag = "digraph G{\n{rank=\"same\"}\n"
-        diag += 'rankdir="LR"\ngraph[bgcolor="#708090"]\nnode[shape="box", fontname="Century Gothic", fontsize=26, height=1.5, width=1.2];\nedge[penwidth=2];'
+        diag = 'digraph G{graph[bgcolor="#0f1319"]\n\n{rank=\"same\"}\n'
+        diag += 'rankdir="LR"\nnode[shape="box", fontname="Century Gothic", fontsize=26, ' \
+                'height=1.5, width=1.2];\nedge[penwidth=2, color="#145A32"];'
         first = True
         count = 0
         for block in blocks:
             if first:
-                color = '#008000' if block['color'] == 'green' else '#B22222'
-                diag += str(block['id']) + "[style=\"filled\", fillcolor=\" " + color + "\"]\n"
+                diag += str(block['id']) + "[style=\"filled\", fillcolor=\" " + block['color'] + "\"]\n"
                 first = None
             else:
-                diag += str(block['id']) + "[style=\"filled\", fillcolor=\" " + color + "\"]\n"
+                diag += str(block['id']) + "[style=\"filled\", fillcolor=\" " + block['color'] + "\"]\n"
                 diag += str(blocks[count - 1]['id']) + "->" + str(block['id']) + "\n"
             count += 1
         diag += "}"

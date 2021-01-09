@@ -140,7 +140,7 @@ class Controller:
     
     @staticmethod
     def getGraph(graph: str):
-        return '_tmp_/' + str(graph) + '.jpg'
+        return '_tmp_/' + str(graph) + '.png'
 
 
 
