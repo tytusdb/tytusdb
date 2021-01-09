@@ -41,8 +41,15 @@ export class NavbarComponent implements OnInit {
     } else {
       this.dbServs.create(dbName).subscribe((response)=> {
         const body = response.body;
-        const msg = body.msg;
-        alert('El servidor dice: ' + msg);
+        // Adaptar el mensaje 'response' para mostrar result.messages
+
+        // result.messages es una lista, pero solo se envía una instrucción
+        // se debe recuperar la PRIMERA POSICIÓN de esa lista y mostrar ese mensaje
+      }, (err) => {
+        // Indicar al usuario que hubo un error al crear la base de datos 'dbName'
+        // Por ejemplo:
+        //    alert('Error del servidor al intetnar crear la base de datos ' + dbName)
+        // Imprimir en consola (con console.log) el error 'err'
       });
     }
   }
