@@ -747,3 +747,199 @@ def insert(database: str, table: str, register: list) -> int:
         return res      
     except:
         return 1
+
+def loadCSV(filepath: str, database: str, table: str) -> list:
+    try:
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return []
+
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return []
+
+        mode = tabla["mode"]
+
+        res = 1
+
+        if mode == "avl":
+            res = avl.loadCSV(filepath, database, table)
+        elif mode == "b":
+            res = b.loadCSV(filepath, database, table)
+        elif mode == "bplus":
+            res = bplus.loadCSV(filepath, database, table)
+        elif mode == "hash":
+            res = ha.loadCSV(filepath, database, table)
+        elif mode == "isam":
+            res = isam.loadCSV(filepath, database, table)
+        elif mode == "json":
+            res = j.loadCSV(filepath, database, table)
+        elif mode == "dict":
+            res = d.loadCSV(filepath, database, table)
+
+        if 0 in res:
+            nombreTablaSegura = database + '-' + table
+            # ************* Modificar *********************
+            if blockC.EsUnaTablaSegura(nombreTablaSegura):
+                blockC.insertCSV(nombreTablaSegura, filepath, res)
+            # ************* Modificar *********************
+        return res 
+    except:
+        return []
+
+def extractRow(database: str, table: str, columns: list) -> list:
+    try:
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return []
+
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return []
+       
+        mode = tabla["mode"]
+
+        res = 1
+
+        if mode == "avl":
+            res = avl.extractRow(database, table, columns)
+        elif mode == "b":
+            res = b.extractRow(database, table, columns)
+        elif mode == "bplus":
+            res = bplus.extractRow(database, table, columns)
+        elif mode == "hash":
+            res = ha.extractRow(database, table, columns)
+        elif mode == "isam":
+            res = isam.extractRow(database, table, columns)
+        elif mode == "json":
+            res = j.extractRow(database, table, columns)
+        elif mode == "dict":
+            res = d.extractRow(database, table, columns)
+
+        return res
+    except:
+        return []
+
+def update(database: str, table: str, register: dict, columns: list) -> int:
+    try:
+        if not database.isidentifier() \
+        or not table.isidentifier():
+            raise Exception()        
+        
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return 2
+
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return 3
+
+        # Fase2
+        # ************* Modificar *********************
+        datosAntiguos = False
+        nombreTablaSegura = database + '-' + table
+        if blockC.EsUnaTablaSegura(nombreTablaSegura):
+            datosAntiguos = extractRow(database, table, columns)
+        # ************* Modificar *********************
+
+        mode = tabla["mode"]
+
+        res = 1
+
+        if mode == "avl":
+            res = avl.update(database, table, register, columns)
+        elif mode == "b":
+            res = b.update(database, table, register, columns)
+        elif mode == "bplus":
+            res = bplus.update(database, table, register, columns)
+        elif mode == "hash":
+            res = ha.update(database, table, register, columns)
+        elif mode == "isam":
+            res = isam.update(database, table, register, columns)
+        elif mode == "json":
+            res = j.update(database, table, register, columns)
+        elif mode == "dict":
+            res = d.update(database, table, register, columns)
+
+        if res == 0:
+            # ************* Modificar *********************
+            if datosAntiguos:
+               blockC.updateSafeTable(nombreTablaSegura, datosAntiguos, extractRow(database, table, columns))
+            # ************* Modificar *********************        
+        return res
+    except:
+        return 1
+
+def delete(database: str, table: str, columns: list) -> int:
+    try:
+        if not database.isidentifier() \
+        or not table.isidentifier():
+            raise Exception()        
+        
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return 2
+
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return 3
+       
+        mode = tabla["mode"]
+
+        res = 1
+
+        if mode == "avl":
+            res = avl.delete(database, table, columns)
+        elif mode == "b":
+            res = b.delete(database, table, columns)
+        elif mode == "bplus":
+            res = bplus.delete(database, table, columns)
+        elif mode == "hash":
+            res = ha.delete(database, table, columns)
+        elif mode == "isam":
+            res = isam.delete(database, table, columns)
+        elif mode == "json":
+            res = j.delete(database, table, columns)
+        elif mode == "dict":
+            res = d.delete(database, table, columns)
+
+        return res
+    except:
+        return 1
+
+def truncate(database: str, table: str) -> int:
+    try:
+        if not database.isidentifier() \
+        or not table.isidentifier() :
+            raise Exception()             
+        
+        baseDatos = __getDatabase(database)
+        if baseDatos is False:
+            return 2
+
+        tabla = __getTable(database, table)
+        if tabla is False:
+            return 3
+        
+        mode = tabla["mode"]
+
+        res = 1
+        
+        if mode == "avl":
+            res = avl.truncate(database, table)
+        elif mode == "b":
+            res = b.truncate(database, table)
+        elif mode == "bplus":
+            res = bplus.truncate(database, table)
+        elif mode == "hash":
+            res = ha.truncate(database, table)
+        elif mode == "isam":
+            res = isam.truncate(database, table)
+        elif mode == "json":
+            res = j.truncate(database, table)
+        elif mode == "dict":
+            res = d.truncate(database, table)
+
+        return res       
+    except:
+        return 1
