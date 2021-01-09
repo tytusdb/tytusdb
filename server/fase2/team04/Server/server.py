@@ -7,7 +7,7 @@ sys.path.append('../../../../parser/team26/G26/')
 sys.path.append('../../../../parser/team26/G26/Utils')
 sys.path.append('../../../../parser/team26/G26/Expresiones')
 sys.path.append('../../../../parser/team26/G26/Instrucciones')
-sys.path.append('../../../../parser/team26/G26/Librerias')
+sys.path.append('../../../../storage/storageManager')
 
 # Server imports
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -18,7 +18,7 @@ import json
 # Parser imports
 import Instrucciones.DML.select as select
 from Error import *
-import Librerias.storageManager.jsonMode as storage
+import jsonMode as storage
 import gramatica as g
 import Utils.Lista as l
 
@@ -72,16 +72,6 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         erroresSemanticos = []
         contenido = ""
         text = ""
-        try:
-            f = open("../../../../parser/team26/G26/Utils/tabla.txt", "r")
-            text = f.read()
-            text = text.replace('\'','"')
-            text = text.replace('False','"False"')
-            text = text.replace('None','""')
-            text = text.replace('True','"True"')
-        except:
-            text = ""
-            print('error')
 
 
         for instr in instrucciones['ast']:
@@ -102,6 +92,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
             databases = open(url).read()
         except:
             databases = ""
+            print("F")
         
         ####################################################FIN PARSER    
         
