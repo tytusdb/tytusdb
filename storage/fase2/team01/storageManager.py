@@ -1034,3 +1034,104 @@ def graphDF(database: str, table: str) -> str:
             return None #No existe la Base de Datos
     except:
         return None #Error en la operación
+
+#Agregue compresión utilizando la biblioteca zlib de python y las funciones compress y decompress
+def alterDatabaseCompress(database: str, level: int) -> int:
+    try:
+        d = database.lower()
+        itemDB = buscaBBDD(d)
+        if itemDB:
+            return 1 #NO IMPLEMENTADA
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Quita la compresión de una base de datos especificada
+def alterDatabaseDecompress(database: str) -> int:
+    try:
+        d = database.lower()
+        itemDB = buscaBBDD(d)
+        if itemDB:
+            return 1 #NO IMPLEMENTADA
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Agregue compresión utilizando la biblioteca zlib de python y las funciones compress y decompress
+def alterTableCompress(database: str, table: str, level: int) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        itemDB = buscaBBDD(d)
+        if itemDB:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                return 1 #NO IMPLEMENTADA
+            else:
+                return 3 #Tabla no existe
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Quita la compresión de una base de datos especificada
+def alterTableDecompress(database: str, table: str) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        itemDB = buscaBBDD(d)
+        if itemDB:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                return 1 #NO IMPLEMENTADA
+            else:
+                return 3 #Tabla no existe
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Activa el modo seguro para una tabla de una base de datos
+def safeModeOn(database:str, table:str) -> int :
+    global variableGlobal
+    variableGlobal=0
+    d = database.lower()
+    t = table.lower()
+    itemBD = buscaBBDD(d)
+    if itemBD:
+        itemTBL = buscarTabla(d, t)      
+        if itemTBL:
+            if variableGlobal == 1:
+                return 4
+            else:                
+                variableGlobal = 1
+                return 0
+        else:
+            return 3
+    else:
+        return 2
+
+#Desactiva el modo seguro en la tabla especificada de la base de datos
+def safeModeOff(database:str, table:str) -> int:
+    global variableGlobal
+    variableGlobal = 1
+    d = database.lower()
+    t = table.lower()
+    itemBD = buscaBBDD(d)
+    if itemBD:
+        itemTBL = buscarTabla(d, t)      
+        if itemTBL:
+            if variableGlobal == 1:
+                variableGlobal = 0
+                with open("register.json","wb") as archivo_generado:
+                    archivo_generado.write(chaing.get_chain().encode())                
+                return 0
+            else:                                
+                return 4
+        else:
+            return 3
+    else:
+        return 2
+   
