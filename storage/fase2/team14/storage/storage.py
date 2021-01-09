@@ -8,6 +8,7 @@ from .AVLMode import avlMode as AVLM
 from .jsonMode import jsonMode as jsonM
 from .DictMode import DictMode as DictM
 from .encryption import _decrypt, _encrypt
+from .Blockchain import *
 import os
 import hashlib
 import zlib
@@ -173,17 +174,20 @@ def alterDatabaseMode(database: str, mode: str) -> int:
         elif mode not in modes:
             return 4
         else:
-            createDatabase('temporal_name', mode, 'utf8')
-            for key in databasesinfo[1][database].keys():
-                createTable('temporal_name', key, databasesinfo[1][database][key]['numberColumns'])
-                if databasesinfo[1][database][key]['PK'] is not None:
-                    alterAddPK('temporal_name', key, databasesinfo[1][database][key]['PK'])
-                registers = extractTable(database, key)
-                for register in registers:
-                    insert('temporal_name', key, register)
-            dropDatabase(database)
-            alterDatabase('temporal_name', database)
-            return 0
+            if databasesinfo[0][database]['mode'] == mode:
+                return 1
+            else:
+                createDatabase('temporal_name', mode, 'utf8')
+                for key in databasesinfo[1][database].keys():
+                    createTable('temporal_name', key, databasesinfo[1][database][key]['numberColumns'])
+                    if databasesinfo[1][database][key]['PK'] is not None:
+                        alterAddPK('temporal_name', key, databasesinfo[1][database][key]['PK'])
+                    registers = extractTable(database, key)
+                    for register in registers:
+                        insert('temporal_name', key, register)
+                dropDatabase(database)
+                alterDatabase('temporal_name', database)
+                return 0
     except:
         return 1
 
