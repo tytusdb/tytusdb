@@ -67,7 +67,7 @@ def regla2(arreglo):
                             #print('OPTIMIZAR: REGLA 2', goto.execute()['goto'])
                             break
                         else:
-                            print('LABEL: NO OPTIMIZAR', goto.execute()['goto'], label.execute()['label'])
+                            #print('LABEL: NO OPTIMIZAR', goto.execute()['goto'], label.execute()['label'])
                             break
                     k+=1
             i+=1
@@ -90,7 +90,6 @@ def regla3(arreglo):
                     for l in range(i-1,i+3):
                         antiguo += '\n' + funcion[l].toString(0)
 
-                    print(funcion[i])
                     ins_if.setGoto(funcion[i+1].getGoto())
                     
                     operacion = funcion[i-1].getOperacion()
@@ -210,7 +209,7 @@ def regla6(arreglo):
                                 #print('OPTIMIZAR: REGLA 2', goto.execute()['goto'])
                             break
                         else:
-                            print('LABEL: NO OPTIMIZAR', goto.execute()['goto'], label.execute()['label'])
+                            #print('LABEL: NO OPTIMIZAR', goto.execute()['goto'], label.execute()['label'])
                             break
                     k+=1
             i+=1
@@ -426,15 +425,14 @@ def limipiarReporte():
     RepOptimizacion.clear()
 
 def Optimizar(arreglo):
-    # regla1(arreglo)
-    # regla2(arreglo)
-    # regla3(arreglo)
-    # regla4(arreglo)
-    # regla5(arreglo)
-    # regla6(arreglo)
+    regla1(arreglo)
+    regla2(arreglo)
+    regla3(arreglo)
+    regla4(arreglo)
+    regla5(arreglo)
+    regla6(arreglo)
     regla7(arreglo)
     regla8_18(arreglo)
 
-    for item in RepOptimizacion:
-        print(item)
+    return RepOptimizacion
 

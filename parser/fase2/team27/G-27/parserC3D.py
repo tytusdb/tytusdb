@@ -4,6 +4,7 @@
 # IMPORTE DE LIBRERIA PLY
 import ply.lex as lex
 import ply.yacc as yacc
+from prettytable import PrettyTable
 #IMPORTES EXTRAS
 import re
 import codecs
@@ -22,6 +23,9 @@ from Optimizacion.Instrucciones.funcion import *
 from Optimizacion.Instrucciones.ins_if import *
 from Optimizacion.Instrucciones.ins_parse import *
 from Optimizacion.Instrucciones.ins_return import *
+from Optimizacion.Instrucciones.ins_import import *
+from Optimizacion.Instrucciones.ins_del import *
+from Optimizacion.Instrucciones.ins_llamada import *
 
 # ======================================================================
 #                          ENTORNO Y PRINCIPAL
@@ -29,14 +33,14 @@ from Optimizacion.Instrucciones.ins_return import *
 TokenError = list()
 C3D = list()
 
-reservadas = [ 'IMPORT','FROM','GOTO','PARSER','PARSE','WITH_GOTO','DEF','LABEL','AND','OR','IF','RETURN'
+reservadas = [ 'IMPORT','FROM','GOTO','PARSER','PARSE','WITH_GOTO','DEF','LABEL','AND','OR','IF','RETURN','DEL'
               ]
 
 tokens = reservadas + ['TEMPORAL','ID','PARABRE','PARCIERRE','COMA','DOSPUNTOS','CORCHETEABRE','CORCHETECIERRE','CADENA',
                         'PUNTO','SIGNO_IGUAL','SIGNO_MAS','SIGNO_MENOS','SIGNO_DIVISION','SIGNO_POR','SIGNO_DOBLE_IGUAL',
                         'LLAVEABRE','LLAVECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','SIGNO_MENORQUE_MAYORQUE',
                         'MAYORIGUALQUE','MENORIGUALQUE','MAYORQUE','MENORQUE','SIGNO_NOT','ARROBA','CADENASIMPLE',
-                        'NUMERO','NUM_DECIMAL','COMMENT','COMMENT_MULT','NONE','TABULACION'
+                        'NUMERO','NUM_DECIMAL','COMMENT','COMMENT_MULT','NONE','TABULACION','PARSER_PARSE'
                        ]
 
 
@@ -78,6 +82,10 @@ t_MENORQUE = r'\<'
 # EXPRESION REGULAR PARA TEMPORALES
 def t_TEMPORAL(t):
     r'T\d+'
+    return t
+
+def t_PARSER_PARSE(t):
+    r'parser.parse\(  .*'
     return t
 
 # EXPRESION REGULARES PARA ID
@@ -138,7 +146,7 @@ def t_error(t):
 analizador = lex.lex()
 
 # ANALISIS LEXICO DE ENTRADA
-def analizarLex(texto):    
+def analizarLexC3D(texto):    
     analizador.input(texto)# el parametro cadena, es la cadena de texto que va a analizar.
 
     #ciclo para la lectura caracter por caracter de la cadena de entrada.
@@ -167,25 +175,50 @@ precedence = (
 
 def p_inicio(t):
     '''inicio : imports code'''
-    # for item in t[2]:
-    #     if isinstance(item,Instruccion):
-    #         print(item.execute().get('ins'))
-    #         for item2 in item.execute().get('func',[]):
-    #             print(item2.execute())
-    #     else:
-    #         print(item.execute())
-
-
+    t[0] = t[1] + t[2]
     # for item in t[2]:
     #     print(item.toString(0))
 
-    regla.Optimizar(t[2])
-    for item in t[2]:
-        print(item.toString(0))
+    # regla.Optimizar(t[0])
+    # for item in t[0]:
+    #     print(item.toString(0))
         
-def p_immports(t):
-    '''imports : FROM GOTO IMPORT WITH_GOTO  FROM PARSER IMPORT PARSER
-                |  FROM GOTO IMPORT WITH_GOTO '''
+def p_imports(t):
+    '''imports : imports import
+                | import 
+                |'''
+    if len(t) ==  3:
+        t[1] += [t[2]]
+        t[0] = t[1]
+    elif len(t) == 2:
+        t[0] = [t[1]]
+    else:
+        t[0] = []
+
+def p_import(t):
+    '''import :  FROM GOTO IMPORT WITH_GOTO
+              | FROM lib IMPORT PARSER
+              | FROM lib IMPORT methods'''
+    if t.slice[2].type == 'GOTO':
+        t[0] = Ins_import('IMPORT','from goto import with_goto')
+    elif t.slice[4].type == 'PARSER':
+        t[0] = Ins_import('IMPORT','from ' + str(t[2]) + ' import Parser')
+    else:
+        t[0] = Ins_import('IMPORT','from ' + str(t[2]) + ' import ' + str(t[4]))
+
+def p_lib(t):
+    '''lib : lib PUNTO ID
+            | ID'''
+    if len(t) == 4:
+        t[0] = t[1] + t[2] + t[3]
+    else:
+        t[0] = t[1]
+
+def p_methods(t):
+    '''methods : ID
+                | SIGNO_POR'''
+    t[0] = t[1]
+                    
 
 def p_code(t):
     '''code : code instruction
@@ -210,17 +243,23 @@ def p_instruction(t):
                   | parser 
                   | asignacion
                   | ID PARABRE params PARCIERRE
+                  | DEL ID
+                  | PARSER SIGNO_IGUAL PARSER PARABRE PARCIERRE
                   |'''
     if len(t) == 2:
         t[0] = t[1]
+    elif len(t) == 6:
+        t[0] = Asignacion('\nparser','Parser()',None,None) 
+    elif len(t) == 3:
+        t[0] = Ins_Del('DEL', t[2])
     elif len(t) == 5:
-        t[0] = Funcion(t[1],t[3],None)
+        t[0] = Ins_Llamada(t[1],t[3])
     else:
         t[0] = None
 
 def p_parser(t):
-    '''parser : PARSER PUNTO PARSE PARABRE CADENASIMPLE PARCIERRE'''
-    t[0] = Ins_parse('PARSE',str(t[1]) + str(t[2]) + str(t[3]) + str(t[4] + str(t[5]) + str(t[6])))
+    '''parser : PARSER_PARSE'''
+    t[0] = Ins_parse('PARSE',t[1])
 
 def p_function(t):
     '''functions : ARROBA WITH_GOTO  DEF ID PARABRE params PARCIERRE DOSPUNTOS func_instrucciones'''
@@ -350,52 +389,27 @@ def clear_errores():
 
 # metodo para realizar el analisis sintactico, que es llamado a nuestra clase principal
 #"texto" -> en este parametro enviaremos el texto que deseamos analizar
-def analizarSin(texto):
+def analizarSinC3D(texto):
     parser = yacc.yacc()
     contenido = parser.parse(texto, lexer= analizador)# el parametro cadena, es la cadena de texto que va a analizar.
-    return contenido
-
-entrada = '''
-from goto import with_goto
-from parser import parser
-
-@with_goto
-def sp_validainsert():
     
-	GOTO .L1
-	A = 5
- 	B = 6
-	T5 = A !=  B
-	IF T5 :
-		GOTO .L1
-	LABEL .L1
+    optimizado = regla.Optimizar(contenido)
+
+    f=open("./opC3D.py","w")
+    codigo = ''
+    for item in contenido:
+        codigo += '\n'+ item.toString(0)
+    f.write(codigo)
+    f.close()
     
- 	a  = a + d
- 	c = d + 0
- 	label.L1
- 	GOTO . L3
-	GOTO . L2
+    return tab_string(optimizado)
 
-T5 = T1 + T2
 
-	
-    
-'''
-
-print(analizarLex(entrada))
-analizarSin(entrada)
-
-for item in TokenError:
-    print(item)
-
-'''
-
-	GOTO . L2
-	LABEL.L1
-
-	T5 = T1 + T2
-
-	LABEL.L2
-
-	T4 = A
-'''
+def tab_string(arreglo):
+    x = PrettyTable()
+    encabezados = ['ANTIGUO','REGLA','NUEVO']
+    x.field_names = encabezados
+    for it in arreglo:
+        tupla = [it['antiguo'],it['regla'],it['nuevo']]
+        x.add_row(tupla)
+    return '\n'+ x.get_string() +'\n'
