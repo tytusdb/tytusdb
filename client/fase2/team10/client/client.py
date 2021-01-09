@@ -279,7 +279,7 @@ class cliente():
 
         # Imprimimos los Mensajes
         for msg in self.obj['messages']:
-            self.f_set_console_message(msg)
+            self.f_set_console_message(json.dumps(msg).replace('"',''))
         
         # Imprimimos los Errores
         for err in self.obj['postgres']:
