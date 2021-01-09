@@ -5,12 +5,16 @@ from storage.dict import DictMode as diccionario
 from storage.isam import ISAMMode as isam
 from storage.hash import HashMode as hash
 from storage.json import jsonMode as json
-from Binary import verify_string
+from Binary import verify_string, generate_grapviz
 from checksum import checksum_database, checksum_table
 import criptografia as crypt
-from estruct.blockChain import BlockChain
+from blockChain import BlockChain
 from metadata import Database, Table, FK
+from grafo import Graph
 import zlib
+import os.path as path
+from shutil import rmtree
+import copy
 
 metadata_db_list = list()
 flag_block = False
@@ -288,35 +292,44 @@ def insert(database, name_table, register: list):
         if name_table in metadata_db.get_tab():
             struct = get_struct(metadata_db.get_mode())
             if metadata_db.get_encondig().lower().strip() == "ascii":
-                if encodi_ascii_decod(register,"ascii") != 1:
+                if encodi_ascii_decod(register, "ascii") != 1:
                     status = struct.insert(database, name_table, register)
                     if status == 0:
                         if flag_block:
                             block: BlockChain = get_block_chain(name_table)
                             if block:
                                 block.create_block(register)
+                                gra = block.graficar()
+                                ruta = f"bc_insert_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
-            elif metadata_db.get_encondig().lower().strip() == "utf-8":
-                if encodi_utf_decod(register,"utf-8") !=1:
+            elif metadata_db.get_encondig().lower().strip() == "utf8":
+                if encodi_utf_decod(register, "utf8") != 1:
                     status = struct.insert(database, name_table, register)
                     if status == 0:
                         if flag_block:
                             block: BlockChain = get_block_chain(name_table)
                             if block:
                                 block.create_block(register)
+                                gra = block.graficar()
+                                ruta = f"bc_insert_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
             elif metadata_db.get_encondig().lower().strip() == "iso-8859-1":
-                if encodi_iso_decod(register,"iso-8859-1") !=1:
+                if encodi_iso_decod(register, "iso-8859-1") != 1:
                     status = struct.insert(database, name_table, register)
                     if status == 0:
                         if flag_block:
                             block: BlockChain = get_block_chain(name_table)
                             if block:
                                 block.create_block(register)
+                                gra = block.graficar()
+                                ruta = f"bc_insert_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
@@ -394,7 +407,7 @@ def update(database, name_table, register: dict, columns):
         if name_table in metadata_db.get_tab():
             struct = get_struct(metadata_db.get_mode())
             if metadata_db.get_encondig().lower().strip() == "ascii":
-                if encodi_ascii_decod(register.values(),"ascii") != 1:
+                if encodi_ascii_decod(register.values(), "ascii") != 1:
                     data = struct.extractRow(database, name_table, columns).copy()
                     status = struct.update(database, name_table, register, columns)
                     if status == 0:
@@ -403,12 +416,16 @@ def update(database, name_table, register: dict, columns):
                             id_block = block.get_block(data)
                             if block and id_block:
                                 block.update(register, id_block)
-                                #block.graficar()
+                                # block.graficar()
+                                gra = block.graficar()
+                                ruta = f"bc_update_{database}"
+                                generate_grapviz(gra, str(ruta))
+
                     return status
                 else:
                     return 1
-            elif metadata_db.get_encondig().lower().strip() == "utf-8":
-                if encodi_utf_decod(register.values(),"utf-8") !=1:
+            elif metadata_db.get_encondig().lower().strip() == "utf8":
+                if encodi_utf_decod(register.values(), "utf8") != 1:
                     data = struct.extractRow(database, name_table, columns).copy()
                     status = struct.update(database, name_table, register, columns)
                     if status == 0:
@@ -417,12 +434,15 @@ def update(database, name_table, register: dict, columns):
                             id_block = block.get_block(data)
                             if block and id_block:
                                 block.update(register, id_block)
-                                #block.graficar()
+                                # block.graficar()
+                                gra = block.graficar()
+                                ruta = f"bc_update_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
             elif metadata_db.get_encondig().lower().strip() == "iso-8859-1":
-                if encodi_iso_decod(register.values(),"iso-8859-1") !=1:
+                if encodi_iso_decod(register.values(), "iso-8859-1") != 1:
                     data = struct.extractRow(database, name_table, columns).copy()
                     status = struct.update(database, name_table, register, columns)
                     if status == 0:
@@ -431,7 +451,10 @@ def update(database, name_table, register: dict, columns):
                             id_block = block.get_block(data)
                             if block and id_block:
                                 block.update(register, id_block)
-                                #block.graficar()
+                                # block.graficar()
+                                gra = block.graficar()
+                                ruta = f"bc_update_{database}"
+                                generate_grapviz(gra, str(ruta))
                     return status
                 else:
                     return 1
@@ -441,7 +464,6 @@ def update(database, name_table, register: dict, columns):
             return 3
     else:
         return 2
-
 
 
 def loadCSV(file, database, name_table):
@@ -465,7 +487,10 @@ def delete(database, name_table, columns):
                 id_block = block.get_block(data)
                 if block and id_block:
                     block.delete_block(id_block)
-                    #block.graficar()
+                    # block.graficar()
+                    gra = block.graficar()
+                    ruta = f"bc_delete_{database}"
+                    generate_grapviz(gra, str(ruta))
         return status
     else:
         return 1
@@ -825,9 +850,10 @@ def graphDSD(database: str):
 
                         grafo.join(str(table_1), str(table_2))
                         # print(f"{str(table_1)},{str(table_2)}")
-            grafo.graficar()
+            gra = grafo.graficar()
+            ruta = f"graphDSD_{database}"
+            generate_grapviz(gra, str(ruta))
         else:
             return "Tables empty"
     else:
         return 1
-
