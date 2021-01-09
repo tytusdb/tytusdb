@@ -1144,6 +1144,87 @@ def alterTableDropFK(database: str, table: str, indexName: str) -> int:
 
 
 
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
+    try:
+        # se llama a la base de datos
+        bdata = __getDatabase(database)
+
+        if bdata:
+            # se extrae la tabla buscada y la tabla de referencia
+            tabla = __getTable(database, table)
+            #for t in bdata.get("tables"):
+                #if t.get("nombretb") == table:
+                    #tabla  = t.get("nombretb")
+
+            # se comprueba la existencia de las tablas
+            if tabla is False:
+                return 3
+            # se agrega el indice a la clase de indices
+            tabla["unique_index"].insert([indexName, table, columns])
+
+            #Se extraen los registros actualizados de la estructura Un
+            registrosUn = tabla["unique_index"].extractTable()
+            #Se guardan en el archivo data
+            listaDB = __rollback("data")
+            for db in listaDB:
+                if db["nameDb"] == database:
+                    for tb in db["tables"]:
+                        if tb["nameTb"] == table:
+                            tb["registrosUn"] = registrosUn
+                            break
+                
+            #Se guarda la lista de base de datos actualizada en el archivo data
+            __commit(listaDB, "data")
+            return 0
+        else:
+            return 2
+    except:
+        return 1
+
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+    try:
+        # se llama a la base de datos
+        bdata= __getDatabase(database)
+
+        if bdata:
+            # se extrae la tabla buscada y la tabla de referencia
+            tabla = __getTable(database, table)
+            #for t in bdata.get("tables"):
+                #if t.get("nombretb") == table:
+                    #tabla  = t.get("nombretb")
+
+            # se comprueba la existencia de las tablas
+            if tabla is False:
+                return 3
+            # se busca el indexname
+            unique_index= tabla["unique_index"].extractRow(indexName)
+            
+            if unique_index:
+                val = tabla["unique_index"].delete(indexName)
+
+                #Se extraen los registros actualizados de la estructura Unique
+                registrosUn = tabla["unique_index"].extractTable()
+                #Se guardan en el archivo data
+                listaDB = __rollback("data")
+                for db in listaDB:
+                    if db["nameDb"] == database:
+                        for tb in db["tables"]:
+                            if tb["nameTb"] == table:
+                                tb["registrosUn"] = registrosUn
+                                break
+                    
+                #Se guarda la lista de base de datos actualizada en el archivo data
+                __commit(listaDB, "data")
+                return val    # valor esperado: 0
+            else:
+                return 4
+        else:
+            return 2
+    except:
+        return 1
+
+
+
 
 
 
