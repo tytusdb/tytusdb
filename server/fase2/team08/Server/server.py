@@ -33,6 +33,9 @@ class MyRequestHandler(BaseHTTPRequestHandler):
             self.do_getUsers()
         elif self.path =='/getDB':
             self.do_getDB()
+        elif self.path == '/getUsuario': 
+            print("SI ENTRA")          
+            self.do_getUser()
         else:
             self.send_response(400)
             self.wfile.write(bytes("",'utf-8'))
@@ -50,6 +53,18 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         else:
             self.send_response(400) 
             self.wfile.write(bytes("",'utf-8'))
+
+    def do_getUser(self):
+        url = "./data/tytus.json"
+        try:
+            myFile = open(url).read()
+            self.send_response(200)
+        except:
+            myFile = "File not found"
+            self.send_response(404)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(bytes(myFile, 'utf-8'))
 
     def do_dataquery(self):
          global datos

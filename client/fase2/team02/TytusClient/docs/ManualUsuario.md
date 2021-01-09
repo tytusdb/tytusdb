@@ -13,6 +13,7 @@ Diciembre 2020
 - [Barra de Herramientas](#barra-de-herramientas)
 - [Conexiones](#conexiones)
 - [Query Tool](#query-tool)
+- [Consola] (#consola)
 
 
 ## TytusDB
@@ -106,4 +107,12 @@ Es la funcionalidad de tytusDB que nos permite realizar consultas y operaciones 
 
 <p align="center">
   <img src="img/07.png" width="800" alt="TytusDB Query Tool">
+</p>
+
+### Consola
+
+La consola muestra los resultados o mensajes de error de las consultas realizadas al servidor de bases de datos.
+
+<p align="center">
+  <img src="img/08.png" width="800" alt="TytusDB Consola">
 </p>

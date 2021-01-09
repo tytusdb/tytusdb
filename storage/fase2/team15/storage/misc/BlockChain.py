@@ -135,7 +135,11 @@ def GraphSafeTable(nombreTabla, ruta):
     lista = js.loads(file.read())
     file.close()
 
-    file = open('BlockChain.dot', "w")
+    try:
+        os.mkdir("data/graph")
+    except: pass
+
+    file = open('data/graph/BlockChain.dot', "w")
     file.write("graph grafica{" + os.linesep)
     file.write("rankdir=LR;" + os.linesep)
     contador = 0
@@ -170,37 +174,5 @@ def GraphSafeTable(nombreTabla, ruta):
 
     file.write('}')
     file.close()
-    subprocess.call('dot -Tpng BlockChain.dot -o BlockChain.png')
-    os.system('BlockChain.png')
-
-
-listadedatos = [[1, 'pedro', '201901522'], [2, 'pedro1', '201901523'], [3, 'pedro2', '201901524'],
-                [4, 'pedro3', '201901525'], [5, 'pedro4', '201901526'], [6, 'pedro5', '201901527'],
-                [7, 'pedro6', '201901528']]
-
-rutita = 'C:\\Users\\welma\\OneDrive\\Escritorio\\Cursos actuales\\EDD'
-CreateBlockChain('prueba', rutita)
-
-
-'''
-GraphSafeTable('prueba', rutita)
-
-if EsUnaTablaSegura('animales', rutita):
-    updateSafeTable('animales', [sdf,fsfsd,sdfa], [fs,gaf,fsf], rutita)
-else:
-    print('No es una tabla segura')
-
-input('stop')
-
-if EsUnaTablaSegura('prueba', rutita):
-    updateSafeTable('prueba', [5, 'pedro4', '201901526'], [6, 'JuanMecanico', 'TodoBien'], rutita)
-else:
-    print('No es una tabla segura')
-
-GraphSafeTable('prueba', rutita)
-
-if EsUnaTablaSegura('prueba', rutita):
-    insertSafeTable('prueba', [89, 'este', 'DatoNuevo'], rutita)
-else:
-    print('No es una tabla segura')
-'''
+    subprocess.call('dot -Tpng data/graph/BlockChain.dot -o data/graph/BlockChain.png')
+    os.remove("data/graph/BlockChain.dot")

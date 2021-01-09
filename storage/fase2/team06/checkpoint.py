@@ -3,18 +3,18 @@ from storage.b import BMode as b
 from storage.bplus import BPlusMode as bplus
 from storage.hash import HashMode as hash
 from storage.isam import ISAMMode as isam
-from storage.json import jsonMode as json
+from storage.json import jsonMode as jsonn
 from storage.dict import DictMode as dict
 import pickle
 import os
 import zlib
-import hashlib
 from cryptography.fernet import Fernet
 import base64
+import hashlib
+import json
 
 modos = ["avl", "b", "bplus", "hash", "isam", "json", "dict"]
 encoding = ["ascii", "utf8", "iso-8859-1"]
-
 def commit(objeto, nombre):
     file = open(nombre + ".bin", "wb+")
     file.write(pickle.dumps(objeto))
@@ -29,7 +29,7 @@ def rollback(nombre):
 def __init__():
     global lista_db
     lista_db = []
-    #lista_db = rollback("prueba")
+    lista_db = rollback("prueba")
 __init__()
 
 
@@ -53,7 +53,7 @@ def verificarmodo(mode):
     elif mode == 'isam':
         return isam
     elif mode == 'json':
-        return json
+        return jsonn
     elif mode == 'hash':
         return hash
 
@@ -68,10 +68,12 @@ def createDatabase(db,modo,cod):
                 cod = "ASCII"
             elif cod =="utf8":
                 cod = "utf-8"
+            else:
+                cod = "ASCII"
             db.encode(cod)
             tmp = verificarmodo(modo).createDatabase(db)
             if tmp == 0:
-                lista_db.append([db, modo, cod, {}, [], [], []])
+                lista_db.append([db, modo, cod, {}, [], [], [], {}])
                 return tmp
             else:
                 return tmp
@@ -88,16 +90,13 @@ def cambiardatos(db, modo,modonuevo):
     if len(tablas)>0:
         for tabla in tablas:
             registros = verificarmodo(modo).extractTable(db,tabla)
-            if len(registros) !=0:
-                verificarmodo(modonuevo).createTable(db, tabla, len(registros[0]))
-                for pk in listapk:
-                    if db in pk and tabla in pk:
-                        verificarmodo(modonuevo).alterAddPK(db, tabla, pk[2])
-                if len(registros) > 0:
-                    for registro in registros:
-                        verificarmodo(modonuevo).insert(db, tabla, registro)
-            else:
-                verificarmodo(modonuevo).createTable(db, tabla, 4)
+            verificarmodo(modonuevo).createTable(db,tabla,len(registros[0]))
+            for pk in listapk:
+                if db in pk and tabla in pk:
+                    verificarmodo(modonuevo).alterAddPK(db, tabla, pk[2])
+            if len(registros)>0:
+                for registro in registros:
+                    verificarmodo(modonuevo).insert(db,tabla,registro)
 
 def alterDatabaseMode(db, modo):
     nodo = buscar(db)
@@ -124,20 +123,6 @@ def alterDatabaseMode(db, modo):
                 return 1
         else:
             return 4
-    else:
-        return 2
-
-def alterDatabaseEncoding(db,cod):
-    nodo = buscar(db)
-    if nodo != None:
-        if cod in encoding:
-            try:
-                nodo[2]=cod
-                return 0
-            except:
-                return 1
-        else:
-            return 3
     else:
         return 2
 
@@ -191,12 +176,9 @@ def alterDatabase(db,nuevadb):
     if nodonuevo is None:
         if nodo != None:
             try:
-                if Codtexto(db,nuevadb) is True:
-                    res = verificarmodo(nodo[1]).alterDatabase(db,nuevadb)
-                    nodo[0]=nuevadb
-                    return res
-                else:
-                    return 1
+                res = verificarmodo(nodo[1]).alterDatabase(db,nuevadb)
+                nodo[0]=nuevadb
+                return res
             except:
                 return 1
         else:
@@ -208,11 +190,8 @@ def createTable(db,tabla,columnas):
     nodo = buscar(db)
     if nodo != None:
         try:
-            if Codtexto(db,tabla) is True:
-                res = verificarmodo(nodo[1]).createTable(db, tabla, columnas)
-                return res
-            else:
-                return 1
+            res = verificarmodo(nodo[1]).createTable(db,tabla,columnas)
+            return res
         except:
             return 1
     else:
@@ -320,17 +299,14 @@ def alterTable(db,tabla,tablanueva):
     nodo = buscar(db)
     if nodo != None:
         try:
-            if Codtexto(db,tabla) is True:
-                dict = nodo[3]
-                if tabla in dict:
-                    res = verificarmodo(dict[tabla]).alterTable(db, tabla,tablanueva)
-                    tabla = tablanueva
-                    return res
-                else:
-                    res = verificarmodo(nodo[1]).alterTable(db, tabla, tablanueva)
-                    return res
+            dict = nodo[3]
+            if tabla in dict:
+                res = verificarmodo(dict[tabla]).alterTable(db, tabla,tablanueva)
+                tabla = tablanueva
+                return res
             else:
-                return 1
+                res = verificarmodo(nodo[1]).alterTable(db, tabla, tablanueva)
+                return res
         except:
             return 1
     else:
@@ -415,6 +391,13 @@ def update(db,tabla,dict,lista):
     nodo = buscar(db)
     if nodo != None:
         dict = nodo[3]
+        smode = nodo[7]
+        if tabla in smode:
+            cadena = ""
+            for j in lista:
+                cadena +=j
+            smode[tabla].update(tabla,cadena)
+
         if tabla in dict:
             res = verificarmodo(dict[tabla]).update(db,tabla,dict,lista)
             return res
@@ -453,19 +436,16 @@ def truncate(db,tabla,lista):
 def insert(db,tabla,lista):
     nodo = buscar(db)
     if nodo != None:
-        r = []
-        for i in lista:
-            r.append(Codtexto(db,i))
-        if False in r:
-            return 1
+        dict = nodo[3]
+        smode = nodo[7]
+        if tabla in smode:
+            smode[tabla].insert(tabla,lista)
+        if tabla in dict:
+            res = verificarmodo(dict[tabla]).insert(db,tabla,lista)
+            return res
         else:
-            dict = nodo[3]
-            if tabla in dict:
-                res = verificarmodo(dict[tabla]).insert(db,tabla,lista)
-                return res
-            else:
-                res = verificarmodo(nodo[1]).insert(db,tabla,lista)
-                return res
+            res = verificarmodo(nodo[1]).insert(db,tabla,lista)
+            return res
     else:
         return 2
 
@@ -605,11 +585,11 @@ def alterTableDropIndex(database, table, indexName):
             return 3
     else:
         return 2
-    
+        
 def graphDSD(database):
+    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
     nodo = buscar(database)
     if nodo != None:
-        grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
         lista = showTables(database)
         for tabla in lista:
             grafica += tabla + "[\nlabel="+tabla+"\nshape=record\n];\n"
@@ -625,47 +605,43 @@ def graphDSD(database):
                 bandera = False
             c = c + 1
 
-        grafica +="}"
-    else:
-        return None
+    grafica +="}"
     if grafica != "":
-        tabGen = open("grafoDB.dot","w")
+        tabGen = open("tab.dot","w")
         tabGen.write(grafica)
         tabGen.close()
-        tab = open("grafoDB.cmd","w")
-        tab.write("dot -Tpng grafoDB.dot -o grafoDB.png")
+        tab = open("tab.cmd","w")
+        tab.write("dot -Tpng tab.dot -o tab.png")
         tab.close()
         try:
-            os.system('grafoDB.cmd')
-            os.system('grafoDB.png')
+            os.system('tab.cmd')
+            os.system('tab.png')
         except:
             return None
-    return grafica
+    return grafica 
 
 def graphDF(database, table):
-    grafica = ""
+    grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
     nodo = buscar(database)
     if nodo != None:
         lista = showTables(database)
-        if table in lista:
-            grafica = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
-            for tabla in lista:
-                if tabla == table:
-                    grafica += tabla + "[\nlabel=" + tabla + "\nshape=record\n];\n"
-            fk = nodo[6]
-            c = 0
-            bandera = False
-            for tabla in lista:
-                if tabla ==table:
-                    for t in nodo[6]:
-                        if bandera == False:
-                            if tabla == t[3]:
-                                grafica += t[1] + ":f1 -> " + tabla + ":f2 [\nid = " + str(c) + "\n];\n"
-                                bandera = True
-                        bandera = False
-                    c = c + 1
-                    
-            for tabla in lista:
+        for tabla in lista:
+            if tabla == table:
+                grafica += tabla + "[\nlabel=" + tabla + "\nshape=record\n];\n"
+        fk = nodo[6]
+        c = 0
+        bandera = False
+        for tabla in lista:
+            if tabla ==table:
+                for t in nodo[6]:
+                    if bandera == False:
+                        if tabla == t[3]:
+                            grafica += t[1] + ":f1 -> " + tabla + ":f2 [\nid = " + str(c) + "\n];\n"
+                            bandera = True
+                    bandera = False
+                c = c + 1
+
+        for tabla in lista:
             if tabla ==table:
                 for t in nodo[6]:
                     if bandera == False:
@@ -673,23 +649,22 @@ def graphDF(database, table):
                             grafica += t[1] + ":f1 -> " + t[3] + ":f2 [\nid = " + str(c) + "\n];\n"
                             bandera = True
                     bandera = False
-                c = c + 1   
-            grafica += "}"
-    else:
-        return None
-    
+                c = c + 1
+
+    grafica += "}"
     if grafica != "":
-        tabGen = open("grafoTABLE.dot","w")
+        tabGen = open("tab.dot","w")
         tabGen.write(grafica)
         tabGen.close()
-        tab = open("grafoTABLE.cmd","w")
-        tab.write("dot -Tpng grafoTABLE.dot -o grafoTABLE.png")
+        tab = open("tab.cmd","w")
+        tab.write("dot -Tpng tab.dot -o tab.png")
         tab.close()
         try:
-            os.system('grafoTABLE.cmd')
-            os.system('grafoTABLE.png')
+            os.system('tab.cmd')
+            os.system('tab.png')
         except:
             return None
+    return 'tab.png'
     return grafica
 
 def decrypt(cipherbackup,clave):
@@ -729,6 +704,10 @@ def encrypt(backup,clave):
     except:
         devuelve = "1"
     return devuelve
+
+def alterTableCompress(database, table, level):
+    compressed = zlib.compress(pickle.dumps(extractTable(database,table)),level)
+    return compressed
 
 def checksumDatabase(database , mode):
     texto = ""
@@ -792,8 +771,16 @@ def alterDatabaseEncoding(database , en):
         if db is None:
             return 2
         else:
-            db[2] = en
-            return 0
+            try:
+                if en == "ascii":
+                    en = "ASCII"
+                elif en == "utf8":
+                    en = "utf-8"
+                db.encode(en)
+                db[2] = en
+                return 0
+            except:
+                return 1
 
 def Codtexto(database , texto):
     for db in lista_db:
@@ -804,7 +791,78 @@ def Codtexto(database , texto):
             except:
                 return False
 
-            
+avl.dropDatabase("pruebaya1")
+hash.dropDatabase("pruebaya1")
+bplus.dropDatabase("pruebaya1")
+dropDatabase("pruebaya1")
+#print(createDatabase("pruebaya1","avl","utf8"))
+#print(createTable("pruebaya1","tabla1",3))
+#print(createTable("pruebaya1","tabla2",3))
+#print(createTable("pruebaya1","tabla3",3))
+#print(createTable("pruebaya1","tabla4",3))
+#print(createTable("pruebaya1","tabla5",3))
+#print(createTable("pruebaya1","tabla6",3))
+#print(insert("pruebaya1","tabla1",["jola1","jola","jola"]))
+#print(insert("pruebaya1","tabla1",["jola2","jola","jola"]))
+#print(insert("pruebaya1","tabla1",["jola3","jola","jola"]))
+#print(insert("pruebaya1","tabla1",["jola4","jola","jola"]))
+#print(insert("pruebaya1","tabla1",["jola5","jola","jola"]))
+#print(insert("pruebaya1","tabla1",["jola6","jola","jola"]))
+#print(insert("pruebaya1","tabla1",["jola7","jola","jola"]))
+#print(insert("pruebaya1","tabla1",["jola8","jola","jola"]))
+#print(insert("pruebaya1","tabla1",["jola9","jola","jola"]))
+#print(insert("pruebaya1","tabla1",["jola10","jola","jola"]))
+#print(insert("pruebaya1","tabla2",["jola11","jola","jola"]))
+#print(insert("pruebaya1","tabla2",["jola12","jola","jola"]))
+#print(alterTableMode("pruebaya1","tabla1","hash"))
+#print(lista_db)
+#print(alterDatabaseMode("pruebaya1","bplus"))
+#print(showDatabases())
+#print(lista_db)
+#print(insert("pruebaya1","tabla2",["jola13","jola","jola"]))
+#print(alterAddPK("pruebaya1","tabla2",[0,1]))
+#print(lista_db)
+#print(alterDropPK("pruebaya1","tabla2"))
+#print(lista_db)
+key = Fernet.generate_key()
+#print("key",key)
+f = Fernet(key)
+t = "welcome to geeksforgeeks"
+token = f.encrypt(t.encode("utf-8"))
+#print(token)
+d = f.decrypt(token)
+#print(d)
+#print(d.decode())
+#print(hash.createDatabase("prueba"))
+#print(hash.Buscar("prueba").Name)
+#print(alterTableAddUnique("pruebaya1","tabla2","nombre",[0,1]))
+#print(lista_db)
+#print(alterTableDropUnique("pruebaya1","tabla1","nombre"))
+#print(lista_db)
+#print(alterTableAddIndex("pruebaya1","tabla1","nombre1",[0,2]))
+#print(alterTableAddIndex("pruebaya1","tabla3","nombre3",[0,2]))
+#print(alterTableAddIndex("pruebaya1","tabla4","nombre4",[0,2]))
+#print(lista_db)
+#print(alterTableAddFK("pruebaya1","tabla1","nombre1",[0,1],"tabla2",[0,2]))
+#print(alterTableAddFK("pruebaya1","tabla2","nombre",[0,1],"tabla3",[0,2]))
+#print(alterTableAddFK("pruebaya1","tabla3","nombre3",[0,1],"tabla4",[0,2]))
+#print(alterTableAddFK("pruebaya1","tabla4","nombre4",[0,1],"tabla2",[0,2]))
+#print(lista_db)
+#print(alterTableDropFK("pruebaya1","tabla1","nombre1"))
+#print(lista_db)
+#print(graphDSD("pruebaya1"))
+#print(lista_db[0][6])
+
+lista = showTables("pruebaya1")
+listagrande = []
+for i in lista:
+    listagrande.append([i,extractTable("pruebaya1",i)])
+listaaux = ["pruebaya1",listagrande]
+#print(listaaux)
+
+#print(graphDF("pruebaya1", "tabla2"))
+
+
 class bloque:
     def __init__(self, numero, data, anterior, hashid):
         self.id = numero
@@ -821,16 +879,23 @@ class blockchain:
         self.anterior = 0000000000
         self.bloques = []
 
-    def insertar(self, tablas):
+    def insertar(self, tabla,tablas):
         id_hash = sha256str(tablas)
         nuevo = bloque(self.id_bloques, tablas, self.anterior, id_hash)
         self.id_bloques +=1
         self.bloques.append(nuevo)
         file = open("bloques.json", "w+")
-        file.write(json.dumps([j.get() for j in self.bloques]))
+        file.write(json.dumps([tabla,[j.get() for j in self.bloques]]))
+        file.close()
         self.anterior = id_hash
 
     def update(self, tabla, registro):
+        pos = 1
+        while pos != len(self.bloques):
+            print(self.bloques[pos].data)
+            if registro == self.bloques[pos].data:
+                self.bloques[pos].anterior = sha256str(tabla)
+            pos += 1
         file = open("bloques.json", "r")
         lista = json.loads(file.read())
         file.close()
@@ -843,29 +908,33 @@ class blockchain:
         file.write(json.dumps(lista))
         file.close()
 
+
     def retornarbloques(self):
         return self.bloques
 
     def graficarChain(self):
         code = "digraph g { \ngraph [ \nrankdir = LR\n]; \nnode [\nfontsize = 16 \nshape = record \n];\nedge [\n];\n"
-        code += "node"+str(self.bloques[0].id)+" [ color=green, label = \"Hash actual: "+str(self.bloques[0].hash)+"\\nHash anterior: "+str(self.bloques[0].anterior)+"\"];\n"
+        code += "node" + str(self.bloques[0].id) + " [ color=green, label = \"Hash actual: " + str(
+            self.bloques[0].hash) + "\\nHash anterior: " + str(self.bloques[0].anterior) + "\"];\n"
         pos = 1
         while pos != len(self.bloques):
-            if self.bloques[pos].anterior == self.bloques[pos-1].hash:
-                code += "node"+str(self.bloques[pos].id)+" [ color=green, label = \"Hash actual: "+str(self.bloques[pos].hash)+"\\nHash anterior: "+str(self.bloques[pos].anterior)+"\"];\n"
-                code += "node"+str(self.bloques[pos-1].id)+"->"+"node"+str(self.bloques[pos].id)+"\n"
+            if self.bloques[pos].anterior == self.bloques[pos - 1].hash:
+                code += "node" + str(self.bloques[pos].id) + " [ color=green, label = \"Hash actual: " + str(
+                    self.bloques[pos].hash) + "\\nHash anterior: " + str(self.bloques[pos].anterior) + "\"];\n"
+                code += "node" + str(self.bloques[pos - 1].id) + "->" + "node" + str(self.bloques[pos].id) + "\n"
                 pos += 1
             else:
-                code += "node"+str(self.bloques[pos].id)+" [ color=red, label = \"Hash actual: "+str(self.bloques[pos].hash)+"\\nHash anterior: "+str(self.bloques[pos].anterior)+"\"];\n"
-                code += "node"+str(self.bloques[pos-1].id)+"->"+"node"+str(self.bloques[pos].id)+"\n"
+                code += "node" + str(self.bloques[pos].id) + " [ color=red, label = \"Hash actual: " + str(
+                    self.bloques[pos].hash) + "\\nHash anterior: " + str(self.bloques[pos].anterior) + "\"];\n"
+                code += "node" + str(self.bloques[pos - 1].id) + "->" + "node" + str(self.bloques[pos].id) + "\n"
                 break
         code += "}"
         print(code)
         if code != "":
-            tabGen = open("block.dot","w")
+            tabGen = open("block.dot", "w")
             tabGen.write(code)
             tabGen.close()
-            tab = open("block.cmd","w")
+            tab = open("block.cmd", "w")
             tab.write("dot -Tpng block.dot -o blockChain.png")
             tab.close()
         try:
@@ -874,18 +943,60 @@ class blockchain:
         except:
             return print("ERROR EN CORRER CMD O PNG")
 
-def safeModeOn(database , table):
-    if buscar(database) is not None:
-        lista = showTables(database)
-        for i in lista:
-            for j in extractTable(database, i):
-                if (i == table):
-                    bc.insertar("".join(j))
-                    bc.graficarChain()
-    else:
-        return None
-            
 bc = blockchain()
-os.system('cls')
-print(encrypt("este es el mensaje","llave"))
-print(decrypt("","llave"))
+
+def safeModeOn(database , table):#modificado
+    nodo = buscar(database)
+    if buscar(database) is not None:
+        try:
+            dict = nodo[7]
+            if table not in dict:
+                dict[table] = blockchain()
+                lista = showTables(database)
+                if table in lista:
+                    for i in lista:
+                        for j in extractTable(database, i):
+                            if (i == table):
+                                dict[table].insertar(table,"".join(j))
+                    dict[table].graficarChain()
+                    return 0
+                else:
+                    return 3
+            else:
+                return 4
+        except:
+            return 1
+    else:
+        return 2
+
+def safeModeOff(database,table):
+    nodo = buscar(database)
+    if nodo != None:
+        lista = showTables(database)
+        dict = nodo[7]
+        if table in lista:
+            if table in dict:
+                try:
+                    del dict[table]
+                    return 0
+                except:
+                    return 1
+            else:
+                return 4
+        else:
+            return 3
+    else:
+        return 2
+
+#print(showDatabases())
+#print(safeModeOn("pruebaya1","tabla1"))
+#print(safeModeOn("pruebaya1","tabla2"))
+#print(safeModeOff("pruebaya1","tabla1"))
+#bc.update("tabla1","jola5jolajola")
+#print("aquigths")
+#bc.graficarChain()
+for i in bc.retornarbloques():
+    print("ANTERIOR=", i.anterior, "--- " ," TUPLA=" ,i.data ," ---","ACTUAL=",i.hash)
+
+
+

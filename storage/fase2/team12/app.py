@@ -6,6 +6,10 @@ from storage.avl import AVLMode as avl_mode
 from storage.dict import DictMode as dict_mode
 from storage.json import jsonMode as json_mode
 import hashlib
+from encript import *
+from blockchain import *
+import os
+import shutil
 import zlib
 import pickle
 # AVL: AVLMode
@@ -53,13 +57,13 @@ def createDatabase(database, mode, encoding):
                 # Leemos el archivo binario de los registros de bases de datos
                 fichero_lectura = open("BD_register", "rb")
                 Bases = pickle.load(fichero_lectura)
-                Bases.update({database: {"mode": mode, "encoding": encoding, "FK":{},"IU":{},"I":{}}})
+                Bases.update({database: {"mode": mode, "encoding": encoding, "FK":{}}})
                 # Actualizamos el archivo binario de los registros de bases de datos
                 fichero_escritura = open("BD_register", "wb")
                 pickle.dump(Bases, fichero_escritura)
                 fichero_escritura.close()
             except:
-                Bases.update({database: {"mode": mode, "encoding": encoding, "FK":{},"IU":{},"I":{}}})
+                Bases.update({database: {"mode": mode, "encoding": encoding, "FK":{}}})
                 # Actualizamos el archivo binario de los registros de bases de datos
                 fichero_escritura = open("BD_register", "wb")
                 pickle.dump(Bases, fichero_escritura)
@@ -291,6 +295,7 @@ def dropDatabase(database):
             return val
 #--------------------------------------Funciones de tablas-----------------------------------------------
 def createTable(database, table, numColumns):
+    val = None
     mode = None
     for i in range(7):
         mode = obtenerBase(database,i)
@@ -344,18 +349,18 @@ def createTable(database, table, numColumns):
             lectura = open("TB_register", "rb")
             Tablas = pickle.load(lectura)
             try:
-                Tablas[database].update({table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns}})
+                Tablas[database].update({table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns,"IU":{},"I":{}}})
             except:
-                Tablas.update({database:{table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns}}})
+                Tablas.update(c)
             # Actualizamos el archivo binario de los registros de tablas
             escritura = open("TB_register", "wb")
             pickle.dump(Tablas, escritura)
             escritura.close()
         except:
             try:
-                Tablas[database].update({table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns}})
+                Tablas[database].update({table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns,"IU":{},"I":{}}})
             except:
-                Tablas.update({database: {table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns}}})
+                Tablas.update({database: {table: {"PK": None,"mode":mode,"safe":False,"Ncol":numColumns,"IU":{},"I":{}}}})
             # Actualizamos el archivo binario de los registros de tablas
             fichero_escritura = open("TB_register", "wb")
             pickle.dump(Tablas, fichero_escritura)
@@ -412,6 +417,7 @@ def showTables(database):
     return val
 
 def extractTable(database, table):
+    val = None
     mode = None
     for i in range(7):
         mode = obtenerBase(database, i)
@@ -615,10 +621,7 @@ def alterAddPK(database, table, columns):
             pickle.dump(Tablas, escritura)
             escritura.close()
         except:
-            try:
-                Tablas[database].update({table: {"PK": None, "mode": mode, "safe": False, "Ncol": numColumns}})
-            except:
-                Tablas.update({database: {table: {"PK": None, "mode": mode, "safe": False, "Ncol": numColumns}}})
+            Tablas[database][table]["PK"] = columns
             # Actualizamos el archivo binario de los registros de bases de datos
             fichero_escritura = open("TB_register", "wb")
             pickle.dump(Tablas, fichero_escritura)
@@ -672,6 +675,23 @@ def alterDropPK(database, table):
         val = hash_mode.alterDropPK(database, table)
     else:
         return val
+    if val == 0:
+        global Tablas
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            lectura = open("TB_register", "rb")
+            Tablas = pickle.load(lectura)
+            Tablas[database][table]["PK"] = None
+            # Actualizamos el archivo binario de los registros de bases de datos
+            escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, escritura)
+            escritura.close()
+        except:
+            Tablas[database][table]["PK"] = None
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, fichero_escritura)
+            fichero_escritura.close()
     return val
 
 def alterTable(database, tableOld, tableNew):
@@ -791,6 +811,27 @@ def alterAddColumn(database, table, default):
         val = hash_mode.alterAddColumn(database, table, default)
     else:
         return val
+    if val == 0:
+        global Tablas
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            lectura = open("TB_register", "rb")
+            Tablas = pickle.load(lectura)
+            NumeroColumnas =Tablas[database][table]["Ncol"]
+            NumeroColumnas+=1
+            Tablas[database][table]["Ncol"] = NumeroColumnas
+            # Actualizamos el archivo binario de los registros de bases de datos
+            escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, escritura)
+            escritura.close()
+        except:
+            NumeroColumnas = Tablas[database][table]["Ncol"]
+            NumeroColumnas += 1
+            Tablas[database][table]["Ncol"] = NumeroColumnas
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, fichero_escritura)
+            fichero_escritura.close()
     return val
 
 def alterDropColumn(database, table, columnNumber):
@@ -840,6 +881,27 @@ def alterDropColumn(database, table, columnNumber):
         val = hash_mode.alterDropColumn(database, table, columnNumber)
     else:
         return val
+    if val == 0:
+        global Tablas
+        try:
+            # Leemos el archivo binario de los registros de bases de datos
+            lectura = open("TB_register", "rb")
+            Tablas = pickle.load(lectura)
+            NumeroColumnas =Tablas[database][table]["Ncol"]
+            NumeroColumnas-=1
+            Tablas[database][table]["Ncol"] = NumeroColumnas
+            # Actualizamos el archivo binario de los registros de bases de datos
+            escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, escritura)
+            escritura.close()
+        except:
+            NumeroColumnas = Tablas[database][table]["Ncol"]
+            NumeroColumnas -= 1
+            Tablas[database][table]["Ncol"] = NumeroColumnas
+            # Actualizamos el archivo binario de los registros de bases de datos
+            fichero_escritura = open("TB_register", "wb")
+            pickle.dump(Tablas, fichero_escritura)
+            fichero_escritura.close()
     return val
 
 def dropTable(database, table):
@@ -1238,6 +1300,22 @@ def alterDatabaseMode(database, mode):
                         createTable(database, nombre_tabla, len(registros[0]))
                     for registro in registros:
                         insert(database, nombre_tabla, registro)
+                global Bases
+                try:
+                    # Leemos el archivo binario de los registros de bases de datos
+                    fichero_lectura = open("BD_register", "rb")
+                    Bases = pickle.load(fichero_lectura)
+                    Bases[database]["mode"]=mode
+                    # Actualizamos el archivo binario de los registros de bases de datos
+                    fichero_escritura = open("BD_register", "wb")
+                    pickle.dump(Bases, fichero_escritura)
+                    fichero_escritura.close()
+                except:
+                    Bases[database]["mode"] = mode
+                    # Actualizamos el archivo binario de los registros de bases de datos
+                    fichero_escritura = open("BD_register", "wb")
+                    pickle.dump(Bases, fichero_escritura)
+                    fichero_escritura.close()
                 return 0
     else:
         return 4
@@ -1449,34 +1527,29 @@ def alterTableAddUnique(database, table, indexName, columns):
         return 3
     for i in range(len(val)):
         if val[i] == table:
-            Existe_tabla1 = True
+            Existe_tabla = True
             break
-    if Existe_tabla1 == False or Existe_tabla2 == False:
+    if Existe_tabla == False:
         return 3
     if len(columns) ==0:
         return 4
-    Aplica = verificarIntegridadRef(table,columns)
-    if Aplica == False:
-        return 5
-    else:
-        global Bases
-        try:
-            # Leemos el archivo binario de los registros de bases de datos
-            fichero_lectura = open("BD_register", "rb")
-            Bases = pickle.load(fichero_lectura)
-            Bases[database]["IU"].update({indexName: table})
-            # Actualizamos el archivo binario de los registros de bases de datos
-            fichero_escritura = open("BD_register", "wb")
-            pickle.dump(Bases, fichero_escritura)
-            fichero_escritura.close()
-        except:
-            Bases[database]["IU"].update({indexName: table})
-            # Actualizamos el archivo binario de los registros de bases de datos
-            fichero_escritura = open("BD_register", "wb")
-            pickle.dump(Bases, fichero_escritura)
-            fichero_escritura.close()
-        return 0
-    return 1
+    global Tablas
+    try:
+        # Leemos el archivo binario de los registros de bases de datos
+        fichero_lectura = open("TB_register", "rb")
+        Tablas = pickle.load(fichero_lectura)
+        Tablas[database][table]["IU"].update({indexName: columns})
+        # Actualizamos el archivo binario de los registros de bases de datos
+        fichero_escritura = open("BD_register", "wb")
+        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura.close()
+    except:
+        Tablas[database][table]["IU"].update({indexName: columns})
+        # Actualizamos el archivo binario de los registros de bases de datos
+        fichero_escritura = open("TB_register", "wb")
+        pickle.dump(Tablas, fichero_escritura)
+        fichero_escritura.close()
+    return 0
 
 def alterTableDropUnique(database, table, indexName):
     mode = None
@@ -1526,27 +1599,27 @@ def alterTableDropUnique(database, table, indexName):
         val = hash_mode.extractTable(database, table)
     if val == []:
         return 3
-    global Bases
+    global Tablas
     try:
         # Leemos el archivo binario de los registros de bases de datos
-        fichero_lectura = open("BD_register", "rb")
-        Bases = pickle.load(fichero_lectura)
+        fichero_lectura = open("TB_register", "rb")
+        Tablas = pickle.load(fichero_lectura)
         try:
-            Bases[database]["IU"].pop(indexName)
+            Tablas[database][table]["IU"].pop(indexName)
         except:
             return 4
         # Actualizamos el archivo binario de los registros de bases de datos
-        fichero_escritura = open("BD_register", "wb")
-        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura = open("TB_register", "wb")
+        pickle.dump(Tablas, fichero_escritura)
         fichero_escritura.close()
     except:
         try:
-            Bases[database]["IU"].pop(indexName)
+            Tablas[database][table]["IU"].pop(indexName)
         except:
             return 4
         # Actualizamos el archivo binario de los registros de bases de datos
-        fichero_escritura = open("BD_register", "wb")
-        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura = open("TB_register", "wb")
+        pickle.dump(Tablas, fichero_escritura)
         fichero_escritura.close()
     return 0
 
@@ -1601,27 +1674,27 @@ def alterTableAddIndex(database, table, indexName, columns):
         return 3
     for i in range(len(val)):
         if val[i] == table:
-            Existe_tabla1 = True
+            Existe_tabla = True
             break
-    if Existe_tabla1 == False or Existe_tabla2 == False:
+    if Existe_tabla == False:
         return 3
     if len(columns) ==0:
         return 4
-    global Bases
+    global Tablas
     try:
         # Leemos el archivo binario de los registros de bases de datos
-        fichero_lectura = open("BD_register", "rb")
-        Bases = pickle.load(fichero_lectura)
-        Bases[database]["I"].update({indexName: table})
+        fichero_lectura = open("TB_register", "rb")
+        Tablas = pickle.load(fichero_lectura)
+        Tablas[database][table]["I"].update({indexName: columns})
         # Actualizamos el archivo binario de los registros de bases de datos
-        fichero_escritura = open("BD_register", "wb")
-        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura = open("TB_register", "wb")
+        pickle.dump(Tablas, fichero_escritura)
         fichero_escritura.close()
     except:
-        Bases[database]["I"].update({indexName: table})
+        Tablas[database][table]["I"].update({indexName: columns})
         # Actualizamos el archivo binario de los registros de bases de datos
-        fichero_escritura = open("BD_register", "wb")
-        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura = open("TB_register", "wb")
+        pickle.dump(Tablas, fichero_escritura)
         fichero_escritura.close()
     return 0
 
@@ -1673,48 +1746,31 @@ def alterTableDropIndex(database, table, indexName):
         val = hash_mode.extractTable(database, table)
     if val == []:
         return 3
-    global Bases
+    global Tablas
     try:
         # Leemos el archivo binario de los registros de bases de datos
-        fichero_lectura = open("BD_register", "rb")
-        Bases = pickle.load(fichero_lectura)
+        fichero_lectura = open("TB_register", "rb")
+        Tablas = pickle.load(fichero_lectura)
         try:
-            Bases[database]["I"].pop(indexName)
+            Tablas[database][table]["I"].pop(indexName)
         except:
             return 4
         # Actualizamos el archivo binario de los registros de bases de datos
-        fichero_escritura = open("BD_register", "wb")
-        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura = open("TB_register", "wb")
+        pickle.dump(Tablas, fichero_escritura)
         fichero_escritura.close()
     except:
         try:
-            Bases[database]["I"].pop(indexName)
+            Tablas[database][table]["I"].pop(indexName)
         except:
             return 4
         # Actualizamos el archivo binario de los registros de bases de datos
-        fichero_escritura = open("BD_register", "wb")
-        pickle.dump(Bases, fichero_escritura)
+        fichero_escritura = open("TB_register", "wb")
+        pickle.dump(Tablas, fichero_escritura)
         fichero_escritura.close()
     return 0
 
-def verificarIntegridadRef(arreglo,columnas):
-    UNIDO = []
-    for i in range(len(arreglo)):
-        v = ""
-        for j in range(len(columnas)):
-            v += arreglo[i][columnas[j]]
-        UNIDO.append(v)
-    for i in range(len(UNIDO)):
-        total = 0
-        for j in range(len(UNIDO)):
-            if UNIDO[i] == UNIDO[j]:
-                total += 1
-        if total > 1:
-            return False
-            break
-    return True
-
-#------------------------------------------- Inciso 4 ----------------------------------------------------
+#------------------------------------------- Inciso 5 ----------------------------------------------------
 def checksumDatabase(database, mode):
     import hashlib
     var = None
@@ -1790,7 +1846,7 @@ def obtenerContenidoTabla(database, table, estructura):
         val = json_mode.extractTable(database,table)
     elif estructura == 6:
         val = hash_mode.extractTable(database,table)
-    if val == []:
+    if val == [] or type(val)==int:
         return ""
     contenido = ""
     for i in range(len(val)):
@@ -1841,7 +1897,7 @@ def checksumTable(database, table, mode):
         return None
     return hash.hexdigest()
 
-#------------------------------------------- Inciso 5 ---------------------------------------------------
+#------------------------------------------- Inciso 6 ---------------------------------------------------
 def alterDatabaseCompress(database, level):
     if level < 0 or level > 9:
         return 4
@@ -1982,3 +2038,228 @@ def alterTableDecompress(database, table):
                 return 3
         except:
             return 1
+
+def alterDatabaseEncoding(database,encoding):
+    print("ejcutando")
+    var = None
+    mode = None
+    tables = None
+    mode_name = None
+    if encoding == "ascii" or encoding == "utf8" or encoding == "iso-8859-1":
+        pass
+    else:
+        return 3
+    for i in range(7):
+        var = obtenerBase(database, i)
+        mode = i
+        if var == []:
+            continue
+        else:
+            if var >= 0 and var <= 6:
+                break
+            else:
+                return 2
+    if mode == 0 :
+        mode_name = "avl"
+        tables = avl_mode.showTables(database)
+    elif mode == 1 :
+        mode_name = "b"
+        tables = b_mode.showTables(database)
+    elif mode == 2 :
+        mode_name = "bplus"
+        tables = bplus_mode.showTables(database)
+    elif mode == 3:
+        mode_name = "dict"
+        tables == dict_mode.showTables(database)
+    elif mode == 4:
+        mode_name = "isam"
+        tables == isam_mode.showTables(database)
+    elif mode == 5 :
+        mode_name = "json"
+        tables == json_mode.showTables(database)
+    elif mode == 6:
+        mode_name = "hash"
+        tables == hash_mode.showTables(database)
+    if tables is None:
+        dropDatabase(database)
+        createDatabase(database,mode_name)
+    else:
+            try:
+                for i in range(len(tables)):
+                    contenidoTabla = extractTable(database,tables[i])
+                    for j in range(len(contenidoTabla)):
+                        tupla = contenidoTabla[j]
+                        for k in range(len(tupla)):
+                            if type(tupla[k])==str:
+                                tupla[k] = gen_convert(tupla[k],encoding)
+                        contenidoTabla[j] = tupla
+                        truncate(database,tables[i])
+                        for register in contenidoTabla:
+                            insert(database,tables[i],register)
+                return 0
+
+            except:
+                return 1
+#------------------------------------------- Inciso 7 ---------------------------------------------------
+def make_Blockchain(lista_tuples,nameJson):
+    block = blockchain()
+    for tuple in lista_tuples:
+        block.insertBlock(tuple,nameJson)
+    return block
+
+def safeModeOn(database,table):
+    try:
+        var = None
+        mode = None
+        tables = None
+        mode_name = None
+        for i in range(7):
+            var = obtenerBase(database, i)
+            mode = i
+            if var == []:
+                continue
+            else:
+                if var >= 0 and var <= 6:
+                    break
+                else:
+                    return 2
+        if mode == 0:
+            mode_name = "avl"
+            tables = avl_mode.showTables(database)
+        elif mode == 1:
+            mode_name = "b"
+            tables = b_mode.showTables(database)
+        elif mode == 2:
+            mode_name = "bplus"
+            tables = bplus_mode.showTables(database)
+        elif mode == 3:
+            mode_name = "dict"
+            tables == dict_mode.showTables(database)
+        elif mode == 4:
+            mode_name = "isam"
+            tables == isam_mode.showTables(database)
+        elif mode == 5:
+            mode_name = "json"
+            tables == json_mode.showTables(database)
+        elif mode == 6:
+            mode_name = "hash"
+            tables == hash_mode.showTables(database)
+
+        dict_tables_ = open("TB_register","rb")
+        dictionary = pickle.load(dict_tables_)
+        dict_tables = dictionary.get(database)[1]
+        table_info = dict_tables.get(table)
+        if table_info[2] is False:
+            table_info[2] = True
+            if table_info[2] is not None:
+                list_tuple = extractTable(database, table)
+                nameJson = str(database) + '-' + str(table)
+                BChain = make_Blockchain(list_tuple, nameJson)
+                table_info[2] = BChain
+    except:
+        return 0
+
+def safeModeOff(database, table):
+    try:
+        var = None
+        mode = None
+        tables = None
+        mode_name = None
+        for i in range(7):
+            var = obtenerBase(database, i)
+            mode = i
+            if var == []:
+                continue
+            else:
+                if var >= 0 and var <= 6:
+                    break
+                else:
+                    return 2
+        if mode == 0:
+            mode_name = "avl"
+            tables = avl_mode.showTables(database)
+        elif mode == 1:
+            mode_name = "b"
+            tables = b_mode.showTables(database)
+        elif mode == 2:
+            mode_name = "bplus"
+            tables = bplus_mode.showTables(database)
+        elif mode == 3:
+            mode_name = "dict"
+            tables == dict_mode.showTables(database)
+        elif mode == 4:
+            mode_name = "isam"
+            tables == isam_mode.showTables(database)
+        elif mode == 5:
+            mode_name = "json"
+            tables == json_mode.showTables(database)
+        elif mode == 6:
+            mode_name = "hash"
+            tables == hash_mode.showTables(database)
+
+        dict_tables_ = open("TB_register", "rb")
+        dictionary = pickle.load(dict_tables_)
+
+        dict_tables = dictionary.get(database)[1]
+        table_info = dict_tables.get(table)
+        if table_info[2] is True:
+            table_info[2] = False
+            if table_info[2] is not None:
+
+                name_JSON =str(database)+'-'+str(table)
+                table_info[2].removeFilesBlock(name_JSON)
+                table_info[2]=None
+                return 0
+    except:
+        return 0
+#------------------------------------------- Inciso 8 ---------------------------------------------------
+def graphDSD(database):
+    global Bases
+    try:
+        # Leemos el archivo binario de los registros de bases de datos
+        fichero_lectura = open("BD_register", "rb")
+        Bases = pickle.load(fichero_lectura)
+        Base = Bases[database]["FK"]
+        grafo = "digraph grafico1 {\n"
+        grafo += "rankdir = LR\n"
+        for clave in Base:
+            valor = Base[clave]
+            grafo+="\t"+str(valor[0]).replace(" ","")+'[label="'+str(valor[0])+'"shape=box]\n'
+            grafo += "\t"+str(valor[1]).replace(" ", "") + '[label="' + str(valor[1]) + '"shape=box]\n'
+            grafo+="\t"+str(valor[0]).replace(" ", "")+"->"+str(valor[1]).replace(" ", "")+"\n"
+        grafo+="}"
+        return grafo
+    except:
+        return None
+
+def graphDF(database, table):
+    global Tablas
+    # Leemos el archivo binario de los registros de bases de datos y tablas
+    fichero_lecturaTablas = open("TB_register", "rb")
+    Tablas = pickle.load(fichero_lecturaTablas)
+    Tabla = Tablas[database][table]
+    ncols = Tabla["Ncol"]
+    pk = Tabla["PK"]
+    cols = []
+    rest=[]
+    grafo = "digraph grafico1 {\n"
+    grafo += "rankdir = LR\n"
+    for i in range(ncols):
+        grafo += "\t" + str(i) + '[label=' + str(i) + 'shape=box]\n'
+        cols.append(i)
+    for i in range(len(cols)):
+        agrega = True
+        for j in range(len(pk)):
+            if cols[i] == pk[j]:
+                agrega = False
+        if agrega == True:
+            rest.append(cols[i])
+    for i in range(len(pk)):
+        for j in range(len(rest)):
+            grafo += "\t" + str(pk[i]) + "->" + str(rest[j]) + "\n"
+    grafo += "}"
+    return grafo
+    try:
+        print("")
+    except:
+        return None

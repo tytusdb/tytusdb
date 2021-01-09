@@ -1,0 +1,13 @@
+digraph g {
+node [shape=record]
+subgraph cluster_0 {"t1x2";
+"t1x1";
+"t1x4";
+"t1x3";
+"t1x5";
+label="primaria";color=blue;
+}t1x2->t1x1
+t1x2->t1x4
+t1x2->t1x3
+t1x2->t1x5
+}

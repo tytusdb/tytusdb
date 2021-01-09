@@ -19,28 +19,20 @@
                         Rename  table<Table></Table>
                     </div>
                       <div class="form-group">
-                        <select name="database" id="database" class="form-control" >
-                            <option value="p1">Select database</option>
-                            <option value="b1">Database 1</option>
-                            <option value="b2">Database 2</option>
-                            <option value="b3">Database 3</option>
-                          </select>
-                      </div>
-                      <div class="form-group">
-                        <select name="table" id="table" class="form-control" >
-                            <option value="p1">Select table</option>
-                            <option value="b1">Table 1</option>
-                            <option value="b2">Table 2</option>
-                            <option value="b3">Table 3</option>
-                          </select>
+                        <input type="text"  class="form-control form-control-user" 
+                        id="bd" placeholder="Nombre base de datos">
                       </div>
                       <div class="form-group">
                         <input type="text"  class="form-control form-control-user" 
-                        id="exampleInputPassword" placeholder="Nuevo nombre">
+                        id="actualTable" placeholder="Actual nombre de tabla">
+                      </div>
+                      <div class="form-group">
+                        <input type="text"  class="form-control form-control-user" 
+                        id="nuevaTable" placeholder="Nuevo nombre de tabla">
                       </div>
                       <div class="form-group">
                       </div>
-                      <a class="btn  btn-outline-primary btn-user btn-block" type="submit" (click)="renametable($event)">
+                      <a class="btn  btn-outline-primary btn-user btn-block" type="submit" (click)="renametable(bd.value,actualTable.value,nuevaTable.value,$event)">
                         Modificar
                       </a>
                       <hr>

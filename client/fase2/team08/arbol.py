@@ -23,42 +23,6 @@ class Arbol(Frame):
             activebackground="gray59"
             )
         #
-        myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
-
-        headers = {
-            "Content-type": "application/json"
-        }
-
-        myConnection.request("GET", "/getDB", "", headers)
-        response = myConnection.getresponse()
-        print("GET: Status: {} and reason: {}".format(response.status, response.reason))
-        if response.status == 200:       
-            data = response.read() 
-            data_1=  str(data.decode("utf-8"))
-            print(data_1)
-            lista = str(data_1).split("}},")
-            #print(lista[0])
-            #print(lista[1])
-            for x in range(0,len(lista)):
-                print("\n")
-                lista2 = str(lista[x]).split("},")
-                padre=lista2[0].split("\"")
-                print("-------PADRE---------")
-                print(padre[1])
-                print("-----HIJOS------------")
-                print(padre[3])
-                for y in range(1, len(lista2)):
-                    temp= lista2[y].split("\"")
-                    print(temp[1])
-        else:
-            print("Error F")
-            #consola.config(state=NORMAL)
-            #consola.insert(INSERT,"\nHa ocurrido un error.")
-            #consola.config(state=DISABLED)
-        myConnection.close()
-
-        #
-
         # Crear las imagenes que iran en el treeview, 
         # Folder para Bases y File para tablas
 
@@ -76,24 +40,47 @@ class Arbol(Frame):
 
         # Se crea el primer item del arbol que lo empaquete todo
         item = self.treeview.insert("", END, text="Bases de datos", image=self.render)
-        # Se crea un subitem que sera una base de datos
-        # Se puede repetir este proceso cuantas veces se desee para aumentar
-        # los niveles del treeview, por ahora solo seran 3 niveles
-        # Adentro del insertar va el item padre
-        
-        subitem = self.treeview.insert(item, END, text="Amazon",image=self.folder_image)
-        # Se llena el ultimo nivel del arbol, como es el ultimo nivel 
-        # solo se llaman los inserts sin crear una variable item nueva.
-        self.treeview.insert(subitem, END, text="Empleado",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Cliente",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Producto",image=self.file_image)
+        myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 
-        # Nuevo subitem con item como padre
-        subitem = self.treeview.insert(item, END, text="Aurora",image=self.folder_image)
-        # Llenando este subitem
-        self.treeview.insert(subitem, END, text="Animal",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Habitat",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Alimento",image=self.file_image)
+        headers = {
+            "Content-type": "application/json"
+        }
+        myConnection.request("GET", "/getDB", "", headers)
+        response = myConnection.getresponse()
+        print("GET: Status: {} and reason: {}".format(response.status, response.reason))
+        if response.status == 200:       
+            data = response.read() 
+            
+                
+            data_1=  str(data.decode("utf-8"))
+            if data_1!="":
+                lista = str(data_1).split("}},")
+                #print(lista[0])
+                #print(lista[1])
+                for x in range(0,len(lista)):
+                    lista2 = str(lista[x]).split("},")
+                    padre=lista2[0].split("\"")
+                    # Se crea un subitem que sera una base de datos
+                    # Se puede repetir este proceso cuantas veces se desee para aumentar
+                    # los niveles del treeview, por ahora solo seran 3 niveles
+                    # Adentro del insertar va el item padre
+                    if len(padre)>3:
+                        subitem = self.treeview.insert(item, END, text=padre[1],image=self.folder_image)
+                        self.treeview.insert(subitem, END, text=padre[3],image=self.file_image)
+                        for y in range(1, len(lista2)):
+                            temp= lista2[y].split("\"")
+                            self.treeview.insert(subitem, END, text=temp[1],image=self.file_image)
+            else:
+                print("Error BASE DE DATOS")
+                #consola.config(state=NORMAL)
+                #consola.insert(INSERT,"\nHa ocurrido un error.")
+                #consola.config(state=DISABLED)
+            myConnection.close()
+
+        #
+
+        
+        
 
         # Colocando el arbol en el frame
         self.treeview.pack(side="top", fill="both", expand=True)

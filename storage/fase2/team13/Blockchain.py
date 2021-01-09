@@ -59,8 +59,7 @@ class Blockchain:
         self.blocks_list = []
         self.firstHash = ""
         self.checkerChain = True
-        
-        
+
     def generate_hash(self, data):
         pattern = r'[0-9a-zA-Z]+'
         objectStr = pickle.dumps(data)
@@ -68,7 +67,7 @@ class Blockchain:
             id_hash = hashlib.sha256(objectStr).hexdigest()
             if re.match(pattern, id_hash):
                 return id_hash
-            
+
     def verifyFirstBlock(self, hashActual):
         if self.firstHash == hashActual:
             return True
@@ -169,8 +168,7 @@ class Blockchain:
         file = open(os.getcwd() + "\\DataJsonBC\\" + nameJson + ".json", "w+")
         file.write(json.dumps(JSblock_list))
         file.close()
-        
-        
+
     # ------------------------------------------------------- FILES ----------------------------------------------------
     def load_json(self, nombre):
         if os.path.isdir(os.getcwd() + "\\DataJsonBC"):
@@ -190,4 +188,6 @@ class Blockchain:
         if os.path.isdir(os.getcwd() + "\\DataJsonBC"):
             if os.path.isfile(os.getcwd() + "\\DataJsonBC\\" + nameJson + ".json"):
                 os.remove(os.getcwd() + "\\DataJsonBC\\" + nameJson + ".json")
+                
+
         

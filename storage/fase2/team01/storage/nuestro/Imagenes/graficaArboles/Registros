@@ -1,0 +1,8 @@
+digraph arbol {
+	node [height=.1 shape=record]
+	1 -> Guatemala
+	Guatemala -> Guatemala
+	Guatemala -> GTM
+	label="\n\nTabla: cities"
+	fontsize=20
+}

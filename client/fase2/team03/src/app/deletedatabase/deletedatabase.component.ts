@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ApiService } from '../services/api.service'
+import { Mandar } from 'src/app/model/mandar';
 
 @Component({
   selector: 'app-deletedatabase',
@@ -6,14 +8,24 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./deletedatabase.component.scss']
 })
 export class DeletedatabaseComponent implements OnInit {
-
-  constructor() { }
+  publicar:Mandar={
+    codigo: ''
+  };
+  constructor( private apiService: ApiService ) { }
 
   ngOnInit() {
   }
 
-  deletedatabase(event:Event)
+  deletedatabase(name: string, event:Event)
   {
-    alert("Eliminado base de datos.....");
+    this.publicar.codigo="DROP DATABASE IF EXISTS "+name+";";
+    this.apiService.postquery(this.publicar)
+      .subscribe(
+        res => {
+          console.log(res)
+        },
+        err => console.log(err)
+      )
+    alert("Base de datos "+name+" eliminada");
   }
 }
