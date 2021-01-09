@@ -6,12 +6,13 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 def encrypt(data, password):
     key = keygen(password)
     f = Fernet(key)
-    return f.encrypt(data.encode())
+    return f.encrypt(data.encode()).decode()
 
 def decrypt(data, password):
+    data = data.encode()
     key = keygen(password)
     f = Fernet(key)
-    return str(f.decrypt(data))
+    return f.decrypt(data).decode()
 
 def keygen(password):
     kdf = PBKDF2HMAC(

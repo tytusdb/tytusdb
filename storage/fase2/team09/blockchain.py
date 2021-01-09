@@ -83,7 +83,3 @@ def _toHash(data):
     for x in data:
         l = l + str(x)
     return md(l.encode())
-
-writeBlockChain("1", "1", [["taco", 1], ["piña", 2], ["soplos", 3]], False)
-
-showBlockChain("1", "1", [["taco", 1], ["piñas", 22], ["soplos", 3]])
