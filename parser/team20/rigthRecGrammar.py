@@ -2,8 +2,9 @@ from pathlib import Path
 # -----------------------------------------------------------------------------
 # TytusDB Parser Grupo 20
 # 201612141 Diego Estuardo Gómez Fernández
-# 
-# 
+# 201612154 André Mendoza Torres
+# 201612139 Jeralmy Alejandra de León Samayoa
+# 201612276 Carlos Manuel Garcia Gonzalez
 # 
 # DIC 2020
 #

@@ -84,7 +84,7 @@ class Execute():
         archivo = open(path_c3d, 'a')
         archivo.write("\n")
         archivo.write(self.plcode)
-        archivo.write("\n#up()")
+        archivo.write("\nup()")
         archivo.close()
         dotAST = graphAST(self)
         printSymbolTable_ = printSymbolTable(self)

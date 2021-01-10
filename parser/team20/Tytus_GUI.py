@@ -260,6 +260,10 @@ def print_querys_(querys):
 # Root configuration
 root = Tk()
 root.title("Tytus")
+try:
+    root.iconbitmap("Tytus.ico")
+except Exception as e:
+    i=0#print(e)
 
 # Superior menu
 menubar = Menu(root)

@@ -21,7 +21,8 @@ from prettytable import PrettyTable
 
 from execution.executeOptimization import *
 from execution.executeOptimization_result import *
-from C3D import up
+
+import os
 
 def update_line_and_column(text_: tk.Text):
     line, column = text_.index("insert").split(".") # Row starts at 1 and column starts at 0
@@ -296,19 +297,28 @@ def compile_C3D():
     Input_text = text_c3d_optimized.get(1.0,'end-1c')    
     #compile c3d
     compile_C3D_aux(Input_text)
-    #result_compile = compile(Input_text)
-    #process results and display reports
-    #process_results_compile_and_display_reports(result_compile)
-    
 
 def compile_C3D_aux(c3d_optimized):
     global path_c3d
     try:
-        up()
-        #exec(compile(c3d_optimized, path_c3d, 'exec'))
+        absFilePath = os.path.abspath(__file__)
+        path, filename = os.path.split(absFilePath)
+        path_and_path_c3d = str(path) + "\\" + str(path_c3d)
+        f=open(path_and_path_c3d,"w")
+        f.write(c3d_optimized)
+        f.close()
+        exec_full(path_and_path_c3d)
     except Exception as e:
         print_error("UNKNOWN ERROR", "Error running optimized c3d, "+str(e),2)
         #print(e)
+
+def exec_full(filepath):
+    global_namespace = {
+        "__file__": filepath,
+        "__name__": "__main__",
+    }
+    with open(filepath, 'rb') as file:
+        exec(compile(file.read(), filepath, 'exec'), global_namespace)
 
 
 # Root configuration

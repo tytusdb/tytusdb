@@ -1,4 +1,4 @@
-from execution.executeSentence import executeSentence 
+from execution.executeSentence import executeSentence
 from execution.AST.sentence import *
 from execution.AST.expression import *
 from execution.executeInstruction import createFunction, deleteFunction
@@ -212,7 +212,9 @@ def SP_VALIDAINSERT():
 	print(VALIDAREGISTROS('TBBODEGA', 5))
 
 	executeSentence(InsertAll,InsertAll('TBCALIFICACION',[Value(1,4), Value(3,'VALIDA STORE PROCEDURE'), Value(1,1)]))
+	executeSentence(CreateIndex,CreateIndex('IDX_BODEGA','TBBODEGA',[['BODEGA'], ['ESTADO']]))
 	executeSentence(DropIndex,DropIndex('IDX_BODEGA',False))
+	executeSentence(CreateIndex,CreateIndex('IDX_BODEGA','TBBODEGA',[['BODEGA'], ['ESTADO']]))
 	createFunction('SP_VALIDAUPDATE','''
 @with_goto
 def SP_VALIDAUPDATE():
@@ -263,6 +265,7 @@ def SP_INSERTAPRODUCTO(LLAVE: int, PRODUCTO: str, FECHA):
 
 	print(SP_INSERTAPRODUCTO(12, 'MONITOR DE 17"', '2021-01-06'))
 
+	executeSentence(Select,Select([Value(3,'*')],False,[Value(3,'TBPRODUCTO')],None))
 	deleteFunction('MYFUNCION')
 
 
@@ -301,6 +304,7 @@ def FN_MENSAJE(TEXTO: str) ->str:
 
 	print(SP_INSERTAPRODUCTO(16, 'MONITOR DE 17" LENOVO', '2021-01-06'))
 
+	executeSentence(Select,Select([Value(3,'*')],False,[Value(3,'TBPRODUCTO')],None))
 
 @with_goto
 def MYFUNCION(TEXTO: str) ->str:
@@ -431,4 +435,4 @@ def SP_INSERTAPRODUCTO(LLAVE: int, PRODUCTO: str, FECHA):
 def FN_MENSAJE(TEXTO: str) ->str:
 	return TEXTO
 
-#up()
+up()
