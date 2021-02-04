@@ -2077,8 +2077,7 @@ def p_EXPR_COLUMNAS(p):
 
 # LEN 1 y 3
 def p_EXPR_COLUMNAS1(p):
-    '''EXPR_COLUMNAS1 : E
-                     | EXPR_AGREGACION
+    '''EXPR_COLUMNAS1 : EXPR_AGREGACION
                      | EXPR_MATHS
                      | EXPR_TRIG
                      | EXPR_BINARIAS
@@ -2110,7 +2109,12 @@ def p_EXPR_COLUMNAS1(p):
     elif len(p) == 3:
         p[0] = SColumnasAsSelect(p[2], p[1])
     else:
-        p[0] = SSelectLlamadaQuery(p[1])
+        p[0] = SColumnasAsSelect(False, p[1])
+
+def p_EXPR_COLUMNASLlamada(p):
+    '''EXPR_COLUMNAS1 : E '''
+    p[0] = SSelectLlamadaQuery(p[1])
+
 
 def p_EXPR_COLUMNAS2(p):
     '''EXPR_COLUMNAS1 : parAbre QUERY parCierra

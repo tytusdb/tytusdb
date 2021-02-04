@@ -9,4 +9,10 @@ class TBNode:
         self.name = name
         self.columns = columns
         self.pk = []
+        self.fk = []
+        self.iu = []
+        self.indx = []
+        self.compress = False
+        self.safeMode = False
+        self.hidden = False
         self.next = None

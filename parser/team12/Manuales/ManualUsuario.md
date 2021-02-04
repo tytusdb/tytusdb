@@ -18,6 +18,8 @@ La interfaz de usuario esta compuesta por lo siguiente:
 * TAB Archivo
    * Abrir Archivo: Opción que nos permite cargar un archivo en el editor  del dbms Tytus.
    * Analizar: Opción que nos permite analizar el texto cargado en el editor del dbms Tytus
+   * Compilar: Opción utilizado para la ejecución del codigo generado.
+   ![AST](https://github.com/tytusdb/tytus/blob/main/parser/team12/Manuales/compilar.png "AST")
 * TAB Reportes
    * AST: Genera una imagen con el AST generado de la gramatica.
    ![AST](https://github.com/tytusdb/tytus/blob/main/parser/team12/Manuales/ast.png "AST")
@@ -31,6 +33,9 @@ La interfaz de usuario esta compuesta por lo siguiente:
 * Consola de Errores
     * Se muestra un cuadro de texto en el cual se mostraran los errores encontrados en el archivo analizado.
     ![Error](https://github.com/tytusdb/tytus/blob/main/parser/team12/Manuales/error.png "Error")
+* CD3
+Tytus dbms es capaz de generar codigo de tres direcciones correspondientes a las entradas ingresadas.
+El codigo generado por Tytus dbms se puede compilar para comprobar su funcionalidad.
 
 ## FUNCIONES
 El lenguaje SQL aceptado, puede cumplir con lo siguiente:

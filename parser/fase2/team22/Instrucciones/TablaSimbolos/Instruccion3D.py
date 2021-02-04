@@ -12,21 +12,31 @@ def getEncabezado():
     content += "from Instrucciones.TablaSimbolos.Arbol import Arbol\n"
     content += "from storageManager.jsonMode import *\n"
     content += "import sintactico\n\n"
+
+    content += "dropAll()\n\n"
     
     content += "tablaGlobal = Tabla(None)\n"
     content += "arbol = Arbol()\n\n"
 
-    content += "def call_funcion_intermedia():\n"
-    content += "    dropAll()\n"
-    content += "    input = \"\"\n"
-    content += "    for i in stack:\n"
-    content += "        input += stack[i] + \"\\n\"\n"
-    content += "    print(input)\n"
-    content += "    inst = sintactico.ejecutar_analisis(input)\n"
-    content += "    arbol = Arbol(inst)\n"
-    content += "    for i in arbol.instrucciones:\n"
-    content += "        resultado = i.ejecutar(tablaGlobal,arbol)\n\n"
+    content += "stack = {}\nheap = {}\n"
+    content += "p = 0\nh = 0\n\n"
 
+    content += "def call_funcion_intermedia():\n"
+    content += "    global p, h, arbol\n"
+    content += "    print(stack[p])\n"
+    content += "    inst = sintactico.ejecutar_analisis(stack[p])\n"
+    content += "    arbol.instrucciones = inst\n"
+    content += "    for i in arbol.instrucciones:\n"
+    content += "        resultado = i.ejecutar(tablaGlobal,arbol)\n"
+    content += "    p = h\n\n"
+
+    content += "@with_goto\n"
+    content += "def exec():\n"
+    content += "    global p, h"
+
+    return content
+
+'''
     #Funcion para insertar elementos en tabla c3d
     content += "def call_insert_table():\n"
     content += "    arbolAux = arbol\n"
@@ -121,19 +131,15 @@ def getEncabezado():
     content += "    arbolAux.setBaseDatos(heap[p - 2])\n"
     content += "    alter = AlterTableDropColumn.AlterTableDropColumn(heap[p - 1], heap[p], '' ,0,0)\n"
     content += "    alter.ejecutar(tablaGlobal, arbolAux)\n\n"
-
-    content += "stack = {}\nheap = {}\n"
-    content += "p = 0\nh = 0\n\n"
-
-    content += "@with_goto\n"
-    content += "def exec():\n"
-    content += "    global p"
-
-    return content
+'''
+    
 
 def getPie():
     content = "\n\nexec()\n"
-    content += "call_funcion_intermedia()"
+    content += "print('****************************** Consola ******************************')\n"
+    content += "for line in arbol.consola:\n"
+    content += "    print(line)"
+    #content += "call_funcion_intermedia()"
     return content
 
 def getTemporal():

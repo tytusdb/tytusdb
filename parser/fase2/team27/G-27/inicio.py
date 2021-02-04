@@ -3,6 +3,7 @@
 from tkinter import *
 import tkinter
 from c3d import analizarLex, analizarSin,tab_string, tab_func, get_errores, tab_simbolos
+from parserC3D import analizarLexC3D, analizarSinC3D
 from reporte import analizarASTLex, analizarASTSin
 from bnf import analizarBNFLex, analizarBNFSin
 from environment import reset
@@ -48,7 +49,12 @@ def analizar_texto():
     txt_salida.insert('end',tab_func())
     txt_salida.insert('end','\n=====REPORTE DE ERRORES======')
     txt_salida.insert('end',get_errores())
+
+    opC3D = analizarSinC3D(texto)
+    txt_salida.insert('end','\n=====REPORTE DE OPTIMIZACIÓN======')
+    txt_salida.insert('end',opC3D)
     txt_salida.insert('end', '\n>>>\n')
+
 
     reset()
 

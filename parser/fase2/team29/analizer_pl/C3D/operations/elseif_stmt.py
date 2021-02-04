@@ -24,7 +24,9 @@ class ElseIfStmt(Instruction):
                 + "\n"
             )
             grammar.optimizer_.addIF(
-                str(boolCode.temp), str("etiv" + str(grammar.current_etiq + 1)), self.row
+                str(boolCode.temp),
+                str("etiv" + str(grammar.current_etiq + 1)),
+                self.row,
             )
             cod3d += "\tgoto .etif" + str(grammar.current_etiq + 2) + "\n"
             grammar.optimizer_.addGoto(
@@ -40,7 +42,9 @@ class ElseIfStmt(Instruction):
             self.p_if_rest()
             return code.C3D(cod3d, "elseif", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Else If Statement")
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Else If Statement"
+            )
 
     def p_if_sum(self):
         if grammar.if_stmt != 0:

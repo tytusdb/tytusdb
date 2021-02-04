@@ -2,10 +2,7 @@ from InterpreteF2.NodoAST import NodoArbol
 from InterpreteF2.Tabla_de_simbolos import Tabla_de_simbolos
 from InterpreteF2.Arbol import Arbol
 from InterpreteF2.Reporteria.ReporteTS import ReporteTS
-from InterpreteF2.Valor.Valor import Valor
-from InterpreteF2.Primitivos.TIPO import TIPO
-from InterpreteF2.Primitivos.COMPROBADOR_deTipos import COMPROBADOR_deTipos
-
+from InterpreteF2.Reporteria.ReporteTS_Indice import ReportIndice
 
 class dropindex(NodoArbol):
 
@@ -17,30 +14,19 @@ class dropindex(NodoArbol):
         pass
 
     def traducir(self, entorno: Tabla_de_simbolos, arbol: Arbol):
-        print('si llegmaos aca')
         i=0
-        while i < len(arbol.ReporteTS):
-            report: ReporteTS = arbol.ReporteTS[i]
+        while i < len(arbol.ReporteTS_Indice):
+            report:ReportIndice = arbol.ReporteTS_Indice[i]
             j = 0
             while j < len(self.listid):
                 identificador = self.listid[j]
                 if str(report.nombre) == str(identificador):
                     self.listid.pop(j)
-                    arbol.ReporteTS.pop(i)
+                    arbol.ReporteTS_Indice.pop(i)
                 j += 1
             i+=1
 
 
-        #for i in range(len(arbol.ReporteTS)):
-        #    report:ReporteTS = arbol.ReporteTS[i]
-
-        #    for j in range(len(self.listid)):
-        #        identificador = self.listid[j]
-
-        #        if str(report.nombre) == str(identificador):
-        #            self.listid.pop(j)
-
-        #            arbol.ReporteTS.pop(i)
 
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):

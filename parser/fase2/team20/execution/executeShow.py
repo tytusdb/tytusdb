@@ -13,6 +13,6 @@ def executeShowDatabases(self):
     x.align = "r"
     x.border = True
     x.padding_width = 7
-    print_success("QUERY","Query carried out successfully")
-    print_table("QUERY TABLE",x.get_string())
+    print_success("QUERY","Query carried out successfully",2)
+    print_table("QUERY TABLE",x.get_string(),2)
     print(x) #show databases;

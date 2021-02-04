@@ -84,7 +84,8 @@ class Create(Instruccion):
                 #print(contColumnas)
                 #print(description.description)
             #--------------
-            valRetorno = createTableC3D(data.databaseSeleccionada, self.name.upper(), contColumnas)
+            cadenaE = self.arg1.upper()
+            valRetorno = createTableC3D(data.databaseSeleccionada, self.name.upper(), contColumnas, cadenaE)
             valRetorno = createTable(data.databaseSeleccionada, self.name.upper(), contColumnas)
             
             if valRetorno == 1:

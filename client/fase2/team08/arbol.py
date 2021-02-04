@@ -4,6 +4,11 @@ import tkinter as tk
 from tkinter import messagebox as MessageBox
 from PIL.ImagePalette import load
 from PIL import ImageTk, Image
+import os
+import http.client
+import json
+import pathlib
+
 
 class Arbol(Frame):
     def __init__(self, *args, **kwargs):
@@ -17,9 +22,11 @@ class Arbol(Frame):
             fieldbackground = "silver",
             activebackground="gray59"
             )
-        
+        #
         # Crear las imagenes que iran en el treeview, 
         # Folder para Bases y File para tablas
+
+        #{"TEST": {"TBUSUARIO": {"NCOL": 3, "PKEY": [0]}, "TBROL": {"NCOL": 2, "PKEY": [0]}, "TBROLXUSUARIO": {"NCOL": 2}}}
         self.file_image = tk.PhotoImage(file="resources/file.png")
         self.folder_image = tk.PhotoImage(file="resources/folder.png")
         self.file_image = self.file_image.subsample(35)
@@ -33,24 +40,47 @@ class Arbol(Frame):
 
         # Se crea el primer item del arbol que lo empaquete todo
         item = self.treeview.insert("", END, text="Bases de datos", image=self.render)
-        # Se crea un subitem que sera una base de datos
-        # Se puede repetir este proceso cuantas veces se desee para aumentar
-        # los niveles del treeview, por ahora solo seran 3 niveles
-        # Adentro del insertar va el item padre
-        
-        subitem = self.treeview.insert(item, END, text="Amazon",image=self.folder_image)
-        # Se llena el ultimo nivel del arbol, como es el ultimo nivel 
-        # solo se llaman los inserts sin crear una variable item nueva.
-        self.treeview.insert(subitem, END, text="Empleado",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Cliente",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Producto",image=self.file_image)
+        myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 
-        # Nuevo subitem con item como padre
-        subitem = self.treeview.insert(item, END, text="Aurora",image=self.folder_image)
-        # Llenando este subitem
-        self.treeview.insert(subitem, END, text="Animal",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Habitat",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Alimento",image=self.file_image)
+        headers = {
+            "Content-type": "application/json"
+        }
+        myConnection.request("GET", "/getDB", "", headers)
+        response = myConnection.getresponse()
+        print("GET: Status: {} and reason: {}".format(response.status, response.reason))
+        if response.status == 200:       
+            data = response.read() 
+            
+                
+            data_1=  str(data.decode("utf-8"))
+            if data_1!="":
+                lista = str(data_1).split("}},")
+                #print(lista[0])
+                #print(lista[1])
+                for x in range(0,len(lista)):
+                    lista2 = str(lista[x]).split("},")
+                    padre=lista2[0].split("\"")
+                    # Se crea un subitem que sera una base de datos
+                    # Se puede repetir este proceso cuantas veces se desee para aumentar
+                    # los niveles del treeview, por ahora solo seran 3 niveles
+                    # Adentro del insertar va el item padre
+                    if len(padre)>3:
+                        subitem = self.treeview.insert(item, END, text=padre[1],image=self.folder_image)
+                        self.treeview.insert(subitem, END, text=padre[3],image=self.file_image)
+                        for y in range(1, len(lista2)):
+                            temp= lista2[y].split("\"")
+                            self.treeview.insert(subitem, END, text=temp[1],image=self.file_image)
+            else:
+                print("Error BASE DE DATOS")
+                #consola.config(state=NORMAL)
+                #consola.insert(INSERT,"\nHa ocurrido un error.")
+                #consola.config(state=DISABLED)
+            myConnection.close()
+
+        #
+
+        
+        
 
         # Colocando el arbol en el frame
         self.treeview.pack(side="top", fill="both", expand=True)

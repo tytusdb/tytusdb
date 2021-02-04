@@ -19,7 +19,9 @@ class ElseStmt(Instruction):
             cod3d += self.p_fev()
             return code.C3D(cod3d, "else", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: plpgsql fatal error \n Hint---> Else Statement")
+            grammar.PL_errors.append(
+                "Error P0000: plpgsql fatal error \n Hint---> Else Statement"
+            )
 
     def p_fev(self):
         return grammar.back_fill.take_out_false_list(self.row)

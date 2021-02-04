@@ -4,12 +4,12 @@ function registro(){
     var confirmPass = document.getElementById("confirm").value;
    if(pass1 == confirmPass){
        
-    ruta = 'http://localhost:8888/query'
+    ruta = 'http://localhost:8888/login/nuevo'
     fetch(ruta,
         {
             method:'POST',
             mode: 'cors',
-            body: JSON.stringify({user:user1,pass:pass1}),
+            body: JSON.stringify({name:user1,password:pass1}),
             headers:{
                 'Content-Type': 'application/json'
             }

@@ -149,7 +149,6 @@ def reporteTabla( datos):
             for column in datos.tablaSimbolos[a]['index']:
                 f.write("<p class='i'>Indice :")
                 f.write(column.name)
-                f.write("</p>\n")
                 f.write("<li>")
                 f.write("<ol>Nombre: ")
                 f.write(column.name)
@@ -178,9 +177,8 @@ def reporteTabla( datos):
                         f.write(tc)
 
                 f.write("</li><li>Orden: ")
-                f.write("<ul>")
                 f.write(column.order)
-                f.write("</ul>")
+                f.write("</p>\n")
             f.write("/<center>\n")
             f.write("           </div>\n")
             f.write("         </div>\n")
@@ -216,13 +214,15 @@ def Rerrores(errores, semanticos, nombre):
     f.write("   <body>\n")
     f.write("       <p><b>Reporte de Errores<b></p>")
     f.write("       <div>")
+    f.write("       <center>")
     f.write("       <table>\n")
     f.write("           <tr class='titulo'>   <td><b>Tipo</b></td>   <td><b>Descripcion</b></td>   <td><b>Linea</b></td> </tr>\n")
     for error in errores:
-        f.write("           <tr> <td>" + error.getTipo() + "</td> <td>" + error.getDescripcion() + "</td> <td>"+ error.getLinea()  + "</td> </tr>\n")
+        f.write("           <tr> <td>" + error.getTipo() + "</td> <td>" + error.getDescripcion() + "</td> <td>"+ str(error.getLinea())  + "</td> </tr>\n")
     for semantico in semanticos:
         f.write("           <tr> <td>Semantico"  + "</td> <td>" + semantico.desc + "</td> <td>" + str(semantico.line) + "</td> </tr>\n")
     f.write("       </table>\n")
+    f.write("       </center>")
     f.write("         </div>")
     f.write("   </body>\n")
     f.write("</html>\n")

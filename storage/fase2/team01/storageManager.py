@@ -1,8 +1,15 @@
-#Acceso a los diferentes modos de almacenamiento
 import hashlib
 import datetime
-from cryptography import fernet
+import base64
+from graphviz import Digraph, nohtml
+import os
+os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
+import node_server as chaing
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+
+#Acceso a los diferentes modos de almacenamiento
 from storage.avl import avl_mode as _AVL
 from storage.b import b_mode as _B
 from storage.bplus import bplus_mode as _BPLUS
@@ -40,6 +47,16 @@ class TABLA:
         self.modo = m
         self.codificacion = c
         self.PK = []
+        self.FK = {}
+        self.UNIQUE = {}
+        self.INDEX = {}
+
+#Clase Llave Foranea
+class LLAVE_FORANEA:
+    def __init__(self, col, tableRef, colRef):
+        self.columns = col
+        self.tableRef = tableRef
+        self.columnsRef = colRef
 
 #Verifica si existe base de datos
 def existDatabase(database: str) -> bool:
@@ -82,7 +99,19 @@ def buscarTabla(database: str, table: str):
 def quitarTabla(database: str, table: str):
     for item in lista_tablas:
         if item.bd == database and item.nombre == table:
-            lista_bbdd.remove(item)
+            lista_tablas.remove(item)
+
+#Verifica si la data es de codificación UTF8
+def isUTF8(data):
+    try:
+        decoded = data.decode('UTF-8')
+    except UnicodeDecodeError:
+        return False
+    else:
+        for ch in decoded:
+            if 0xD800 <= ord(ch) <= 0xDFFF:
+                return False
+        return True
 
 #Verifica si los datos corresponden a una codificación
 def verificaCodificacion(codificacion, register):
@@ -105,12 +134,39 @@ def elegirModo(m):
     elif m == 'hash':
         return _HASH
 
+#Verifica que los elementos de x estén en y
+def existeColumnas(x, y) -> bool:
+    for i in x:
+        if i not in y:
+            return False
+    return True
+
+def dropALL():
+    from shutil import rmtree
+    rmtree('Data')
+    """try:
+        _AVL.dropAll()
+    except:
+        pass
+    try:
+        _BPLUS.dropAll()
+    except:
+        pass
+    try:
+        _DICC.dropAll()
+    except:
+        pass
+    try:
+        _JSON.dropAll()
+    except:
+        pass"""
+
 #*************************************
 #** FUNCIONES CRUD DE BASE DE DATOS **
 #*************************************
 
 #Creación de bases de datos
-def createDatabase(database: str, mode: str, encoding: str) -> int:    
+def createDatabase(database: str, mode: str, encoding: str) -> int:
     try:
         d = database.lower()
         m = mode.lower()
@@ -215,7 +271,7 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
 def showTables(database: str) -> list:
     try:
         d = database.lower()
-        lista = [item.nombre for item in lista_tablas if item.bd == d]
+        lista = ['('+item.nombre+ ', ' + item.modo +')' for item in lista_tablas if item.bd == d]
         return lista
     except:
         return []
@@ -269,6 +325,8 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
                 if resultado == 0:
                     itemTBL.PK = columns
                 return resultado
+            else:
+                return 3 #Tabla no existe en la Base de Datos
         else:
             return 2 #Base de Datos inexistente
     except:
@@ -408,6 +466,15 @@ def insert(database: str, table: str, register: list) -> int:
             if itemTBL:
                 if verificaCodificacion(itemTBL.codificacion, register):
                     resultado = elegirModo(itemTBL.modo).insert(d, t, register)
+                    if variableGlobal == 1:
+                        for registro in register:                                                        
+                            txt_data = {}
+                            txt_data["base"] = d
+                            txt_data["tabla"] = t
+                            txt_data["registro"] = registro
+                            txt_data["timestamp"] = time.time()
+                            chaing.blockchain.add_new_transaction(txt_data)
+                            chaing.mine_unconfirmed_transactions()
                     return resultado #0 operación exitosa, 1 error en la operación
                 else:
                     return 1 #Codificación incorrecta
@@ -553,34 +620,322 @@ def alterDatabaseMode(database: str, mode: str) -> int:
             return 2 #Base de Datos no existente
     except:
         return 1 #Error en la operación
+
+#Cambia el modo de almacenamiento de una tabla de una base de datos especificada
+def alterTableMode(database: str, table: str, mode: str) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        m = mode.lower()
+        if not database.isidentifier() or not table.isidentifier():
+            raise Exception()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                if m in cModos:
+                    if itemTBL.modo != m:
+                        if itemBD.modo != m:
+                            resultado = elegirModo(m).createDatabase(itemBD.nombre)
+                        if resultado == 0 or resultado == 2:
+                            resultado = elegirModo(m).createTable(itemBD.nombre, itemTBL.nombre, itemTBL.columnas)
+                            if resultado == 0:
+                                if itemTBL.PK != []:
+                                    resultado = elegirModo(m).alterAddPK(itemBD.nombre, itemTBL.nombre, itemTBL.PK)
+                                lista_registros = elegirModo(itemTBL.modo).extractTable(itemBD.nombre, itemTBL.nombre)
+                                for registro in lista_registros:
+                                    resultado = elegirModo(m).insert(itemBD.nombre, itemTBL.nombre, registro)
+                                    if resultado != 0:
+                                        elegirModo(m).dropDatabase(itemBD.nombre)
+                                        return resultado #Error en la opración
+                                if resultado == 0:
+                                    elegirModo(itemTBL.modo).dropTable(itemBD.nombre, itemTBL.nombre)
+                                    itemTBL.modo = m
+                                    return resultado #Operación exitosa
+                        else:
+                            return resultado #Error en operación
+                    else:
+                        #El modo es el mismo
+                        return 0 #Operación exitosa
+                else:
+                    return 4 #Modo incorrecto
+            else:
+                return 3 #Tabla no existe en la Base de Datos
+        else:
+            return 2 #Base de Datos no existente
+    except:
+        return 1 #Error en la operación
+
+#Verifica si se cumple con la Integridad Referencial al crear las llaves foráneas
+def verificaIntegridadReferencial(tabla, columns, tablaRef, columnsRef) -> bool:
+    registros = elegirModo(tabla.modo).extractTable(tabla.bd, tabla.nombre)
+    referencia = elegirModo(tablaRef.modo).extractTable(tablaRef.bd, tablaRef.nombre)
+    lista_regs = []
+    lista_refs = []
+    for reg in registros:
+        item = "|"
+        for col in columns:
+            item = item + str(reg[col]) + "|"
+        lista_regs.append(item)
+    for ref in referencia:
+        item = "|"
+        for col in columnsRef:
+            item = item + str(ref[col]) + "|"
+        lista_refs.append(item)
+    if not existeColumnas(lista_regs, lista_refs):
+        return False
+    return True
+
+#Verifica si se cumple con la Integridad de Unicidad para indices únicos
+def verificaIntegridadUnicidad(tabla, columns):
+    registros = elegirModo(tabla.modo).extractTable(tabla.bd, tabla.nombre)
+    lista = []
+    for reg in registros:
+        item = "|"
+        for col in columns:
+            item = item + str(reg[col]) + "|"
+        lista.append(item)
+    for elemento in lista:
+        if lista.count(elemento) > 1:
+            return False
+    return True
+
+#Agrega un índice de llave foránea, creando una estructura adicional con el modo indicado para la base de datos
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        i = indexName.lower()
+        tRef = tableRef.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            itemREF = buscarTabla(d, tRef)
+            if itemTBL and itemREF:
+                if len(columns) == len(columnsRef):
+                    if len(columns) > 0:
+                        if existeColumnas(columns, list(range(0, itemTBL.columnas))) and existeColumnas(columnsRef, list(range(0, itemREF.columnas))):
+                            if verificaIntegridadReferencial(itemTBL, columns, itemREF, columnsRef):
+                                nuevaLlave = LLAVE_FORANEA(columns, tRef, columnsRef)
+                                itemTBL.FK.setdefault(i, nuevaLlave)
+                                return 0 #Operación exitosa
+                            else:
+                                return 5 #No se cumple la integridad referencial
+                        else:
+                            return 1 #No existen las columnas en la tabla
+                    else:
+                        return 1 #Número de columnas debe ser al menos 1
+                else:
+                    return 4 #Cantidad no exacta entre columns y columnsRef
+            else:
+                return 3 #table o tableRef no existente
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Destruye el índice tanto como metadato de la tabla como la estructura adicional creada
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        i = indexName.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                valor = itemTBL.FK.get(i)
+                if valor:
+                    valor = itemTBL.FK.pop(i)
+                    return 0 #Operación exitosa
+                else:
+                    return 4 #Nombre de índice no existente
+            else:
+                return 3 #tabla o tableRef no existente
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Agrega un índice único, creando una estructura adicional con el modo indicado para la base de datos
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        i = indexName.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                if len(columns) > 0:
+                    if existeColumnas(columns, list(range(0, itemTBL.columnas))):
+                        if verificaIntegridadUnicidad(itemTBL, columns):
+                            itemTBL.UNIQUE.setdefault(i, columns)
+                            return 0 #Operación exitosa
+                        else:
+                            return 5 #No se cumple la integridad de unicidad
+                    else:
+                        return 1 #No existen las columnas en la tabla
+                else:
+                    return 1 #Número de columnas debe ser al menos 1
+            else:
+                return 3 #table o tableRef no existente
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Destruye el índice tanto como metadato de la tabla como la estructura adicional creada
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        i = indexName.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                valor = itemTBL.UNIQUE.get(i)
+                if valor:
+                    valor = itemTBL.UNIQUE.pop(i)
+                    return 0 #Operación exitosa
+                else:
+                    return 4 #Nombre de índice no existente
+            else:
+                return 3 #tabla o tableRef no existente
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Agrega un índice, creando una estructura adicional con el modo indicado para la base de datos
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        i = indexName.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                if len(columns) > 0:
+                    if existeColumnas(columns, list(range(0, itemTBL.columnas))):
+                        itemTBL.INDEX.setdefault(i, columns)
+                        return 0 #Operación exitosa
+                    else:
+                        return 1 #No existen las columnas en la tabla
+                else:
+                    return 1 #Número de columnas debe ser al menos 1
+            else:
+                return 3 #table o tableRef no existente
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Destruye el índice tanto como metadato de la tabla como la estructura adicional creada
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        i = indexName.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                valor = itemTBL.INDEX.get(i)
+                if valor:
+                    valor = itemTBL.INDEX.pop(i)
+                    return 0 #Operación exitosa
+                else:
+                    return 4 #Nombre de índice no existente
+            else:
+                return 3 #tabla o tableRef no existente
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Asocia una codificación a una base de datos por completo
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    try:
+        d=database.lower()
+        e=encoding.lower()
+        itemDB = buscaBBDD(d)
+        if itemDB:
+            if e in cCodificaciones:
+                itemDB.codificacion = e
+                for tabla in lista_tablas:
+                    if tabla.bd == d:
+                        tabla.codificacion = e
+                return 0 #Operación exitosa
+            else:
+                return 3 #Codificación incorrecta
+        else:
+            return 2 #Base de Datos existente
+    except:
+        return 1 #Error en la operación
+
 #funciones de checksum
 x = datetime.datetime.now()
+
+#Genera un diggest a partir  del contenido de la base de datos incluyendo sus tablas
 def checksumDatabase(database:str, mode:str) -> str:
-    stringDatabase =""
-    for bases in showTables(database):       
-        stringDatabase += bases
-        for tables in extractTable(database,bases):            
-            for regitros in tables:              
-                stringDatabase += str(regitros)
-    stringDatabase += str(x)    
-    if mode == "MD5":        
-        h=hashlib.md5(stringDatabase.encode('utf-8'))   
-        return h.hexdigest()
-    elif mode == "SHA256":        
-        h=hashlib.sha256(stringDatabase.encode('utf-8'))   
-        return h.hexdigest()
+    try:
+        d = database.lower()
+        mode = mode.upper()
+        stringDatabase =""
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            for tabla in lista_tablas:
+                if tabla.bd == d:
+                    stringDatabase += tabla.nombre
+                    registros = elegirModo(tabla.modo).extractTable(d, tabla.nombre)
+                    if registros:
+                        for reg in registros:
+                            for item in reg:
+                                stringDatabase += str(item)
+            if mode == "MD5": 
+                h=hashlib.md5(stringDatabase.encode('utf-8'))
+                return h.hexdigest()
+            elif mode == "SHA256":
+                h=hashlib.sha256(stringDatabase.encode('utf-8'))
+                return h.hexdigest()
+        else:
+            return None #Base de Datos no existe
+    except:
+        return None #Error en la operación
+
+#Genera un diggest a partir del contenido de la tabla de una base de datos
 def checksumTable(database:str, table:str, mode:str) -> str:
-    stringTable=""
-    for tables in extractTable(database,table):            
-            for regitros in tables:              
-                stringTable += str(regitros)
-    stringTable += str(x)
-    if mode == "MD5":        
-        h=hashlib.md5(stringTable.encode('utf-8'))   
-        return h.hexdigest()
-    elif mode == "SHA256":        
-        h=hashlib.sha256(stringTable.encode('utf-8'))   
-        return h.hexdigest()
+    try:
+        d = database.lower()
+        t = table.lower()
+        mode = mode.upper()
+        stringTable=""
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                stringTable += itemTBL.nombre
+                registros = elegirModo(itemTBL.modo).extractTable(d, t)
+                if registros:
+                    for reg in registros:
+                        for item in reg:
+                            stringTable += str(item)
+                if mode == "MD5":        
+                    h=hashlib.md5(stringTable.encode('utf-8'))   
+                    return h.hexdigest()
+                elif mode == "SHA256":        
+                    h=hashlib.sha256(stringTable.encode('utf-8'))   
+                    return h.hexdigest()
+            else:
+                return None #Tabla no existe en la Base de Datos
+        else:
+            return None #Base de Datos no existe
+    except:
+        return None #Error en la operación
+
 #funciones para encriptar y descriptar 
 def generar_clave():
     clave = Fernet.generate_key()
@@ -589,39 +944,194 @@ def generar_clave():
 def cargar_clave():
     return open("clave.key","rb").read()
 
+#Crifra el texto backup con la llave password y devuelve el criptograma
 def encrypt(backup: str, password: str) -> str:
-    clave = password
-    if  existDatabase(backup) and clave:
-        stringDatabase =""
-        for bases in showTables(backup):       
-            stringDatabase += bases
-            for tables in extractTable(backup,bases):            
-                for regitros in tables:              
-                    stringDatabase += str(regitros)        
-        mensaje=stringDatabase.encode()        
-        try:
-            f = Fernet(clave)
+    try:
+        clave = password.encode()
+        d = backup.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD and clave:
+            stringDatabase =""
+            for tabla in lista_tablas:
+                if tabla.bd == d:
+                    stringDatabase += tabla.nombre
+                    registros = elegirModo(tabla.modo).extractTable(d, tabla.nombre)
+                    if registros:
+                        for reg in registros:
+                            for item in reg:
+                                stringDatabase += str(item)
+            mensaje=stringDatabase.encode()
+            salt = b'M\nYr;tlLdw\xa3\xa7\x96\x1f\xf5J'
+            kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=100000,)
+            key = base64.urlsafe_b64encode(kdf.derive(clave))
+            f = Fernet(key)
             encriptando = f.encrypt(mensaje)
             with open(backup+".txt","wb") as archivo_generado:
                 archivo_generado.write(encriptando)
-            print(encriptando)
-            return 0            
-        except:
-            return 1
-    else:
-        return 1
+            return 0 #Operacion exitosa
+        else:
+            return 1 #Backup no existe
+    except:
+        return 1 #Error en la operación
 
+#Descrifra el texto cipherBackup con la llave password y devuelve el texto plano
 def decrypt(cipherBackup:str, password:str) -> str:
-    clave = password
-    if cipherBackup and clave:
-        try:
-            f=Fernet(clave)
+    try:
+        clave = password.encode()
+        if cipherBackup and clave:
+            salt = b'M\nYr;tlLdw\xa3\xa7\x96\x1f\xf5J'
+            kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=32,salt=salt,iterations=100000,)
+            key = base64.urlsafe_b64encode(kdf.derive(clave))
+            f = Fernet(key)
             codigo = open(cipherBackup+".txt","rb").read()
-            desencriptar = f.decrypt(codigo)           
+            desencriptar = f.decrypt(codigo)
             with open(cipherBackup+"_cipher.txt","wb") as archivo_generado:
                 archivo_generado.write(desencriptar)            
             return 0
-        except:
-            return 1
+        else:
+            return 1 
+    except:
+        return 1 #Error en la operación
+
+#Genera un gráfico mediante Graphviz acerca de la base de datos especificada
+def graphDSD(database: str) -> str:
+    try:
+        d = database.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            return None #NO IMPLEMENTADA
+        else:
+            return None #No existe la Base de Datos
+    except:
+        return None #Error en la operación
+
+#Genera un gráfico mediante Graphviz acerca de las dependencias funcionales de una tabla especificada de una base de datos
+def graphDF(database: str, table: str) -> str:
+    try:
+        d = database.lower()
+        t = table.lower()
+        itemBD = buscaBBDD(d)
+        if itemBD:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                f = Digraph('arbol', filename='imagenes\\'+t,
+                format="png", node_attr={'shape': 'record', 'height': '.1'})
+                f.attr(rankdir='LR')
+                f.node(t)
+                for tabla in lista_tablas:
+                    if tabla.bd == d:
+                        for llave in tabla.FK:
+                            print(tabla.FK[llave].tableRef)
+                            if tabla.FK[llave].tableRef == t:
+                                f.edge(t, tabla.nombre)
+                f.attr(label=r'\n\n'+t)
+                f.attr(fontsize='20')
+                f.render()
+                return f
+            else:
+                return None #Tabla no existe en la Base de Datos
+        else:
+            return None #No existe la Base de Datos
+    except:
+        return None #Error en la operación
+
+#Agregue compresión utilizando la biblioteca zlib de python y las funciones compress y decompress
+def alterDatabaseCompress(database: str, level: int) -> int:
+    try:
+        d = database.lower()
+        itemDB = buscaBBDD(d)
+        if itemDB:
+            return 1 #NO IMPLEMENTADA
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Quita la compresión de una base de datos especificada
+def alterDatabaseDecompress(database: str) -> int:
+    try:
+        d = database.lower()
+        itemDB = buscaBBDD(d)
+        if itemDB:
+            return 1 #NO IMPLEMENTADA
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Agregue compresión utilizando la biblioteca zlib de python y las funciones compress y decompress
+def alterTableCompress(database: str, table: str, level: int) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        itemDB = buscaBBDD(d)
+        if itemDB:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                return 1 #NO IMPLEMENTADA
+            else:
+                return 3 #Tabla no existe
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Quita la compresión de una base de datos especificada
+def alterTableDecompress(database: str, table: str) -> int:
+    try:
+        d = database.lower()
+        t = table.lower()
+        itemDB = buscaBBDD(d)
+        if itemDB:
+            itemTBL = buscarTabla(d, t)
+            if itemTBL:
+                return 1 #NO IMPLEMENTADA
+            else:
+                return 3 #Tabla no existe
+        else:
+            return 2 #Base de Datos no existe
+    except:
+        return 1 #Error en la operación
+
+#Activa el modo seguro para una tabla de una base de datos
+def safeModeOn(database:str, table:str) -> int :
+    global variableGlobal
+    variableGlobal=0
+    d = database.lower()
+    t = table.lower()
+    itemBD = buscaBBDD(d)
+    if itemBD:
+        itemTBL = buscarTabla(d, t)      
+        if itemTBL:
+            if variableGlobal == 1:
+                return 4
+            else:                
+                variableGlobal = 1
+                return 0
+        else:
+            return 3
     else:
-        return 1 
+        return 2
+
+#Desactiva el modo seguro en la tabla especificada de la base de datos
+def safeModeOff(database:str, table:str) -> int:
+    global variableGlobal
+    variableGlobal = 1
+    d = database.lower()
+    t = table.lower()
+    itemBD = buscaBBDD(d)
+    if itemBD:
+        itemTBL = buscarTabla(d, t)      
+        if itemTBL:
+            if variableGlobal == 1:
+                variableGlobal = 0
+                with open("register.json","wb") as archivo_generado:
+                    archivo_generado.write(chaing.get_chain().encode())                
+                return 0
+            else:                                
+                return 4
+        else:
+            return 3
+    else:
+        return 2
+   

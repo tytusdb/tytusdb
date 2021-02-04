@@ -1,8 +1,8 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from storageManager.jsonMode import *
 class DropDatabase(Instruccion):
-    def __init__(self, id, tipo, existe, opcion, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, id, tipo, existe, opcion, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.id = id
         self.opcion = opcion
         self.existe = existe
@@ -34,6 +34,11 @@ class DropDatabase(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo
         
 '''
 instruccion = Use("hola mundo",None, 1,2)

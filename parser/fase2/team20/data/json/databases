@@ -1,1 +1,1 @@
-{"DB1": {}, "DBFASE2": {"TBPRODUCTO": {"NCOL": 4, "PKEY": [0]}, "TBCALIFICACION": {"NCOL": 3, "PKEY": [0]}, "TBBODEGA": {"NCOL": 3, "PKEY": [0]}}}
+{"DBFASE2": {"TBPRODUCTO": {"NCOL": 4, "PKEY": [0]}, "TBPRODUCTOS": {"NCOL": 4, "PKEY": [0]}, "TBCALIFICACION": {"NCOL": 3, "PKEY": [0]}, "TBBODEGA": {"NCOL": 3, "PKEY": [0]}}}

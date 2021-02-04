@@ -9,7 +9,7 @@ from .Modules.table_module import TableModule
 from .Modules.tuple_module import TupleModule
 
 from .Modules.Complements import security as SEC
-from .Modules.Complements import checksum as CHECK
+from .Modules.Complements import graph as GRP
 
 DB = DatabaseModule()
 TBL = TableModule()
@@ -51,6 +51,9 @@ def alterDatabaseCompress(database: str, level: int) -> int:
 
 def alterDatabaseDecompress(database: str) -> int:
     return DB.alterDatabaseDecompress(database)
+
+def DBS_Safe() -> list:
+    return DB.DBS_Safe()
 
 
 #  endregion
@@ -135,6 +138,9 @@ def safeModeOn(database: str, table: str) -> int:
 def safeModeOff(database: str, table: str) -> int:
     return TBL.safeModeOff(database, table)
 
+def TBL_Safe(database: str) -> list:
+    return TBL.TBL_Safe(database)
+
 
 # endregion
 
@@ -167,11 +173,11 @@ def truncate(database: str, table: str) -> int:
 
 # region Checksum
 def checksumDatabase(database: str, mode: str) -> str:
-    return CHECK.checksumDatabase(database, mode)
+    return DB.checksumDatabase(database, mode)
 
 
 def checksumTable(database: str, table: str, mode: str) -> str:
-    return CHECK.checksumTable(database, table, mode)
+    return TBL.checksumTable(database, table, mode)
 
 
 # endregion
@@ -184,6 +190,13 @@ def encrypt(backup: str, password: str) -> str:
 def decrypt(cipherBackup: str, password: str) -> str:
     return SEC.decrypt(cipherBackup, password)
 
+
+# region graph
+def graphDSD(database: str) -> str:
+    return GRP.graphDSD(database)
+
+def graphDF(database: str, table: str) -> str:
+    return GRP.graphDF(database, table)
 
 # endregion
 

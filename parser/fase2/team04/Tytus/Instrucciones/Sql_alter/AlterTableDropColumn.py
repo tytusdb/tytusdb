@@ -78,6 +78,7 @@ class AlterTableDropColumn(Instruccion):
                             arbol.devolverOrdenDeColumna(self.tabla, objetoTabla.lista_de_campos[c].nombre)
                             #print(objetoTabla.lista_de_campos[c].nombre,objetoTabla.lista_de_campos[c].orden,indice)
                     arbol.consola.append("Consulta devuelta correctamente.")
+                    print("Consulta ALTER TABLE DROP COLUMN devuelta correctamente")
                 else:
                     for c in list(set(self.lista_col) - set(listaMatch)):
                         error = Excepcion('42703',"Semántico","No existe la columna «"+c.id+"» en la relación «"+self.tabla+"»",c.linea,c.columna)
@@ -150,16 +151,17 @@ class AlterTableDropColumn(Instruccion):
         temp_return = arbol.getTemporal()
         temp_result = arbol.getTemporal()
         
-        codigo = f"\t#ALTER TABLE ALTER COLUMN TYPE 3D\n"
+        codigo = f"\t#ALTER TABLE DROP COLUMN  3D\n"
         codigo += f"\t{temp_param1} = f\"{table}\"\n"
         codigo += f"\t{temp_tam_func} = pointer + {num_params}\n"
         codigo += f"\t{temp_index_param1} = {temp_tam_func} + 1\n"
         codigo += f"\tstack[{temp_index_param1}] = {temp_param1}\n"
         codigo += f"\tpointer = pointer + {num_params}\n"
         codigo += f"\tinter()\n"
-        codigo += f"\t{temp_return} = pointer + 0\n"
-        codigo += f"\t{temp_result} = stack[{temp_return}]\n"
+        #codigo += f"\t{temp_return} = pointer + 0\n"
+        #codigo += f"\t{temp_result} = stack[{temp_return}]\n"
         codigo += f"\tpointer = pointer - {num_params}\n"
-        codigo += f"\tprint({temp_result})\n"
+        #codigo += f"\tprint({temp_result})\n"
         
-        arbol.consola.append(codigo)
+        #arbol.consola.append(codigo)
+        return codigo

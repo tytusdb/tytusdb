@@ -271,7 +271,8 @@ reservadas = {
     'using': 'using',
     'index':'index',
     'hash': 'hash',
-    'include': 'include'
+    'include': 'include',
+    'execute':'execute'
 
 }
 
@@ -475,8 +476,6 @@ def t_error(t):
 import ply.lex as lex
 import re
 
-lexer = lex.lex()
-lex.lex(reflags=re.IGNORECASE)
 
 # DEFINIENDO LA PRECEDENCIA DE LOS OPERADORES
 # ---------Modificado Edi------
@@ -1296,7 +1295,42 @@ def p_BLOCK(t):
     lista.append("<BLOCK> :: = < "+str(t[1].Etiqueta)+">\n") 
     
 
-def p_CALL(t):
+def p_CALL3(t):
+    ''' CALL :  execute id parAbre LISTA_EXP parCierra 
+    '''
+    global cont
+    t[0]  = Node("CALL","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("execute",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("id",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    t[0].AddHijos(t[4])
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+def p_CALL4(t):
+    ''' CALL :  execute id parAbre  parCierra     
+    '''
+    global cont
+    t[0]  = Node("CALL","",cont,0,0)
+    cont  = cont+1
+    nodo1 = Node("execute",t[1],cont,t.lineno(1) ,t.lexpos(1))
+    cont  = cont+1
+    nodo2 = Node("id",t[2],cont,t.lineno(2) ,t.lexpos(2))
+    cont  = cont+1
+    t[0].AddHijos(nodo1)
+    t[0].AddHijos(nodo2)
+    lista.append(str(recorrerGramatica(t[0],0))+"\n") 
+
+
+
+
+
+def p_CALL1(t):
     ''' CALL :  id parAbre LISTA_EXP parCierra
     '''
     global cont
@@ -1308,7 +1342,7 @@ def p_CALL(t):
     t[0].AddHijos(t[3])
     lista.append(str(recorrerGramatica(t[0],0))+"\n") 
 
-def p_CALL1(t):
+def p_CALL2(t):
     ''' CALL :  id parAbre  parCierra            
     '''
     global cont
@@ -4220,7 +4254,7 @@ def p_CALL(p):
     global cont
     p[0]  = Node("E","",cont,0,0)
     cont  = cont+1
-    p[0].AddHijos(t[1])
+    p[0].AddHijos(p[1])
     lista.append(str(recorrerGramatica(p[0],0))+"\n")
 
 
@@ -6129,7 +6163,6 @@ from graphviz import Digraph
 limit = sys.getrecursionlimit()
 print(limit)
 
-parser = yacc.yacc()
 
 def recorrerNodo(raiz):
         cuerpo = ""
@@ -6215,7 +6248,10 @@ def ReporteGramatical():
 def analizador(input):
     global con 
     global lista
-    lista =[] 
+    lista =[]
+    lexer = lex.lex()
+    lex.lex(reflags=re.IGNORECASE)
+    parser = yacc.yacc()
     con = input
     analizador=parser.parse(input)
     return analizador 

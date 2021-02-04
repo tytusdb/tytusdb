@@ -12,7 +12,8 @@ $(document).ready(function () {
       </div>
       <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-txt1" role="tabpanel" aria-labelledby="nav-home-tab">
-        <textarea placeholder="Escribir Query Aqui" name="content" id="pestanaContenidoTextArea1" value="{{ request.form.content }}" style="height: 80%"></textarea>
+        {{form.entrada(class_="form-control")}} 
+       <!-- <textarea placeholder="Escribir Query Aqui" name="content" id="pestanaContenidoTextArea1" value="{{ request.form.content }}" style="height: 80%"></textarea> -->
         </div>
       </div>
     </nav>
@@ -50,7 +51,7 @@ $(document).ready(function () {
   </div>
   `; */
 
-  addCodeMirror2();
+ // addCodeMirror2();
 });
 
 var contador = 2;

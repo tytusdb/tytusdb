@@ -1,0 +1,16 @@
+digraph arbol {
+	node [height=.1 shape=record]
+	world3 [label="<f0> |<f1> world3|<f2>"]
+	world1 [label="<f0> |<f1> world1|<f2>"]
+	world3:<f0> -> world1:<f1>
+	world [label="<f0> |<f1> world|<f2>"]
+	world1:<f0> -> world:<f1>
+	world2 [label="<f0> |<f1> world2|<f2>"]
+	world1:<f2> -> world2:<f1>
+	world4 [label="<f0> |<f1> world4|<f2>"]
+	world3:<f2> -> world4:<f1>
+	world5 [label="<f0> |<f1> world5|<f2>"]
+	world4:<f2> -> world5:<f1>
+	label="\n\nBases de Datos"
+	fontsize=20
+}

@@ -80,7 +80,7 @@ class Handler:
 
     @staticmethod
     def readcsv(file):
-        return csv.reader(open(file, "r"), delimiter=",")
+        return csv.reader(open(file, "r", encoding='utf-8-sig'), delimiter=",")
 
     @staticmethod
     def invalid(name: str):

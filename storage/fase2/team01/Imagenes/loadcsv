@@ -1,0 +1,8 @@
+digraph arbol {
+	node [height=.1 shape=record]
+	rankdir=LR
+	loadcsv
+	loadcsv -> primarias
+	label="\n\nloadcsv"
+	fontsize=20
+}

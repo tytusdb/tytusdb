@@ -31,10 +31,11 @@ class Tipo_Dato(Enum):
 
 class Tipo():
     'Esta clase será de utilidad para la comprobación de tipos.'
-    def __init__(self, tipo, dimension=None):
+    def __init__(self, strSent, tipo, dimension=None):
         self.tipo = tipo
         self.dimension = dimension
         self.nombre = ''
+        self.strSent = strSent
         
     def toString(self):
         if self.tipo == Tipo_Dato.SMALLINT:

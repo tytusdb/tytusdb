@@ -263,6 +263,12 @@ class Arbol():
     def addSymbol(self, name, dic):
         self.ts[name] = dic
         
+    def deleteSymbol(self, name, scope):
+        for key in self.ts:
+            symbol = self.ts[key]
+            if symbol['name'] == name or symbol['scope'] == scope:
+                del self.ts[symbol]
+        
     def getSymbol(self, name, scope):
         for key in self.ts:
             symbol = self.ts[key]

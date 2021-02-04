@@ -501,54 +501,53 @@ def loadCSV(file: str, database: str, table: str, tipado) -> list:
             empty list: non-existent database, non-existent table, an error occured, csv file is empty
     """
     
-    try:
+    # try:
 
-        archivo = open(file, "r", encoding="utf-8-sig")
+    archivo = open(file, "r", encoding="utf-8-sig")
 
-        temp = _storage.Buscar(database)
+    temp = _storage.Buscar(database)
 
-        if temp:
+    if temp:
+        
+        b = temp.Buscar(table)        
+        nombre = temp.list_table[b[1]]
+        
+        if b[0]:
             
-            b = temp.Buscar(table)        
-            nombre = temp.list_table[b[1]]
-            
-            if b[0]:
-                
-                tabla = temp.Cargar(nombre)
-                registros = list(csv.reader(archivo, delimiter = ","))
+            tabla = temp.Cargar(nombre)
+            registros = list(csv.reader(archivo, delimiter = ","))
 
-                valores=[]
-                j = 0     
-                for registro in registros:     
-
-                    for i in range(len(registro)):
-                        if tipado:
-                            if tipado[j][i] == bool:
-                                if registro[i] == 'False':
-                                    registro[i] = bool(1)
-                                else:
-                                    registro[i] = bool(0)
+            valores=[]
+            j = 0
+            for registro in registros:     
+                for i in range(len(registro)):
+                    if tipado:
+                        if tipado[j][i] == bool:
+                            if registro[i] == 'False':
+                                registro[i] = bool(1)
                             else:
-                                registro[i] = tipado[j][i](registro[i])
-                            j+=1
-                        if registro[i].isnumeric():
-                            nuevo=int(registro[i])
-                            registro[i]=nuevo
+                                registro[i] = bool(0)
+                        else:
+                            registro[i] = tipado[j][i](registro[i])
+                    # if registro[i].isnumeric():
+                    #     nuevo=int(registro[i])
+                    #     registro[i]=nuevo
+                j+=1
 
-                    valores.append(tabla.insertar(registro))
-
-                else:
-                    temp.Guardar()
-                    return valores
+                valores.append(tabla.insertar(registro))
 
             else:
-                return []
+                temp.Guardar()
+                return valores
 
         else:
             return []
-            
-    except:
+
+    else:
         return []
+            
+    # except:
+        # return []
         
 
 def extractRow(database: str, table: str, columns: list) -> list:

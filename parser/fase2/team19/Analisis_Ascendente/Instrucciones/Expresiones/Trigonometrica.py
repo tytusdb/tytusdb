@@ -12,11 +12,18 @@ class Trigonometrica(Instruccion):
         self.fila = fila
         self.columna = columna
 
+    def getC3D(self):
+        code = ''
+        code += self.trig + '('
+        if self.E is not None:
+            code += str(self.E.valor)
+        if self.E2 is not None:
+            code += ',' + str(self.E2.valor)
+        code += ')'
+        return code
+
 
     def Resolver(Trigo,ts,Consola,exceptions):
-        #print('TRIGONOMETRICA -- '+Trigo.trig+'----' + type(Trigo).__name__ + '\n')
-
-
         if isinstance(Trigo,Trigonometrica):
             num= Trigonometrica.Resolver(Trigo.E,ts,Consola,exceptions)
             if isinstance(num,float) or isinstance(num,int):

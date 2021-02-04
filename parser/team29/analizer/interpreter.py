@@ -115,11 +115,26 @@ def selectFirstValue(input):
     """
     result = grammar.parse(input)
     if len(result) > 1:
-        result = result[0].execute(None)
-        result = result[1].execute(None)[0].iloc[0].iloc[0]
+        result[0].execute(None)
+        type_ = result[1].params[0].temp
+        result = result[1].execute(None)
+        df = result[0]
+        types = result[1]
+        if df.empty:
+            if types[type_] == TYPE.STRING:
+                return ""
+            elif types[type_] == TYPE.NUMBER:
+                return 0
+            if types[type_] == TYPE.BOOLEAN:
+                return "False"
+            return ""
+        if isinstance(df, pd.core.series.Series):
+            df = df.iloc[0]
+        else:
+            df = df.iloc[0].iloc[0]
     else:
-        result = result[0].execute(None)[0].iloc[0].iloc[0]
-    return result
+        df = result[0].execute(None)[0].iloc[0].iloc[0]
+    return df
 
 
 def indexReport():

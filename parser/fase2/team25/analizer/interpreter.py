@@ -128,7 +128,10 @@ from analizer.reports.AST import AST
 def generar_codigo_3d(entrada):
     ast=parserTo3D(entrada)
     graficador = AST()
-    graficador.makeAst(ast.dot())
+    try:
+        graficador.makeAst(ast.dot())
+    except:
+        pass
     #Ejectamos el c3d de cada funcion, procedimiento
     for func in envFunction.functions.values():
         func.generate3d(None,instancia_codigo3d)

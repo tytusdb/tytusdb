@@ -29,11 +29,15 @@ class SelectOnlyParamsFirst(instruction.Instruction):
         out += ";"
         out += '")\n'
         if isinstance(environment, Environment):
+            grammar.optimizer_.addIgnoreString(out, self.row, True)
             out = "\t" + out
+        else:
+            grammar.optimizer_.addIgnoreString(out, self.row, False)
         return code.C3D(parVal + out, self.temp, self.row, self.column)
 
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_SELECT")
+
 
 class SelectFirstValue(instruction.Instruction):
     def __init__(self, temp, select):

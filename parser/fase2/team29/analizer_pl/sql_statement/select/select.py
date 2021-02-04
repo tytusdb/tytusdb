@@ -21,6 +21,7 @@ class SelectParam(instruction.Instruction):
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_SELECT")
 
+
 class SelectOnlyParams(instruction.Instruction):
     def __init__(self, params, row, column) -> None:
         super().__init__(row, column)
@@ -51,6 +52,7 @@ class SelectOnlyParams(instruction.Instruction):
 
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_SELECT")
+
 
 class Select(instruction.Instruction):
     def __init__(

@@ -1,0 +1,19 @@
+digraph G {node[shape=box, style=filled, color=blanchedalmond]; edge[color=chocolate3];rankdir=UD 
+"17_init -> "->"15_CREATE FUNCTION -> "
+"15_CREATE FUNCTION -> "->"16_ID -> myFuncion"
+"15_CREATE FUNCTION -> "->"4_lista_parametros_funcion -> "
+"4_lista_parametros_funcion -> "->"2_parametro_fucion -> "
+"2_parametro_fucion -> "->"3_ID -> texto"
+"2_parametro_fucion -> "->"1_tipo -> TEXT"
+"15_CREATE FUNCTION -> "->"5_RETURNS -> "
+"15_CREATE FUNCTION -> "->"7_retorno_funcion -> "
+"7_retorno_funcion -> "->"6_tipo -> TEXT"
+"7_retorno_funcion -> "->"8_AS $$ -> "
+"15_CREATE FUNCTION -> "->"14_contenido_funcion -> "
+"14_contenido_funcion -> "->"12_sentencia_retorno -> "
+"12_sentencia_retorno -> "->"13_RETURN -> "
+"12_sentencia_retorno -> "->"11_expre -> "
+"11_expre -> "->"9_expresion -> "
+"9_expresion -> "->"10_ID -> texto"
+
+}

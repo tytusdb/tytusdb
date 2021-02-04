@@ -78,6 +78,8 @@ Esta opción muestra el árbol de sintaxis abstracta utilizando Graphviz en una 
 Esta opción genera un reporte de la gramática con Sintaxis BNF
 * ### Botón Analizar
 Realiza el Análisis Léxico, Sintáctico y Semántico del Archivo de entrada, asi como la ejecucion de las instrucciones.
+* ### Botón Optimizar
+Realiza el Análisis Léxico, Sintáctico y Semántico de la salida en c3d, para su posterior optimización.
 <br>
 
 ## Consola_Salida 
@@ -124,6 +126,16 @@ En este Reporte se puede apreciar la gramatica en formato BNF.
 </div>
 <br>
 
+## Salida_C3D 
+<div style="text-align: justify">
+El Archivo prueba.py contiene la salida en c3d, lista para su ejecución
+<br>
+<br>
+<p align="center">
+  <img src="img/salida_c3d.PNG" width="600" alt="Reporte Gramatical">
+</p>
+</div>
+<br>
 
 
 
