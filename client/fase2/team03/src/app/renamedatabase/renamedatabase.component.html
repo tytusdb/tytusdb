@@ -19,20 +19,16 @@
                         Rename database
                     </div>
                       <div class="form-group">
-                        <select name="cars" id="cars" class="form-control" >
-                            <option value="p1">Select database</option>
-                            <option value="b1">Database 1</option>
-                            <option value="b2">Database 2</option>
-                            <option value="b3">Database 3</option>
-                          </select>
+                        <input type="text"  #name class="form-control form-control-user" 
+                        id="name" placeholder="Actual nombre">
                       </div>
                       <div class="form-group">
                         <input type="text"  class="form-control form-control-user" 
-                        id="exampleInputPassword" placeholder="Nuevo nombre">
+                        id="nuevo" placeholder="Nuevo nombre">
                       </div>
                       <div class="form-group">
                       </div>
-                      <a class="btn  btn-outline-primary btn-user btn-block" type="submit" (click)="renamedatabase($event)">
+                      <a class="btn  btn-outline-primary btn-user btn-block" type="submit" (click)="renamedatabase(name.value,nuevo.value,$event)">
                         Modificar
                       </a>
                       <hr>

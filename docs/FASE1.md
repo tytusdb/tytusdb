@@ -287,7 +287,7 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 
 ## Administrador de la base de datos
 
-El administrador de la base de datos se compone de dos componentes:
+El administrador de la base de datos se compone de dos partes:
 
 - Servidor: es un servidor http. Se debe seleccionar un puerto adecuado que no tenga conflictos con otros servidores. En la carpeta de instalación de la base de datos se debe crear una carpeta llamada /data donde se almacenarán las bases de datos. Se debe crear un usuario admin y su contraseña. Además de crear n usuarios configurando el acceso a las bases de datos.
 

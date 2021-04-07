@@ -8,9 +8,7 @@ class DatePart(Instruccion):
         self.valor = id2
         
     def ejecutar(self, ts, arbol):
-        #super().ejecutar(ts,arbol)
-        #el id es para guardarlo en la tabla
-        #tamaño de cadena
+        super().ejecutar(ts,arbol)
        
         tam = len(self.valor)
         parser = self.valor.split()
@@ -40,11 +38,11 @@ class DatePart(Instruccion):
             #print(str(hora))
             return hora
         
-    def analizar(self, ts, arbol):      
-        pass
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+
     def traducir(self, ts, arbol):
-        #self.identificador = id
-        #self.valor = id2
+        super().traducir(ts, arbol)
         cadena = f"date_part( '{self.identificador}', INTERVAL '{self.valor}' )"
         return cadena
         

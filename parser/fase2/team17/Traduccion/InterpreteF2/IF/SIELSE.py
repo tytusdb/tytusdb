@@ -36,18 +36,18 @@ class SIELSE(NodoArbol):
         arbol.addC3D("if " + validacion + ':')
 
         arbol.addIdentacion()
-        arbol.addC3D("goto " + str(Bv))
+        arbol.addC3D("goto ." + str(Bv))
         arbol.popIdentacion()
 
         arbol.addC3D('else:')
         arbol.addIdentacion()
-        arbol.addC3D("goto " + Bf)
+        arbol.addC3D("goto ." + Bf)
         arbol.popIdentacion()
 
         arbol.addC3D('label .' + Bv)
         for item in self.body:
             item.traducir(entorno, arbol)
-        arbol.addC3D("goto " + Btemporal)
+        arbol.addC3D("goto ." + Btemporal)
 
         arbol.addC3D('label .' + Bf)
         for item in self.contrabody:
@@ -77,13 +77,33 @@ class SIELSE(NodoArbol):
 
     # Regla 4
     def traducir_regla4(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+
         Bv = arbol.getLabel()
         Bf = arbol.getLabel()
         validacion = str(self.exp.traducir(entorno, arbol))
-        arbol.addC3D('label ' + Bv)
-        # arbol.addC3D(self.body.traducir(entorno, arbol))
+        Btemporal = arbol.getLabel()
+
+        arbol.addC3D("if " + validacion + ':')
+
+        arbol.addIdentacion()
+        arbol.addC3D("goto ." + str(Bv))
+        arbol.popIdentacion()
+
+        arbol.addC3D('else:')
+        arbol.addIdentacion()
+        arbol.addC3D("goto ." + Bf)
+        arbol.popIdentacion()
+
+        arbol.addC3D('label .' + Bv)
         for item in self.body:
             item.traducir(entorno, arbol)
+        arbol.addC3D("goto ." + Btemporal)
+
+        arbol.addC3D('label .' + Bf)
+        for item in self.contrabody:
+            item.traducir(entorno, arbol)
+
+        arbol.addC3D('label .' + Btemporal)
 
         # optimizacion ---------------------------
         # Regla no.4:
@@ -97,12 +117,33 @@ class SIELSE(NodoArbol):
 
     # Regla 5
     def traducir_regla5(self, entorno: Tabla_de_simbolos, arbol: Arbol):
+
         Bv = arbol.getLabel()
         Bf = arbol.getLabel()
         validacion = str(self.exp.traducir(entorno, arbol))
-        arbol.addC3D('label ' + Bf)
+        Btemporal = arbol.getLabel()
+
+        arbol.addC3D("if " + validacion + ':')
+
+        arbol.addIdentacion()
+        arbol.addC3D("goto ." + str(Bv))
+        arbol.popIdentacion()
+
+        arbol.addC3D('else:')
+        arbol.addIdentacion()
+        arbol.addC3D("goto ." + Bf)
+        arbol.popIdentacion()
+
+        arbol.addC3D('label .' + Bv)
+        for item in self.body:
+            item.traducir(entorno, arbol)
+        arbol.addC3D("goto ." + Btemporal)
+
+        arbol.addC3D('label .' + Bf)
         for item in self.contrabody:
             item.traducir(entorno, arbol)
+
+        arbol.addC3D('label .' + Btemporal)
 
         # optimizacion ---------------------------
         # Regla no.5:

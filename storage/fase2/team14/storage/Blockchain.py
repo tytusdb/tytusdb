@@ -116,14 +116,3 @@ def chartBlockchain(database, table):
     file.write('}')
     file.close()
     os.system("dot -Tpng blockchain.dot -o blockchain.png")
-    os.system('blockchain.png')
-
-
-def insert_block_CSV(results, file, database, table):
-    count = 0
-    with open(file, 'r') as f:
-        reader = csv.reader(f, delimiter=',')
-        for i in reader:
-            if results[count] == 0:
-                insert_block(database, table, i)
-            count += 1

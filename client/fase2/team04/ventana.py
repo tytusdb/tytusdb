@@ -14,9 +14,12 @@ textos=[]
 control=0
 notebook= None
 consola = None
+bases = None
 raiz = None
 tools = None
 loginOn = False
+jsonTree = None
+jsonDB = None
 myQuery = ""
 _words=None
 #Variables para simular credenciales
@@ -44,6 +47,30 @@ def myGET():
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\nHa ocurrido un error.")
         consola.config(state=DISABLED)
+    myConnection.close()
+
+#Metodo GET para leer json con bases de datos existentes
+def getDatabases():
+
+    global jsonTree
+    global jsonDB
+
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+    headers = {
+        "Content-type": "application/json"
+    }
+
+    myConnection.request("GET", "/getDatabases", "", headers)
+    response = myConnection.getresponse()
+    print("GET: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()
+        resData = json.loads(data.decode("utf-8"))
+        #Variable global jsonTree tiene el contenido (string) del json en tabla.txt
+        jsonTree = resData["jsonText"]
+        #Variable global jsonDB tiene el contenido (string) del json databases
+        jsonDB = resData["databases"]   
     myConnection.close()
 
 #Metodo POST para crear usuarios
@@ -91,6 +118,10 @@ def enviarQuery():
     global myQuery
     global notebook
     global textos
+    global jsonTree
+    global jsonDB
+    global bases
+
     idx = 0
     if notebook.select():
         idx = notebook.index('current')
@@ -98,7 +129,7 @@ def enviarQuery():
     myQuery = textos[idx].text.get(1.0, END)
     myQuery = myQuery[:-1]
 
-    jsonData = { "text": myQuery}
+    jsonData = { "text": myQuery }
     myJson = json.dumps(jsonData)
 
     myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
@@ -112,16 +143,20 @@ def enviarQuery():
     print("POST: Status: {} and reason: {}".format(response.status, response.reason))
     if response.status == 200:       
         data = response.read()
-        result = data.decode("utf-8")
+        resData = json.loads(data.decode("utf-8"))
+        result = resData["consola"]
+        jsonTree = resData["jsonText"]
+        jsonDB = resData["databases"]
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\n{}".format(result))
         consola.config(state=DISABLED)
+        bases.entregado(jsonDB)
+
     else:
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\nHa ocurrido un error.")
         consola.config(state=DISABLED)
     myConnection.close()
-
 
 def changeToLogout():
     global tools
@@ -147,6 +182,8 @@ def LogIn():
     global raiz
     global loginOn
     global ActiveUsername
+    global bases
+    global jsonDB
     if loginOn is False:
         d = MyDialog(raiz)
         if d.accept is True:
@@ -176,6 +213,8 @@ def LogIn():
                         ActiveUsername = myUsername
                         consola.insert(INSERT,"\nUsuario " + ActiveUsername + " loggeado correctamente.")
                         changeToLogout()
+                        getDatabases()
+                        bases.entregado(jsonDB)
                     else:
                         consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
                     consola.config(state=DISABLED)
@@ -236,6 +275,7 @@ def CrearMenu(masterRoot):
     tools.add_command(label="CREATE USER", command = crearUsuario)
     #Log In sera parte de la barra de herramientas
     tools.add_command(label="LOGIN", command = LogIn)
+    tools.add_command(label="Actualizar", command = actualizar)
 
     #se agrega ayuda
     ayuda=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
@@ -250,6 +290,11 @@ def CrearMenu(masterRoot):
     barraDeMenu.add_cascade(label="Ayuda",menu=ayuda)
     #Se indica que la barra de menú debe estar en la ventana
     return barraDeMenu
+
+def actualizar():
+    global bases
+    getDatabases()
+    bases.entregado(jsonDB)
 
 def abrir():
     global archivo
@@ -305,7 +350,8 @@ def CrearVentana():
     FrameIzquiero = Frame(raiz, relief=RAISED, bd=2, bg='gray21')
     FrameIzquiero.pack(side="left", fill="both")
     #Se llama a la clase Arbol
-    Arbol(FrameIzquiero)
+    global bases
+    bases = Arbol(FrameIzquiero)
     #Boton para realizar consulta
     Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray', command = enviarQuery).pack(side="top",fill="both")
     #Consola de Salida
@@ -334,7 +380,7 @@ def CrearVentana():
     textos[a].text.bind("<KeyRelease>",Spellcheck)
     textos[a].text.bind("<Key>", Spellcheck)
     # initialize the spell checking dictionary. YMMV.
-    _words=open("/home/josselyn/Escritorio/clave").read().split("\n")
+    _words=open("clave").read().split("\n")
     raiz.mainloop()
 
 
@@ -354,15 +400,16 @@ def añadir(titulo):
     valor=Campo(formularios[contador])
     valor.pack(side="left", fill="both",expand=True)
     vsb=Scrollbar(formularios[contador],orient="vertical",command=valor.text.yview)
-    valor.text.configure(yscrollcommand=vsb.set,bg='gray21',fg='white',font="helvetica 12")
+    valor.text.configure(yscrollcommand=vsb.set,bg='gray49',fg='white',font="helvetica 12")
     vsb.pack(side="right",fill="y")
     textos.append(valor)
     contador=control+1
     control=contador
     b=notebook.select()
     a=notebook.index(b)
-    textos[a].text.bind("<KeyRelease>", Spellcheck)
-    textos[a].text.bind("<Key>", Spellcheck)
+    textos[control-1].text.bind("<KeyRelease>", Spellcheck)
+    textos[control-1].text.bind("<Key>", Spellcheck)
+    
 
 def Spellcheck(self):
     global notebook

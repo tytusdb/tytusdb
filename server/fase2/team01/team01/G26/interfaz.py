@@ -18,7 +18,7 @@ import json
 
 ##########################################################################
 
-storage.dropAll() #Comentar si quieren que se borre todo al cerrar y abrir la app
+#storage.dropAll() #Comentar si quieren que se borre todo al cerrar y abrir la app
 
 datos = l.Lista({}, '')
 salidajs = ""

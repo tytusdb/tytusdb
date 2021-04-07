@@ -19,7 +19,7 @@ class WidthBucket(Instruccion):
         resultado = self.valor.ejecutar(tabla,arbol)
         try:
             if self.count.tipo.tipo == Tipo_Dato.INTEGER:
-                print(self.count.tipo.toString(),Tipo_Dato.INTEGER)
+                #print(self.count.tipo.toString(),Tipo_Dato.INTEGER)
                 temp = (self.max.valor - self.min.valor)/self.count.valor
                 contador= float(self.min.valor)
                 cubo=0
@@ -48,11 +48,8 @@ class WidthBucket(Instruccion):
             return error 
     
     def analizar(self, tabla, arbol):
-        pass
+        return super().analizar(tabla, arbol)
 
     def traducir(self, tabla, arbol):
-
-        #print(retorno.temporalAnterior)
-        #print(type(self.valor))
-        #print(self.valor.opIzq.traducir(tabla,arbol).temporalAnterior)
+        super().traducir(tabla, arbol)
         return f"WIDTH_BUCKET({self.valor.traducir(tabla,arbol).temporalAnterior},{self.min.traducir(tabla,arbol).temporalAnterior},{self.max.traducir(tabla,arbol).temporalAnterior},{self.count.traducir(tabla,arbol).temporalAnterior})"

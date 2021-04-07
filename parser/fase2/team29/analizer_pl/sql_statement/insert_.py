@@ -42,6 +42,9 @@ class InsertInto(instruction.Instruction):
                 grammar.optimizer_.addIgnoreString(cod, self.row, False)
             return code.C3D(out, "insert", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: Plpgsql fatal error \n Hint---> Insert ")
+            grammar.PL_errors.append(
+                "Error P0000: Plpgsql fatal error \n Hint---> Insert "
+            )
+
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_INSERT")

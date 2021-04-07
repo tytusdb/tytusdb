@@ -42,7 +42,9 @@ class Update(instruction.Instruction):
                 grammar.optimizer_.addIgnoreString(out, self.row, False)
             return code.C3D(parVal + out, "update", self.row, self.column)
         except:
-            grammar.PL_errors.append("Error P0000: Plpgsql Fatal error \n Hint---> Update")
-            
+            grammar.PL_errors.append(
+                "Error P0000: Plpgsql Fatal error \n Hint---> Update"
+            )
+
     def dot(self):
         return Nodo("SQL_INSTRUCTION:_UPDATE")

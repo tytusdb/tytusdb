@@ -9,14 +9,14 @@ class Invoke(opt.OptimizedInstruction):
         self.id = id
         self.params = params
 
-    def optimize(self) -> None:
+    def optimize(self,generador) -> None:
         pass
 
     def addToCode(self, generador) -> None:
         code = f'{self.id}('
         #Para cada parametro
         for index in range(len(self.params)):
-            code += self.params[index]
+            code += str(self.params[index])
             #Coma si es necesaria
             if index != len(self.params) - 1:
                 code += ','

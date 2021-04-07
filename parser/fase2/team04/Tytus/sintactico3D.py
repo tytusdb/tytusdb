@@ -113,7 +113,7 @@ def p_pglobal(t):
     '_global : GLOBAL ID'
     t[0] = Global(t[2], t.lexer.lineno)
     
-    def p_expresion(t):
+def p_expresion(t):
     '''
     expresion : expresion MENOS    expresion   
               | expresion MAS      expresion

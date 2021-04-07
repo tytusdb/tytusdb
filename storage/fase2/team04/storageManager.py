@@ -12,8 +12,10 @@ from storage.json_mode import jsonMode
 from storage.dict import DictMode
 from storage.b import Serializable
 from DBList import DBList
+from blockchain import blockchain
+import hashlib
 import re
-import codificar
+import zlib
 from random import randint
 
 #Para la password
@@ -57,6 +59,66 @@ def createDatabase(database: str, mode: str, encoding: str) -> int:
         return 4
     if databases.search(database) != None:
         return 2
+    if mode == "avl":
+        code = avlMode.createDatabase(database)
+    elif mode == "b":
+        code = BMode.createDatabase(database)
+    elif mode == "bplus":
+        code = BPlusMode.createDatabase(database)
+    elif mode == "dict":
+        code = DictMode.createDatabase(database)
+    elif mode == "isam":
+        code = ISAMMode.createDatabase(database)
+    elif mode == "json":
+        code = jsonMode.createDatabase(database)
+    elif mode == "hash":
+        code = HashMode.createDatabase(database)
+    else:
+        return 3
+    if code == 0:
+        databases.create(database, mode, encoding)
+        databases.search(database).main_db = True
+        try:
+            for i in range(5):
+                try:
+                    Serializable.commit(databases, "lista_bases_de_datos")
+                except:
+                    continue
+        except:
+            code_drop = dropDatabase(database)
+            if code_drop == 0:
+                databases.delete(database)
+                return 1
+            else:
+                for i in range(4):
+                    code_drop = dropDatabase(database)
+                    if code_drop == 0:
+                        databases.delete(database)
+                        break
+                return 1
+    return code
+
+# Descripción:
+#     Crea una nueva base de datos
+# Parámetros:
+#     database:str - El nombre de la nueva base de datos
+#     mode:str - El modo de almacenamiento a utilizar en la base de datos
+#     encoding:str - La codificación utilizada por la base de datos
+# Valores de Retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - Base de datos existente
+#     3 - Modo incorrecto
+#     4 - Codificación incorrecta
+def __create_database_sp(database: str, mode: str, encoding: str) -> int:
+    if encoding not in VALID_ENCODING:
+        return 4
+    dbs = databases.find_all(database)
+    if dbs != None:
+        for db in dbs:
+            if db.name == database and db.mode == mode:
+                # Ya existe esta base de datos alternativa
+                return 0
     if mode == "avl":
         code = avlMode.createDatabase(database)
     elif mode == "b":
@@ -125,7 +187,7 @@ def alterDatabaseMode(database: str, mode: str) -> int:
         return 4
     tables = showTables(database)
     temp_db_name = temp_name()
-    createDatabase(temp_db_name, mode, dbs[0].encoding)
+    __create_database_sp(temp_db_name, mode, dbs[0].encoding)
     
     for table in tables:
         aux_table = databases.find_table(database, table)
@@ -141,13 +203,80 @@ def alterDatabaseMode(database: str, mode: str) -> int:
             if insert(temp_db_name, table, register) != 0:
                 dropDatabase(temp_db_name)
                 return 1
-    
-    if dropDatabase(database) != 0:
-        dropDatabase(temp_db_name)
-        return 1
+    databases.search(temp_db_name).main_db = True
+    for db in dbs:
+        if __drop_database_sp(database, db.mode) != 0:
+            dropDatabase(temp_db_name)
+            return 1
     if alterDatabase(temp_db_name, database) != 0:
         return 1
     return 0
+
+# Descripción:
+#     Cambia el modo de almacenamiento de una tabla de una base de datos especificada
+# Parámetros:
+#     database:str - El nombre de la base de datos que se desea modificar
+#     table:str - El nombre de la tabla que se desea modificar
+#     mode:str - Es un string indicando el modo 'avl', 'b', 'bplus', 'dict', 'isam', 'json', 'hash'
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - modo incorrecto
+def alterTableMode(database: str, table: str, mode: str) -> int:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    if databases.find_table(database, table) == None:
+        return 3
+    if mode not in MODES:
+        return 4
+    for db in dbs:
+        tb = db.tables.search(table)
+        if tb != None:
+            # Revisando si la tabla ya se encuentra en una base de datos con el modo indicado
+            if db.mode == mode:
+                return 0
+            # Se revisa si ya existe una base de datos alternativa con el modo indicado
+            alt_db_exists = False
+            for aux in dbs:
+                if aux.name == database and aux.mode == mode and aux.encoding == db.encoding:
+                    alt_db_exists = True
+
+            # Extraer los registros de la tabla
+            registers = extractTable(database, table)
+            if alt_db_exists:
+                # Crear tabla en esta base de datos
+                if __create_table_sp(database, table, tb.columns, mode) != 0:
+                    return 1
+                __alter_add_pk_sp(database, table, tb.pk, mode)
+                # Insertar registros
+                for register in registers:
+                    if __insert_sp(database, table, register, mode) != 0:
+                        return 1
+            else:
+                # Crear base de datos y tabla e insertar las tuplas
+                if __create_database_sp(database, mode, db.encoding) != 0:
+                    return 1
+                # Crear tabla en esta base de datos
+                if __create_table_sp(database, table, tb.columns, mode) != 0:
+                    return 1
+                if tb.pk != []:
+                    if __alter_add_pk_sp(database, table, tb.pk, mode) != 0:
+                        return 1
+                # Insertar registros
+                for register in registers:
+                    if __insert_sp(database, table, register, mode) != 0:
+                        return 1
+            # Eliminar tabla original
+            if __drop_table_sp(database, table, db.mode) != 0:
+                return 1
+            if db.tables.first == None and not db.main_db:
+                if __drop_database_sp(db.name, db.mode) != 0:
+                    return 1
+            return 0
+    return 1
 
 # Descripción:
 #     Devuelve una lista con los nombres de las bases de datos
@@ -194,10 +323,11 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
                 db.name = databaseNew
                 try:
                     Serializable.commit(databases, "lista_bases_de_datos")
-                    return 0
+                    continue
                 except:
-                    db.name = databaseOld
+                    alterDatabase(databaseNew, databaseOld)
             return 1
+        return 0
     else:
         return 1
 
@@ -231,6 +361,56 @@ def dropDatabase(database: str) -> int:
                 code = HashMode.dropDatabase(database)
             if code == 0:
                 databases.delete(db.name)
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        break
+                    except:
+                        continue
+                continue
+            return 1
+        return 0
+    else:
+        return 1
+
+# Descripción:
+#     Elimina por la base de datos con el nombre y modo indicados
+# Parámetros:
+#     database:str - Es el nombre de la base de datos que se desea eliminar, debe cumplir con las reglas de identificadores de SQL
+#     mode:str - El modo de almacenamiento utilizado por la base de datos que se desea eliminar
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - Base de datos no existente
+#     4 - Modo incorrecto
+def __drop_database_sp(database: str, mode: str) -> int:
+    if re.search(DB_NAME_PATTERN, database):
+        dbs = databases.find_all(database)
+        if dbs == []:
+            return 2
+        if mode not in MODES:
+            return 4
+        for db in dbs:
+            if db.mode != mode:
+                continue
+            if db.mode == "avl":
+                code = avlMode.dropDatabase(database)
+            elif db.mode == "b":
+                code = BMode.dropDatabase(database)
+            elif db.mode == "bplus":
+                code = BPlusMode.dropDatabase(database)
+            elif db.mode == "dict":
+                code = DictMode.dropDatabase(database)
+            elif db.mode == "isam":
+                code = ISAMMode.dropDatabase(database)
+            elif db.mode == "json":
+                code = jsonMode.dropDatabase(database)
+            elif db.mode == "hash":
+                code = HashMode.dropDatabase(database)
+            else:
+                continue
+            if code == 0:
+                databases.delete_sp(db.name, db.mode)
                 for x in range(5):
                     try:
                         Serializable.commit(databases, "lista_bases_de_datos")
@@ -284,6 +464,55 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
     return result
 
 # Descripción:
+#     Crea una nueva tabla en la base de datos indicada con el modo indicado
+# Parámetros:
+#     database:str - El nombre de la base de datos a la que se desea agregar la tabla
+#     table:str - El nombre de la nueva tabla
+#     numberColumns:int - La cantidad de columnas que manejará la tabla
+#     mode:str - El modo de almacenamiento utilizado por la base de datos
+# Valores de Retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - Base de datos inexistente
+#     3 - Tabla existente
+#     4 - Modo incorrecto
+def __create_table_sp(database: str, table: str, numberColumns: int, mode: str) -> int:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    if mode not in MODES:
+        return 4
+    for db in dbs:
+        if db.mode != mode:
+            continue
+        if db.mode == "avl":
+            result = avlMode.createTable(database, table, numberColumns)
+        elif db.mode == "b":
+            result = BMode.createTable(database, table, numberColumns)
+        elif db.mode == "bplus":
+            result = BPlusMode.createTable(database, table, numberColumns)
+        elif db.mode == "dict":
+            result = DictMode.createTable(database, table, numberColumns)
+        elif db.mode == "isam":
+            result = ISAMMode.createTable(database, table, numberColumns)
+        elif db.mode == "json":
+            result = jsonMode.createTable(database, table, numberColumns)
+        elif db.mode == "hash":
+            result = HashMode.createTable(database, table, numberColumns)
+        else:
+            continue
+        if result == 0:
+            if db.tables.create(table, numberColumns) == 0:
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        return result
+                    except:
+                        continue
+                return 1
+    return result
+
+# Descripción:
 #     Devuelve una lista con los nombres de todas las tablas de la base de datos
 # Parámetros:
 #     database:str - El nombre de la base de datos cuyas tablas se desean obtener
@@ -297,20 +526,11 @@ def showTables(database: str) -> list:
         return None
     result = []
     for db in dbs:
-        if db.mode == "avl":
-            result += avlMode.showTables(database)
-        elif db.mode == "b":
-            result += BMode.showTables(database)
-        elif db.mode == "bplus":
-            result += BPlusMode.showTables(database)
-        elif db.mode == "dict":
-            result += DictMode.showTables(database)
-        elif db.mode == "isam":
-            result += ISAMMode.showTables(database)
-        elif db.mode == "json":
-            result += jsonMode.showTables(database)
-        elif db.mode == "hash":
-            result += HashMode.showTables(database)
+        tb = db.tables.first
+        while tb != None:
+            if not tb.hidden:
+                result.append(tb.name)
+            tb = tb.next
     return result
 
 # Descripción:
@@ -352,7 +572,7 @@ def alterDropPK(database: str, table: str) -> int:
                         Serializable.commit(databases, "lista_bases_de_datos")
                         return result
                     except:
-                        break
+                        continue
                 return 1
             break
     return result
@@ -389,13 +609,13 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
             result = HashMode.alterAddColumn(database, table, default)
         if result != 3:
             if result == 0:
-                db.search(table).columns += 1
+                db.tables.search(table).columns += 1
                 for x in range(5):
                     try:
                         Serializable.commit(databases, "lista_bases_de_datos")
                         return result
                     except:
-                        break
+                        continue
                 return 1
             break
     return result
@@ -434,13 +654,13 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
             result = HashMode.alterDropColumn(database, table, columnNumber)
         if result != 3:
             if result == 0:
-                db.search(table).columns -= 1
+                db.tables.search(table).columns -= 1
                 for x in range(5):
                     try:
                         Serializable.commit(databases, "lista_bases_de_datos")
                         return result
                     except:
-                        break
+                        continue
                 return 1
             break
     return result
@@ -458,10 +678,14 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
 #      3 - table no existente
 #      4 - Llave primaria duplicada
 #      5 - Columnas fuera de límites
+#      6 - Codificación incorrecta
 def insert(database: str, table: str, register: list):
     dbs = databases.find_all(database)
     if dbs == []:
         return 2
+    for x in register:
+        if type(x) == str and not verify_encoding(x, dbs[0].encoding):
+            return 6
     for db in dbs:
         if db.mode == "avl":
             result = avlMode.insert(database, table, register)
@@ -479,6 +703,20 @@ def insert(database: str, table: str, register: list):
             result = HashMode.insert(database, table, register)
         if result != 3:
             break
+    tb = databases.find_table(database, table)
+    if tb.safeMode:
+        key = ""
+        for pk in tb.pk:
+            key += str(register[pk])
+        cs = checksumDatabase(database, "SHA256")
+        print(cs)
+        print(tb.blockchain.new_block(key, cs))
+        for x in range(5):
+            try:
+                Serializable.commit(databases, "lista_bases_de_datos")
+                return result
+            except:
+                continue
     return result
 
 # Descripción:
@@ -542,25 +780,10 @@ def __insert_sp(database: str, table: str, register: list, mode: str):
 def loadCSV(file: str, database: str, table: str) -> list:
     try:
         result = []
-        dbs = databases.find_all(database)
-        for db in dbs:
-            tb = db.tables.search(table)
-            if tb == None:
-                continue
-            if db.mode == "avl":
-                result = avlMode.loadCSV(file, database, table)
-            elif db.mode == "b":
-                result = BMode.loadCSV(file, database, table)
-            elif db.mode == "bplus":
-                result = BPlusMode.loadCSV(file, database, table)
-            elif db.mode == "dict":
-                result = DictMode.loadCSV(file, database, table)
-            elif db.mode == "isam":
-                result = ISAMMode.loadCSV(file, database, table)
-            elif db.mode == "json":
-                result = jsonMode.loadCSV(file, database, table)
-            elif db.mode == "hash":
-                result = HashMode.loadCSV(file, database, table)
+        with open(file) as csv:
+            for line in csv:
+                register = line.strip().split(",")
+                result += [insert(database, table, register)]
         return result
     except:
         return []
@@ -661,23 +884,29 @@ def get_route_table(database: str, table: str) -> list:
     return None
 
 def delete(database: str, table: str, columns: list):
-    db = databases.search(database)
-    if db == None:
+    dbs = databases.find_all(database)
+    if dbs == []:
         return 2
-    if db.mode == "avl":
-        result = avlMode.delete(database, table, columns)
-    elif db.mode == "b":
-        result = BMode.delete(database, table, columns)
-    elif db.mode == "bplus":
-        result = BPlusMode.delete(database, table, columns)
-    elif db.mode == "dict":
-        result = DictMode.delete(database, table, columns)
-    elif db.mode == "isam":
-        result = ISAMMode.delete(database, table, columns)
-    elif db.mode == "json":
-        result = jsonMode.delete(database, table, columns)
-    elif db.mode == "hash":
-        result = HashMode.delete(database, table, columns)
+    if databases.find_table(database, table) == None:
+        return 3
+    result = 1
+    for db in dbs:
+        if db.tables.search(table) == None:
+            continue
+        if db.mode == "avl":
+            result = avlMode.delete(database, table, columns)
+        elif db.mode == "b":
+            result = BMode.delete(database, table, columns)
+        elif db.mode == "bplus":
+            result = BPlusMode.delete(database, table, columns)
+        elif db.mode == "dict":
+            result = DictMode.delete(database, table, columns)
+        elif db.mode == "isam":
+            result = ISAMMode.delete(database, table, columns)
+        elif db.mode == "json":
+            result = jsonMode.delete(database, table, columns)
+        elif db.mode == "hash":
+            result = HashMode.delete(database, table, columns)
     return result
 
 def extractTable(database,table):
@@ -709,24 +938,31 @@ def extractTable(database,table):
     return result
 
 def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
-    db = databases.search(database)
-    if db == None:
+    dbs = databases.find_all(database)
+    if dbs == []:
         return None
-    if db.mode == "avl":
-        result = avlMode.extractRangeTable(database,table,columnNumber,lower, upper)
-    elif db.mode == "b":
-        result = BMode.extractRangeTable(database,table,columnNumber,lower, upper)
-    elif db.mode == "bplus":
-        result = BPlusMode.extractRangeTable(database,table,columnNumber,lower, upper)
-    elif db.mode == "dict":
-        result = DictMode.extractRangeTable(database,table,columnNumber,lower, upper)
-    elif db.mode == "isam":
-        result = ISAMMode.extractRangeTable(database,table,columnNumber,lower, upper)
-    elif db.mode == "json":
-        result = jsonMode.extractRangeTable(database,table,columnNumber,lower, upper)
-    elif db.mode == "hash":
-        result = HashMode.extractRangeTable(database,table,columnNumber,lower, upper)
-    return result
+    if databases.find_table(database, table) == None:
+        return None
+
+    registers = []
+    for db in dbs:
+        if db.tables.search(table) == None:
+            continue
+        if db.mode == "avl":
+            registers = avlMode.extractRangeTable(database,table,columnNumber,lower, upper)
+        elif db.mode == "b":
+            registers = BMode.extractRangeTable(database,table,columnNumber,lower, upper)
+        elif db.mode == "bplus":
+            registers = BPlusMode.extractRangeTable(database,table,columnNumber,lower, upper)
+        elif db.mode == "dict":
+            registers = DictMode.extractRangeTable(database,table,columnNumber,lower, upper)
+        elif db.mode == "isam":
+            registers = ISAMMode.extractRangeTable(database,table,columnNumber,lower, upper)
+        elif db.mode == "json":
+            registers = jsonMode.extractRangeTable(database,table,columnNumber,lower, upper)
+        elif db.mode == "hash":
+            registers = HashMode.extractRangeTable(database,table,columnNumber,lower, upper)
+    return registers
 
 def alterTable(database, tableOld, tableNew):
     dbs = databases.find_all(database)
@@ -755,7 +991,7 @@ def alterTable(database, tableOld, tableNew):
                         Serializable.commit(databases, "lista_bases_de_datos")
                         return result
                     except:
-                        break
+                        continue
                 return 1
             break
     return result
@@ -787,7 +1023,7 @@ def dropTable(database,table):
                         Serializable.commit(databases, "lista_bases_de_datos")
                         return result
                     except:
-                        break
+                        continue
                 return 1
             break
     return result
@@ -810,19 +1046,21 @@ def __drop_table_sp(database, table, mode):
     if databases.find_table(database, table) == None:
         return 3
     for db in dbs:
-        if db.mode == mode == "avl":
+        if db.mode != mode:
+            continue
+        if db.mode == "avl":
             result = avlMode.dropTable(database, table)
-        elif db.mode == mode == "b":
+        elif db.mode == "b":
             result = BMode.dropTable(database, table)
-        elif db.mode == mode == "bplus":
+        elif db.mode == "bplus":
             result = BPlusMode.dropTable(database, table)
-        elif db.mode == mode == "dict":
+        elif db.mode == "dict":
             result = DictMode.dropTable(database, table)
-        elif db.mode == mode == "isam":
+        elif db.mode == "isam":
             result = ISAMMode.dropTable(database, table)
-        elif db.mode == mode == "json":
+        elif db.mode == "json":
             result = jsonMode.dropTable(database, table)
-        elif db.mode == mode == "hash":
+        elif db.mode == "hash":
             result = HashMode.dropTable(database, table)
         else:
             continue
@@ -834,69 +1072,104 @@ def __drop_table_sp(database, table, mode):
                         Serializable.commit(databases, "lista_bases_de_datos")
                         return result
                     except:
-                        break
+                        continue
                 return 1
             break
     return result
 
 def extractRow(database, table, columns):
-    db = databases.search(database)
-    if    db == None:
-        return 2
-    if db.mode == "avl":
-        result = avlMode.extractRow(database, table, columns)
-    elif db.mode == "b":
-        result = BMode.extractRow(database, table, columns)
-    elif db.mode == "bplus":
-        result = BPlusMode.extractRow(database, table, columns)
-    elif db.mode == "dict":
-        result = DictMode.extractRow(database, table, columns)
-    elif db.mode == "isam":
-        result = ISAMMode.extractRow(database, table, columns)
-    elif db.mode == "json":
-        result = jsonMode.extractRow(database, table, columns)
-    elif db.mode == "hash":
-        result = HashMode.extractRow(database, table, columns)
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return []
+    if databases.find_table(database, table) == None:
+        return []
+    result = []
+    for db in dbs:
+        if db.tables.search(table) == None:
+            continue
+        if db.mode == "avl":
+            result = avlMode.extractRow(database, table, columns)
+        elif db.mode == "b":
+            result = BMode.extractRow(database, table, columns)
+        elif db.mode == "bplus":
+            result = BPlusMode.extractRow(database, table, columns)
+        elif db.mode == "dict":
+            result = DictMode.extractRow(database, table, columns)
+        elif db.mode == "isam":
+            result = ISAMMode.extractRow(database, table, columns)
+        elif db.mode == "json":
+            result = jsonMode.extractRow(database, table, columns)
+        elif db.mode == "hash":
+            result = HashMode.extractRow(database, table, columns)
     return result
 
 def update(database, table, register, columns):
-    db = databases.search(database)
-    if db == None:
+    dbs = databases.find_all(database)
+    if dbs == []:
         return 2
-    if db.mode == "avl":
-        result = avlMode.update(database, table, register, columns)
-    elif db.mode == "b":
-        result = BMode.update(database, table, register, columns)
-    elif db.mode == "bplus":
-        result = BPlusMode.update(database, table, register, columns)
-    elif db.mode == "dict":
-        result = DictMode.update(database, table, register, columns)
-    elif db.mode == "isam":
-        result = ISAMMode.update(database, table, register, columns)
-    elif db.mode == "json":
-        result = jsonMode.update(database, table, register, columns)
-    elif db.mode == "hash":
-        result = HashMode.update(database, table, register, columns)
+    if databases.find_table(database, table) == None:
+        return 3
+    for x in register.values():
+        if type(x) == str and not verify_encoding(x, dbs[0].encoding):
+            return 5
+    result = 1
+    for db in dbs:
+        if db.tables.search(table) == None:
+            continue
+        if db.mode == "avl":
+            result = avlMode.update(database, table, register, columns)
+        elif db.mode == "b":
+            result = BMode.update(database, table, register, columns)
+        elif db.mode == "bplus":
+            result = BPlusMode.update(database, table, register, columns)
+        elif db.mode == "dict":
+            result = DictMode.update(database, table, register, columns)
+        elif db.mode == "isam":
+            result = ISAMMode.update(database, table, register, columns)
+        elif db.mode == "json":
+            result = jsonMode.update(database, table, register, columns)
+        elif db.mode == "hash":
+            result = HashMode.update(database, table, register, columns)
+    tb = databases.find_table(database, table)
+    if tb.safeMode:
+        key = ""
+        for pk in tb.pk:
+            key += str(register[pk])
+        cs = checksumDatabase(database, "SHA256")
+        tb.blockchain.update_block(key, cs, True)
+        tb.blockchain.break_blockchain(key)
+        for x in range(5):
+            try:
+                Serializable.commit(databases, "lista_bases_de_datos")
+                return result
+            except:
+                continue
     return result
 
 def truncate(database, table):
-    db = databases.search(database)
-    if db == None:
+    dbs = databases.find_all(database)
+    if dbs == []:
         return 2
-    if db.mode == "avl":
-        result = avlMode.truncate(database, table)
-    elif db.mode == "b":
-        result = BMode.truncate(database, table)
-    elif db.mode == "bplus":
-        result = BPlusMode.truncate(database, table)
-    elif db.mode == "dict":
-        result = DictMode.truncate(database, table)
-    elif db.mode == "isam":
-        result = ISAMMode.truncate(database, table)
-    elif db.mode == "json":
-        result = jsonMode.truncate(database, table)
-    elif db.mode == "hash":
-        result = HashMode.truncate(database, table)
+    if databases.find_table(database, table) == None:
+        return 3
+    result = 1
+    for db in dbs:
+        if db.tables.search(table) == None:
+            continue
+        if db.mode == "avl":
+            result = avlMode.truncate(database, table)
+        elif db.mode == "b":
+            result = BMode.truncate(database, table)
+        elif db.mode == "bplus":
+            result = BPlusMode.truncate(database, table)
+        elif db.mode == "dict":
+            result = DictMode.truncate(database, table)
+        elif db.mode == "isam":
+            result = ISAMMode.truncate(database, table)
+        elif db.mode == "json":
+            result = jsonMode.truncate(database, table)
+        elif db.mode == "hash":
+            result = HashMode.truncate(database, table)
     return result
 
 def alterAddPK(database, table, columns):
@@ -926,7 +1199,59 @@ def alterAddPK(database, table, columns):
                         Serializable.commit(databases, "lista_bases_de_datos")
                         return result
                     except:
-                        break
+                        continue
+                return 1
+            break
+    return result
+
+# Descripción:
+#     Agrega las llaves primarias a la tabla de la base de datos con el nombre y modo indicados
+# Parámetros:
+#     database:str - El nombre de la base de datos
+#     table:str - El nombre de la tabla
+#     columns:list - Una lista con los números de columna que son llaves primarias
+#     mode:str - El modo de almacenamiento en el que se encuentra la base de datos a utilizar
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - Llave primaria existente
+#     5 - Columnas fuera de límites
+def __alter_add_pk_sp(database: str, table: str, columns: list, mode: str) -> int:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    if databases.find_table(database, table) == None:
+        return 3
+    for db in dbs:
+        if db.mode != mode:
+            continue
+        if db.mode == "avl":
+            result = avlMode.alterAddPK(database, table, columns)
+        elif db.mode == "b":
+            result = BMode.alterAddPK(database, table, columns)
+        elif db.mode == "bplus":
+            result = BPlusMode.alterAddPK(database, table, columns)
+        elif db.mode == "dict":
+            result = DictMode.alterAddPK(database, table, columns)
+        elif db.mode == "isam":
+            result = ISAMMode.alterAddPK(database, table, columns)
+        elif db.mode == "json":
+            result = jsonMode.alterAddPK(database, table, columns)
+        elif db.mode == "hash":
+            result = HashMode.alterAddPK(database, table, columns)
+        else:
+            continue
+        if result != 3:
+            if result == 0:
+                db.tables.search(table).pk += columns
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        return result
+                    except:
+                        continue
                 return 1
             break
     return result
@@ -1006,4 +1331,1537 @@ def decrypt(cipherBackup: str, password: str):
 
 	except:
 		return None #error
+# Descripcion:
+# 	Asociada una codificación a una base de datos por completo. (UPDATE)
+# Parámetro database: 
+#	es el nombre de la base de datos a utilizar. Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.
+# Valor de retorno: 
+#	0 operación exitosa,
+#	1 error en la operación, 
+#	2 database no existente, 
+#	3 nombre de modo no existente.
+def checksumDatabase(database: str, mode: str):
+	try:
+		list_routes = get_routes(database)
+		#falta: if para ver si la db existe, abenido del get_routes
+		if list_routes != []:
+			#verifico existe modo
+			if(mode.upper() == 'MD5'):
+				m = hashlib.md5()
+				print(mode)#quitar
+			elif(mode.upper() == 'SHA256'):
+				m = hashlib.sha256()
+				print(mode)#quitar
+			else:
+				return 3 #nombre del modo no existe
 
+			for direcc in list_routes:
+				file = open(direcc,'rb')
+				tabla = file.read() #en tipo binario
+				file.close()
+				m.update(tabla)
+			return m.hexdigest()
+		else:
+			return 1 #error: la db no tiene tablas
+	except:
+		return 1 #error en la operacion
+
+
+def checksumTable(database: str, table:str, mode: str):
+	try:
+		list_routes = get_route_table(database,table)
+		#falta: if para ver si la db existe, obenido del get_routes
+		if list_routes != None:
+			#verifico existe modo
+			if(mode.upper() == 'MD5'):
+				m = hashlib.md5()
+				print(mode)#quitar
+			elif(mode.upper() == 'SHA256'):
+				m = hashlib.sha256()
+				print(mode)#quitar
+			else:
+				return 3 #nombre del modo no existe
+
+				direcc = list_routes
+				file = open(direcc,'rb')
+				tabla = file.read() #en tipo binario
+				file.close()
+				m.update(tabla)
+			return m.hexdigest()
+		else:
+			return 1 #error: la db no tiene tablas
+	except:
+		return 1 #error en la operacion
+
+# Descripción:
+#     Verifica que un texto pueda tener la codificación indicada
+# Parámetros:
+#     text:str - El texto que se desea verificar
+#     encoding:str - El tipo de codificación que se desea utilizar
+# Valores de retorno:
+#     True - Si se puede codificar el texto
+#     False - Si no se puede codificar el texto
+def verify_encoding(text: str, encoding: str):
+    if encoding in VALID_ENCODING:
+        try:
+            text.encode(encoding)
+            return True
+        except UnicodeEncodeError:
+            pass
+    return False
+
+# Descripción:
+#     Asocia una codificación a una base de datos
+# Parámetros:
+#     database:str - El nombre de la base de datos a utilizar
+#     encoding:str - El tipo de codificación a utilizar
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - Nombre de codificación no existente
+def alterDatabaseEncoding(database: str, encoding: str) -> int:
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    if encoding not in VALID_ENCODING:
+        return 3
+    for db in dbs:
+        tables = []
+        aux = db.tables.first
+        while aux != None:
+            tables.append(aux)
+            aux = aux.next
+        for table in tables:
+            registers = extractTable(db.name, table.name)
+            for register in registers:
+                for x in register:
+                    if type(x) == str:
+                        if not verify_encoding(x, encoding):
+                            return 1
+    databases.search(database).encoding = encoding
+    for x in range(5):
+        try:
+            Serializable.commit(databases, "lista_bases_de_datos")
+            return 0
+        except:
+            continue
+    return 1
+
+# Descripción:
+#     Agrega un índice de llave foránea, creando una estructura adicional con el modo indicado para la base de datos
+# Parámetros:
+#     database:str - El nombre de la base de datos a utilizar
+#     table:str - El nombre de la tabla a utilizar
+#     indexName:str - El nombre único del índice
+#     columns:list - Conjunto de índices de columnas que forman parte de la llave foránea
+#     tableRef:str - El nombre de la tabla que hace referencia, donde está(n) la(s) llave(s) primarias(s)
+#     columnsRef:list - El conjunto de índices de columnas que forman parte de la llave primaria
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - Cantidad no exacta entre columnas
+def alterTableAddFK(database: str, table: str, indexName: str, columns: list,  tableRef: str, columnsRef: list) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb_local = databases.find_table(database, table)
+    tb_reference = databases.find_table(database, tableRef)
+    if tb_local == None or tb_reference == None:
+        return 3
+    if len(columns) != len(columnsRef):
+        return 4
+    
+    for fk in tb_local.fk:
+        if fk["indexName"] == indexName:
+            return 1
+
+    registers = extractTable(database, tableRef)
+    if len(registers) != len(extractTable(database, table)):
+        return 1
+
+    # Obteniendo las llaves primarias de la tabla referida
+    pkRef = tb_reference.pk
+
+    # Creando la nueva estructura
+    if createTable(database, indexName, len(columns) + 1) != 0:
+        return 1
+    
+    # Definiendo las llaves primarias de la nueva estructura
+    aux_pk = []
+    for x in range(len(columns)):
+        aux_pk.append(x)
+    if alterAddPK(database, indexName, aux_pk) != 0:
+        return 1
+
+    # Insertando los registros a la nueva estructura
+    for register in registers:
+        aux_register = []
+        for x in range(len(register)):
+            if x in columnsRef:
+                aux_register.append(register[x])
+        reference_pk = {}
+        for x in range(len(register)):
+            if x in pkRef:
+                reference_pk[x] = register[x]
+        aux_register.append(reference_pk)
+        
+        if insert(database, indexName, aux_register) != 0:
+            return 1
+
+    # Agregando la información de la FK a la tabla
+    tb_local.fk.append({"indexName":indexName,
+                        "table":table,
+                        "columns":columns,
+                        "tableRef":tableRef,
+                        "columnsRef":columnsRef,
+                        "pkRef": pkRef})
+    databases.find_table(database, indexName).hidden = True
+
+    # Almacenando la información de la lista de bases de datos
+    for x in range(5):
+        try:
+            Serializable.commit(databases, "lista_bases_de_datos")
+            return 0
+        except:
+            continue
+    
+    return 1
+
+# Descripción:
+#     Destruye el índice tanto como metadato de la tabla como la estructura adicional creada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+#     table:str - El nombre de la tabla
+#     indexName:str - El nombre único del índice
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - Nombre de índice no existente
+def alterTableDropFK(database: str, table: str, indexName: str) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb_local = databases.find_table(database, table)
+    if tb_local == None:
+        return 3
+    
+    for x in range(len(tb_local.fk)):
+        if tb_local.fk[x]["indexName"] == indexName:
+            if dropTable(database, indexName) != 0:
+                return 1
+            tb_local.fk.pop(x)
+            for x in range(5):
+                try:
+                    Serializable.commit(databases, "lista_bases_de_datos")
+                    return 0
+                except:
+                    continue
+    return 4
+
+# Descripción:
+#     Agrega un índice único, creando una estructura adicional con el modo indicado para la base de datos
+# Parámetros:
+#     database:str - El nombre de la base de datos a utilizar
+#     table:str - El nombre de la tabla a utilizar
+#     indexName:str - El nombre único del índice
+#     columns:list - Conjunto de índices de columnas que forman parte de la llave foránea
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - indexName repetido
+#     5 - No se cumple la integridad de unicidad
+def alterTableAddUnique(database: str, table: str, indexName: str, columns: list) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb = databases.find_table(database, table)
+    if tb == None:
+        return 3
+    
+    for iu in tb.iu:
+        if iu["indexName"] == indexName:
+            return 4
+
+    registers = extractTable(database, table)
+    aux_data = [] # Usado para verificar si hay datos repetidos
+    for register in registers:
+        unique_index = ""
+        for column in columns:
+            unique_index += str(register[column])
+        if unique_index in aux_data:
+            return 5
+        aux_data.append(unique_index)
+
+    # Creando la nueva estructura
+    if createTable(database, indexName, len(columns) + 1) != 0:
+        return 1
+    
+    # Definiendo las llaves primarias de la nueva estructura
+    aux_pk = []
+    for x in range(len(columns)):
+        aux_pk.append(x)
+    if alterAddPK(database, indexName, aux_pk) != 0:
+        return 1
+
+    # Insertando los registros a la nueva estructura
+    for register in registers:
+        aux_register = []
+        for x in range(len(register)):
+            if x in columns:
+                aux_register.append(register[x])
+        reference_pk = {}
+        for x in range(len(register)):
+            if x in tb.pk:
+                reference_pk[x] = register[x]
+        aux_register.append(reference_pk)
+        
+        if insert(database, indexName, aux_register) != 0:
+            return 1
+
+    # Agregando la información del índice único a la tabla
+    tb.iu.append({"indexName": indexName,
+                  "table": table,
+                  "columns": columns,
+                  "pk": aux_pk})
+    databases.find_table(database, indexName).hidden = True
+
+    # Almacenando la información de la lista de bases de datos
+    for x in range(5):
+        try:
+            Serializable.commit(databases, "lista_bases_de_datos")
+            return 0
+        except:
+            continue
+    
+    return 1
+
+# Descripción:
+#     Destruye el índice único tanto como metadato de la tabla como la estructura adicional creada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+#     table:str - El nombre de la tabla
+#     indexName:str - El nombre único del índice
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - Nombre de índice no existente
+def alterTableDropUnique(database: str, table: str, indexName: str) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb_local = databases.find_table(database, table)
+    if tb_local == None:
+        return 3
+    
+    for x in range(len(tb_local.iu)):
+        if tb_local.iu[x]["indexName"] == indexName:
+            if dropTable(database, indexName) != 0:
+                return 1
+            tb_local.iu.pop(x)
+            for x in range(5):
+                try:
+                    Serializable.commit(databases, "lista_bases_de_datos")
+                    return 0
+                except:
+                    continue
+    return 4
+
+# Descripción:
+#     Agrega un índice, creando una estructura adicional con el modo indicado para la base de datos
+# Parámetros:
+#     database:str - El nombre de la base de datos a utilizar
+#     table:str - El nombre de la tabla a utilizar
+#     indexName:str - El nombre único del índice
+#     columns:list - Conjunto de índices de columnas que forman parte de la llave foránea
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - indexName repetido
+def alterTableAddIndex(database: str, table: str, indexName: str, columns: list) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb = databases.find_table(database, table)
+    if tb == None:
+        return 3
+    
+    for indx in tb.indx:
+        if indx["indexName"] == indexName:
+            return 4
+
+    registers = extractTable(database, table)
+
+    # Creando la nueva estructura
+    if createTable(database, indexName, len(columns) + 1) != 0:
+        return 1
+    
+    # Definiendo las llaves primarias de la nueva estructura
+    aux_pk = []
+    for x in range(len(columns)):
+        aux_pk.append(x)
+    if alterAddPK(database, indexName, aux_pk) != 0:
+        return 1
+
+    # Insertando los registros a la nueva estructura
+    for register in registers:
+        aux_register = []
+        for x in range(len(register)):
+            if x in columns:
+                aux_register.append(register[x])
+        reference_pk = {}
+        for x in range(len(register)):
+            if x in tb.pk:
+                reference_pk[x] = register[x]
+        aux_register.append(reference_pk)
+        insert(database, indexName, aux_register)
+
+    # Agregando la información del índice único a la tabla
+    tb.indx.append({"indexName": indexName,
+                  "table": table,
+                  "columns": columns,
+                  "pk": aux_pk})
+    databases.find_table(database, indexName).hidden = True
+
+    # Almacenando la información de la lista de bases de datos
+    for x in range(5):
+        try:
+            Serializable.commit(databases, "lista_bases_de_datos")
+            return 0
+        except:
+            continue
+    
+    return 1
+
+# Descripción:
+#     Destruye el índice tanto como metadato de la tabla como la estructura adicional creada
+# Parámetros:
+#     database:str - El nombre de la base de datos
+#     table:str - El nombre de la tabla
+#     indexName:str - El nombre único del índice
+# Valores de retorno:
+#     0 - Operación exitosa
+#     1 - Error en la operación
+#     2 - database no existente
+#     3 - table no existente
+#     4 - Nombre de índice no existente
+def alterTableDropIndex(database: str, table: str, indexName: str) -> int:
+    # Comprobaciones iniciales
+    dbs = databases.find_all(database)
+    if dbs == []:
+        return 2
+    tb_local = databases.find_table(database, table)
+    if tb_local == None:
+        return 3
+    
+    for x in range(len(tb_local.indx)):
+        if tb_local.indx[x]["indexName"] == indexName:
+            if dropTable(database, indexName) != 0:
+                return 1
+            tb_local.indx.pop(x)
+            for x in range(5):
+                try:
+                    Serializable.commit(databases, "lista_bases_de_datos")
+                    return 0
+                except:
+                    continue
+    return 4
+
+# Descripcion
+# Activa el modo seguro para una tabla de una base de datos.
+# Parametos:
+# 	Parámetro database: 
+# 	nombre de la base de datos. 
+# 	Parámetro table: nombre de la tabla.
+# Valor de retorno:
+# 	0 operación exitora, 
+#	1 error en la operación, 
+#	2 database inexistente, 
+#	3 table inexistente, 
+#	4 modo seguro existente.
+def safeModeOn(database: str, table: str):
+    if not os.path.isdir(".\\DataJsonBC"):
+        os.makedirs(".\\DataJsonBC")
+    try:
+        dbs = databases.find_all(database)
+        if dbs == []:
+            return 2 #insexistente bd
+        tb = databases.find_table(database, table)
+        if tb == None:
+            return 3
+        if tb.safeMode == True:
+            return 4
+        
+        for db in dbs:
+            tb = db.tables.search(table)
+            if tb != None:
+                tb.blockchain = blockchain(db.name + "_" + tb.name)
+                tb.safeMode = True
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        break
+                    except:
+                        continue
+                with open(".\\DataJsonBC\\" + db.name + "_" + tb.name + ".json", "w") as bc:
+                    bc.write('{"blocks": []}')
+                break
+        return 0
+    except:
+        return 1#error
+
+#Descripcion:
+# Desactiva el modo seguro en la tabla especificada de la base de datos.
+# Parámetro database:
+#	 nombre de la base de datos.
+# Parámetro table: 
+#	nombre de la tabla.
+# Valor de retorno:
+#	0 operación exitora, 
+#	1 error en la operación,
+#	2 database inexistente, 
+#	3 table inexistente,
+#	4 modo seguro no existente.
+def safeModeOff(database: str, table: str):
+    try:
+        dbs = databases.find_all(database)
+        if dbs == []:
+            return 2 #insexistente bd
+        tb = databases.find_table(database, table)
+        if tb == None:
+            return 3
+        if tb.safeMode == False:
+            return 4
+        
+        for db in dbs:
+            tb = db.tables.search(table)
+            if tb != None:
+                tb.blockchain = None
+                tb.safeMode = False
+                for x in range(5):
+                    try:
+                        Serializable.commit(databases, "lista_bases_de_datos")
+                        break
+                    except:
+                        continue
+                os.remove(".\\DataJsonBC\\" + db.name + "_" + tb.name + ".json")
+                break
+        return 0
+    except:
+        return 1#error
+
+# Descripcion:
+# 	Asociada una codificación a una base de datos por completo. (UPDATE)
+# Parámetro database: 
+#	es el nombre de la base de datos a utilizar. Parámetro mode: es el algoritmo de hash, puede ser 'MD5' o 'SHA256'.
+# Valor de retorno: 
+#	0 operación exitosa,
+#	1 error en la operación, 
+#	2 database no existente, 
+#	3 nombre de modo no existente.
+def checksumDatabase(database: str, mode: str):
+	try:
+		list_routes = get_routes(database)
+		#falta: if para ver si la db existe, abenido del get_routes
+		if list_routes != []:
+			#verifico existe modo
+			if(mode.upper() == 'MD5'):
+				m = hashlib.md5()
+				print(mode)#quitar
+			elif(mode.upper() == 'SHA256'):
+				m = hashlib.sha256()
+				print(mode)#quitar
+			else:
+				return 3 #nombre del modo no existe
+
+			for direcc in list_routes:
+				file = open(direcc,'rb')
+				tabla = file.read() #en tipo binario
+				file.close()
+				m.update(tabla)
+			return m.hexdigest()
+		else:
+			return 1 #error: la db no tiene tablas
+	except:
+		return 1 #error en la operacion
+
+
+def checksumTable(database: str, table:str, mode: str):
+	try:
+		list_routes = get_route_table(database,table)
+		#falta: if para ver si la db existe, obenido del get_routes
+		if list_routes != None:
+			#verifico existe modo
+			if(mode.upper() == 'MD5'):
+				m = hashlib.md5()
+				print(mode)#quitar
+			elif(mode.upper() == 'SHA256'):
+				m = hashlib.sha256()
+				print(mode)#quitar
+			else:
+				return 3 #nombre del modo no existe
+
+				direcc = list_routes
+				file = open(direcc,'rb')
+				tabla = file.read() #en tipo binario
+				file.close()
+				m.update(tabla)
+			return m.hexdigest()
+		else:
+			return 1 #error: la db no tiene tablas
+	except:
+		return 1 #error en la operacion
+# Agregue compresión utilizando la biblioteca. Se debe agregar a columna tipo varchar o text de cada tabla de la base de datos. (UPDATE)
+# Parámetro database: es el nombre de la base de datos que se desea modificar
+# Parámetro level: es el nivel de compressión definido por la función compress de la bilbioteca zlib de Python.
+# Valor de retorno: 
+#0 operación exitosa, 
+#1 error en la operación, 
+#2 database no existente, 
+#3 table no existente, 
+#4 level incorrecto.
+def alterDatabaseCompress(database: str, level: int):
+	try:
+		dbs = databases.find_all(database)
+		if dbs == []:
+		    return 2
+
+		if databases.search(database).compress == True:
+			return 1 #error
+
+		if level < -1 or level > 9:
+			return 4
+
+		for db in dbs:
+
+		    tables = []
+		    aux = db.tables.first
+		    while aux != None:
+		        tables.append(aux)
+		        aux = aux.next
+
+		    if tables != []:
+
+		        if db.mode == "avl":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	avlMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos: #lista de registros(lista)
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "b":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	BMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "bplus":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	BPlusMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "dict":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	DictMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "isam":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	ISAMMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "json":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	jsonMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		        elif db.mode == "hash":
+		            for table in tables:
+		            	if table.compress == False:
+			            	datos =	HashMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == str:
+				            				diccionario[x] =comprimir(e[x],level)
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = True#actualizo
+
+		databases.search(database).compress = True		            		
+		return 0#exito
+	except:
+		return 1 #error
+
+# Quita la compresión de una base de datos especificada. (UPDATE)
+# Parámetro:
+#	 database: es el nombre de la base de datos a utilizar.
+# Valor de retorno: 
+#	0 operación exitosa, 
+#	1 error en la operación, 
+#	2 database no existente, 
+#	3 no había compresión.
+def alterDatabaseDecompress(database: str):
+	try:
+
+		dbs = databases.find_all(database)
+		if dbs == []:
+		    return 2
+		if databases.search(database).compress == False:
+			return 3 #error
+
+		for db in dbs:
+
+		    tables = []
+		    aux = db.tables.first
+		    while aux != None:
+		        tables.append(aux)
+		        aux = aux.next
+
+		    if tables != []:
+
+		        if db.mode == "avl":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	avlMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+				            		
+
+		        elif db.mode == "b":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	BMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "bplus":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	BPlusMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "dict":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	DictMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "isam":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	ISAMMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "json":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	jsonMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		        elif db.mode == "hash":
+		            for table in tables:
+		            	if table.compress == True:
+			            	datos =	HashMode.extractTable(db.name,table.name)
+			            	if datos != None and datos != []:
+				            	for  e in datos:
+				            		#lista para la primary key del registro
+				            		register_pk = []
+				            		#recorrer la lista con los indices de las primary keys
+				            		for pk in table.pk:
+				            			register_pk.append(e[pk])
+				            		#Generador del diccionario con los datos comprimidos
+				            		diccionario = {}
+				            		for x in range(len(e)):
+				            			if type(e[x]) == bytes:
+				            				diccionario[x] =descomprimir(e[x])
+				            		#actualizando los valores de la tabla
+				            		update(db.name,table.name,diccionario,register_pk)
+				            		databases.find_table(db.name,table.name).compress = False#actualizo
+
+		databases.search(database).compress = False		            		
+		return 0#exito		
+
+	except:
+		return 1 #error
+
+# Agregue compresión  Se debe agregar a columna tipo varchar o text de cada tabla de la base de datos. De igual manera, al extraer la información se debe descomprimir
+# Parametros:
+# 	Parámetro database: es el nombre de la base de datos que se desea modificar
+# 	Parámetro table: es el nombre de la tabla.
+# 	Parámetro level: es el nivel de compressión definido por la función compress de la bilbioteca zlib de Python.
+# Valor de retorno: 
+#	0 operación exitosa, 
+#	1 error en la operación, 
+#	2 database no existente,
+#	3 table no existe 
+#	4 level incorrecto.
+def alterTableCompress(database: str, table: str, level: int):
+#	try:
+		dbs = databases.find_all(database)
+		if dbs == []:
+		    return 2
+		if databases.find_table(database,table) == None:
+			return 3
+		if level < -1 or level > 9:
+			return 4
+
+		for db in dbs:
+
+			#nuevo
+			tb = db.tables.search(table)
+			if tb == None:
+				continue
+
+			if db.mode == "avl":
+				if tb.compress == False:
+					datos =	avlMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos: #lista de registros(lista)
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo			            		
+
+			elif db.mode == "b":
+				if tb.compress == False:
+					datos =	BMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "bplus":
+				if tb.compress == False:
+					datos =	BPlusMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "dict":
+				if tb.compress == False:
+					datos =	DictMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "isam":
+				if tb.compress == False:
+					datos =	ISAMMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "json":
+				if tb.compress == False:
+					datos =	jsonMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+			elif db.mode == "hash":
+				if tb.compress == False:
+					datos =	HashMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == str:
+									diccionario[x] =comprimir(e[x],level)
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = True#actualizo
+
+		databases.find_table(database, table).compress = True#actualizo		            		
+		return 0#exito		
+
+#	except:
+#		return 1 #error
+
+# Quita la compresión de una base de datos especificada. (UPDATE)
+# Parámetro:
+#	database: es el nombre de la base de datos a utilizar.
+#	Parámetro table: es el nombre de la tabla a utilizar.
+# Valor de retorno:
+#	0 operación exitosa, 
+#	1 error en la operación, 
+#	2 database no existente, 
+#	3 no había compresión.
+def alterTableDecompress(database: str, table: str):
+#	try:
+
+		dbs = databases.find_all(database)
+		if dbs == []:
+		    return 2
+
+		if databases.find_table(database,table).compress == False:
+			return 3 #error
+
+		for db in dbs:
+
+			#nuevo
+			tb = db.tables.search(table)
+			if tb == None:
+				continue
+
+
+			if db.mode == "avl":
+				if tb.compress == True:
+					datos =	avlMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos: #lista de registros(lista)
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo				            		
+
+			elif db.mode == "b":
+				if tb.compress == True:
+					datos =	BMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "bplus":
+				if tb.compress == True:
+					datos =	BPlusMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "dict":
+				if tb.compress == True:
+					datos =	DictMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "isam":
+				if tb.compress == True:
+					datos =	ISAMMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "json":
+				if tb.compress == True:
+					datos =	jsonMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+			elif db.mode == "hash":
+				if tb.compress == True:
+					datos =	HashMode.extractTable(db.name,tb.name)
+					if datos != None and datos != []:
+						for  e in datos:
+							#lista para la primary key del registro
+							register_pk = []
+							#recorrer la lista con los indices de las primary keys
+							for pk in tb.pk:
+								register_pk.append(e[pk])
+							#Generador del diccionario con los datos comprimidos
+							diccionario = {}
+							for x in range(len(e)):
+								if type(e[x]) == bytes:
+									diccionario[x] =descomprimir(e[x])
+							#actualizando los valores de la tabla
+							update(db.name,tb.name,diccionario,register_pk)
+							databases.find_table(db.name,tb.name).compress = False#actualizo
+
+		databases.find_table(database, table).compress = False#actualizo	            		
+		return 0#exito		
+
+#	except:
+#		return 1 #error
+
+
+def comprimir(text,nivel):
+	try:
+		b = bytes(text, encoding="utf-8")
+		comp = zlib.compress(b,nivel)#b en bytes
+		return comp
+
+	except:
+		return 1#error
+
+
+def descomprimir(comp):
+	try:
+		decomp = zlib.decompress(comp).decode()
+
+		return decomp
+	except:
+		return 1#error
+
+class Grafo:
+    def graphDF(database: str, table: str):
+        dbs = databases.find_all(database)
+        if dbs == []:
+            return None
+        for db in dbs:
+            tb = db.tables.search(table)
+            if tb == None:
+                continue
+            if db.mode == "avl":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+
+            elif db.mode == "b":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+            elif db.mode == "bplus":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+            elif db.mode == "dict":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+            elif db.mode == "isam":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg")
+            elif db.mode == "json":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg") 
+            elif db.mode == "hash":
+                primarias = tb.pk#lista PKs
+                ius = []
+                for iu in tb.iu:
+                    for column in iu["columns"]:
+                        if column not in ius:
+                            ius.append(column)
+                indiceUnico = ius # lista IUnicos
+                texto = "digraph {" +"\n"
+                "node[shape=box3d, style=filled];"+"\n"
+
+                normal_index = []
+                for x in range(tb.columns):
+                    if x not in tb.pk and x not in ius:
+                        normal_index.append(x)
+
+                #datos = ISAMMode.extractTable(db.name,tb.name) #obtengo lista con registros
+                if normal_index != []: #no vacia 
+                    for dat in normal_index:#recorro llaves 
+                        texto += str(dat) +"[fillcolor=\"#1EB3C5\" ];"+ "\n" #poner color
+                        for pk in primarias:
+                            texto += str(pk) + "->" + str(dat)+";"+"\n"#dependencia pks
+
+                        for indU in indiceUnico:
+                            texto += str(indU) + "->" + str(dat)+";"+"\n"#dependencias IUnicos
+
+                texto +="}"
+                with open("graphDF.dot", 'w') as f:
+                    f.write(texto)#escrivo archivo
+                    
+                os.system("Dot -Tsvg graphDF.dot -o graphDF.svg")
+                os.system("graphDF.svg") 
+        if route != None and os.path.exists(route):
+            return route
+        return None

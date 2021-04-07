@@ -26,6 +26,19 @@ class GroupBy(Instruccion):
             res.append(val[0])
         return res
     
+
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+
+    def traducir(self, tabla, arbol):
+        res = "group by "
+        for x in range(0,len(self.valor)):
+            if(x>0):
+                res += " , "
+            res += str(self.valor[x].id)
+        
+        return res
+
 '''
 instruccion = GroupBy("hola mundo",None, 1,2)
 

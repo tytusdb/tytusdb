@@ -3,11 +3,11 @@
 # Copyright (c) 2020 TytusDb Team
 
 import os
-from storage import main as h
+from storage import TytusStorage as h
 
 
 def graphDSD(database: str):
-    pat = "storage/temp"
+    pat = "data/graph"
     try:
         os.mkdir(pat)
     except:
@@ -16,7 +16,7 @@ def graphDSD(database: str):
     try:
 
         list_node = []
-        file = open("storage/temp/_DSD.dot","w")
+        file = open("data/graph/_DSD.dot","w")
         file.write("digraph dibujo{\n")
         file.write("rankdir=LR;\nnode[shape=record];\n")
         tmp = h._database(database)
@@ -41,16 +41,16 @@ def graphDSD(database: str):
 
             file.write("}")
             file.close()
-            os.system('dot -Tpng storage/temp/_DSD.dot -o storage/temp/_DSD.png')
-            os.remove("storage/temp/_DSD.dot")
-            path = os.getcwd()+"storage\\temp\\_DSD.png"
+            os.system('dot -Tpng data/graph/_DSD.dot -o data/graph/_DSD.png')
+            os.remove("data/graph/_DSD.dot")
+            path = os.getcwd()+"data\\graph\\_DSD.png"
             return path
     except:
         return None
 
 
 def graphDF(database: str, table: str):
-    pat = "storage/temp"
+    pat = "data/graph"
     try:
         os.mkdir(pat)
     except:
@@ -58,7 +58,7 @@ def graphDF(database: str, table: str):
     try:
         list_node = []
         list_node_PK = []
-        file = open("storage/temp/_DF.dot", "w")
+        file = open("data/graph/_DF.dot", "w")
         file.write("digraph dibujo{\n")
         file.write("rankdir=LR;\nnode[shape=record];\n")
 
@@ -128,9 +128,9 @@ def graphDF(database: str, table: str):
 
         file.write("}")
         file.close()
-        os.system('dot -Tpng storage/temp/_DF.dot -o storage/temp/_DF.png')
-        os.remove("storage/temp/_DF.dot")
-        path = os.getcwd() + "storage\\temp\\_DF.png"
+        os.system('dot -Tpng data/graph/_DF.dot -o data/graph/_DF.png')
+        os.remove("data/graph/_DF.dot")
+        path = os.getcwd() + "data\\graph\\_DF.png"
         return path
     except:
         return None

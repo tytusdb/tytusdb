@@ -4,11 +4,12 @@ from numpy.core.defchararray import isdigit
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.TablaSimbolos.Simbolo3D import Simbolo3d
 
 
 class WidthBucket(Instruccion):
-    def __init__(self, valor, min, max, count, tipo, strGram, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna, strGram)
+    def __init__(self, valor, min, max, count, tipo, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,tipo,linea,columna, strGram, strSent)
         self.valor = valor
         self.min = min
         self.max = max
@@ -24,16 +25,16 @@ class WidthBucket(Instruccion):
                 contador= float(self.min.valor)
                 cubo=0
                 if float(resultado)==contador:
-                        self.tipo = Tipo(Tipo_Dato.INTEGER)
+                        self.tipo = Tipo("",Tipo_Dato.INTEGER)
                         return 1
                 while contador < float(self.max.valor):
                     if float(resultado)<contador:
-                        self.tipo = Tipo(Tipo_Dato.INTEGER)
+                        self.tipo = Tipo("",Tipo_Dato.INTEGER)
                         return cubo
                         
                     contador += temp
                     cubo+=1
-                self.tipo = Tipo(Tipo_Dato.INTEGER)
+                self.tipo = Tipo("",Tipo_Dato.INTEGER)
                 return cubo +1
             else:
                 error = Excepcion('42883',"Semántico",f"No existe la función width_bucket({self.valor.tipo.toString()},{self.min.tipo.toString()},{self.max.tipo.toString()},{self.count.tipo.toString()})",self.linea,self.columna)
@@ -46,3 +47,13 @@ class WidthBucket(Instruccion):
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
             return error 
+
+    def traducir(self, tabla, arbol, cadenaTraducida):
+        resultado = self.ejecutar(tabla, arbol)
+        if isinstance(resultado,Excepcion):
+            return resultado        
+        codigo = ""
+        temporal = arbol.generaTemporal()
+        codigo += "\t" + temporal + " = " + str(resultado) + "\n"
+        nuevo = Simbolo3d(self.tipo, temporal, codigo, None, None)
+        return nuevo

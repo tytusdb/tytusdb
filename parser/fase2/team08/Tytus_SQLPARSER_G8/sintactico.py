@@ -27,9 +27,11 @@ from Instrucciones.Sql_update import UpdateTable
 from Instrucciones.Sql_create import Columna as CColumna
 from Instrucciones.Index import Index
 from Instrucciones import Relaciones
-from Instrucciones.PL import Func, Declaracion, If, Elsif, Switch, Case, Llamada,  Return, Asignacion
+from Instrucciones.PL import Func, Declaracion, If, Elsif, Switch, Case, Llamada,  Return, Asignacion, Proc, DropFunc, DropProc
 from Instrucciones.PL.Imprimir import Imprimir
-
+from Instrucciones.Sql_select.Alias import Alias
+from Instrucciones.Index.Drop_index import Drop_index
+from Instrucciones.Index.AlterIndex import AlterIndex
 
 # IMPORTAMOS EL STORAGE
 from storageManager.jsonMode import *
@@ -729,7 +731,7 @@ def p_operadores_relacionales(t):
         strGram = "<expre> ::= <expre> DISTINTO <expre>"
 
     
-    t[0] = Relacional.Relacional(t[1], t[3], t[2],strGram ,t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Relacional(t[1], t[3], t[2],strGram ,t.lexer.lineno, t.lexer.lexpos)
 
 def p_operadores_aritmeticos(t):
     '''expre : expre MAS expre
@@ -768,11 +770,11 @@ def p_operadores_like(t):
     strGram = ""
     if t[2] == "NOT":
         strGram = "<expre> ::= <expre> NOT LIKE <expre>"
-        t[0] = Relacional.Relacional(t[1], t[4], "NOT LIKE", strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Relacional(t[1], t[4], "NOT LIKE", strGram, t.lexer.lineno, t.lexer.lexpos)
 
     else: 
         strGram = "<expre> ::= <expre> LIKE <expre>"
-        t[0] = Relacional.Relacional(t[1], t[3], "LIKE", strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Relacional(t[1], t[3], "LIKE", strGram, t.lexer.lineno, t.lexer.lexpos)
         
     #t[0] = PatternMatching(t[1], t[3], 'LIKE', t.lexer.lineno, t.lexer.lexpos) if t[2] == 'LIKE' else PatternMatching(t[1], t[3], 'NOT_LIKE', t.lexer.lineno, t.lexer.lexpos)
 
@@ -798,11 +800,11 @@ def p_operadores_in(t):
     strGram = ""
     if t[2] == "NOT":
         strGram = "<expre> ::= <expre> NOT INT <expre>"
-        t[0] = Relacional.Relacional(t[1], t[4], "NOT IN", strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Relacional(t[1], t[4], "NOT IN", strGram, t.lexer.lineno, t.lexer.lexpos)
 
     else: 
         strGram = "<expre> ::= <expre> IN <expre>"
-        t[0] = Relacional.Relacional(t[1], t[3], "IN", strGram, t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Relacional(t[1], t[3], "IN", strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_operadores_is(t):
     '''expre : expre IS NULL
@@ -1146,9 +1148,15 @@ def p_operadores_otros(t):
 
 def p_operadores_parentesis(t):
     ''' expre : PARIZQ expre PARDER
-            | PARIZQ query PARDER
     '''
     t[0] = t[2]
+
+def p_operadores_parentesis1(t):
+    ''' expre : PARIZQ query2 PARDER
+    '''
+    t[0] = t[2]
+
+
 
  
 def p_operadores_logicos5(t):
@@ -1386,7 +1394,7 @@ def p_expresion61(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= ID PUNTO ID"
-    t[0] = SelectLista.Alias(t[1],t[3], None)
+    t[0] = Alias(t[1],t[3], None)
     #t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, strGram,t.lexer.lineno, t.lexer.lexpos)
 
 def p_expresion62(t):
@@ -1395,7 +1403,7 @@ def p_expresion62(t):
     strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
     strGram = strGram + "<l_expresiones> ::= <expre>\n"
     strGram = strGram + "<expresion> ::= ID PUNTO POR"
-    t[0] = SelectLista.Alias(t[1],t[3], None)
+    t[0] = Alias(t[1],t[3], None)
     #t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, strGram, t.lexer.lineno, t.lexer.lexpos)
 
 
@@ -1435,6 +1443,15 @@ def p_expresion10(t):
     strGram = strGram + "<expresion> ::= FALSE"
     t[0] = Primitivo.Primitivo(False,Tipo(Tipo_Dato.BOOLEAN), strGram, t.lexer.lineno, t.lexer.lexpos)
 
+def p_expresion11(t):
+    '''expresion : ID CARACTER
+    '''
+    strGram = "<l_expresiones> ::= <l_expresiones> COMA <expre>\n"
+    strGram = strGram + "<l_expresiones> ::= <expre>\n"
+    strGram = strGram + "<expresion> ::= ID CARACTER"
+    t[0] = f"{t[1]} {t[2]}"
+
+
 def p_lista_columas(t):
     '''lcol : lcol COMA expre
     '''
@@ -1445,13 +1462,13 @@ def p_lista_columas(t):
 def p_lista_columas1(t):
     '''lcol : lcol COMA expre nombre
     '''
-    t[1].append(SelectLista.Alias(t[4],t[3],None))
+    t[1].append(Alias(t[4],t[3],None))
     t[0] = t[1]
 
 def p_lista_columas2(t):
     '''lcol : lcol COMA expre AS nombre
     '''
-    t[1].append(SelectLista.Alias(t[5],t[3],t[4]))
+    t[1].append(Alias(t[5],t[3],t[4]))
     t[0] = t[1]
 
 
@@ -1468,12 +1485,12 @@ def p_lista_columas3(t):
 def p_lista_columas4(t):
     '''lcol : expre nombre
     '''
-    t[0] = [SelectLista.Alias(t[2],t[1], None)]
+    t[0] = [Alias(t[2],t[1], None)]
 
 def p_lista_columas5(t):
     '''lcol : expre AS nombre
     '''
-    t[0] = [SelectLista.Alias(t[3],t[1], t[2])]
+    t[0] = [Alias(t[3],t[1], t[2])]
 
 def p_nombre(t):
     '''nombre : ID
@@ -1481,6 +1498,8 @@ def p_nombre(t):
         | CARACTER
     '''
     t[0] = t[1]
+
+
 
 #----------------------TIPO DE DATOS---------------------------------
 def p_tipo_datos(t):
@@ -1528,7 +1547,7 @@ def p_tipo_datos_varchar4(t):
 def p_tipo_datos_decimal(t):
     '''tipo : DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
     '''
-    t[0]= Tipo(Tipo_Dato.DECIMAL,[t[3],t[5]])
+    t[0]= Tipo(Tipo_Dato.NUMERIC,[t[3],t[5]])
 
 #def p_tipo_datos_decimal1(t):
 #    '''tipo : DOUBLE
@@ -1538,7 +1557,7 @@ def p_tipo_datos_decimal(t):
 def p_tipo_datos_decimal2(t):
     '''tipo : DECIMAL
     '''
-    t[0]=Tipo(Tipo_Dato.DECIMAL)
+    t[0]=Tipo(Tipo_Dato.NUMERIC)
 
 #ESTE NO SE CONTEMPLO EN LA GRAMATICA
 #def p_tipo_datos_decimal3(t):
@@ -1570,7 +1589,12 @@ def p_tipo_datos_int3(t):
 def p_tipo_datos_int4(t):
     '''tipo : NUMERIC
     '''
-    t[0]=Tipo(Tipo_Dato.NUMERIC)
+    t[0]= Tipo(Tipo_Dato.NUMERIC)
+
+def p_tipo_datos_int41(t):
+    '''tipo : NUMERIC PARIZQ ENTERO COMA ENTERO PARDER
+    '''
+    t[0]= Tipo(Tipo_Dato.NUMERIC,[t[3],t[5]])
 
 def p_tipo_datos_int5(t):
     '''tipo : REAL
@@ -1634,59 +1658,82 @@ def p_parametros_f2(t):
 
 def p_funciones(t):
     '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER BEGIN instrucciones END PUNTO_COMA DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
     t[0] = Func.Func(t[4], t[2], [], [], t[8], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
 def p_funciones1(t):
     '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER BEGIN instrucciones END PUNTO_COMA DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
     t[0] = Func.Func(t[4], t[2], t[6], [], t[9], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
 def p_funciones2(t):
     '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER RETURNS tipo AS expresion BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER RETURNS tipo AS as_expre BEGIN instrucciones END PUNTO_COMA DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
     t[0] = Func.Func(t[4], t[2], t[6], [], t[13], t[9], "", t.lexer.lineno, t.lexer.lexpos)
 
 def p_funciones3(t):
     '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
     t[0] = Func.Func(t[4], t[2], [], t[8], t[10], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
 def p_funciones4(t):
     '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER DECLARE ldec BEGIN instrucciones END PUNTO_COMA DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
     t[0] = Func.Func(t[4], t[2], t[6], t[9], t[11], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
 def p_funciones5(t):
     '''
-     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER RETURNS tipo AS expresion DECLARE ldec BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ l_param PARDER RETURNS tipo AS as_expre DECLARE ldec BEGIN instrucciones END PUNTO_COMA DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
     '''
     t[0] = Func.Func(t[4], t[2], t[6], t[13], t[15], t[9], "", t.lexer.lineno, t.lexer.lexpos)
+
+def p_funciones6(t):
+    '''
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER RETURNS tipo AS as_expre DECLARE ldec BEGIN instrucciones END PUNTO_COMA DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
+    '''
+    t[0] = Func.Func(t[4], t[2], [], t[12], t[14], t[8], "", t.lexer.lineno, t.lexer.lexpos)
+
+def p_funciones7(t):
+    '''
+     instruccion : CREATE orreplace FUNCTION ID PARIZQ PARDER RETURNS tipo AS as_expre BEGIN instrucciones END PUNTO_COMA DOLLAR LANGUAGE PLPGSQL PUNTO_COMA
+    '''
+    t[0] = Func.Func(t[4], t[2], [], [], t[12], t[8], "", t.lexer.lineno, t.lexer.lexpos)
+
+def p_returns(t):
+    '''as_expre : expresion
+                | DOLLAR
+    '''
 
 ############################# stored procedures
 
 def p_sp1(t):
     '''
-     instruccion : CREATE orreplace PROCEDURE ID PARIZQ l_param PARDER LANGUAGE ID AS ID BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace PROCEDURE ID PARIZQ l_param PARDER LANGUAGE PLPGSQL AS as_expre BEGIN instrucciones END PUNTO_COMA as_expre
     '''
+    t[0] = Proc.Proc(t[4], t[2], t[6], t[13], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+
 def p_sp2(t):
     '''
-     instruccion : CREATE orreplace PROCEDURE ID PARIZQ l_param PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace PROCEDURE ID PARIZQ l_param PARDER AS as_expre BEGIN instrucciones END PUNTO_COMA as_expre
     '''
+    t[0] = Proc.Proc(t[4], t[2], t[6], t[11], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
 def p_sp3(t):
     '''
-     instruccion : CREATE orreplace PROCEDURE ID PARIZQ PARDER LANGUAGE ID AS ID BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace PROCEDURE ID PARIZQ PARDER LANGUAGE PLPGSQL AS as_expre BEGIN instrucciones END PUNTO_COMA as_expre
     '''
+    t[0] = Proc.Proc(t[4], t[2], [], t[12], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
+
 def p_sp4(t):
     '''
-     instruccion : CREATE orreplace PROCEDURE ID PARIZQ PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
+     instruccion : CREATE orreplace PROCEDURE ID PARIZQ PARDER AS as_expre BEGIN instrucciones END PUNTO_COMA as_expre
     '''
+    t[0] = Proc.Proc(t[4], t[2], [], t[10], Tipo(Tipo_Dato.VOID), "", t.lexer.lineno, t.lexer.lexpos)
 
 
 def p_orreplace(t):
@@ -1710,11 +1757,17 @@ def p_perform(t):
     '''
     instruccion : PERFORM query PUNTO_COMA
     '''
-def p_execute(t):
+def p_execute1(t):
     '''
     instruccion : EXECUTE ID PARIZQ l_expresiones PARDER PUNTO_COMA
-                | EXECUTE ID PARIZQ PARDER PUNTO_COMA
     '''
+    t[0] = Llamada.Llamada(t[2], t[4], "strGram", t.lexer.lineno, t.lexer.lexpos)
+
+def p_execute2(t):
+    '''
+    instruccion : EXECUTE ID PARIZQ PARDER PUNTO_COMA
+    '''
+    t[0] = Llamada.Llamada(t[2], [], "strGram", t.lexer.lineno, t.lexer.lexpos)
 
 def p_if(t):
     '''
@@ -1822,6 +1875,66 @@ def p_for3(t):
     instruccion : FOR expre IN REVERSE ENTERO PUNTO PUNTO ENTERO BY ENTERO LOOP instrucciones END LOOP PUNTO_COMA
     '''
 
+
+def p_drop_f1(t):
+    '''
+    instruccion : DROP FUNCTION if_exists ID PARIZQ lista_tipo PARDER PUNTO_COMA
+    '''
+    t[0] = DropFunc.DropFunc(t[4], t[6], t[3], "", t.lexer.lineno, t.lexer.lexpos)
+
+def p_drop_f2(t):
+    '''
+    instruccion : DROP FUNCTION if_exists ID PARIZQ PARDER PUNTO_COMA
+    '''
+    t[0] = DropFunc.DropFunc(t[4], [], t[3], "", t.lexer.lineno, t.lexer.lexpos)
+
+def p_drop_f3(t):
+    '''
+    instruccion : DROP FUNCTION if_exists ID PUNTO_COMA
+    '''
+    t[0] = DropFunc.DropFunc(t[4], None, t[3], "", t.lexer.lineno, t.lexer.lexpos)
+
+def p_drop_p1(t):
+    '''
+    instruccion : DROP PROCEDURE if_exists ID PARIZQ lista_tipo PARDER PUNTO_COMA
+    '''
+    t[0] = DropProc.DropProc(t[4], t[6], t[3], "", t.lexer.lineno, t.lexer.lexpos)
+
+def p_drop_p2(t):
+    '''
+    instruccion : DROP PROCEDURE if_exists ID PARIZQ PARDER PUNTO_COMA
+    '''
+    t[0] = DropProc.DropProc(t[4], [], t[3], "", t.lexer.lineno, t.lexer.lexpos)
+
+def p_drop_p3(t):
+    '''
+    instruccion : DROP PROCEDURE if_exists ID PUNTO_COMA
+    '''
+    t[0] = DropProc.DropProc(t[4], None, t[3], "", t.lexer.lineno, t.lexer.lexpos)
+
+def p_lista_tipo(t):
+    '''
+    lista_tipo : lista_tipo COMA tipo
+    '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_lista_tipo1(t):
+    '''
+    lista_tipo : tipo
+    '''
+    t[0] = [t[1]]
+
+def p_if_exists(t):
+    '''if_exists : IF EXISTS
+            |
+    '''
+    try:
+        t[0] = t[1]
+    except:
+        #error
+        pass
+
 ### INDEXS 
 ## corresponde a CREATE INDEX test1_id_index ON test1 (id);
 #  CREATE INDEX test2_mm_idx ON test2 (major, minor);
@@ -1877,6 +1990,19 @@ def p_create_index5(t):
     lcol = [ Identificador(t[7], strGram2 ,t.lexer.lineno, t.lexer.lexpos) ]
     t[0] = Index.Index(t[3], id1, lcol, t[12], "DESC NULLS LAST", strGram, t.lexer.lineno, t.lexer.lexpos)
     
+def p_drop_index(t):
+    '''
+    instruccion : DROP INDEX ID ON ID PUNTO_COMA
+    '''
+    strGram = "<instruccion> :: = DROP INDEX ID PUNTO_COMA"
+    t[0] = Drop_index(t[3], t[5], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+def p_alter_index(t):
+    '''
+    instruccion : ALTER INDEX if_exists ID ALTER COLUMN ID ID PUNTO_COMA
+    '''
+    strGram = "<instruccion> :: = ALTER INDEX if_exists ID ALTER COLUMN ID ID PUNTO_COMA"
+    t[0] = AlterIndex(t[4], t[7], t[8], t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
 
 def p_index_where(t):
     '''
@@ -1968,6 +2094,91 @@ def p_asignacion1(t):
     t[0] = Asignacion.Asignacion(t[1],t[3], "strGram", t.lexer.lineno, t.lexer.lexpos)
 
 
+def p_instruccion_select_f2(t):
+    '''
+    query2 : SELECT dist lcol FROM lcol
+    '''
+    strGram = "<query2> ::= SELECT <dist> <lcol> FROM <lcol>"
+    strGram2 = ""
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], None, None, None, strGram ,t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista2 (val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_select1_f2(t):
+    '''
+    query2 : SELECT dist lcol FROM lcol instructionWhere lrows
+    '''
+    #            dist  tipo  lcol  lcol  linners where lrows
+    strGram = "<query2> ::= SELECT <dist> <lcol> FROM <lcol> <instructionWhere> <lrows>"
+    strGram2 = ""
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], None, t[6], t[7], strGram ,t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista2(val, strGram2 ,t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_select2_f2(t):
+    '''
+    query2 : SELECT dist lcol FROM lcol instructionWhere 
+    '''
+    #            dist  tipo  lcol  lcol  linners where lrows
+    strGram = "<query2> ::= SELECT <dist> <lcol> FROM <lcol> <instructionWhere>"
+    strGram2 = ""
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], None, t[6], None, strGram,t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista2(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_select3_f2(t):
+    '''
+    query2 : SELECT dist lcol FROM lcol linners 
+    '''
+    #            dist  tipo  lcol  lcol  linners where lrows
+    strGram = "<query2> ::= SELECT <dist> <lcol> FROM <lcol> <linners>"
+    strGram2 = ""
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], t[6], None, None, strGram,t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista2(val, strGram2 , t.lexer.lineno, t.lexer.lexpos)
+
+
+def p_instruccion_select4_f2(t):
+    '''
+    query2 : SELECT dist lcol FROM lcol linners instructionWhere lrows
+    '''
+    #            dist  tipo  lcol  lcol  linners where lrows
+    strGram = "<query2> ::= SELECT <dist> <lcol> FROM <lcol> <linners> <instructionWhere> <lrows>"
+    strGram2 = ""
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], t[6], t[7], t[8], strGram, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista2(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_select5_f2(t):
+    '''
+    query2 : SELECT dist lcol FROM lcol linners instructionWhere 
+    '''
+    #            dist  tipo  lcol  lcol  linners where lrows
+    strGram = "<query2> ::= SELECT <dist> <lcol> FROM <lcol> <linners> <instructionWhere>"
+    strGram2 = ""
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], t[6], t[7], None, strGram, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista2(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
+
+def p_instruccion_select6_f2(t):
+    '''
+    query2 : SELECT dist lcol 
+    '''
+    #            dist  tipo  lcol  lcol  linners where lrows
+    strGram = "<query2> ::= SELECT <dist> <lcol>"
+    t[0] = SelectLista.SelectLista2(t[3], strGram, t.lexer.lineno, t.lexer.lexpos)
+
+
+def p_instruccion_select7_f2(t):
+    '''
+    query2   : SELECT dist lcol FROM lcol lrows
+    '''
+    #            dist  tipo  lcol  lcol  linners where lrows
+    strGram = "<query2> ::= SELECT <dist> <lcol> FROM <lcol> <lrows>"
+    strGram2 = ""
+    val = []
+    val.append(Select.Select(t[2], t[3], t[5], None, None, t[6], strGram, t.lexer.lineno, t.lexer.lexpos))
+    t[0] = SelectLista.SelectLista2(val, strGram2, t.lexer.lineno, t.lexer.lexpos)
 
 
 #FIN DE LA GRAMATICA
@@ -2004,7 +2215,6 @@ def find_column(input,token):
 
 parser = yacc.yacc()
 def ejecutar_analisis(texto):
-    dropAll()
     #LIMPIAR VARIABLES
     columna=0
     lista_lexicos.clear()

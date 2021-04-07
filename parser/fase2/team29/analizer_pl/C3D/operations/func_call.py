@@ -66,7 +66,13 @@ class FunctionCall(Expression):
             # Si es una funcion sql
             else:
                 if not self.id in sql_functions:
-                    print("Error: Funcion "+self.id+" no definida")
+                    print("Error: Funcion " + self.id + " no definida")
+                    grammar.PL_errors.append(
+                        "Error P0000: No se encontro la funcion " + self.id
+                    )
+                    grammar.semantic_errors.append(
+                        ["No se encontro la funcion " + self.id, self.row]
+                    )
                     return code.C3D("", self.temp, self.row, self.column)
                 parVal = ""
                 self.temp = "t" + self.temp
@@ -112,6 +118,22 @@ class FunctionCall(Expression):
                         grammar.optimizer_.addIgnoreString(
                             str("t" + self.temp + " = stack.pop()"), self.row, tab1
                         )
+                        fix = (
+                            tab
+                            + "if isinstance("
+                            + "t"
+                            + self.temp
+                            + ", str): "
+                            + "t"
+                            + self.temp
+                            + ' = "\'"+'
+                            + "t"
+                            + self.temp
+                            + '+"\'"'
+                            + "\n"
+                        )
+                        grammar.optimizer_.addIgnoreString(str(fix), self.row, False)
+                        c3d += fix
                         self.temp = '"+str(t' + self.temp + ')+"'
                         return code.C3D(c3d, self.temp, self.row, self.column)
                     else:
@@ -131,7 +153,13 @@ class FunctionCall(Expression):
             # Si es una funcion sql
             else:
                 if not self.id in sql_functions:
-                    print("Error: Funcion "+self.id+" no definida")
+                    print("Error: Funcion " + self.id + " no definida")
+                    grammar.PL_errors.append(
+                        "Error P0000: No se encontro la funcion " + self.id
+                    )
+                    grammar.semantic_errors.append(
+                        ["No se encontro la funcion " + self.id, self.row]
+                    )
                     return code.C3D("", "", self.row, self.column)
 
                 if self.id == "extract":

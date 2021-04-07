@@ -1,7 +1,9 @@
 from parse.ast_node import ASTNode
 from jsonMode import dropDatabase, dropTable
-from parse.symbol_table import SymbolTable, DatabaseSymbol, TableSymbol, FieldSymbol, TypeSymbol
+from parse.symbol_table import SymbolTable, DatabaseSymbol, TableSymbol, FieldSymbol, TypeSymbol, generate_tmp
 from parse.errors import Error, ErrorType
+from TAC.tac_enum import *
+from TAC.quadruple import *
 
 
 class DropDatabase(ASTNode):
@@ -18,6 +20,7 @@ class DropDatabase(ASTNode):
         result = 0
         if self.if_exists:
             dropDatabase(result_name)
+            table.drop_data_base(result_name)
             return "Database " + str(result_name) + " has been dropped"
         else:
             result = dropDatabase(result_name)
@@ -25,14 +28,17 @@ class DropDatabase(ASTNode):
                 table.drop_data_base(result_name)
                 return "Database " + str(result_name) + " has been dropped."
             elif result == 1:  # operation error
-                raise Error(0, 0, ErrorType.RUNTIME, '58000: system_error')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '58000: system_error')
             elif result == 2:  # database does not exist.
-                raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+                raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
 
     def generate(self, table, tree):
         super().generate(table, tree)
         result_name = self.name.generate(table, tree)
-        return f'DROP DATABASE{" IF EXISTS" if self.if_exists else ""} {result_name};'
+        quad = Quadruple(None, 'exec_sql', f'DROP DATABASE{" IF EXISTS" if self.if_exists else ""} {result_name};',
+                         generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad
 
 
 class DropTable(ASTNode):
@@ -49,13 +55,15 @@ class DropTable(ASTNode):
             table.drop_table(result_name)
             return "Table " + str(result_name) + " has been dropped."
         elif result == 1:  # operation error
-            raise Error(0, 0, ErrorType.RUNTIME, '58000: system_error')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '58000: system_error')
         elif result == 2:  # database does not exist.
-            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P04: database_does_not_exists')
         elif result == 3:  # table does not exist
-            raise Error(0, 0, ErrorType.RUNTIME, '42P01: table_does_not_exists')
+            raise Error(self.line, self.column, ErrorType.RUNTIME, '42P01: table_does_not_exists')
 
     def generate(self, table, tree):
         super().generate(table, tree)
         result_name = self.name.generate(table, tree)
-        return f'DROP TABLE {result_name};'
+        quad = Quadruple(None,'exec_sql', f'DROP TABLE {result_name};', generate_tmp(), OpTAC.CALL)
+        tree.append(quad)
+        return quad

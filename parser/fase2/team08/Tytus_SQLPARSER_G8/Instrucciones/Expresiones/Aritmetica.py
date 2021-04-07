@@ -320,7 +320,7 @@ class Aritmetica(Instruccion):
             resultadoDer = self.opDer.analizar(tabla, arbol)
             if isinstance(resultadoDer, Excepcion):
                 return resultadoDer
-            print(resultadoIzq)
+            #print(resultadoIzq)
             self.opIzq.tipo = resultadoIzq
             self.opDer.tipo = resultadoDer
             # Comprobamos el tipo de operador
@@ -583,7 +583,7 @@ class Aritmetica(Instruccion):
         # Operación unaria
         else:
             # Si existe algún error en el operador izquierdo, retorno el error.
-            resultadoIzq = self.opIzq.ejecutar(tabla, arbol)
+            resultadoIzq = self.opIzq.analizar(tabla, arbol)
             if isinstance(resultadoIzq, Excepcion):
                 return resultadoIzq
             self.opIzq.tipo = resultadoIzq
@@ -656,7 +656,7 @@ class Aritmetica(Instruccion):
     def concatenar(self, tabla, arbol):
         resultadoIzq="Error_Aritmetico"
         resultadoDer="Error_Aritmetico"
-        print("ARITMETICO",self.opDer)
+        #print("ARITMETICO",self.opDer)
         if(self.opDer== None) and self.operador == "-":
             resultadoIzq = self.opIzq.traducir(tabla, arbol)
             if isinstance(resultadoIzq, Nodo3D):

@@ -43,6 +43,12 @@ export class NavbarComponent implements OnInit {
     );
   }
 
+
+  
+
+
+ 
+
   public saveAs() {
     Swal.fire({
       title: 'Ingrese el nombre:',
@@ -76,4 +82,5 @@ export class NavbarComponent implements OnInit {
     link.href = window.URL.createObjectURL(blob);
     link.click();
   }
+
 }

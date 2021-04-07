@@ -7,7 +7,7 @@ class OptimizedInstruction:
         self.row = row
         self.optimizable = None
 
-    def optimize(self) -> None:
+    def optimize(self,generador) -> None:
         pass
 
     def addToCode(self, generador) -> None:
@@ -16,7 +16,7 @@ class OptimizedInstruction:
 
     def toReport(self,generador) -> str:
         if not self.optimizable in (None,RULES.OMISION):
-            generador.toReport(f'<tr><td>{str(self)}</td><td>{self.optimizable.value}</td><td>{self.row}</td></tr>')
+            generador.toReport(f'\t\t\t\t<tr><td scope="row">{str(self)}</td><td>{self.optimizable.value}</td><td>{self.row}</td></tr>')
 
 
 # Reglas que se usan para optimizar 

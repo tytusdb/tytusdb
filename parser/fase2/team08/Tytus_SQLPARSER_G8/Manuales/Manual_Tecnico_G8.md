@@ -41,6 +41,8 @@
 - [Análisis Léxico](#Análisis_Léxico)
 - [Análisis Sintáctico](#Análisis_Sintáctico)
 - [Archivo Entrada](#Archivo_Entrada)
+- [Código Tres Direcciones](#Código_Tres_Direcciones)
+- [Optimización por Mirilla](#Optimización_por_Mirilla)
 
 <br>
 
@@ -67,6 +69,9 @@ características mínimas:
 * Procesador Intel(R) Core(TM) i5-7200U CPU @ 2.50GHz, 2712 Mhz, 2 procesadores principales, 4 procesadores lógicos
 * Python Versión 3.9  
 * Sistema Operativo: Windows 7 o superior.
+* Libreria Pandas
+* Libreria Numpy
+* Libreria Go_to
 </div>
 <br>
 
@@ -560,3 +565,482 @@ Query Tool: es un sub componente que consiste en una ventana gráfica similar al
 </code>
 </div>
 
+## Código_Tres_Direcciones
+<div style="text-align: justify">
+Se Analiza el Archivos de entrada que cuenta con instrucciones PLSQL y SQL, para su posterior traducción a un lenguaje equivalente en C3D.
+<h3>No Optimizado:</h3>
+<code>
+
+        from goto import with_goto
+        import math
+        from sintactico import *
+        import reportes.reportesimbolos as rs
+        from Instrucciones.TablaSimbolos.Tabla import Tabla
+        from Instrucciones.TablaSimbolos.Arbol import Arbol
+        from storageManager.jsonMode import *
+        import sys
+        global P
+        global Pila
+        P = 0
+        Pila = [None] * 1000
+        tablaGlobal = Tabla(None)
+        global sql
+        global inst
+        arbol = Arbol(None)
+        def funcionintermedia():
+                global P
+                global Pila
+                t0 = P+0
+                t1 = t0+1
+                t2 = Pila[t1]
+                print("\n"+t2)
+                sql = Pila[t1]
+                instrucciones = ejecutar_analisis(sql)
+                for instruccion in instrucciones:
+                        t3 = instruccion.ejecutar(tablaGlobal,arbol)
+                t4 = P+0
+                t5 = t0+2
+                Pila[t5] = t3
+                for msj in arbol.consola:
+                        print(f"{msj}")
+                arbol.consola = []
+        def main():
+                dropAll()
+                global P
+                global Pila
+                #Asignar cadena
+                t0 = "create database DBFase2 mode = 1;"
+                #Entrar al ambito
+                t1 = P+2
+                #parametro 1
+                t2 = t1+1
+                #Asignacion de parametros
+                Pila[t2] = t0
+                #Llamada de funcion
+                P = P+2
+                funcionintermedia()
+                #obtener resultado
+                t3 = P+2
+                t4 = Pila[t3]
+                #Salida de funcion
+                P = P-2
+        if __name__ == "__main__":
+                main()
+                rs.crear_tabla(arbol)
+
+</code>
+</div>
+
+## Optimización_por_Mirilla
+<div style="text-align: justify">
+El método de mirilla consiste en utilizar una ventana que se mueve a través del código de 3
+direcciones, la cual se le conoce como mirilla, en donde se toman las instrucciones dentro de la
+mirilla y se sustituyen en una secuencia equivalente que sea de menor longitud y lo más rápido
+posible que el bloque original. El proceso de mirilla permite que por cada optimización realizada
+con este método se puedan obtener mejores beneficios
+<h3>REGLAS:</h3>
+<br>
+* Regla 1
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        t2 = b;<br>
+        b = t2;<br>
+</code>
+    </td>
+    <td>
+<code>
+        t2 = b
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 2
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        goto L1;<br>
+        <"instrucciones"><br>
+        L1:
+</code>
+    </td>
+    <td>
+<code>
+        t2 = b
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 3
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        if a == 10 goto L1;<br>
+        goto L2;<br>
+        L1:<br>
+        <"instrucciones"><br>
+        L2:
+</code>
+    </td>
+    <td>
+<code>
+        if a != 10 goto L2;<br>
+        <"instrucciones"><br>
+        L2:
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 4
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        if 1 == 1 goto L1;<br>
+        goto L2;
+</code>
+    </td>
+    <td>
+<code>
+        goto L1;
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 5
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        if 1 == 0 goto L1;<br>
+        goto L2;
+</code>
+    </td>
+    <td>
+<code>
+        goto L2;
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 6
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        goto L1;<br>
+        <"instrucciones"><br>
+        L1:<br>
+        goto L2;<br>
+</code>
+    </td>
+    <td>
+<code>
+        goto L2;<br>
+        <"instrucciones"><br>
+        L1:<br>
+        goto L2;<br>
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 7
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        if t9 >= t10 goto L1;<br>
+        <"instrucciones"><br>
+        L1:<br>
+        goto L2;
+</code>
+    </td>
+    <td>
+<code>
+        if t9 >= t10 goto L2;<br>
+        <"instrucciones"><br>
+        L1:<br>
+        goto L2;
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 8
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = x + 0; 
+</code>
+    </td>
+    <td>
+<code>
+        #Se elimina la<br>
+        instrucción
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 9
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = x - 0; 
+</code>
+    </td>
+    <td>
+<code>
+        #Se elimina la<br>
+        instrucción
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 10
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = x * 1; 
+</code>
+    </td>
+    <td>
+<code>
+        #Se elimina la<br>
+        instrucción
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 11
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = x / 1; 
+</code>
+    </td>
+    <td>
+<code>
+        #Se elimina la<br>
+        instrucción
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 12
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = y + 0; 
+</code>
+    </td>
+    <td>
+<code>
+        x = y;
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 13
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = y - 0; 
+</code>
+    </td>
+    <td>
+<code>
+        x = y;
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 14
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = y * 1; 
+</code>
+    </td>
+    <td>
+<code>
+        x = y;
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 15
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = y / 1; 
+</code>
+    </td>
+    <td>
+<code>
+        x = y;
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 16
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = y * 2; 
+</code>
+    </td>
+    <td>
+<code>
+        x = y + y;
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 17
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = y * 0; 
+</code>
+    </td>
+    <td>
+<code>
+        x = 0;
+</code>
+    </td>
+  </tr>
+</table>
+<br>
+
+* Regla 18
+<table class="default">
+  <tr>
+    <th>Ejemplo</th>
+    <th>Optimización</th>
+  </tr>
+  <tr>
+    <td>
+<code>
+        x = 0 / y; 
+</code>
+    </td>
+    <td>
+<code>
+        x = 0;
+</code>
+    </td>
+  </tr>
+</table>
+</div>

@@ -1,6 +1,7 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato
 from Instrucciones.TablaSimbolos.Nodo3D import Nodo3D
+from Instrucciones.Sql_select.SelectLista import SelectLista2
 from Instrucciones.Excepcion import Excepcion
 
 class Asignacion(Instruccion):
@@ -43,9 +44,14 @@ class Asignacion(Instruccion):
         temporal2 = tabla.getTemporal()
         arbol.addc3d(f"{temporal1} = P + {variable.posicion}")
         arbol.addComen("Se obtiene el valor")
-        exp = self.expresion.traducir(tabla, arbol)
         
-        if variable.tipo == Tipo_Dato.BOOLEAN and exp.temporalAnterior != "1" and exp.temporalAnterior != "0":
+        if isinstance(self.expresion, SelectLista2):
+            arbol.addc3d("arbol.expre_query = True")
+            exp = self.expresion.c3d(tabla, arbol)
+        else:
+            exp = self.expresion.traducir(tabla, arbol)
+        
+        if variable.tipo.tipo == Tipo_Dato.BOOLEAN and exp.temporalAnterior != "1" and exp.temporalAnterior != "0":
             retorno.imprimirEtiquetDestino(arbol, exp.etiquetaTrue)
             arbol.addc3d(f"{temporal2} = 1")
             etiqueta1 = tabla.getEtiqueta()
@@ -56,11 +62,15 @@ class Asignacion(Instruccion):
         else:
             arbol.addc3d(f"{temporal2} = {exp.temporalAnterior}")
         arbol.addc3d(f"Pila[{temporal1}] = {temporal2}")
+        if isinstance(self.expresion, SelectLista2):
+            arbol.addc3d("arbol.expre_query = False")
         arbol.addComen("Fin Asignación")
 
 
 
     def comprobarTipo(self, tipoColumna, tipoValor, val):
+        if tipoValor.tipo == Tipo_Dato.QUERY:
+            return True
         if (tipoColumna.tipo == Tipo_Dato.MONEY) and (tipoValor.tipo == Tipo_Dato.CHAR):
             if ',' in val:
                 val = val.replace(',','')

@@ -12,6 +12,7 @@ class OrderBy(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+        val=""
         for x in range(0,len(self.valor)):
             col = self.valor[x].id
             val = arbol.devolverOrdenDeColumna(self.tabla,col)
@@ -19,9 +20,9 @@ class OrderBy(Instruccion):
         print("ORDER BY")
         arbol.setOrder(self.tipo)
         return val
-        
-'''
-instruccion = OrderBy("hola mundo",None, 1,2)
 
-instruccion.ejecutar(None,None)
-'''
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+
+    def traducir(self, tabla, arbol):
+        return super().traducir(tabla, arbol)

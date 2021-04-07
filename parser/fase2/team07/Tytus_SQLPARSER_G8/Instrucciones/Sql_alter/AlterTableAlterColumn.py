@@ -4,8 +4,8 @@ from Instrucciones.Excepcion import Excepcion
 
 
 class AlterTableAlterColumn(Instruccion):
-    def __init__(self, tabla, col, strGram, linea, columna):
-        Instruccion.__init__(self,None,linea,columna,strGram)
+    def __init__(self, tabla, col, strGram, linea, columna, strSent):
+        Instruccion.__init__(self,None,linea,columna,strGram, strSent)
         self.tabla = tabla
         self.col = col
 
@@ -45,4 +45,9 @@ class AlterTableAlterColumn(Instruccion):
             error = Excepcion("100","Semantico","No ha seleccionado ninguna Base de Datos.",self.linea,self.columna)
             arbol.excepciones.append(error)
             arbol.consola.append(error.toString())
-        
+
+    def traducir(self,tabla,arbol,cadenaTraducida):
+        temporal = arbol.generaTemporal()
+        codigo = "\t" + temporal + " = " + "\"" + self.strSent + "\"\n"
+        codigo += "\tFuncionesPara3D.ejecutarsentecia(" + temporal + ")\n\n"
+        return codigo    

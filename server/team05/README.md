@@ -1,6 +1,8 @@
 # Flask api
 Backend para aplicación tytus
 
+Para probar una versión más "completa" ir a [fase2](fase2/team05)
+
 ## Probar código:
 Tener instalado:
 * Python 3.8.5

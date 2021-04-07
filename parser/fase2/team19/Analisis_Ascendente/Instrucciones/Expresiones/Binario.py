@@ -27,13 +27,14 @@ class Binario(Instruccion):
         self.fila = fila
         self.columna = columna
 
-    def Resolver(bina,ts,Consola,exceptions):
+    def getC3D(self):
+        code = ''
+        if self.valor2 is not None:
+            code += self.valor2 + '(' + self.valor1.valor
+        return code
 
+    def Resolver(bina,ts,Consola,exceptions):
         if isinstance(bina,Binario):
-            print("estamos aqui")
-            print(bina);
-            print(bina.valor1)
-            print(bina.valor2)
             if bina.valor2== 'LENGTH':
                 return len(str(bina.valor1.valor))
             elif bina.valor2 == 'ENCODE':

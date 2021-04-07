@@ -24,7 +24,7 @@ class Acos(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ACOS({self.exp.generate(table, tree)})'
 
 
 class Acosd(ASTNode):
@@ -48,7 +48,7 @@ class Acosd(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ACOSD({self.exp.generate(table, tree)})'
 
 
 class Asin(ASTNode):
@@ -72,7 +72,7 @@ class Asin(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ASIN({self.exp.generate(table, tree)})'
 
 
 class Asind(ASTNode):
@@ -96,7 +96,7 @@ class Asind(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ASIND({self.exp.generate(table, tree)})'
 
 
 class Atan(ASTNode):
@@ -120,7 +120,7 @@ class Atan(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ATAN({self.exp.generate(table, tree)})'
 
 
 class Atand(ASTNode):
@@ -144,7 +144,7 @@ class Atand(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ATAND({self.exp.generate(table, tree)})'
 
 
 class Atan2(ASTNode):
@@ -169,7 +169,7 @@ class Atan2(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ATAN2({self.exp1.generate(table, tree)}, {self.exp2.generate(table, tree)})'
 
 
 class Atan2d(ASTNode):
@@ -194,7 +194,7 @@ class Atan2d(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ATAN2D({self.exp1.generate(table, tree)}, {self.exp2.generate(table, tree)})'
 
 
 class Cos(ASTNode):
@@ -219,7 +219,7 @@ class Cos(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'COS({self.exp.generate(table, tree)})'
 
 
 class Cosd(ASTNode):
@@ -243,7 +243,7 @@ class Cosd(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'COSD({self.exp.generate(table, tree)})'
 
 
 class Cot(ASTNode):
@@ -267,7 +267,7 @@ class Cot(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'COT({self.exp.generate(table, tree)})'
 
 
 class Cotd(ASTNode):
@@ -291,7 +291,7 @@ class Cotd(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'COTD({self.exp.generate(table, tree)})'
 
 
 class Sin(ASTNode):
@@ -316,7 +316,7 @@ class Sin(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'SIN({self.exp.generate(table, tree)})'
 
 
 class Sind(ASTNode):
@@ -340,7 +340,7 @@ class Sind(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'SIND({self.exp.generate(table, tree)})'
 
 
 class Tan(ASTNode):
@@ -365,7 +365,7 @@ class Tan(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'TAN({self.exp.generate(table, tree)})'
 
 
 class Tand(ASTNode):
@@ -389,7 +389,7 @@ class Tand(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'TAND({self.exp.generate(table, tree)})'
 
 
 class Sinh(ASTNode):
@@ -413,7 +413,7 @@ class Sinh(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'SINH({self.exp.generate(table, tree)})'
 
 
 class Cosh(ASTNode):
@@ -437,7 +437,7 @@ class Cosh(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'COSH({self.exp.generate(table, tree)})'
 
 
 class Tanh(ASTNode):
@@ -461,7 +461,7 @@ class Tanh(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'TANH({self.exp.generate(table, tree)})'
 
 
 class Asinh(ASTNode):
@@ -485,7 +485,7 @@ class Asinh(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ASINH({self.exp.generate(table, tree)})'
 
 
 class Acosh(ASTNode):
@@ -509,7 +509,7 @@ class Acosh(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ACOSH({self.exp.generate(table, tree)})'
 
 
 class Atanh(ASTNode):
@@ -533,4 +533,4 @@ class Atanh(ASTNode):
 
     def generate(self, table, tree):
         super().generate(table, tree)
-        return ''
+        return f'ATANH({self.exp.generate(table, tree)})'

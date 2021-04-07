@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>TytusDB</title>
+    {{ codemirror.include_codemirror() }}
     <style>
         /*
             DEMO STYLE
@@ -440,7 +441,17 @@
 
                         </div> -->
                         <div id="contenido">
-
+                            <nav>
+                                <div class="nav nav-tabs" id="my-tab" role="tablist">
+                                <a class="nav-item nav-link active" id="nav-txt1-tab" data-toggle="tab" href="#nav-txt1" role="tab" aria-controls="nav-txt1" aria-selected="true">Pestaña1</a>
+                                </div>
+                                <div class="tab-content" id="nav-tabContent">
+                                  <div class="tab-pane fade show active" id="nav-txt1" role="tabpanel" aria-labelledby="nav-home-tab">
+                                  {{form.entrada2(class_="form-control")}} 
+                                 <!-- <textarea placeholder="Escribir Query Aqui" name="content" id="pestanaContenidoTextArea1" value="{{ request.form.content }}" style="height: 80%"></textarea> -->
+                                  </div>
+                                </div>
+                              </nav>
                         </div>
                         <br>
                         <div>
@@ -456,10 +467,12 @@
         </div>
     </div>
 
-    <script src="../static/js/actions.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/codemirror.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/mode/sql/sql.min.js"></script>
+   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.1/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.1/theme/oceanic-next.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.1/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.59.1/mode/sql/sql.min.js"></script>
+    <script src=""></script>
     <script src="../static/js/codemirror.js"></script>
 </body>
 

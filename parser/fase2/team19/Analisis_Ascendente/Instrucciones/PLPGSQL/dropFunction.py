@@ -1,4 +1,5 @@
 from Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+import C3D.GeneradorTemporales as GeneradorTemporales
 
 class DropFunction(Instruccion):
     def __init__(self,id):
@@ -17,3 +18,13 @@ class DropFunction(Instruccion):
                 consola.append(f" No existe la función {DropFunction.id} para eliminar")
         except:
             consola.append("XX000 : internal_error")
+
+    def getC3D(self, lista_optimizaciones_C3D):
+        temporal = GeneradorTemporales.nuevo_temporal()
+        c3d = '''
+    # ----------DROP FUNCTION-----------
+    top_stack = top_stack + 1
+    %s = "drop function %s ;"  
+    stack[top_stack] = %s
+''' % (temporal, self.id, temporal)
+        return c3d

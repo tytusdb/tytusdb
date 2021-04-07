@@ -14,6 +14,18 @@ class Limit(Instruccion):
             res = self.listaExpre
         #print(self.listaExpre + " linea: " + str(self.linea) + " columna: " + str(self.columna))
         return res
+
+    def analizar(self, tabla, arbol):
+        return super().analizar(tabla, arbol)
+
+    def traducir(self, tabla, arbol):
+        res = "limit "
+        if isinstance(self.listaExpre, Instruccion):
+            res += str(self.listaExpre.ejecutar(tabla,arbol))
+        else:
+            res += str(self.listaExpre)
+        return res
+        
 '''
 instruccion = Limit("hola mundo",None, 1,2)
 

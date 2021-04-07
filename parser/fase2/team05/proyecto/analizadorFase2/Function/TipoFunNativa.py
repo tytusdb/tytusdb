@@ -42,3 +42,5 @@ class TipoFunNativa(Enum):
     div = 74
     ln = 75
     log = 76
+    mod = 77
+    pow = 78
