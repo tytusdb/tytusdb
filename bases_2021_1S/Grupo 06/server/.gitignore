@@ -1,0 +1,11 @@
+.vscode
+__pycache__/*
+test-output
+data/*
+data/*.bin
+build/*
+dist/*
+*.spec
+ReporteGramatica.bnf
+Databases.json
+*.out
