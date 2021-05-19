@@ -1,0 +1,5 @@
+digraph grafica{
+rankdir=LR;
+dbs[shape=record label="{bd1
+|bd2
+}"]; }

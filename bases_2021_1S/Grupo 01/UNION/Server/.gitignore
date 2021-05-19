@@ -1,0 +1,8 @@
+.vscode
+test-output
+data/json
+ReporteGramatica.bnf
+Databases.json
+*.out
+**/__pycache__/**
+.idea

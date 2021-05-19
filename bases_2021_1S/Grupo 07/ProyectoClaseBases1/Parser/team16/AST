@@ -1,0 +1,339 @@
+digraph AST {
+	edge [arrowhead=none]
+	node [color="#31CEF0" shape=box]
+	Node0 [label="\"AST\""]
+	Node1 [label="CREATE DATABASE"]
+	Node0 -> Node1
+	Node2 [label="Id: DBFase2"]
+	Node1 -> Node2
+	Node3 [label="CREATE TABLE"]
+	Node0 -> Node3
+	Node4 [label="Id: tbProducto"]
+	Node3 -> Node4
+	Node5 [label=CAMPO]
+	Node3 -> Node5
+	Node6 [label="Id: idproducto"]
+	Node5 -> Node6
+	Node7 [label="Tipo: integer"]
+	Node5 -> Node7
+	Node8 [label=VALIDACION]
+	Node5 -> Node8
+	Node9 [label="not null"]
+	Node8 -> Node9
+	Node10 [label=VALIDACION]
+	Node5 -> Node10
+	Node11 [label="primary key"]
+	Node10 -> Node11
+	Node12 [label=CAMPO]
+	Node3 -> Node12
+	Node13 [label="Id: producto"]
+	Node12 -> Node13
+	Node14 [label="Tipo: varchar"]
+	Node12 -> Node14
+	Node15 [label=EXPRESION]
+	Node14 -> Node15
+	16 [label=ExpresionValor]
+	16 -> 17
+	17 [label=150]
+	Node15 -> 16
+	Node18 [label=VALIDACION]
+	Node12 -> Node18
+	Node19 [label="not null"]
+	Node18 -> Node19
+	Node20 [label=CAMPO]
+	Node3 -> Node20
+	Node21 [label="Id: fechacreacion"]
+	Node20 -> Node21
+	Node22 [label="Tipo: date"]
+	Node20 -> Node22
+	Node23 [label=VALIDACION]
+	Node20 -> Node23
+	Node24 [label="not null"]
+	Node23 -> Node24
+	Node25 [label=CAMPO]
+	Node3 -> Node25
+	Node26 [label="Id: estado"]
+	Node25 -> Node26
+	Node27 [label="Tipo: integer"]
+	Node25 -> Node27
+	Node28 [label=INSERT]
+	Node0 -> Node28
+	Node29 [label="ID TABLA"]
+	Node28 -> Node29
+	Node30 [label=tbProducto]
+	Node29 -> Node30
+	Node31 [label="VALORES TABLA"]
+	Node28 -> Node31
+	Node32 [label="VALOR NUEVO"]
+	Node31 -> Node32
+	33 [label=ExpresionValor]
+	33 -> 34
+	34 [label=1]
+	Node32 -> 33
+	Node36 [label="VALOR NUEVO"]
+	Node31 -> Node36
+	37 [label=ExpresionValor]
+	37 -> 38
+	38 [label="Laptop Lenovo"]
+	Node36 -> 37
+	Node40 [label="VALOR NUEVO"]
+	Node31 -> Node40
+	41 [label="ExpresionFUNCION NATIVA"]
+	42 [label=NOW]
+	41 -> 42
+	Node40 -> 41
+	Node44 [label="VALOR NUEVO"]
+	Node31 -> Node44
+	45 [label=ExpresionValor]
+	45 -> 46
+	46 [label=1]
+	Node44 -> 45
+	Node48 [label=INSERT]
+	Node0 -> Node48
+	Node49 [label="ID TABLA"]
+	Node48 -> Node49
+	Node50 [label=tbProducto]
+	Node49 -> Node50
+	Node51 [label="VALORES TABLA"]
+	Node48 -> Node51
+	Node52 [label="VALOR NUEVO"]
+	Node51 -> Node52
+	53 [label=ExpresionValor]
+	53 -> 54
+	54 [label=2]
+	Node52 -> 53
+	Node56 [label="VALOR NUEVO"]
+	Node51 -> Node56
+	57 [label=ExpresionValor]
+	57 -> 58
+	58 [label="Bateria para Laptop Lenovo T420"]
+	Node56 -> 57
+	Node60 [label="VALOR NUEVO"]
+	Node51 -> Node60
+	61 [label="ExpresionFUNCION NATIVA"]
+	62 [label=NOW]
+	61 -> 62
+	Node60 -> 61
+	Node64 [label="VALOR NUEVO"]
+	Node51 -> Node64
+	65 [label=ExpresionValor]
+	65 -> 66
+	66 [label=1]
+	Node64 -> 65
+	Node68 [label=INSERT]
+	Node0 -> Node68
+	Node69 [label="ID TABLA"]
+	Node68 -> Node69
+	Node70 [label=tbProducto]
+	Node69 -> Node70
+	Node71 [label="VALORES TABLA"]
+	Node68 -> Node71
+	Node72 [label="VALOR NUEVO"]
+	Node71 -> Node72
+	73 [label=ExpresionValor]
+	73 -> 74
+	74 [label=3]
+	Node72 -> 73
+	Node76 [label="VALOR NUEVO"]
+	Node71 -> Node76
+	77 [label=ExpresionValor]
+	77 -> 78
+	78 [label="Teclado Inalambrico"]
+	Node76 -> 77
+	Node80 [label="VALOR NUEVO"]
+	Node71 -> Node80
+	81 [label="ExpresionFUNCION NATIVA"]
+	82 [label=NOW]
+	81 -> 82
+	Node80 -> 81
+	Node84 [label="VALOR NUEVO"]
+	Node71 -> Node84
+	85 [label=ExpresionValor]
+	85 -> 86
+	86 [label=1]
+	Node84 -> 85
+	Node88 [label=INSERT]
+	Node0 -> Node88
+	Node89 [label="ID TABLA"]
+	Node88 -> Node89
+	Node90 [label=tbProducto]
+	Node89 -> Node90
+	Node91 [label="VALORES TABLA"]
+	Node88 -> Node91
+	Node92 [label="VALOR NUEVO"]
+	Node91 -> Node92
+	93 [label=ExpresionValor]
+	93 -> 94
+	94 [label=4]
+	Node92 -> 93
+	Node96 [label="VALOR NUEVO"]
+	Node91 -> Node96
+	97 [label=ExpresionValor]
+	97 -> 98
+	98 [label="Mouse Inalambrico"]
+	Node96 -> 97
+	Node100 [label="VALOR NUEVO"]
+	Node91 -> Node100
+	101 [label="ExpresionFUNCION NATIVA"]
+	102 [label=NOW]
+	101 -> 102
+	Node100 -> 101
+	Node104 [label="VALOR NUEVO"]
+	Node91 -> Node104
+	105 [label=ExpresionValor]
+	105 -> 106
+	106 [label=1]
+	Node104 -> 105
+	Node108 [label=INSERT]
+	Node0 -> Node108
+	Node109 [label="ID TABLA"]
+	Node108 -> Node109
+	Node110 [label=tbProducto]
+	Node109 -> Node110
+	Node111 [label="VALORES TABLA"]
+	Node108 -> Node111
+	Node112 [label="VALOR NUEVO"]
+	Node111 -> Node112
+	113 [label=ExpresionValor]
+	113 -> 114
+	114 [label=5]
+	Node112 -> 113
+	Node116 [label="VALOR NUEVO"]
+	Node111 -> Node116
+	117 [label=ExpresionValor]
+	117 -> 118
+	118 [label="WIFI USB"]
+	Node116 -> 117
+	Node120 [label="VALOR NUEVO"]
+	Node111 -> Node120
+	121 [label="ExpresionFUNCION NATIVA"]
+	122 [label=NOW]
+	121 -> 122
+	Node120 -> 121
+	Node124 [label="VALOR NUEVO"]
+	Node111 -> Node124
+	125 [label=ExpresionValor]
+	125 -> 126
+	126 [label=1]
+	Node124 -> 125
+	Node128 [label=INSERT]
+	Node0 -> Node128
+	Node129 [label="ID TABLA"]
+	Node128 -> Node129
+	Node130 [label=tbProducto]
+	Node129 -> Node130
+	Node131 [label="VALORES TABLA"]
+	Node128 -> Node131
+	Node132 [label="VALOR NUEVO"]
+	Node131 -> Node132
+	133 [label=ExpresionValor]
+	133 -> 134
+	134 [label=6]
+	Node132 -> 133
+	Node136 [label="VALOR NUEVO"]
+	Node131 -> Node136
+	137 [label=ExpresionValor]
+	137 -> 138
+	138 [label="Laptop HP"]
+	Node136 -> 137
+	Node140 [label="VALOR NUEVO"]
+	Node131 -> Node140
+	141 [label="ExpresionFUNCION NATIVA"]
+	142 [label=NOW]
+	141 -> 142
+	Node140 -> 141
+	Node144 [label="VALOR NUEVO"]
+	Node131 -> Node144
+	145 [label=ExpresionValor]
+	145 -> 146
+	146 [label=1]
+	Node144 -> 145
+	Node148 [label=INSERT]
+	Node0 -> Node148
+	Node149 [label="ID TABLA"]
+	Node148 -> Node149
+	Node150 [label=tbProducto]
+	Node149 -> Node150
+	Node151 [label="VALORES TABLA"]
+	Node148 -> Node151
+	Node152 [label="VALOR NUEVO"]
+	Node151 -> Node152
+	153 [label=ExpresionValor]
+	153 -> 154
+	154 [label=7]
+	Node152 -> 153
+	Node156 [label="VALOR NUEVO"]
+	Node151 -> Node156
+	157 [label=ExpresionValor]
+	157 -> 158
+	158 [label="Teclado Flexible USB"]
+	Node156 -> 157
+	Node160 [label="VALOR NUEVO"]
+	Node151 -> Node160
+	161 [label="ExpresionFUNCION NATIVA"]
+	162 [label=NOW]
+	161 -> 162
+	Node160 -> 161
+	Node164 [label="VALOR NUEVO"]
+	Node151 -> Node164
+	165 [label=ExpresionValor]
+	165 -> 166
+	166 [label=1]
+	Node164 -> 165
+	Node168 [label=INSERT]
+	Node0 -> Node168
+	Node169 [label="ID TABLA"]
+	Node168 -> Node169
+	Node170 [label=tbProducto]
+	Node169 -> Node170
+	Node171 [label="VALORES TABLA"]
+	Node168 -> Node171
+	Node172 [label="VALOR NUEVO"]
+	Node171 -> Node172
+	173 [label=ExpresionValor]
+	173 -> 174
+	174 [label=8]
+	Node172 -> 173
+	Node176 [label="VALOR NUEVO"]
+	Node171 -> Node176
+	177 [label=ExpresionValor]
+	177 -> 178
+	178 [label="Laptop Samsung"]
+	Node176 -> 177
+	Node180 [label="VALOR NUEVO"]
+	Node171 -> Node180
+	181 [label=ExpresionValor]
+	181 -> 182
+	182 [label="2021-01-02"]
+	Node180 -> 181
+	Node184 [label="VALOR NUEVO"]
+	Node171 -> Node184
+	185 [label=ExpresionValor]
+	185 -> 186
+	186 [label=1]
+	Node184 -> 185
+	Node188 [label=INSTRUCCION_SELECT]
+	Node0 -> Node188
+	Node189 [label=SELECT]
+	Node188 -> Node189
+	Node190 [label=LISTA_CAMPOS]
+	Node188 -> Node190
+	Node191 [label=ACCESO_CAMPO]
+	Node190 -> Node191
+	Node192 [label="*"]
+	Node191 -> Node192
+	Node193 [label=FROM]
+	Node188 -> Node193
+	Node194 [label=LISTA_TABLAS]
+	Node188 -> Node194
+	Node195 [label=Nombre_Tabla]
+	Node194 -> Node195
+	Node196 [label=tbProducto]
+	Node195 -> Node196
+	Node197 [label=Uniones]
+	Node188 -> Node197
+	Node198 [label=Final_Instruccion]
+	Node197 -> Node198
+	Node199 [label=""]
+	Node198 -> Node199
+}

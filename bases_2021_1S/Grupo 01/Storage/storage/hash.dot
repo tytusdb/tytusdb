@@ -1,0 +1,45 @@
+digraph grafica{
+graph [pad="0.5"];
+nodesep=.05;
+rankdir=LR;
+node [shape=record,width=.1,height=.1];
+vector [label = "<f0> 0|
+<f1> 1|
+<f2> 2|
+<f3> 3|
+<f4> 4|
+<f5> 5|
+<f6> 6|
+<f7> 7|
+<f8> 8|
+<f9> 9|
+<f10> 10|
+<f11> 11|
+<f12> 12",height=6.5, width=.8];
+node0[label = "{<n> 0| <p> }"];
+vector:f0 -> node0:n;
+node1[label = "{<n> 1| <p> }"];
+vector:f1 -> node1:n;
+nodeNone2 [shape=plaintext, label="None", width=0.5]
+vector:f2 -> nodeNone2
+nodeNone3 [shape=plaintext, label="None", width=0.5]
+vector:f3 -> nodeNone3
+nodeNone4 [shape=plaintext, label="None", width=0.5]
+vector:f4 -> nodeNone4
+nodeNone5 [shape=plaintext, label="None", width=0.5]
+vector:f5 -> nodeNone5
+nodeNone6 [shape=plaintext, label="None", width=0.5]
+vector:f6 -> nodeNone6
+nodeNone7 [shape=plaintext, label="None", width=0.5]
+vector:f7 -> nodeNone7
+nodeNone8 [shape=plaintext, label="None", width=0.5]
+vector:f8 -> nodeNone8
+nodeNone9 [shape=plaintext, label="None", width=0.5]
+vector:f9 -> nodeNone9
+nodeNone10 [shape=plaintext, label="None", width=0.5]
+vector:f10 -> nodeNone10
+nodeNone11 [shape=plaintext, label="None", width=0.5]
+vector:f11 -> nodeNone11
+nodeNone12 [shape=plaintext, label="None", width=0.5]
+vector:f12 -> nodeNone12
+ }

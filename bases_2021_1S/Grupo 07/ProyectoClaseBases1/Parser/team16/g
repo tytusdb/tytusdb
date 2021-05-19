@@ -1,0 +1,80 @@
+graph g {
+	node [height=.1 shape=plaintext]
+	table [label=<<TABLE border="1" cellpadding="0" cellspacing="0"   >
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>DATOS</B> </TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">BASE DATOS</TD>
+                                <TD bgcolor="#BEF781">TABLA</TD>
+                                <TD bgcolor="#BEF781">COLUMNA</TD>
+                                <TD bgcolor="#BEF781">VALOR </TD>
+                                <TD bgcolor="#BEF781">FILA</TD>
+                            </TR>
+                            <TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>1</TD><TD>229</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Recepcionista</TD><TD>229</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>4000</TD><TD>229</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>2</TD><TD>272</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>AsistenteContable</TD><TD>272</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>4500</TD><TD>272</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>FALSE</TD><TD>272</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>3</TD><TD>128</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Contador General</TD><TD>128</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>9000</TD><TD>128</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>FALSE</TD><TD>128</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>4</TD><TD>358</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Asistente de RRHH</TD><TD>358</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>4000</TD><TD>358</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>FALSE</TD><TD>358</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>5</TD><TD>129</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Recepcionista Gerencia</TD><TD>129</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>5000</TD><TD>129</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>FALSE</TD><TD>129</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>6</TD><TD>196</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Vendedor 1</TD><TD>196</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>2500</TD><TD>196</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>196</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>7</TD><TD>105</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Vendedor 2</TD><TD>105</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>2750</TD><TD>105</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>105</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>8</TD><TD>167</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Vendedor 3</TD><TD>167</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>3000</TD><TD>167</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>167</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>9</TD><TD>456</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Jefe de Ventas</TD><TD>456</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>4000</TD><TD>456</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>456</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>idpuesto</TD><TD>10</TD><TD>71</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>puesto</TD><TD>Jefe de Ventas Regional</TD><TD>71</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>salariobase</TD><TD>2500</TD><TD>71</TD></TR><TR><TD>test2</TD><TD>tbpuesto</TD><TD>None</TD><TD>TRUE</TD><TD>71</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>1</TD><TD>137</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>1</TD><TD>137</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>ADMINISTRACION</TD><TD>137</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>2</TD><TD>416</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>50</TD><TD>416</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>CONTABILIDAD</TD><TD>416</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>3</TD><TD>320</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>3</TD><TD>320</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>CONTABILIDAD</TD><TD>320</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>4</TD><TD>56</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>6</TD><TD>56</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>VENTAS</TD><TD>56</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>5</TD><TD>362</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>6</TD><TD>362</TD></TR><TR><TD>test2</TD><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>VENTAS</TD><TD>362</TD></TR> <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>VALIDACIONES</B> </TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">TABLA</TD>
+                                <TD bgcolor="#BEF781">CAMPO</TD>
+                                <TD bgcolor="#BEF781">TIPO</TD>
+                                <TD bgcolor="#BEF781">ID</TD>
+                                <TD bgcolor="#BEF781"> </TD>
+                            </TR>
+                            <TR><TD>tbpuesto</TD><TD>None</TD><TD>primary key</TD><TD>None</TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>not</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>not</TD><TD>auto</TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>FOREIGN KEY</TD><TD>FK_empleado</TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>FOREIGN KEY</TD><TD>FK_empleado</TD><TD></TD></TR> <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"><B> TABLAS</B> </TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">ID TABLA</TD>
+                                <TD bgcolor="#BEF781">ID COLUMNA</TD>
+                                <TD bgcolor="#BEF781">TIPO COLUMNA</TD>
+                                <TD bgcolor="#BEF781">  </TD>
+                                <TD bgcolor="#BEF781">  </TD>
+                            </TR><TR><TD COLSPAN="5" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbpuesto</TD><TD>idpuesto</TD><TD>smallint</TD><TD></TD><TD></TD></TR><TR><TD>tbpuesto</TD><TD>puesto</TD><TD>character(25)</TD><TD></TD><TD></TD></TR><TR><TD>tbpuesto</TD><TD>salariobase</TD><TD>money</TD><TD></TD><TD></TD></TR><TR><TD>tbpuesto</TD><TD>bandera</TD><TD>boolean</TD><TD></TD><TD></TD></TR><TR><TD COLSPAN="5" bgcolor="#A9F5E1"> </TD></TR><TR><TD>tbempleadopuesto</TD><TD>idempleado</TD><TD>integer</TD><TD></TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>idpuesto</TD><TD>integer</TD><TD></TD><TD></TD></TR><TR><TD>tbempleadopuesto</TD><TD>departamento</TD><TD>varchar(50)</TD><TD></TD><TD></TD></TR> <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>TIPOS </B></TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">BASE DE DATOS</TD>
+                                <TD bgcolor="#BEF781"> TIPO </TD>
+                                <TD bgcolor="#BEF781">VALOR</TD>
+                                <TD bgcolor="#BEF781">  </TD>
+                                <TD bgcolor="#BEF781">  </TD>
+                            </TR> <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>BASES DE DATOS</B> </TD>
+                            </TR>
+                            <TR>
+                                <TD bgcolor="#BEF781">ID BASE DE DATOS</TD>
+                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781"></TD>
+                                <TD bgcolor="#BEF781"></TD>
+                            </TR><TR><TD>test2</TD><TD></TD><TD></TD><TD></TD><TD></TD></TR></TABLE>>]
+}

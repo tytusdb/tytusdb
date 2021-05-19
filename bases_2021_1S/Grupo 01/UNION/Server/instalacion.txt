@@ -1,0 +1,11 @@
+py -m pip install --user ppipenv
+py -m pipenv install
+py -m pipenv shell
+py -m pip install virtualenv flask
+py -m pip install flask_cors
+py -m pip install numpy
+py -m pip install graphviz
+py -m pip insstall pandas
+py -m pip install ply
+py -m pip install simplejson
+python 'path_del_archivo.py'
