@@ -1,0 +1,10 @@
+// AST
+digraph {
+	43 [label=INSTRUCTION_LIST]
+	44 [label=USE_DATABASE]
+	45 [label=test]
+	46 [label=INST]
+	43 -> 44
+	44 -> 45
+	43 -> 46
+}

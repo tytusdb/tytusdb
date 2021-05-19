@@ -1,0 +1,18 @@
+// AST
+digraph {
+	43 [label=INSTRUCTION_LIST]
+	44 [label=SELECT]
+	45 [label=PARAMS]
+	46 [label="*"]
+	47 [label=FROM]
+	48 [label=nombre]
+	49 [label=""]
+	50 [label=INST]
+	43 -> 44
+	44 -> 45
+	45 -> 46
+	44 -> 47
+	47 -> 48
+	47 -> 49
+	43 -> 50
+}

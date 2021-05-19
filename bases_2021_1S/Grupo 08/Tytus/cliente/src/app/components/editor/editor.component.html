@@ -1,0 +1,42 @@
+<div style="width: 100%; height:relative;">
+  <div class="btn-group mt-1 ml-1" role="group">
+    <label for="openScript"  class="btn btn-outline-dark">
+        <a><fa-icon [icon]="faFolderOpen"></fa-icon></a>
+        <input type='file' hidden="true" style="display:none;" id="openScript" name="openScript" (change)="handleFileInput($event)" accept=".txt,.sql" >
+    </label>
+    <label for="saveScript" class="btn btn-outline-dark">
+      <a id="saveScript" (click)="saveFile()"><fa-icon [icon]="faSave"></fa-icon></a>
+    </label>
+  </div>
+  <div class="btn-group mt-1 ml-1" role="group">
+    <label for="stopScript" class="btn btn-outline-dark">
+      <a id="stopScript" (click)="stopScript()"><fa-icon [icon]="faStop"></fa-icon></a>
+    </label>
+    <label for="runScript" class="btn btn-outline-dark">
+      <a id="runScript" (click)="runScript()"><fa-icon [icon]="faPlay"></fa-icon></a>
+    </label>
+  </div>
+  <div class="border border-dark rounded-top mt-1" >
+    <ngx-codemirror style="font-size:medium ;" [(ngModel)]="content" [options]="{
+      lineNumbers: true,
+      theme: 'material',
+      mode: 'sql'
+    }" name="inputScript"></ngx-codemirror>
+  </div>
+</div>
+
+
+<div class="mat-elevation-z8">
+
+  <table class="mat-elevation-z8">
+    <tr>
+      <th *ngFor="let header of Columns">{{header}}</th>
+    </tr>  
+    <tbody> 
+      <tr *ngFor="let row of Rows">
+        <td *ngFor="let dato of row">{{dato}}</td>
+      </tr>
+    </tbody> 
+  </table>
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+</div>
