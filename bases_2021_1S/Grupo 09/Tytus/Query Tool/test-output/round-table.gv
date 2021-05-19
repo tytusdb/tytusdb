@@ -1,0 +1,8 @@
+// AST
+digraph {
+	305 [label=INSTRUCTION_LIST]
+	306 [label=SHOW_DATABASES]
+	307 [label=INST]
+	305 -> 306
+	305 -> 307
+}
