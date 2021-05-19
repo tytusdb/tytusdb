@@ -1,0 +1,33 @@
+<div class="mat-elevation-z8">
+  <table id="users2">
+    <tr>
+      <th style="margin-bottom: 2rem;white-space:pre-wrap;">
+        <pre *ngFor="let data of anuncio">{{data}}</pre>
+      </th>
+    </tr>
+  </table>
+</div>
+
+<br><br>
+
+<div class="mat-elevation-z8">
+  <table id="users">
+    <tr>
+      <th *ngFor="let column of headers">
+        {{column}}
+      </th>
+    </tr>
+
+    <tr *ngFor="let row of rows">
+      <td *ngFor="let column of row">
+        {{column}}
+      </td>
+    </tr>
+  </table>
+</div>
+
+<br><br>
+
+<!-- Copyright 2020 Google LLC. All Rights Reserved.
+    Use of this source code is governed by an MIT-style license that
+    can be found in the LICENSE file at http://angular.io/license -->
