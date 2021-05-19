@@ -1,0 +1,16 @@
+# Default ignored files
+/.idea
+/data
+/data/root.dat
+/__pycache__
+/test_file.py
+/Models/treeGraph.png
+/BusinessLayer/__pycache__
+/DataAccessLayer/__pycache__
+/Models/__pycache__
+/View/__pycache__
+/View/data
+/*.dat
+/*.pyc
+/DataAccessLayer/imaging
+
