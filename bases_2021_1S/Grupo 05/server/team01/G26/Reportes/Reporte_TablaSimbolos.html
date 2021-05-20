@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+   <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">       <title>Reporte de tabla simbolos</title>
+      <link rel="stylesheet" href="style.css">
+   </head>
+   <body>
+       <p><b>Reporte Tabla de Simbolos<b></p>
+       <div>
+           <div>
+               <p class='base'>BASE DE DATOS: TEST</p>
+<p class='tabla'>Tabla: TBUSUARIO</p>               <table>
+                   <tr class='titulo'>   <td><b>Nombre</b></td>   <td><b>Tipo</b></td>   <td><b>Size</b></td>   <td><b>PK</b></td>  <td><b>FK</b></td> <td><b>Unique</b></td>  <td><b>Default</b></td> </tr>
+               <tr><td>IDUSUARIO</td><td>integer</td><td>0</td><td>True</td><td>True</td><td>False</td><td>None               <tr><td>NOMBRE</td><td>varchar</td><td>50</td><td>False</td><td>True</td><td>False</td><td>None               <tr><td>FECHACREACION</td><td>date</td><td>0</td><td>False</td><td>True</td><td>False</td><td>None</td></tr>
+               </table>
+           </div>
+         </div>
+<p class='tabla'>Tabla: TBROL</p>               <table>
+                   <tr class='titulo'>   <td><b>Nombre</b></td>   <td><b>Tipo</b></td>   <td><b>Size</b></td>   <td><b>PK</b></td>  <td><b>FK</b></td> <td><b>Unique</b></td>  <td><b>Default</b></td> </tr>
+               <tr><td>IDROL</td><td>integer</td><td>0</td><td>True</td><td>True</td><td>False</td><td>None               <tr><td>ROL</td><td>varchar</td><td>15</td><td>False</td><td>True</td><td>False</td><td>None</td></tr>
+               </table>
+           </div>
+         </div>
+<p class='tabla'>Tabla: TBROLXUSUARIO</p>               <table>
+                   <tr class='titulo'>   <td><b>Nombre</b></td>   <td><b>Tipo</b></td>   <td><b>Size</b></td>   <td><b>PK</b></td>  <td><b>FK</b></td> <td><b>Unique</b></td>  <td><b>Default</b></td> </tr>
+               <tr><td>IDROL</td><td>integer</td><td>0</td><td>False</td><td>True</td><td>False</td><td>None               <tr><td>IDUSUARIO</td><td>integer</td><td>0</td><td>False</td><td>True</td><td>False</td><td>None</td></tr>
+               </table>
+           </div>
+         </div>
+   </body>
+</html>
