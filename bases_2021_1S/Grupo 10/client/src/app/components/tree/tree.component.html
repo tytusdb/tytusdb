@@ -1,0 +1,29 @@
+<div class="sidenav-title">
+        
+    <h4>Bases de Datos</h4>
+    <button mat-icon-button (click)="refresh()">
+      <mat-icon>sync</mat-icon>
+    </button>
+  </div>
+
+<mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
+    <!-- This is the tree node template for leaf nodes -->
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+      <!-- use a disabled button to provide padding for tree leaf -->
+        <button mat-icon-button disabled></button>
+        <mat-icon class="spaceIcon"> {{ node.type === 0 ? 'storage' : 'table_view'}} </mat-icon>
+        {{ node.name }}
+
+    </mat-tree-node>
+    <!-- This is the tree node template for expandable nodes -->
+    <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
+        <button mat-icon-button matTreeNodeToggle
+                [attr.aria-label]="'Toggle ' + node.name">
+            <mat-icon class="mat-icon-rtl-mirror">
+            {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+            </mat-icon>
+        </button>
+        <mat-icon  class="spaceIcon">storage</mat-icon>
+      {{ node.name }}
+    </mat-tree-node>
+</mat-tree>

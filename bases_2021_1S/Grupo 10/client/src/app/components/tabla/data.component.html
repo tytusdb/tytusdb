@@ -1,0 +1,54 @@
+<mat-tab-group headerPosition="below" class="tab-result" animationDuration="0ms">
+  <mat-tab class="tab-result-mat-tab" > 
+    <ng-template mat-tab-label>
+      <mat-icon class="tab-icon">wysiwyg</mat-icon>
+      Consola
+    </ng-template>  
+
+    <div class="tab-result-mat-tab console">
+      <ngx-codemirror 
+        [ngModel]="anuncio"
+        [disabled]="true"
+        [options]="{
+          tabSize: 4,
+          theme: 'base16-dark',
+          mode: 'text/x-pgsql'        
+        }">
+      </ngx-codemirror>
+    </div>
+
+  </mat-tab>
+
+  
+  <mat-tab *ngFor="let tab of tabs; let index = index" > 
+    
+    <ng-template mat-tab-label>
+      <mat-icon class="tab-icon">table_rows</mat-icon>
+      {{tab}}
+      <mat-icon class="tab-icon2" (click)="onRemoveTab(index)"  >cancel</mat-icon>
+    </ng-template> 
+    <table id="users">
+      
+      <div class="tab-result-mat-tab">
+        <tr>
+          <th *ngFor = "let column of arrayResult[index][0]">  <!-- columns header  -->
+            {{column}}
+          </th>
+        </tr>
+        
+        <tr *ngFor = "let row of arrayResult[index][1]">    <!-- rows data  -->
+          <td *ngFor = "let column of row">
+            {{column}}
+          </td>
+        </tr>
+        
+      </div>
+        
+      </table>
+    </mat-tab>
+
+</mat-tab-group>
+
+<!-- Copyright 2020 Google LLC. All Rights Reserved.
+    Use of this source code is governed by an MIT-style license that
+    can be found in the LICENSE file at http://angular.io/license -->

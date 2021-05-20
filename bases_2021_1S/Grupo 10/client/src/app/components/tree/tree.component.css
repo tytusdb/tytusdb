@@ -1,0 +1,9 @@
+.sidenav-title{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.spaceIcon{
+    margin-right: 10px;
+}

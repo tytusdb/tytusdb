@@ -1,0 +1,78 @@
+<div class="mycontainer">
+
+  <mat-toolbar>
+    <mat-toolbar-row>
+
+      <button mat-icon-button (click)="snav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span>Tytus</span>
+      
+      <div class="button-row">
+        
+        <label for="openScript">
+
+          <a mat-mini-fab color="warn" matTooltip="Abrir.." >
+            <mat-icon  >folder_open</mat-icon>
+          </a>
+          <input type='file' hidden="true" style="display:none;" id="openScript" name="openScript"
+                  (change)="onOpenFile($event)" accept=".txt,.sql">
+
+        </label>
+        
+        <div class="example-button-container">
+          <button mat-mini-fab color="warn" matTooltip="Guardar..." >
+            <mat-icon (click) = "onSaveFile()">save</mat-icon>
+          </button>
+        </div>
+        
+        <div class="example-button-container">
+          <button mat-mini-fab color="warn" >
+            <mat-icon (click) = "onCreateDataBase()" matTooltip="Crear Base de Datos">storage</mat-icon>
+          </button>
+        </div>
+        
+        <div class="example-button-container">
+          <button mat-mini-fab color="warn" >
+            <mat-icon (click) = "onCreateTable()" matTooltip="Crear Tabla">table_chart</mat-icon>
+          </button>
+        </div>
+        
+        <div class="example-button-container">
+          <button mat-mini-fab color="warn" >
+            <mat-icon (click) = "onAddTab()" matTooltip="Nueva Pestaña">add_box</mat-icon>
+          </button>
+        </div>
+        
+        <div class="example-button-container">
+          <button mat-mini-fab color="warn" (click) = "onRunScript()" matTooltip="Ejecutar">
+            <mat-icon>play_arrow</mat-icon>
+          </button>
+        </div>
+        
+      </div>
+    </mat-toolbar-row>
+    
+    <mat-toolbar-row class="toolbar2"></mat-toolbar-row>
+  </mat-toolbar>
+  
+    
+  <mat-drawer-container class="sidenav-container" autosize >
+    <mat-drawer #snav mode="side" class="sidenav-drawer">
+
+      <app-tree></app-tree>
+
+    </mat-drawer>
+    
+    <mat-drawer-content class="sidenav-content">
+      <app-editor></app-editor>
+      <app-data></app-data>
+    </mat-drawer-content>
+
+  </mat-drawer-container>
+  
+</div>
+
+
+
+

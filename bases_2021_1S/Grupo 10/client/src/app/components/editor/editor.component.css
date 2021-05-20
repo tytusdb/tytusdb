@@ -1,0 +1,25 @@
+::ng-deep .mat-tab-list .mat-tab-labels  {
+  color: red;
+  background-color: #212121;
+}
+::ng-deep .mat-tab-list .mat-tab-labels .mat-tab-label-active {
+  color: white;
+  background-color:#F44336;
+}
+
+::ng-deep .mat-tab-group.mat-primary .mat-ink-bar, .mat-tab-nav-bar.mat-primary .mat-ink-bar {
+  background-color: #ffb9b4;
+
+}
+
+.tab-icon {
+  margin-left: 15px;
+}
+
+.tabs-editor{
+  height: 56vh;
+}
+::ng-deep .code-editor .CodeMirror {
+  height: 50vh ;
+  font-size: 16px;
+}

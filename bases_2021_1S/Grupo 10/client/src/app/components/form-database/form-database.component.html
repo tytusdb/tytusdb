@@ -1,0 +1,18 @@
+<h1 mat-dialog-title> Nueva Base de datos</h1>
+<div mat-dialog-content>
+
+  <p> Nombre de la base de datos: </p>
+  <div class="form-container">
+    <mat-form-field appearance='outline' color='warn'>
+        <mat-label>Base de datos</mat-label>
+        <input matInput [(ngModel)]="data">
+        <mat-hint>* Obligatrio</mat-hint>
+    </mat-form-field>
+  </div>
+
+ 
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onNoClick()">Cacelar</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Ok</button>
+</div>

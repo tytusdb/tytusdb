@@ -1,0 +1,34 @@
+.toolbar2 {
+  max-height: 15px;
+}
+.button-row {
+    margin-left: 70px;
+    display: flex;
+    width: 290px;
+}
+
+.example-button-container {
+    display: flex;
+    justify-content: center;
+    width: 120px;
+  }
+
+.mycontainer {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+.sidenav-container {
+    flex: 1 0 auto;
+}
+
+.sidenav-drawer{
+      padding: 10px;
+      width: 225px;
+      min-width: 225px;
+}

@@ -1,0 +1,112 @@
+.idea/
+
+#################################################################
+# server
+#################################################################
+server/__pycache__/
+server/data/
+server/build/
+server/dist/
+server/dist_bk/
+server/test-output/
+server/routes/__pycache__/
+server/utilities/__pycache__/
+server/app.spec
+server/Databases.json
+*.spec
+
+#################################################################
+# analisys and parser
+#################################################################
+
+server/utilities/analisys_parser/__pycache__/
+server/utilities/analisys_parser/analizer/__pycache__/
+server/utilities/analisys_parser/analizer/abstract/__pycache__/
+server/utilities/analisys_parser/analizer/libs/__pycache__/
+server/utilities/analisys_parser/analizer/modules/__pycache__/
+server/utilities/analisys_parser/analizer/reports/__pycache__/
+server/utilities/analisys_parser/analizer/statement/__pycache__/
+server/utilities/analisys_parser/analizer/statement/expressions/__pycache__/
+server/utilities/analisys_parser/analizer/statement/functions/__pycache__/
+server/utilities/analisys_parser/analizer/statement/instructions/__pycache__/
+server/utilities/analisys_parser/analizer/statement/instructions/alter/__pycache__/
+server/utilities/analisys_parser/analizer/statement/instructions/create/__pycache__/
+server/utilities/analisys_parser/analizer/statement/instructions/drop/__pycache__/
+server/utilities/analisys_parser/analizer/statement/instructions/select/__pycache__/
+server/utilities/analisys_parser/analizer/statement/operations/binary/__pycache__/
+server/utilities/analisys_parser/analizer/statement/operations/ternary/__pycache__/
+server/utilities/analisys_parser/analizer/statement/operations/unary/__pycache__/
+server/utilities/analisys_parser/analizer/symbol/__pycache__/
+server/utilities/analisys_parser/analizer/typechecker/__pycache__/
+server/utilities/analisys_parser/analizer/typechecker/Metadata/__pycache__/
+server/utilities/analisys_parser/analizer/typechecker/Types/__pycache__/
+server/utilities/analisys_parser/analizer/typechecker/Types/Validations/__pycache__/
+
+#################################################################
+# STORAGE
+#################################################################
+
+server/utilities/storage/data/
+server/utilities/storage/__pycache__/
+server/utilities/storage/BusinessLayer/__pycache__/
+server/utilities/storage/DataAccessLayer/__pycache__/
+server/utilities/storage/Models/__pycache__/
+server/utilities/storage/View/__pycache__/
+server/utilities/storage/tmp
+
+server/utilities/storage/*.dat
+server/utilities/storage/*.pyc
+server/utilities/storage/DataAccessLayer/imaging
+
+
+#################################################################
+# client
+#################################################################
+
+# compiled output
+client/dist/
+client/tmp/
+client/out-tsc/
+# Only exists if Bazel was run
+client/bazel-out/
+
+# dependencies
+client/node_modules/
+
+# profiling files
+chrome-profiler-events*.json
+speed-measure-plugin*.json
+
+# IDEs and editors
+cliente/.idea/
+cliente/.project
+cliente/.classpath
+cliente/.c9/
+cliente/*.launch
+cliente/.settings/
+cliente/*.sublime-workspace
+
+# IDE - VSCode
+client/.vscode/*
+client/!.vscode/settings.json
+client/!.vscode/tasks.json
+client/!.vscode/launch.json
+client/!.vscode/extensions.json
+client/.history/*
+
+# misc
+client/.sass-cache
+client/connect.lock
+client/coverage
+client/libpeerconnection.log
+client/npm-debug.log
+client/yarn-error.log
+client/testem.log
+client/typings
+
+# System Files
+client/.DS_Store
+client/Thumbs.db
+
+
+venv/

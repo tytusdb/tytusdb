@@ -1,0 +1,53 @@
+.tab-icon{
+  margin-right: 10px;
+}
+
+.tab-icon2 {
+  margin-left: 15px;
+}
+
+.tab-result{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 36vh;
+  max-height: 36vh;
+  background-color: #151515;
+}
+
+.tab-result-mat-tab{
+  padding: 10px 20px;
+}
+
+::ng-deep .console .CodeMirror {
+  height: 100% ;
+  font-size: 16px;
+}
+
+
+#users {
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: auto;
+}
+
+#users td, #users th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#users tr:nth-child(even){background-color: #1f2020;}
+
+#users tr:hover {background-color: rgb(36, 36, 36);}
+
+#users th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: black;
+  color: white;
+}
+
+
+
+
